@@ -26,6 +26,15 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
+     * Returns the team's total votes.
+     *
+     * @return the team's total votes.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getTeamVotes();
+
+    /**
      * Returns the number of robots on your team, including Centers of Enlightenment.
      * If this number ever reaches zero, you immediately lose.
      *
@@ -36,18 +45,15 @@ public strictfp interface RobotController {
     int getRobotCount();
 
     /**
-     * Returns the number of Archons on your team.
-     * If this number ever reaches zero, you immediately lose.
+     * Returns the factor from buffs due to exposed enemy slanderers.
      *
-     * @return the number of Archons on your team
+     * @param team the team to query
+     * @param roundsInFuture number of rounds into the future, 0 for current buff
+     * @return the specified team's buff factor.
      *
      * @battlecode.doc.costlymethod
      */
-    int getArchonCount();
-
-    // TODO: getNetWorth()
-    //       is this desired??
-
+    double getEmpowerFactor(Team team, int roundsInFuture);
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -72,7 +78,7 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (MINER, ARCHON, BUILDER, etc.).
+     * Returns this robot's type (MUCKRAKER, POLITICIAN, SLANDERER, etc.).
      *
      * @return this robot's type.
      *
@@ -90,22 +96,22 @@ public strictfp interface RobotController {
     MapLocation getLocation();
 
     /**
-     * Returns this robot's current health.
+     * Returns this robot's current influence.
      *
-     * @return this robot's current health.
+     * @return this robot's current influence.
      *
      * @battlecode.doc.costlymethod
      */
-    int getHealth();
+    int getInfluence();
 
     /**
-     * Returns this robot's current level.
+     * Returns this robot's current conviction.
      *
-     * @return this robot's current level.
+     * @return this robot's current conviction.
      *
      * @battlecode.doc.costlymethod
      */
-    int getUpgradeLevel();
+    int getConviction();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -270,6 +276,47 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
 
     /**
+     * Returns locations of all robots within detection radius. The objects are
+     * returned in no particular order.
+     *
+     * @return array of MapLocation objects, which are the locations of all the
+     * robots you detected.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] detectNearbyRobots();
+
+    /**
+     * Returns locations of all robots that can be detected within a certain
+     * distance of this robot. The objects are returned in no particular order.
+     *
+     * @param radiusSquared return robots this distance away from the center of
+     * this robot. If -1 is passed, all robots within detection radius are returned.
+     * if radiusSquared is larger than the robot's detection radius, the detection
+     * radius is used.
+     * @return array of MapLocation objects of all the robots you detected.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] detectNearbyRobots(int radiusSquared);
+
+    /**
+     * Returns all robots of a given team that can be detected within a certain
+     * radius of a specified location. The objects are returned in no particular
+     * order.
+     *
+     * @param center center of the given search radius
+     * @param radiusSquared return robots this distance away from the center of
+     * this robot. If -1 is passed, all robots within detection radius are returned.
+     * if radiusSquared is larger than the robot's detection radius, the detection
+     * radius is used.
+     * @return array of MapLocation objects of all the robots you detected.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] detectNearbyRobots(MapLocation center, int radiusSquared);
+
+    /**
      * Given a location, returns the passability of that location.
      *
      * Lower passability means that robots on this location may be penalized
@@ -282,28 +329,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     double sensePassability(MapLocation loc) throws GameActionException;
-    
-    /**
-     * Given a location, returns the lead count of that location.
-     * 
-     * @param loc the given location
-     * @return the amount of lead at that location.
-     * @throws GameActionException if the robot cannot sense the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    double senseLead(MapLocation loc) throws GameActionException;
-    
-    /**
-     * Given a location, returns the gold count of that location.
-     * 
-     * @param loc the given location
-     * @return the amount of gold at that location.
-     * @throws GameActionException if the robot cannot sense the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    double senseGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -314,8 +339,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     MapLocation adjacentLocation(Direction dir);
-
-
 
     // ***********************************
     // ****** READINESS METHODS **********
@@ -386,150 +409,134 @@ public strictfp interface RobotController {
      *
      * @param type the type of robot to build
      * @param dir the direction to build in
+     * @param influence the amount of influence to spend
      * @return whether it is possible to build a robot of the given type in the
      * given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canBuildRobot(RobotType type, Direction dir);
+    boolean canBuildRobot(RobotType type, Direction dir, int influence);
 
     /**
      * Builds a robot of the given type in the given direction.
      *
      * @param type the type of robot to build
      * @param dir the direction to spawn the unit
+     * @param influence the amount of influence to be used to build
      * @throws GameActionException if the conditions of <code>canBuildRobot</code>
      * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
-    void buildRobot(RobotType type, Direction dir) throws GameActionException;
+    void buildRobot(RobotType type, Direction dir, int influence) throws GameActionException;
 
-    // *****************************
-    // **** COMBAT UNIT METHODS **** 
-    // *****************************
+    // ***********************************
+    // ****** POLITICIAN METHODS ********* 
+    // ***********************************
 
     /**
-     * Tests whether this robot can attack the given location.
+     * Tests whether the robot can empower.
+     * Checks that the robot is a politician, if there are no cooldown turns
+     * remaining, and that the specified radiusSquared is valid.
      * 
-     * Checks that the robot is an attacking type unit and that the given location
-     * is within the robot's reach (based on attack type). Also checks that an 
-     * enemy unit exists in the given square. 
-     *
-     * @param loc target location to attack 
-     * @return whether it is possible to attack the given location.
+     * @param radiusSquared the empower range
+     * @return whether the robot can empower with the given range
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canAttack(MapLocation loc);
+    boolean canEmpower(int radiusSquared);
 
-    /** 
-     * Attack a given location.
+    /**
+     * Runs the "empower" ability of a politician.
      *
-     * @throws GameActionException if conditions for attacking are not satisfied
-     * @battlecode.doc.costlymethod 
+     * Friendly units will have conviction increased, and unfriendly units will
+     * have conviction decreased. Enemy politicians and buildings with negative conviction
+     * will join your team.
+     *
+     * This also causes the politician unit to self-destruct on this turn.
+     *
+     * @throws GameActionException if conditions for empowering are not all satisfied
+     * @battlecode.doc.costlymethod
      */
-    void attack(MapLocation loc) throws GameActionException;
+    void empower(int radiusSquared) throws GameActionException;
  
-    // ***********************
-    // **** MINER METHODS **** 
-    // ***********************
+    // ***********************************
+    // ****** MUCKRAKER METHODS ********** 
+    // ***********************************
 
     /**
-     * Tests whether the robot can mine lead at a given location.
-     * 
-     * Checks that the robot is a Miner, that the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * contain at least one lead. 
+     * Tests whether the robot can expose at a given location.
+     * Checks that the robot is a muckraker, that the location is within action
+     * radius of the muckraker, that there are no cooldown turns remaining, and
+     * that an enemy slanderer is present on the location.
      *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location.
+     * @param loc the location being exposed
+     * @return whether it is possible to expose on that round at that location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineLead(MapLocation loc);
-
-    /** 
-     * Mine lead at a given location.
-     *
-     * @throws GameActionException if conditions for mining are not satisfied
-     * @battlecode.doc.costlymethod 
-     */
-    void mineLead(MapLocation loc) throws GameActionException;
+    boolean canExpose(MapLocation loc);
 
     /**
-     * Tests whether the robot can mine gold at a given location.
-     * 
-     * Checks that the robot is a Miner, that the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * contain at least one gold. 
+     * Tests whether the robot can expose a given robot ID.
+     * Checks that the robot is a muckraker, that the target robot is within
+     * action radius of the muckraker, that the target robot is an enemy
+     * slanderer, and that there are no cooldown turns remaining.
      *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location.
+     * @param id the robot ID being exposed
+     * @return whether it is possible to expose that robot on that round
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineGold(MapLocation loc);
-
-    /** 
-     * Mine a gold at given location.
-     *
-     * @throws GameActionException if conditions for mining are not satisfied
-     * @battlecode.doc.costlymethod 
-     */
-    void mineGold(MapLocation loc) throws GameActionException;
-
-    // *************************
-    // **** BUILDER METHODS **** 
-    // *************************
+    boolean canExpose(int id);
 
     /**
-     * Tests whether this robot can upgrade the building at the given location.
-     * 
-     * Checks that the robot is a Builder, that the given location is a valid 
-     * upgrade location. Valid upgrade locations must be adjacent to the current 
-     * location and contain an upgradable building. The upgrade must also be affordable.
+     * Exposes a slanderer at a given location.
+     * The slanderer will be destroyed, and all attempts to empower by friendly
+     * Politicians will be temporarily buffed by a multiplicative factor.
      *
-     * @param loc target location to upgrade 
-     * @return whether it is possible to upgrade at the given location.
+     * @throws GameActionException if conditions for exposing are not all satisfied 
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canUpgrade(MapLocation loc);
-
-    /** 
-     * Upgrade a building at a given location.
-     *
-     * @throws GameActionException if conditions for upgrading are not satisfied
-     * @battlecode.doc.costlymethod 
-     */
-    void upgrade(MapLocation loc) throws GameActionException;
-
-    // *******************************
-    // **** ALCHEMIST LAB METHODS **** 
-    // *******************************
+    void expose(MapLocation loc) throws GameActionException;
 
     /**
-     * Tests whether this robot can convert lead into gold.
-     * 
-     * Checks that the robot is a lab and the player has sufficient lead to
-     * perform a conversion. 
+     * Exposes a slanderer with given id.
+     * The slanderer will be destroyed, and all attempts to empower by friendly
+     * Politicians will be temporarily buffed by a multiplicative factor.
      *
-     * @return whether it is possible to convert lead into gold
+     * @throws GameActionException if conditions for exposing are not all satisfied 
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canConvert();
+    void expose(int id) throws GameActionException;
+
+
+    // **************************************
+    // **** ENLIGHTENMENT CENTER METHODS **** 
+    // **************************************
+
+    /**
+     * Tests whether the robot can bid the specified amount of influence on that round.
+     * 
+     * Checks that the robot is an Enlightenment Center, that the robot has at least
+     * that amount of influence, and that the amount of influence is non-negative.
+     *
+     * @param influence the amount of influence being bid 
+     * @return whether it is possible to bid that amount of influence.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBid(int influence);
 
     /** 
-     * Convert lead into gold.
+     * Enter an influence bid for the vote on that turn.
      *
-     * @throws GameActionException if conditions for converting are not satisfied
+     * @throws GameActionException if conditions for bidding are not satisfied
      * @battlecode.doc.costlymethod 
      */
-    void convert() throws GameActionException;
+    void bid(int influence) throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
