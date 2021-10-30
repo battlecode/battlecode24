@@ -54,8 +54,6 @@ table SpawnedBodyTable {
     types: [BodyType];
     /// The locations of the bodies.
     locs: VecTable;
-    /// the level of the body
-    level: [int];
 }
 
 /// The map a round is played on.
@@ -89,10 +87,10 @@ enum Action : byte {
     BUILD, // builder
     CONVERT_GOLD, // for alchemist laboratory.
     ATTACKED, // when a body is attacked
-    TRANSFORM_PORTABLE,
-    TRANSFORM_TURRET,
+    TRANSFORM, //Swaps a building from portable to turret or frorm turret to portable depending on current state
     UPGRADE, // builder upgrades building,
-    REPAIR // builder repairs building
+    REPAIR, // builder repairs building
+    CHANGE_HP
 }
 
 // Metadata
@@ -243,6 +241,11 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have any value
     actionTargets: [int];
 
+    /// The IDs of the robots who changed their indicator strings
+    indicationStringIDs: [int];
+    /// The messages of the robots who changed their indicator strings
+    indicationStrings: [string];
+
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
     /// The location of the indicator dots
@@ -259,25 +262,7 @@ table Round {
     /// The RGB values of the indicator lines
     indicatorLineRGBs: RGBTable;
 
-    /// All logs sent this round.
-    /// Messages from a particular robot in this round start on a new line, and
-    /// have a header:
-    /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
-    /// $TEAM = 'A' | 'B'
-    /// $ROBOTTYPE = 'ENLIGHTENMENT_CENTER' | 'POLITICIAN' | 'SLANDERER' | 'MUCKRAKER'
-    /// $ID = a number
-    /// $ROUND = a number
-    /// The header is not necessarily followed by a newline.
-    /// This header should only be sent once per robot per round (although
-    /// players may forge it, so don't crash if you get strange input.)
-    ///
-    /// You should try to only read this value once, and cache it. Reading
-    /// strings from a flatbuffer is much less efficient than reading other
-    /// buffers, because they need to be copied into an environment-provided
-    /// buffer and validated.
-    ///
-    /// (haha i guess you can never really escape string parsing can you)
-    logs: string; // TODO: maybe split into more arrays
+    //logs have been replaced with indicator strings
 
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)
