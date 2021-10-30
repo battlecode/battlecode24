@@ -54,10 +54,8 @@ table SpawnedBodyTable {
     types: [BodyType];
     /// The locations of the bodies.
     locs: VecTable;
-    /// the amount of influence paid to create these bodies
-    /// for initial Enlightenment Centers, this is the amount of influence
-    /// needed to take over
-    influences: [int];
+    /// the level of the body
+    level: [int];
 }
 
 /// The map a round is played on.
@@ -89,7 +87,12 @@ enum Action : byte {
     UPGRADE, //buldings
     MINE, // miner
     BUILD, // builder
-    CONVERT_GOLD, // for alchemist laboratory
+    CONVERT_GOLD, // for alchemist laboratory.
+    ATTACKED, // when a body is attacked
+    TRANSFORM_PORTABLE,
+    TRANSFORM_TURRET,
+    UPGRADE, // builder upgrades building,
+    REPAIR // builder repairs building
 }
 
 // Metadata
@@ -103,9 +106,10 @@ table BodyTypeMetadata {
     visionRadiusSquared: int;
     moveCooldown: float;
     bytecodeLimit: int;
-    level: int;
     dps: int;
     hp: int;
+    dps_mul: float; // dps multiplier for level
+    hp_mul: float; // hp multiplier per level
 }
 
 /// Data relevant to a particular team.
@@ -216,6 +220,9 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
+
+    teamLead: [int];
+    teamGold: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];
