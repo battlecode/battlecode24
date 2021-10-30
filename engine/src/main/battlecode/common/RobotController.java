@@ -144,37 +144,6 @@ public strictfp interface RobotController {
     boolean canSenseRadiusSquared(int radiusSquared);
 
     /**
-     * Checks whether the given location is within the robot's detection range, and if it is on the map.
-     *
-     * @param loc the location to check
-     * @return true if the given location is within the robot's detection range and is on the map; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canDetectLocation(MapLocation loc);
-
-    /**
-     * Checks whether a point at the given radius squared is within the robot's detection range.
-     *
-     * @param radiusSquared the radius to check
-     * @return true if the given radius is within the robot's detection range; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canDetectRadiusSquared(int radiusSquared);
-
-    /**
-     * Detects whether there is a robot at the given location.
-     *
-     * @param loc the location to check
-     * @return true if there is a robot at the given location; false otherwise.
-     * @throws GameActionException if the location is not within detection range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isLocationOccupied(MapLocation loc) throws GameActionException;
-
-    /**
      * Senses the robot at the given location, or null if there is no robot
      * there.
      *
@@ -381,7 +350,7 @@ public strictfp interface RobotController {
      * given direction. Checks that the robot is of a type that can build,
      * that the robot can build the desired type, that the target location is
      * on the map, that the target location is not occupied, that the robot has
-     * the amount of influence it's trying to spend, and that there are no
+     * the amount of lead/gold it's trying to spend, and that there are no
      * cooldown turns remaining.
      *
      * @param type the type of robot to build
