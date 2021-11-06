@@ -82,7 +82,7 @@ enum Action : byte {
     ATTACK, // combat unit types
     DAZZLE, // wizard
     SPAWN_UNIT, //archon
-    UPGRADE, //buldings
+    UPGRADE, //buildings
     MINE, // miner
     BUILD, // builder
     CONVERT_GOLD, // for alchemist laboratory.
@@ -90,7 +90,8 @@ enum Action : byte {
     TRANSFORM, //Swaps a building from portable to turret or frorm turret to portable depending on current state
     UPGRADE, // builder upgrades building,
     REPAIR, // builder repairs building
-    CHANGE_HP
+    CHANGE_HP,
+    REPAIRED // prototype becomes a turret
 }
 
 // Metadata
@@ -102,10 +103,10 @@ table BodyTypeMetadata {
     actionCooldown: float;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
-    moveCooldown: float;
+    movingCooldown: float;
     bytecodeLimit: int;
-    dps: int;
-    hp: int;
+    dps: int; // dps at lowest level
+    hp: int; // hp at lowest level
     dps_mul: float; // dps multiplier for level
     hp_mul: float; // hp multiplier per level
 }
