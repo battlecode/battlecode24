@@ -70,6 +70,13 @@ table GameMap {
     randomSeed: int;
     /// The factor to divide cooldowns by
     passability: [double];
+
+    //lead locations
+    
+    // a vectable of lead cords
+    lead_locations: VecTable;
+    //inital lead amounts
+    initial_lead: [double];
 }
 
 /// Actions that can be performed.
