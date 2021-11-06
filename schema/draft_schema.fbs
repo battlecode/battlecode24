@@ -72,7 +72,7 @@ table GameMap {
     passability: [double];
 
     //lead locations
-    
+
     // a vectable of lead cords
     lead_locations: VecTable;
     //inital lead amounts
@@ -116,6 +116,7 @@ table BodyTypeMetadata {
     hp: int; // hp at lowest level
     dps_mul: float; // dps multiplier for level
     hp_mul: float; // hp multiplier per level
+    upgrade_costs: [int];
 }
 
 /// Data relevant to a particular team.
@@ -185,6 +186,14 @@ union Event {
     GameFooter
 }
 
+table Constants{
+    //amounts of resources added to each block per round
+    leadAdditiveIncease: double;
+    goldAdditiveIncease: double;
+    increase_period: int;
+}
+
+
 /// The first event sent in the game. Contains all metadata about the game.
 table GameHeader {
     /// The version of the spec this game complies with.
@@ -193,7 +202,13 @@ table GameHeader {
     teams: [TeamData];
     /// Information about all body types in the game.
     bodyTypeMetadata: [BodyTypeMetadata];
+    
+    //game constants
+    constants: Constants;
 }
+
+
+
 
 /// The final event sent in the game.
 table GameFooter {
