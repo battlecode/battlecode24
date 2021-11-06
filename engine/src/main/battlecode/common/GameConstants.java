@@ -49,41 +49,6 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** The amount of conviction taxed when a Politician empowers. */
-    public static final int EMPOWER_TAX = 10;
-
-    /** The buff factor from exposing Slanderers. */
-    public static final double EXPOSE_BUFF_FACTOR = 0.001;
-    
-    /** The number of rounds a buff is applied. */
-    public static final int EXPOSE_BUFF_NUM_ROUNDS = 50;
-
-    /** The number of rounds Slanderers generate influence. */
-    public static final int EMBEZZLE_NUM_ROUNDS = 50;
-
-    /** The scale factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_SCALE_FACTOR = 0.03f;
-
-    /** The exponential decay factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_DECAY_FACTOR = 0.001f;
-
-    /** The number of rounds before Slanderers turns into Politicians. */
-    public static final int CAMOUFLAGE_NUM_ROUNDS = 300;
-
-    /** The initial amount of influence for each player-owned Enlightenment Center. */
-    public static final int INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE = 150;
-
-    /** The passive influence ratio for Enlightenment Centers. To multiply by sqrt(roundNum). */
-    public static final float PASSIVE_INFLUENCE_RATIO_ENLIGHTENMENT_CENTER = 0.2f;
-
-    /** Maximum allowable robot influence. */
-    public static final int ROBOT_INFLUENCE_LIMIT = 100000000;
-
-    /** The minimum allowable flag value. */
-    public static final int MIN_FLAG_VALUE = 0;
-
-    /** The maximum allowable flag value. */
-    public static final int MAX_FLAG_VALUE = 16777215;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
