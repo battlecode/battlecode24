@@ -98,7 +98,7 @@ enum Action : byte {
     UPGRADE, // builder upgrades building,
     REPAIR, // builder repairs building
     CHANGE_HP,
-    REPAIRED // prototype becomes a turret
+    FULLY_REPAIRED // prototype becomes a turret
 }
 
 // Metadata
