@@ -14,28 +14,16 @@ export type DeadBodiesSchema = {
   y: Int32Array,
 }
 
-export type EmpowerSchema = {
-  id: Int32Array,
-  x: Int32Array,
-  y: Int32Array
-  team: Int8Array,
-  radius: Int32Array
-}
-
 export type BodiesSchema = {
   id: Int32Array,
   team: Int8Array,
   type: Int8Array,
   x: Int32Array,
   y: Int32Array,
-  influence: Int32Array;
-  conviction: Int32Array;
   flag: Int32Array;
   bytecodesUsed: Int32Array, // TODO: is this needed?
   ability: Int8Array,
-  bid: Int32Array,
-  parent: Int32Array,
-  income: Int32Array
+  parent: Int32Array
 };
 
 // NOTE: consider changing MapStats to schema to use SOA for better performance, if it has large data
