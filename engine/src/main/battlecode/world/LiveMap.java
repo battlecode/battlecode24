@@ -48,7 +48,7 @@ public strictfp class LiveMap {
      */
     private final RobotInfo[] initialBodies; // only contains Enlightenment Centers
 
-    private double[] passabilityArray; // factor to multiply cooldowns by
+    private int[] cooldownMultiplierArray; // factor to multiply cooldowns by
 
     public LiveMap(int width,
                    int height,
@@ -64,9 +64,9 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.passabilityArray = new double[width * height];
-        for (int i = 0; i < passabilityArray.length; i++) {
-            this.passabilityArray[i] = 1; // default cooldown factor is 1
+        this.cooldownMultiplierArray = new int[width * height];
+        for (int i = 0; i < cooldownMultiplierArray.length; i++) {
+            this.cooldownMultiplierArray[i] = 1; // default cooldown factor is 1
         }
 
         // invariant: bodies is sorted by id
@@ -80,7 +80,7 @@ public strictfp class LiveMap {
                    int rounds,
                    String mapName,
                    RobotInfo[] initialBodies,
-                   double[] passabilityArray) {
+                   int[] cooldownMultiplierArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -88,9 +88,9 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.passabilityArray = new double[passabilityArray.length];
-        for (int i = 0; i < passabilityArray.length; i++) {
-            this.passabilityArray[i] = passabilityArray[i];
+        this.cooldownMultiplierArray = new int[cooldownMultiplierArray.length];
+        for (int i = 0; i < cooldownMultiplierArray.length; i++) {
+            this.cooldownMultiplierArray[i] = cooldownMultiplierArray[i];
         }
 
         // invariant: bodies is sorted by id
@@ -104,7 +104,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.initialBodies,
-             gm.passabilityArray);
+             gm.cooldownMultiplierArray);
     }
 
     @Override
@@ -127,7 +127,7 @@ public strictfp class LiveMap {
         if (this.seed != other.seed) return false;
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
-        if (!Arrays.equals(this.passabilityArray, other.passabilityArray)) return false;
+        if (!Arrays.equals(this.cooldownMultiplierArray, other.cooldownMultiplierArray)) return false;
         return Arrays.equals(this.initialBodies, other.initialBodies);
     }
 
@@ -139,7 +139,7 @@ public strictfp class LiveMap {
         result = 31 * result + seed;
         result = 31 * result + rounds;
         result = 31 * result + mapName.hashCode();
-        result = 31 * result + Arrays.hashCode(passabilityArray);
+        result = 31 * result + Arrays.hashCode(cooldownMultiplierArray);
         result = 31 * result + Arrays.hashCode(initialBodies);
         return result;
     }
@@ -246,13 +246,13 @@ public strictfp class LiveMap {
         return origin;
     }
 
-    public double[] getPassabilityArray() {
-        return passabilityArray;
+    public double[] getCooldownMultiplierArray() {
+        return cooldownMultiplierArray;
     }
 
     @Override
     public String toString() {
-        if (passabilityArray.length == 0)
+        if (cooldownMultiplierArray.length == 0)
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
@@ -261,7 +261,7 @@ public strictfp class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
-                    ", len=" + Integer.toString(passabilityArray.length) +
+                    ", len=" + Integer.toString(cooldownMultiplierArray.length) +
                     "}";
         else return "LiveMap{" +
                     "width=" + width +
@@ -271,7 +271,7 @@ public strictfp class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
-                    ", passabilityArray=:)" +  Arrays.toString(passabilityArray) +
+                    ", cooldownMultiplierArray=:)" +  Arrays.toString(cooldownMultiplierArray) +
                     "}"; 
     }
 }
