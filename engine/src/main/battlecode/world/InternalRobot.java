@@ -26,8 +26,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private RobotType type;
     private MapLocation location;
     private int influence;
-    private int conviction;
-    private int convictionCap;
     private int flag;
     private int bid;
 
