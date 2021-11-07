@@ -43,12 +43,19 @@ public class GameConstants {
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
- 
+
+    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    public static final int COOLDOWN_LIMIT = 10;
+
+    /** The number of cooldown turns reduced per turn. */
+    public static final int COOLDOWNS_PER_TURN = 10;
 
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
 
+    /** A prototype building's starting health, as a multiplier of max health. */
+    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
