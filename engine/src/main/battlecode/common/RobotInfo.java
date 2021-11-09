@@ -79,7 +79,7 @@ public class RobotInfo {
      *
      * @return the level of this robot.
      */
-    public RobotType getLevel() {
+    public int getLevel() {
         return level;
     }
 

@@ -1,6 +1,9 @@
 package battlecode.world;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import battlecode.common.*;
 import battlecode.schema.Action;
 
@@ -19,6 +22,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
         public final boolean canAct;
         public final boolean canMove;
+
+        RobotMode(boolean canAct, boolean canMove) {
+            this.canAct     = canAct;
+            this.canMove    = canMove;
+        }
     }
 
     private final RobotControllerImpl controller;
@@ -54,15 +62,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param team the team of the robot
      */
     @SuppressWarnings("unchecked")
-    public InternalRobot(GameWorld gw, InternalRobot parent, int id, RobotType type, MapLocation loc, Team team) {
-        this.parent = parent;
+    public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
         this.ID = id;
         this.team = team;
         this.type = type;
         this.location = loc;
         this.level = 1;
-        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE, RobotMode.ROBOT;
-        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.maxHealth);
+        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.ROBOT;
+        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -88,10 +95,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public GameWorld getGameWorld() {
         return gameWorld;
-    }
-
-    public InternalRobot getParent() {
-        return parent;
     }
 
     public int getID() {
@@ -369,6 +372,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             validTargets.add(x);
         }
 
+        MapLocation attackerLocation = this.location;
+
         class RicochetPriority implements Comparator<InternalRobot> {
             public int compare(InternalRobot a, InternalRobot b)
             {
@@ -376,8 +381,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 int bDistToTarget = bot.location.distanceSquaredTo(b.location);
                 if (aDistToTarget != bDistToTarget)
                     return aDistToTarget - bDistToTarget;
-                int aDistToAttacker = this.location.distanceSquaredTo(a.location);
-                int bDistToAttacker = this.location.distanceSquaredTo(b.location);
+                int aDistToAttacker = attackerLocation.distanceSquaredTo(a.location);
+                int bDistToAttacker = attackerLocation.distanceSquaredTo(b.location);
                 if (aDistToAttacker != bDistToAttacker)
                     return aDistToAttacker - bDistToAttacker;
                 return a.compareTo(b);
