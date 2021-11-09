@@ -70,7 +70,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
         this.roundsAlive = 0;
         this.cooldownTurns = 0;
+        this.addCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
+        this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -171,6 +173,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canMoveCooldown() {
         return this.mode.canMove && this.movementCooldownTurns < GameConstants.COOLDOWN_LIMIT;
+    }
+
+    /**
+     * Returns whether the robot can transform, based on mode and cooldowns.
+     */
+    public boolean canTransformCooldown() {
+        if (this.mode == RobotMode.TURRET)
+            return this.cooldownTurns < GameConstants.COOLDOWN_LIMIT;
+        if (this.mode == RobotMode.PORTABLE)
+            return this.movementCooldownTurns < GameConstants.COOLDOWN_LIMIT;
+        return false;
     }
 
     /**
@@ -281,23 +294,101 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         int oldHealth = this.health;
         this.health += healthAmount;
-        if (this.health > this.type.maxHealth)
-            this.health = this.type.maxHealth;
-        if (this.health <= 0)
+        int maxHealth = this.type.getMaxHealth(this.level);
+        if (this.health > maxHealth) {
+            this.health = maxHealth;
+            if (this.mode == RobotMode.PROTOTYPE)
+                this.mode = RobotMode.TURRET;
+        }
+        if (this.health <= 0) {
+            int leadDrop = this.type.getLeadDropped(this.level);
+            int goldDrop = this.type.getGoldDropped(this.level);
+            // TODO: drop resources at this location (interact with GameWorld)
             this.gameWorld.destroyRobot(this.ID);
+        }
         if (this.health != oldHealth) {
             // TODO: double check this
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
     }
 
+    // *********************************
+    // ****** ACTION METHODS *********
+    // *********************************
+
+    /**
+     * Transform from turret to portable mode, or vice versa.
+     */
+    public void transform() {
+        if (this.canTransformCooldown()) {
+            if (this.mode == RobotMode.TURRET) {
+                this.mode = RobotMode.PORTABLE;
+                this.setMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+            } else {
+                this.mode = RobotMode.TURRET;
+                this.setCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+            }
+        }
+    }
+
+    /**
+     * Upgrade a building.
+     */
+    public void upgrade() {
+        if (this.mode == RobotMode.ROBOT || this.mode == RobotMode.PROTOTYPE)
+            return;
+        if (this.level == GameConstants.MAX_LEVEL)
+            return;
+        this.level++;
+        this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
+        this.addCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+    }
+
     /**
      * Attacks another robot. Assumes bot is in range.
+     * Note: this is relatively inefficient(?), can possibly optimize
+     *  by making better helper methods in GameWorld
      * 
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        // TODO: checks this.type and attacks accordingly
+        if (!this.canActLocation(bot.location)) return; // TODO: throw exception?
+        int dmg = this.type.getDamage(this.level);
+        bot.addHealth(-dmg);
+
+        int ricochetCount = this.type.getRicochetCount(this.level);
+        if (ricochetCount == 0) return;
+
+        // only wizards should execute the next chunk of code
+        InternalRobot[] robots = gameWorld.getAllRobotsWithinRadiusSquared(this.location, this.type.getActionRadiusSquared(this.level));
+        List<InternalRobot> validTargets = new ArrayList<>();
+        for (InternalRobot x : robots) {
+            if (x.team == this.team) continue;
+            if (x.equals(bot)) continue;
+            validTargets.add(x);
+        }
+
+        class RicochetPriority implements Comparator<InternalRobot> {
+            public int compare(InternalRobot a, InternalRobot b)
+            {
+                int aDistToTarget = bot.location.distanceSquaredTo(a.location);
+                int bDistToTarget = bot.location.distanceSquaredTo(b.location);
+                if (aDistToTarget != bDistToTarget)
+                    return aDistToTarget - bDistToTarget;
+                int aDistToAttacker = this.location.distanceSquaredTo(a.location);
+                int bDistToAttacker = this.location.distanceSquaredTo(b.location);
+                if (aDistToAttacker != bDistToAttacker)
+                    return aDistToAttacker - bDistToAttacker;
+                return a.compareTo(b);
+            }
+        }
+
+        Collections.sort(validTargets, new RicochetPriority());
+        for (int i = 0; i < ricochetCount; i++) {
+            dmg = (int) (dmg * GameConstants.RICOCHET_DAMAGE_MULTIPLIER);
+            validTargets.get(i).addHealth(-dmg);
+        }
     }
 
     // *********************************
