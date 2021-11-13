@@ -84,8 +84,6 @@ export type Log = {
   text: string
 };
 
-
-
 /**
  * A frozen image of the game world.
  *
@@ -478,9 +476,6 @@ export default class GameWorld {
             break;
           /// A robot can change team after being empowered
           /// Target: teamID
-          case schema.Action.CHANGE_TEAM:
-            // TODO remove the robot, don't alter it
-            break;
           /// A robot's influence changes.
           /// Target: delta value
           case schema.Action.CHANGE_INFLUENCE:
