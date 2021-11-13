@@ -2034,6 +2034,107 @@ static createConstants(builder:flatbuffers.Builder, leadAdditiveIncease:number, 
 }
 }
 /**
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class Constants {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns Constants
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):Constants {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param Constants= obj
+ * @returns Constants
+ */
+static getRootAsConstants(bb:flatbuffers.ByteBuffer, obj?:Constants):Constants {
+  return (obj || new Constants).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns number
+ */
+leadAdditiveIncease():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat64(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+goldAdditiveIncease():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat64(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+increasePeriod():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startConstants(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number leadAdditiveIncease
+ */
+static addLeadAdditiveIncease(builder:flatbuffers.Builder, leadAdditiveIncease:number) {
+  builder.addFieldFloat64(0, leadAdditiveIncease, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number goldAdditiveIncease
+ */
+static addGoldAdditiveIncease(builder:flatbuffers.Builder, goldAdditiveIncease:number) {
+  builder.addFieldFloat64(1, goldAdditiveIncease, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number increasePeriod
+ */
+static addIncreasePeriod(builder:flatbuffers.Builder, increasePeriod:number) {
+  builder.addFieldInt32(2, increasePeriod, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createConstants(builder:flatbuffers.Builder, leadAdditiveIncease:number, goldAdditiveIncease:number, increasePeriod:number):flatbuffers.Offset {
+  Constants.startConstants(builder);
+  Constants.addLeadAdditiveIncease(builder, leadAdditiveIncease);
+  Constants.addGoldAdditiveIncease(builder, goldAdditiveIncease);
+  Constants.addIncreasePeriod(builder, increasePeriod);
+  return Constants.endConstants(builder);
+}
+}
+}
+/**
  * The first event sent in the game. Contains all metadata about the game.
  *
  * @constructor
