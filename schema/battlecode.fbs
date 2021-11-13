@@ -89,7 +89,6 @@ enum Action : byte {
     ATTACK, // combat unit types
     DAZZLE, // wizard
     SPAWN_UNIT, //archon
-    UPGRADE, //buildings
     MINE, // miner
     BUILD, // builder
     CONVERT_GOLD, // for alchemist laboratory.
