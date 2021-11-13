@@ -108,135 +108,135 @@ public strictfp interface RobotController {
     int getUpgradeLevel();
 
     // ***********************************
-    // ****** GENERAL SENSOR METHODS *****
+    // ****** GENERAL VISION METHODS *****
     // ***********************************
 
     /**
-     * Senses whether a MapLocation is on the map. Will throw an exception if
-     * the location is not within the sensor range.
+     * Checks whether a MapLocation is on the map. Will throw an exception if
+     * the location is not within the vision range.
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
+     * @throws GameActionException if the location is not within vision range.
      *
      * @battlecode.doc.costlymethod
      */
     boolean onTheMap(MapLocation loc) throws GameActionException;
 
     /**
-     * Checks whether the given location is within the robot's sensor range, and if it is on the map.
+     * Checks whether the given location is within the robot's vision range, and if it is on the map.
      *
      * @param loc the location to check
-     * @return true if the given location is within the robot's sensor range and is on the map; false otherwise.
+     * @return true if the given location is within the robot's vision range and is on the map; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseLocation(MapLocation loc);
+    boolean canSeeLocation(MapLocation loc);
 
     /**
-     * Checks whether a point at the given radius squared is within the robot's sensor range.
+     * Checks whether a point at the given radius squared is within the robot's vision range.
      *
      * @param radiusSquared the radius to check
-     * @return true if the given radius is within the robot's sensor range; false otherwise.
+     * @return true if the given radius is within the robot's vision range; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRadiusSquared(int radiusSquared);
+    boolean canSeeRadiusSquared(int radiusSquared);
 
     /**
-     * Senses the robot at the given location, or null if there is no robot
+     * Sees the robot at the given location, or null if there is no robot
      * there.
      *
      * @param loc the location to check
      * @return the robot at the given location.
-     * @throws GameActionException if the location is not within sensor range.
+     * @throws GameActionException if the location is not within vision range.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException;
+    RobotInfo canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the given robot exists and if it is within this robot's
-     * sensor range.
+     * vision range.
      *
      * @param id the ID of the robot to query
-     * @return true if the given robot is within this robot's sensor range;
+     * @return true if the given robot is within this robot's vision range;
      * false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRobot(int id);
+    boolean canSeeRobot(int id);
 
     /**
-     * Senses information about a particular robot given its ID.
+     * Sees information about a particular robot given its ID.
      *
      * @param id the ID of the robot to query
-     * @return a RobotInfo object for the sensed robot.
-     * @throws GameActionException if the robot cannot be sensed (for example,
-     * if it doesn't exist or is out of sensor range).
+     * @return a RobotInfo object for the seen robot.
+     * @throws GameActionException if the robot cannot be seen (for example,
+     * if it doesn't exist or is out of vision range).
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo senseRobot(int id) throws GameActionException;
+    RobotInfo seeRobot(int id) throws GameActionException;
 
     /**
-     * Returns all robots within sensor radius. The objects are returned in no
+     * Returns all robots within vision radius. The objects are returned in no
      * particular order.
      *
      * @return array of RobotInfo objects, which contain information about all
-     * the robots you sensed.
+     * the robots you saw.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots();
+    RobotInfo[] seeNearbyRobots();
 
     /**
-     * Returns all robots that can be sensed within a certain distance of this
+     * Returns all robots that can be seen within a certain distance of this
      * robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within sensor radius are returned.
-     * if radiusSquared is larger than the robot's sensor radius, the sensor
+     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * if radiusSquared is larger than the robot's vision radius, the vision
      * radius is used.
-     * @return array of RobotInfo objects of all the robots you sensed.
+     * @return array of RobotInfo objects of all the robots you saw.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radiusSquared);
+    RobotInfo[] seeNearbyRobots(int radiusSquared);
 
     /**
-     * Returns all robots of a given team that can be sensed within a certain
+     * Returns all robots of a given team that can be seen within a certain
      * distance of this robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within sensor radius are returned.
-     * if radiusSquared is larger than the robot's sensor radius, the sensor
+     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * if radiusSquared is larger than the robot's vision radius, the vision
      * radius is used.
      * @param team filter game objects by the given team. If null is passed,
      * robots from any team are returned
-     * @return array of RobotInfo objects of all the robots you sensed.
+     * @return array of RobotInfo objects of all the robots you saw.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radiusSquared, Team team);
+    RobotInfo[] seeNearbyRobots(int radiusSquared, Team team);
 
     /**
-     * Returns all robots of a given team that can be sensed within a certain
+     * Returns all robots of a given team that can be seen within a certain
      * radius of a specified location. The objects are returned in no particular
      * order.
      *
      * @param center center of the given search radius
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within sensor radius are returned.
-     * if radiusSquared is larger than the robot's sensor radius, the sensor
+     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * if radiusSquared is larger than the robot's vision radius, the vision
      * radius is used.
      * @param team filter game objects by the given team. If null is passed,
      * objects from all teams are returned
-     * @return sorted array of RobotInfo objects of the robots you sensed.
+     * @return sorted array of RobotInfo objects of the robots you saw.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
+    RobotInfo[] seeNearbyRobots(MapLocation center, int radiusSquared, Team team);
 
     /**
      * Given a location, returns the passability of that location.
@@ -246,33 +246,33 @@ public strictfp interface RobotController {
      * 
      * @param loc the given location
      * @return the passability of that location.
-     * @throws GameActionException if the robot cannot sense the given location
+     * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
      */
-    double sensePassability(MapLocation loc) throws GameActionException;
+    double seePassability(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the lead count of that location.
      * 
      * @param loc the given location
      * @return the amount of lead at that location.
-     * @throws GameActionException if the robot cannot sense the given location
+     * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
      */
-    double senseLead(MapLocation loc) throws GameActionException;
+    double seeLead(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the gold count of that location.
      * 
      * @param loc the given location
      * @return the amount of gold at that location.
-     * @throws GameActionException if the robot cannot sense the given location
+     * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
      */
-    double senseGold(MapLocation loc) throws GameActionException;
+    double seeGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
