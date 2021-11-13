@@ -19,7 +19,7 @@ public enum DominationFactor {
     /**
      * Win by more lead net worth (tiebreak 2).
      */
-    MORE_GOLD_NET_WORTH,
+    MORE_LEAD_NET_WORTH,
     /**
      * Win by coinflip (tiebreak 3).
      */
