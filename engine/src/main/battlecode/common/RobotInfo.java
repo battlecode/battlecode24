@@ -23,11 +23,6 @@ public class RobotInfo {
     public final RobotType type;
 
     /**
-     * The level of the robot.
-     */
-    public final int level;
-
-    /**
      * The health of the robot.
      */
     public final int health;
@@ -37,12 +32,11 @@ public class RobotInfo {
      */
     public final MapLocation location;
 
-    public RobotInfo(int ID, Team team, RobotType type, int level, int health, MapLocation location) {
+    public RobotInfo(int ID, Team team, RobotType type, int health, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
-        this.level = level;
         this.health = health;
         this.location = location;
     }
@@ -75,15 +69,6 @@ public class RobotInfo {
     }
 
     /**
-     * Returns the level of this robot.
-     *
-     * @return the level of this robot.
-     */
-    public int getLevel() {
-        return level;
-    }
-
-    /**
      * Returns the health of this robot.
      *
      * @return the health of this robot
@@ -111,7 +96,6 @@ public class RobotInfo {
         if (ID != robotInfo.ID) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
-        if (level != robotInfo.level) return false;
         if (health != robotInfo.health) return false;
         return location.equals(robotInfo.location);
     }
@@ -122,7 +106,6 @@ public class RobotInfo {
         result = ID;
         result = 31 * result + team.hashCode();
         result = 31 * result + type.ordinal();
-        result = 31 * result + level;
         result = 31 * result + health;
         result = 31 * result + location.hashCode();
         return result;
@@ -134,7 +117,6 @@ public class RobotInfo {
                 "ID=" + ID +
                 ", team=" + team +
                 ", type=" + type +
-                ", level=" + level +
                 ", health=" + health +
                 ", location=" + location +
                 '}';
