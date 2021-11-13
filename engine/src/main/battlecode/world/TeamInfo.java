@@ -15,16 +15,12 @@ public class TeamInfo {
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
     }
-
+    
     // *********************************
     // ***** GETTER METHODS ************
     // *********************************
 
-    
-
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
-
-    
 }
