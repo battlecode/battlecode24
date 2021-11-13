@@ -23,7 +23,6 @@ table RGBTable {
 /// The possible types of things that can exist.
 /// Note that bullets are not treated as bodies.
 enum BodyType : byte {
-    
     // droids
     MINER,
     BUILDER,
@@ -131,6 +130,11 @@ table BodyTypeMetadata {
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;
+    dps: int; // dps at lowest level
+    hp: int; // hp at lowest level
+    dps_mul: float; // dps multiplier for level
+    hp_mul: float; // hp multiplier per level
+    upgrade_costs: [int];
 }
 
 /// Data relevant to a particular team.
@@ -220,6 +224,9 @@ table GameHeader {
     //game constants
     constants: Constants;
 }
+
+
+
 
 /// The final event sent in the game.
 table GameFooter {
