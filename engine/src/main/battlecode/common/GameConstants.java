@@ -63,6 +63,52 @@ public class GameConstants {
     /** A prototype building's starting health, as a multiplier of max health. */
     public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
 
+    // NEED TO CHANGE: what is the actual cooldown value for the following values:
+
+    public static final int BUILDING_UPGRADE_COOLDOWN = 500;
+    public static final float FRESH_ROBOT_ARCHON_COOLDOWN = 10f;
+    // turret to portable, or portable to turret
+    public static final int BUILDING_CONVERSION_COOLDOWN = 10000;
+
+
+    // *********************************
+    // ****** LEVEL MULTIPLIERS ********
+    // *********************************
+
+    public static final float PLACEHOLDER_LEVEL_MULTIPLIER = 1.2f;
+
+    public static final float DPS_1_TO_2 = PLACEHOLDER_LEVEL_MULTIPLIER;
+    public static final float HP_1_TO_2 = PLACEHOLDER_LEVEL_MULTIPLIER;
+
+    public static final float DPS_2_TO_3 = PLACEHOLDER_LEVEL_MULTIPLIER;
+    public static final float HP_2_TO_3 = PLACEHOLDER_LEVEL_MULTIPLIER;
+
+    public static final float DPS_UNIT_TO_TURRET = PLACEHOLDER_LEVEL_MULTIPLIER;
+    public static final float HP_UNIT_TO_TURRET = PLACEHOLDER_LEVEL_MULTIPLIER;
+
+    // NEED TO CHANGE:
+    // turret vision = unit vision + ???
+    // building portable mode move cooldown = ???
+
+    public static final float RICOCHET_UPGRADE_MULTIPLIER = 1.5f;
+    public static final float BUILDING_UPGRADE_COST_MULTIPLER = 0.5f;
+
+    // *********************************
+    // ****** GAME MECHANICS ***********
+    // *********************************
+
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.1f;
+    public static final float AUTOMATIC_ARCHON_HEAL_AMOUNT = 10f;
+    public static final float AUTOMATIC_BUILDER_HEAL_AMOUNT = 10f;
+
+    public static final float PER_ALCHEMIST_DECREASE_RATE = 0.1f;
+
+    public static final int LEAD_TO_GOLD_RATE = 20;
+    public static final int INITIAL_LEAD = 200;
+    
+
+    // Older constants below, maintaining them for now.
+
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
