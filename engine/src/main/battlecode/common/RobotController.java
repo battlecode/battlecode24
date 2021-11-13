@@ -144,17 +144,6 @@ public strictfp interface RobotController {
     boolean canSeeRadiusSquared(int radiusSquared);
 
     /**
-     * Checks whether a robot is at a given location. Assumes the location is valid.  
-     *
-     * @param loc the location to check
-     * @return true if a robot is at the location.
-     * @throws GameActionException if the location is not within vision range or on the map.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
-
-    /**
      * Sees the robot at the given location, or null if there is no robot
      * there.
      *
@@ -164,7 +153,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException;
+    RobotInfo canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the given robot exists and if it is within this robot's
@@ -256,12 +245,12 @@ public strictfp interface RobotController {
      * greater cooldowns for making actions.
      * 
      * @param loc the given location
-     * @return the rubble of that location.
-     * @throws GameActionException if the robot cannot sense the given location
+     * @return the passability of that location.
+     * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseRubble(MapLocation loc) throws GameActionException;
+    double seePassability(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the lead count of that location.
@@ -272,7 +261,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int senseLead(MapLocation loc) throws GameActionException;
+    double seeLead(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the gold count of that location.
@@ -283,7 +272,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int senseGold(MapLocation loc) throws GameActionException;
+    double seeGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
