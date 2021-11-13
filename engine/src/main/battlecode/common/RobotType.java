@@ -239,6 +239,7 @@ public enum RobotType {
      * @return the ricochet count by level, controlled by a multiplier and rounded down.
      */
     public int getRicochetCount(int level){
+        int RICOCHET_UPGRADE_MULTIPLIER = 1.5;
         // 11/13/21: https://www.w3schools.com/java/java_type_casting.asp
         return (int) (this.ricochetCount * Math.pow(GameConstants.RICOCHET_UPGRADE_MULTIPLIER, level));
         // end code

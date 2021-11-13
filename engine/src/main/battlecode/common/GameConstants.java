@@ -70,7 +70,6 @@ public class GameConstants {
     // turret to portable, or portable to turret
     public static final int BUILDING_CONVERSION_COOLDOWN = 10000;
 
-
     // *********************************
     // ****** LEVEL MULTIPLIERS ********
     // *********************************
@@ -90,7 +89,6 @@ public class GameConstants {
     // turret vision = unit vision + ???
     // building portable mode move cooldown = ???
 
-    public static final float RICOCHET_UPGRADE_MULTIPLIER = 1.5f;
     public static final float BUILDING_UPGRADE_COST_MULTIPLER = 0.5f;
 
     // *********************************
