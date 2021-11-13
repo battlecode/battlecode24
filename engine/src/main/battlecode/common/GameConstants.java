@@ -49,6 +49,14 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
+    /** A prototype building's starting health, as a multiplier of max health. */
+    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
+
+    /** The maximum level a building can be. */
+    public static final int MAX_LEVEL = 3;
+
+    /** The amount damage is reduced by every ricochet. */
+    public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
