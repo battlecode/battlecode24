@@ -9,27 +9,16 @@ import { flatbuffers } from "flatbuffers"
  */
 export namespace battlecode.schema{
 export enum BodyType{
-  /**
-   * Enlightenment centers produce politicians, Muckrakers and slanderers and place bids
-   *can be neutral until captured
-   */
-  ENLIGHTENMENT_CENTER= 0,
-
-  /**
-   * politicians use their influence to self destruct and capture other units
-   */
-  POLITICIAN= 1,
-
-  /**
-   * slanderers generate passive influence for the enlightenment center that created them
-   * they turn into politicians at some point, and can only be identified by slanderers.
-   */
-  SLANDERER= 2,
-
-  /**
-   * have the ability to identify slanderers
-   */
-  MUCKRAKER= 3
+  MINER= 0,
+  ARCHON= 1,
+  BUILDER= 2,
+  LABORATORY= 3,
+  GUARD= 4,
+  GUARD_TURRET= 5,
+  ARCHER= 6,
+  ARCHER_TURRET= 7,
+  WIZARD= 8,
+  WIZARD_TURRET= 9
 }};
 
 /**
@@ -44,73 +33,18 @@ export enum BodyType{
  */
 export namespace battlecode.schema{
 export enum Action{
-  /**
-   * Politicians self-destruct and affect nearby bodies.
-   * Target: radius squared
-   */
-  EMPOWER= 0,
-
-  /**
-   * Slanderers passively generate influence for the
-   * Enlightenment Center that created them.
-   * Target: parent ID
-   */
-  EMBEZZLE= 1,
-
-  /**
-   * Slanderers turn into Politicians.
-   * Target: none
-   */
-  CAMOUFLAGE= 2,
-
-  /**
-   * Muckrakers can expose a slanderer.
-   * Target: an enemy body
-   */
-  EXPOSE= 3,
-
-  /**
-   * Units can change their flag.
-   * Target: new flag value
-   */
-  SET_FLAG= 4,
-
-  /**
-   * Builds a unit.
-   * Target: spawned unit
-   */
-  SPAWN_UNIT= 5,
-
-  /**
-   * Places a bid.
-   * Target: bid value
-   */
-  PLACE_BID= 6,
-
-  /**
-   * A robot can change team after being empowered,
-   * or when a Enlightenment Center is taken over.
-   * Target: new robotID
-   */
-  CHANGE_TEAM= 7,
-
-  /**
-   * A robot's influence changes.
-   * Target: delta value
-   */
-  CHANGE_INFLUENCE= 8,
-
-  /**
-   * A robot's conviction changes.
-   * Target: delta value, i.e. red 5 -> blue 3 is -2
-   */
-  CHANGE_CONVICTION= 9,
-
-  /**
-   * Dies due to an uncaught exception.
-   * Target: none
-   */
-  DIE_EXCEPTION= 10
+  ATTACK= 0,
+  DAZZLE= 1,
+  SPAWN_UNIT= 2,
+  MINE= 3,
+  BUILD= 4,
+  CONVERT_GOLD= 5,
+  ATTACKED= 6,
+  TRANSFORM= 7,
+  UPGRADE= 8,
+  REPAIR= 9,
+  CHANGE_HP= 10,
+  FULLY_REPAIRED= 11
 }};
 
 /**
@@ -713,39 +647,10 @@ locs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
 };
 
 /**
- * the amount of influence paid to create these bodies
- * for initial Enlightenment Centers, this is the amount of influence
- * needed to take over
- *
- * @param number index
- * @returns number
- */
-influences(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns number
- */
-influencesLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Int32Array
- */
-influencesArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
  * @param flatbuffers.Builder builder
  */
 static startSpawnedBodyTable(builder:flatbuffers.Builder) {
-  builder.startObject(5);
+  builder.startObject(4);
 };
 
 /**
@@ -845,35 +750,6 @@ static addLocs(builder:flatbuffers.Builder, locsOffset:flatbuffers.Offset) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset influencesOffset
- */
-static addInfluences(builder:flatbuffers.Builder, influencesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, influencesOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param Array.<number> data
- * @returns flatbuffers.Offset
- */
-static createInfluencesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startInfluencesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
 static endSpawnedBodyTable(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -881,13 +757,12 @@ static endSpawnedBodyTable(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createSpawnedBodyTable(builder:flatbuffers.Builder, robotIDsOffset:flatbuffers.Offset, teamIDsOffset:flatbuffers.Offset, typesOffset:flatbuffers.Offset, locsOffset:flatbuffers.Offset, influencesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createSpawnedBodyTable(builder:flatbuffers.Builder, robotIDsOffset:flatbuffers.Offset, teamIDsOffset:flatbuffers.Offset, typesOffset:flatbuffers.Offset, locsOffset:flatbuffers.Offset):flatbuffers.Offset {
   SpawnedBodyTable.startSpawnedBodyTable(builder);
   SpawnedBodyTable.addRobotIDs(builder, robotIDsOffset);
   SpawnedBodyTable.addTeamIDs(builder, teamIDsOffset);
   SpawnedBodyTable.addTypes(builder, typesOffset);
   SpawnedBodyTable.addLocs(builder, locsOffset);
-  SpawnedBodyTable.addInfluences(builder, influencesOffset);
   return SpawnedBodyTable.endSpawnedBodyTable(builder);
 }
 }
@@ -1006,10 +881,44 @@ passabilityArray():Float64Array|null {
 };
 
 /**
+ * @param battlecode.schema.VecTable= obj
+ * @returns battlecode.schema.VecTable|null
+ */
+leadLocations(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+  var offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+};
+
+/**
+ * @param number index
+ * @returns number
+ */
+initialLead(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readFloat64(this.bb!.__vector(this.bb_pos + offset) + index * 8) : 0;
+};
+
+/**
+ * @returns number
+ */
+initialLeadLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Float64Array
+ */
+initialLeadArray():Float64Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? new Float64Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param flatbuffers.Builder builder
  */
 static startGameMap(builder:flatbuffers.Builder) {
-  builder.startObject(6);
+  builder.startObject(8);
 };
 
 /**
@@ -1083,6 +992,43 @@ static startPassabilityVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset leadLocationsOffset
+ */
+static addLeadLocations(builder:flatbuffers.Builder, leadLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, leadLocationsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset initialLeadOffset
+ */
+static addInitialLead(builder:flatbuffers.Builder, initialLeadOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, initialLeadOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createInitialLeadVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(8, data.length, 8);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat64(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startInitialLeadVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(8, numElems, 8);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
 static endGameMap(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1090,7 +1036,7 @@ static endGameMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, minCornerOffset:flatbuffers.Offset, maxCornerOffset:flatbuffers.Offset, bodiesOffset:flatbuffers.Offset, randomSeed:number, passabilityOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, minCornerOffset:flatbuffers.Offset, maxCornerOffset:flatbuffers.Offset, bodiesOffset:flatbuffers.Offset, randomSeed:number, passabilityOffset:flatbuffers.Offset, leadLocationsOffset:flatbuffers.Offset, initialLeadOffset:flatbuffers.Offset):flatbuffers.Offset {
   GameMap.startGameMap(builder);
   GameMap.addName(builder, nameOffset);
   GameMap.addMinCorner(builder, minCornerOffset);
@@ -1098,6 +1044,8 @@ static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset,
   GameMap.addBodies(builder, bodiesOffset);
   GameMap.addRandomSeed(builder, randomSeed);
   GameMap.addPassability(builder, passabilityOffset);
+  GameMap.addLeadLocations(builder, leadLocationsOffset);
+  GameMap.addInitialLead(builder, initialLeadOffset);
   return GameMap.endGameMap(builder);
 }
 }
@@ -1133,90 +1081,123 @@ static getRootAsBodyTypeMetadata(bb:flatbuffers.ByteBuffer, obj?:BodyTypeMetadat
 };
 
 /**
- * The relevant type.
- *
  * @returns battlecode.schema.BodyType
  */
 type():battlecode.schema.BodyType {
   var offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.ENLIGHTENMENT_CENTER;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.MINER;
 };
 
 /**
- * The spawn source.
- *
  * @returns battlecode.schema.BodyType
  */
 spawnSource():battlecode.schema.BodyType {
   var offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.ENLIGHTENMENT_CENTER;
+  return offset ? /**  */ (this.bb!.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.MINER;
 };
 
 /**
- * the convictionRatio of this type
- *
  * @returns number
  */
-convictionRatio():number {
+actionCooldown():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
- * cooldown of this type
- *
- * @returns number
- */
-actionCooldown():number {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-};
-
-/**
- * action radius if this type
- *
  * @returns number
  */
 actionRadiusSquared():number {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+visionRadiusSquared():number {
   var offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * sensor radius squared for this type
- *
  * @returns number
  */
-sensorRadiusSquared():number {
+movingCooldown():number {
   var offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
- * detection radius of this type
- *
  * @returns number
  */
-detectionRadiusSquared():number {
+bytecodeLimit():number {
   var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * bytecode limit for this type
- *
  * @returns number
  */
-bytecodeLimit():number {
+dps():number {
   var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+hp():number {
+  var offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+dpsMul():number {
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+hpMul():number {
+  var offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @param number index
+ * @returns number
+ */
+upgradeCosts(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+upgradeCostsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int32Array
+ */
+upgradeCostsArray():Int32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
  * @param flatbuffers.Builder builder
  */
 static startBodyTypeMetadata(builder:flatbuffers.Builder) {
-  builder.startObject(8);
+  builder.startObject(12);
 };
 
 /**
@@ -1224,7 +1205,7 @@ static startBodyTypeMetadata(builder:flatbuffers.Builder) {
  * @param battlecode.schema.BodyType type
  */
 static addType(builder:flatbuffers.Builder, type:battlecode.schema.BodyType) {
-  builder.addFieldInt8(0, type, battlecode.schema.BodyType.ENLIGHTENMENT_CENTER);
+  builder.addFieldInt8(0, type, battlecode.schema.BodyType.MINER);
 };
 
 /**
@@ -1232,15 +1213,7 @@ static addType(builder:flatbuffers.Builder, type:battlecode.schema.BodyType) {
  * @param battlecode.schema.BodyType spawnSource
  */
 static addSpawnSource(builder:flatbuffers.Builder, spawnSource:battlecode.schema.BodyType) {
-  builder.addFieldInt8(1, spawnSource, battlecode.schema.BodyType.ENLIGHTENMENT_CENTER);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number convictionRatio
- */
-static addConvictionRatio(builder:flatbuffers.Builder, convictionRatio:number) {
-  builder.addFieldFloat32(2, convictionRatio, 0.0);
+  builder.addFieldInt8(1, spawnSource, battlecode.schema.BodyType.MINER);
 };
 
 /**
@@ -1248,7 +1221,7 @@ static addConvictionRatio(builder:flatbuffers.Builder, convictionRatio:number) {
  * @param number actionCooldown
  */
 static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
-  builder.addFieldFloat32(3, actionCooldown, 0.0);
+  builder.addFieldFloat32(2, actionCooldown, 0.0);
 };
 
 /**
@@ -1256,23 +1229,23 @@ static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
  * @param number actionRadiusSquared
  */
 static addActionRadiusSquared(builder:flatbuffers.Builder, actionRadiusSquared:number) {
-  builder.addFieldInt32(4, actionRadiusSquared, 0);
+  builder.addFieldInt32(3, actionRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number sensorRadiusSquared
+ * @param number visionRadiusSquared
  */
-static addSensorRadiusSquared(builder:flatbuffers.Builder, sensorRadiusSquared:number) {
-  builder.addFieldInt32(5, sensorRadiusSquared, 0);
+static addVisionRadiusSquared(builder:flatbuffers.Builder, visionRadiusSquared:number) {
+  builder.addFieldInt32(4, visionRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number detectionRadiusSquared
+ * @param number movingCooldown
  */
-static addDetectionRadiusSquared(builder:flatbuffers.Builder, detectionRadiusSquared:number) {
-  builder.addFieldInt32(6, detectionRadiusSquared, 0);
+static addMovingCooldown(builder:flatbuffers.Builder, movingCooldown:number) {
+  builder.addFieldFloat32(5, movingCooldown, 0.0);
 };
 
 /**
@@ -1280,7 +1253,68 @@ static addDetectionRadiusSquared(builder:flatbuffers.Builder, detectionRadiusSqu
  * @param number bytecodeLimit
  */
 static addBytecodeLimit(builder:flatbuffers.Builder, bytecodeLimit:number) {
-  builder.addFieldInt32(7, bytecodeLimit, 0);
+  builder.addFieldInt32(6, bytecodeLimit, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number dps
+ */
+static addDps(builder:flatbuffers.Builder, dps:number) {
+  builder.addFieldInt32(7, dps, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number hp
+ */
+static addHp(builder:flatbuffers.Builder, hp:number) {
+  builder.addFieldInt32(8, hp, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number dpsMul
+ */
+static addDpsMul(builder:flatbuffers.Builder, dpsMul:number) {
+  builder.addFieldFloat32(9, dpsMul, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number hpMul
+ */
+static addHpMul(builder:flatbuffers.Builder, hpMul:number) {
+  builder.addFieldFloat32(10, hpMul, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset upgradeCostsOffset
+ */
+static addUpgradeCosts(builder:flatbuffers.Builder, upgradeCostsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, upgradeCostsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createUpgradeCostsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startUpgradeCostsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
 };
 
 /**
@@ -1292,16 +1326,20 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, convictionRatio:number, actionCooldown:number, actionRadiusSquared:number, sensorRadiusSquared:number, detectionRadiusSquared:number, bytecodeLimit:number):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionCooldown:number, actionRadiusSquared:number, visionRadiusSquared:number, movingCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, upgradeCostsOffset:flatbuffers.Offset):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
-  BodyTypeMetadata.addConvictionRatio(builder, convictionRatio);
   BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
   BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
-  BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
-  BodyTypeMetadata.addDetectionRadiusSquared(builder, detectionRadiusSquared);
+  BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
+  BodyTypeMetadata.addMovingCooldown(builder, movingCooldown);
   BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
+  BodyTypeMetadata.addDps(builder, dps);
+  BodyTypeMetadata.addHp(builder, hp);
+  BodyTypeMetadata.addDpsMul(builder, dpsMul);
+  BodyTypeMetadata.addHpMul(builder, hpMul);
+  BodyTypeMetadata.addUpgradeCosts(builder, upgradeCostsOffset);
   return BodyTypeMetadata.endBodyTypeMetadata(builder);
 }
 }
@@ -1814,6 +1852,107 @@ static createProfilerFile(builder:flatbuffers.Builder, framesOffset:flatbuffers.
 }
 }
 /**
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class Constants {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns Constants
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):Constants {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param Constants= obj
+ * @returns Constants
+ */
+static getRootAsConstants(bb:flatbuffers.ByteBuffer, obj?:Constants):Constants {
+  return (obj || new Constants).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns number
+ */
+leadAdditiveIncease():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readFloat64(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+goldAdditiveIncease():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readFloat64(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+increasePeriod():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startConstants(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number leadAdditiveIncease
+ */
+static addLeadAdditiveIncease(builder:flatbuffers.Builder, leadAdditiveIncease:number) {
+  builder.addFieldFloat64(0, leadAdditiveIncease, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number goldAdditiveIncease
+ */
+static addGoldAdditiveIncease(builder:flatbuffers.Builder, goldAdditiveIncease:number) {
+  builder.addFieldFloat64(1, goldAdditiveIncease, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number increasePeriod
+ */
+static addIncreasePeriod(builder:flatbuffers.Builder, increasePeriod:number) {
+  builder.addFieldInt32(2, increasePeriod, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createConstants(builder:flatbuffers.Builder, leadAdditiveIncease:number, goldAdditiveIncease:number, increasePeriod:number):flatbuffers.Offset {
+  Constants.startConstants(builder);
+  Constants.addLeadAdditiveIncease(builder, leadAdditiveIncease);
+  Constants.addGoldAdditiveIncease(builder, goldAdditiveIncease);
+  Constants.addIncreasePeriod(builder, increasePeriod);
+  return Constants.endConstants(builder);
+}
+}
+}
+/**
  * The first event sent in the game. Contains all metadata about the game.
  *
  * @constructor
@@ -1897,10 +2036,19 @@ bodyTypeMetadataLength():number {
 };
 
 /**
+ * @param battlecode.schema.Constants= obj
+ * @returns battlecode.schema.Constants|null
+ */
+constants(obj?:battlecode.schema.Constants):battlecode.schema.Constants|null {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? (obj || new battlecode.schema.Constants).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+};
+
+/**
  * @param flatbuffers.Builder builder
  */
 static startGameHeader(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -1971,6 +2119,14 @@ static startBodyTypeMetadataVector(builder:flatbuffers.Builder, numElems:number)
 
 /**
  * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset constantsOffset
+ */
+static addConstants(builder:flatbuffers.Builder, constantsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, constantsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
 static endGameHeader(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1978,11 +2134,12 @@ static endGameHeader(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameHeader(builder:flatbuffers.Builder, specVersionOffset:flatbuffers.Offset, teamsOffset:flatbuffers.Offset, bodyTypeMetadataOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createGameHeader(builder:flatbuffers.Builder, specVersionOffset:flatbuffers.Offset, teamsOffset:flatbuffers.Offset, bodyTypeMetadataOffset:flatbuffers.Offset, constantsOffset:flatbuffers.Offset):flatbuffers.Offset {
   GameHeader.startGameHeader(builder);
   GameHeader.addSpecVersion(builder, specVersionOffset);
   GameHeader.addTeams(builder, teamsOffset);
   GameHeader.addBodyTypeMetadata(builder, bodyTypeMetadataOffset);
+  GameHeader.addConstants(builder, constantsOffset);
   return GameHeader.endGameHeader(builder);
 }
 }
@@ -2350,12 +2507,10 @@ teamIDsArray():Int32Array|null {
 };
 
 /**
- * The number of votes the teams get, 0 or 1.
- *
  * @param number index
  * @returns number
  */
-teamVotes(index: number):number|null {
+teamLead(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2363,7 +2518,7 @@ teamVotes(index: number):number|null {
 /**
  * @returns number
  */
-teamVotesLength():number {
+teamLeadLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2371,18 +2526,16 @@ teamVotesLength():number {
 /**
  * @returns Int32Array
  */
-teamVotesArray():Int32Array|null {
+teamLeadArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The ID of the Enlightenment Center got the bid.
- *
  * @param number index
  * @returns number
  */
-teamBidderIDs(index: number):number|null {
+teamGold(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2390,7 +2543,7 @@ teamBidderIDs(index: number):number|null {
 /**
  * @returns number
  */
-teamBidderIDsLength():number {
+teamGoldLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2398,7 +2551,7 @@ teamBidderIDsLength():number {
 /**
  * @returns Int32Array
  */
-teamBidderIDsArray():Int32Array|null {
+teamGoldArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2562,12 +2715,12 @@ actionTargetsArray():Int32Array|null {
 };
 
 /**
- * The IDs of bodies that set indicator dots
+ * The IDs of the robots who changed their indicator strings
  *
  * @param number index
  * @returns number
  */
-indicatorDotIDs(index: number):number|null {
+indicationStringIDs(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2575,7 +2728,7 @@ indicatorDotIDs(index: number):number|null {
 /**
  * @returns number
  */
-indicatorDotIDsLength():number {
+indicationStringIDsLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2583,8 +2736,57 @@ indicatorDotIDsLength():number {
 /**
  * @returns Int32Array
  */
-indicatorDotIDsArray():Int32Array|null {
+indicationStringIDsArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The messages of the robots who changed their indicator strings
+ *
+ * @param number index
+ * @param flatbuffers.Encoding= optionalEncoding
+ * @returns string|Uint8Array
+ */
+indicationStrings(index: number):string
+indicationStrings(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+indicationStrings(index: number,optionalEncoding?:any):string|Uint8Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__string(this.bb!.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns number
+ */
+indicationStringsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The IDs of bodies that set indicator dots
+ *
+ * @param number index
+ * @returns number
+ */
+indicatorDotIDs(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+indicatorDotIDsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int32Array
+ */
+indicatorDotIDsArray():Int32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2595,7 +2797,7 @@ indicatorDotIDsArray():Int32Array|null {
  * @returns battlecode.schema.VecTable|null
  */
 indicatorDotLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
-  var offset = this.bb!.__offset(this.bb_pos, 26);
+  var offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
@@ -2606,7 +2808,7 @@ indicatorDotLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|nul
  * @returns battlecode.schema.RGBTable|null
  */
 indicatorDotRGBs(obj?:battlecode.schema.RGBTable):battlecode.schema.RGBTable|null {
-  var offset = this.bb!.__offset(this.bb_pos, 28);
+  var offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
@@ -2617,7 +2819,7 @@ indicatorDotRGBs(obj?:battlecode.schema.RGBTable):battlecode.schema.RGBTable|nul
  * @returns number
  */
 indicatorLineIDs(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 30);
+  var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2625,7 +2827,7 @@ indicatorLineIDs(index: number):number|null {
  * @returns number
  */
 indicatorLineIDsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 30);
+  var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2633,7 +2835,7 @@ indicatorLineIDsLength():number {
  * @returns Int32Array
  */
 indicatorLineIDsArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 30);
+  var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2644,7 +2846,7 @@ indicatorLineIDsArray():Int32Array|null {
  * @returns battlecode.schema.VecTable|null
  */
 indicatorLineStartLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
-  var offset = this.bb!.__offset(this.bb_pos, 32);
+  var offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
@@ -2655,7 +2857,7 @@ indicatorLineStartLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTab
  * @returns battlecode.schema.VecTable|null
  */
 indicatorLineEndLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
-  var offset = this.bb!.__offset(this.bb_pos, 34);
+  var offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
@@ -2666,38 +2868,8 @@ indicatorLineEndLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable
  * @returns battlecode.schema.RGBTable|null
  */
 indicatorLineRGBs(obj?:battlecode.schema.RGBTable):battlecode.schema.RGBTable|null {
-  var offset = this.bb!.__offset(this.bb_pos, 36);
+  var offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
-};
-
-/**
- * All logs sent this round.
- * Messages from a particular robot in this round start on a new line, and
- * have a header:
- * '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
- * $TEAM = 'A' | 'B'
- * $ROBOTTYPE = 'ENLIGHTENMENT_CENTER' | 'POLITICIAN' | 'SLANDERER' | 'MUCKRAKER'
- * $ID = a number
- * $ROUND = a number
- * The header is not necessarily followed by a newline.
- * This header should only be sent once per robot per round (although
- * players may forge it, so don't crash if you get strange input.)
- *
- * You should try to only read this value once, and cache it. Reading
- * strings from a flatbuffer is much less efficient than reading other
- * buffers, because they need to be copied into an environment-provided
- * buffer and validated.
- *
- * (haha i guess you can never really escape string parsing can you)
- *
- * @param flatbuffers.Encoding= optionalEncoding
- * @returns string|Uint8Array|null
- */
-logs():string|null
-logs(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-logs(optionalEncoding?:any):string|Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
@@ -2708,7 +2880,7 @@ logs(optionalEncoding?:any):string|Uint8Array|null {
  * @returns number
  */
 roundID():number {
-  var offset = this.bb!.__offset(this.bb_pos, 40);
+  var offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -2719,7 +2891,7 @@ roundID():number {
  * @returns number
  */
 bytecodeIDs(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 42);
+  var offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2727,7 +2899,7 @@ bytecodeIDs(index: number):number|null {
  * @returns number
  */
 bytecodeIDsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 42);
+  var offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2735,7 +2907,7 @@ bytecodeIDsLength():number {
  * @returns Int32Array
  */
 bytecodeIDsArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 42);
+  var offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2746,7 +2918,7 @@ bytecodeIDsArray():Int32Array|null {
  * @returns number
  */
 bytecodesUsed(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 44);
+  var offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2754,7 +2926,7 @@ bytecodesUsed(index: number):number|null {
  * @returns number
  */
 bytecodesUsedLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 44);
+  var offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2762,33 +2934,6 @@ bytecodesUsedLength():number {
  * @returns Int32Array
  */
 bytecodesUsedArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 44);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * Amount of influence contributing to the teams' buffs. Added at end for backwards compatability.
- *
- * @param number index
- * @returns number
- */
-teamNumBuffs(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 46);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns number
- */
-teamNumBuffsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 46);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Int32Array
- */
-teamNumBuffsArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2831,10 +2976,10 @@ static startTeamIDsVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset teamVotesOffset
+ * @param flatbuffers.Offset teamLeadOffset
  */
-static addTeamVotes(builder:flatbuffers.Builder, teamVotesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, teamVotesOffset, 0);
+static addTeamLead(builder:flatbuffers.Builder, teamLeadOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, teamLeadOffset, 0);
 };
 
 /**
@@ -2842,7 +2987,7 @@ static addTeamVotes(builder:flatbuffers.Builder, teamVotesOffset:flatbuffers.Off
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createTeamVotesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createTeamLeadVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -2854,16 +2999,16 @@ static createTeamVotesVector(builder:flatbuffers.Builder, data:number[] | Uint8A
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startTeamVotesVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamLeadVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset teamBidderIDsOffset
+ * @param flatbuffers.Offset teamGoldOffset
  */
-static addTeamBidderIDs(builder:flatbuffers.Builder, teamBidderIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, teamBidderIDsOffset, 0);
+static addTeamGold(builder:flatbuffers.Builder, teamGoldOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, teamGoldOffset, 0);
 };
 
 /**
@@ -2871,7 +3016,7 @@ static addTeamBidderIDs(builder:flatbuffers.Builder, teamBidderIDsOffset:flatbuf
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createTeamBidderIDsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createTeamGoldVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -2883,7 +3028,7 @@ static createTeamBidderIDsVector(builder:flatbuffers.Builder, data:number[] | Ui
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startTeamBidderIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamGoldVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3050,10 +3195,68 @@ static startActionTargetsVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset indicationStringIDsOffset
+ */
+static addIndicationStringIDs(builder:flatbuffers.Builder, indicationStringIDsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, indicationStringIDsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createIndicationStringIDsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startIndicationStringIDsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset indicationStringsOffset
+ */
+static addIndicationStrings(builder:flatbuffers.Builder, indicationStringsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, indicationStringsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<flatbuffers.Offset> data
+ * @returns flatbuffers.Offset
+ */
+static createIndicationStringsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startIndicationStringsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @param flatbuffers.Offset indicatorDotIDsOffset
  */
 static addIndicatorDotIDs(builder:flatbuffers.Builder, indicatorDotIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, indicatorDotIDsOffset, 0);
+  builder.addFieldOffset(12, indicatorDotIDsOffset, 0);
 };
 
 /**
@@ -3082,7 +3285,7 @@ static startIndicatorDotIDsVector(builder:flatbuffers.Builder, numElems:number) 
  * @param flatbuffers.Offset indicatorDotLocsOffset
  */
 static addIndicatorDotLocs(builder:flatbuffers.Builder, indicatorDotLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(11, indicatorDotLocsOffset, 0);
+  builder.addFieldOffset(13, indicatorDotLocsOffset, 0);
 };
 
 /**
@@ -3090,7 +3293,7 @@ static addIndicatorDotLocs(builder:flatbuffers.Builder, indicatorDotLocsOffset:f
  * @param flatbuffers.Offset indicatorDotRGBsOffset
  */
 static addIndicatorDotRGBs(builder:flatbuffers.Builder, indicatorDotRGBsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, indicatorDotRGBsOffset, 0);
+  builder.addFieldOffset(14, indicatorDotRGBsOffset, 0);
 };
 
 /**
@@ -3098,7 +3301,7 @@ static addIndicatorDotRGBs(builder:flatbuffers.Builder, indicatorDotRGBsOffset:f
  * @param flatbuffers.Offset indicatorLineIDsOffset
  */
 static addIndicatorLineIDs(builder:flatbuffers.Builder, indicatorLineIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, indicatorLineIDsOffset, 0);
+  builder.addFieldOffset(15, indicatorLineIDsOffset, 0);
 };
 
 /**
@@ -3127,7 +3330,7 @@ static startIndicatorLineIDsVector(builder:flatbuffers.Builder, numElems:number)
  * @param flatbuffers.Offset indicatorLineStartLocsOffset
  */
 static addIndicatorLineStartLocs(builder:flatbuffers.Builder, indicatorLineStartLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(14, indicatorLineStartLocsOffset, 0);
+  builder.addFieldOffset(16, indicatorLineStartLocsOffset, 0);
 };
 
 /**
@@ -3135,7 +3338,7 @@ static addIndicatorLineStartLocs(builder:flatbuffers.Builder, indicatorLineStart
  * @param flatbuffers.Offset indicatorLineEndLocsOffset
  */
 static addIndicatorLineEndLocs(builder:flatbuffers.Builder, indicatorLineEndLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(15, indicatorLineEndLocsOffset, 0);
+  builder.addFieldOffset(17, indicatorLineEndLocsOffset, 0);
 };
 
 /**
@@ -3143,15 +3346,7 @@ static addIndicatorLineEndLocs(builder:flatbuffers.Builder, indicatorLineEndLocs
  * @param flatbuffers.Offset indicatorLineRGBsOffset
  */
 static addIndicatorLineRGBs(builder:flatbuffers.Builder, indicatorLineRGBsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(16, indicatorLineRGBsOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset logsOffset
- */
-static addLogs(builder:flatbuffers.Builder, logsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, logsOffset, 0);
+  builder.addFieldOffset(18, indicatorLineRGBsOffset, 0);
 };
 
 /**
@@ -3159,7 +3354,7 @@ static addLogs(builder:flatbuffers.Builder, logsOffset:flatbuffers.Offset) {
  * @param number roundID
  */
 static addRoundID(builder:flatbuffers.Builder, roundID:number) {
-  builder.addFieldInt32(18, roundID, 0);
+  builder.addFieldInt32(19, roundID, 0);
 };
 
 /**
@@ -3167,7 +3362,7 @@ static addRoundID(builder:flatbuffers.Builder, roundID:number) {
  * @param flatbuffers.Offset bytecodeIDsOffset
  */
 static addBytecodeIDs(builder:flatbuffers.Builder, bytecodeIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, bytecodeIDsOffset, 0);
+  builder.addFieldOffset(20, bytecodeIDsOffset, 0);
 };
 
 /**
@@ -3196,7 +3391,7 @@ static startBytecodeIDsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset bytecodesUsedOffset
  */
 static addBytecodesUsed(builder:flatbuffers.Builder, bytecodesUsedOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, bytecodesUsedOffset, 0);
+  builder.addFieldOffset(21, bytecodesUsedOffset, 0);
 };
 
 /**
@@ -3222,35 +3417,6 @@ static startBytecodesUsedVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset teamNumBuffsOffset
- */
-static addTeamNumBuffs(builder:flatbuffers.Builder, teamNumBuffsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(21, teamNumBuffsOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param Array.<number> data
- * @returns flatbuffers.Offset
- */
-static createTeamNumBuffsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startTeamNumBuffsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
 static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -3258,11 +3424,11 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamVotesOffset:flatbuffers.Offset, teamBidderIDsOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, logsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset, teamNumBuffsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamLeadOffset:flatbuffers.Offset, teamGoldOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicationStringIDsOffset:flatbuffers.Offset, indicationStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
-  Round.addTeamVotes(builder, teamVotesOffset);
-  Round.addTeamBidderIDs(builder, teamBidderIDsOffset);
+  Round.addTeamLead(builder, teamLeadOffset);
+  Round.addTeamGold(builder, teamGoldOffset);
   Round.addMovedIDs(builder, movedIDsOffset);
   Round.addMovedLocs(builder, movedLocsOffset);
   Round.addSpawnedBodies(builder, spawnedBodiesOffset);
@@ -3270,6 +3436,8 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addActionIDs(builder, actionIDsOffset);
   Round.addActions(builder, actionsOffset);
   Round.addActionTargets(builder, actionTargetsOffset);
+  Round.addIndicationStringIDs(builder, indicationStringIDsOffset);
+  Round.addIndicationStrings(builder, indicationStringsOffset);
   Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
   Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
   Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
@@ -3277,11 +3445,9 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addIndicatorLineStartLocs(builder, indicatorLineStartLocsOffset);
   Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
   Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
-  Round.addLogs(builder, logsOffset);
   Round.addRoundID(builder, roundID);
   Round.addBytecodeIDs(builder, bytecodeIDsOffset);
   Round.addBytecodesUsed(builder, bytecodesUsedOffset);
-  Round.addTeamNumBuffs(builder, teamNumBuffsOffset);
   return Round.endRound(builder);
 }
 }
