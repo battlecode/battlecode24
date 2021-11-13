@@ -23,7 +23,9 @@ export type BodiesSchema = {
   flag: Int32Array;
   bytecodesUsed: Int32Array, // TODO: is this needed?
   ability: Int8Array,
-  parent: Int32Array
+  parent: Int32Array,
+  hp: Int32Array,
+  level: Int8Array
 };
 
 // NOTE: consider changing MapStats to schema to use SOA for better performance, if it has large data
@@ -35,6 +37,7 @@ export type MapStats = {
   randomSeed: number,
 
   passability: Float64Array, // double
+  lead: Int32Array;
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
