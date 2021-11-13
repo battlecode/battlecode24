@@ -69,16 +69,6 @@ public class GameConstants {
     /** The amount damage is reduced by every ricochet. */
     public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
 
-    /**
-     * The amount of healing an archon does, based on level.
-     *
-     * @param level the level of the archon
-     * @return the healing amount
-     */
-    public static int getArchonHealing(int level) {
-        return 8 * level; // TODO: update this. maybe move to RobotType? so both archons and builders have this function
-    }
-
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************

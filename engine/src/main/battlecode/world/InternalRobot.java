@@ -14,20 +14,6 @@ import battlecode.schema.Action;
  *  - tiebreak by robot ID (priority to lower ID)
  */
 public strictfp class InternalRobot implements Comparable<InternalRobot> {
-    private enum RobotMode {
-        ROBOT       (true,  true),
-        PROTOTYPE   (false, false),
-        TURRET      (true,  false),
-        PORTABLE    (false, true);
-
-        public final boolean canAct;
-        public final boolean canMove;
-
-        RobotMode(boolean canAct, boolean canMove) {
-            this.canAct     = canAct;
-            this.canMove    = canMove;
-        }
-    }
 
     private final RobotControllerImpl controller;
     private final GameWorld gameWorld;
@@ -45,7 +31,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int bytecodesUsed;
 
     private int roundsAlive;
-    private int cooldownTurns;
+    private int actionCooldownTurns;
     private int movementCooldownTurns;
 
     /**
@@ -76,8 +62,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
-        this.cooldownTurns = 0;
-        this.addCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
+        this.actionCooldownTurns = 0;
+        this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
 
@@ -137,8 +123,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return roundsAlive;
     }
 
-    public int getCooldownTurns() {
-        return cooldownTurns;
+    public int getActionCooldownTurns() {
+        return actionCooldownTurns;
     }
 
     public int getMovementCooldownTurns() {
@@ -168,7 +154,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Returns whether the robot can perform actions, based on mode and cooldowns.
      */
     public boolean canActCooldown() {
-        return this.mode.canAct && this.cooldownTurns < GameConstants.COOLDOWN_LIMIT;
+        return this.mode.canAct && this.actionCooldownTurns < GameConstants.COOLDOWN_LIMIT;
     }
 
     /**
@@ -183,7 +169,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canTransformCooldown() {
         if (this.mode == RobotMode.TURRET)
-            return this.cooldownTurns < GameConstants.COOLDOWN_LIMIT;
+            return this.actionCooldownTurns < GameConstants.COOLDOWN_LIMIT;
         if (this.mode == RobotMode.PORTABLE)
             return this.movementCooldownTurns < GameConstants.COOLDOWN_LIMIT;
         return false;
@@ -256,10 +242,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Resets the action cooldown.
      */
-    public void addCooldownTurns(int numCooldownToAdd) {
+    public void addActionCooldownTurns(int numActionCooldownToAdd) {
         int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newCooldownTurns = numCooldownToAdd * cooldownMultiplier;
-        setCooldownTurns(this.cooldownTurns + newCooldownTurns);
+        int newActionCooldownTurns = numActionCooldownToAdd * cooldownMultiplier;
+        setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
     /**
@@ -268,16 +254,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
         int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
         int newMovementCooldownTurns = numMovementCooldownToAdd * cooldownMultiplier;
-        setCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
+        setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
 
     /**
      * Sets the action cooldown given the number of turns.
      * 
-     * @param newTurns the number of cooldown turns
+     * @param newActionTurns the number of action cooldown turns
      */
-    public void setCooldownTurns(int newTurns) {
-        this.cooldownTurns = newTurns;
+    public void setActionCooldownTurns(int newActionTurns) {
+        this.actionCooldownTurns = newActionTurns;
     }
 
     /**
@@ -308,8 +294,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             int goldDrop = this.type.getGoldDropped(this.level);
             // TODO: drop resources at this location (interact with GameWorld)
             this.gameWorld.destroyRobot(this.ID);
-        }
-        if (this.health != oldHealth) {
+        } else if (this.health != oldHealth) {
             // TODO: double check this
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
@@ -326,10 +311,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (this.canTransformCooldown()) {
             if (this.mode == RobotMode.TURRET) {
                 this.mode = RobotMode.PORTABLE;
-                this.setMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+                this.addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
             } else {
                 this.mode = RobotMode.TURRET;
-                this.setCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+                this.addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
             }
         }
     }
@@ -344,7 +329,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
-        this.addCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
         this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
     }
 
@@ -356,19 +341,23 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        if (!this.canActLocation(bot.location)) return; // TODO: throw exception?
+        if (!this.canActLocation(bot.location))
+            return; // TODO: throw exception?
         int dmg = this.type.getDamage(this.level);
         bot.addHealth(-dmg);
 
         int ricochetCount = this.type.getRicochetCount(this.level);
-        if (ricochetCount == 0) return;
+        if (ricochetCount == 0)
+            return;
 
         // only wizards should execute the next chunk of code
         InternalRobot[] robots = gameWorld.getAllRobotsWithinRadiusSquared(this.location, this.type.getActionRadiusSquared(this.level));
         List<InternalRobot> validTargets = new ArrayList<>();
         for (InternalRobot x : robots) {
-            if (x.team == this.team) continue;
-            if (x.equals(bot)) continue;
+            if (x.team == this.team)
+                continue;
+            if (x.equals(bot))
+                continue;
             validTargets.add(x);
         }
 
@@ -390,7 +379,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
 
         Collections.sort(validTargets, new RicochetPriority());
-        for (int i = 0; i < ricochetCount; i++) {
+        for (int i = 0; i < ricochetCount && i < validTargets.size(); i++) {
             dmg = (int) (dmg * GameConstants.RICOCHET_DAMAGE_MULTIPLIER);
             validTargets.get(i).addHealth(-dmg);
         }
@@ -406,8 +395,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void processBeginningOfTurn() {
-        if (this.cooldownTurns > 0)
-            this.cooldownTurns = Math.max(0, this.cooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+        this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+        this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
