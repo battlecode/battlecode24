@@ -228,9 +228,9 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            int[] cooldownMultiplierArray = new double[width * height];
+            double[] passabilityArray = new double[width * height];
             for (int i = 0; i < width * height; i++) {
-                cooldownMultiplierArray[i] = raw.cooldownMultiplier(i); // TODO
+                passabilityArray[i] = raw.passability(i);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -239,7 +239,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, initialBodies, cooldownMultiplierArray
+                width, height, origin, seed, rounds, mapName, initialBodies, passabilityArray
             );
         }
 
@@ -254,7 +254,7 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            int[] cooldownMultiplierArray = gameMap.getCooldownMultiplierArray();
+            double[] passabilityArray = gameMap.getPassabilityArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
@@ -262,10 +262,10 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
             ArrayList<Integer> bodyInfluences = new ArrayList<>();
-            ArrayList<Integer> cooldownMultipliersArrayList = new ArrayList<>();
+            ArrayList<Double> passabilityArrayList = new ArrayList<>();
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                cooldownMultiplierArrayList.add(cooldownMultiplierArray[i]);
+                passabilityArrayList.add(passabilityArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -291,8 +291,7 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable.addLocs(builder, locs);
             SpawnedBodyTable.addInfluences(builder, influences);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-            // TODO! fix this function call to smth that doesn't exist
-            int cooldownMultiplierArrayInt = battlecode.schema.GameMap.createCooldownMultiplierVector(builder, ArrayUtils.toPrimitive(cooldownMultiplierArrayList.toArray(new Integer[cooldownMultiplierArrayList.size()])));
+            int passabilityArrayInt = battlecode.schema.GameMap.createPassabilityVector(builder, ArrayUtils.toPrimitive(passabilityArrayList.toArray(new Double[passabilityArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -301,8 +300,7 @@ public final strictfp class GameMapIO {
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            // TODO
-            battlecode.schema.GameMap.addCooldownMultiplier(builder, cooldownMultiplierArrayInt);
+            battlecode.schema.GameMap.addPassability(builder, passabilityArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
