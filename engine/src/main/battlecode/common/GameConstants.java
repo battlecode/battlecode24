@@ -43,47 +43,31 @@ public class GameConstants {
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
- 
+
+    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    public static final int COOLDOWN_LIMIT = 10;
+
+    /** The number of cooldown turns reduced per turn. */
+    public static final int COOLDOWNS_PER_TURN = 10;
+
+    /** The number of cooldown turns per transformation. */
+    public static final int TRANSFORM_COOLDOWN = 100;
+
+    /** The number of cooldown turns per upgrade. */
+    public static final int UPGRADE_COOLDOWN = 100;
 
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** The amount of conviction taxed when a Politician empowers. */
-    public static final int EMPOWER_TAX = 10;
+    /** A prototype building's starting health, as a multiplier of max health. */
+    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
 
-    /** The buff factor from exposing Slanderers. */
-    public static final double EXPOSE_BUFF_FACTOR = 0.001;
-    
-    /** The number of rounds a buff is applied. */
-    public static final int EXPOSE_BUFF_NUM_ROUNDS = 50;
+    /** The maximum level a building can be. */
+    public static final int MAX_LEVEL = 3;
 
-    /** The number of rounds Slanderers generate influence. */
-    public static final int EMBEZZLE_NUM_ROUNDS = 50;
-
-    /** The scale factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_SCALE_FACTOR = 0.03f;
-
-    /** The exponential decay factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_DECAY_FACTOR = 0.001f;
-
-    /** The number of rounds before Slanderers turns into Politicians. */
-    public static final int CAMOUFLAGE_NUM_ROUNDS = 300;
-
-    /** The initial amount of influence for each player-owned Enlightenment Center. */
-    public static final int INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE = 150;
-
-    /** The passive influence ratio for Enlightenment Centers. To multiply by sqrt(roundNum). */
-    public static final float PASSIVE_INFLUENCE_RATIO_ENLIGHTENMENT_CENTER = 0.2f;
-
-    /** Maximum allowable robot influence. */
-    public static final int ROBOT_INFLUENCE_LIMIT = 100000000;
-
-    /** The minimum allowable flag value. */
-    public static final int MIN_FLAG_VALUE = 0;
-
-    /** The maximum allowable flag value. */
-    public static final int MAX_FLAG_VALUE = 16777215;
+    /** The amount damage is reduced by every ricochet. */
+    public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
