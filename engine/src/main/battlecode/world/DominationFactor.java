@@ -5,21 +5,21 @@ package battlecode.world;
  */
 public enum DominationFactor {
     /**
-     * Win by all enemy robots being destroyed (early end).
+     * Win by all enemy archons being destroyed (early end).
      */
     ANNIHILATED,
     /**
-     * Win by more votes.
+     * Win by having more Archons.
      */
-    MORE_VOTES,
+    MORE_ARCHONS,
     /**
-     * Win by having more Enlightenment Centers (tiebreak 1).
+     * Win by more gold net worth (tiebreak 1).
      */
-    MORE_ENLIGHTENMENT_CENTERS,
+    MORE_GOLD_NET_WORTH,
     /**
-     * Win by more total influence (tiebreak 2).
+     * Win by more lead net worth (tiebreak 2).
      */
-    MORE_INFLUENCE,
+    MORE_LEAD_NET_WORTH,
     /**
      * Win by coinflip (tiebreak 3).
      */
