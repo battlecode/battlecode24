@@ -399,6 +399,33 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod 
      */
     void attack(MapLocation loc) throws GameActionException;
+
+    // *****************************
+    // ****** ARCHON METHODS ****** 
+    // *****************************
+
+    /**
+     * Tests whether this robot can heal a robot (not building) at the given location.
+     * 
+     * Checks that the robot is an archon unit and that the given location
+     * is within the robot's action radius. Also checks that a 
+     * friendly robot unit (not a building) exists in the given square. 
+     *
+     * @param loc target location to heal at 
+     * @return whether it is possible to heal a robot at the given location.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canHealRobot(MapLocation loc);
+
+    /** 
+     * Heals at a given location.
+     *
+     * @throws GameActionException if conditions for healing are not satisfied
+     * @battlecode.doc.costlymethod 
+     */
+    void healRobot(MapLocation loc) throws GameActionException;
+
  
     // ***********************
     // **** MINER METHODS **** 
@@ -475,6 +502,28 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod 
      */
     void upgrade(MapLocation loc) throws GameActionException;
+
+    /**
+     * Tests whether this robot can repair a building at the given location.
+     * 
+     * Checks that the robot is a builder unit and that the given location
+     * is within the robot's action radius. Also checks that a 
+     * friendly unit which is a building exists in the given square. 
+     *
+     * @param loc target location to repair building at 
+     * @return whether it is possible to repair a building at the given location.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canRepairBuilding(MapLocation loc);
+
+    /** 
+     * Repairs building at a given location.
+     *
+     * @throws GameActionException if conditions for repairing building are not satisfied
+     * @battlecode.doc.costlymethod 
+     */
+    void repairBuilding(MapLocation loc) throws GameActionException;
 
     // *******************************
     // **** ALCHEMIST LAB METHODS **** 
