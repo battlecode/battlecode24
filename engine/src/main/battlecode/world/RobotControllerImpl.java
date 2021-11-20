@@ -78,18 +78,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getTeamVotes() {
-        return gameWorld.getTeamInfo().getVotes(getTeam());
-    }
-
-    @Override
     public int getRobotCount() {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
     @Override
-    public double getEmpowerFactor(Team team, int roundsInFuture) {
-        return gameWorld.getTeamInfo().getBuff(team, getRoundNum() + roundsInFuture);
+    public double getArchonCount() {
+        // TODO: Assumes getArchons() exists in TeamInfo
+        return gameWorld.getTeamInfo().getArchons();
     }
 
     // *********************************
@@ -115,90 +111,69 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
+ 
+    @Override
+    public int getHealth() {
+        return this.robot.getHeatlh();
+    }
+
+    @Override
+    public int getUpgradeLevel() {
+        return this.robot.getUpgradeLevel();  
+    }
 
     private InternalRobot getRobotByID(int id) {
         if (!gameWorld.getObjectInfo().existsRobot(id))
             return null;
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
- 
-    public int getInfluence() {
-        return this.robot.getInfluence();
-    }
-
-    public int getConviction() {
-        return this.robot.getConviction();  
-    }
 
 
     // ***********************************
-    // ****** GENERAL SENSOR METHODS *****
+    // ****** GENERAL VISION METHODS *****
     // ***********************************
 
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within sensor range");
+        if (!this.robot.canSeeLocation(loc))
+            throw new GameActionException(CANT_SEE_THAT,
+                    "Target location not within vision range");
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
-    private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
+    private void assertCanSeeLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within sensor range");
+        if (!this.robot.canSeeLocation(loc))
+            throw new GameActionException(CANT_SEE_THAT,
+                    "Target location not within vision range");
         if (!gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
+            throw new GameActionException(CANT_SEE_THAT,
                     "Target location is not on the map");
     }
 
     @Override
-    public boolean canSenseLocation(MapLocation loc) {
+    public boolean canSeeLocation(MapLocation loc) {
         try {
-            assertCanSenseLocation(loc);
+            assertCanSeeLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
     @Override
-    public boolean canSenseRadiusSquared(int radiusSquared) {
-        return this.robot.canSenseRadiusSquared(radiusSquared);
-    }
-
-    private void assertCanDetectLocation(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        if (!this.robot.canDetectLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within detection range");
-        if (!gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
+    public boolean canSeeRadiusSquared(int radiusSquared) {
+        return this.robot.canSeeRadiusSquared(radiusSquared);
     }
 
     @Override
-    public boolean canDetectLocation(MapLocation loc) {
-        try {
-            assertCanDetectLocation(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public boolean canDetectRadiusSquared(int radiusSquared) {
-        return this.robot.canDetectRadiusSquared(radiusSquared);
-    }
-
-    @Override
-    public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
-        assertCanDetectLocation(loc);
+    public boolean canSeeRobotAtLocation(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
         return this.gameWorld.getRobot(loc) != null;
     }
 
     @Override
-    public RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
+    public RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
         if (bot != null)
             return bot.getRobotInfo(getType().canTrueSense());
@@ -206,87 +181,71 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRobot(int id) {
-        InternalRobot sensedRobot = getRobotByID(id);
-        return sensedRobot == null ? false : canSenseLocation(sensedRobot.getLocation());
+    public boolean canSeeRobot(int id) {
+        InternalRobot seenRobot = getRobotByID(id);
+        return seenRobot == null ? false : canSeeLocation(seenRobot.getLocation());
     }
 
     @Override
-    public RobotInfo senseRobot(int id) throws GameActionException {
-        if (!canSenseRobot(id))
+    public RobotInfo seeRobot(int id) throws GameActionException {
+        if (!canSeeRobot(id))
             throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given robot; It may not exist anymore");
+                    "Can't see given robot; It may not exist anymore");
         return getRobotByID(id).getRobotInfo(getType().canTrueSense());
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots() {
-        return senseNearbyRobots(-1);
+    public RobotInfo[] seeNearbyRobots() {
+        return seeNearbyRobots(-1);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared) {
-        return senseNearbyRobots(radiusSquared, null);
+    public RobotInfo[] seeNearbyRobots(int radiusSquared) {
+        return seeNearbyRobots(radiusSquared, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) {
-        return senseNearbyRobots(getLocation(), radiusSquared, team);
+    public RobotInfo[] seeNearbyRobots(int radiusSquared, Team team) {
+        return seeNearbyRobots(getLocation(), radiusSquared, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
+    public RobotInfo[] seeNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
         int actualRadiusSquared = radiusSquared == -1 ? getType().sensorRadiusSquared : Math.min(radiusSquared, getType().sensorRadiusSquared);
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
-        List<RobotInfo> validSensedRobots = new ArrayList<>();
-        for (InternalRobot sensedRobot : allSensedRobots) {
+        InternalRobot[] allSeenRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
+        List<RobotInfo> validSeenRobots = new ArrayList<>();
+        for (InternalRobot seenRobot : allSeenRobots) {
             // check if this robot
-            if (sensedRobot.equals(this.robot))
+            if (seenRobot.equals(this.robot))
                 continue;
-            // check if can sense
-            if (!canSenseLocation(sensedRobot.getLocation()))
+            // check if can see
+            if (!canSeeLocation(seenRobot.getLocation()))
                 continue; 
             // check if right team
-            if (team != null && sensedRobot.getTeam() != team)
+            if (team != null && seenRobot.getTeam() != team)
                 continue;
-            validSensedRobots.add(sensedRobot.getRobotInfo(getType().canTrueSense()));
+            validSeenRobots.add(seenRobot.getRobotInfo(getType().canTrueSense()));
         }
-        return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots() {
-        return detectNearbyRobots(-1);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots(int radiusSquared) {
-        return detectNearbyRobots(getLocation(), radiusSquared);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots(MapLocation center, int radiusSquared) {
-        assertNotNull(center);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().detectionRadiusSquared : Math.min(radiusSquared, getType().detectionRadiusSquared);
-        InternalRobot[] allDetectedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
-        List<MapLocation> validDetectedRobots = new ArrayList<>();
-        for (InternalRobot detectedRobot : allDetectedRobots) {
-            // check if this robot
-            if (detectedRobot.equals(this.robot))
-                continue;
-            // check if can detect
-            if (!canDetectLocation(detectedRobot.getLocation()))
-                continue;
-            validDetectedRobots.add(detectedRobot.getLocation());
-        }
-        return validDetectedRobots.toArray(new MapLocation[validDetectedRobots.size()]);
+        return validSeenRobots.toArray(new RobotInfo[validSeenRobots.size()]);
     }
 
     @Override 
-    public double sensePassability(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
+    public double seePassability(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
         return this.gameWorld.getPassability(loc);
+    }
+
+    @Override 
+    public double seeLead(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
+        return this.gameWorld.getLead(loc);
+    }
+
+    @Override 
+    public double seeGold(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
+        return this.gameWorld.getGold(loc);
     }
 
     @Override
@@ -376,18 +335,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    private void assertCanBuildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
+    private void assertCanBuildRobot(RobotType type, Direction dir) throws GameActionException {
         assertNotNull(type);
         assertNotNull(dir);
         if (!getType().canBuild(type))
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build robots of type" + type + ".");
-        if (influence <= 0)
+
+        // CHECK FUNCTION NAMES FOR GETTING LEAD/GOLD COSTS AND SUPPLIES
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
+        Team team = getTeam();
+        if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend nonpositive amount of influence.");
-        if (influence > getInfluence())
+                    "Insufficient amount of lead.");
+        }
+        if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend more influence than you have.");
+                    "Insufficient amount of gold.");
+        }
+
         MapLocation spawnLoc = adjacentLocation(dir);
         if (!onTheMap(spawnLoc))
             throw new GameActionException(OUT_OF_RANGE,
@@ -401,21 +368,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canBuildRobot(RobotType type, Direction dir, int influence) {
+    public boolean canBuildRobot(RobotType type, Direction dir) {
         try {
-            assertCanBuildRobot(type, dir, influence);
+            assertCanBuildRobot(type, dir);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
+    // TODO: CHECK FUNCTION NAMES
     @Override
-    public void buildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
-        assertCanBuildRobot(type, dir, influence);
+    public void buildRobot(RobotType type, Direction dir) throws GameActionException {
+        assertCanBuildRobot(type, dir);
+
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
 
         this.robot.addCooldownTurns();
-        this.robot.addInfluenceAndConviction(-influence);
 
-        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam(), influence);
+        this.robot.addLead(-leadNeeded);
+        this.robot.addGold(-goldNeeded);
+
+        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
         // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
         InternalRobot newBot = getRobotByID(robotID);

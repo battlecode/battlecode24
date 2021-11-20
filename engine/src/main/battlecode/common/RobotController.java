@@ -144,6 +144,17 @@ public strictfp interface RobotController {
     boolean canSeeRadiusSquared(int radiusSquared);
 
     /**
+     * Checks whether a robot is at a given location. Assumes the location is valid.  
+     *
+     * @param loc the location to check
+     * @return true if a robot is at the location.
+     * @throws GameActionException if the location is not within vision range or on the map.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
+
+    /**
      * Sees the robot at the given location, or null if there is no robot
      * there.
      *
@@ -153,7 +164,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
+    RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the given robot exists and if it is within this robot's
@@ -344,6 +355,9 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** BUILDING/SPAWNING **********
     // ***********************************
+
+
+    // TODO: is upgrade level a part of type or an extra parameter?
 
     /**
      * Tests whether the robot can build a robot of the given type in the
