@@ -335,18 +335,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    private void assertCanBuildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
+    private void assertCanBuildRobot(RobotType type, Direction dir) throws GameActionException {
         assertNotNull(type);
         assertNotNull(dir);
         if (!getType().canBuild(type))
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build robots of type" + type + ".");
-        if (influence <= 0)
+
+        // CHECK FUNCTION NAMES FOR GETTING LEAD/GOLD COSTS AND SUPPLIES
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
+        Team team = getTeam();
+        if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend nonpositive amount of influence.");
-        if (influence > getInfluence())
+                    "Insufficient amount of lead.");
+        }
+        if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend more influence than you have.");
+                    "Insufficient amount of gold.");
+        }
+
         MapLocation spawnLoc = adjacentLocation(dir);
         if (!onTheMap(spawnLoc))
             throw new GameActionException(OUT_OF_RANGE,
@@ -360,21 +368,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canBuildRobot(RobotType type, Direction dir, int influence) {
+    public boolean canBuildRobot(RobotType type, Direction dir) {
         try {
-            assertCanBuildRobot(type, dir, influence);
+            assertCanBuildRobot(type, dir);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
+    // TODO: CHECK FUNCTION NAMES
     @Override
-    public void buildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
-        assertCanBuildRobot(type, dir, influence);
+    public void buildRobot(RobotType type, Direction dir) throws GameActionException {
+        assertCanBuildRobot(type, dir);
+
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
 
         this.robot.addCooldownTurns();
-        this.robot.addInfluenceAndConviction(-influence);
 
-        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam(), influence);
+        this.robot.addLead(-leadNeeded);
+        this.robot.addGold(-goldNeeded);
+
+        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
         // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
         InternalRobot newBot = getRobotByID(robotID);
