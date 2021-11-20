@@ -356,6 +356,9 @@ public strictfp interface RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
+
+    // TODO: is upgrade level a part of type or an extra parameter?
+
     /**
      * Tests whether the robot can build a robot of the given type in the
      * given direction. Checks that the robot is of a type that can build,
