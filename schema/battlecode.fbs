@@ -33,11 +33,8 @@ enum BodyType : byte {
 
     // Combat units
     GUARD,
-    GUARD_TURRET,
-    ARCHER,
-    ARCHER_TURRET,
     WIZARD,
-    WIZARD_TURRET
+    TURRET
 }
 
 /// A list of new bodies to be placed on the map.
@@ -96,7 +93,10 @@ enum Action : byte {
     UPGRADE, // builder upgrades building,
     REPAIR, // builder repairs building
     CHANGE_HP,
-    FULLY_REPAIRED // prototype becomes a turret
+    FULLY_REPAIRED, // prototype becomes a turret
+    LOCAL_ABYSS,
+    LOCAL_FURY,
+    LOCAL_VORTEX
 }
 
 // Metadata
