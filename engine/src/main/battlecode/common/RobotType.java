@@ -4,12 +4,13 @@ package battlecode.common;
  * Contains details on various attributes of the different robots. All of this information is in the specs in a more organized form.
  */
 
-PLACEHOLDER_ACTION_RADIUS = 100;
-PLACEHOLDER_VISION_RADIUS = 100;
-PLACEHOLDER_BYTECODE_LIMIT = 7500;
-NO_COOLDOWN_CLOCK = 10000000;
-
 public enum RobotType {
+
+    public final int PLACEHOLDER_ACTION_RADIUS = 100;
+    public final int PLACEHOLDER_VISION_RADIUS = 100;
+    public final int PLACEHOLDER_BYTECODE_LIMIT = 7500;
+    public final int NO_COOLDOWN_CLOCK = 10000000;
+
 
     // Build Cost Lead, Build Cost Gold, Action Cooldown, Move Cooldown
     // DPS Lv1, HP Lv1, Action Radius (squared), Vision Radius (squared), Reclaim Cost Percentage, Bytecode Limit
@@ -20,8 +21,8 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    ARCHON          (  0, 250, 10, NO_COOLDOWN_CLOCK, -5, 700, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC                 MC DPS   HP                         AR                          VR  RCP                         BL
+    ARCHON          (  0, 250, 10, NO_COOLDOWN_CLOCK, -AUTOMATIC_ARCHON_HEAL_AMOUNT, 700, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG, AC                 MC DPS                         HP                         AR                          VR  RCP                         BL
     /**
      * A lead robot
      * Can mine gold or lead at their or an adjacent location.
@@ -36,8 +37,8 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    BUILDER         ( 40,  0,  10,       10, -10, 30, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL,BCG,  AC        MC  DPS  HP                         AR                        VR RCP                        BL
+    BUILDER         ( 40,  0,  10,       10, -AUTOMATIC_BUILDER_HEAL_AMOUNT, 30, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL,BCG,  AC        MC  DPS                         HP                         AR                        VR RCP                        BL
     /**
      * Alchemist's laboratory
      * Converts lead into gold
@@ -180,6 +181,20 @@ public enum RobotType {
         return (int) dps;
     }
 
+    /**
+     * @param level
+     * @return the healing per turn for a robot by level.
+     */
+    public int getHealing(int level){
+        int hps = -type.DPSLv1;
+        if(level >= 2)
+            hps *= GameConstants.HPS1_TO_2;
+        if(level >= 3)
+            hps *= GameConstants.HPS_2_TO_3;
+
+        return (int) hps;
+    }
+
     // COST RELATED FUNCTIONS
 
     /**
@@ -269,6 +284,7 @@ public enum RobotType {
         this.visionRadiusSquared            = visionRadiusSquared;
         this.reclaimCostPercentage          = reclaimCostPercentage;
         this.bytecodeLimit                  = bytecodeLimit;
+
     }
 
 }
