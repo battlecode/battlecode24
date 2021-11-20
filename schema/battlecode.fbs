@@ -96,7 +96,7 @@ enum Action : byte {
     FULLY_REPAIRED, // prototype becomes a turret
     LOCAL_ABYSS,
     LOCAL_FURY,
-    LOCAL_VORTEX
+    LOCAL_CHARGE
 }
 
 // Metadata
