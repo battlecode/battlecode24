@@ -212,7 +212,6 @@ public enum RobotType {
         return 0;
     }
 
-
     /**
      * @param level to upgrade to
      * @return gold component of cost to upgrade.
@@ -246,14 +245,14 @@ public enum RobotType {
      * @param level, current 
      */
     public int getGoldDropped(int level) {
-        int total = getLeadWorth() * reclaimCostPercentage;
+        int total = getGoldWorth() * reclaimCostPercentage;
     }
 
     /**
      * @param level, current
      */
     public int getLeadDropped(int level) {
-        int total = getGoldWorth() * reclaimCostPercentage;
+        int total = getLeadWorth() * reclaimCostPercentage;
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int moveCooldown,
