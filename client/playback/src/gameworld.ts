@@ -22,7 +22,7 @@ export type BodiesSchema = {
   y: Int32Array,
   flag: Int32Array;
   bytecodesUsed: Int32Array, // TODO: is this needed?
-  ability: Int8Array,
+  action: Int8Array,
   parent: Int32Array,
   hp: Int32Array,
   level: Int8Array
@@ -38,6 +38,7 @@ export type MapStats = {
 
   passability: Float64Array, // double
   lead: Int32Array;
+  gold: Int32Array;
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
@@ -46,14 +47,13 @@ export type MapStats = {
 export type TeamStats = {
   // An array of numbers corresponding to team stats, which map to RobotTypes
   // Corresponds to robot type (including NONE. length 5)
-  robots: [number, number, number, number, number],
-  votes: number,
-  influence: [number, number, number, number, number],
-  conviction: [number, number, number, number, number],
-  numBuffs: number,
-  bidderID: number,
-  bid: number,
-  income: number
+  // First four are droids (guard, wizard, builder, miner), last three are buildings (turret, archon, lab)
+  robots: [number, number, number, number, number[], number[], number[]],
+  lead: number,
+  gold: number,
+  total_hp: [number, number, number, number, number[], number[], number[]],
+  lead_income: number,
+  gold_income: number
 };
 
 export type IndicatorDotsSchema = {
@@ -84,6 +84,8 @@ export type Log = {
   text: string
 };
 
+
+
 /**
  * A frozen image of the game world.
  *
@@ -99,11 +101,6 @@ export default class GameWorld {
    * Everything that isn't an indicator string.
    */
   bodies: StructOfArrays<BodiesSchema>;
-
-  /**
-   * Bodies that empowered this round.
-   */
-  empowered: StructOfArrays<EmpowerSchema>;
 
   /*
    * Stats for each team
@@ -186,14 +183,6 @@ export default class GameWorld {
   constructor(meta: Metadata, config: playbackConfig) {
     this.meta = meta;
 
-    this.empowered = new StructOfArrays({
-      id: new Int32Array(0),
-      x: new Int32Array(0),
-      y: new Int32Array(0),
-      team: new Int8Array(0),
-      radius: new Int32Array(0)
-    }, 'id');
-
     this.diedBodies = new StructOfArrays({
       id: new Int32Array(0),
       x: new Int32Array(0),
@@ -206,16 +195,13 @@ export default class GameWorld {
       type: new Int8Array(0),
       x: new Int32Array(0),
       y: new Int32Array(0),
-      influence: new Int32Array(0),
-      conviction: new Int32Array(0),
       flag: new Int32Array(0),
       bytecodesUsed: new Int32Array(0),
-      ability: new Int8Array(0),
-      bid: new Int32Array(0),
+      action: new Int8Array(0),
       parent: new Int32Array(0),
-      income: new Int32Array(0)
+      hp: new Int32Array(0),
+      level: new Int8Array(0)
     }, 'id');
-
 
     // Instantiate teamStats
     this.teamStats = new Map<number, TeamStats>();
@@ -223,10 +209,10 @@ export default class GameWorld {
         var teamID = this.meta.teams[team].teamID;
         this.teamStats.set(teamID, {
           robots: [
-            0, // ENLIGHTENMENT_CENTER
-            0, // POLITICIAN
-            0, // SLANDERER
-            0, // MUCKRAKER
+            0, 
+            0,
+            0,
+            0,
             0, // NONE
           ],
           votes: 0,
@@ -359,7 +345,7 @@ export default class GameWorld {
   /**
    * Process a set of changes.
    */
-  processDelta(delta: schema.Round) {
+  processDelta(delta: schema.Round) { // Change to reflect current game
     if (delta.roundID() != this.turn + 1) {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
@@ -418,18 +404,31 @@ export default class GameWorld {
           
           /// Politicians self-destruct and affect nearby bodies
           /// Target: none
-          case schema.Action.EMPOWER:
+          
+
+          case schema.Action.ATTACK:
             //this.bodies.alter({ id: robotID, ability: 1});
-            this.empowered.insert({'id': robotID, 'x': body.x, 'y': body.y, 'team': body.team, 'radius': target});
+            this.bodies.alter({id: robotID, action: schema.Action.ATTACK as number});
             this.abilityRobots.push(robotID);
             break;
           /// Slanderers passively generate influence for the
           /// Enlightenment Center that created them.
           /// Target: parent ID
-          case schema.Action.EMBEZZLE:
-            this.bodies.alter({ id: robotID, ability: 3});
+          case schema.Action.LOCAL_ABYSS:
+            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_ABYSS as number});
             this.abilityRobots.push(robotID);
             break;
+
+          case schema.Action.LOCAL_CHARGE:
+            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_CHARGE as number});
+            this.abilityRobots.push(robotID);
+            break;
+          
+          case schema.Action.LOCAL_FURY:
+            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_FURY as number});
+            this.abilityRobots.push(robotID);
+            break;
+          
           /// Slanderers turn into Politicians.
           /// Target: none
           case schema.Action.CAMOUFLAGE:
@@ -476,6 +475,9 @@ export default class GameWorld {
             break;
           /// A robot can change team after being empowered
           /// Target: teamID
+          case schema.Action.CHANGE_TEAM:
+            // TODO remove the robot, don't alter it
+            break;
           /// A robot's influence changes.
           /// Target: delta value
           case schema.Action.CHANGE_INFLUENCE:
