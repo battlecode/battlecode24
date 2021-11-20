@@ -409,7 +409,7 @@ public strictfp interface RobotController {
      * is within the robot's reach (based on attack type). Also checks that an 
      * enemy unit exists in the given square.
      *
-     * @param loc target location to attack 
+     * @param loc target location to attack
      * @return whether it is possible to attack the given location.
      *
      * @battlecode.doc.costlymethod
@@ -429,18 +429,18 @@ public strictfp interface RobotController {
     // *****************************
 
     /**
-     * Tests whether this robot can heal a robot (not building) at the given location.
+     * Tests whether this robot can heal a droid at the given location.
      * 
      * Checks that the robot is an archon unit and that the given location
-     * is within the robot's action radius. Also checks that a
-     * friendly robot unit (not a building) exists in the given square.
+     * is within the robot's action radius. Also checks that a 
+     * friendly droid robot exists in the given square. 
      *
      * @param loc target location to heal at
-     * @return whether it is possible to heal a robot at the given location.
+     * @return whether it is possible to heal a droid robot at the given location.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHealRobot(MapLocation loc);
+    boolean canHealDroid(MapLocation loc);
 
     /** 
      * Heals at a given location.
@@ -448,7 +448,7 @@ public strictfp interface RobotController {
      * @throws GameActionException if conditions for healing are not satisfied
      * @battlecode.doc.costlymethod 
      */
-    void healRobot(MapLocation loc) throws GameActionException;
+    void healDroid(MapLocation loc) throws GameActionException;
 
  
     // ***********************
