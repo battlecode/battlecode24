@@ -388,11 +388,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int goldNeeded = type.getGoldCost();
         Team team = getTeam();
         if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+            throw new GameActionException(CANT_DO_THAT,
                     "Insufficient amount of lead.");
         }
         if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+            throw new GameActionException(CANT_DO_THAT,
                     "Insufficient amount of gold.");
         }
 
@@ -413,7 +413,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    // TODO: Change cooldown turns to build turn
+    // TODO: CHECK FUNCTION NAMES
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
         assertCanBuildRobot(type, dir);
@@ -421,11 +421,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
 
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addCooldownTurns();
 
-        Team robotTeam = this.robot.getTeam();
-        robotTeam.addLead(-leadNeeded);
-        robotTeam.addGold(-goldNeeded);
+        this.robot.addLead(-leadNeeded);
+        this.robot.addGold(-goldNeeded);
+
+        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
         int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
