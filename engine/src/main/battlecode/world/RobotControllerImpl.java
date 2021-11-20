@@ -114,7 +114,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
  
     @Override
     public int getHealth() {
-        return this.robot.getHealth();
+        return this.robot.getHeatlh();
     }
 
     @Override
@@ -239,13 +239,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override 
     public double seeLead(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getLeadAtLocation(loc);
+        return this.gameWorld.getLead(loc);
     }
 
     @Override 
-    public int senseRubble(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
-        return this.gameWorld.getRubble(loc);
+    public double seeGold(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
+        return this.gameWorld.getGold(loc);
     }
 
     @Override
