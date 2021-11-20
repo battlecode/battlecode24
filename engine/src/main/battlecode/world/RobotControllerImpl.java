@@ -357,7 +357,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        this.robot.addCooldownTurns();
+        this.robot.addMovementCooldownTurns();
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -417,7 +417,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
 
-        this.robot.addCooldownTurns();
+        this.robot.addActionCooldownTurns();
 
         //TODO: why is this on the robot?
         Team robotTeam = this.robot.getTeam();
@@ -463,9 +463,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     void attack(MapLocation loc) throws GameActionException{
         assertCanAttack(loc);
-        this.robot.attack(loc);
         this.robot.addActionCooldownTurns();
         InternalRobot bot = gameWorld.getRobot(loc);
+        this.robot.attack(bot);
         int attackedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, attackedID);
     }
