@@ -105,9 +105,6 @@ public class GameConstants {
     public static final int LEAD_TO_GOLD_RATE = 20;
     public static final int INITIAL_LEAD = 200;
 
-    public static final float RECLAIM_COST_PERCENTAGE = 0.2;
-    
-
     // Older constants below, maintaining them for now.
 
     /** The maximum level a building can be. */

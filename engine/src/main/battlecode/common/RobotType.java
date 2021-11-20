@@ -1,13 +1,6 @@
 package battlecode.common;
 
 /**
-* Contains the two currency types for supporting robot build costs.
-*/
-public enum CurrencyType {
-    AU, PB
-}
-
-/**
  * Contains details on various attributes of the different robots. All of this information is in the specs in a more organized form.
  */
 
@@ -19,7 +12,7 @@ NO_COOLDOWN_CLOCK = 10000000;
 public enum RobotType {
 
     // Build Cost Lead, Build Cost Gold, Action Cooldown, Move Cooldown
-    // DPS Lv1, HP Lv1, Action Radius (squared), Vision Radius (squared), Reclaim Cost Percentage, Bytecode Limit, RicochetCount
+    // DPS Lv1, HP Lv1, Action Radius (squared), Vision Radius (squared), Reclaim Cost Percentage, Bytecode Limit
 
     /**
      * Archons are portable buildings that heal and generate robots.
@@ -27,72 +20,52 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    ARCHON          (0,   250, 10, NO_COOLDOWN_CLOCK, -5, 700, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC                 MC DPS   HP                         AR                          VR  RCP RC,                         BL
+    ARCHON          (  0, 250, 10, NO_COOLDOWN_CLOCK, -5, 700, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG, AC                 MC DPS   HP                         AR                          VR  RCP                         BL
     /**
      * A lead robot
      * Can mine gold or lead at their or an adjacent location.
      *
      * @battlecode.doc.robottype
      */
-    MINER           ( 50,   0, 2,       10,   0,  40, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC       MC  DPS   HP                         AR                         VR RCP  RC                          BL
+    MINER           ( 50,   0, 2,       10,   0,  40, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG, AC       MC  DPS   HP                         AR                         VR RCP                           BL
     /**
      * A lead robot
      * Can build, repair, and upgrade non-Archon buildings.
      *
      * @battlecode.doc.robottype
      */
-    BUILDER         ( 40,  0,  10,       10, -10, 30, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL,BCG,  AC        MC  DPS  HP                         AR                        VR RCP  RC                          BL
+    BUILDER         ( 40,  0,  10,       10, -10, 30, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL,BCG,  AC        MC  DPS  HP                         AR                        VR RCP                        BL
     /**
      * Alchemist's laboratory
      * Converts lead into gold
      *
      * @battlecode.doc.robottype
      */
-    LABORATORY      (800,   0, 10, NO_COOLDOWN_CLOCK, 0, 500, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC                  MC DPS HP                         AR                        VR   RCP RC                          BL
+    LABORATORY      (800,   0, 10, NO_COOLDOWN_CLOCK, 0, 500, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG, AC                  MC DPS HP                         AR                        VR   RCP                           BL
 
     /**
      * Lead attacking robot, low-range, medium-damage.
     */
-    GUARD           ( 75,   0,  10,       20, 35, 120, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,   0, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                         AR                          VR RCP RC                         BL
+    GUARD           ( 75,   0,  10,       20, 35, 120, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,   0, PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG,  AC        MC DPS   HP                         AR                          VR RCP                         BL
     
-    /**
-     * Lead attacking robot, high-range, low-damage.
-    */
-    ARCHER          ( 75,  0,  10,       15, 20,  80, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,    0, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC  DPS  HP                         AR                          VR RCP  RC                          BL
-
     /**
      * Gold robot, medium-range, high-damage.
      */
-    WIZARD          ( 0,   50,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0,  0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                        AR                          VR RCP RC                          BL
+    WIZARD          ( 0,   50,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0,  PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCL, BCG,  AC        MC DPS   HP                        AR                          VR RCP                          BL
 
     /**
     * Guard turret 
     */
     // TODO These are placeholder values only
-    GUARD_TURRET   ( 50,    0,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2,  0,  PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCA, BCG,  AC        MC DPS   HP                        AR                          VR RCP RC                           BL
+    GUARD_TURRET   ( 50,    0,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2,  PLACEHOLDER_BYTECODE_LIMIT),
+    //               BCA, BCG,  AC        MC DPS   HP                        AR                          VR RCP                           BL
 
-    /**
-    * Archer turret
-    */
-    // TODO These are placeholder values only
-    ARCHER_TURRET   ( 50,   0,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                        AR                          VR RCP RC                          BL
-
-    /**
-    * Wizard turret
-    * Has upgradeable ricochet count.
-    */
-    // TODO These are placeholder values only 
-    WIZARD_TURRET   ( 50,   0,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, 2, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                        AR                          VR RCP BL                          RC
     ;
 
     /**
@@ -142,11 +115,6 @@ public enum RobotType {
     public final int bytecodeLimit;
 
     /**
-     * Ricochet count.
-     */
-    public final int ricochetCount;
-
-    /**
      * @return the squared action radius.
      */
     public int getActionRadiusSquared(int level) {
@@ -169,20 +137,7 @@ public enum RobotType {
             this == ARCHON
             || this == LABORATORY
             || this == GUARD_TURRET
-            || this == ARCHER_TURRET
-            || this == WIZARD_TURRET
         );
-    }
-
-
-    /**
-     * Returns whether the type can build robots of the specified type.
-     *
-     * @param type the RobotType to be built
-     * @return whether the type can build robots of the specified type
-     */
-    public boolean canBuild(RobotType type) {
-        return this == type.spawnSource;
     }
 
     /**
@@ -225,51 +180,85 @@ public enum RobotType {
         return (int) dps;
     }
 
+    // COST RELATED FUNCTIONS
+
     /**
-     * @param level
-     * @return the ricochet count by level, controlled by a multiplier and rounded down.
+    * @param level to upgrade to
+    * @return cost to upgrade (lead if level -> 2, gold if level -> 3)
+    */
+    public int getUpgradeCost(int level) {
+        Map<RobotType, int> toLevel2 = new HashMap<RobotType, int>();
+        toLevel2.put(RobotType.ARCHON, 2500);
+        toLevel2.put(RobotType.LABORATORY, 400);
+        toLevel2.put(RobotType.GUARD_TURRET, 25);
+
+        Map<RobotType, int> toLevel3 = new HashMap<RobotType, int>();
+        toLevel3.put(RobotType.ARCHON, 5000);
+        toLevel3.put(RobotType.LABORATORY, 800);
+        toLevel3.put(RobotType.GUARD_TURRET, 50);
+
+        if (level == 1) return 0;
+        if (level == 2) return toLevel2.get(this);
+        // otherwise, level 3
+        return toLevel3.get(this);
+    }
+
+    /**
+     * @param level to upgrade to
+     * @return lead component of cost to upgrade.
      */
-    public int getRicochetCount(int level) {
-        return (int) (this.ricochetCount * Math.pow(GameConstants.RICOCHET_UPGRADE_MULTIPLIER, level - 1));
+    public int getLeadUpgradeCost(int level) {
+        if (level == 2) return getUpgradeCost(level);
+        return 0;
     }
 
 
     /**
-     * @param level
-     * @return the amount of lead dropped, based on a multiplier by level.
+     * @param level to upgrade to
+     * @return gold component of cost to upgrade.
+     */
+    public int getGoldUpgradeCost(int level) {
+        if (level == 3) return getUpgradeCost(level);
+        return 0;
+    }
+
+    /**
+     * @param level, current
+     * @return lead component of worth
      */
     public int getLeadWorth(int level) {
-        return this.getCurrencyWorth(this.buildCostLead, level);
+        int total = this.buildCostLead;
+        if(level >= 2) total += getLeadUpgradeCost(level);
+        return total;
     }
 
     /**
-     * @param level
-     * @return the amount of gold dropped, based on a multiplier by level.
+     * @param level, current
+     * @return gold component of worth
      */
     public int getGoldWorth(int level) {
-        return this.getCurrencyDropped(this.buildCostGold, level);
+        int total = this.buildCostGold;
+        if(level == 3) total += getGoldUpgradeCost(level);
+        return total;
     }
 
     /**
-     * Calculates the total cost of a building based on level/upgrade multiplier.
-     * @param level 
-     * @param baseWorth to build the building
-     * @return worth of building in the currency
+     * @param level, current 
      */
-    private int getCurrencyWorth(int baseWorth, int level) {
-        return (int) (this.buildCostAmount * Math.pow(BUILDING_UPGRADE_COST_MULTIPLIER, level - 1));
-    }
-
-    public int getLeadDropped(int level) {
-
-    }
-
     public int getGoldDropped(int level) {
+        int total = getLeadWorth() * reclaimCostPercentage;
+    }
 
+    /**
+     * @param level, current
+     */
+    public int getLeadDropped(int level) {
+        int total = getGoldWorth() * reclaimCostPercentage;
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int moveCooldown,
-        int DPSLv1, int HPLv1, int actionRadiusSquared, int visionRadiusSquared, int ricochetCount, int bytecodeLimit) {
+        int DPSLv1, int HPLv1, int actionRadiusSquared, int visionRadiusSquared, float reclaimCostPercentage,
+        int ricochetCount, int bytecodeLimit) {
 
         this.buildCostLead                  = buildCostLead;
         this.buildCostGold                  = buildCostGold;
@@ -279,7 +268,7 @@ public enum RobotType {
         this.HPLv1                          = HPLv1;
         this.actionRadiusSquared            = actionRadiusSquared;
         this.visionRadiusSquared            = visionRadiusSquared;
-        this.ricochetCount                  = ricochetCount;
+        this.reclaimCostPercentage          = reclaimCostPercentage;
         this.bytecodeLimit                  = bytecodeLimit;
     }
 
