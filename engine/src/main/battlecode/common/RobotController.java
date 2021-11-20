@@ -405,18 +405,18 @@ public strictfp interface RobotController {
     // *****************************
 
     /**
-     * Tests whether this robot can heal a robot (not building) at the given location.
+     * Tests whether this robot can heal a droid at the given location.
      * 
      * Checks that the robot is an archon unit and that the given location
      * is within the robot's action radius. Also checks that a 
-     * friendly robot unit (not a building) exists in the given square. 
+     * friendly droid robot exists in the given square. 
      *
      * @param loc target location to heal at 
-     * @return whether it is possible to heal a robot at the given location.
+     * @return whether it is possible to heal a droid robot at the given location.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHealRobot(MapLocation loc);
+    boolean canHealDroid(MapLocation loc);
 
     /** 
      * Heals at a given location.
@@ -424,7 +424,7 @@ public strictfp interface RobotController {
      * @throws GameActionException if conditions for healing are not satisfied
      * @battlecode.doc.costlymethod 
      */
-    void healRobot(MapLocation loc) throws GameActionException;
+    void healDroid(MapLocation loc) throws GameActionException;
 
  
     // ***********************
@@ -437,7 +437,7 @@ public strictfp interface RobotController {
      * Checks that the robot is a Miner, that the given location is a valid 
      * mining location. Valid mining locations must be the current location 
      * or adjacent to the current location. Valid mining locations must also
-     * contain at least one lead. 
+     * have positive lead amounts. 
      *
      * @param loc target location to mine 
      * @return whether it is possible to mine at the given location.
@@ -460,7 +460,7 @@ public strictfp interface RobotController {
      * Checks that the robot is a Miner, that the given location is a valid 
      * mining location. Valid mining locations must be the current location 
      * or adjacent to the current location. Valid mining locations must also
-     * contain at least one gold. 
+     * have positive gold amounts. 
      *
      * @param loc target location to mine 
      * @return whether it is possible to mine at the given location.

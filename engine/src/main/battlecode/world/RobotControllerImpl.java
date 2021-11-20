@@ -576,9 +576,270 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_BID, influence);
     }
 
+    // *****************************
+    // **** COMBAT UNIT METHODS **** 
+    // *****************************
+
+    private void assertCanAttack(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canAttack())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot attack.");
+        if (!this.robot.canActLocation(loc))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be attacked because it is out of range.");
+        InternalRobot bot = getRobot(loc);
+        if (bot.getTeam() == getTeam())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on the enemy team.");
+    }
+
+    @Override
+    boolean canAttack(MapLocation loc){
+        try {
+            assertCanAttack(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void attack(MapLocation loc) throws GameActionException{
+        assertCanAttack(loc);
+        this.robot.attack(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int attackedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, attackedID);
+    }
+
+    // *****************************
+    // ****** ARCHON METHODS ****** 
+    // *****************************
+
+    private void assertCanHealDroid(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canHealDroid()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot heal droids.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "This robot can't be healed belocation can't be min because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeHealed())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be healed.");
+        }
+        if (bot.getTeam() != getTeam()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be healed.");
+        }
+    }
+
+    @Override
+    boolean canHealDroid(MapLocation loc){
+        try {
+            assertCanHealDroid(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void healDroid(MapLocation loc) throws GameActionException{
+        assertCanHealDroid(loc);
+        this.robot.healDroid(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int healedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
+    }
+
+    
+    // ***********************
+    // **** MINER METHODS **** 
+    // ***********************
+
+    private void assertCanMineLead(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canMine()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot mine.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be healed because it is out of range.");
+        }
+        int leadAmount = gameWorld.getLeadCount(loc);
+        if (leadAmount < 0){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Lead amount must be positive to be mined.");
+        }
+    }
+
+    @Override
+    boolean canMineLead(MapLocation loc){
+        try {
+            assertCanMineLead(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void mineLead(MapLocation loc) throws GameActionException{
+        assertCanMineLead(loc);
+        this.robot.mineLead(loc);
+        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
+    }
+
+    private void assertCanMineGold(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canMine()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot mine.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "This location can't be mined because it is out of range.");
+        }
+        int goldAmount = gameWorld.getGoldCount(loc);
+        if (goldAmount < 0){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Gold amount must be positive to be mined.");
+        }
+    }
+
+    @Override
+    boolean canMineGold(MapLocation loc){
+        try {
+            assertCanMineGold(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void mineGold(MapLocation loc) throws GameActionException{
+        assertCanMineGold(loc);
+        this.robot.mineGold(loc);
+        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
+    }
+
+    // *************************
+    // **** BUILDER METHODS **** 
+    // *************************
+
+    private void assertCanUpgrade(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canUpgrade()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot upgrade buildings.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be upgraded because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeUpgraded())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be upgraded.");
+        }
+        if (bot.getTeam() != getTeam()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be upgraded.");
+        }
+        if (getLead() < bot.getLeadUpgradeCost()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough lead to upgrade this robot.");
+        }
+        if (getGold() < bot.getGoldUpgradeCost()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough gold to upgrade this robot.");
+        }
+    }
+
+    @Override
+    boolean canUpgrade(MapLocation loc){
+        try {
+            assertCanUpgrade(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void upgrade(MapLocation loc) throws GameActionException{
+        assertCanUpgrade(loc);
+        this.robot.upgrade(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int upgradedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
+    }
+
+    private void assertCanRepairBuilding(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canRepairBuilding()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot repair buildings.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be repaired because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeUpgraded())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be repair.");
+        }
+        if (bot.getTeam() != getTeam()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be repaired.");
+        }
+    }
+
+    @Override
+    boolean canRepairBuilding(MapLocation loc){
+        try {
+            assertCanRepairBuilding(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void repairBuilding(MapLocation loc) throws GameActionException{
+        assertCanRepairBuilding(loc);
+        this.robot.repairBuilding(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int repairedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.REPAIRD, repairedID);
+    }
+
+    // *******************************
+    // **** ALCHEMIST LAB METHODS **** 
+    // *******************************
+
+    private void assertCanConvert() throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canConvert()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot convert lead to gold.");
+        } else if (LEAD_TO_GOLD_RATE > getLead()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough lead to be able to convert to gold.");
+        }
+    }
+
+    @Override
+    boolean canConvert(){
+        try {
+            assertCanConvert();
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void convert() throws GameActionException{
+        assertCanConvert();
+        this.robot.convert();
+        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT);
+    }
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
+
+    //TODO: Communication needs to be fixed
 
     private void assertCanSetFlag(int flag) throws GameActionException {
         if (flag < GameConstants.MIN_FLAG_VALUE || flag > GameConstants.MAX_FLAG_VALUE) {
@@ -628,10 +889,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getRobotByID(id).getFlag();
     } 
 
+    //TODO: move this back to public?
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
     /**
      * This used to be public, but is not public in 2021 because
      * slanderers should not be able to self-destruct.
