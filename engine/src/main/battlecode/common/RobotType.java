@@ -5,72 +5,57 @@ package battlecode.common;
  */
 
 
-public class TemporaryConstants{
-
-    public static int PLACEHOLDER_ACTION_RADIUS = 100;
-    public static int PLACEHOLDER_VISION_RADIUS = 100;
-    public static int PLACEHOLDER_BYTECODE_LIMIT = 7500;
-    public static int NO_COOLDOWN_CLOCK = 10000000;
-
-}
-
-
 public enum RobotType {
 
     // Build Cost Lead, Build Cost Gold, Action Cooldown, Move Cooldown
-    // DPS Lv1, HP Lv1, Action Radius (squared), Vision Radius (squared), Reclaim Cost Percentage, Bytecode Limit
+    // HP Lv1, DPS Lv1, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
      * Archons are portable buildings that heal and generate robots.
      * Losing all archons means losing the game.
      *
-     * @battlecode.doc.robottype
-     */
-    ARCHON          (  0, 250, 10, NO_COOLDOWN_CLOCK, -AUTOMATIC_ARCHON_HEAL_AMOUNT, 700, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC                 MC DPS                         HP                         AR                          VR  RCP                         BL
-    /**
-     * A lead robot
-     * Can mine gold or lead at their or an adjacent location.
-     *
-     * @battlecode.doc.robottype
-     */
-    MINER           ( 50,   0, 2,       10,   0,  40, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC       MC  DPS   HP                         AR                         VR RCP                           BL
-    /**
-     * A lead robot
-     * Can build, repair, and upgrade non-Archon buildings.
-     *
-     * @battlecode.doc.robottype
-     */
-    BUILDER         ( 40,  0,  10,       10, -AUTOMATIC_BUILDER_HEAL_AMOUNT, 30, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL,BCG,  AC        MC  DPS                         HP                         AR                        VR RCP                        BL
+     * @battlecode.doc.robot     */
+    ARCHON          (  0, 250, 10, 24, 1000, -2, 20, 34, 20000),
+    //               BCL  BCG  AC  MC    HP DPS  AR  VR      BL
+
     /**
      * Alchemist's laboratory
      * Converts lead into gold
      *
-     * @battlecode.doc.robottype
-     */
-    LABORATORY      (800,   0, 10, NO_COOLDOWN_CLOCK, 0, 500, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG, AC                  MC DPS HP                         AR                        VR   RCP                           BL
-
-    /**
-     * Lead attacking robot, low-range, medium-damage.
-    */
-    GUARD           ( 75,   0,  10,       20, 35, 120, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,   0, PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                         AR                          VR RCP                         BL
-    
-    /**
-     * Gold robot, medium-range, high-damage.
-     */
-    WIZARD          ( 0,   50,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS,  0,  PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCL, BCG,  AC        MC DPS   HP                        AR                          VR RCP                          BL
+     * @battlecode.doc.robot     */
+    LABORATORY      (800,   0, 10, 24, 130,  5, 20, 34, 10000),
+    //               BCL  BCG  AC  MC  HP  DPS  AR  VR      BL
 
     /**
     * Guard turret 
     */
-    // TODO These are placeholder values only
-    GUARD_TURRET   ( 50,    0,  20,       20, 75, 70, PLACEHOLDER_ACTION_RADIUS, PLACEHOLDER_VISION_RADIUS, 0.2,  PLACEHOLDER_BYTECODE_LIMIT),
-    //               BCA, BCG,  AC        MC DPS   HP                        AR                          VR RCP                           BL
+    WATCHTOWER   ( 180,  0,  10,  24, 130,  5, 20, 34,   10000),
+    //              BCL  BCG  AC  MC  HP  DPS  AR  VR       BL
+
+    /**
+     * Can mine gold or lead at their or an adjacent location.
+     *
+     * @battlecode.doc.robot     */
+    MINER           ( 50,   0, 2,  20, 40,   0, 2, 20,   7500),
+    //               BCL, BCG, AC  MC  HP  DPS AR  VR       BL
+    /**
+     * Can build and repair buildings.
+     *
+     * @battlecode.doc.robot     */
+    BUILDER         ( 40,   0,  10, 20, 30, -1,  5, 20,   7500),
+    //               BCL  BCG   AC  MC  HP  DPS  AR  VR      BL
+    
+    /**
+     * Ranged attacking robot.
+    */
+    SOLDIER         ( 75,   0, 10, 16,  3,  50, 13, 20,  10000),
+   //               BCL   BCG  AC  MC  HP  DPS  AR  VR       BL
+    
+    /**
+     * Gold robot, causes Anomalies.
+     */
+    SAGE            ( 0,  50,200, 25, 45, 100, 13, 20,   10000)
+    //              BCL  BCG  AC  MC  HP  DPS  AR  VR        BL
 
     ;
 
@@ -80,7 +65,7 @@ public enum RobotType {
     public final int buildCostLead;
 
     /**
-     * Gold cost to build a given robot or building
+     * Gold cost to build a given robot or building (except for Archon's)
      */
     public final int buildCostGold;
 
@@ -95,14 +80,14 @@ public enum RobotType {
     public final int moveCooldown;
 
     /**
+    * Initial health per robot for Level 1.
+    */
+    public final int HPLv1;
+
+    /**
     * Damage per second for each robot in Level 1.
     */
     public final float DPSLv1;
-    
-    /**
-    * Initial health per robot for Level 1.
-    */
-    public final float HPLv1;
 
     /**
      * Radius range of robots' abilities.
@@ -152,14 +137,19 @@ public enum RobotType {
      * @return the max HP for a robot by level.
      */
     public int getMaxHealth(int level) {
-        int health = type.HPLv1;
-        if(level >= 2)
-            health *= GameConstants.HP1_TO_2;
-        if(level == 3)
-            health *= GameConstants.HP_2_TO_3;
-        
-        return (int) health;
-
+        if(this.isBuilding() || level == 1) return this.HPLv1;
+        if(this == RobotType.ARCHON){
+            if(level == 2) return 1100;
+            if(level == 3) return 1200;
+        }
+        if(this == RobotType.LABORATORY){
+            if(level == 2) return 110;
+            if(level == 3) return 120;
+        }
+        if(this == RobotType.WATCHTOWER){
+            if(level == 2) return 143;
+            if(level == 3) return 156;
+        }
     }
 
     /**
@@ -168,7 +158,7 @@ public enum RobotType {
      * @return the starting HP for a robot by level.
      */
     public int getStartingHealth(int level) {
-        return (int) (type.HPLv1 * GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER);
+        return (int) (this.HPLv1 * GameConstants.PROTOTYPE_HP_PERCENTAGE);
     }
 
     /**
@@ -177,13 +167,21 @@ public enum RobotType {
      */
     public int getDamage(int level) {
 
-        int dps = type.DPSLv1;
-        if(level >= 2)
-            dps *= GameConstants.DPS1_TO_2;
-        if(level == 3)
-            dps *= GameConstants.DPS_2_TO_3;
-
-        return (int) dps;
+        if(this.isBuilding() || level == 1 || this == RobotType.LABORATORY)
+            return this.HPLv1;
+        
+        if(this == RobotType.ARCHON){
+            if(level == 2) return 3;
+            if(level == 3) return 4;
+        }
+        if(this == RobotType.LABORATORY){
+            return 0;
+        }
+        if(this == RobotType.WATCHTOWER){
+            if(level == 2) return 6;
+            if(level == 3) return 7;
+        }
+        
     }
 
     /**
@@ -191,44 +189,18 @@ public enum RobotType {
      * @return the healing per turn for a robot by level.
      */
     public int getHealing(int level){
-        int hps = -type.DPSLv1;
-        if(level >= 2)
-            hps *= GameConstants.HPS1_TO_2;
-        if(level >= 3)
-            hps *= GameConstants.HPS_2_TO_3;
-
-        return (int) hps;
+        if(this != RobotType.ARCHON || this != RobotType.BUILDER) return 0;
+        return (int)(-1 * this.DPSLv1);
     }
 
     // COST RELATED FUNCTIONS
-
-    /**
-    * @param level to upgrade to
-    * @return cost to upgrade (lead if level -> 2, gold if level -> 3)
-    */
-    public int getUpgradeCost(int level) {
-        Map<RobotType, int> toLevel2 = new HashMap<RobotType, int>();
-        toLevel2.put(RobotType.ARCHON, 2500);
-        toLevel2.put(RobotType.LABORATORY, 400);
-        toLevel2.put(RobotType.GUARD_TURRET, 25);
-
-        Map<RobotType, int> toLevel3 = new HashMap<RobotType, int>();
-        toLevel3.put(RobotType.ARCHON, 5000);
-        toLevel3.put(RobotType.LABORATORY, 800);
-        toLevel3.put(RobotType.GUARD_TURRET, 50);
-
-        if (level == 1) return 0;
-        if (level == 2) return toLevel2.get(this);
-        // otherwise, level 3
-        return toLevel3.get(this);
-    }
 
     /**
      * @param level to upgrade to
      * @return lead component of cost to upgrade.
      */
     public int getLeadUpgradeCost(int level) {
-        if (level == 2) return getUpgradeCost(level);
+        if (level == 2) return 600;
         return 0;
     }
 
@@ -237,7 +209,7 @@ public enum RobotType {
      * @return gold component of cost to upgrade.
      */
     public int getGoldUpgradeCost(int level) {
-        if (level == 3) return getUpgradeCost(level);
+        if (level == 3) return 100;
         return 0;
     }
 
@@ -246,9 +218,7 @@ public enum RobotType {
      * @return lead component of worth
      */
     public int getLeadWorth(int level) {
-        int total = this.buildCostLead;
-        if(level >= 2) total += getLeadUpgradeCost(level);
-        return total;
+        return this.buildCostLead + this.getLeadUpgradeCost(level);
     }
 
     /**
@@ -256,38 +226,43 @@ public enum RobotType {
      * @return gold component of worth
      */
     public int getGoldWorth(int level) {
-        int total = this.buildCostGold;
-        if(level == 3) total += getGoldUpgradeCost(level);
-        return total;
+        return this.buildCostGold + this.getGoldUpgradeCost(level);
+    }
+
+    /**
+     * @return Reclaim cost percentage for when robot is destroyed.
+     */
+    public int getReclaimCostPercentage(){
+        return (this.isBuilding()) ? 0.2 : 0;
     }
 
     /**
      * @param level, current 
      */
     public int getGoldDropped(int level) {
-        int total = getGoldWorth() * reclaimCostPercentage;
+        int total = (int) (this.getGoldWorth(level) * this.reclaimCostPercentage);
     }
 
     /**
      * @param level, current
      */
     public int getLeadDropped(int level) {
-        int total = getLeadWorth() * reclaimCostPercentage;
+        int total = (int) (this.getLeadWorth(level) * this.reclaimCostPercentage);
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int moveCooldown,
-        int DPSLv1, int HPLv1, int actionRadiusSquared, int visionRadiusSquared, float reclaimCostPercentage,
-        int ricochetCount, int bytecodeLimit) {
+        int HPLv1, int DPSLv1, int actionRadiusSquared, int visionRadiusSquared, int bytecodeLimit) {
 
         this.buildCostLead                  = buildCostLead;
         this.buildCostGold                  = buildCostGold;
         this.actionCooldown                 = actionCooldown;
         this.moveCooldown                   = moveCooldown;
-        this.DPSLv1                         = DPSLv1;
         this.HPLv1                          = HPLv1;
+        this.DPSLv1                         = DPSLv1;
+        
         this.actionRadiusSquared            = actionRadiusSquared;
         this.visionRadiusSquared            = visionRadiusSquared;
-        this.reclaimCostPercentage          = reclaimCostPercentage;
+
         this.bytecodeLimit                  = bytecodeLimit;
 
     }

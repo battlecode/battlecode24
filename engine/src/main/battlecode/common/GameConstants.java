@@ -9,6 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
+     
     public static final String SPEC_VERSION = "1.0";
 
     // *********************************
@@ -37,10 +38,6 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
     
-
-    ///** Maximum ID a Robot will have */
-    //public static final int MAX_ROBOT_ID = 32000;   Cannot be guaranteed in Battlecode 2021.
-
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
@@ -69,7 +66,8 @@ public class GameConstants {
     public static final int BUILDING_UPGRADE_COOLDOWN = 500;
     public static final float FRESH_ROBOT_ARCHON_COOLDOWN = 10f;
     // turret to portable, or portable to turret
-    public static final int BUILDING_CONVERSION_COOLDOWN = 10000;
+    public static final int BUILDING_CONVERSION_COOLDOWN = 10;
+    public static final float BUILDING_UPGRADE_COST_MULTIPLER = 0.5f;
 
     // *********************************
     // ****** LEVEL MULTIPLIERS ********
@@ -90,8 +88,6 @@ public class GameConstants {
     // turret vision = unit vision + ???
     // building portable mode move cooldown = ???
 
-    public static final float BUILDING_UPGRADE_COST_MULTIPLER = 0.5f;
-
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
@@ -104,14 +100,12 @@ public class GameConstants {
 
     public static final int LEAD_TO_GOLD_RATE = 20;
     public static final int INITIAL_LEAD = 200;
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.9f;
 
     // Older constants below, maintaining them for now.
 
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
-
-    /** The amount damage is reduced by every ricochet. */
-    public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
