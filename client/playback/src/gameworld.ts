@@ -6,6 +6,7 @@ import {playbackConfig} from './game';
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');
 import deepcopy = require('deepcopy');
+import { indexOf } from 'core-js/library/js/array';
 
 // TODO use Victor for representing positions
 export type DeadBodiesSchema = {
@@ -39,10 +40,8 @@ export type MapStats = {
   randomSeed: number,
 
   passability: Float64Array, // double
-  leadLocations: [Victor];
-  leadAmounts: Int32Array
-  goldLocations: [Victor];
-  goldAmounts: Int32Array
+  leadVals: Int32Array;
+  goldVals: Int32Array;
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
@@ -52,12 +51,12 @@ export type TeamStats = {
   // An array of numbers corresponding to team stats, which map to RobotTypes
   // Corresponds to robot type (including NONE. length 5)
   // First four are droids (guard, wizard, builder, miner), last three are buildings (turret, archon, lab)
-  robots: [number, number, number, number, number[], number[], number[]],
+  robots: [number[], number[], number[], number[], number[], number[], number[]],
   lead: number,
   gold: number,
-  total_hp: [number, number, number, number, number[], number[], number[]],
-  lead_income: number,
-  gold_income: number
+  total_hp: [number[], number[], number[], number[], number[], number[], number[]],
+  leadIncome: number,
+  goldIncome: number
 };
 
 export type IndicatorDotsSchema = {
@@ -204,7 +203,7 @@ export default class GameWorld {
       hp: new Int32Array(0),
       level: new Int8Array(0),
       portable: new Int8Array(0),
-      turret: new Int8Array(0)
+      prototype: new Int8Array(0)
     }, 'id');
 
     // Instantiate teamStats
@@ -212,12 +211,12 @@ export default class GameWorld {
     for (let team in this.meta.teams) {
         var teamID = this.meta.teams[team].teamID;
         this.teamStats.set(teamID, {
-          robots: [0, 0, 0, 0, [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+          robots: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
           lead: 0,
           gold: 0,
-          total_hp: [0, 0, 0, 0, [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-          lead_income: 0,
-          gold_income: 0
+          total_hp: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+          leadIncome: 0,
+          goldIncome: 0
         });
     }
 
@@ -230,8 +229,8 @@ export default class GameWorld {
       randomSeed: 0,
 
       passability: new Float64Array(0),
-      lead: new Int32Array(0),
-      gold: new Int32Array(0),
+      leadVals: new Int32Array(0),
+      goldVals: new Int32Array(0),
 
       getIdx: (x:number, y:number) => 0,
       getLoc: (idx: number) => new Victor(0,0)
@@ -301,15 +300,17 @@ export default class GameWorld {
 
     this.mapStats.passability = Float64Array.from(map.passabilityArray());
 
-    const leadLocations = map.leadLocations(this._vecTableSlot1);
-    if (leadLocations) {
-      this.bodies.alterBulk({
-        id: delta.movedIDsArray(),
-        x: movedLocs.xsArray(),
-        y: movedLocs.ysArray(),
-      });
+    const leadVals = map.leadVals(this._vecTableSlot1);
+    if (leadVals) {
+
+      const xs = leadVals.xsArray();
+      const ys = leadVals.ysArray();
+
+      xs.forEach((x, i) => {
+        const y = ys[i]
+        this.mapStats.leadVals[x][y] = 1;
+      })
     }
-    this.mapStats.leadLocations = Float64Array.from(map.lead());
 
     const width = (maxCorner.x() - minCorner.x());
     this.mapStats.getIdx = (x:number, y:number) => (
@@ -366,6 +367,8 @@ export default class GameWorld {
 
       statObj.lead += delta.teamLeadIncome(i);
       statObj.gold += delta.teamGoldIncome(i);
+      statObj.leadIncome = delta.teamLeadIncome(i);
+      statObj.goldIncome = delta.teamGoldIncome(i);
 
       this.teamStats.set(teamID, statObj);
   }
@@ -389,7 +392,6 @@ export default class GameWorld {
     // Remove abilities from previous round
     this.bodies.alterBulk({id: new Int32Array(this.actionRobots), ability: new Int8Array(this.actionRobots.length)});
     this.actionRobots = [];
-    this.empowered.clear();
 
     // Remove bids from previous round
     this.bodies.alterBulk({id: new Int32Array(this.bidRobots), bid: new Int32Array(this.bidRobots.length)});
@@ -480,58 +482,58 @@ export default class GameWorld {
       }
     }
 
-    for (let team in this.meta.teams) {
-      let teamID = this.meta.teams[team].teamID;
-      let teamStats = this.teamStats.get(teamID) as TeamStats;
-      teamStats.income = 0;
-    }
+    // for (let team in this.meta.teams) {
+    //   let teamID = this.meta.teams[team].teamID;
+    //   let teamStats = this.teamStats.get(teamID) as TeamStats;
+    //   teamStats.income = 0;
+    // }
 
     // income
-    this.bodies.arrays.type.forEach((type, i) => {
-      let robotID = this.bodies.arrays.id[i];
-      let team = this.bodies.arrays.team[i];
-      let ability = this.bodies.arrays.ability[i];
-      let influence = this.bodies.arrays.influence[i];
-      let income = this.bodies.arrays.income[i];
-      let parent = this.bodies.arrays.parent[i];
-      var teamStatsObj = this.teamStats.get(team);
-      if (ability === 3) {
-          let delta = Math.floor((1/50 + 0.03 * Math.exp(-0.001 * influence)) * influence);
-          teamStatsObj.income += delta;
-          this.bodies.alter({id: parent, income: delta});
-      } else if (type === schema.BodyType.ENLIGHTENMENT_CENTER && teamStatsObj) {
-         let delta = Math.ceil(0.2 * Math.sqrt(this.turn));
-         teamStatsObj.income += delta;
-         this.bodies.alter({id: robotID, income: delta});
-      } else if (income !== 0) {
-        this.bodies.alter({id: robotID, income: 0});
-      }
-      this.teamStats.set(team, teamStatsObj);
-    })
+    // this.bodies.arrays.type.forEach((type, i) => {
+    //   let robotID = this.bodies.arrays.id[i];
+    //   let team = this.bodies.arrays.team[i];
+    //   let ability = this.bodies.arrays.ability[i];
+    //   let influence = this.bodies.arrays.influence[i];
+    //   let income = this.bodies.arrays.income[i];
+    //   let parent = this.bodies.arrays.parent[i];
+    //   var teamStatsObj = this.teamStats.get(team);
+    //   if (ability === 3) {
+    //       let delta = Math.floor((1/50 + 0.03 * Math.exp(-0.001 * influence)) * influence);
+    //       teamStatsObj.income += delta;
+    //       this.bodies.alter({id: parent, income: delta});
+    //   } else if (type === schema.BodyType.ENLIGHTENMENT_CENTER && teamStatsObj) {
+    //      let delta = Math.ceil(0.2 * Math.sqrt(this.turn));
+    //      teamStatsObj.income += delta;
+    //      this.bodies.alter({id: robotID, income: delta});
+    //   } else if (income !== 0) {
+    //     this.bodies.alter({id: robotID, income: 0});
+    //   }
+    //   this.teamStats.set(team, teamStatsObj);
+    // })
 
-    // Died bodies
-    if (delta.diedIDsLength() > 0) {
-      // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-      for(let i = 0; i < delta.diedIDsLength(); i++) {
-          let index = indices[i];
-          let team = this.bodies.arrays.team[index];
-          let type = this.bodies.arrays.type[index];
-          let statObj = this.teamStats.get(team);
-          if(!statObj) {continue;} // In case this is a neutral bot
-          statObj.robots[type] -= 1;
-          let influence = this.bodies.arrays.influence[index];
-          let conviction = this.bodies.arrays.conviction[index];
-          statObj.influence[type] -= influence; // cancel extra negative influence
-          statObj.conviction[type] -= conviction; // cancel extra negative conviction
-          this.teamStats.set(team, statObj);
-      }
+    // // Died bodies
+    // if (delta.diedIDsLength() > 0) {
+    //   // Update team stats
+    //   var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+    //   for(let i = 0; i < delta.diedIDsLength(); i++) {
+    //       let index = indices[i];
+    //       let team = this.bodies.arrays.team[index];
+    //       let type = this.bodies.arrays.type[index];
+    //       let statObj = this.teamStats.get(team);
+    //       if(!statObj) {continue;} // In case this is a neutral bot
+    //       statObj.robots[type] -= 1;
+    //       let influence = this.bodies.arrays.influence[index];
+    //       let conviction = this.bodies.arrays.conviction[index];
+    //       statObj.influence[type] -= influence; // cancel extra negative influence
+    //       statObj.conviction[type] -= conviction; // cancel extra negative conviction
+    //       this.teamStats.set(team, statObj);
+    //   }
 
-      // Update bodies soa
-      this.insertDiedBodies(delta);
+    //   // Update bodies soa
+    //   this.insertDiedBodies(delta);
 
-      this.bodies.deleteBulk(delta.diedIDsArray());
-    }
+    //   this.bodies.deleteBulk(delta.diedIDsArray());
+    // }
 
     // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
@@ -632,16 +634,13 @@ export default class GameWorld {
     // Store frequently used arrays
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
-    var influences = bodies.influencesArray();
-    var convictions: Int32Array = influences.map((influence, i) => Math.ceil(influence * this.meta.types[types[i]].convictionRatio)); //new Int32Array(bodies.robotIDsLength());
 
     // Update spawn stats
     for(let i = 0; i < bodies.robotIDsLength(); i++) {
-      if(teams[i] == 0) continue;
+      // if(teams[i] == 0) continue;
       var statObj = this.teamStats.get(teams[i]);
-      statObj.robots[types[i]] += 1;
-      statObj.influence[types[i]] += influences[i];
-      statObj.conviction[types[i]] += convictions[i];
+      statObj.robots[types[i]][1] += 1; // TODO: handle level
+      statObj.total_hp[types[i]][1] += 3000; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
     }
     
@@ -660,8 +659,6 @@ export default class GameWorld {
       id: bodies.robotIDsArray(),
       team: teams,
       type: types,
-      influence: influences,
-      conviction: convictions,
       x: locs.xsArray(),
       y: locs.ysArray(),
       flag: new Int32Array(bodies.robotIDsLength()),
@@ -741,6 +738,4 @@ export default class GameWorld {
     }
     this.logs.push(roundLogs);
   }
-
-
 }
