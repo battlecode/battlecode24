@@ -297,6 +297,12 @@ table Round {
     /// The messages of the robots who changed their indicator strings
     indicatorStrings: [string];
 
+    leadDrops: VecTable;
+    leadDropsValues: [int];
+
+    goldDrops: VecTable;
+    goldDropsValues: [int];
+
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
     /// The location of the indicator dots
