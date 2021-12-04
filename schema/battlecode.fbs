@@ -107,16 +107,17 @@ enum Action : byte {
 table BodyTypeMetadata {
     type: BodyType;
     spawnSource: BodyType;
-    actionCooldown: float;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
+    actionCooldown: float;
     movingCooldown: float;
     bytecodeLimit: int;
     dps: int; // dps at lowest level
     hp: int; // hp at lowest level
-    dps_mul: float; // dps multiplier for level
-    hp_mul: float; // hp multiplier per level
-    upgrade_costs: [int];
+    dpsMul: float; // dps multiplier for level
+    hpMul: float; // hp multiplier per level
+    buildCost: int;
+    upgradeCosts: [int];
 }
 
 /// Data relevant to a particular team.
@@ -186,11 +187,11 @@ union Event {
     GameFooter
 }
 
-table Constants{
+table Constants {
     //amounts of resources added to each block per round
     leadAdditiveIncease: double;
     goldAdditiveIncease: double;
-    increase_period: int;
+    increasePeriod: int;
 }
 
 
@@ -206,9 +207,6 @@ table GameHeader {
     //game constants
     constants: Constants;
 }
-
-
-
 
 /// The final event sent in the game.
 table GameFooter {
@@ -265,9 +263,9 @@ table Round {
     actionTargets: [int];
 
     /// The IDs of the robots who changed their indicator strings
-    indicationStringIDs: [int];
+    indicaortStringIDs: [int];
     /// The messages of the robots who changed their indicator strings
-    indicationStrings: [string];
+    indicatorStrings: [string];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
