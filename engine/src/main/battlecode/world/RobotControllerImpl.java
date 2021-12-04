@@ -419,16 +419,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         this.robot.addActionCooldownTurns();
 
-        //TODO: why is this on the robot?
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-leadNeeded);
         robotTeam.addGold(-goldNeeded);
 
         int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
-        // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
-        InternalRobot newBot = getRobotByID(robotID);
-        newBot.setCooldownTurns(type.initialCooldown);
+        // Undo because setting cooldown is automatically done 
+        // // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
+        // InternalRobot newBot = getRobotByID(robotID);
+        // newBot.setCooldownTurns(type.initialCooldown);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
@@ -698,7 +698,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!getType().canConvert()) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot convert lead to gold.");
-        } else if (LEAD_TO_GOLD_RATE > getLead()) {
+        } else if (GameConstants.LEAD_TO_GOLD_RATE > getLead()) {
             throw new GameActionException(CANT_DO_THAT,
                     "You don't have enough lead to be able to convert to gold.");
         }
@@ -718,10 +718,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.convert();
         this.robot.addActionCooldownTurns();
         Team robotTeam = this.robot.getTeam();
-        robotTeam.addLead(-LEAD_TO_GOLD_RATE);
+        robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE);
         robotTeam.addGold(1);
 
-        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT);
+        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY);
     }
 
     // ***********************************
