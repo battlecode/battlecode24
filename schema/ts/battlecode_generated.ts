@@ -10,12 +10,21 @@ import { flatbuffers } from "./flatbuffers"
 export namespace battlecode.schema{
 export enum BodyType{
   MINER= 0,
+<<<<<<< HEAD
   BUILDER= 1,
   SOLDIER= 2,
   SAGE= 3,
   ARCHON= 4,
   LABORATORY= 5,
   WATCHTOWER= 6
+=======
+  ARCHON= 1,
+  BUILDER= 2,
+  LABORATORY= 3,
+  GUARD= 4,
+  WIZARD= 5,
+  TURRET= 6
+>>>>>>> Update schema
 }};
 
 /**
@@ -48,12 +57,16 @@ export enum Action{
    * Dies due to an uncaught exception.
    * Target: none
    */
+<<<<<<< HEAD
   DIE_EXCEPTION= 13,
   ABYSS= 14,
   CHARGE= 15,
   FURY= 16,
   VORTEX= 17,
   SINGULARITY= 18
+=======
+  DIE_EXCEPTION= 13
+>>>>>>> Update schema
 }};
 
 /**
@@ -2692,7 +2705,11 @@ teamIDsArray():Int32Array|null {
  * @param number index
  * @returns number
  */
+<<<<<<< HEAD
 teamLeadChange(index: number):number|null {
+=======
+teamLeadIncome(index: number):number|null {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2700,7 +2717,11 @@ teamLeadChange(index: number):number|null {
 /**
  * @returns number
  */
+<<<<<<< HEAD
 teamLeadChangeLength():number {
+=======
+teamLeadIncomeLength():number {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2708,7 +2729,11 @@ teamLeadChangeLength():number {
 /**
  * @returns Int32Array
  */
+<<<<<<< HEAD
 teamLeadChangeArray():Int32Array|null {
+=======
+teamLeadIncomeArray():Int32Array|null {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2717,7 +2742,11 @@ teamLeadChangeArray():Int32Array|null {
  * @param number index
  * @returns number
  */
+<<<<<<< HEAD
 teamGoldChange(index: number):number|null {
+=======
+teamGoldIncome(index: number):number|null {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2725,7 +2754,11 @@ teamGoldChange(index: number):number|null {
 /**
  * @returns number
  */
+<<<<<<< HEAD
 teamGoldChangeLength():number {
+=======
+teamGoldIncomeLength():number {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2733,7 +2766,11 @@ teamGoldChangeLength():number {
 /**
  * @returns Int32Array
  */
+<<<<<<< HEAD
 teamGoldChangeArray():Int32Array|null {
+=======
+teamGoldIncomeArray():Int32Array|null {
+>>>>>>> Update schema
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -3226,10 +3263,17 @@ static startTeamIDsVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
+<<<<<<< HEAD
  * @param flatbuffers.Offset teamLeadChangeOffset
  */
 static addTeamLeadChange(builder:flatbuffers.Builder, teamLeadChangeOffset:flatbuffers.Offset) {
   builder.addFieldOffset(1, teamLeadChangeOffset, 0);
+=======
+ * @param flatbuffers.Offset teamLeadIncomeOffset
+ */
+static addTeamLeadIncome(builder:flatbuffers.Builder, teamLeadIncomeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, teamLeadIncomeOffset, 0);
+>>>>>>> Update schema
 };
 
 /**
@@ -3237,7 +3281,11 @@ static addTeamLeadChange(builder:flatbuffers.Builder, teamLeadChangeOffset:flatb
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
+<<<<<<< HEAD
 static createTeamLeadChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+=======
+static createTeamLeadIncomeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+>>>>>>> Update schema
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3249,16 +3297,27 @@ static createTeamLeadChangeVector(builder:flatbuffers.Builder, data:number[] | U
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
+<<<<<<< HEAD
 static startTeamLeadChangeVector(builder:flatbuffers.Builder, numElems:number) {
+=======
+static startTeamLeadIncomeVector(builder:flatbuffers.Builder, numElems:number) {
+>>>>>>> Update schema
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
+<<<<<<< HEAD
  * @param flatbuffers.Offset teamGoldChangeOffset
  */
 static addTeamGoldChange(builder:flatbuffers.Builder, teamGoldChangeOffset:flatbuffers.Offset) {
   builder.addFieldOffset(2, teamGoldChangeOffset, 0);
+=======
+ * @param flatbuffers.Offset teamGoldIncomeOffset
+ */
+static addTeamGoldIncome(builder:flatbuffers.Builder, teamGoldIncomeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, teamGoldIncomeOffset, 0);
+>>>>>>> Update schema
 };
 
 /**
@@ -3266,7 +3325,11 @@ static addTeamGoldChange(builder:flatbuffers.Builder, teamGoldChangeOffset:flatb
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
+<<<<<<< HEAD
 static createTeamGoldChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+=======
+static createTeamGoldIncomeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+>>>>>>> Update schema
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3278,7 +3341,11 @@ static createTeamGoldChangeVector(builder:flatbuffers.Builder, data:number[] | U
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
+<<<<<<< HEAD
 static startTeamGoldChangeVector(builder:flatbuffers.Builder, numElems:number) {
+=======
+static startTeamGoldIncomeVector(builder:flatbuffers.Builder, numElems:number) {
+>>>>>>> Update schema
   builder.startVector(4, numElems, 4);
 };
 
@@ -3748,11 +3815,19 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
+<<<<<<< HEAD
 static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamLeadChangeOffset:flatbuffers.Offset, teamGoldChangeOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, leadDropLocationsOffset:flatbuffers.Offset, leadDropValuesOffset:flatbuffers.Offset, goldDropLocationsOffset:flatbuffers.Offset, goldDropValuesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
   Round.addTeamLeadChange(builder, teamLeadChangeOffset);
   Round.addTeamGoldChange(builder, teamGoldChangeOffset);
+=======
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamLeadIncomeOffset:flatbuffers.Offset, teamGoldIncomeOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicationStringIDsOffset:flatbuffers.Offset, indicationStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
+  Round.startRound(builder);
+  Round.addTeamIDs(builder, teamIDsOffset);
+  Round.addTeamLeadIncome(builder, teamLeadIncomeOffset);
+  Round.addTeamGoldIncome(builder, teamGoldIncomeOffset);
+>>>>>>> Update schema
   Round.addMovedIDs(builder, movedIDsOffset);
   Round.addMovedLocs(builder, movedLocsOffset);
   Round.addSpawnedBodies(builder, spawnedBodiesOffset);
