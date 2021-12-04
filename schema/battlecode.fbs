@@ -73,7 +73,7 @@ table GameMap {
     // a vectable of lead cords
     leadLocations: VecTable;
     //inital lead amounts
-    initialLead: [double];
+    leadAmounts: [double];
 }
 
 /// Actions that can be performed.
@@ -95,7 +95,10 @@ enum Action : byte {
     FULLY_REPAIRED, // prototype becomes a turret
     LOCAL_ABYSS,
     LOCAL_FURY,
-    LOCAL_CHARGE
+    LOCAL_CHARGE,
+    /// Dies due to an uncaught exception.
+    /// Target: none
+    DIE_EXCEPTION
 }
 
 // Metadata
@@ -239,8 +242,8 @@ table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
 
-    teamLead: [int];
-    teamGold: [int];
+    teamLeadIncome: [int];
+    teamGoldIncome: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];

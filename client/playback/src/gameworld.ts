@@ -25,7 +25,9 @@ export type BodiesSchema = {
   action: Int8Array,
   parent: Int32Array,
   hp: Int32Array,
-  level: Int8Array
+  level: Int8Array,
+  portable: Int8Array,
+  prototype: Int8Array
 };
 
 // NOTE: consider changing MapStats to schema to use SOA for better performance, if it has large data
@@ -37,8 +39,10 @@ export type MapStats = {
   randomSeed: number,
 
   passability: Float64Array, // double
-  lead: Int32Array;
-  gold: Int32Array;
+  leadLocations: [Victor];
+  leadAmounts: Int32Array
+  goldLocations: [Victor];
+  goldAmounts: Int32Array
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
@@ -83,8 +87,6 @@ export type Log = {
   round: number,
   text: string
 };
-
-
 
 /**
  * A frozen image of the game world.
@@ -177,7 +179,7 @@ export default class GameWorld {
    * IDs of robots who performed a temporary ability in the previous round,
    * which should be removed in the current round.
    */
-  private abilityRobots: number[] = [];
+  private actionRobots: number[] = [];
   private bidRobots: number[] = [];
 
   constructor(meta: Metadata, config: playbackConfig) {
@@ -200,7 +202,9 @@ export default class GameWorld {
       action: new Int8Array(0),
       parent: new Int32Array(0),
       hp: new Int32Array(0),
-      level: new Int8Array(0)
+      level: new Int8Array(0),
+      portable: new Int8Array(0),
+      turret: new Int8Array(0)
     }, 'id');
 
     // Instantiate teamStats
@@ -208,20 +212,12 @@ export default class GameWorld {
     for (let team in this.meta.teams) {
         var teamID = this.meta.teams[team].teamID;
         this.teamStats.set(teamID, {
-          robots: [
-            0, 
-            0,
-            0,
-            0,
-            0, // NONE
-          ],
-          votes: 0,
-          influence: [0, 0, 0, 0, 0],
-          conviction: [0, 0, 0, 0, 0],
-          numBuffs: 0,
-          bidderID: -1,
-          bid: 0,
-          income: 0
+          robots: [0, 0, 0, 0, [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+          lead: 0,
+          gold: 0,
+          total_hp: [0, 0, 0, 0, [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+          lead_income: 0,
+          gold_income: 0
         });
     }
 
@@ -232,7 +228,11 @@ export default class GameWorld {
       maxCorner: new Victor(0,0),
       bodies: new schema.SpawnedBodyTable(),
       randomSeed: 0,
+
       passability: new Float64Array(0),
+      lead: new Int32Array(0),
+      gold: new Int32Array(0),
+
       getIdx: (x:number, y:number) => 0,
       getLoc: (idx: number) => new Victor(0,0)
     };
@@ -301,6 +301,16 @@ export default class GameWorld {
 
     this.mapStats.passability = Float64Array.from(map.passabilityArray());
 
+    const leadLocations = map.leadLocations(this._vecTableSlot1);
+    if (leadLocations) {
+      this.bodies.alterBulk({
+        id: delta.movedIDsArray(),
+        x: movedLocs.xsArray(),
+        y: movedLocs.ysArray(),
+      });
+    }
+    this.mapStats.leadLocations = Float64Array.from(map.lead());
+
     const width = (maxCorner.x() - minCorner.x());
     this.mapStats.getIdx = (x:number, y:number) => (
       Math.floor(y)*width + Math.floor(x)
@@ -335,8 +345,7 @@ export default class GameWorld {
       this.teamStats.set(key, deepcopy(value));
     });
     this.mapStats = deepcopy(source.mapStats);
-    this.empowered.copyFrom(source.empowered);
-    this.abilityRobots = Array.from(source.abilityRobots);
+    this.actionRobots = Array.from(source.actionRobots);
     this.bidRobots = Array.from(source.bidRobots);
     this.logs = Array.from(source.logs);
     this.logsShift = source.logsShift;
@@ -355,10 +364,8 @@ export default class GameWorld {
       let teamID = delta.teamIDs(i);
       let statObj = this.teamStats.get(teamID);
 
-      statObj.votes += delta.teamVotes(i);
-      statObj.numBuffs = delta.teamNumBuffs(i);
-      statObj.bidderID = delta.teamBidderIDs(i);
-      statObj.bid = 0;
+      statObj.lead += delta.teamLeadIncome(i);
+      statObj.gold += delta.teamGoldIncome(i);
 
       this.teamStats.set(teamID, statObj);
   }
@@ -380,8 +387,8 @@ export default class GameWorld {
     }
 
     // Remove abilities from previous round
-    this.bodies.alterBulk({id: new Int32Array(this.abilityRobots), ability: new Int8Array(this.abilityRobots.length)});
-    this.abilityRobots = [];
+    this.bodies.alterBulk({id: new Int32Array(this.actionRobots), ability: new Int8Array(this.actionRobots.length)});
+    this.actionRobots = [];
     this.empowered.clear();
 
     // Remove bids from previous round
@@ -398,104 +405,69 @@ export default class GameWorld {
         const target = delta.actionTargets(i);
         const body = this.bodies.lookup(robotID);
         const teamStatsObj: TeamStats = this.teamStats.get(body.team);
+        const setAction = () => {
+          this.bodies.alter({id: robotID, action: action as number});
+          this.actionRobots.push(robotID);
+        }; // should be called for actions performed *by* the robot.
         switch (action) {
           // TODO: validate actions?
           // Actions list from battlecode.fbs enum Action
-          
-          /// Politicians self-destruct and affect nearby bodies
-          /// Target: none
-          
+
           case schema.Action.ATTACK:
-            //this.bodies.alter({ id: robotID, ability: 1});
-            this.bodies.alter({id: robotID, action: schema.Action.ATTACK as number});
-            this.abilityRobots.push(robotID);
+            setAction();
             break;
           /// Slanderers passively generate influence for the
           /// Enlightenment Center that created them.
           /// Target: parent ID
           case schema.Action.LOCAL_ABYSS:
-            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_ABYSS as number});
-            this.abilityRobots.push(robotID);
+            setAction();
             break;
 
           case schema.Action.LOCAL_CHARGE:
-            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_CHARGE as number});
-            this.abilityRobots.push(robotID);
+            setAction();
             break;
           
           case schema.Action.LOCAL_FURY:
-            this.bodies.alter({id: robotID, action: schema.Action.LOCAL_FURY as number});
-            this.abilityRobots.push(robotID);
+            setAction();
             break;
           
-          /// Slanderers turn into Politicians.
-          /// Target: none
-          case schema.Action.CAMOUFLAGE:
-
-            if (body.type !== schema.BodyType.SLANDERER) {
-              throw new Error("non-slanderer camouflaged");
-            }
-            this.bodies.alter({ id: robotID, type: schema.BodyType.POLITICIAN});
-            this.bodies.alter({ id: robotID, ability: (body.team == 1 ? 4 : 5)});
-            this.abilityRobots.push(robotID);
-
-            teamStatsObj.robots[schema.BodyType.SLANDERER]--;
-            teamStatsObj.robots[schema.BodyType.POLITICIAN]++;
-
-            teamStatsObj.conviction[schema.BodyType.SLANDERER] -= body.conviction;
-            teamStatsObj.conviction[schema.BodyType.POLITICIAN] += body.conviction;
-
-            teamStatsObj.influence[schema.BodyType.SLANDERER] -= body.influence;
-            teamStatsObj.influence[schema.BodyType.POLITICIAN] += body.influence;
+          case schema.Action.CONVERT_GOLD:
+            setAction();
+            teamStatsObj.gold += target;
+            teamStatsObj.lead -= 0;
             break;
-          /// Muckrakers can expose a scandal.
-          /// Target: an enemy body.
-          case schema.Action.EXPOSE:
-            this.bodies.alter({ id: robotID, ability: 2});
-            this.abilityRobots.push(robotID);
+
+          case schema.Action.TRANSFORM:
+            setAction();
+            this.bodies.alter({ id: robotID, portable: 1});
             break;
-          /// Units can change their flag.
-          /// Target: a new flag value.
-          case schema.Action.SET_FLAG:
-            this.bodies.alter({ id: robotID, flag: target});
+
+          case schema.Action.UPGRADE:
+            setAction();
+            this.bodies.alter({ id: robotID, level: body.level + 1});
             break;
+          
           /// Builds a unit (enlightent center).
           /// Target: spawned unit
           case schema.Action.SPAWN_UNIT:
+            setAction();
             this.bodies.alter({id: target, parent: robotID});
             break;
-          /// Places a bid (enlightent center).
-          /// Target: bid placed
-          case schema.Action.PLACE_BID:
-            this.bodies.alter({id: robotID, bid: target});
-            this.bidRobots.push(robotID);
 
-            if (robotID === teamStatsObj.bidderID) teamStatsObj.bid = target;
+          case schema.Action.REPAIR:
+            setAction();
             break;
-          /// A robot can change team after being empowered
-          /// Target: teamID
-          case schema.Action.CHANGE_TEAM:
-            // TODO remove the robot, don't alter it
-            break;
-          /// A robot's influence changes.
-          /// Target: delta value
-          case schema.Action.CHANGE_INFLUENCE:
-            this.bodies.alter({ id: robotID, influence: body.influence + target});
 
-            if(!teamStatsObj) {continue;} // In case this is a neutral bot
-            teamStatsObj.influence[body.type] += target;
-            this.teamStats.set(body.team, teamStatsObj);
+          case schema.Action.CHANGE_HP:
+            this.bodies.alter({ id: robotID, hp: body.hp + target});
+            teamStatsObj.total_hp[body.type][body.level] += target;
             break;
-          /// A robot's conviction changes.
-          /// Target: delta value, i.e. red 5 -> blue 3 is -2
-          case schema.Action.CHANGE_CONVICTION:
-            this.bodies.alter({ id: robotID, conviction: body.conviction + target});
 
-            if(!teamStatsObj) {continue;} // In case this is a neutral bot
-            teamStatsObj.conviction[body.type] += target;
-            this.teamStats.set(body.team, teamStatsObj);
+          case schema.Action.FULLY_REPAIRED:
+            this.bodies.alter({ id: robotID, prototype: 0});
+            teamStatsObj.total_hp[body.type][body.level] += target;
             break;
-    
+
           case schema.Action.DIE_EXCEPTION:
             console.log(`Exception occured: robotID(${robotID}), target(${target}`);
             break;
@@ -504,6 +476,7 @@ export default class GameWorld {
             console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
             break;
         }
+        this.teamStats.set(body.team, teamStatsObj); // TODO: is this necessary
       }
     }
 
