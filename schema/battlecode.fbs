@@ -187,11 +187,11 @@ union Event {
     GameFooter
 }
 
-table Constants{
+table Constants {
     //amounts of resources added to each block per round
     leadAdditiveIncease: double;
     goldAdditiveIncease: double;
-    increase_period: int;
+    increasePeriod: int;
 }
 
 
@@ -207,9 +207,6 @@ table GameHeader {
     //game constants
     constants: Constants;
 }
-
-
-
 
 /// The final event sent in the game.
 table GameFooter {
@@ -266,9 +263,9 @@ table Round {
     actionTargets: [int];
 
     /// The IDs of the robots who changed their indicator strings
-    indicationStringIDs: [int];
+    indicaortStringIDs: [int];
     /// The messages of the robots who changed their indicator strings
-    indicationStrings: [string];
+    indicatorStrings: [string];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
