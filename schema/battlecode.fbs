@@ -107,16 +107,16 @@ enum Action : byte {
 table BodyTypeMetadata {
     type: BodyType;
     spawnSource: BodyType;
-    actionCooldown: float;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
+    actionCooldown: float;
     movingCooldown: float;
     bytecodeLimit: int;
-    buildCost: int;
     dps: int; // dps at lowest level
     hp: int; // hp at lowest level
     dpsMul: float; // dps multiplier for level
     hpMul: float; // hp multiplier per level
+    buildCost: int;
     upgradeCosts: [int];
 }
 
