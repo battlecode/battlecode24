@@ -29,15 +29,15 @@ public enum RobotType {
     /**
     * Guard turret 
     */
-    WATCHTOWER   ( 180,  0,  10,  24, 130,  5, 20, 34,   10000),
-    //              BCL  BCG  AC  MC  HP  DPS  AR  VR       BL
+    WATCHTOWER      (180,  0,  10,  24, 130,  5, 20, 34,   10000),
+    //               BCL  BCG  AC  MC  HP  DPS  AR  VR       BL
 
     /**
      * Can mine gold or lead at their or an adjacent location.
      *
      * @battlecode.doc.robot     */
     MINER           ( 50,   0, 2,  20, 40,   0, 2, 20,   7500),
-    //               BCL, BCG, AC  MC  HP  DPS AR  VR       BL
+    //               BCL  BCG AC  MC  HP  DPS AR  VR       BL
     /**
      * Can build and repair buildings.
      *
@@ -49,7 +49,7 @@ public enum RobotType {
      * Ranged attacking robot.
     */
     SOLDIER         ( 75,   0, 10, 16,  3,  50, 13, 20,  10000),
-   //               BCL   BCG  AC  MC  HP  DPS  AR  VR       BL
+   //                BCL   BCG AC  MC  HP  DPS  AR  VR       BL
     
     /**
      * Gold robot, causes Anomalies.
@@ -87,7 +87,7 @@ public enum RobotType {
     /**
     * Damage per second for each robot in Level 1.
     */
-    public final float DPSLv1;
+    public final int DPSLv1;
 
     /**
      * Radius range of robots' abilities.
@@ -127,7 +127,7 @@ public enum RobotType {
         return (
             this == ARCHON
             || this == LABORATORY
-            || this == GUARD_TURRET
+            || this == WATCHTOWER
         );
     }
 
@@ -232,22 +232,22 @@ public enum RobotType {
     /**
      * @return Reclaim cost percentage for when robot is destroyed.
      */
-    public int getReclaimCostPercentage(){
-        return (this.isBuilding()) ? 0.2 : 0;
+    public float getReclaimCostPercentage(){
+        return (this.isBuilding()) ? 0.2f : 0;
     }
 
     /**
      * @param level, current 
      */
     public int getGoldDropped(int level) {
-        int total = (int) (this.getGoldWorth(level) * this.reclaimCostPercentage);
+        int total = (int) (this.getGoldWorth(level) * this.getReclaimCostPercentage());
     }
 
     /**
      * @param level, current
      */
     public int getLeadDropped(int level) {
-        int total = (int) (this.getLeadWorth(level) * this.reclaimCostPercentage);
+        int total = (int) (this.getLeadWorth(level) * this.getReclaimCostPercentage());
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int moveCooldown,
