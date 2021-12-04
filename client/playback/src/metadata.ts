@@ -48,12 +48,17 @@ export default class Metadata {
       this.types[body.type()] = new BodyTypeMetaData(
         body.type(),
         body.spawnSource(),
-        body.convictionRatio(),
-        body.actionCooldown(),
         body.actionRadiusSquared(),
-        body.sensorRadiusSquared(),
-        body.detectionRadiusSquared(),
-        body.bytecodeLimit()
+        body.visionRadiusSquared(),
+        body.actionCooldown(),
+        body.movingCooldown(),
+        body.bytecodeLimit(),
+        body.dps(),
+        body.hp(),
+        body.dpsMul(),
+        body.hpMul(),
+        body.buildCost(),
+        Array.from(body.upgradeCostsArray())
       );
     }
     // SAFE
@@ -87,7 +92,10 @@ export class Team {
  */
 export class BodyTypeMetaData {
   constructor(public type: schema.BodyType, public spawnSource:schema.BodyType,
-    public convictionRatio:number, public actionCooldown:number, public actionRadiusSquared:number, public sensorRadiusSquared:number, 
-    public detectionRadiusSquared:number, public bytecodeLimit:number) {
+    public actionRadiusSquared:number, public visionRadiusSquared:number, 
+    public actionCooldown:number, public movingCooldown:number, 
+    public bytecodeLimit:number, 
+    public dps:number, public hp:number, public dpsMul:number, public hpMul:number,
+    public buildCost:number, public upgradeCosts:number[]) {
   }
 }
