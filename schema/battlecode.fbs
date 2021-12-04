@@ -135,7 +135,8 @@ table BodyTypeMetadata {
     dpsMul: float; // dps multiplier for level
     hpMul: float; // hp multiplier per level
     buildCost: int;
-    upgradeCosts: [int];
+    upgradeCostLead: [int];
+    upgradeCostGold: [int];
 }
 
 /// Data relevant to a particular team.
@@ -297,11 +298,11 @@ table Round {
     /// The messages of the robots who changed their indicator strings
     indicatorStrings: [string];
 
-    leadDrops: VecTable;
-    leadDropsValues: [int];
+    leadDropLocations: VecTable;
+    leadDropValues: [int];
 
-    goldDrops: VecTable;
-    goldDropsValues: [int];
+    goldDropLocations: VecTable;
+    goldDropValues: [int];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
