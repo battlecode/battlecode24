@@ -4,13 +4,18 @@ package battlecode.common;
  * Contains details on various attributes of the different robots. All of this information is in the specs in a more organized form.
  */
 
+
+public class TemporaryConstants{
+
+    public static int PLACEHOLDER_ACTION_RADIUS = 100;
+    public static int PLACEHOLDER_VISION_RADIUS = 100;
+    public static int PLACEHOLDER_BYTECODE_LIMIT = 7500;
+    public static int NO_COOLDOWN_CLOCK = 10000000;
+
+}
+
+
 public enum RobotType {
-
-    public final int PLACEHOLDER_ACTION_RADIUS = 100;
-    public final int PLACEHOLDER_VISION_RADIUS = 100;
-    public final int PLACEHOLDER_BYTECODE_LIMIT = 7500;
-    public final int NO_COOLDOWN_CLOCK = 10000000;
-
 
     // Build Cost Lead, Build Cost Gold, Action Cooldown, Move Cooldown
     // DPS Lv1, HP Lv1, Action Radius (squared), Vision Radius (squared), Reclaim Cost Percentage, Bytecode Limit
