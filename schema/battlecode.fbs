@@ -71,9 +71,9 @@ table GameMap {
     //lead locations
 
     // a vectable of lead cords
-    lead_locations: VecTable;
+    leadLocations: VecTable;
     //inital lead amounts
-    initial_lead: [double];
+    leadAmounts: [double];
 }
 
 /// Actions that can be performed.
@@ -84,19 +84,21 @@ table GameMap {
 /// the actions were performed.
 enum Action : byte {
     ATTACK, // combat unit types
-    DAZZLE, // wizard
     SPAWN_UNIT, //archon
     MINE, // miner
     BUILD, // builder
     CONVERT_GOLD, // for alchemist laboratory.
-    TRANSFORM, //Swaps a building from portable to turret or frorm turret to portable depending on current state
+    TRANSFORM, // Swaps a building between portable and turret mode
     UPGRADE, // builder upgrades building,
     REPAIR, // builder repairs building
     CHANGE_HP,
     FULLY_REPAIRED, // prototype becomes a turret
     LOCAL_ABYSS,
     LOCAL_FURY,
-    LOCAL_CHARGE
+    LOCAL_CHARGE,
+    /// Dies due to an uncaught exception.
+    /// Target: none
+    DIE_EXCEPTION
 }
 
 // Metadata
@@ -240,8 +242,8 @@ table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
 
-    teamLead: [int];
-    teamGold: [int];
+    teamLeadIncome: [int];
+    teamGoldIncome: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];
