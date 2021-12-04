@@ -83,7 +83,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getArchonCount() {
+    public int getArchonCount() {
         // TODO: Assumes getArchons() exists in TeamInfo
         return gameWorld.getTeamInfo().getArchons();
     }
@@ -239,13 +239,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override 
     public double seeLead(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getLead(loc);
+        return this.gameWorld.getLeadAtLocation(loc);
     }
 
     @Override 
     public double seeGold(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getGold(loc);
+        return this.gameWorld.getGoldAtLocation(loc);
     }
 
     @Override
@@ -257,7 +257,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
 
-    private void assertActionIsReady() throws GameActionException {
+    private boolean isLocationOccupied(MapLocation loc) throws GameActionException {
+        return this.gameWorld.getRobot(loc) != null;
+    }
+
+    private void assertIsActionReady() throws GameActionException {
         if (getActionCooldownTurns() >= 1)
             throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
@@ -290,7 +294,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getActionCooldownTurns();
     }
 
-    private void assertMovementIsReady() throws GameActionException {
+    private void assertIsMovementReady() throws GameActionException {
         if (getMovementCooldownTurns() >= 1)
             throw new GameActionException(IS_NOT_READY,
                     "This robot's movement cooldown has not expired.");
@@ -340,7 +344,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
-        if (!isReady())
+        if (!isMovementReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
     }
@@ -446,14 +450,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Robot can't be attacked because it is out of range.");
-        InternalRobot bot = getRobot(loc);
+        RobotInfo bot = seeRobotAtLocation(loc);
         if (bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
     }
 
     @Override
-    boolean canAttack(MapLocation loc){
+    public boolean canAttack(MapLocation loc){
         try {
             assertCanAttack(loc);
             return true;
@@ -461,7 +465,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void attack(MapLocation loc) throws GameActionException{
+    public void attack(MapLocation loc) throws GameActionException{
         assertCanAttack(loc);
         this.robot.addActionCooldownTurns();
         InternalRobot bot = gameWorld.getRobot(loc);
@@ -496,7 +500,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    boolean canHealDroid(MapLocation loc){
+    public boolean canHealDroid(MapLocation loc){
         try {
             assertCanHealDroid(loc);
             return true;
@@ -504,7 +508,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void healDroid(MapLocation loc) throws GameActionException{
+    public void healDroid(MapLocation loc) throws GameActionException{
         assertCanHealDroid(loc);
         this.robot.healDroid(loc);
         this.robot.addActionCooldownTurns();
@@ -536,7 +540,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    boolean canMineLead(MapLocation loc){
+    public boolean canMineLead(MapLocation loc){
         try {
             assertCanMineLead(loc);
             return true;
@@ -544,7 +548,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void mineLead(MapLocation loc) throws GameActionException{
+    public void mineLead(MapLocation loc) throws GameActionException{
         assertCanMineLead(loc);
         this.robot.mineLead(loc);
         this.robot.addLead(1); //TODO: do we want to this here or in the implementation
@@ -570,7 +574,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    boolean canMineGold(MapLocation loc){
+    public boolean canMineGold(MapLocation loc){
         try {
             assertCanMineGold(loc);
             return true;
@@ -578,7 +582,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void mineGold(MapLocation loc) throws GameActionException{
+    public void mineGold(MapLocation loc) throws GameActionException{
         assertCanMineGold(loc);
         this.robot.mineGold(loc);
         Team robotTeam = this.robot.getTeam();
@@ -594,6 +598,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanUpgrade(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertIsActionReady();
+        Team team = getTeam();
         if (!getType().canUpgrade()) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot upgrade buildings.");
@@ -610,18 +615,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on your team so can't be upgraded.");
         }
-        if (getLead() < bot.getLeadUpgradeCost()){
+        if (gameWorld.getTeamInfo().getLead(team) < bot.getLeadUpgradeCost()){
             throw new GameActionException(CANT_DO_THAT,
                     "You don't have enough lead to upgrade this robot.");
         }
-        if (getGold() < bot.getGoldUpgradeCost()){
+        if (gameWorld.getTeamInfo().getGold(team) < bot.getGoldUpgradeCost()){
             throw new GameActionException(CANT_DO_THAT,
                     "You don't have enough gold to upgrade this robot.");
         }
     }
 
     @Override
-    boolean canUpgrade(MapLocation loc){
+    public boolean canUpgrade(MapLocation loc){
         try {
             assertCanUpgrade(loc);
             return true;
@@ -629,7 +634,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void upgrade(MapLocation loc) throws GameActionException{
+    public void upgrade(MapLocation loc) throws GameActionException{
         assertCanUpgrade(loc);
         this.robot.upgrade(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
@@ -671,7 +676,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    boolean canRepairBuilding(MapLocation loc){
+    public boolean canRepairBuilding(MapLocation loc){
         try {
             assertCanRepairBuilding(loc);
             return true;
@@ -679,14 +684,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void repairBuilding(MapLocation loc) throws GameActionException{
+    public void repairBuilding(MapLocation loc) throws GameActionException{
         assertCanRepairBuilding(loc);
         this.robot.repairBuilding(loc);
         this.robot.addActionCooldownTurns();
 
         InternalRobot bot = gameWorld.getRobot(loc);
         int repairedID = bot.getID();
-        gameWorld.getMatchMaker().addAction(getID(), Action.REPAIRD, repairedID);
+        gameWorld.getMatchMaker().addAction(getID(), Action.REPAIRED, repairedID);
     }
 
     // *******************************
@@ -695,17 +700,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanConvert() throws GameActionException {
         assertIsActionReady();
+        Team team = getTeam();
         if (!getType().canConvert()) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot convert lead to gold.");
-        } else if (GameConstants.LEAD_TO_GOLD_RATE > getLead()) {
+        } else if (GameConstants.LEAD_TO_GOLD_RATE > gameWorld.getTeamInfo().getLead(team)) {
             throw new GameActionException(CANT_DO_THAT,
                     "You don't have enough lead to be able to convert to gold.");
         }
     }
 
     @Override
-    boolean canConvert(){
+    public boolean canConvert(){
         try {
             assertCanConvert();
             return true;
@@ -713,7 +719,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    void convert() throws GameActionException{
+    public void convert() throws GameActionException{
         assertCanConvert();
         this.robot.convert();
         this.robot.addActionCooldownTurns();
@@ -758,7 +764,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot of given ID does not exist.");
         if (getType() != RobotType.ENLIGHTENMENT_CENTER &&
             bot.getType() != RobotType.ENLIGHTENMENT_CENTER &&
-            !canSenseLocation(bot.getLocation()))
+            !canSeeLocation(bot.getLocation()))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Robot at location is out of sensor range and not an Enlightenment Center.");
     }

@@ -302,25 +302,46 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether the robot can perform an action. Returns
+     * Tests whether the robot can act. Returns
      * <code>getCooldownTurns() &lt; 1</code>.
      * 
-     * @return true if the robot can perform an action.
+     * @return true if the robot can act.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean isReady();
+    boolean isActionReady();
 
     /**
-     * Returns the number of cooldown turns remaining before this unit can act again.
-     * When this number is strictly less than 1, isReady() is true and the robot
-     * can perform actions again.
+     * Returns the number of action cooldown turns remaining before this unit can act again.
+     * When this number is strictly less than 1, isActionReady() is true and the robot
+     * can act again.
      *
-     * @return the number of cooldown turns remaining before this unit can act again.
+     * @return the number of action turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    double getCooldownTurns();
+    double getActionCooldownTurns();
+
+    /**
+     * Tests whether the robot can move. Returns
+     * <code>getCooldownTurns() &lt; 1</code>.
+     * 
+     * @return true if the robot can move.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean isMovementReady();
+
+    /**
+     * Returns the number of movement cooldown turns remaining before this unit can move again.
+     * When this number is strictly less than 1, isMovementReady() is true and the robot
+     * can move again.
+     *
+     * @return the number of cooldown turns remaining before this unit can move again.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    double getMovementCooldownTurns();
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
