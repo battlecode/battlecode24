@@ -226,9 +226,6 @@ table GameHeader {
     constants: Constants;
 }
 
-
-
-
 /// The final event sent in the game.
 table GameFooter {
     /// The ID of the winning team of the game.
@@ -285,11 +282,6 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have any value
     actionTargets: [int];
 
-    /// The IDs of the robots who changed their indicator strings
-    indicatorStringIDs: [int];
-    /// The messages of the robots who changed their indicator strings
-    indicatorStrings: [string];
-
     /// The locations of lead drops
     leadDropLocations: VecTable;
     /// The amount of lead dropped at each location
@@ -299,6 +291,11 @@ table Round {
     goldDropLocations: VecTable;
     /// The amount of gold dropped at each location
     goldDropValues: [int];
+
+    /// The IDs of the robots who changed their indicator strings
+    indicatorStringIDs: [int];
+    /// The messages of the robots who changed their indicator strings
+    indicatorStrings: [string];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
