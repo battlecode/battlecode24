@@ -5,7 +5,7 @@ package battlecode.common;
  */
 public enum RobotMode {
 
-    ROBOT       (true,  true),
+    DROID       (true,  true),
     PROTOTYPE   (false, false),
     TURRET      (true,  false),
     PORTABLE    (false, true);
