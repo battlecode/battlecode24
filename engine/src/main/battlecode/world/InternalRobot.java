@@ -345,44 +345,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return; // TODO: throw exception?
         int dmg = this.type.getDamage(this.level);
         bot.addHealth(-dmg);
-
-        int ricochetCount = this.type.getRicochetCount(this.level);
-        if (ricochetCount == 0)
-            return;
-
-        // only wizards should execute the next chunk of code
-        InternalRobot[] robots = gameWorld.getAllRobotsWithinRadiusSquared(this.location, this.type.getActionRadiusSquared(this.level));
-        List<InternalRobot> validTargets = new ArrayList<>();
-        for (InternalRobot x : robots) {
-            if (x.team == this.team)
-                continue;
-            if (x.equals(bot))
-                continue;
-            validTargets.add(x);
-        }
-
-        MapLocation attackerLocation = this.location;
-
-        class RicochetPriority implements Comparator<InternalRobot> {
-            public int compare(InternalRobot a, InternalRobot b)
-            {
-                int aDistToTarget = bot.location.distanceSquaredTo(a.location);
-                int bDistToTarget = bot.location.distanceSquaredTo(b.location);
-                if (aDistToTarget != bDistToTarget)
-                    return aDistToTarget - bDistToTarget;
-                int aDistToAttacker = attackerLocation.distanceSquaredTo(a.location);
-                int bDistToAttacker = attackerLocation.distanceSquaredTo(b.location);
-                if (aDistToAttacker != bDistToAttacker)
-                    return aDistToAttacker - bDistToAttacker;
-                return a.compareTo(b);
-            }
-        }
-
-        Collections.sort(validTargets, new RicochetPriority());
-        for (int i = 0; i < ricochetCount && i < validTargets.size(); i++) {
-            dmg = (int) (dmg * GameConstants.RICOCHET_DAMAGE_MULTIPLIER);
-            validTargets.get(i).addHealth(-dmg);
-        }
     }
 
     // *********************************
