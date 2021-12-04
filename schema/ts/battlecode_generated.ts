@@ -14,11 +14,8 @@ export enum BodyType{
   BUILDER= 2,
   LABORATORY= 3,
   GUARD= 4,
-  GUARD_TURRET= 5,
-  ARCHER= 6,
-  ARCHER_TURRET= 7,
-  WIZARD= 8,
-  WIZARD_TURRET= 9
+  WIZARD= 5,
+  TURRET= 6
 }};
 
 /**
@@ -39,12 +36,14 @@ export enum Action{
   MINE= 3,
   BUILD= 4,
   CONVERT_GOLD= 5,
-  ATTACKED= 6,
-  TRANSFORM= 7,
-  UPGRADE= 8,
-  REPAIR= 9,
-  CHANGE_HP= 10,
-  FULLY_REPAIRED= 11
+  TRANSFORM= 6,
+  UPGRADE= 7,
+  REPAIR= 8,
+  CHANGE_HP= 9,
+  FULLY_REPAIRED= 10,
+  LOCAL_ABYSS= 11,
+  LOCAL_FURY= 12,
+  LOCAL_CHARGE= 13
 }};
 
 /**

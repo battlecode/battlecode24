@@ -405,7 +405,6 @@ export default class GameWorld {
           /// Politicians self-destruct and affect nearby bodies
           /// Target: none
           
-
           case schema.Action.ATTACK:
             //this.bodies.alter({ id: robotID, ability: 1});
             this.bodies.alter({id: robotID, action: schema.Action.ATTACK as number});
