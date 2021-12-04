@@ -10,9 +10,9 @@ import { flatbuffers } from "flatbuffers"
 export namespace battlecode.schema{
 export enum BodyType{
   MINER= 0,
-  GUARD= 1,
-  WIZARD= 2,
-  BUILDER= 3,
+  BUILDER= 1,
+  SOLDIER= 2,
+  SAGE= 3,
   ARCHON= 4,
   LABORATORY= 5,
   WATCHTOWER= 6
@@ -1127,7 +1127,7 @@ actionCooldown():number {
 /**
  * @returns number
  */
-movingCooldown():number {
+movementCooldown():number {
   var offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -1184,7 +1184,7 @@ buildCost():number {
  * @param number index
  * @returns number
  */
-upgradeCosts(index: number):number|null {
+upgradeCostLead(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -1192,7 +1192,7 @@ upgradeCosts(index: number):number|null {
 /**
  * @returns number
  */
-upgradeCostsLength():number {
+upgradeCostLeadLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -1200,8 +1200,33 @@ upgradeCostsLength():number {
 /**
  * @returns Int32Array
  */
-upgradeCostsArray():Int32Array|null {
+upgradeCostLeadArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param number index
+ * @returns number
+ */
+upgradeCostGold(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+upgradeCostGoldLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int32Array
+ */
+upgradeCostGoldArray():Int32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -1209,7 +1234,7 @@ upgradeCostsArray():Int32Array|null {
  * @param flatbuffers.Builder builder
  */
 static startBodyTypeMetadata(builder:flatbuffers.Builder) {
-  builder.startObject(13);
+  builder.startObject(14);
 };
 
 /**
@@ -1254,10 +1279,10 @@ static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number movingCooldown
+ * @param number movementCooldown
  */
-static addMovingCooldown(builder:flatbuffers.Builder, movingCooldown:number) {
-  builder.addFieldFloat32(5, movingCooldown, 0.0);
+static addMovementCooldown(builder:flatbuffers.Builder, movementCooldown:number) {
+  builder.addFieldFloat32(5, movementCooldown, 0.0);
 };
 
 /**
@@ -1310,10 +1335,10 @@ static addBuildCost(builder:flatbuffers.Builder, buildCost:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset upgradeCostsOffset
+ * @param flatbuffers.Offset upgradeCostLeadOffset
  */
-static addUpgradeCosts(builder:flatbuffers.Builder, upgradeCostsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, upgradeCostsOffset, 0);
+static addUpgradeCostLead(builder:flatbuffers.Builder, upgradeCostLeadOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, upgradeCostLeadOffset, 0);
 };
 
 /**
@@ -1321,7 +1346,7 @@ static addUpgradeCosts(builder:flatbuffers.Builder, upgradeCostsOffset:flatbuffe
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createUpgradeCostsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createUpgradeCostLeadVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -1333,7 +1358,36 @@ static createUpgradeCostsVector(builder:flatbuffers.Builder, data:number[] | Uin
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startUpgradeCostsVector(builder:flatbuffers.Builder, numElems:number) {
+static startUpgradeCostLeadVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset upgradeCostGoldOffset
+ */
+static addUpgradeCostGold(builder:flatbuffers.Builder, upgradeCostGoldOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, upgradeCostGoldOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createUpgradeCostGoldVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startUpgradeCostGoldVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -1346,21 +1400,22 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionRadiusSquared:number, visionRadiusSquared:number, actionCooldown:number, movingCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, buildCost:number, upgradeCostsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionRadiusSquared:number, visionRadiusSquared:number, actionCooldown:number, movementCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, buildCost:number, upgradeCostLeadOffset:flatbuffers.Offset, upgradeCostGoldOffset:flatbuffers.Offset):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
   BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
   BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
   BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-  BodyTypeMetadata.addMovingCooldown(builder, movingCooldown);
+  BodyTypeMetadata.addMovementCooldown(builder, movementCooldown);
   BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
   BodyTypeMetadata.addDps(builder, dps);
   BodyTypeMetadata.addHp(builder, hp);
   BodyTypeMetadata.addDpsMul(builder, dpsMul);
   BodyTypeMetadata.addHpMul(builder, hpMul);
   BodyTypeMetadata.addBuildCost(builder, buildCost);
-  BodyTypeMetadata.addUpgradeCosts(builder, upgradeCostsOffset);
+  BodyTypeMetadata.addUpgradeCostLead(builder, upgradeCostLeadOffset);
+  BodyTypeMetadata.addUpgradeCostGold(builder, upgradeCostGoldOffset);
   return BodyTypeMetadata.endBodyTypeMetadata(builder);
 }
 }
@@ -2531,7 +2586,7 @@ teamIDsArray():Int32Array|null {
  * @param number index
  * @returns number
  */
-teamLeadIncome(index: number):number|null {
+teamLeadChange(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2539,7 +2594,7 @@ teamLeadIncome(index: number):number|null {
 /**
  * @returns number
  */
-teamLeadIncomeLength():number {
+teamLeadChangeLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2547,7 +2602,7 @@ teamLeadIncomeLength():number {
 /**
  * @returns Int32Array
  */
-teamLeadIncomeArray():Int32Array|null {
+teamLeadChangeArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2556,7 +2611,7 @@ teamLeadIncomeArray():Int32Array|null {
  * @param number index
  * @returns number
  */
-teamGoldIncome(index: number):number|null {
+teamGoldChange(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2564,7 +2619,7 @@ teamGoldIncome(index: number):number|null {
 /**
  * @returns number
  */
-teamGoldIncomeLength():number {
+teamGoldChangeLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2572,7 +2627,7 @@ teamGoldIncomeLength():number {
 /**
  * @returns Int32Array
  */
-teamGoldIncomeArray():Int32Array|null {
+teamGoldChangeArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2788,7 +2843,7 @@ indicatorStringsLength():number {
  * @param battlecode.schema.VecTable= obj
  * @returns battlecode.schema.VecTable|null
  */
-leadDrops(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+leadDropLocations(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
   var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
@@ -2797,7 +2852,7 @@ leadDrops(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
  * @param number index
  * @returns number
  */
-leadDropsValues(index: number):number|null {
+leadDropValues(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2805,7 +2860,7 @@ leadDropsValues(index: number):number|null {
 /**
  * @returns number
  */
-leadDropsValuesLength():number {
+leadDropValuesLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2813,7 +2868,7 @@ leadDropsValuesLength():number {
 /**
  * @returns Int32Array
  */
-leadDropsValuesArray():Int32Array|null {
+leadDropValuesArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -2822,7 +2877,7 @@ leadDropsValuesArray():Int32Array|null {
  * @param battlecode.schema.VecTable= obj
  * @returns battlecode.schema.VecTable|null
  */
-goldDrops(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+goldDropLocations(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
   var offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
@@ -2831,7 +2886,7 @@ goldDrops(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
  * @param number index
  * @returns number
  */
-goldDropsValues(index: number):number|null {
+goldDropValues(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2839,7 +2894,7 @@ goldDropsValues(index: number):number|null {
 /**
  * @returns number
  */
-goldDropsValuesLength():number {
+goldDropValuesLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2847,7 +2902,7 @@ goldDropsValuesLength():number {
 /**
  * @returns Int32Array
  */
-goldDropsValuesArray():Int32Array|null {
+goldDropValuesArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -3065,10 +3120,10 @@ static startTeamIDsVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset teamLeadIncomeOffset
+ * @param flatbuffers.Offset teamLeadChangeOffset
  */
-static addTeamLeadIncome(builder:flatbuffers.Builder, teamLeadIncomeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, teamLeadIncomeOffset, 0);
+static addTeamLeadChange(builder:flatbuffers.Builder, teamLeadChangeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, teamLeadChangeOffset, 0);
 };
 
 /**
@@ -3076,7 +3131,7 @@ static addTeamLeadIncome(builder:flatbuffers.Builder, teamLeadIncomeOffset:flatb
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createTeamLeadIncomeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createTeamLeadChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3088,16 +3143,16 @@ static createTeamLeadIncomeVector(builder:flatbuffers.Builder, data:number[] | U
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startTeamLeadIncomeVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamLeadChangeVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset teamGoldIncomeOffset
+ * @param flatbuffers.Offset teamGoldChangeOffset
  */
-static addTeamGoldIncome(builder:flatbuffers.Builder, teamGoldIncomeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, teamGoldIncomeOffset, 0);
+static addTeamGoldChange(builder:flatbuffers.Builder, teamGoldChangeOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, teamGoldChangeOffset, 0);
 };
 
 /**
@@ -3105,7 +3160,7 @@ static addTeamGoldIncome(builder:flatbuffers.Builder, teamGoldIncomeOffset:flatb
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createTeamGoldIncomeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createTeamGoldChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3117,7 +3172,7 @@ static createTeamGoldIncomeVector(builder:flatbuffers.Builder, data:number[] | U
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startTeamGoldIncomeVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamGoldChangeVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3342,18 +3397,18 @@ static startIndicatorStringsVector(builder:flatbuffers.Builder, numElems:number)
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset leadDropsOffset
+ * @param flatbuffers.Offset leadDropLocationsOffset
  */
-static addLeadDrops(builder:flatbuffers.Builder, leadDropsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, leadDropsOffset, 0);
+static addLeadDropLocations(builder:flatbuffers.Builder, leadDropLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, leadDropLocationsOffset, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset leadDropsValuesOffset
+ * @param flatbuffers.Offset leadDropValuesOffset
  */
-static addLeadDropsValues(builder:flatbuffers.Builder, leadDropsValuesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, leadDropsValuesOffset, 0);
+static addLeadDropValues(builder:flatbuffers.Builder, leadDropValuesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, leadDropValuesOffset, 0);
 };
 
 /**
@@ -3361,7 +3416,7 @@ static addLeadDropsValues(builder:flatbuffers.Builder, leadDropsValuesOffset:fla
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createLeadDropsValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createLeadDropValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3373,24 +3428,24 @@ static createLeadDropsValuesVector(builder:flatbuffers.Builder, data:number[] | 
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startLeadDropsValuesVector(builder:flatbuffers.Builder, numElems:number) {
+static startLeadDropValuesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset goldDropsOffset
+ * @param flatbuffers.Offset goldDropLocationsOffset
  */
-static addGoldDrops(builder:flatbuffers.Builder, goldDropsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(14, goldDropsOffset, 0);
+static addGoldDropLocations(builder:flatbuffers.Builder, goldDropLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(14, goldDropLocationsOffset, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset goldDropsValuesOffset
+ * @param flatbuffers.Offset goldDropValuesOffset
  */
-static addGoldDropsValues(builder:flatbuffers.Builder, goldDropsValuesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(15, goldDropsValuesOffset, 0);
+static addGoldDropValues(builder:flatbuffers.Builder, goldDropValuesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(15, goldDropValuesOffset, 0);
 };
 
 /**
@@ -3398,7 +3453,7 @@ static addGoldDropsValues(builder:flatbuffers.Builder, goldDropsValuesOffset:fla
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createGoldDropsValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createGoldDropValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3410,7 +3465,7 @@ static createGoldDropsValuesVector(builder:flatbuffers.Builder, data:number[] | 
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startGoldDropsValuesVector(builder:flatbuffers.Builder, numElems:number) {
+static startGoldDropValuesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3587,11 +3642,11 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamLeadIncomeOffset:flatbuffers.Offset, teamGoldIncomeOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, leadDropsOffset:flatbuffers.Offset, leadDropsValuesOffset:flatbuffers.Offset, goldDropsOffset:flatbuffers.Offset, goldDropsValuesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamLeadChangeOffset:flatbuffers.Offset, teamGoldChangeOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, leadDropLocationsOffset:flatbuffers.Offset, leadDropValuesOffset:flatbuffers.Offset, goldDropLocationsOffset:flatbuffers.Offset, goldDropValuesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
-  Round.addTeamLeadIncome(builder, teamLeadIncomeOffset);
-  Round.addTeamGoldIncome(builder, teamGoldIncomeOffset);
+  Round.addTeamLeadChange(builder, teamLeadChangeOffset);
+  Round.addTeamGoldChange(builder, teamGoldChangeOffset);
   Round.addMovedIDs(builder, movedIDsOffset);
   Round.addMovedLocs(builder, movedLocsOffset);
   Round.addSpawnedBodies(builder, spawnedBodiesOffset);
@@ -3601,10 +3656,10 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addActionTargets(builder, actionTargetsOffset);
   Round.addIndicatorStringIDs(builder, indicatorStringIDsOffset);
   Round.addIndicatorStrings(builder, indicatorStringsOffset);
-  Round.addLeadDrops(builder, leadDropsOffset);
-  Round.addLeadDropsValues(builder, leadDropsValuesOffset);
-  Round.addGoldDrops(builder, goldDropsOffset);
-  Round.addGoldDropsValues(builder, goldDropsValuesOffset);
+  Round.addLeadDropLocations(builder, leadDropLocationsOffset);
+  Round.addLeadDropValues(builder, leadDropValuesOffset);
+  Round.addGoldDropLocations(builder, goldDropLocationsOffset);
+  Round.addGoldDropValues(builder, goldDropValuesOffset);
   Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
   Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
   Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
