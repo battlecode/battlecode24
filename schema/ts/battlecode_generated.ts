@@ -1103,16 +1103,8 @@ spawnSource():battlecode.schema.BodyType {
 /**
  * @returns number
  */
-actionCooldown():number {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-};
-
-/**
- * @returns number
- */
 actionRadiusSquared():number {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
+  var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1120,8 +1112,16 @@ actionRadiusSquared():number {
  * @returns number
  */
 visionRadiusSquared():number {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
+  var offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns number
+ */
+actionCooldown():number {
+  var offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
@@ -1143,7 +1143,7 @@ bytecodeLimit():number {
 /**
  * @returns number
  */
-buildCost():number {
+dps():number {
   var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -1151,7 +1151,7 @@ buildCost():number {
 /**
  * @returns number
  */
-dps():number {
+hp():number {
   var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -1159,16 +1159,8 @@ dps():number {
 /**
  * @returns number
  */
-hp():number {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns number
- */
 dpsMul():number {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
@@ -1176,8 +1168,16 @@ dpsMul():number {
  * @returns number
  */
 hpMul():number {
-  var offset = this.bb!.__offset(this.bb_pos, 26);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns number
+ */
+buildCost():number {
+  var offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -1230,18 +1230,10 @@ static addSpawnSource(builder:flatbuffers.Builder, spawnSource:battlecode.schema
 
 /**
  * @param flatbuffers.Builder builder
- * @param number actionCooldown
- */
-static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
-  builder.addFieldFloat32(2, actionCooldown, 0.0);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @param number actionRadiusSquared
  */
 static addActionRadiusSquared(builder:flatbuffers.Builder, actionRadiusSquared:number) {
-  builder.addFieldInt32(3, actionRadiusSquared, 0);
+  builder.addFieldInt32(2, actionRadiusSquared, 0);
 };
 
 /**
@@ -1249,7 +1241,15 @@ static addActionRadiusSquared(builder:flatbuffers.Builder, actionRadiusSquared:n
  * @param number visionRadiusSquared
  */
 static addVisionRadiusSquared(builder:flatbuffers.Builder, visionRadiusSquared:number) {
-  builder.addFieldInt32(4, visionRadiusSquared, 0);
+  builder.addFieldInt32(3, visionRadiusSquared, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number actionCooldown
+ */
+static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
+  builder.addFieldFloat32(4, actionCooldown, 0.0);
 };
 
 /**
@@ -1270,18 +1270,10 @@ static addBytecodeLimit(builder:flatbuffers.Builder, bytecodeLimit:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number buildCost
- */
-static addBuildCost(builder:flatbuffers.Builder, buildCost:number) {
-  builder.addFieldInt32(7, buildCost, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @param number dps
  */
 static addDps(builder:flatbuffers.Builder, dps:number) {
-  builder.addFieldInt32(8, dps, 0);
+  builder.addFieldInt32(7, dps, 0);
 };
 
 /**
@@ -1289,7 +1281,7 @@ static addDps(builder:flatbuffers.Builder, dps:number) {
  * @param number hp
  */
 static addHp(builder:flatbuffers.Builder, hp:number) {
-  builder.addFieldInt32(9, hp, 0);
+  builder.addFieldInt32(8, hp, 0);
 };
 
 /**
@@ -1297,7 +1289,7 @@ static addHp(builder:flatbuffers.Builder, hp:number) {
  * @param number dpsMul
  */
 static addDpsMul(builder:flatbuffers.Builder, dpsMul:number) {
-  builder.addFieldFloat32(10, dpsMul, 0.0);
+  builder.addFieldFloat32(9, dpsMul, 0.0);
 };
 
 /**
@@ -1305,7 +1297,15 @@ static addDpsMul(builder:flatbuffers.Builder, dpsMul:number) {
  * @param number hpMul
  */
 static addHpMul(builder:flatbuffers.Builder, hpMul:number) {
-  builder.addFieldFloat32(11, hpMul, 0.0);
+  builder.addFieldFloat32(10, hpMul, 0.0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number buildCost
+ */
+static addBuildCost(builder:flatbuffers.Builder, buildCost:number) {
+  builder.addFieldInt32(11, buildCost, 0);
 };
 
 /**
@@ -1346,20 +1346,20 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionCooldown:number, actionRadiusSquared:number, visionRadiusSquared:number, movingCooldown:number, bytecodeLimit:number, buildCost:number, dps:number, hp:number, dpsMul:number, hpMul:number, upgradeCostsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionRadiusSquared:number, visionRadiusSquared:number, actionCooldown:number, movingCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, buildCost:number, upgradeCostsOffset:flatbuffers.Offset):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
-  BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
   BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
   BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
+  BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
   BodyTypeMetadata.addMovingCooldown(builder, movingCooldown);
   BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
-  BodyTypeMetadata.addBuildCost(builder, buildCost);
   BodyTypeMetadata.addDps(builder, dps);
   BodyTypeMetadata.addHp(builder, hp);
   BodyTypeMetadata.addDpsMul(builder, dpsMul);
   BodyTypeMetadata.addHpMul(builder, hpMul);
+  BodyTypeMetadata.addBuildCost(builder, buildCost);
   BodyTypeMetadata.addUpgradeCosts(builder, upgradeCostsOffset);
   return BodyTypeMetadata.endBodyTypeMetadata(builder);
 }
