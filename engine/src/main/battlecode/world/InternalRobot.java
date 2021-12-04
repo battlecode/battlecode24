@@ -1,6 +1,9 @@
 package battlecode.world;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import battlecode.common.*;
 import battlecode.schema.Action;
 
@@ -11,26 +14,17 @@ import battlecode.schema.Action;
  *  - tiebreak by robot ID (priority to lower ID)
  */
 public strictfp class InternalRobot implements Comparable<InternalRobot> {
+
     private final RobotControllerImpl controller;
     private final GameWorld gameWorld;
-
-    /**
-     * The robot that built this robot.
-     * Equal to null if this is an Enlightenment Center, because they are specified by the map.
-     * This reference does not inhibit garbage collection because Enlightenment Centers never die.
-     */
-    private final InternalRobot parent;
 
     private final int ID;
     private Team team;
     private RobotType type;
     private MapLocation location;
-    private int influence;
-    private int flag;
-    private int bid;
-
-    private ArrayList<RobotInfo> toCreate;
-    private ArrayList<InternalRobot> toCreateParents;
+    private int level;
+    private RobotMode mode;
+    private int health;
 
     private long controlBits;
     private int currentBytecodeLimit;
@@ -43,8 +37,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
      */
-    private RobotInfo cachedRobotInfoTrue; // true RobotType included
-    private RobotInfo cachedRobotInfoFake; // slanderers appear as politicians, null for all other robot types
+    private RobotInfo cachedRobotInfo;
 
     /**
      * Create a new internal representation of a robot
@@ -53,23 +46,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param type the type of the robot
      * @param loc the location of the robot
      * @param team the team of the robot
-     * @param influence the influence used to create the robot
      */
     @SuppressWarnings("unchecked")
-    public InternalRobot(GameWorld gw, InternalRobot parent, int id, RobotType type, MapLocation loc, Team team, int influence) {
-        this.parent = parent;
+    public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
         this.ID = id;
         this.team = team;
         this.type = type;
         this.location = loc;
-        this.influence = influence;
-        this.conviction = (int) Math.ceil(this.type.convictionRatio * this.influence);
-        this.convictionCap = type == RobotType.ENLIGHTENMENT_CENTER ? GameConstants.ROBOT_INFLUENCE_LIMIT : this.conviction;
-        this.flag = 0;
-        this.bid = 0;
-
-        this.toCreate = new ArrayList<>();
-        this.toCreateParents = new ArrayList<>();
+        this.level = 1;
+        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.ROBOT;
+        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -97,10 +83,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return gameWorld;
     }
 
-    public InternalRobot getParent() {
-        return parent;
-    }
-
     public int getID() {
         return ID;
     }
@@ -117,20 +99,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return location;
     }
 
-    public int getInfluence() {
-        return influence;
+    public int getLevel() {
+        return level;
     }
 
-    public int getConviction() {
-        return conviction;
+    public RobotMode getMode() {
+        return mode;
     }
 
-    public int getFlag() {
-        return flag;
-    }
-
-    public int getBid() {
-        return bid;
+    public int getHealth() {
+        return health;
     }
 
     public long getControlBits() {
@@ -149,31 +127,23 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return actionCooldownTurns;
     }
 
-    public RobotInfo getRobotInfo(boolean trueSense) {
-        RobotInfo cachedRobotInfo = this.cachedRobotInfoTrue;
-        RobotType infoType = type;
-        if (!trueSense && type == RobotType.SLANDERER) {
-            cachedRobotInfo = this.cachedRobotInfoFake;
-            infoType = RobotType.POLITICIAN;
-        }
+    public int getMovementCooldownTurns() {
+        return movementCooldownTurns;
+    }
 
+    public RobotInfo getRobotInfo() {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
-                && cachedRobotInfo.type == infoType
-                && cachedRobotInfo.influence == influence
-                && cachedRobotInfo.conviction == conviction
+                && cachedRobotInfo.type == type
+                && cachedRobotInfo.level == level
+                && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        RobotInfo newRobotInfo = new RobotInfo(ID, team, infoType, influence, conviction, location);
-        if (!trueSense && type == RobotType.SLANDERER) {
-            this.cachedRobotInfoFake = newRobotInfo;
-        } else {
-            this.cachedRobotInfoTrue = newRobotInfo;
-        }
-        return newRobotInfo;
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, level, health, location);
+        return this.cachedRobotInfo;
     }
 
     // **********************************
@@ -220,13 +190,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns the robot's detection radius squared.
-     */
-    public int getDetectionRadiusSquared() {
-        return this.type.detectionRadiusSquared;
-    }
-
-    /**
      * Returns whether this robot can perform actions on the given location.
      * 
      * @param toSense the MapLocation to act
@@ -245,15 +208,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns whether this robot can detect the given location.
-     * 
-     * @param toSense the MapLocation to detect
-     */
-    public boolean canDetectLocation(MapLocation toSense){
-        return this.location.distanceSquaredTo(toSense) <= getDetectionRadiusSquared();
-    }
-
-    /**
      * Returns whether this robot can act at a given radius away.
      * 
      * @param radiusSquared the distance squared to act
@@ -269,15 +223,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canSenseRadiusSquared(int radiusSquared) {
         return radiusSquared <= getSensorRadiusSquared();
-    }
-
-    /**
-     * Returns whether this robot can detect something a given radius away.
-     * 
-     * @param radiusSquared the distance squared to detect
-     */
-    public boolean canDetectRadiusSquared(int radiusSquared) {
-        return radiusSquared <= getDetectionRadiusSquared();
     }
 
     // ******************************************
@@ -304,13 +249,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Adds influence given an amount to change this
-     * robot's influence by. Input can be negative to
-     * subtract influence. Conviction changes correspondingly.
-     *
-     * Only Enlightenment Centers should be able to change influence.
-     * 
-     * @param influenceAmount the amount to change influence by (can be negative)
+     * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
         int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
@@ -328,25 +267,18 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Adds conviction given an amount to change this
-     * robot's conviction by. Input can be negative to
-     * subtract conviction.
+     * Sets the movement cooldown given the number of turns.
      * 
-     * @param convictionAmount the amount to change conviction by (can be negative)
+     * @param newMovementTurns the number of movement cooldown turns
      */
-    public void addConviction(int convictionAmount) {
-        int oldConviction = this.conviction;
-        this.conviction += convictionAmount;
-        if (this.conviction > this.convictionCap)
-            this.conviction = this.convictionCap;
-        if (this.conviction != oldConviction)
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_CONVICTION, this.conviction - oldConviction);
+    public void setMovementCooldownTurns(int newMovementTurns) {
+        this.movementCooldownTurns = newMovementTurns;
     }
 
     /**
-     * Sets the flag given a new flag value.
-     *
-     * @param newFlag the new flag value
+     * Adds health to a robot. Input can be negative to subtract health.
+     * 
+     * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
         int oldHealth = this.health;
@@ -368,11 +300,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
+    // *********************************
+    // ****** ACTION METHODS *********
+    // *********************************
+
     /**
-     * Sets the bid given a new bid value.
-     * The amount of influence bid is held hostage.
-     *
-     * @param newBid the new flag value
+     * Transform from turret to portable mode, or vice versa.
      */
     public void transform() {
         if (this.canTransformCooldown()) {
@@ -387,18 +320,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Empowers given a range. Doesn't self-destruct!!
-     *
-     * @param radiusSquared the empower range
+     * Upgrade a building.
      */
-    public void empower(int radiusSquared) {
-        InternalRobot[] robots = gameWorld.getAllRobotsWithinRadiusSquared(this.location, radiusSquared);
-        int numBots = robots.length - 1; // excluding self
-        if (numBots == 0)
+    public void upgrade() {
+        if (this.mode == RobotMode.ROBOT || this.mode == RobotMode.PROTOTYPE)
             return;
-
-        double convictionToGive = this.conviction - GameConstants.EMPOWER_TAX;
-        if (convictionToGive <= 0)
+        if (this.level == GameConstants.MAX_LEVEL)
             return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
@@ -434,38 +361,28 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             validTargets.add(x);
         }
 
-        // create new bots
-        for (int i = 0; i < toCreate.size(); i++) {
-            RobotInfo info = toCreate.get(i);
-            int id = this.gameWorld.spawnRobot(toCreateParents.get(i), info.getType(), info.getLocation(), this.team, info.getInfluence());
-            InternalRobot newBot = this.gameWorld.getObjectInfo().getRobotByID(id);
-            if (newBot.type != RobotType.ENLIGHTENMENT_CENTER) {
-                // Shouldn't be called on an enlightenment center, because if spawned center's influence exceeds limit this would send a redundant change conviction action.
-                newBot.addConviction(info.getConviction() - newBot.getConviction());
+        MapLocation attackerLocation = this.location;
+
+        class RicochetPriority implements Comparator<InternalRobot> {
+            public int compare(InternalRobot a, InternalRobot b)
+            {
+                int aDistToTarget = bot.location.distanceSquaredTo(a.location);
+                int bDistToTarget = bot.location.distanceSquaredTo(b.location);
+                if (aDistToTarget != bDistToTarget)
+                    return aDistToTarget - bDistToTarget;
+                int aDistToAttacker = attackerLocation.distanceSquaredTo(a.location);
+                int bDistToAttacker = attackerLocation.distanceSquaredTo(b.location);
+                if (aDistToAttacker != bDistToAttacker)
+                    return aDistToAttacker - bDistToAttacker;
+                return a.compareTo(b);
             }
-            else {
-                // Resets influence and conviction to cap for enlightenment centers. Already done by reset bid, but nicer to do it here.
-                newBot.addInfluenceAndConviction(0);
-            }
-            this.gameWorld.getMatchMaker().addAction(info.getID(), Action.CHANGE_TEAM, id);
         }
-    }
 
         Collections.sort(validTargets, new RicochetPriority());
         for (int i = 0; i < ricochetCount && i < validTargets.size(); i++) {
             dmg = (int) (dmg * GameConstants.RICOCHET_DAMAGE_MULTIPLIER);
             validTargets.get(i).addHealth(-dmg);
         }
-    }
-
-    /**
-     * Empowers given a range. Doesn't self-destruct!!
-     *
-     * @param radiusSquared the empower range
-     */
-    public void expose(InternalRobot bot) {
-        this.gameWorld.addBuffs(this.team, bot.influence);
-        this.gameWorld.destroyRobot(bot.ID);
     }
 
     // *********************************
@@ -490,24 +407,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void processEndOfRound() {
-        // generate passive influence
-        InternalRobot target = (parent == null) ? this : parent;
-        if (target.getType() != RobotType.ENLIGHTENMENT_CENTER) {
-            throw new IllegalStateException("The robot's parent is not an Enlightenment Center");
-        }
-        int passiveInfluence = this.type.getPassiveInfluence(this.influence, this.roundsAlive, this.gameWorld.getCurrentRound());
-        if (passiveInfluence > 0 && this.team.isPlayer() && this.gameWorld.getObjectInfo().existsRobot(target.ID)) {
-            target.addInfluenceAndConviction(passiveInfluence);
-            if (this.type == RobotType.SLANDERER) {
-                this.gameWorld.getMatchMaker().addAction(this.ID, Action.EMBEZZLE, target.ID);
-            }
-        }
-
-        // Slanderers turn into Politicians
-        if (this.type == RobotType.SLANDERER && this.roundsAlive == GameConstants.CAMOUFLAGE_NUM_ROUNDS) {
-            this.type = RobotType.POLITICIAN;
-            this.gameWorld.getMatchMaker().addAction(this.ID, Action.CAMOUFLAGE, -1);
-        }
+        // anything
     }
 
     // *********************************
