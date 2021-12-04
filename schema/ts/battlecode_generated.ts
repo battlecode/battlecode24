@@ -1421,7 +1421,7 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionRadiusSquared:number, visionRadiusSquared:number, actionCooldown:number, movingCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, buildCost:number, upgradeCostsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, actionRadiusSquared:number, visionRadiusSquared:number, actionCooldown:number, movementCooldown:number, bytecodeLimit:number, dps:number, hp:number, dpsMul:number, hpMul:number, buildCost:number, upgradeCostLeadOffset:flatbuffers.Offset, upgradeCostGoldOffset:flatbuffers.Offset):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
