@@ -43,7 +43,18 @@ public class GameConstants {
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
- 
+
+    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    public static final int COOLDOWN_LIMIT = 10;
+
+    /** The number of cooldown turns reduced per turn. */
+    public static final int COOLDOWNS_PER_TURN = 10;
+
+    /** The number of cooldown turns per transformation. */
+    public static final int TRANSFORM_COOLDOWN = 100;
+
+    /** The number of cooldown turns per upgrade. */
+    public static final int UPGRADE_COOLDOWN = 100;
 
     // *********************************
     // ****** GAME MECHANICS ***********
