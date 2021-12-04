@@ -471,7 +471,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // *****************************
-    // ****** ARCHON METHODS ****** 
+    // ****** ARCHON METHODS *******
     // *****************************
 
     private void assertCanHealDroid(MapLocation loc) throws GameActionException {
@@ -778,16 +778,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getRobotByID(id).getFlag();
     } 
 
-    //TODO: move this back to public?
-
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-    /**
-     * This used to be public, but is not public in 2021 because
-     * slanderers should not be able to self-destruct.
-     */
-    private void disintegrate() {
+
+    @Override
+    public void disintegrate() {
         throw new RobotDeathException();
     }
 
