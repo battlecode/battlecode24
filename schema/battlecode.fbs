@@ -25,16 +25,16 @@ table RGBTable {
 /// Note that bullets are not treated as bodies.
 enum BodyType : byte {
     
-    // Core unit types
+    // robots
     MINER,
-    ARCHON,
-    BUILDER,
-    LABORATORY,
-
-    // Combat units
     GUARD,
     WIZARD,
-    TURRET
+    BUILDER,
+
+    // buildings
+    ARCHON,
+    LABORATORY,
+    WATCHTOWER
 }
 
 /// A list of new bodies to be placed on the map.
@@ -263,9 +263,15 @@ table Round {
     actionTargets: [int];
 
     /// The IDs of the robots who changed their indicator strings
-    indicaortStringIDs: [int];
+    indicatorStringIDs: [int];
     /// The messages of the robots who changed their indicator strings
     indicatorStrings: [string];
+
+    leadDrops: VecTable;
+    leadDropsValues: [int];
+
+    goldDrops: VecTable;
+    goldDropsValues: [int];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
