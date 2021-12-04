@@ -130,11 +130,11 @@ table BodyTypeMetadata {
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;
-    buildCost: int;
     dps: int; // dps at lowest level
     hp: int; // hp at lowest level
     dpsMul: float; // dps multiplier for level
     hpMul: float; // hp multiplier per level
+    buildCost: int;
     upgradeCosts: [int];
 }
 
