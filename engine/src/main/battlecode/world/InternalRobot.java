@@ -54,7 +54,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.type = type;
         this.location = loc;
         this.level = 1;
-        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.ROBOT;
+        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.DROID;
         this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
@@ -323,7 +323,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Upgrade a building.
      */
     public void upgrade() {
-        if (this.mode == RobotMode.ROBOT || this.mode == RobotMode.PROTOTYPE)
+        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
             return;
         if (this.level == GameConstants.MAX_LEVEL)
             return;
