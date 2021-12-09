@@ -584,6 +584,30 @@ public strictfp interface RobotController {
      */
     void convert() throws GameActionException;
 
+    // *******************************
+    // **** GENERAL TOWER METHODS **** 
+    // *******************************
+
+    /**
+     * Tests whether this tower can transform.
+     * 
+     * Checks that the robot is a turret or portable
+     *
+     * @return whether it is possible to transform
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransform();
+
+    /** 
+     * Transform from turret into portable or vice versa.
+     *
+     * @throws GameActionException if conditions for transforming are not satisfied
+     * @battlecode.doc.costlymethod 
+     */
+    void transform() throws GameActionException;
+
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************

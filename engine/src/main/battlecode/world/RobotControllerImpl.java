@@ -265,6 +265,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getActionCooldownTurns() >= 1)
             throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
+        if (!robot.getMode().canAct)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can act.");
     }
 
     /**
@@ -334,7 +337,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanMove(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsMovementReady();
-        if (!getType().canMove())
+        if (robot.getMode().canMove)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot move.");
         MapLocation loc = adjacentLocation(dir);
@@ -357,11 +360,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    // TODO: Check cooldown turns
     @Override
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        this.robot.addMovementCooldownTurns();
+        this.robot.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -413,7 +417,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    // TODO: CHECK FUNCTION NAMES
+    // TODO: Change cooldown turns to build turn
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
         assertCanBuildRobot(type, dir);
@@ -421,7 +425,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
 
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.BUILD_COOLDOWN);
 
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-leadNeeded);
@@ -467,7 +471,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException{
         assertCanAttack(loc);
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.ATTACK_COOLDOWN);
         InternalRobot bot = gameWorld.getRobot(loc);
         this.robot.attack(bot);
         int attackedID = bot.getID();
@@ -511,7 +515,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void healDroid(MapLocation loc) throws GameActionException{
         assertCanHealDroid(loc);
         this.robot.healDroid(loc);
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.HEAL_COOLDOWN);
         InternalRobot bot = gameWorld.getRobot(loc);
         int healedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
@@ -552,7 +556,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanMineLead(loc);
         this.robot.mineLead(loc);
         this.robot.addLead(1); //TODO: do we want to this here or in the implementation
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.MINE_COOLDOWN);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
@@ -587,7 +591,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.mineGold(loc);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(1);
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.MINE_COOLDOWN);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
@@ -645,12 +649,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int goldNeeded = type.getGoldUpgradeCost(upgradeLevel);
 
 
-        this.robot.addActionCooldownTurns();
-
-
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(-goldNeeded);
         robotTeam.addLead(-leadNeeded);
+        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
         int upgradedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
     }
@@ -687,7 +690,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void repairBuilding(MapLocation loc) throws GameActionException{
         assertCanRepairBuilding(loc);
         this.robot.repairBuilding(loc);
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.REPAIR_COOLDOWN);
 
         InternalRobot bot = gameWorld.getRobot(loc);
         int repairedID = bot.getID();
@@ -711,23 +714,56 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canConvert(){
+    public boolean canConvert() {
         try {
             assertCanConvert();
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
+    // TODO: Implement convert in InternalRobot
     @Override
-    public void convert() throws GameActionException{
+    public void convert() throws GameActionException {
         assertCanConvert();
         this.robot.convert();
-        this.robot.addActionCooldownTurns();
+        this.robot.addActionCooldownTurns(GameConstants.CONVERT_COOLDOWN);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE);
         robotTeam.addGold(1);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY);
+    }
+
+    // *******************************
+    // **** GENERAL TOWER METHODS **** 
+    // *******************************
+
+    private void assertCanTransform() throws GameActionException {
+        assertIsActionReady();
+        if (!robot.getMode() == RobotMode.TURRET || !robot.getMode() == RobotMode.PORTABLE) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not transformable.");
+        }
+    }
+
+    @Override
+    public boolean canTransform() {
+        try {
+            assertCanTransform();
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void transform() throws GameActionException {
+        assertCanTransform();
+        robot.transform();
+        RobotMode mode = robot.getMode();
+        if (mode == RobotMode.TURRET) {
+            addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        } else {
+            addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        }
     }
 
     // ***********************************
