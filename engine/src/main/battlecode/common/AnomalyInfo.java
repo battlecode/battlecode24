@@ -5,18 +5,24 @@ package battlecode.common;
  */
 public enum AnomalyType {
 
-    ABYSS     (true,  true, GameConstants.ABYSS_COOLDOWN),
-    CHARGE    (true,  true, GameConstants.CHARGE_COOLDOWN),
-    FURY      (true,  true, GameConstants.FURY_COOLDOWN),
-    VORTEX    (true,  false, -1);
+    ABYSS       (true,    true,   0.1,    0.2),
+    CHARGE      (true,    true,   0.05,   0.1),
+    FURY        (true,    true,   0.05,   0.1),
+    VORTEX      (true,    false,  0,      0),
+    SINGULARITY ();
+    
 
     public final boolean isGlobalAnomaly;
     public final boolean isSageAnomaly;
-    public final int sageCooldown;
+    public final float globalPercentage;
+    public final float sagePercentage;
 
-    AnomalyMode(boolean isGlobalAnomaly, boolean isLocalAnomaly, int sageCooldown) {
+
+    AnomalyMode(boolean isGlobalAnomaly, boolean isLocalAnomaly, float globalPercentage, float sagePercentage) {
         this.isGlobalAnomaly     = isGlobalAnomaly;
         this.isLocalAnomaly      = isLocalAnomaly;
-        this.sageCooldown        = sageCooldown;
+        this.globalPercentage    = globalPercentage;
+        this.sagePercentage      = sagePercentage;
+
     }
 }
