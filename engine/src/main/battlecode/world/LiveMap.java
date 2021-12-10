@@ -47,6 +47,16 @@ public strictfp class LiveMap {
     private final String mapName;
 
     /**
+     * List of anomalies that will occur at certain rounds.
+     */
+    private final AnomalyScheduleEntry[] anomalySchedule;
+
+    /**
+     * Index of next anomaly to occur (excluding Singularity which always occurs)
+     */
+    private int nextAnomalyIndex;
+
+    /**
      * The bodies to spawn on the map; MapLocations are in world space -
      * i.e. in game correct MapLocations that need to have the origin
      * subtracted from them to be used to index into the map arrays.
@@ -76,6 +86,11 @@ public strictfp class LiveMap {
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+        
+        // TODO: initialize with potentially hardcoded anomalies
+        this.anomalySchedule = {};
+        this.nextAnomalyIndex = 0;
+
     }
 
     public LiveMap(int width,
@@ -286,6 +301,35 @@ public strictfp class LiveMap {
         assert onTheMap(new MapLocation(x, y));
         this.leadMap[x][y] += amountToAdd; 
     }
+
+    /**
+     * @return a copy of the next Anomaly that hasn't happened yet.
+     */
+    public viewNextAnomaly(){
+        return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
+    }
+
+    /**
+     * Removes the current anomaly by advancing to the next one.
+     * @return the next Anomaly.
+     */
+    public takeNextAnomaly(){
+        return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
+    }
+
+    /**
+     * @return a copy of the anomaly schedule
+     */
+    public AnomalyScheduleEntry[] getAnomalySchedule(){
+
+        AnomalyScheduleEntry[] anomalyCopy = new AnomalyScheduleEntry[this.anomalySchedule.length];
+
+        for(int i = 0; i < this.anomalySchedule.length ; i++)
+            anomalyCopy[i] = this.anomalySchedule[i].copyEntry();
+
+        return anomalyCopy;
+    }
+
 
     @Override
     public String toString() {

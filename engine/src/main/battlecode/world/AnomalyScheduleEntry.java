@@ -10,4 +10,19 @@ public class AnomalyScheduleEntry {
         this.anomalyType = anomaly;
     }
 
+    /**
+     * @return a copy of the entry
+     */
+    public copyEntry(AnomalyType anomalyType){
+        return new AnomalyScheduleEntry(
+                anomalyType.round,
+                new AnomalyType(
+                    anomalyType.isGlobalAnomaly,
+                    anomalyType.isLocalAnomaly,
+                    anomalyType.globalPercentage,
+                    anomalyType.sagePercentage
+                )
+        );
+    }
+
 }

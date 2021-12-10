@@ -128,6 +128,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
 
+    /**
+     * Returns a fully copied version of the anomaly schedule.
+     */
+    public AnomalyScheduleEntry[] getAnomalySchedule(){
+        this.gameWorld.getAnomalySchedule();
+    }
+
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****

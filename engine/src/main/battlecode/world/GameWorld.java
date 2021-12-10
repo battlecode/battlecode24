@@ -177,6 +177,13 @@ public strictfp class GameWorld {
         return this.gameStats.getWinner();
     }
 
+    /**
+     * Defensively copied at the level of LiveMap.
+     */
+    public AnomalyScheduleEntry[] getAnomalySchedule(){
+        return this.gameMap.getAnomalySchedule();
+    }
+
     public boolean isRunning() {
         return this.running;
     }
@@ -385,7 +392,6 @@ public strictfp class GameWorld {
 
         // Trigger any anomalies
 
-
         // Check for end of match
         setWinnerIfAnnihilated();
         if (timeLimitReached() && gameStats.getWinner() == null)
@@ -529,7 +535,6 @@ public strictfp class GameWorld {
 
     public void causeFurySage(){
 
-        
 
     }
 
