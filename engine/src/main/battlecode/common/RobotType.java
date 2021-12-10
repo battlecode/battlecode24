@@ -117,6 +117,48 @@ public enum RobotType {
     }
 
     /**
+     * @return whether this type can attack
+     */
+    public boolean canAttack() {
+        return (this == WATCHTOWER
+            || this == SOLDIER);
+    }
+
+    /**
+     * @param builtType type of robot being built
+     * @return whether this type can build the given robot type
+     */
+    public boolean canBuild(RobotType builtType) {
+        return (this == ARCHON && (builtType == MINER || 
+                                   builtType == BUILDER || 
+                                   builtType == SOLDIER || 
+                                   builtType == SAGE)) || 
+               (this == BUILDER && (builtType == LABORATORY || 
+                                    builtType == WATCHTOWER));
+    }
+
+    /**
+     * @return whether this type can anomolies
+     */
+    public boolean canUseAnomoly() {
+        return this == SAGE;
+    }
+
+    /**
+     * @return whether this type can convert
+     */
+    public boolean canConvert() {
+        return this == LABORATORY;
+    }
+
+    /**
+     * @return whether this type can mine
+     */
+    public boolean canMine() {
+        return this == MINER;
+    }
+
+    /**
      * @return whether or not a given robot is a building
     */
     public boolean isBuilding() {
