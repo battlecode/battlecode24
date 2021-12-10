@@ -318,6 +318,20 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         bot.addHealth(-dmg);
     }
 
+    /**
+     * Heals another robot. Assumes bot is in range.
+     * Note: this is relatively inefficient(?), can possibly optimize
+     *  by making better helper methods in GameWorld
+     * 
+     * @param bot the robot to be healed
+     */
+    public void heal(InternalRobot bot) {
+        if (!this.canActLocation(bot.location))
+            return; // TODO: throw exception?
+        int healingAmount = this.type.getHealing(this.level);
+        bot.addHealth(healingAmount);
+    }
+
     // *********************************
     // ****** GAMEPLAY METHODS *********
     // *********************************
