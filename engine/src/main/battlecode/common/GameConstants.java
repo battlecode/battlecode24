@@ -36,10 +36,7 @@ public class GameConstants {
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
-
-    ///** Maximum ID a Robot will have */
-    //public static final int MAX_ROBOT_ID = 32000;   Cannot be guaranteed in Battlecode 2021.
-
+    
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
@@ -63,11 +60,14 @@ public class GameConstants {
     /** A prototype building's starting health, as a multiplier of max health. */
     public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
 
+    /** The amount of health a prototype building has as a multiplier. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.1f;
+
+    /** The multiplier for reclaiming a building's cost. */
+    public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
+
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
-
-    /** The amount damage is reduced by every ricochet. */
-    public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

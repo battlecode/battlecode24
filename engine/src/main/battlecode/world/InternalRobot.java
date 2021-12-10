@@ -183,13 +183,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns the robot's sensor radius squared.
-     */
-    public int getSensorRadiusSquared() {
-        return this.type.sensorRadiusSquared;
-    }
-
-    /**
      * Returns whether this robot can perform actions on the given location.
      * 
      * @param toSense the MapLocation to act
@@ -199,30 +192,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns whether this robot can sense the given location.
-     * 
-     * @param toSense the MapLocation to sense
-     */
-    public boolean canSenseLocation(MapLocation toSense){
-        return this.location.distanceSquaredTo(toSense) <= getSensorRadiusSquared();
-    }
-
-    /**
      * Returns whether this robot can act at a given radius away.
      * 
      * @param radiusSquared the distance squared to act
      */
     public boolean canActRadiusSquared(int radiusSquared) {
         return radiusSquared <= getActionRadiusSquared();
-    }
-
-    /**
-     * Returns whether this robot can sense something a given radius away.
-     * 
-     * @param radiusSquared the distance squared to sense
-     */
-    public boolean canSenseRadiusSquared(int radiusSquared) {
-        return radiusSquared <= getSensorRadiusSquared();
     }
 
     // ******************************************
