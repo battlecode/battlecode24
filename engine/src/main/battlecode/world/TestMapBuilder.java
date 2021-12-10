@@ -45,7 +45,7 @@ public class TestMapBuilder {
     }
     
     public TestMapBuilder setRubble() {
-        this.rubbleArray = new double[width * height];
+        this.rubbleArray = new int[width * height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 this.rubbleArray[i + j * width] = (i * j + i + j) / (i * j + 1);

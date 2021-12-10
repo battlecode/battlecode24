@@ -250,7 +250,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double senseRubble(MapLocation loc) throws GameActionException;
+    int senseRubble(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the lead count of that location.
@@ -261,7 +261,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double senseLead(MapLocation loc) throws GameActionException;
+    int senseLead(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the gold count of that location.
@@ -272,7 +272,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double senseGold(MapLocation loc) throws GameActionException;
+    int senseGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.

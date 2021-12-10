@@ -183,7 +183,7 @@ public strictfp class GameWorld {
         return this.currentRound;
     }
 
-    public double getRubble(MapLocation loc) {
+    public int getRubble(MapLocation loc) {
         return this.rubble[locationToIndex(loc)];
     }
 
