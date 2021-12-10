@@ -128,6 +128,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
 
+    /**
+     * Returns a fully copied version of the anomaly schedule.
+     */
+    public AnomalyScheduleEntry[] getAnomalySchedule(){
+        this.gameWorld.getAnomalySchedule();
+    }
+
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -231,21 +238,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override 
-    public double seePassability(MapLocation loc) throws GameActionException {
-        assertCanSeeLocation(loc);
-        return this.gameWorld.getPassability(loc);
+    public int seeRubble(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getRubble(loc);
     }
 
     @Override 
-    public double seeLead(MapLocation loc) throws GameActionException {
+    public int seeLead(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getLeadAtLocation(loc);
+        return this.gameWorld.getLead(loc);
     }
 
     @Override 
-    public double seeGold(MapLocation loc) throws GameActionException {
+    public int seeGold(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getGoldAtLocation(loc);
+        return this.gameWorld.getGold(loc);
     }
 
     @Override
@@ -413,6 +420,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    // TODO: CHECK FUNCTION NAMES
     // TODO: Change cooldown turns to build turn
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
@@ -450,7 +458,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Robot can't be attacked because it is out of range.");
-        RobotInfo bot = seeRobotAtLocation(loc);
+        InternalRobot bot = getRobot(loc);
         if (bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
@@ -551,14 +559,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void healDroid(MapLocation loc) throws GameActionException{
         assertCanHealDroid(loc);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(GameConstants.HEAL_COOLDOWN);
         InternalRobot bot = gameWorld.getRobot(loc);
-        this.robot.healDroid(bot);
+        this.robot.heal(bot);
         int healedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
     }
 
-    
     // ***********************
     // **** MINER METHODS **** 
     // ***********************
@@ -864,6 +871,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         return getRobotByID(id).getFlag();
     } 
+
+    //TODO: move this back to public?
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
