@@ -3,8 +3,6 @@ package battlecode.common;
 /**
  * Contains details on various attributes of the different robots. All of this information is in the specs in a more organized form.
  */
-
-
 public enum RobotType {
 
     // Build Cost Lead, Build Cost Gold, Action Cooldown, Movement Cooldown
