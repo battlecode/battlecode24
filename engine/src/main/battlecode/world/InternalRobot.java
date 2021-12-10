@@ -387,6 +387,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ****** MISC. METHODS ********************
     // *****************************************
 
+    /**
+     * @return the number of friendly robots within sensor (vision) radius.
+     */
+    public RobotInfo[] numberOfVisibleFriendlyRobots(){
+        return this.controller.numberOfVisibleFriendlyRobots();
+    }
+
     @Override
     public boolean equals(Object o) {
         return o != null && (o instanceof InternalRobot)
