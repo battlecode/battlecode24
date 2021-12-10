@@ -9,7 +9,7 @@ public enum AnomalyType {
     CHARGE      (true,    true,   0.05,   0.1),
     FURY        (true,    true,   0.05,   0.1),
     VORTEX      (true,    false,  0,      0),
-    SINGULARITY ();
+    SINGULARITY (true,    false,  0,      0);
     
 
     public final boolean isGlobalAnomaly;
