@@ -12,9 +12,9 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    int archonCount;
-    int leadCount;
-    int goldCount;
+    private int archonCount;
+    private int leadCount;
+    private int goldCount;
 
     /**
      * Create a new representation of TeamInfo
@@ -71,11 +71,11 @@ public class TeamInfo {
      * 
      * @param newArchonCount the new number of Archons
      * 
-     * @throws GameActionException if the newArchonCount is negative
+     * @throws IllegalArgumentException if the newArchonCount is negative
      */
-    public void setArchonCount(int newArchonCount) throws GameActionException {
+    public void setArchonCount(int newArchonCount) throws IllegalArgumentException {
         if (newArchonCount < 0) {
-            throw new GameActionException(CANT_DO_THAT, "Invalid change in number of archons");
+            throw new IllegalArgumentException("Invalid archon count");
         }
         this.archonCount = newArchonCount;
     }
@@ -85,11 +85,11 @@ public class TeamInfo {
      * 
      * @param leadChange the change in the lead count
      * 
-     * @throws GameActionException if the resulting amount of lead is negative
+     * @throws IllegalArgumentException if the resulting amount of lead is negative
      */
-    public void changeLead(int leadChange) throws GameActionException {
+    public void changeLead(int leadChange) throws IllegalArgumentException {
         if (leadCount + leadChange < 0) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient amount of lead");
+            throw new IllegalArgumentException("Invalid lead change");
         }
         this.leadCount += leadChange;
     }
@@ -99,11 +99,11 @@ public class TeamInfo {
      * 
      * @param goldChange the change in the gold count
      * 
-     * @throws GameActionException if the resulting amount of gold is negative
+     * @throws IllegalArgumentException if the resulting amount of gold is negative
      */
-    public void changeGold(int goldChange) throws GameActionException {
+    public void changeGold(int goldChange) throws IllegalArgumentException {
         if (goldCount + goldChange < 0) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient amount of gold");
+            throw new IllegalArgumentException("Invalid gold change");
         }
         this.goldCount += goldChange;
     }
