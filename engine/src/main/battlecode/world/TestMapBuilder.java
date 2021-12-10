@@ -14,7 +14,7 @@ public class TestMapBuilder {
     private int height;
     private int seed;
     private int rounds;
-    private double[] passabilityArray;
+    private int[] rubbleArray;
 
     private List<RobotInfo> bodies;
 
@@ -44,11 +44,11 @@ public class TestMapBuilder {
         return this;
     }
     
-    public TestMapBuilder setPassability() {
-        this.passabilityArray = new double[width * height];
+    public TestMapBuilder setRubble() {
+        this.rubbleArray = new double[width * height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.passabilityArray[i + j * width] = (i * j + i + j) / (i * j + 1);
+                this.rubbleArray[i + j * width] = (i * j + i + j) / (i * j + 1);
             }
         }
         return this;
@@ -60,6 +60,6 @@ public class TestMapBuilder {
     }
 
     public LiveMap build() {
-        return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), passabilityArray);
+        return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray);
     }
 }

@@ -19,7 +19,7 @@ public class MapBuilder {
     public MapLocation origin;
     public int seed;
     private MapSymmetry symmetry;
-    private double[] passabilityArray;
+    private int[] rubbleArray;
     private int idCounter;
 
     private List<RobotInfo> bodies;
@@ -35,9 +35,9 @@ public class MapBuilder {
         // default values
         this.symmetry = MapSymmetry.vertical;
         this.idCounter = 0;
-        this.passabilityArray = new double[width*height];
-        for (int i = 0; i < passabilityArray.length; i++) {
-            passabilityArray[i] = 1; // default cooldown factor is 1
+        this.rubbleArray = new int[width*height];
+        for (int i = 0; i < rubbleArray.length; i++) {
+            rubbleArray[i] = 1; // default cooldown factor is 1
         }
     }
 
@@ -81,8 +81,8 @@ public class MapBuilder {
         );
     }
 
-    public void setPassability(int x, int y, double value) {
-        this.passabilityArray[locationToIndex(x, y)] = value;
+    public void setRubble(int x, int y, int value) {
+        this.rubbleArray[locationToIndex(x, y)] = value;
     }
 
     public void setSymmetry(MapSymmetry symmetry) {
@@ -142,9 +142,9 @@ public class MapBuilder {
         addEnlightenmentCenter(symmetricX(x), symmetricY(y), Team.NEUTRAL, influence);
     }
 
-    public void setSymmetricPassability(int x, int y, double value) {
-        this.passabilityArray[locationToIndex(x, y)] = value;
-        this.passabilityArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
+    public void setSymmetricRubble(int x, int y, int value) {
+        this.rubbleArray[locationToIndex(x, y)] = value;
+        this.rubbleArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
     // ********************
@@ -153,7 +153,7 @@ public class MapBuilder {
 
     public LiveMap build() {
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
-                bodies.toArray(new RobotInfo[bodies.size()]), passabilityArray);
+                bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray);
     }
 
     /**
@@ -208,13 +208,13 @@ public class MapBuilder {
             for (int y = 0; y < height; y++) {
                 MapLocation current = new MapLocation(x, y);
                 // This should also be a GameConstant, but I'm speed-coding this and we can fix this later
-                if (passabilityArray[locationToIndex(current.x, current.y)] < 0.1 || passabilityArray[locationToIndex(current.x, current.y)] > 1.0) {
-                    throw new RuntimeException("Map passability not between 0.1 and 1.0");
+                if (rubbleArray[locationToIndex(current.x, current.y)] <= 100 || rubbleArray[locationToIndex(current.x, current.y)] >= 0) {
+                    throw new RuntimeException("Map rubble not between 0 and 100");
                 }
             }
         }
 
-        // assert passability and Enlightenment Center symmetry
+        // assert rubble and Enlightenment Center symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
         boolean doesContain = false;
@@ -222,7 +222,7 @@ public class MapBuilder {
             if (sss == symmetry) doesContain = true;
         }
         if (!doesContain) {
-            throw new RuntimeException("Passability and Enlightenment Centers must be symmetric according to the given symmetry; they are not currently.");
+            throw new RuntimeException("Rubble and Enlightenment Centers must be symmetric according to the given symmetry; they are not currently.");
         }
     }
 
@@ -249,7 +249,7 @@ public class MapBuilder {
                 for (int i = possible.size()-1; i >= 0; i--) { // iterating backwards so we can remove in the loop
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
-                    if (passabilityArray[locationToIndex(current.x, current.y)] != passabilityArray[locationToIndex(symm.x, symm.y)]) possible.remove(symmetry);
+                    if (rubbleArray[locationToIndex(current.x, current.y)] != rubbleArray[locationToIndex(symm.x, symm.y)]) possible.remove(symmetry);
                     RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
                     if (!(cri == null) || !(sri == null)) {
                         if (cri == null || sri == null) {
