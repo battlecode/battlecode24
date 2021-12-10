@@ -121,7 +121,8 @@ public enum RobotType {
      */
     public boolean canAttack() {
         return (this == WATCHTOWER
-            || this == SOLDIER);
+            || this == SOLDIER
+            || this == SAGE);
     }
 
     /**
@@ -145,7 +146,7 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can convert
+     * @return whether this type can convert lead into gold
      */
     public boolean canConvert() {
         return this == LABORATORY;
