@@ -18,7 +18,7 @@ public enum AnomalyType {
     public final float sagePercentage;
 
 
-    AnomalyMode(boolean isGlobalAnomaly, boolean isLocalAnomaly, float globalPercentage, float sagePercentage) {
+    AnomalyType(boolean isGlobalAnomaly, boolean isLocalAnomaly, float globalPercentage, float sagePercentage) {
         this.isGlobalAnomaly     = isGlobalAnomaly;
         this.isLocalAnomaly      = isLocalAnomaly;
         this.globalPercentage    = globalPercentage;
