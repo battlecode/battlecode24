@@ -78,18 +78,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getTeamVotes() {
-        return gameWorld.getTeamInfo().getVotes(getTeam());
-    }
-
-    @Override
     public int getRobotCount() {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
     @Override
-    public double getEmpowerFactor(Team team, int roundsInFuture) {
-        return gameWorld.getTeamInfo().getBuff(team, getRoundNum() + roundsInFuture);
+    public double getArchonCount() {
+        // TODO: Assumes getArchons() exists in TeamInfo
+        return gameWorld.getTeamInfo().getArchons();
     }
 
     // *********************************
@@ -115,90 +111,69 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
+ 
+    @Override
+    public int getHealth() {
+        return this.robot.getHeatlh();
+    }
+
+    @Override
+    public int getUpgradeLevel() {
+        return this.robot.getUpgradeLevel();  
+    }
 
     private InternalRobot getRobotByID(int id) {
         if (!gameWorld.getObjectInfo().existsRobot(id))
             return null;
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
- 
-    public int getInfluence() {
-        return this.robot.getInfluence();
-    }
-
-    public int getConviction() {
-        return this.robot.getConviction();  
-    }
 
 
     // ***********************************
-    // ****** GENERAL SENSOR METHODS *****
+    // ****** GENERAL VISION METHODS *****
     // ***********************************
 
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within sensor range");
+        if (!this.robot.canSeeLocation(loc))
+            throw new GameActionException(CANT_SEE_THAT,
+                    "Target location not within vision range");
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
-    private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
+    private void assertCanSeeLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within sensor range");
+        if (!this.robot.canSeeLocation(loc))
+            throw new GameActionException(CANT_SEE_THAT,
+                    "Target location not within vision range");
         if (!gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
+            throw new GameActionException(CANT_SEE_THAT,
                     "Target location is not on the map");
     }
 
     @Override
-    public boolean canSenseLocation(MapLocation loc) {
+    public boolean canSeeLocation(MapLocation loc) {
         try {
-            assertCanSenseLocation(loc);
+            assertCanSeeLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
     @Override
-    public boolean canSenseRadiusSquared(int radiusSquared) {
-        return this.robot.canSenseRadiusSquared(radiusSquared);
-    }
-
-    private void assertCanDetectLocation(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        if (!this.robot.canDetectLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within detection range");
-        if (!gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
+    public boolean canSeeRadiusSquared(int radiusSquared) {
+        return this.robot.canSeeRadiusSquared(radiusSquared);
     }
 
     @Override
-    public boolean canDetectLocation(MapLocation loc) {
-        try {
-            assertCanDetectLocation(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public boolean canDetectRadiusSquared(int radiusSquared) {
-        return this.robot.canDetectRadiusSquared(radiusSquared);
-    }
-
-    @Override
-    public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
-        assertCanDetectLocation(loc);
+    public boolean canSeeRobotAtLocation(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
         return this.gameWorld.getRobot(loc) != null;
     }
 
     @Override
-    public RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
+    public RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
         if (bot != null)
             return bot.getRobotInfo(getType().canTrueSense());
@@ -206,87 +181,71 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRobot(int id) {
-        InternalRobot sensedRobot = getRobotByID(id);
-        return sensedRobot == null ? false : canSenseLocation(sensedRobot.getLocation());
+    public boolean canSeeRobot(int id) {
+        InternalRobot seenRobot = getRobotByID(id);
+        return seenRobot == null ? false : canSeeLocation(seenRobot.getLocation());
     }
 
     @Override
-    public RobotInfo senseRobot(int id) throws GameActionException {
-        if (!canSenseRobot(id))
+    public RobotInfo seeRobot(int id) throws GameActionException {
+        if (!canSeeRobot(id))
             throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given robot; It may not exist anymore");
+                    "Can't see given robot; It may not exist anymore");
         return getRobotByID(id).getRobotInfo(getType().canTrueSense());
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots() {
-        return senseNearbyRobots(-1);
+    public RobotInfo[] seeNearbyRobots() {
+        return seeNearbyRobots(-1);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared) {
-        return senseNearbyRobots(radiusSquared, null);
+    public RobotInfo[] seeNearbyRobots(int radiusSquared) {
+        return seeNearbyRobots(radiusSquared, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) {
-        return senseNearbyRobots(getLocation(), radiusSquared, team);
+    public RobotInfo[] seeNearbyRobots(int radiusSquared, Team team) {
+        return seeNearbyRobots(getLocation(), radiusSquared, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
+    public RobotInfo[] seeNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
         int actualRadiusSquared = radiusSquared == -1 ? getType().sensorRadiusSquared : Math.min(radiusSquared, getType().sensorRadiusSquared);
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
-        List<RobotInfo> validSensedRobots = new ArrayList<>();
-        for (InternalRobot sensedRobot : allSensedRobots) {
+        InternalRobot[] allSeenRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
+        List<RobotInfo> validSeenRobots = new ArrayList<>();
+        for (InternalRobot seenRobot : allSeenRobots) {
             // check if this robot
-            if (sensedRobot.equals(this.robot))
+            if (seenRobot.equals(this.robot))
                 continue;
-            // check if can sense
-            if (!canSenseLocation(sensedRobot.getLocation()))
+            // check if can see
+            if (!canSeeLocation(seenRobot.getLocation()))
                 continue; 
             // check if right team
-            if (team != null && sensedRobot.getTeam() != team)
+            if (team != null && seenRobot.getTeam() != team)
                 continue;
-            validSensedRobots.add(sensedRobot.getRobotInfo(getType().canTrueSense()));
+            validSeenRobots.add(seenRobot.getRobotInfo(getType().canTrueSense()));
         }
-        return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots() {
-        return detectNearbyRobots(-1);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots(int radiusSquared) {
-        return detectNearbyRobots(getLocation(), radiusSquared);
-    }
-
-    @Override
-    public MapLocation[] detectNearbyRobots(MapLocation center, int radiusSquared) {
-        assertNotNull(center);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().detectionRadiusSquared : Math.min(radiusSquared, getType().detectionRadiusSquared);
-        InternalRobot[] allDetectedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
-        List<MapLocation> validDetectedRobots = new ArrayList<>();
-        for (InternalRobot detectedRobot : allDetectedRobots) {
-            // check if this robot
-            if (detectedRobot.equals(this.robot))
-                continue;
-            // check if can detect
-            if (!canDetectLocation(detectedRobot.getLocation()))
-                continue;
-            validDetectedRobots.add(detectedRobot.getLocation());
-        }
-        return validDetectedRobots.toArray(new MapLocation[validDetectedRobots.size()]);
+        return validSeenRobots.toArray(new RobotInfo[validSeenRobots.size()]);
     }
 
     @Override 
-    public int senseRubble(MapLocation loc) throws GameActionException {
+    public int seeRubble(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.getRubble(loc);
+    }
+
+    @Override 
+    public int seeLead(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
+        return this.gameWorld.getLead(loc);
+    }
+
+    @Override 
+    public int seeGold(MapLocation loc) throws GameActionException {
+        assertCanSeeLocation(loc);
+        return this.gameWorld.getGold(loc);
     }
 
     @Override
@@ -376,18 +335,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    private void assertCanBuildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
+    private void assertCanBuildRobot(RobotType type, Direction dir) throws GameActionException {
         assertNotNull(type);
         assertNotNull(dir);
         if (!getType().canBuild(type))
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build robots of type" + type + ".");
-        if (influence <= 0)
+
+        // CHECK FUNCTION NAMES FOR GETTING LEAD/GOLD COSTS AND SUPPLIES
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
+        Team team = getTeam();
+        if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend nonpositive amount of influence.");
-        if (influence > getInfluence())
+                    "Insufficient amount of lead.");
+        }
+        if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot spend more influence than you have.");
+                    "Insufficient amount of gold.");
+        }
+
         MapLocation spawnLoc = adjacentLocation(dir);
         if (!onTheMap(spawnLoc))
             throw new GameActionException(OUT_OF_RANGE,
@@ -401,21 +368,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canBuildRobot(RobotType type, Direction dir, int influence) {
+    public boolean canBuildRobot(RobotType type, Direction dir) {
         try {
-            assertCanBuildRobot(type, dir, influence);
+            assertCanBuildRobot(type, dir);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
+    // TODO: CHECK FUNCTION NAMES
     @Override
-    public void buildRobot(RobotType type, Direction dir, int influence) throws GameActionException {
-        assertCanBuildRobot(type, dir, influence);
+    public void buildRobot(RobotType type, Direction dir) throws GameActionException {
+        assertCanBuildRobot(type, dir);
+
+        int leadNeeded = type.getLeadCost();
+        int goldNeeded = type.getGoldCost();
 
         this.robot.addCooldownTurns();
-        this.robot.addInfluenceAndConviction(-influence);
 
-        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam(), influence);
+        this.robot.addLead(-leadNeeded);
+        this.robot.addGold(-goldNeeded);
+
+        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
 
         // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
         InternalRobot newBot = getRobotByID(robotID);
@@ -423,162 +396,271 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
-    
-    // ***********************************
-    // ****** POLITICIAN METHODS ********* 
-    // ***********************************
 
-    private void assertCanEmpower(int radiusSquared) throws GameActionException {
-        assertIsReady();
-        if (!getType().canEmpower())
+    // *****************************
+    // **** COMBAT UNIT METHODS **** 
+    // *****************************
+
+    private void assertCanAttack(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canAttack())
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot empower.");
-        if (radiusSquared > getType().actionRadiusSquared)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot's empower radius is smaller than radius specified");
-    }
-
-    @Override
-    public boolean canEmpower(int radiusSquared) {
-        try {
-            assertCanEmpower(radiusSquared);
-            return true;
-        } catch (GameActionException e) { return false; } 
-    }
-    
-    @Override
-    public void empower(int radiusSquared) throws GameActionException {
-        assertCanEmpower(radiusSquared);
-
-        this.robot.addCooldownTurns(); // not needed but here for the sake of consistency
-        this.robot.empower(radiusSquared);
-        gameWorld.getMatchMaker().addAction(getID(), Action.EMPOWER, radiusSquared);
-
-        // self-destruct
-        gameWorld.destroyRobot(this.robot.getID());
-    }
-
-
-    // ***********************************
-    // ****** MUCKRAKER METHODS ********** 
-    // *********************************** 
-    
-    private void assertCanExpose(MapLocation loc) throws GameActionException {
-        assertIsReady();
-        if (!getType().canExpose())
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot expose.");
-        if (!onTheMap(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Location is not on the map.");
+                    "Robot is of type " + getType() + " which cannot attack.");
         if (!this.robot.canActLocation(loc))
-            throw new GameActionException(CANT_DO_THAT,
-                    "Location can't be exposed because it is out of range.");
-        InternalRobot bot = gameWorld.getRobot(loc);
-        if (bot == null)
-            throw new GameActionException(CANT_DO_THAT,
-                    "There is no robot at specified location.");
-        if (!(bot.getType().canBeExposed()))
-            throw new GameActionException(CANT_DO_THAT, 
-                    "Robot at target location is not of a type that can be exposed.");
-        if (bot.getTeam() == getTeam())
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot at target location is not on the enemy team.");
-    }
-
-    private void assertCanExpose(int id) throws GameActionException {
-        assertIsReady();
-        if (!getType().canExpose())
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot expose.");
-        if (!canSenseRobot(id))
             throw new GameActionException(OUT_OF_RANGE,
-                    "The targeted robot cannot be sensed.");
-        InternalRobot bot = getRobotByID(id);
-        if (!this.robot.canActLocation(bot.getLocation()))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Robot can't be exposed because it is out of range.");
-        if (!(bot.getType().canBeExposed()))
-            throw new GameActionException(CANT_DO_THAT, 
-                    "Robot is not of a type that can be exposed.");
+                    "Robot can't be attacked because it is out of range.");
+        InternalRobot bot = getRobot(loc);
         if (bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
     }
 
     @Override
-    public boolean canExpose(MapLocation loc) {
+    boolean canAttack(MapLocation loc){
         try {
-            assertCanExpose(loc);
+            assertCanAttack(loc);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public boolean canExpose(int id) {
-        try {
-            assertCanExpose(id);
-            return true;
-        } catch (GameActionException e) { return false; }  
-    }
-    
-    @Override
-    public void expose(MapLocation loc) throws GameActionException {
-        assertCanExpose(loc);
-
-        this.robot.addCooldownTurns();
+    void attack(MapLocation loc) throws GameActionException{
+        assertCanAttack(loc);
+        this.robot.attack(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
-        int exposedID = bot.getID();
-        this.robot.expose(bot);
-        gameWorld.getMatchMaker().addAction(getID(), Action.EXPOSE, exposedID);
+        int attackedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, attackedID);
     }
 
-    @Override
-    public void expose(int id) throws GameActionException {
-        assertCanExpose(id);
+    // *****************************
+    // ****** ARCHON METHODS ****** 
+    // *****************************
 
-        this.robot.addCooldownTurns();
-        InternalRobot bot = getRobotByID(id);
-        this.robot.expose(bot);
-        gameWorld.getMatchMaker().addAction(getID(), Action.EXPOSE, id);
-    }
-
-    // ***********************************
-    // *** ENLIGHTENMENT CENTER METHODS **
-    // ***********************************
-
-    private void assertCanBid(int influence) throws GameActionException {
-        if (!getType().canBid()) {
+    private void assertCanHealDroid(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canHealDroid()) {
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot bid.");
-        } else if (influence <= 0) {
+                    "Robot is of type " + getType() + " which cannot heal droids.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "This robot can't be healed belocation can't be min because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeHealed())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be healed.");
+        }
+        if (bot.getTeam() != getTeam()){
             throw new GameActionException(CANT_DO_THAT,
-                    "Can only bid non-negative amounts of influence.");
-        } else if (influence > getInfluence()) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Not possible to bid influence you don't have.");
+                    "Robot is not on your team so can't be healed.");
         }
     }
 
     @Override
-    public boolean canBid(int influence) {
+    boolean canHealDroid(MapLocation loc){
         try {
-            assertCanBid(influence);
+            assertCanHealDroid(loc);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void bid(int influence) throws GameActionException {
-        assertCanBid(influence);
+    void healDroid(MapLocation loc) throws GameActionException{
+        assertCanHealDroid(loc);
+        this.robot.healDroid(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int healedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
+    }
 
-        this.robot.setBid(influence);
-        gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_BID, influence);
+    
+    // ***********************
+    // **** MINER METHODS **** 
+    // ***********************
+
+    private void assertCanMineLead(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canMine()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot mine.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be healed because it is out of range.");
+        }
+        int leadAmount = gameWorld.getLeadCount(loc);
+        if (leadAmount < 0){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Lead amount must be positive to be mined.");
+        }
+    }
+
+    @Override
+    boolean canMineLead(MapLocation loc){
+        try {
+            assertCanMineLead(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void mineLead(MapLocation loc) throws GameActionException{
+        assertCanMineLead(loc);
+        this.robot.mineLead(loc);
+        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
+    }
+
+    private void assertCanMineGold(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canMine()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot mine.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "This location can't be mined because it is out of range.");
+        }
+        int goldAmount = gameWorld.getGoldCount(loc);
+        if (goldAmount < 0){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Gold amount must be positive to be mined.");
+        }
+    }
+
+    @Override
+    boolean canMineGold(MapLocation loc){
+        try {
+            assertCanMineGold(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void mineGold(MapLocation loc) throws GameActionException{
+        assertCanMineGold(loc);
+        this.robot.mineGold(loc);
+        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
+    }
+
+    // *************************
+    // **** BUILDER METHODS **** 
+    // *************************
+
+    private void assertCanUpgrade(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canUpgrade()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot upgrade buildings.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be upgraded because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeUpgraded())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be upgraded.");
+        }
+        if (bot.getTeam() != getTeam()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be upgraded.");
+        }
+        if (getLead() < bot.getLeadUpgradeCost()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough lead to upgrade this robot.");
+        }
+        if (getGold() < bot.getGoldUpgradeCost()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough gold to upgrade this robot.");
+        }
+    }
+
+    @Override
+    boolean canUpgrade(MapLocation loc){
+        try {
+            assertCanUpgrade(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void upgrade(MapLocation loc) throws GameActionException{
+        assertCanUpgrade(loc);
+        this.robot.upgrade(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int upgradedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
+    }
+
+    private void assertCanRepairBuilding(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canRepairBuilding()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot repair buildings.");
+        }else if (!this.robot.canActLocation(loc)){
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Robot can't be repaired because it is out of range.");
+        }
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (!(bot.getType().canBeUpgraded())){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Robot is not of a type that can be repair.");
+        }
+        if (bot.getTeam() != getTeam()){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be repaired.");
+        }
+    }
+
+    @Override
+    boolean canRepairBuilding(MapLocation loc){
+        try {
+            assertCanRepairBuilding(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void repairBuilding(MapLocation loc) throws GameActionException{
+        assertCanRepairBuilding(loc);
+        this.robot.repairBuilding(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
+        int repairedID = bot.getID();
+        gameWorld.getMatchMaker().addAction(getID(), Action.REPAIRD, repairedID);
+    }
+
+    // *******************************
+    // **** ALCHEMIST LAB METHODS **** 
+    // *******************************
+
+    private void assertCanConvert() throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canConvert()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot convert lead to gold.");
+        } else if (LEAD_TO_GOLD_RATE > getLead()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "You don't have enough lead to be able to convert to gold.");
+        }
+    }
+
+    @Override
+    boolean canConvert(){
+        try {
+            assertCanConvert();
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    void convert() throws GameActionException{
+        assertCanConvert();
+        this.robot.convert();
+        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT);
     }
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
+
+    //TODO: Communication needs to be fixed
 
     private void assertCanSetFlag(int flag) throws GameActionException {
         if (flag < GameConstants.MIN_FLAG_VALUE || flag > GameConstants.MAX_FLAG_VALUE) {
@@ -628,10 +710,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getRobotByID(id).getFlag();
     } 
 
+    //TODO: move this back to public?
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
     /**
      * This used to be public, but is not public in 2021 because
      * slanderers should not be able to self-destruct.

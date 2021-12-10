@@ -29,6 +29,8 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     
     private int[] rubble;
+    private int[] leadCount;
+    private int[] goldCount;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -40,11 +42,11 @@ public strictfp class GameWorld {
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
-    private int[] buffsToAdd;
-
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.rubble = gm.getRubbleArray();
+        this.leadCount = gm.getLeadArray();
+        this.goldCount = gm.getGoldArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -187,6 +189,14 @@ public strictfp class GameWorld {
         return this.rubble[locationToIndex(loc)];
     }
 
+    public int getLeadCount(MapLocation loc) {
+        return this.leadCount[locationToIndex(loc)];
+    }
+
+    public int getGoldCount(MapLocation loc) {
+        return this.goldCount[locationToIndex(loc)];
+    }
+
     /**
      * Helper method that converts a location into an index.
      * 
@@ -255,10 +265,6 @@ public strictfp class GameWorld {
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
-
-    public void addBuffs(Team t, int numBuffs) {
-        this.buffsToAdd[t.ordinal()] += numBuffs;
-    }
 
     public void processBeginningOfRound() {
         // Increment round counter
