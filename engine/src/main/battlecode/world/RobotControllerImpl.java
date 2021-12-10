@@ -772,13 +772,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     // TODO: Implement convert in InternalRobot
     @Override
+    public int getGoldExchangeRate() {
+        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
+                                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * nearbyRobotCount))
+    }
+
+    @Override
     public void convert() throws GameActionException {
         assertCanConvert();
-        this.robot.convert();
         RobotType type = this.robot.getType();
         this.robot.addActionCooldownTurns(type.actionCooldown);
         Team robotTeam = this.robot.getTeam();
-        robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE);
+        int nearbyRobotCount = seeNearbyRobots();
+        robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE * getGoldExchangeRate());
         robotTeam.addGold(1);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY);
