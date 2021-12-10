@@ -138,9 +138,9 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can anomolies
+     * @return whether this type can anomalies
      */
-    public boolean canUseAnomoly() {
+    public boolean canUseAnomaly() {
         return this == SAGE;
     }
 
