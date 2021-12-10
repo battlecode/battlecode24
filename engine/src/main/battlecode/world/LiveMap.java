@@ -27,6 +27,11 @@ public strictfp class LiveMap {
     private final MapLocation origin;
 
     /**
+     * How much lead is stored per square.
+     */
+    private final int[][] leadMap;
+
+    /**
      * The random seed contained in the map file
      */
     private final int seed;
@@ -248,6 +253,38 @@ public strictfp class LiveMap {
 
     public double[] getPassabilityArray() {
         return passabilityArray;
+    }
+
+    /**
+     * @param x to get lead at
+     * @param y to get lead at
+     * @return the amount of lead at this location
+     */
+    public getLeadAtLocation(int x, int y){
+        assert onTheMap(new MapLocation(x, y));
+        return this.leadMap[x][y];
+    }
+
+    /**
+     * Changes the amount of lead to amount
+     * @param x to set lead at
+     * @param y to set lead at 
+     * @param amount of lead to put at this location
+     */
+    public setLeadAtLocation(int x, int y, int amount){
+        assert onTheMap(new MapLocation(x, y));
+        this.leadMap[x][y] = amount;
+    }
+
+    /**
+     * Adds the amount of lead to current amount at a given square
+     * @param x to set lead at
+     * @param y to set lead at 
+     * @param amountToAdd
+     */
+    public addLeadAtLocation(int x, int y, int amountToAdd){
+        assert onTheMap(new MapLocation(x, y));
+        this.leadMap[x][y] += amountToAdd; 
     }
 
     @Override

@@ -60,8 +60,6 @@ public strictfp class GameWorld {
         this.rand = new Random(this.gameMap.getSeed());
         this.matchMaker = matchMaker;
 
-        this.buffsToAdd = new int[2];
-
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
@@ -70,7 +68,8 @@ public strictfp class GameWorld {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             int newID = spawnRobot(null, robot.type, newLocation, robot.team, robot.influence);
-            initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, robot.influence, robot.conviction, newLocation); // update with non-deterministic ID and offset location
+
+            initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, 1, robot.health, newLocation);
         }
 
         // Write match header at beginning of match
@@ -256,14 +255,10 @@ public strictfp class GameWorld {
     // ****** GAMEPLAY *****************
     // *********************************
 
-    public void addBuffs(Team t, int numBuffs) {
-        this.buffsToAdd[t.ordinal()] += numBuffs;
-    }
 
     public void processBeginningOfRound() {
         // Increment round counter
         currentRound++;
-        this.teamInfo.updateNumBuffs(currentRound);
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
@@ -296,61 +291,53 @@ public strictfp class GameWorld {
     }
 
     /**
-     * Sets the winner if one of the teams has more votes than the other.
-     *
-     * @return whether or not a winner was set
+     * @return whether a team has more archons
      */
-    public boolean setWinnerIfMoreVotes() {
-        int numVotesA = teamInfo.getVotes(Team.A);
-        int numVotesB = teamInfo.getVotes(Team.B);
-        if (numVotesA > numVotesB) {
-            setWinner(Team.A, DominationFactor.MORE_VOTES);
+    public boolean setWinnerIfMoreArchons(){
+        int archonCountA = objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
+        int archonCountB = objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
+
+        if(archonCountA > archonCountB){
+            setWinner(Team.A, DominationFactor.MORE_ARCHONS);
             return true;
-        } else if (numVotesB > numVotesA) {
-            setWinner(Team.B, DominationFactor.MORE_VOTES);
+        } else if (archonCountA < archonCountB) {
+            setWinner(Team.B, DominationFactor.MORE_ARCHONS);
             return true;
         }
         return false;
     }
 
     /**
-     * Sets the winner if one of the teams has more Enlightenment Centers than the other.
-     *
-     * @return whether or not a winner was set
+     * @return whether a team has a greater net Au value
      */
-    public boolean setWinnerIfMoreEnlightenmentCenters() {
-        int[] numEnlightenmentCenters = new int[2];
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            if (robot.getType() != RobotType.ENLIGHTENMENT_CENTER) continue;
-            if (robot.getTeam() == Team.NEUTRAL) continue;
-            numEnlightenmentCenters[robot.getTeam().ordinal()]++;
-        }
-        if (numEnlightenmentCenters[0] > numEnlightenmentCenters[1]) {
-            setWinner(Team.A, DominationFactor.MORE_ENLIGHTENMENT_CENTERS);
-            return true;
-        } else if (numEnlightenmentCenters[1] > numEnlightenmentCenters[0]) {
-            setWinner(Team.B, DominationFactor.MORE_ENLIGHTENMENT_CENTERS);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Sets the winner if one of the teams has higher total unit influence.
-     *
-     * @return whether or not a winner was set
-     */
-    public boolean setWinnerIfMoreInfluence() {
+    public boolean setWinnerIfMoreGoldValue(){
         int[] totalInfluences = new int[2];
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            if (robot.getTeam() == Team.NEUTRAL) continue;
-            totalInfluences[robot.getTeam().ordinal()] += robot.getInfluence();
+            totalInfluences[robot.getTeam().ordinal()] += robot.getGoldWorth();
         }
         if (totalInfluences[0] > totalInfluences[1]) {
-            setWinner(Team.A, DominationFactor.MORE_INFLUENCE);
+            setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
             return true;
         } else if (totalInfluences[1] > totalInfluences[0]) {
-            setWinner(Team.B, DominationFactor.MORE_INFLUENCE);
+            setWinner(Team.B, DominationFactor.MORE_GOLD_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net Pb value
+     */
+    public boolean setWinnerIfMoreLeadValue(){
+        int[] totalInfluences = new int[2];
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalInfluences[robot.getTeam().ordinal()] += robot.getLeadWorth();
+        }
+        if (totalInfluences[0] > totalInfluences[1]) {
+            setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
+            return true;
+        } else if (totalInfluences[1] > totalInfluences[0]) {
+            setWinner(Team.B, DominationFactor.MORE_LEAD_NET_WORTH);
             return true;
         }
         return false;
@@ -368,69 +355,33 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-        int[] highestBids = new int[2];
-        InternalRobot[] highestBidders = new InternalRobot[2];
 
-        // Process end of each robot's round
-        objectInfo.eachRobot((robot) -> {
-            if (robot.getTeam().isPlayer() && robot.getType().canBid()) {
-                int bid = robot.getBid();
-                int teamIdx = robot.getTeam().ordinal();
-                if (bid > highestBids[teamIdx] || highestBidders[teamIdx] == null ||
-                    (bid == highestBids[teamIdx] && robot.compareTo(highestBidders[teamIdx]) < 0)) {
-                    highestBids[teamIdx] = bid;
-                    highestBidders[teamIdx] = robot;
+        // Add lead resources to the map
+        if(this.currentRound == GameConstants.ADD_RESOURCE_EVERY_ROUNDS)
+            for(int x = 0; x < gameMap.getWidth(); x++)
+                for(int y = 0; y < gameMap.getHeight(); y++){
+                    if(gameMap.getLeadAtLocation(x, y) >= 1) 
+                        gameMap.addLeadAtLocation(x, y, 5);
                 }
-                robot.resetBid();
-            }
+                
+        // Add lead resources to the team
+        teamInfo.changeLead(teamInfo.getLead() + GameConstants.PASSIVE_LEAD_INCREASE);
+
+        // Process end of each robot's round (currently empty in InternalRobot)
+        objectInfo.eachRobot((robot) -> {
             robot.processEndOfRound();
             return true;
         });
 
-        // Process bidding
-        int[] teamVotes = new int[2];
-        int[] teamBidderIDs = new int[2];
-
-        if (highestBids[0] > highestBids[1] && highestBids[0] > 0) {
-            // Team.A wins
-            teamVotes[0] = 1;
-            teamBidderIDs[0] = highestBidders[0].getID();
-            highestBidders[0].addInfluenceAndConviction(-highestBids[0]);
-            this.teamInfo.addVote(Team.A);
-        } else if (highestBids[1] > highestBids[0] && highestBids[1] > 0) {
-            // Team.B wins
-            teamVotes[1] = 1;
-            teamBidderIDs[1] = highestBidders[1].getID();
-            highestBidders[1].addInfluenceAndConviction(-highestBids[1]);
-            this.teamInfo.addVote(Team.B);
-        }
-
-        for (int i = 0; i < 2; i++) {
-            if (teamVotes[i] == 0 && highestBidders[i] != null) {
-                // Didn't win. If didn't place bid, halfBid == 0
-                int halfBid = (highestBids[i] + 1) / 2;
-                highestBidders[i].addInfluenceAndConviction(-halfBid);
-                teamBidderIDs[i] = highestBidders[i].getID(); 
-            }
-        }
-
-        // Add buffs from expose
-        int nextRound = currentRound + 1;
-        for (int i = 0; i < 2; i++) {
-            this.teamInfo.addBuffs(nextRound, Team.values()[i], this.buffsToAdd[i]);
-            this.buffsToAdd[i] = 0; // reset
-        }
-
-        // Send team info (votes, bidder IDs, and num buffs) to matchmaker
-        for (int i = 0; i < 2; i++)
-            this.matchMaker.addTeamInfo(Team.values()[i], teamVotes[i], teamBidderIDs[i], this.teamInfo.getNumBuffs(Team.values()[i], nextRound));
+        // Trigger any anomalies
+        
 
         // Check for end of match
         setWinnerIfAnnihilated();
         if (timeLimitReached() && gameStats.getWinner() == null)
-            if (!setWinnerIfMoreVotes())
-                if (!setWinnerIfMoreEnlightenmentCenters())
-                    if (!setWinnerIfMoreInfluence())
+            if (!setWinnerIfMoreArchons())
+                if (!setWinnerIfMoreGoldValue())
+                    if (!setWinnerIfMoreLeadValue())
                         setWinnerArbitrary();
 
         if (gameStats.getWinner() != null)
