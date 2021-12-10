@@ -27,6 +27,11 @@ public strictfp class LiveMap {
     private final MapLocation origin;
 
     /**
+     * How much lead is stored per square.
+     */
+    private final int[][] leadMap;
+
+    /**
      * The random seed contained in the map file
      */
     private final int seed;
@@ -40,6 +45,16 @@ public strictfp class LiveMap {
      * The name of the map
      */
     private final String mapName;
+
+    /**
+     * List of anomalies that will occur at certain rounds.
+     */
+    private final AnomalyScheduleEntry[] anomalySchedule;
+
+    /**
+     * Index of next anomaly to occur (excluding Singularity which always occurs)
+     */
+    private int nextAnomalyIndex;
 
     /**
      * The bodies to spawn on the map; MapLocations are in world space -
@@ -71,6 +86,11 @@ public strictfp class LiveMap {
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+        
+        // TODO: initialize with potentially hardcoded anomalies
+        this.anomalySchedule = {};
+        this.nextAnomalyIndex = 0;
+
     }
 
     public LiveMap(int width,
@@ -249,6 +269,67 @@ public strictfp class LiveMap {
     public int[] getRubbleArray() {
         return rubbleArray;
     }
+
+    /**
+     * @param x to get lead at
+     * @param y to get lead at
+     * @return the amount of lead at this location
+     */
+    public getLeadAtLocation(int x, int y){
+        assert onTheMap(new MapLocation(x, y));
+        return this.leadMap[x][y];
+    }
+
+    /**
+     * Changes the amount of lead to amount
+     * @param x to set lead at
+     * @param y to set lead at 
+     * @param amount of lead to put at this location
+     */
+    public setLeadAtLocation(int x, int y, int amount){
+        assert onTheMap(new MapLocation(x, y));
+        this.leadMap[x][y] = amount;
+    }
+
+    /**
+     * Adds the amount of lead to current amount at a given square
+     * @param x to set lead at
+     * @param y to set lead at 
+     * @param amountToAdd
+     */
+    public addLeadAtLocation(int x, int y, int amountToAdd){
+        assert onTheMap(new MapLocation(x, y));
+        this.leadMap[x][y] += amountToAdd; 
+    }
+
+    /**
+     * @return a copy of the next Anomaly that hasn't happened yet.
+     */
+    public viewNextAnomaly(){
+        return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
+    }
+
+    /**
+     * Removes the current anomaly by advancing to the next one.
+     * @return the next Anomaly.
+     */
+    public takeNextAnomaly(){
+        return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
+    }
+
+    /**
+     * @return a copy of the anomaly schedule
+     */
+    public AnomalyScheduleEntry[] getAnomalySchedule(){
+
+        AnomalyScheduleEntry[] anomalyCopy = new AnomalyScheduleEntry[this.anomalySchedule.length];
+
+        for(int i = 0; i < this.anomalySchedule.length ; i++)
+            anomalyCopy[i] = this.anomalySchedule[i].copyEntry();
+
+        return anomalyCopy;
+    }
+
 
     @Override
     public String toString() {

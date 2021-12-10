@@ -16,16 +16,16 @@ public class GameConstants {
     // *********************************
 
     /** The minimum possible map height. */
-    public static final int MAP_MIN_HEIGHT = 32;
+    public static final int MAP_MIN_HEIGHT = 30;
 
     /** The maximum possible map height. */
-    public static final int MAP_MAX_HEIGHT = 64;
+    public static final int MAP_MAX_HEIGHT = 80;
 
     /** The minimum possible map width. */
-    public static final int MAP_MIN_WIDTH = 32;
+    public static final int MAP_MIN_WIDTH = 30;
 
     /** The maximum possible map width. */
-    public static final int MAP_MAX_WIDTH = 64;
+    public static final int MAP_MAX_WIDTH = 80;
 
     // *********************************
     // ****** GAME PARAMETERS **********
@@ -36,6 +36,12 @@ public class GameConstants {
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
+
+    /** The amount of lead each team gains per turn. */
+    public static final int PASSIVE_LEAD_INCREASE = 5;
+
+    /** The number of rounds between adding lead resources to the map. */
+    public static final int ADD_RESOURCE_EVERY_ROUNDS = 20;
     
     // *********************************
     // ****** COOLDOWNS ****************
@@ -77,5 +83,6 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 1500;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
 }

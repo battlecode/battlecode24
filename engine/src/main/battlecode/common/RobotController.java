@@ -302,25 +302,46 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether the robot can perform an action. Returns
+     * Tests whether the robot can act. Returns
      * <code>getCooldownTurns() &lt; 1</code>.
      * 
-     * @return true if the robot can perform an action.
+     * @return true if the robot can act.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean isReady();
+    boolean isActionReady();
 
     /**
-     * Returns the number of cooldown turns remaining before this unit can act again.
-     * When this number is strictly less than 1, isReady() is true and the robot
-     * can perform actions again.
+     * Returns the number of action cooldown turns remaining before this unit can act again.
+     * When this number is strictly less than 1, isActionReady() is true and the robot
+     * can act again.
      *
-     * @return the number of cooldown turns remaining before this unit can act again.
+     * @return the number of action turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    double getCooldownTurns();
+    double getActionCooldownTurns();
+
+    /**
+     * Tests whether the robot can move. Returns
+     * <code>getCooldownTurns() &lt; 1</code>.
+     * 
+     * @return true if the robot can move.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean isMovementReady();
+
+    /**
+     * Returns the number of movement cooldown turns remaining before this unit can move again.
+     * When this number is strictly less than 1, isMovementReady() is true and the robot
+     * can move again.
+     *
+     * @return the number of cooldown turns remaining before this unit can move again.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    double getMovementCooldownTurns();
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
@@ -563,6 +584,30 @@ public strictfp interface RobotController {
      */
     void convert() throws GameActionException;
 
+    // *******************************
+    // **** GENERAL TOWER METHODS **** 
+    // *******************************
+
+    /**
+     * Tests whether this tower can transform.
+     * 
+     * Checks that the robot is a turret or portable
+     *
+     * @return whether it is possible to transform
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransform();
+
+    /** 
+     * Transform from turret into portable or vice versa.
+     *
+     * @throws GameActionException if conditions for transforming are not satisfied
+     * @battlecode.doc.costlymethod 
+     */
+    void transform() throws GameActionException;
+
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
@@ -613,6 +658,13 @@ public strictfp interface RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
+    /**
+     * Destroys the robot. 
+     *
+     * @battlecode.doc.costlymethod
+    **/
+    void disintegrate();
+    
     /**
      * Causes your team to lose the game. It's like typing "gg."
      *

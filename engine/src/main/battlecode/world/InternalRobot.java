@@ -286,10 +286,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (this.canTransformCooldown()) {
             if (this.mode == RobotMode.TURRET) {
                 this.mode = RobotMode.PORTABLE;
-                this.addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
             } else {
                 this.mode = RobotMode.TURRET;
-                this.addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
             }
         }
     }
@@ -304,8 +302,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
-        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
-        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
     }
 
     /**
