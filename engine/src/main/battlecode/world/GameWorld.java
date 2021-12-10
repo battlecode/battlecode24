@@ -374,7 +374,7 @@ public strictfp class GameWorld {
         });
 
         // Trigger any anomalies
-        
+
 
 
         // Check for end of match
@@ -435,6 +435,101 @@ public strictfp class GameWorld {
 
         profilerCollections.put(team, profilerCollection);
     }
+
+    // *********************************
+    // ********  ANOMALY  **************
+    // *********************************
+
+    /**
+     * Performs the Abyss anomaly.
+     *   Changes the resources in the squares and the team.
+     * @param reduceFactor associated with anomaly (a decimal percentage)
+     * @param locations that can be affected by the Abyss.
+     */
+    public void causeAbyssGridUpdate(int reduceFactor, ArrayList<MapLocation> locations){
+
+        while(locations.hasNext()){
+            MapLocation currentLocation = locations.next();
+            int x = currentLocation.x;
+            int y = currentLocation.y;
+            int currentLead = gameMap.getLeadAtLocation(x, y);
+            int leadUpdate = (int) (reduceFactor * currentLead);
+            gameMap.setLeadAtLocation(x, y, currentLead - leadUpdate);
+        }
+    }
+
+    /**
+     * Finds all of the locations that a given Sage can affect with an Anomaly.
+     * @param robot that is causing the anomaly. Must be a Sage.
+     * @return all of the locations that are within range of this sage.
+     */
+    public void getSageActionLocations(InternalRobot robot){
+        
+        ArrayList<MapLocation> actionLocations = new ArrayList<MapLocation>();
+
+        assert robot.type == RobotType.SAGE;
+        MapLocation center = robot.getLocation();
+
+        int radius = robot.getActionRadiusSquared(robot.level);
+        int rawStartX = Math.floor(Math.max(0, center.x - radius));
+        int rawStartY = Math.floor(Math.max(0, center.y - radius));
+        int rawEndX = Math.ceil(Math.max(this.map.getWidth(), center.x + radius));
+        int rawEndY = Math.ceil(Math.max(this.map.getHeight(), center.y + radius));
+
+        for(int x = rawStartX; x < rawEndX, x++)
+            for(int y = rawStartY; y < rawEndY; y++){
+                MapLocation proposedLocation = new MapLocation(x, y));
+                if(robot.canActLocation(proposedLocation))
+                    actionLocations.add(proposedLocation);
+            }
+        
+        return actionLocations;
+    }
+
+    /**
+     * Mutates state to perform the Sage Abyss anomaly.
+     * @param robot that is the Sage
+     * @param anomaly that corresponds to Abyss type
+     */
+    public void causeAbyssSage(InternalRobot robot, AnomalyInfo anomaly){
+
+        assert anomaly == AnomalyType.ABYSS;
+        ArrayList<MapLocation> actionLocations = new ArrayList<MapLocation>();
+
+        for(int x = 0; x < this.map.getWidth(); x++)
+            for(int y = 0; y < this.map.getHeight(); y++)
+                actionLocations.add(new MapLocation(x, y));
+
+        // calculate the right effect range
+        this.causeAbyssGridUpdate(anomaly.sagePercentage, actionLocations);
+    }
+
+    /**
+     * Mutates state to perform the global Abyss anomaly.
+     * @param anomaly that corresponds to Abyss type
+     */
+    public void causeAbyssGlobal(AnomalyInfo anomaly){
+        assert anomaly == AnomalyType.ABYSS;
+        this.causeAbyssGridUpdate(anomaly.globalPercentage, 0, 0, gameMap.getWidth(), gameMap.getHeight());
+
+        // change team resources
+        teamInfo.changeLead( (int) ( -1 * GameConstants.ABYSS_LOSS_PERCENTANGE * teamInfo.getLead()) );
+        teamInfo.changeGold( (int) ( -1 * GameConstants.ABYSS_LOSS_PERCENTANGE * teamInfo.getGold()) );
+    }
+
+    public void causeFurySage(){
+
+        
+
+    }
+
+    public void causeFuryGlobal(){
+
+    }
+
+    // unallocated : charge (sage, global) is taken
+    // vortex is taken 
+
 }
 
 
