@@ -152,7 +152,7 @@ public enum RobotType {
      * @return the starting health of a robot by level
      */
     public int getStartingHealth(int level) {
-        return (int) (this.health * this.isBuilding() ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1);
+        return (int) (this.health * (this.isBuilding() ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1));
     }
 
     /**
