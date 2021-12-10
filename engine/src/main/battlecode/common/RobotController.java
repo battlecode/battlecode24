@@ -239,18 +239,18 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
 
     /**
-     * Given a location, returns the passability of that location.
+     * Given a location, returns the rubble of that location.
      *
-     * Lower passability means that robots on this location may be penalized
+     * Higher rubble means that robots on this location may be penalized
      * greater cooldowns for making actions.
      * 
      * @param loc the given location
-     * @return the passability of that location.
+     * @return the rubble of that location.
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    double sensePassability(MapLocation loc) throws GameActionException;
+    int senseRubble(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the lead count of that location.
@@ -261,7 +261,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double senseLead(MapLocation loc) throws GameActionException;
+    int senseLead(MapLocation loc) throws GameActionException;
     
     /**
      * Given a location, returns the gold count of that location.
@@ -272,7 +272,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double senseGold(MapLocation loc) throws GameActionException;
+    int senseGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
