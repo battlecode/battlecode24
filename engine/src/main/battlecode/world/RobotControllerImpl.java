@@ -505,6 +505,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void useAnomaly(AnomalyType anomaly) throws GameActionException{
         assertCanUseAnomaly(anomaly);
         RobotType type = this.robot.getType();
+        switch (anomaly) {
+            case ABYSS:
+                gameWorld.causeAbyss(this.robot);
+            case CHARGE:
+                gameWorld.causeCharge(this.robot);
+            case FURY:
+                gameWorld.causeFury(this.robot);
+            default:
+                throw IllegalArgumentException("Anomaly is not of the right type, should not get here");
+        }
         this.robot.addActionCooldownTurns(type.actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.USE_ANOMALY, anomaly);
     }
