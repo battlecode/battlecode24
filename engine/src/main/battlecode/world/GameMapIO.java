@@ -228,9 +228,9 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            double[] passabilityArray = new double[width * height];
+            int[] rubbleArray = new int[width * height];
             for (int i = 0; i < width * height; i++) {
-                passabilityArray[i] = raw.passability(i);
+                rubbleArray[i] = raw.rubble(i);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -239,7 +239,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, initialBodies, passabilityArray
+                width, height, origin, seed, rounds, mapName, initialBodies, rubbleArray
             );
         }
 
@@ -254,7 +254,7 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            double[] passabilityArray = gameMap.getPassabilityArray();
+            int[] rubbleArray = gameMap.getRubbleArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
@@ -262,10 +262,10 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
             ArrayList<Integer> bodyInfluences = new ArrayList<>();
-            ArrayList<Double> passabilityArrayList = new ArrayList<>();
+            ArrayList<Integer> rubbleArrayList = new ArrayList<>();
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                passabilityArrayList.add(passabilityArray[i]);
+                rubbleArrayList.add(rubbleArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -291,7 +291,7 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable.addLocs(builder, locs);
             SpawnedBodyTable.addInfluences(builder, influences);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-            int passabilityArrayInt = battlecode.schema.GameMap.createPassabilityVector(builder, ArrayUtils.toPrimitive(passabilityArrayList.toArray(new Double[passabilityArrayList.size()])));
+            int rubbleArrayInt = battlecode.schema.GameMap.createRubbleVector(builder, ArrayUtils.toPrimitive(rubbleArrayList.toArray(new Integer[rubbleArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -300,7 +300,7 @@ public final strictfp class GameMapIO {
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            battlecode.schema.GameMap.addPassability(builder, passabilityArrayInt);
+            battlecode.schema.GameMap.addRubble(builder, rubbleArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 

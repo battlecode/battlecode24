@@ -243,9 +243,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override 
-    public double seeGold(MapLocation loc) throws GameActionException {
-        assertCanSeeLocation(loc);
-        return this.gameWorld.getGoldAtLocation(loc);
+    public int senseRubble(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getRubble(loc);
     }
 
     @Override
