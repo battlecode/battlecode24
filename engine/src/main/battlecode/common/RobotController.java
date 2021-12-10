@@ -436,6 +436,29 @@ public strictfp interface RobotController {
     void attack(MapLocation loc) throws GameActionException;
 
     // *****************************
+    // ******** SAGE METHODS ******* 
+    // *****************************
+
+    /**
+     * Tests whether this robot can use an anomaly centered at the robots location.
+     * 
+     * Checks that the robot is a sage. 
+     *
+     * @return whether it is possible to use an anomaly centered at the robots location.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canUseAnomaly(AnomalyType anomaly);
+
+    /** 
+     * Use anomaly centered at robots location.
+     *
+     * @throws GameActionException if conditions for using anomaly are not satisfied
+     * @battlecode.doc.costlymethod 
+     */
+    void useAnomaly(AnomalyType anomaly) throws GameActionException;
+
+    // *****************************
     // ****** ARCHON METHODS ****** 
     // *****************************
 
