@@ -114,7 +114,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
  
     @Override
     public int getHealth() {
-        return this.robot.getHeatlh();
+        return this.robot.getHealth();
     }
 
     @Override
@@ -360,12 +360,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    // TODO: Check cooldown turns
     @Override
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        this.robot.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
+        RobotType type = this.robot.getType();
+        this.robot.addMovementCooldownTurns(type.movementCooldown);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -389,11 +389,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int goldNeeded = type.getGoldCost();
         Team team = getTeam();
         if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of lead.");
         }
         if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of gold.");
         }
 
@@ -404,9 +404,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(spawnLoc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + spawnLoc + " is occupied.");
-        if (!isActionReady())
-            throw new GameActionException(IS_NOT_READY,
-                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     @Override
@@ -424,8 +421,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
+        RobotType type = this.robot.getType();
 
-        this.robot.addActionCooldownTurns(GameConstants.BUILD_COOLDOWN);
+        this.robot.addActionCooldownTurns(type.actionCooldown);
 
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-leadNeeded);
@@ -471,11 +469,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException{
         assertCanAttack(loc);
-        this.robot.addActionCooldownTurns(GameConstants.ATTACK_COOLDOWN);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
         InternalRobot bot = gameWorld.getRobot(loc);
         this.robot.attack(bot);
         int attackedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, attackedID);
+    }
+
+    // *****************************
+    // ******** SAGE METHODS ******* 
+    // *****************************
+
+    private void assertCanUseAnomaly(AnomalyType anomaly) throws GameActionException {
+        assertIsActionReady();
+        if (!getType().canUseAnomaly()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot use anomaly.");
+        }
+        if (!anomaly.isSageAnomaly){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Sage can not use anomaly of type " + anomaly.toString());
+        }
+    }
+
+    @Override
+    public boolean canUseAnomaly(AnomalyType anomaly){
+        try {
+            assertCanUseAnomaly(anomaly);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void useAnomaly(AnomalyType anomaly) throws GameActionException{
+        assertCanUseAnomaly(anomaly);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
+        gameWorld.getMatchMaker().addAction(getID(), Action.USE_ANOMALY, anomaly);
     }
 
     // *****************************
@@ -514,9 +545,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void healDroid(MapLocation loc) throws GameActionException{
         assertCanHealDroid(loc);
-        this.robot.healDroid(loc);
-        this.robot.addActionCooldownTurns(GameConstants.HEAL_COOLDOWN);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
         InternalRobot bot = gameWorld.getRobot(loc);
+        this.robot.healDroid(bot);
         int healedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
     }
@@ -555,8 +587,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void mineLead(MapLocation loc) throws GameActionException{
         assertCanMineLead(loc);
         this.robot.mineLead(loc);
-        this.robot.addLead(1); //TODO: do we want to this here or in the implementation
-        this.robot.addActionCooldownTurns(GameConstants.MINE_COOLDOWN);
+        Team robotTeam = this.robot.getTeam();
+        robotTeam.addLead(1);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
@@ -591,7 +625,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.mineGold(loc);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(1);
-        this.robot.addActionCooldownTurns(GameConstants.MINE_COOLDOWN);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
@@ -620,11 +655,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is not on your team so can't be upgraded.");
         }
         if (gameWorld.getTeamInfo().getLead(team) < bot.getLeadUpgradeCost()){
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough lead to upgrade this robot.");
         }
         if (gameWorld.getTeamInfo().getGold(team) < bot.getGoldUpgradeCost()){
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough gold to upgrade this robot.");
         }
     }
@@ -640,7 +675,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void upgrade(MapLocation loc) throws GameActionException{
         assertCanUpgrade(loc);
-        this.robot.upgrade(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
         RobotType type = bot.getType();
         int upgradeLevel = bot.getUpgradeLevel();
@@ -648,12 +682,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int leadNeeded = type.getLeadUpgradeCost(upgradeLevel);
         int goldNeeded = type.getGoldUpgradeCost(upgradeLevel);
 
-
+        bot.upgrade();
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(-goldNeeded);
         robotTeam.addLead(-leadNeeded);
-        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
-        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+        RobotType type = this.robot.getType();
+        this.addActionCooldownTurns(type.actionCooldown);
+        bot.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
+        bot.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
         int upgradedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
     }
@@ -689,8 +725,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void repairBuilding(MapLocation loc) throws GameActionException{
         assertCanRepairBuilding(loc);
-        this.robot.repairBuilding(loc);
-        this.robot.addActionCooldownTurns(GameConstants.REPAIR_COOLDOWN);
+        InternalRobot bot = gameWorld.getRobot(loc);
+
+        this.robot.repair(bot);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
 
         InternalRobot bot = gameWorld.getRobot(loc);
         int repairedID = bot.getID();
@@ -726,7 +765,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void convert() throws GameActionException {
         assertCanConvert();
         this.robot.convert();
-        this.robot.addActionCooldownTurns(GameConstants.CONVERT_COOLDOWN);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE);
         robotTeam.addGold(1);
@@ -740,6 +780,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanTransform() throws GameActionException {
         assertIsActionReady();
+        assertIsMovementReady();
         if (!robot.getMode() == RobotMode.TURRET || !robot.getMode() == RobotMode.PORTABLE) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not transformable.");
@@ -759,11 +800,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransform();
         robot.transform();
         RobotMode mode = robot.getMode();
-        if (mode == RobotMode.TURRET) {
-            addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-        } else {
-            addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-        }
+        addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
     }
 
     // ***********************************
