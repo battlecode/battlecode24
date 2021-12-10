@@ -503,11 +503,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanUseAnomaly(anomaly);
         switch (anomaly) {
             case ABYSS:
-                gameWorld.causeAbyss(this.robot);
+                gameWorld.causeAbyssSage(this.robot, anomaly);
             case CHARGE:
-                gameWorld.causeCharge(this.robot);
+                gameWorld.causeChargeSage(this.robot, anomaly);
             case FURY:
-                gameWorld.causeFury(this.robot);
+                gameWorld.causeFurySage(this.robot, anomaly);
             default:
                 throw IllegalArgumentException("Anomaly is not of the right type, should not get here");
         }
