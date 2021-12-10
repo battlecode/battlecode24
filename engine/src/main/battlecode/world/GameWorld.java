@@ -452,7 +452,7 @@ public strictfp class GameWorld {
      * @param reduceFactor associated with anomaly (a decimal percentage)
      * @param locations that can be affected by the Abyss.
      */
-    public void causeAbyssGridUpdate(int reduceFactor, ArrayList<MapLocation> locations){
+    private void causeAbyssGridUpdate(int reduceFactor, ArrayList<MapLocation> locations){
 
         while(locations.hasNext()){
             MapLocation currentLocation = locations.next();
@@ -469,7 +469,7 @@ public strictfp class GameWorld {
      * @param robot that is causing the anomaly. Must be a Sage.
      * @return all of the locations that are within range of this sage.
      */
-    public void getSageActionLocations(InternalRobot robot){
+    private void getSageActionLocations(InternalRobot robot){
         
         ArrayList<MapLocation> actionLocations = new ArrayList<MapLocation>();
 
@@ -519,21 +519,44 @@ public strictfp class GameWorld {
         this.causeAbyssGridUpdate(anomaly.globalPercentage, 0, 0, gameMap.getWidth(), gameMap.getHeight());
 
         // change team resources
-        teamInfo.changeLead( (int) ( -1 * GameConstants.ABYSS_LOSS_PERCENTANGE * teamInfo.getLead()) );
-        teamInfo.changeGold( (int) ( -1 * GameConstants.ABYSS_LOSS_PERCENTANGE * teamInfo.getGold()) );
+        teamInfo.changeLead( (int) ( -1 * anomaly.globalPercentage * teamInfo.getLead()) );
+        teamInfo.changeGold( (int) ( -1 * anomaly.globalPercentage * teamInfo.getGold()) );
     }
 
-    public void causeFurySage(){
+    /**
+     * Mutates state to perform the Sage Fury.
+     * @param robot that is performing the Fury.
+     * @param anomaly that corresponds to Fury type
+     */
+    public void causeFurySage(InternalRobot robot, AnomalyInfo anomaly){
 
+        assert robot.getType() == RobotType.type;
+        assert anomaly == AnomalyType.FURY;
 
+        objectInfo.eachRobot((robot) -> {
+            if (robot.isBuilding() && (robot.getType() == TURRET)){
+                 robot.addHealth((int) (-1 * robot.getType().getMaxHealth() * anomaly.sagePercentage));
+            }
+        });
+        
     }
 
-    public void causeFuryGlobal(){
+    /**
+     * Mutates state to peform the global Fury.
+     * @param anomaly that corresponds to Fury type
+     */
+    // public void causeFuryGlobal(AnomalyInfo anomaly){
 
-    }
+    //     assert anomaly == AnomalyType.FURY;
 
-    // unallocated : charge (sage, global) is taken
-    // vortex is taken 
+    //     this.getSageActionLocations(robot);
+
+    // }
+
+    public void causeChargeSage(){}
+
+    public void causeChargeGlobal(){}
+
 
 }
 
