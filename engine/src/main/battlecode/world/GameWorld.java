@@ -385,6 +385,7 @@ public strictfp class GameWorld {
 
         // Trigger any anomalies
 
+
         // Check for end of match
         setWinnerIfAnnihilated();
         if (timeLimitReached() && gameStats.getWinner() == null)
