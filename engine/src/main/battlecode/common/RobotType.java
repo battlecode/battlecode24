@@ -7,8 +7,8 @@ package battlecode.common;
 
 public enum RobotType {
 
-    // Build Cost Lead, Build Cost Gold, Action Cooldown, Move Cooldown
-    // HP Lv1, DPS Lv1, Action Radius (squared), Vision Radius (squared), Bytecode Limit
+    // Build Cost Lead, Build Cost Gold, Action Cooldown, Movement Cooldown
+    // Health (level 1), Damage (level 1), Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
      * Archons are portable buildings that heal and generate robots.
@@ -16,7 +16,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robot     */
     ARCHON          (  0, 250, 10, 24, 1000, -2, 20, 34, 20000),
-    //               BCL  BCG  AC  MC    HP DPS  AR  VR      BL
+    //               BCL  BCG  AC  MC    HP DMG  AR  VR      BL
 
     /**
      * Alchemist's laboratory
@@ -24,39 +24,38 @@ public enum RobotType {
      *
      * @battlecode.doc.robot     */
     LABORATORY      (800,   0, 10, 24, 130,  5, 20, 34, 10000),
-    //               BCL  BCG  AC  MC  HP  DPS  AR  VR      BL
+    //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
     * Guard turret 
     */
     WATCHTOWER      (180,  0,  10,  24, 130,  5, 20, 34,   10000),
-    //               BCL  BCG  AC  MC  HP  DPS  AR  VR       BL
+    //               BCL  BCG  AC   MC   HP DMG  AR  VR       BL
 
     /**
      * Can mine gold or lead at their or an adjacent location.
      *
      * @battlecode.doc.robot     */
-    MINER           ( 50,   0, 2,  20, 40,   0, 2, 20,   7500),
-    //               BCL  BCG AC  MC  HP  DPS AR  VR       BL
+    MINER           ( 50,   0,  2,  20, 40,   0, 2, 20,   7500),
+    //               BCL  BCG  AC   MC  HP  DMG AR  VR       BL
     /**
      * Can build and repair buildings.
      *
      * @battlecode.doc.robot     */
     BUILDER         ( 40,   0,  10, 20, 30, -1,  5, 20,   7500),
-    //               BCL  BCG   AC  MC  HP  DPS  AR  VR      BL
+    //               BCL  BCG   AC  MC  HP DMG  AR  VR      BL
     
     /**
      * Ranged attacking robot.
     */
     SOLDIER         ( 75,   0, 10, 16,  3,  50, 13, 20,  10000),
-   //                BCL   BCG AC  MC  HP  DPS  AR  VR       BL
+    //               BCL   BCG AC  MC  HP  DMG  AR  VR       BL
     
     /**
      * Gold robot, causes Anomalies.
      */
     SAGE            ( 0,  50,200, 25, 45, 100, 13, 20,   10000)
-    //              BCL  BCG  AC  MC  HP  DPS  AR  VR        BL
-
+    //              BCL  BCG  AC  MC  HP  DMG  AR  VR        BL
     ;
 
     /**
@@ -75,19 +74,19 @@ public enum RobotType {
     public final int actionCooldown;
 
     /**
-     * Move cooldown.
+     * Movement cooldown.
      */
-    public final int moveCooldown;
+    public final int movementCooldown;
 
     /**
     * Initial health per robot for Level 1.
     */
-    public final int HPLv1;
+    public final int health;
 
     /**
-    * Damage per second for each robot in Level 1.
+    * Damage for each robot in Level 1.
     */
-    public final int DPSLv1;
+    public final int damage;
 
     /**
      * Radius range of robots' abilities.
@@ -101,27 +100,26 @@ public enum RobotType {
     public final int visionRadiusSquared;
 
     /**
-     * Base bytecode limit of this robot.
+     * Base bytecode limit of this robot
      */
     public final int bytecodeLimit;
 
     /**
-     * @return the squared action radius.
+     * @return the squared action radius
      */
     public int getActionRadiusSquared(int level) {
         return this.actionRadiusSquared;
     }
 
     /**
-     * @return the squared vision radius.
+     * @return the squared vision radius
      */
     public int getVisionRadiusSquared(int level) {
         return this.visionRadiusSquared;
     }
 
-
     /**
-     * @return whether or not a given robot is a building.
+     * @return whether or not a given robot is a building
     */
     public boolean isBuilding() {
         return (
@@ -132,139 +130,135 @@ public enum RobotType {
     }
 
     /**
-     * Returns the max HP for a robot by level.
+     * Returns the max health of a robot by level.
      * @param level of the robot
-     * @return the max HP for a robot by level.
+     * @return the max health of a robot by level
      */
     public int getMaxHealth(int level) {
-        if(this.isBuilding() || level == 1) return this.HPLv1;
-        if(this == RobotType.ARCHON){
-            if(level == 2) return 1100;
-            if(level == 3) return 1200;
-        }
-        if(this == RobotType.LABORATORY){
-            if(level == 2) return 110;
-            if(level == 3) return 120;
-        }
-        if(this == RobotType.WATCHTOWER){
-            if(level == 2) return 143;
-            if(level == 3) return 156;
+        if (!this.isBuilding() || level == 1) {
+            return this.health;
+        } else if (this == ARCHON) {
+            return level == 2 ? 1100 : 1200;
+        } else if (this == LABORATORY) {
+            return level == 2 ? 110 : 120;
+        } else {
+            return level == 2 ? 143 : 156;
         }
     }
 
     /**
-     * Returns the starting HP for a robot by level.
+     * Returns the starting health of a robot by level.
      * @param level of the robot
-     * @return the starting HP for a robot by level.
+     * @return the starting health of a robot by level
      */
     public int getStartingHealth(int level) {
-        return (int) (this.HPLv1 * GameConstants.PROTOTYPE_HP_PERCENTAGE);
+        return (int) (this.health * this.isBuilding() ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1);
     }
 
     /**
+     * Returns the damage of a robot by level.
      * @param level
-     * @return the DPS for a robot by level.
+     * @return the damage for a robot by level
      */
     public int getDamage(int level) {
-
-        if(this.isBuilding() || level == 1 || this == RobotType.LABORATORY)
-            return this.HPLv1;
-        
-        if(this == RobotType.ARCHON){
-            if(level == 2) return 3;
-            if(level == 3) return 4;
-        }
-        if(this == RobotType.LABORATORY){
+        if (!this.isBuilding() || level == 1) {
+            return this.damage;
+        } else if (this == RobotType.ARCHON) {
+            return level == 2 ? 3 : 4;
+        } else if (this == RobotType.LABORATORY) {
             return 0;
+        } else {
+            return level == 2 ? 6 : 7;
         }
-        if(this == RobotType.WATCHTOWER){
-            if(level == 2) return 6;
-            if(level == 3) return 7;
-        }
-        
     }
 
     /**
      * @param level
-     * @return the healing per turn for a robot by level.
+     * @return the healing per turn for a robot by level
      */
-    public int getHealing(int level){
-        if(this != RobotType.ARCHON || this != RobotType.BUILDER) return 0;
-        return (int)(-1 * this.DPSLv1);
+    public int getHealing(int level) {
+        if (this == ARCHON || this == BUILDER) {
+            return (int) (-1 * this.getDamage(level));
+        } else {
+            return 0;
+        }
     }
 
     // COST RELATED FUNCTIONS
 
     /**
-     * @param level to upgrade to
-     * @return lead component of cost to upgrade.
+     * @param level the level to upgrade to
+     * @return lead component of cost to upgrade
      */
     public int getLeadUpgradeCost(int level) {
-        if (level == 2) return 600;
-        return 0;
+        return level == 2 ? 600 : 0;
     }
 
     /**
-     * @param level to upgrade to
+     * @param level the level to upgrade to
      * @return gold component of cost to upgrade.
      */
     public int getGoldUpgradeCost(int level) {
-        if (level == 3) return 100;
-        return 0;
+        return level == 3 ? 100 : 0;
     }
 
     /**
-     * @param level, current
+     * @param level the robot's current level
      * @return lead component of worth
      */
     public int getLeadWorth(int level) {
-        return this.buildCostLead + this.getLeadUpgradeCost(level);
+        int leadWorth = this.buildCostLead;
+        for (int i = 2; i <= level; i++) {
+            leadWorth += this.getLeadUpgradeCost(i);
+        }
+        return leadWorth;
     }
 
     /**
-     * @param level, current
+     * @param level the robot's current level
      * @return gold component of worth
      */
     public int getGoldWorth(int level) {
-        return this.buildCostGold + this.getGoldUpgradeCost(level);
+        int goldWorth = this.buildCostGold;
+        for (int i = 2; i <= level; i++) {
+            goldWorth += this.getGoldUpgradeCost(i);
+        }
+        return goldWorth;
     }
 
     /**
      * @return Reclaim cost percentage for when robot is destroyed.
      */
-    public float getReclaimCostPercentage(){
+    public float getReclaimCostPercentage() {
         return (this.isBuilding()) ? 0.2f : 0;
     }
 
     /**
-     * @param level, current 
+     * @param level the robot's current level
+     * @return the amount of lead dropped
      */
-    public int getGoldDropped(int level) {
-        int total = (int) (this.getGoldWorth(level) * this.getReclaimCostPercentage());
+    public int getLeadDropped(int level) {
+        return this.isBuilding() ? (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
     }
 
     /**
-     * @param level, current
+     * @param level the robot's current level
+     * @return the amount of gold dropped
      */
-    public int getLeadDropped(int level) {
-        int total = (int) (this.getLeadWorth(level) * this.getReclaimCostPercentage());
+    public int getGoldDropped(int level) {
+        return this.isBuilding() ? (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
     }
 
-    RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int moveCooldown,
-        int HPLv1, int DPSLv1, int actionRadiusSquared, int visionRadiusSquared, int bytecodeLimit) {
-
+    RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int movementCooldown,
+        int health, int damage, int actionRadiusSquared, int visionRadiusSquared, int bytecodeLimit) {
         this.buildCostLead                  = buildCostLead;
         this.buildCostGold                  = buildCostGold;
         this.actionCooldown                 = actionCooldown;
-        this.moveCooldown                   = moveCooldown;
-        this.HPLv1                          = HPLv1;
-        this.DPSLv1                         = DPSLv1;
-        
+        this.movementCooldown               = movementCooldown;
+        this.health                         = health;
+        this.damage                         = damage;
         this.actionRadiusSquared            = actionRadiusSquared;
         this.visionRadiusSquared            = visionRadiusSquared;
-
         this.bytecodeLimit                  = bytecodeLimit;
-
     }
-
 }
