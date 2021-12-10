@@ -600,6 +600,13 @@ public strictfp interface RobotController {
     boolean canConvert();
 
     /** 
+     * Get lead to gold conversion rate. 
+     *
+     * @battlecode.doc.costlymethod 
+     */
+    public int getGoldExchangeRate();
+
+    /** 
      * Convert lead into gold.
      *
      * @throws GameActionException if conditions for converting are not satisfied

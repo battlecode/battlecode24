@@ -50,9 +50,6 @@ public class GameConstants {
     /** The number of cooldown turns per transformation. */
     public static final int TRANSFORM_COOLDOWN = 100;
 
-    /** The number of cooldown turns per upgrade. */
-    public static final int UPGRADE_COOLDOWN = 100;
-
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
@@ -68,6 +65,10 @@ public class GameConstants {
 
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
+
+    public static final double ALCHEMIST_LONELINESS_A = 20;
+    public static final double ALCHEMIST_LONELINESS_B = 15;
+    public static final double ALCHEMIST_LONELINESS_K = 0.02;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
