@@ -364,8 +364,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        RobotType type = this.robot.getType();
-        this.robot.addMovementCooldownTurns(type.movementCooldown);
+        this.robot.addMovementCooldownTurns(this.robot.getType().movementCooldown);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -421,9 +420,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
-        RobotType type = this.robot.getType();
 
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
 
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(-leadNeeded);
@@ -469,8 +467,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException{
         assertCanAttack(loc);
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         InternalRobot bot = gameWorld.getRobot(loc);
         this.robot.attack(bot);
         int attackedID = bot.getID();
@@ -504,7 +501,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void useAnomaly(AnomalyType anomaly) throws GameActionException{
         assertCanUseAnomaly(anomaly);
-        RobotType type = this.robot.getType();
         switch (anomaly) {
             case ABYSS:
                 gameWorld.causeAbyss(this.robot);
@@ -515,7 +511,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             default:
                 throw IllegalArgumentException("Anomaly is not of the right type, should not get here");
         }
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.USE_ANOMALY, anomaly);
     }
 
@@ -555,8 +551,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void healDroid(MapLocation loc) throws GameActionException{
         assertCanHealDroid(loc);
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         InternalRobot bot = gameWorld.getRobot(loc);
         this.robot.healDroid(bot);
         int healedID = bot.getID();
@@ -599,8 +594,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.mineLead(loc);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addLead(1);
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
@@ -635,8 +629,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.mineGold(loc);
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(1);
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
@@ -696,8 +689,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Team robotTeam = this.robot.getTeam();
         robotTeam.addGold(-goldNeeded);
         robotTeam.addLead(-leadNeeded);
-        RobotType type = this.robot.getType();
-        this.addActionCooldownTurns(type.actionCooldown);
+        this.addActionCooldownTurns(this.robot.getType().actionCooldown);
         bot.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
         bot.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
         int upgradedID = bot.getID();
@@ -737,9 +729,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanRepairBuilding(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
 
-        this.robot.repair(bot);
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.heal(bot);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
 
         InternalRobot bot = gameWorld.getRobot(loc);
         int repairedID = bot.getID();
@@ -780,8 +771,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void convert() throws GameActionException {
         assertCanConvert();
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
+        this.robot.convert();
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         Team robotTeam = this.robot.getTeam();
         int nearbyRobotCount = seeNearbyRobots();
         robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE * getGoldExchangeRate());
