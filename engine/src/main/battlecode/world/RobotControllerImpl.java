@@ -237,6 +237,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return validSeenRobots.toArray(new RobotInfo[validSeenRobots.size()]);
     }
 
+    /**
+     * @return the number of friendly robots within sensor (vision) radius.
+     */
+    public RobotInfo[] numberOfVisibleFriendlyRobots(){
+        return this.seeNearbyRobots(
+            this.robot.getVisionRadiusSquared()
+            this.robot.getTeam()
+        ).length;
+    }
+
     @Override 
     public int seeRubble(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
