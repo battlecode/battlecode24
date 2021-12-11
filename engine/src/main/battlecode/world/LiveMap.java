@@ -88,7 +88,7 @@ public strictfp class LiveMap {
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
         
         // TODO: initialize with potentially hardcoded anomalies
-        this.anomalySchedule = {};
+        this.anomalySchedule = null;
         this.nextAnomalyIndex = 0;
 
     }
@@ -275,7 +275,7 @@ public strictfp class LiveMap {
      * @param y to get lead at
      * @return the amount of lead at this location
      */
-    public getLeadAtLocation(int x, int y){
+    public int getLeadAtLocation(int x, int y){
         assert onTheMap(new MapLocation(x, y));
         return this.leadMap[x][y];
     }
@@ -286,7 +286,7 @@ public strictfp class LiveMap {
      * @param y to set lead at 
      * @param amount of lead to put at this location
      */
-    public setLeadAtLocation(int x, int y, int amount){
+    public void setLeadAtLocation(int x, int y, int amount){
         assert onTheMap(new MapLocation(x, y));
         this.leadMap[x][y] = amount;
     }
@@ -297,7 +297,7 @@ public strictfp class LiveMap {
      * @param y to set lead at 
      * @param amountToAdd
      */
-    public addLeadAtLocation(int x, int y, int amountToAdd){
+    public void addLeadAtLocation(int x, int y, int amountToAdd){
         assert onTheMap(new MapLocation(x, y));
         this.leadMap[x][y] += amountToAdd; 
     }
@@ -305,7 +305,7 @@ public strictfp class LiveMap {
     /**
      * @return a copy of the next Anomaly that hasn't happened yet.
      */
-    public viewNextAnomaly(){
+    public AnomalyScheduleEntry viewNextAnomaly(){
         return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
     }
 
@@ -313,7 +313,7 @@ public strictfp class LiveMap {
      * Removes the current anomaly by advancing to the next one.
      * @return the next Anomaly.
      */
-    public takeNextAnomaly(){
+    public AnomalyScheduleEntry takeNextAnomaly(){
         return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
     }
 
@@ -333,7 +333,7 @@ public strictfp class LiveMap {
 
     @Override
     public String toString() {
-        if (rubbleArray.length == 0)
+        if (rubbleArray.length == 0){
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
@@ -344,7 +344,9 @@ public strictfp class LiveMap {
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", len=" + Integer.toString(rubbleArray.length) +
                     "}";
-        else return "LiveMap{" +
+        }
+        else{
+            return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
                     ", origin=" + origin +
@@ -354,5 +356,6 @@ public strictfp class LiveMap {
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", rubbleArray=:)" +  Arrays.toString(rubbleArray) +
                     "}"; 
+        }
     }
 }
