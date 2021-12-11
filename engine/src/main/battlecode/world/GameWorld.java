@@ -69,7 +69,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            int newID = spawnRobot(null, robot.type, newLocation, robot.team, robot.influence);
+            int newID = spawnRobot(robot.type, newLocation, robot.team);
 
             initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, 1, robot.health, newLocation);
         }
@@ -271,15 +271,8 @@ public strictfp class GameWorld {
     /**
      * @return all of the locations on the grid.
      */
-    private void getAllLocations(){
-
-        ArrayList<MapLocation> actionLocations = new ArrayList<MapLocation>();
-
-        for(int x = 0; x < this.map.getWidth(); x++)
-            for(int y = 0; y < this.map.getHeight(); y++)
-                actionLocations.add(new MapLocation(x, y));
-
-        return actionLocations;
+    private MapLocation[] getAllLocations(){
+        return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
     }
 
     /**
@@ -288,7 +281,7 @@ public strictfp class GameWorld {
      * @return the cooldown due to rubble.
      */
     public int getCooldownMultiplier(int cooldown, MapLocation location){
-        return Math.floor( (1 + this.getRubble(location) / 10) * cooldown);
+        return (int) ((1 + this.getRubble(location) / 10) * cooldown);
     }
 
     // *********************************
@@ -352,7 +345,7 @@ public strictfp class GameWorld {
     public boolean setWinnerIfMoreGoldValue(){
         int[] totalInfluences = new int[2];
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalInfluences[robot.getTeam().ordinal()] += robot.getGoldWorth();
+            totalInfluences[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
         }
         if (totalInfluences[0] > totalInfluences[1]) {
             setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
@@ -370,7 +363,7 @@ public strictfp class GameWorld {
     public boolean setWinnerIfMoreLeadValue(){
         int[] totalInfluences = new int[2];
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalInfluences[robot.getTeam().ordinal()] += robot.getLeadWorth();
+            totalInfluences[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
         }
         if (totalInfluences[0] > totalInfluences[1]) {
             setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
@@ -414,7 +407,7 @@ public strictfp class GameWorld {
 
         // Trigger any anomalies
         // note: singularity is handled below in the "check for end of match"
-        if(this.gameMap.viewNextAnomaly().round == this.currentRound){
+        if(this.gameMap.viewNextAnomaly().roundNumber == this.currentRound){
             AnomalyType anomaly = this.gameMap.takeNextAnomaly().anomalyType;
             if(anomaly == AnomalyType.ABYSS) this.causeAbyssGlobal(anomaly);
             if(anomaly == AnomalyType.CHARGE) this.causeChargeGlobal(anomaly);
@@ -439,8 +432,8 @@ public strictfp class GameWorld {
     // ****** SPAWNING *****************
     // *********************************
 
-    public int spawnRobot(InternalRobot parent, int ID, RobotType type, MapLocation location, Team team, int influence) {
-        InternalRobot robot = new InternalRobot(this, parent, ID, type, location, team, influence);
+    public int spawnRobot(int ID, RobotType type, MapLocation location, Team team) {
+        InternalRobot robot = new InternalRobot(this, ID, type, location, team);
         objectInfo.spawnRobot(robot);
         addRobot(location, robot);
 
@@ -449,9 +442,9 @@ public strictfp class GameWorld {
         return ID;
     }
 
-    public int spawnRobot(InternalRobot parent, RobotType type, MapLocation location, Team team, int influence) {
+    public int spawnRobot(RobotType type, MapLocation location, Team team) {
         int ID = idGenerator.nextID();
-        return spawnRobot(parent, ID, type, location, team, influence);
+        return spawnRobot(ID, type, location, team);
     }
    
     // *********************************
@@ -463,8 +456,8 @@ public strictfp class GameWorld {
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
         
-        int leadDropped = robot.getType().getLeadDropped();
-        int goldDropped = robot.getType().getGoldDropped();
+        int leadDropped = robot.getType().getLeadDropped(robot.getLevel());
+        int goldDropped = robot.getType().getGoldDropped(robot.getLevel());
         
         this.leadCount[locationToIndex(robot.getLocation())] += leadDropped;
         this.goldCount[locationToIndex(robot.getLocation())] += goldDropped;
@@ -496,12 +489,12 @@ public strictfp class GameWorld {
      * @param robot that is causing the anomaly. Must be a Sage.
      * @return all of the locations that are within range of this sage.
      */
-    private void getSageActionLocations(InternalRobot robot){
+    private MapLocation[] getSageActionLocations(InternalRobot robot){
         
         assert robot.getType() == RobotType.SAGE;
         MapLocation center = robot.getLocation();
 
-        return getAllLocationsWithinRadiusSquared(center, robot.getType().getActionRadiusSquared());
+        return getAllLocationsWithinRadiusSquared(center, robot.getType().getActionRadiusSquared(robot.getLevel()));
     }
 
     /**
@@ -510,10 +503,11 @@ public strictfp class GameWorld {
      * @param reduceFactor associated with anomaly (a decimal percentage)
      * @param locations that can be affected by the Abyss.
      */
-    private void causeAbyssGridUpdate(float reduceFactor, ArrayList<MapLocation> locations){
+    private void causeAbyssGridUpdate(float reduceFactor, MapLocation[] locations){
 
-        while(locations.hasNext()){
-            MapLocation currentLocation = locations.next();
+        for(int i = 0; i < locations.length; i++){
+
+            MapLocation currentLocation = locations[i];
             int x = currentLocation.x;
             int y = currentLocation.y;
 
@@ -537,8 +531,8 @@ public strictfp class GameWorld {
 
         for(int i = 0; i < locations.length; i++){
             InternalRobot robot = this.getRobot(locations[i]);
-            if(robot.isBulding() && robot.getType() == TURRET){
-                robot.addHealth((int) (-1 * robot.getType().getMaxHealth() * reduceFactor));
+            if(robot.getType().isBuilding() && robot.getMode() == RobotMode.TURRET){
+                robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor));
             }
         }
     }
@@ -581,7 +575,7 @@ public strictfp class GameWorld {
         assert robot.getType() == RobotType.SAGE;
         assert anomaly == AnomalyType.FURY;
 
-        this.causeFuryUpdate(robot.sagePercentage, this.getSageActionLocations(robot));
+        this.causeFuryUpdate(anomaly.sagePercentage, this.getSageActionLocations(robot));
     }
 
     /**
@@ -590,7 +584,7 @@ public strictfp class GameWorld {
      */
     public void causeFuryGlobal(AnomalyType anomaly){
         assert anomaly == AnomalyType.FURY;
-        this.causeFuryUpdate(robot.globalPercentage, this.getAllLocations());
+        this.causeFuryUpdate(anomaly.globalPercentage, this.getAllLocations());
     }
 
     /**
@@ -602,10 +596,10 @@ public strictfp class GameWorld {
         assert robot.getType() == RobotType.SAGE;
         assert anomaly == AnomalyType.CHARGE;
 
-        InternalRobot[] actionLocations = this.getSageActionLocations(robot);
+        MapLocation[] actionLocations = this.getSageActionLocations(robot);
         for(int i = 0; i < actionLocations.length; i++){
             InternalRobot currentRobot = getRobot(actionLocations[i]);
-            currentRobot.addHealth((int) (-1 * anomaly.sagePercentage * currentRobot.getMaxHealth()));
+            currentRobot.addHealth((int) (-1 * anomaly.sagePercentage * currentRobot.getType().getMaxHealth(currentRobot.getLevel())));
         }
     }
 
@@ -614,25 +608,22 @@ public strictfp class GameWorld {
      * @param anomaly that corresponds to Charge type
      */
     public void causeChargeGlobal(AnomalyType anomaly){
+
         assert anomaly == AnomalyType.CHARGE;
 
-        // need to determine top 5 percentage of friendly robots
-        // max health
+        ArrayList<InternalRobot> rawDroids = new ArrayList<InternalRobot>();
 
-        // 12/10/21: https://www.baeldung.com/java-stream-to-array
-        // 12/10/21: https://www.geeksforgeeks.org/arrays-stream-method-in-java/
-        // above (references for what kinds of functions to call):
-        //      converting stream to array, getting the stream
-        Stream<InternalRobot[]> droids = Arrays.stream(robots).filter(robot -> robot.isBuilding()).toArray(InternalRobot[]::new);
-        // end citations
+        for(InternalRobot currentRobot : this.objectInfo.robotsArray())
+            if(!currentRobot.getType().isBuilding())
+                rawDroids.add(currentRobot);
+        
+        InternalRobot[] droids = rawDroids.toArray(new InternalRobot[rawDroids.size()]);
 
-        // for syntax/logic on how to sort in reverse order
-        // 12/10/21: https://www.baeldung.com/java-8-sort-lambda
-        droids.sort(
+        Arrays.sort(
+            droids,  
             (InternalRobot robot1, InternalRobot robot2) -> 
                 (robot2.numberOfVisibleFriendlyRobots() - robot1.numberOfVisibleFriendlyRobots())
         );
-        // end citation
 
         int affectedDroidsLimit = (int) (anomaly.globalPercentage * droids.length);
         for(int i = 0; i < affectedDroidsLimit; i++){

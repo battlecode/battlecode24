@@ -240,9 +240,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public RobotInfo[] numberOfVisibleFriendlyRobots(){
+    public int numberOfVisibleFriendlyRobots(){
         return this.seeNearbyRobots(
-            this.robot.getVisionRadiusSquared()
+            this.robot.getVisionRadiusSquared(),
             this.robot.getTeam()
         ).length;
     }
@@ -782,7 +782,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int getGoldExchangeRate() {
         return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
-                                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * nearbyRobotCount))
+                                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * nearbyRobotCount));
     }
 
     @Override

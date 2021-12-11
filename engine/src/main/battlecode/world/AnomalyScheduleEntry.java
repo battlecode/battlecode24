@@ -1,11 +1,12 @@
 package battlecode.world;
+import battlecode.common.*;
 
 public class AnomalyScheduleEntry {
 
     public final int roundNumber;
-    public final AnomalyInfo anomalyType;
+    public final AnomalyType anomalyType;
 
-    public AnomalyScheduleEntry(int round, int anomaly){
+    public AnomalyScheduleEntry(int round, AnomalyType anomaly){
         this.roundNumber = round;
         this.anomalyType = anomaly;
     }
@@ -13,12 +14,12 @@ public class AnomalyScheduleEntry {
     /**
      * @return a copy of the entry
      */
-    public copyEntry(AnomalyType anomalyType){
-        return new AnomalyScheduleEntry(
-                anomalyType.round,
-                new AnomalyType(
+    public AnomalyScheduleEntry copyEntry(AnomalyType anomalyType){
+        return AnomalyScheduleEntry(
+                this.roundNumber,
+                AnomalyType(
                     anomalyType.isGlobalAnomaly,
-                    anomalyType.isLocalAnomaly,
+                    anomalyType.isSageAnomaly,
                     anomalyType.globalPercentage,
                     anomalyType.sagePercentage
                 )

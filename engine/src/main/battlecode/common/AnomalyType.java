@@ -18,9 +18,9 @@ public enum AnomalyType {
     public final float sagePercentage;
 
 
-    AnomalyType(boolean isGlobalAnomaly, boolean isLocalAnomaly, float globalPercentage, float sagePercentage) {
+    AnomalyType(boolean isGlobalAnomaly, boolean isSageAnomaly, float globalPercentage, float sagePercentage) {
         this.isGlobalAnomaly     = isGlobalAnomaly;
-        this.isLocalAnomaly      = isLocalAnomaly;
+        this.isSageAnomaly       = isSageAnomaly;
         this.globalPercentage    = globalPercentage;
         this.sagePercentage      = sagePercentage;
 
