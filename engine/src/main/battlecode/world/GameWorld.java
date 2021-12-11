@@ -623,7 +623,9 @@ public strictfp class GameWorld {
         Arrays.sort(
             droids,  
             (InternalRobot robot1, InternalRobot robot2) -> 
+                // 12/10/21: https://www.geeksforgeeks.org/arrays-sort-in-java-with-examples/
                 (robot2.numberOfVisibleFriendlyRobots() - robot1.numberOfVisibleFriendlyRobots())
+                // end reference on how to compare things with subtraction
         );
 
         int affectedDroidsLimit = (int) (anomaly.globalPercentage * droids.length);
