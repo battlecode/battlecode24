@@ -1,0 +1,6 @@
+name: Maven Publish
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hi"
