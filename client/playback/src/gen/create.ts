@@ -9,10 +9,13 @@ let SIZE = 32;
 const maxID = 4096;
 
 const bodyTypeList = [
-  schema.BodyType.ENLIGHTENMENT_CENTER,
-  schema.BodyType.POLITICIAN,
-  schema.BodyType.SLANDERER,
-  schema.BodyType.MUCKRAKER
+  schema.BodyType.MINER,
+  schema.BodyType.ARCHON,
+  schema.BodyType.BUILDER,
+  schema.BodyType.LABORATORY,
+  schema.BodyType.GUARD,
+  schema.BodyType.WIZARD,
+  schema.BodyType.WATCHTOWER
 ];
 
 const bodyVariety = bodyTypeList.length;
@@ -27,13 +30,14 @@ function trimEdge(x: number, l: number, r: number): number{
   return Math.min(Math.max(l, x), r);
 }
 
+//I think this is the same as 
+//schemaspawnedBodyTable
 type BodiesType = {
   robotIDs: number[],
   teamIDs: number[],
   types: number[],
   xs: number[],
   ys: number[],
-  influences: number[]
 };
 
 type MapType = {
@@ -111,7 +115,7 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     types: Array(unitCount),
     xs: Array(unitCount),
     ys: Array(unitCount),
-    influences: Array(unitCount)
+    //levels: Array(unitCount)
   };
 
   for(let i=0; i<unitCount; i++){
@@ -120,7 +124,7 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     bodies.types[i] = bodyTypeList[random(0, bodyVariety-1)];
     bodies.xs[i] = random(0, SIZE-1);
     bodies.ys[i] = random(0, SIZE-1);
-    bodies.influences[i] = random(0,10);
+    //bodies.levels[i] = random(1, 3);
   }
 
   return bodies;
@@ -139,7 +143,6 @@ function makeRandomMap(): MapType {
 
   return map;
 }
-
 function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
   schema.EventWrapper.startEventWrapper(builder);
   schema.EventWrapper.addEType(builder, type);
@@ -161,14 +164,14 @@ function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbu
   const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, bodies.robotIDs);
   const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, bodies.teamIDs);
   const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, bodies.types);
-  const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, bodies.influences);
+  //const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, bodies.influences);
 
   schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
   schema.SpawnedBodyTable.addLocs(builder, bb_locs);
   schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
   schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
+  //schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
   return schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 }
 
@@ -205,7 +208,7 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   // Is there any way to automate this?
   for (const body of bodyTypeList) {
     const btmd = schema.BodyTypeMetadata;
-    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000)); //TODO: make robots interesting
+    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000, 5, 2, 6, 3, 5)); //TODO: make robots interesting
   }
 
   const teams: flatbuffers.Offset[] = [];
@@ -300,7 +303,7 @@ function createStandGame(turns: number) {
   let types = [];
   let xs = [];
   let ys = [];
-  let influences = [];
+  //let influences = [];
 
   var i = 0;
   for (i = 0; i < bodyVariety * 2; i++) {
@@ -314,10 +317,12 @@ function createStandGame(turns: number) {
     xs[i] = Math.floor(i/2) * 2 + 5;
     ys[i] = 5*(i%2)+5;
   }
-  // add neutral enlightenment center
+  // used to add neutral enlightenment center
+  //disabled in stupid way
+
   robotIDs.push(i);
-  teamIDs.push(0);
-  types.push(schema.BodyType.ENLIGHTENMENT_CENTER);
+  teamIDs.push(1);
+  types.push(schema.BodyType.WIZARD);
   xs[i] = Math.floor(i/2) * 2 + 5;
   ys[i] = 5*(i%2)+5;  
 
@@ -325,13 +330,13 @@ function createStandGame(turns: number) {
   const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
   const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
   const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
-  const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, influences);
+  //const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, influences);
   schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
   schema.SpawnedBodyTable.addLocs(builder, bb_locs);
   schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
   schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
+  //schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
   const map = createMap(builder, bodies, "Stand Demo");
@@ -477,6 +482,7 @@ function createLifeGame(turns: number) {
 
 // Game with every units, moving in random constant speed & direction, with optional actions
 function createWanderGame(turns: number, unitCount: number, doActions: boolean = false, randomMap: boolean = false) {
+  //TODO probably add building uphgrades here
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -498,13 +504,17 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
   const xs = bodies.xs;
   const ys = bodies.ys;
 
+  let building_types = [schema.BodyType.ARCHON, schema.BodyType.LABORATORY, schema.BodyType.WATCHTOWER];
   for (let i = 1; i < turns+1; i++) {
-
+    let buildings=[]
     // movement
     for (let j = 0; j < unitCount; j++) {
       if(random(0, 32) === 0){
         velxs[j] = random(-1, 1);
         velys[j] = random(-1, 1);
+      }
+      if(building_types.indexOf(bodies.types[j]) > -1 ){
+        buildings.push(bodies.robotIDs[j])
       }
       xs[j] = trimEdge(xs[j] + velxs[j], 0, SIZE-1);
       ys[j] = trimEdge(ys[j] + velys[j], 0, SIZE-1);
@@ -524,19 +534,43 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
       for (let j = 0; j < unitCount; j++) {
         let action: number | null = null;
         let actionTarget: number | null = null;
+        let actions = []
         switch (bodies.types[j]) {
-            case schema.BodyType.POLITICIAN:
-              action = schema.Action.EMPOWER;
+            case schema.BodyType.MINER:
+              action = schema.Action.MINE;
               break;
-            case schema.BodyType.MUCKRAKER:
-              action = schema.Action.EXPOSE;
+            case schema.BodyType.ARCHON:
+              actions = [schema.Action.SPAWN_UNIT, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
+              action = actions[Math.floor(Math.random() * actions.length)];
               break;
-            case schema.BodyType.SLANDERER:
-              action = schema.Action.EMBEZZLE;
+            case schema.BodyType.GUARD:
+              actions = [schema.Action.ATTACK];
+              action = actions[Math.floor(Math.random() * actions.length)];
+              break;
+            case schema.BodyType.BUILDER:
+              actions = [schema.Action.BUILD, schema.Action.REPAIR, schema.Action.UPGRADE];
+              action = actions[Math.floor(Math.random() * actions.length)];
+              break;
+            case schema.BodyType.LABORATORY:
+              actions = [schema.Action.CONVERT_GOLD, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
+              action = actions[Math.floor(Math.random() * actions.length)];
+              break;
+            case schema.BodyType.WIZARD:
+              actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              action = actions[Math.floor(Math.random() * actions.length)];
+              break;
+            case schema.BodyType.WATCHTOWER:
+              actions = [schema.Action.ATTACK, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              action = actions[Math.floor(Math.random() * actions.length)];
+              break;
             default:
               break;
         }
+        let building_target_actions = [schema.Action.REPAIR, schema.Action.UPGRADE]
         if (action !== null) {
+          if (building_target_actions.indexOf(action) > -1){
+            actionTarget = buildings[Math.floor(Math.random() * buildings.length)];
+          }
           actionIDs.push(bodies.robotIDs[j]);
           actions.push(action);
           actionTargets.push(actionTarget);
@@ -579,11 +613,11 @@ function createVotesGame(turns: number) {
 
   for (let i = 1; i < turns+1; i++) {
     const bb_teamIDs = schema.Round.createTeamIDsVector(builder, [1, 2]);
-    const bb_teamVPs = schema.Round.createTeamVotesVector(builder, [1, (Math.random() > 0.5 ? 1 : 0)]);
+    //const bb_teamVPs = schema.Round.createTeamVotesVector(builder, [1, (Math.random() > 0.5 ? 1 : 0)]);
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
     schema.Round.addTeamIDs(builder, bb_teamIDs);
-    schema.Round.addTeamVotes(builder, bb_teamVPs);
+    //schema.Round.addTeamVotes(builder, bb_teamVPs);
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
