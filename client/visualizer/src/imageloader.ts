@@ -74,10 +74,13 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   const result = {
     tiles: [],
     robots: {
-      enlightenmentCenter: [],
-      politician: [],
-      muckraker: [],
-      slanderer: [],
+      archon: [],
+      watchtower: [],
+      builder: [],
+      miner: [],
+      sage: [],
+      soldier: [],
+      laboratory: [],
     },
     effects: {
       death: null,
@@ -156,23 +159,29 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   }
 
   // robot sprites
-  loadImage(result.robots.enlightenmentCenter, RED, 'robots/center_red');
-  loadImage(result.robots.muckraker, RED, 'robots/muck_red');
-  loadImage(result.robots.politician, RED, 'robots/polit_red');
-  loadImage(result.robots.slanderer, RED, 'robots/slanderer_red');
+  loadImage(result.robots.archon, RED, 'robots/center_red');
+  loadImage(result.robots.watchtower, RED, 'robots/muck_red');
+  loadImage(result.robots.builder, RED, 'robots/polit_red');
+  loadImage(result.robots.miner, RED, 'robots/slanderer_red');
+  loadImage(result.robots.sage, RED, 'robots/slanderer_red');
+  loadImage(result.robots.soldier, RED, 'robots/center');
+  loadImage(result.robots.laboratory, RED, 'robots/center');
 
-  loadImage(result.robots.enlightenmentCenter, BLU, 'robots/center_blue');
-  loadImage(result.robots.muckraker, BLU, 'robots/muck_blue');
-  loadImage(result.robots.politician, BLU, 'robots/polit_blue');
-  loadImage(result.robots.slanderer, BLU, 'robots/slanderer_blue');
+  loadImage(result.robots.archon, BLU, 'robots/center_blue');
+  loadImage(result.robots.watchtower, BLU, 'robots/muck_blue');
+  loadImage(result.robots.builder, BLU, 'robots/polit_blue');
+  loadImage(result.robots.miner, BLU, 'robots/slanderer_blue');
+  loadImage(result.robots.sage, BLU, 'robots/slanderer_red');
+  loadImage(result.robots.soldier, BLU, 'robots/center');
+  loadImage(result.robots.laboratory, BLU, 'robots/center');
 
-  loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');
+  // loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');
 
   // effects
-  loadImage(result.effects, 'death', 'effects/death/death_empty');
+  // loadImage(result.effects, 'death', 'effects/death/death_empty');
 
-  loadImage(result.effects.embezzle, 0, 'effects/embezzle/slanderer_embezzle_empty_1');
-  loadImage(result.effects.embezzle, 1, 'effects/embezzle/slanderer_embezzle_empty_2');
+  // loadImage(result.effects.embezzle, 0, 'effects/embezzle/slanderer_embezzle_empty_1');
+  // loadImage(result.effects.embezzle, 1, 'effects/embezzle/slanderer_embezzle_empty_2');
 
   {
     const makeTransparent = (data: ImageData): ImageData => {

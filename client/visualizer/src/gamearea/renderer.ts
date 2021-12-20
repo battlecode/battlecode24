@@ -135,7 +135,7 @@ export default class Renderer {
     const length = bodies.length;
     const types = bodies.arrays.type;
     const teams = bodies.arrays.team;
-    const convictions = bodies.arrays.conviction;
+    const hps = bodies.arrays.hp;
     const ids = bodies.arrays.id;
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
@@ -179,12 +179,14 @@ export default class Renderer {
 
     const renderBot = (i: number) => {
       const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][teams[i]];
-      this.drawBot(img, realXs[i], realYs[i], convictions[i]);
+      this.drawBot(img, realXs[i], realYs[i], hps[i]);
+      // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID);
 
       // draw effect
-      let effect: string | null = cst.abilityToEffectString(abilities[i]);
-      if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
+      // TODO: handle abilities/actions
+      // let effect: string | null = cst.abilityToEffectString(abilities[i]);
+      // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
     }
 
     let priorityIndices: number[] = [];
