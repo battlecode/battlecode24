@@ -200,7 +200,7 @@ export default class GameWorld {
       action: new Int8Array(0),
       parent: new Int32Array(0),
       hp: new Int32Array(0),
-      level: new Int8Array(0),
+      level: new Int8Array(1),
       portable: new Int8Array(0),
       prototype: new Int8Array(0)
     }, 'id');
@@ -472,6 +472,10 @@ export default class GameWorld {
 
           case schema.Action.UPGRADE:
             setAction();
+            teamStatsObj.robots[body.type][body.level - 1] -= 1;
+            teamStatsObj.robots[body.type][body.level + 1 - 1] += 1;
+            teamStatsObj.total_hp[body.type][body.level - 1] -= body.hp;
+            teamStatsObj.total_hp[body.type][body.level + 1 - 1] += body.hp;
             this.bodies.alter({ id: robotID, level: body.level + 1});
             break;
           
@@ -537,29 +541,27 @@ export default class GameWorld {
     //   this.teamStats.set(team, teamStatsObj);
     // })
 
-    // // Died bodies
-    // if (delta.diedIDsLength() > 0) {
-    //   // Update team stats
-    //   var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-    //   for(let i = 0; i < delta.diedIDsLength(); i++) {
-    //       let index = indices[i];
-    //       let team = this.bodies.arrays.team[index];
-    //       let type = this.bodies.arrays.type[index];
-    //       let statObj = this.teamStats.get(team);
-    //       if(!statObj) {continue;} // In case this is a neutral bot
-    //       statObj.robots[type] -= 1;
-    //       let influence = this.bodies.arrays.influence[index];
-    //       let conviction = this.bodies.arrays.conviction[index];
-    //       statObj.influence[type] -= influence; // cancel extra negative influence
-    //       statObj.conviction[type] -= conviction; // cancel extra negative conviction
-    //       this.teamStats.set(team, statObj);
-    //   }
+    // Died bodies
+    if (delta.diedIDsLength() > 0) {
+      // Update team stats
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
+          let index = indices[i];
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
+          let statObj = this.teamStats.get(team);
+          if(!statObj) {continue;} // In case this is a neutral bot
+          statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1;
+          let hp = this.bodies.arrays.hp[index];
+          statObj.total_hp[type][this.bodies.arrays.level[index] - 1] -= hp;
+          this.teamStats.set(team, statObj);
+      }
 
-    //   // Update bodies soa
-    //   this.insertDiedBodies(delta);
+      // Update bodies soa
+      this.insertDiedBodies(delta);
 
-    //   this.bodies.deleteBulk(delta.diedIDsArray());
-    // }
+      this.bodies.deleteBulk(delta.diedIDsArray());
+    }
 
     // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
@@ -667,8 +669,8 @@ export default class GameWorld {
     for(let i = 0; i < bodies.robotIDsLength(); i++) {
       // if(teams[i] == 0) continue;
       var statObj = this.teamStats.get(teams[i]);
-      statObj.robots[types[i]][1] += 1; // TODO: handle level
-      statObj.total_hp[types[i]][1] += this.meta.types[types[i]].hp; // TODO: extract meta info
+      statObj.robots[types[i]][0] += 1; // TODO: handle level
+      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].hp; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
     }
     
