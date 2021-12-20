@@ -590,6 +590,11 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     const bb_actions = schema.Round.createActionsVector(builder, actions);
     const bb_actionTargets = schema.Round.createActionTargetsVector(builder, actionTargets);
 
+    const goldXs = [Math.floor(SIZE*Math.random())]
+    const goldYs = [Math.floor(SIZE*Math.random())]
+    const goldLocs = createVecTable(builder, goldXs, goldYs);
+    const goldVals = schema.Round.createGoldDropValuesVector(builder, [1]);
+
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
     schema.Round.addMovedLocs(builder, movedLocs);
@@ -597,11 +602,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     schema.Round.addActionIDs(builder, bb_actionIDs);
     schema.Round.addActions(builder, bb_actions);
     schema.Round.addActionTargets(builder, bb_actionTargets);
-
-    const goldXs = [Math.floor(SIZE*Math.random())]
-    const goldYs = [Math.floor(SIZE*Math.random())]
-    const goldLocs = createVecTable(builder, goldXs, goldYs);
-    const goldVals = schema.Round.createGoldDropValuesVector(builder, [1]);
+    
     schema.Round.addGoldDropLocations(builder, goldLocs);
     schema.Round.addGoldDropValues(builder, goldVals);
 
