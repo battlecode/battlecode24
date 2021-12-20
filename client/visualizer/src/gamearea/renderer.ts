@@ -56,9 +56,10 @@ export default class Renderer {
     else this.ctx.translate(-viewMin.y, -viewMin.x);
 
     this.renderBackground(world);
+    this.renderResources(world);
 
     this.renderBodies(world, curTime, nextStep, lerpAmount);
-
+    world.mapStats.goldVals
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
 
@@ -125,6 +126,42 @@ export default class Renderer {
       this.ctx.globalAlpha = 1;
       if (!this.conf.doingRotate) this.ctx.strokeRect(cx, cy, scale, scale);
       else this.ctx.strokeRect(cy, cx, scale, scale);
+    }
+
+    this.ctx.restore();
+  }
+
+  private renderResources(world: GameWorld) {
+    this.ctx.save();
+    this.ctx.globalAlpha = 1;
+
+    let minX = world.minCorner.x;
+    let minY = world.minCorner.y;
+    let width = world.maxCorner.x - world.minCorner.x;
+    let height = world.maxCorner.y - world.minCorner.y;
+
+
+    const leadImg = this.imgs.star;
+    const goldImg = this.imgs.star;
+
+    const map = world.mapStats;
+    const scale = 1;
+
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
+      let idxVal = map.getIdx(i,j);
+      let plotJ = height-j-1;
+
+      this.ctx.globalAlpha = 1;
+      const cx = (minX+i)*scale, cy = (minY+plotJ)*scale;
+
+      if(map.goldVals[idxVal] > 0){
+        if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx, cy, scale, scale);
+        else this.ctx.drawImage(goldImg, cy, cx, scale, scale);
+      }
+      if(map.leadVals[idxVal] > 0){
+        if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx, cy, scale, scale);
+        else this.ctx.drawImage(leadImg, cy, cx, scale, scale);
+      }
     }
 
     this.ctx.restore();
