@@ -299,7 +299,7 @@ export default class Sidebar {
     logo.id = "logo";
 
     let boldText = document.createElement("b");
-    boldText.innerHTML = "Battlecode 2021";
+    boldText.innerHTML = "Battlecode 2022";
     logo.appendChild(boldText);
     return logo;
   }
