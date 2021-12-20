@@ -215,7 +215,19 @@ export default class Renderer {
     }
 
     const renderBot = (i: number) => {
-      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][teams[i]];
+      const DEFAULT: number = 0;
+      const PORTABLE: number = 1;
+      const PROTOTYPE: number = 2;
+      let body_status = DEFAULT
+      console.log(i, bodies.length, types.length, "hhh");
+      console.log(bodies[i]);
+      if (Boolean(bodies[i].portable)){
+        body_status = PORTABLE;
+      } 
+      if (Boolean(bodies[i].prototype)){
+        body_status = PROTOTYPE;
+      } 
+      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
       this.drawBot(img, realXs[i], realYs[i], hps[i]);
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID);
