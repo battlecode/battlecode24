@@ -45,7 +45,7 @@ export const ACTION_RADIUS_COLOR = "#46ff00";
 export const VISION_RADIUS_COLOR = "#0000ff";
 
 // Expected bot image size
-export const IMAGE_SIZE = 128;
+export const IMAGE_SIZE = 50;
 
 // Game canvas rendering sizes
 export const INDICATOR_DOT_SIZE = .3;

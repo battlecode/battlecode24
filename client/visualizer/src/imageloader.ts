@@ -7,10 +7,12 @@ export type AllImages = {
   star: Image,
   tiles: Array<Image>,
   robots: {
-    enlightenmentCenter: Array<Image>,
-    politician: Array<Image>,
-    muckraker: Array<Image>,
-    slanderer: Array<Image>
+    archon: Array<Image>,
+    builder: Array<Image>,
+    lab: Array<Image>,
+    sage: Array<Image>,
+    soldier: Array<Image>,
+    watchtower: Array<Image>,
   },
   effects: { // TODO
   },
@@ -159,21 +161,21 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   }
 
   // robot sprites
-  loadImage(result.robots.archon, RED, 'robots/center_red');
-  loadImage(result.robots.watchtower, RED, 'robots/muck_red');
-  loadImage(result.robots.builder, RED, 'robots/polit_red');
-  loadImage(result.robots.miner, RED, 'robots/slanderer_red');
-  loadImage(result.robots.sage, RED, 'robots/slanderer_red');
-  loadImage(result.robots.soldier, RED, 'robots/center');
-  loadImage(result.robots.laboratory, RED, 'robots/center');
+  loadImage(result.robots.archon, RED, 'robots/red_archon_portable');
+  loadImage(result.robots.watchtower, RED, 'robots/red_watchtower');
+  loadImage(result.robots.builder, RED, 'robots/red_builder');
+  loadImage(result.robots.miner, RED, 'robots/red_miner');
+  loadImage(result.robots.sage, RED, 'robots/red_sage');
+  loadImage(result.robots.soldier, RED, 'robots/red_soldier');
+  loadImage(result.robots.laboratory, RED, 'robots/red_lab');
 
-  loadImage(result.robots.archon, BLU, 'robots/center_blue');
-  loadImage(result.robots.watchtower, BLU, 'robots/muck_blue');
-  loadImage(result.robots.builder, BLU, 'robots/polit_blue');
-  loadImage(result.robots.miner, BLU, 'robots/slanderer_blue');
-  loadImage(result.robots.sage, BLU, 'robots/slanderer_red');
-  loadImage(result.robots.soldier, BLU, 'robots/center');
-  loadImage(result.robots.laboratory, BLU, 'robots/center');
+  loadImage(result.robots.archon, BLU, 'robots/blue_archon_portable');
+  loadImage(result.robots.watchtower, BLU, 'robots/blue_watchtower');
+  loadImage(result.robots.builder, BLU, 'robots/blue_builder');
+  loadImage(result.robots.miner, BLU, 'robots/blue_miner');
+  loadImage(result.robots.sage, BLU, 'robots/blue_sage');
+  loadImage(result.robots.soldier, BLU, 'robots/blue_soldier');
+  loadImage(result.robots.laboratory, BLU, 'robots/blue_lab');
 
   // loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');
 
