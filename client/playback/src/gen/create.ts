@@ -543,7 +543,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
               actions = [schema.Action.SPAWN_UNIT, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
               action = actions[Math.floor(Math.random() * actions.length)];
               break;
-            case schema.BodyType.GUARD:
+            case schema.BodyType.SOLDIER:
               actions = [schema.Action.ATTACK];
               action = actions[Math.floor(Math.random() * actions.length)];
               break;
@@ -555,7 +555,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
               actions = [schema.Action.CONVERT_GOLD, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
               action = actions[Math.floor(Math.random() * actions.length)];
               break;
-            case schema.BodyType.WIZARD:
+            case schema.BodyType.SAGE:
               actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
               action = actions[Math.floor(Math.random() * actions.length)];
               break;

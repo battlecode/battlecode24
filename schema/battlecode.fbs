@@ -79,10 +79,7 @@ table GameMap {
 /// Actions that can be performed.
 /// Purely aesthetic; have no actual effect on simulation.
 /// (Although the simulation may want to track the 'parents' of
-/// particular robots.)
-/// Actions may have 'targets', which are the units on which
-/// the actions were performed.
-enum Action : byte {
+/// particular robots.)als
     ATTACK, // combat unit types
     SPAWN_UNIT, //archon
     MINE, // miner

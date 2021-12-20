@@ -6,7 +6,6 @@ import {playbackConfig} from './game';
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');
 import deepcopy = require('deepcopy');
-import { indexOf } from 'core-js/library/js/array';
 
 // TODO use Victor for representing positions
 export type DeadBodiesSchema = {
@@ -55,8 +54,8 @@ export type TeamStats = {
   lead: number,
   gold: number,
   total_hp: [number[], number[], number[], number[], number[], number[], number[]],
-  leadIncome: number,
-  goldIncome: number
+  leadChange: number,
+  goldChange: number
 };
 
 export type IndicatorDotsSchema = {
@@ -215,8 +214,8 @@ export default class GameWorld {
           lead: 0,
           gold: 0,
           total_hp: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-          leadIncome: 0,
-          goldIncome: 0
+          leadChange: 0,
+          goldChange: 0
         });
     }
 
@@ -300,15 +299,15 @@ export default class GameWorld {
 
     this.mapStats.passability = Float64Array.from(map.passabilityArray());
 
-    const leadVals = map.leadVals(this._vecTableSlot1);
-    if (leadVals) {
+    const leadLocations = map.leadLocations(this._vecTableSlot1);
+    if (leadLocations) {
 
-      const xs = leadVals.xsArray();
-      const ys = leadVals.ysArray();
+      const xs = leadLocations.xsArray();
+      const ys = leadLocations.ysArray();
 
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.leadVals[x][y] = 1;
+        this.mapStats.leadVals[x][y] = map.leadAmountsArray[i];
       })
     }
 
@@ -365,10 +364,10 @@ export default class GameWorld {
       let teamID = delta.teamIDs(i);
       let statObj = this.teamStats.get(teamID);
 
-      statObj.lead += delta.teamLeadIncome(i);
-      statObj.gold += delta.teamGoldIncome(i);
-      statObj.leadIncome = delta.teamLeadIncome(i);
-      statObj.goldIncome = delta.teamGoldIncome(i);
+      statObj.lead += delta.teamLeadChange(i);
+      statObj.gold += delta.teamGoldChange(i);
+      statObj.leadChange = delta.teamLeadChange(i);
+      statObj.goldChange = delta.teamGoldChange(i);
 
       this.teamStats.set(teamID, statObj);
   }
@@ -396,6 +395,29 @@ export default class GameWorld {
     // Remove bids from previous round
     this.bodies.alterBulk({id: new Int32Array(this.bidRobots), bid: new Int32Array(this.bidRobots.length)});
     this.bidRobots = [];
+
+    // Map changes
+    const leadLocations = delta.leadDropLocations(this._vecTableSlot1);
+    if (leadLocations) {
+      const xs = leadLocations.xsArray();
+      const ys = leadLocations.ysArray();
+
+      xs.forEach((x, i) => {
+        const y = ys[i]
+        this.mapStats.leadVals[x][y] = delta.leadDropLocations[i];
+      })
+    }
+
+    const goldLocations = delta.goldDropLocations(this._vecTableSlot1);
+    if (goldLocations) {
+      const xs = goldLocations.xsArray();
+      const ys = goldLocations.ysArray();
+
+      xs.forEach((x, i) => {
+        const y = ys[i]
+        this.mapStats.goldVals[x][y] = delta.goldDropLocations[i];
+      })
+    }
 
     // Actions
     if(delta.actionsLength() > 0){
@@ -556,14 +578,16 @@ export default class GameWorld {
       });
     }
 
-    // Process logs
-    if (this.config.processLogs) this.parseLogs(delta.roundID(), delta.logs() ? <string> delta.logs(flatbuffers.Encoding.UTF16_STRING) : "");
-    else this.logsShift++;
+    // TODO: process indicator strings
 
-    while (this.logs.length >= 25) {
-      this.logs.shift();
-      this.logsShift++;
-    }
+    // // Process logs
+    // if (this.config.processLogs) this.parseLogs(delta.roundID(), delta.logs() ? <string> delta.logs(flatbuffers.Encoding.UTF16_STRING) : "");
+    // else this.logsShift++;
+
+    // while (this.logs.length >= 25) {
+    //   this.logs.shift();
+    //   this.logsShift++;
+    // }
   // console.log(delta.roundID(), this.logsShift, this.logs[0]);
   }
 
@@ -640,7 +664,7 @@ export default class GameWorld {
       // if(teams[i] == 0) continue;
       var statObj = this.teamStats.get(teams[i]);
       statObj.robots[types[i]][1] += 1; // TODO: handle level
-      statObj.total_hp[types[i]][1] += 3000; // TODO: extract meta info
+      statObj.total_hp[types[i]][1] += this.meta.types[types[i]].hp; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
     }
     

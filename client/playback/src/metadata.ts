@@ -51,14 +51,15 @@ export default class Metadata {
         body.actionRadiusSquared(),
         body.visionRadiusSquared(),
         body.actionCooldown(),
-        body.movingCooldown(),
+        body.movementCooldown(),
         body.bytecodeLimit(),
         body.dps(),
         body.hp(),
         body.dpsMul(),
         body.hpMul(),
         body.buildCost(),
-        Array.from(body.upgradeCostsArray())
+        Array.from(body.upgradeCostLeadArray()),
+        Array.from(body.upgradeCostGoldArray())
       );
     }
     // SAFE
@@ -93,9 +94,10 @@ export class Team {
 export class BodyTypeMetaData {
   constructor(public type: schema.BodyType, public spawnSource:schema.BodyType,
     public actionRadiusSquared:number, public visionRadiusSquared:number, 
-    public actionCooldown:number, public movingCooldown:number, 
+    public actionCooldown:number, public movementCooldown:number, 
     public bytecodeLimit:number, 
     public dps:number, public hp:number, public dpsMul:number, public hpMul:number,
-    public buildCost:number, public upgradeCosts:number[]) {
+    public buildCost:number, public upgradeCostLead:number[],
+    public upgradeCostGold:number[]) {
   }
 }
