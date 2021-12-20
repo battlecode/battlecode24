@@ -200,7 +200,7 @@ export default class GameWorld {
       action: new Int8Array(0),
       parent: new Int32Array(0),
       hp: new Int32Array(0),
-      level: new Int8Array(1),
+      level: new Int8Array(0),
       portable: new Int8Array(0),
       prototype: new Int8Array(0)
     }, 'id');
@@ -685,6 +685,10 @@ export default class GameWorld {
     // Initialize convictions
 
     // Insert bodies
+
+    const levels = new Int8Array(bodies.robotIDsLength());
+    levels.fill(1);
+
     this.bodies.insertBulk({
       id: bodies.robotIDsArray(),
       team: teams,
@@ -696,6 +700,7 @@ export default class GameWorld {
       ability: new Int8Array(bodies.robotIDsLength()),
       bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
+      level: levels
     });
   }
 
