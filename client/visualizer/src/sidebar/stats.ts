@@ -128,8 +128,8 @@ export default class Stats {
     for (let value in this.robotTds[teamID]) {
       robotCounts[value] = document.createElement("tr");
       const title = document.createElement("td");
-      if (value === "conviction") title.innerHTML = "<b>C</b>";
-      if (value === "influence") title.innerHTML = "<b>I</b>";
+      if (value === "count") title.innerHTML = "<b>Count</b>";
+      if (value === "hp") title.innerHTML = "<b>HP</b>";
       robotCounts[value].appendChild(title);
     }
 
@@ -137,15 +137,15 @@ export default class Stats {
       let robotName: string = cst.bodyTypeToString(robot);
       let tdRobot: HTMLTableCellElement = document.createElement("td");
       tdRobot.className = "robotSpriteStats";
-      tdRobot.style.height = "100px";
-      tdRobot.style.width = "100px";
+      tdRobot.style.height = "45px";
+      tdRobot.style.width = "60px";
 
-      // const img: HTMLImageElement = this.robotImages[robotName][inGameID];
-      // img.style.width = "60%";
-      // img.style.height = "60%";
+      const img: HTMLImageElement = this.robotImages[robotName][inGameID];
+      img.style.width = "100%";
+      img.style.height = "100%";
       // TODO: images
 
-      // tdRobot.appendChild(img);
+      tdRobot.appendChild(img);
       robotImages.appendChild(tdRobot);
 
       for (let value in this.robotTds[teamID]) {
@@ -463,7 +463,7 @@ export default class Stats {
 
       // Create td elements for the robot counts and store them in robotTds
       // so we can update these robot counts later; maps robot type to count
-      for (let value of ["count", "conviction", "influence"]) {
+      for (let value of ["count", "hp"]) {
         this.robotTds[teamID][value] = new Map<number, HTMLTableCellElement>();
         for (let robot of this.robots) {
           let td: HTMLTableCellElement = document.createElement("td");
@@ -561,20 +561,21 @@ export default class Stats {
    */
   setRobotCount(teamID: number, robotType: schema.BodyType, count: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["count"][robotType];
+    console.log(count, robotType);
     td.innerHTML = String(count);
   }
 
   /**
-   * Change the robot conviction on the stats bar
+   * Change the robot HP (previously conviction) on the stats bar
    */
-  setRobotConviction(teamID: number, robotType: schema.BodyType, conviction: number, totalConviction: number) {
-    let td: HTMLTableCellElement = this.robotTds[teamID]["conviction"][robotType];
-    td.innerHTML = String(conviction);
+  setRobotHP(teamID: number, robotType: schema.BodyType, HP: number, totalHP: number) {
+    let td: HTMLTableCellElement = this.robotTds[teamID]["hp"][robotType];
+    td.innerHTML = String(HP);
 
     const robotName: string = cst.bodyTypeToString(robotType);
     let img = this.robotImages[robotName][teamID];
 
-    const size = (55 + 45 * conviction / totalConviction);
+    const size = (55 + 45 * HP / totalHP);
     img.style.width = size + "%";
     img.style.height = size + "%";
   }
@@ -582,10 +583,10 @@ export default class Stats {
   /**
    * Change the robot influence on the stats bar
    */
-  setRobotInfluence(teamID: number, robotType: schema.BodyType, influence: number) {
+  /**### setRobotInfluence(teamID: number, robotType: schema.BodyType, influence: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["influence"][robotType];
     td.innerHTML = String(influence);
-  }
+  }*/
 
   /**
    * Change the votes of the given team
@@ -607,12 +608,12 @@ export default class Stats {
     // }
   }
 
-  setTeamInfluence(teamID: number, influence: number, totalInfluence: number) {
+  /** setTeamInfluence(teamID: number, influence: number, totalInfluence: number) {
     const relBar: HTMLDivElement = this.relativeBars[teamID];
     relBar.innerText = String(influence);
     if (totalInfluence == 0) relBar.style.width = '50%';
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
-  }
+  }*/
 
   setBuffs(teamID: number, numBuffs: number) {
     //this.buffDisplays[teamID].numBuffs.textContent = String(numBuffs);
@@ -620,7 +621,8 @@ export default class Stats {
     this.buffDisplays[teamID].buff.style.fontSize = 14 * Math.sqrt(Math.min(9, cst.buffFactor(numBuffs))) + "px";
   }
 
-  setIncome(teamID: number, income: number, turn: number) {
+  setIncome(teamID: number, income: number, turn: number) { // leadIncome, goldIncome
+
     this.incomeDisplays[teamID].income.textContent = String(income);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
@@ -636,6 +638,22 @@ export default class Stats {
       teamTurnsIncomeSet?.add(turn);
       this.incomeChart.update();
     }
+    /** this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
+    this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
+    if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
+      this.teamMapToTurnsIncomeSet.set(teamID, new Set());
+    }
+    let teamTurnsIncomeSet = this.teamMapToTurnsIncomeSet.get(teamID);
+    
+    if (!teamTurnsIncomeSet!.has(turn)) {
+      //@ts-ignore
+      this.incomeChart.data.datasets![teamID - 1].data?.push({y:income, x: turn});
+      this.incomeChart.data.datasets?.forEach((d) => {
+        d.data?.sort((a, b) => a.x - b.x);
+      });
+      teamTurnsIncomeSet?.add(turn);
+      this.incomeChart.update();
+    }*/
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
