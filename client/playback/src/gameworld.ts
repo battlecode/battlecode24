@@ -289,6 +289,9 @@ export default class GameWorld {
     this.maxCorner.y = maxCorner.y();
     this.mapStats.maxCorner.x = maxCorner.x();
     this.mapStats.maxCorner.y = maxCorner.y();
+    
+    this.mapStats.goldVals = new Int32Array(maxCorner.x()*maxCorner.y())
+    this.mapStats.leadVals = new Int32Array(maxCorner.x()*maxCorner.y())
 
     const bodies = map.bodies(this._bodiesSlot);
     if (bodies && bodies.robotIDsLength) {
@@ -307,7 +310,8 @@ export default class GameWorld {
 
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.leadVals[x][y] = map.leadAmountsArray[i];
+        
+        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] = map.leadAmountsArray[i];
       })
     }
 
@@ -404,7 +408,7 @@ export default class GameWorld {
 
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.leadVals[x][y] = delta.leadDropLocations[i];
+        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] = delta.leadDropValues[i];
       })
     }
 
@@ -412,10 +416,10 @@ export default class GameWorld {
     if (goldLocations) {
       const xs = goldLocations.xsArray();
       const ys = goldLocations.ysArray();
-
+      let inst = this;
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.goldVals[x][y] = delta.goldDropLocations[i];
+        inst.mapStats.goldVals[inst.mapStats.getIdx(x,y)] = delta.goldDropValues(i);
       })
     }
 

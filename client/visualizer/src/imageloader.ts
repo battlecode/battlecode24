@@ -14,6 +14,10 @@ export type AllImages = {
     soldier: Array<Image>,
     watchtower: Array<Image>,
   },
+  resources: {
+      lead: Image,
+      gold: Image
+  }
   effects: { // TODO
   },
   controls: {
@@ -83,6 +87,10 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
       sage: [],
       soldier: [],
       laboratory: [],
+    },
+    resources: {
+      lead: null,
+      gold: null
     },
     effects: {
       death: null,
@@ -176,6 +184,10 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   loadImage(result.robots.sage, BLU, 'robots/blue_sage');
   loadImage(result.robots.soldier, BLU, 'robots/blue_soldier');
   loadImage(result.robots.laboratory, BLU, 'robots/blue_lab');
+
+  loadImage(result.resources, 'lead', 'star');
+  loadImage(result.resources, 'gold', 'star');
+
 
   // loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');
 
