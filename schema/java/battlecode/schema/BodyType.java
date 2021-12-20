@@ -8,26 +8,15 @@ package battlecode.schema;
  */
 public final class BodyType {
   private BodyType() { }
-  /**
-   * Enlightenment centers produce politicians, Muckrakers and slanderers and place bids
-   *can be neutral until captured
-   */
-  public static final byte ENLIGHTENMENT_CENTER = 0;
-  /**
-   * politicians use their influence to self destruct and capture other units
-   */
-  public static final byte POLITICIAN = 1;
-  /**
-   * slanderers generate passive influence for the enlightenment center that created them
-   * they turn into politicians at some point, and can only be identified by slanderers.
-   */
-  public static final byte SLANDERER = 2;
-  /**
-   * have the ability to identify slanderers
-   */
-  public static final byte MUCKRAKER = 3;
+  public static final byte MINER = 0;
+  public static final byte BUILDER = 1;
+  public static final byte SOLDIER = 2;
+  public static final byte SAGE = 3;
+  public static final byte ARCHON = 4;
+  public static final byte LABORATORY = 5;
+  public static final byte WATCHTOWER = 6;
 
-  public static final String[] names = { "ENLIGHTENMENT_CENTER", "POLITICIAN", "SLANDERER", "MUCKRAKER", };
+  public static final String[] names = { "MINER", "BUILDER", "SOLDIER", "SAGE", "ARCHON", "LABORATORY", "WATCHTOWER", };
 
   public static String name(int e) { return names[e]; }
 }

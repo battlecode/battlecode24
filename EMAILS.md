@@ -17,8 +17,8 @@ We currently maintain the following lists on Mailman:
 1. Update the administrator to the Battlecode contact email (this is the publicly viewable list owner), and set yourself and others to be moderators.
    After doing this, you will need to re-authenticate (you're no longer the admin), using the password that was emailed to you.
 1. Set list parameters. Below are some examples.
-    - Description: MIT Battlecode 2021
-    - Subject prefix: [battlecode-21]
+    - Description: MIT Battlecode 2022
+    - Subject prefix: [battlecode-22]
     - Hide sender = Yes. All sent emails will appear to come from the list, not you.
     - Strip Reply-To header = Yes, explicit Reply-To = the battlecode address. This configures replies to not go back to the list.
     - In the privacy menu:
