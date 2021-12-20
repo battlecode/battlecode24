@@ -2,13 +2,16 @@ import { schema } from 'battlecode-playback';
 import { Symmetry } from './mapeditor/index';
 
 // Body types
-export const ENLIGHTENMENT_CENTER = schema.BodyType.ENLIGHTENMENT_CENTER;
-export const POLITICIAN = schema.BodyType.POLITICIAN;
-export const SLANDERER = schema.BodyType.SLANDERER;
-export const MUCKRAKER = schema.BodyType.MUCKRAKER;
+export const ARCHON = schema.BodyType.ARCHON;
+export const BUILDER = schema.BodyType.BUILDER;
+export const LABORATORY = schema.BodyType.LABORATORY;
+export const MINER = schema.BodyType.MINER;
+export const SAGE = schema.BodyType.SAGE;
+export const SOLDIER = schema.BodyType.SOLDIER;
+export const WATCHTOWER = schema.BodyType.WATCHTOWER;
 
-export const bodyTypeList: number[] = [ENLIGHTENMENT_CENTER, POLITICIAN, SLANDERER, MUCKRAKER];
-export const initialBodyTypeList: number[] = [ENLIGHTENMENT_CENTER];
+export const bodyTypeList: number[] = [ARCHON, BUILDER, LABORATORY, MINER, SAGE, SOLDIER, WATCHTOWER];
+export const initialBodyTypeList: number[] = [ARCHON];
 
 export const bodyTypePriority: number[] = []; // for guns, drones, etc. that should be drawn over other robots
 
@@ -39,7 +42,7 @@ export const buffFactor = (numBuffs: number): number => {
 }
 
 export const ACTION_RADIUS_COLOR = "#46ff00";
-export const SENSOR_RADIUS_COLOR = "#0000ff";
+export const VISION_RADIUS_COLOR = "#0000ff";
 
 // Expected bot image size
 export const IMAGE_SIZE = 128;
@@ -169,14 +172,20 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
   switch (bodyType) {
-    case ENLIGHTENMENT_CENTER:
-      return "enlightenmentCenter";
-    case POLITICIAN:
-      return "politician";
-    case SLANDERER:
-      return "slanderer";
-    case MUCKRAKER:
-      return "muckraker";
+    case ARCHON:
+      return "archon";
+    case WATCHTOWER:
+      return "watchtower";
+    case BUILDER:
+      return "builder";
+    case MINER:
+      return "miner";
+    case SAGE:
+      return "sage";
+    case SOLDIER:
+      return "soldier";
+    case LABORATORY:
+      return "laboratory";
     default: throw new Error("invalid body type");
   }
 }

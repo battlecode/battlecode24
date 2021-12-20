@@ -43,9 +43,9 @@ export default class RobotForm {
     this.team = document.createElement("select");
     this.x = document.createElement("input");
     this.y = document.createElement("input");
-    this.influence = document.createElement("input");
-    this.influence.value = String(cst.INITIAL_INFLUENCE);
-    this.influence.disabled = true;
+    // this.influence = document.createElement("input");
+    // this.influence.value = String(cst.INITIAL_INFLUENCE);
+    // this.influence.disabled = true;
 
     // Create the form
     this.loadInputs();
@@ -88,13 +88,13 @@ export default class RobotForm {
     const team: HTMLDivElement = document.createElement("div");
     const x: HTMLDivElement = document.createElement("div");
     const y: HTMLDivElement = document.createElement("div");
-    const influence: HTMLDivElement = document.createElement("div");
+    // const influence: HTMLDivElement = document.createElement("div");
     //form.appendChild(id);
     form.appendChild(type);
     form.appendChild(team);
     form.appendChild(x);
     form.appendChild(y);
-    form.appendChild(influence);
+    // form.appendChild(influence);
     form.appendChild(document.createElement("br"));
 
     id.appendChild(document.createTextNode("ID: "));
@@ -117,8 +117,8 @@ export default class RobotForm {
     y.appendChild(this.y);
 
     // Influence
-    influence.appendChild(document.createTextNode("I: "));
-    influence.appendChild(this.influence);
+    // influence.appendChild(document.createTextNode("I: "));
+    // influence.appendChild(this.influence);
 
     return form;
   }
@@ -144,12 +144,12 @@ export default class RobotForm {
       this.y.value = isNaN(value) ? "" : String(value);
     };
 
-    this.influence.onchange = () => {
-      let value: number = this.getInfluence();
-      value = Math.max(value, 50);
-      value = Math.min(value, 500);
-      this.influence.value = isNaN(value) ? "" : String(value);
-    }
+    // this.influence.onchange = () => {
+    //   let value: number = this.getInfluence();
+    //   value = Math.max(value, 50);
+    //   value = Math.min(value, 500);
+    //   this.influence.value = isNaN(value) ? "" : String(value);
+    // }
 
     this.team.onchange = () => {
       if (this.getTeam() !== 0) {
@@ -199,8 +199,8 @@ export default class RobotForm {
     if (body && id) {
       this.type.value = String(body.type);
       this.team.value = String(body.teamID);
-      this.influence.disabled = (this.getTeam() !== 0);
-      this.influence.value = String(body.influence);
+      // this.influence.disabled = (this.getTeam() !== 0);
+      // this.influence.value = String(body.influence);
     }
   }
 
@@ -220,8 +220,8 @@ export default class RobotForm {
       y: this.getY(),
       radius: 0.5,
       type: this.getType(),
-      teamID: this.getTeam(),
-      influence: this.getInfluence()
+      teamID: this.getTeam()
+      // influence: this.getInfluence()
     }
   }
 }

@@ -307,46 +307,43 @@ export default class Looper {
      * team in the current game world.
      */
     private updateStats(world: GameWorld, meta: Metadata) {
-        let totalInfluence = 0;
-        let totalConviction = 0;
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
+        let totalHP = 0;
 
-        this.stats.resetECs();
-        for (let i = 0; i < world.bodies.length; i++) {
-            const type = world.bodies.arrays.type[i];
-            if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
-                this.stats.addEC(world.bodies.arrays.team[i]);
-            }
-        }
+        // this.stats.resetECs();
+        // for (let i = 0; i < world.bodies.length; i++) {
+        //     const type = world.bodies.arrays.type[i];
+        //     if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
+        //         this.stats.addEC(world.bodies.arrays.team[i]);
+        //     }
+        // }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            totalInfluence += teamStats.influence.reduce((a, b) => a + b);
-            totalConviction += teamStats.conviction.reduce((a, b) => a + b);
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
+            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
 
             // Update each robot count
             this.stats.robots.forEach((type: schema.BodyType) => {
-                this.stats.setRobotCount(teamID, type, teamStats.robots[type]);
-                this.stats.setRobotConviction(teamID, type, teamStats.conviction[type], totalConviction);
-                this.stats.setRobotInfluence(teamID, type, teamStats.influence[type]);
+                this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
+                this.stats.setRobotInfluence(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b)); // TODO: differentiate levels, maybe
             });
 
             // Set votes
-            this.stats.setVotes(teamID, teamStats.votes);
-            this.stats.setTeamInfluence(teamID, teamStats.influence.reduce((a, b) => a + b),
-                totalInfluence);
-            this.stats.setBuffs(teamID, teamStats.numBuffs);
-            this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.income, world.turn);
+            // this.stats.setVotes(teamID, teamStats.votes);
+            this.stats.setTeamInfluence(teamID, teamHP, totalHP);
+            // this.stats.setBuffs(teamID, teamStats.numBuffs);
+            // this.stats.setBid(teamID, teamStats.bid);
+            this.stats.setIncome(teamID, teamStats.leadChange, world.turn); // TODO: show gold change
         }
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {

@@ -139,9 +139,9 @@ export default class Runner {
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
     uploadLabel.setAttribute("class", "custom-button");
-    uploadLabel.innerText = 'Upload a .bc21 replay file';
+    uploadLabel.innerText = 'Upload a .bc22 replay file';
     if (this.conf.tournamentMode) {
-      uploadLabel.innerText = "Upload a .bc21 or .json file";
+      uploadLabel.innerText = "Upload a .bc22 or .json file";
     }
 
     // create the functional button
@@ -149,9 +149,9 @@ export default class Runner {
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.bc21';
+    upload.accept = '.bc22';
     if (this.conf.tournamentMode) {
-      upload.accept = '.bc21,.json';
+      upload.accept = '.bc22,.json';
     }
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     upload.onclick = () => upload.value = "";
@@ -482,11 +482,8 @@ export default class Runner {
         case 78: // "n" - Toggle action radius
           this.conf.seeActionRadius = !this.conf.seeActionRadius;
           break;
-        case 77: // "m" - Toggle sensor radius
-          this.conf.seeSensorRadius = !this.conf.seeSensorRadius;
-          break;
-        case 188: // "," - Toggle detection radius
-          this.conf.seeDetectionRadius = !this.conf.seeDetectionRadius;
+        case 77: // "m" - Toggle vision radius
+          this.conf.seeVisionRadius = !this.conf.seeVisionRadius;
           break;
         case 71: // "g" - Toogle grid view
           this.conf.showGrid = !this.conf.showGrid;

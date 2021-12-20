@@ -71,14 +71,9 @@ export interface Config {
   seeActionRadius: boolean;
 
   /**
-   * Whether or not to display the sensor radius.
+   * Whether or not to display the vision radius.
    */
-  seeSensorRadius: boolean;
-
-  /**
-   * Whether or not to display the detection radius.
-   */
-  seeDetectionRadius: boolean;
+  seeVisionRadius: boolean;
 
   /**
    * The mode of the game
@@ -165,8 +160,7 @@ export function defaults(supplied?: any): Config {
     mode: Mode.QUEUE,
     splash: true,
     seeActionRadius: false,
-    seeSensorRadius: false,
-    seeDetectionRadius: false,
+    seeVisionRadius: false,
     showGrid: false,
     viewSwamp: true,
     shorterLogHeader: false,

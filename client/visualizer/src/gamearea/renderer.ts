@@ -200,15 +200,16 @@ export default class Renderer {
     priorityIndices.forEach((i) => renderBot(i));
 
     // Render empowered bodies
-    const empowered = world.empowered;
-    const empowered_id = world.empowered.arrays.id;
-    const empowered_x = world.empowered.arrays.x;
-    const empowered_y = world.empowered.arrays.y;
-    const empowered_team = world.empowered.arrays.team;
+    // TODO: something similar for lead and gold
+    // const empowered = world.empowered;
+    // const empowered_id = world.empowered.arrays.id;
+    // const empowered_x = world.empowered.arrays.x;
+    // const empowered_y = world.empowered.arrays.y;
+    // const empowered_team = world.empowered.arrays.team;
 
-    for (let i = 0; i < empowered.length; i++) {
-      drawEffect(empowered_team[i] == 1 ? "empower_red" : "empower_blue", empowered_x[i], this.flip(empowered_y[i], minY, maxY));
-    }
+    // for (let i = 0; i < empowered.length; i++) {
+    //   drawEffect(empowered_team[i] == 1 ? "empower_red" : "empower_blue", empowered_x[i], this.flip(empowered_y[i], minY, maxY));
+    // }
 
     this.setInfoStringEvent(world, xs, ys);
   }
@@ -245,12 +246,8 @@ export default class Renderer {
       this.drawBotRadius(x, y, this.metadata.types[type].actionRadiusSquared, cst.ACTION_RADIUS_COLOR);
     }
 
-    if (this.conf.seeSensorRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].sensorRadiusSquared, cst.SENSOR_RADIUS_COLOR);
-    }
-
-    if (this.conf.seeDetectionRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].detectionRadiusSquared, cst.SENSOR_RADIUS_COLOR);
+    if (this.conf.seeVisionRadius || single) {
+      this.drawBotRadius(x, y, this.metadata.types[type].visionRadiusSquared, cst.VISION_RADIUS_COLOR);
     }
   }
 

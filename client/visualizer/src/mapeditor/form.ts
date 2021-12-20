@@ -13,8 +13,8 @@ export type MapUnit = {
   y: number,
   type: schema.BodyType,
   radius: 0.5,
-  teamID?: number,
-  influence: number
+  teamID?: number
+  // influence: number
 };
 
 export type GameMap = {

@@ -140,20 +140,22 @@ export default class Stats {
       tdRobot.style.height = "100px";
       tdRobot.style.width = "100px";
 
-      const img: HTMLImageElement = this.robotImages[robotName][inGameID];
-      img.style.width = "60%";
-      img.style.height = "60%";
+      // const img: HTMLImageElement = this.robotImages[robotName][inGameID];
+      // img.style.width = "60%";
+      // img.style.height = "60%";
+      // TODO: images
 
-      tdRobot.appendChild(img);
+      // tdRobot.appendChild(img);
       robotImages.appendChild(tdRobot);
 
       for (let value in this.robotTds[teamID]) {
         let tdCount: HTMLTableCellElement = this.robotTds[teamID][value][robot];
         robotCounts[value].appendChild(tdCount);
-        if (robot === schema.BodyType.ENLIGHTENMENT_CENTER && value === "count") {
-          tdCount.style.fontWeight = "bold";
-          tdCount.style.fontSize = "18px";          
-        }
+        // TODO: figure out what's going on here
+        // if (robot === schema.BodyType.ENLIGHTENMENT_CENTER && value === "count") {
+        //   tdCount.style.fontWeight = "bold";
+        //   tdCount.style.fontSize = "18px";          
+        // }
       }
     }
     table.appendChild(robotImages);
