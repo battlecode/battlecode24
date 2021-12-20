@@ -13,8 +13,8 @@ const bodyTypeList = [
   schema.BodyType.ARCHON,
   schema.BodyType.BUILDER,
   schema.BodyType.LABORATORY,
-  schema.BodyType.GUARD,
-  schema.BodyType.WIZARD,
+  schema.BodyType.SOLDIER,
+  schema.BodyType.SAGE,
   schema.BodyType.WATCHTOWER
 ];
 
@@ -208,7 +208,15 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   // Is there any way to automate this?
   for (const body of bodyTypeList) {
     const btmd = schema.BodyTypeMetadata;
-    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000, 5, 2, 6, 3, 5)); //TODO: make robots interesting
+    if (body in [schema.BodyType.MINER, schema.BodyType.BUILDER, schema.BodyType.SAGE, schema.BodyType.SOLDIER]) {
+      var gold_costs = btmd.createUpgradeCostGoldVector(builder, [1])
+      var lead_costs = btmd.createUpgradeCostLeadVector(builder, [1])
+    }
+    else {
+      var gold_costs = btmd.createUpgradeCostGoldVector(builder, [1,2,3])
+      var lead_costs = btmd.createUpgradeCostLeadVector(builder, [1,2,3])
+    }
+    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000, 5, 2, 6, 3, gold_costs, lead_costs)); //TODO: make robots interesting
   }
 
   const teams: flatbuffers.Offset[] = [];
@@ -322,7 +330,7 @@ function createStandGame(turns: number) {
 
   robotIDs.push(i);
   teamIDs.push(1);
-  types.push(schema.BodyType.WIZARD);
+  types.push(schema.BodyType.SAGE);
   xs[i] = Math.floor(i/2) * 2 + 5;
   ys[i] = 5*(i%2)+5;  
 
@@ -726,7 +734,7 @@ function main(){
   const prefix = "../examples/";
 
   games.forEach(pair => {
-    const filename = `${prefix}${pair.name}.bc21`
+    const filename = `${prefix}${pair.name}.bc22`
     const stream = createWriteStream(filename);
     const game = pair.game;
 
