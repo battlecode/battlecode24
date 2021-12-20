@@ -22,7 +22,8 @@ type BuffDisplay = {
 }
 
 type IncomeDisplay = {
-  income: HTMLSpanElement
+  leadIncome: HTMLSpanElement
+  goldIncome: HTMLSpanElement
 }
 
 /**
@@ -289,11 +290,15 @@ export default class Stats {
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
-      const income = document.createElement("span");
-      income.style.color = hex[id];
-      income.style.fontWeight = "bold";
-      income.textContent = "1";
-      incomeDisplays[id] = {income: income};
+      const leadIncome = document.createElement("span");
+      const goldIncome = document.createElement("span");
+      leadIncome.style.color = hex[id];
+      leadIncome.style.fontWeight = "bold";
+      leadIncome.textContent = "1";
+      goldIncome.style.color = hex[id];
+      goldIncome.style.fontWeight = "bold";
+      goldIncome.textContent = "2";
+      incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
     });
     return incomeDisplays;
   }
@@ -326,10 +331,10 @@ export default class Stats {
     table.style.width = "100%";
 
     const title = document.createElement('td');
-    title.colSpan = 2;
+    title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Income Per Turn';
+    label.innerText = 'Total Lead & Gold Income Per Turn';
 
     const row = document.createElement("tr");
 
@@ -338,7 +343,8 @@ export default class Stats {
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cell.appendChild(this.incomeDisplays[id].income);
+      cell.appendChild(this.incomeDisplays[id].leadIncome);
+      cell.appendChild(this.incomeDisplays[id].goldIncome);
       row.appendChild(cell);
     });
 
@@ -504,17 +510,31 @@ export default class Stats {
       type: 'line',
       data: {
           datasets: [{
-            label: 'Red',
+            label: 'Red Lead',
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
-            borderColor: 'rgb(219, 54, 39)',
+            borderColor: 'rgb(131,24,27)',
             pointRadius: 0,
           },
           {
-            label: 'Blue',
+            label: 'Blue Lead',
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
-            borderColor: 'rgb(79, 126, 230)',
+            borderColor: 'rgb(108, 140, 188)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Red Gold',
+            data: [],
+            backgroundColor: 'rgba(162, 162, 235, 0)',
+            borderColor: 'rgb(205,162,163)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Blue Gold',
+            data: [],
+            backgroundColor: 'rgba(54, 0, 235, 0)',
+            borderColor: 'rgb(68, 176, 191)',
             pointRadius: 0,
           }]
       },
@@ -621,24 +641,8 @@ export default class Stats {
     this.buffDisplays[teamID].buff.style.fontSize = 14 * Math.sqrt(Math.min(9, cst.buffFactor(numBuffs))) + "px";
   }
 
-  setIncome(teamID: number, income: number, turn: number) { // leadIncome, goldIncome
-
-    this.incomeDisplays[teamID].income.textContent = String(income);
-    if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
-      this.teamMapToTurnsIncomeSet.set(teamID, new Set());
-    }
-    let teamTurnsIncomeSet = this.teamMapToTurnsIncomeSet.get(teamID);
-    
-    if (!teamTurnsIncomeSet!.has(turn)) {
-      //@ts-ignore
-      this.incomeChart.data.datasets![teamID - 1].data?.push({y:income, x: turn});
-      this.incomeChart.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      teamTurnsIncomeSet?.add(turn);
-      this.incomeChart.update();
-    }
-    /** this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
+  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
+    this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
     this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
@@ -647,13 +651,15 @@ export default class Stats {
     
     if (!teamTurnsIncomeSet!.has(turn)) {
       //@ts-ignore
-      this.incomeChart.data.datasets![teamID - 1].data?.push({y:income, x: turn});
+      this.incomeChart.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
+      //@ts-ignore
+      this.incomeChart.data.datasets![teamID + 1].data?.push({y: goldIncome, x: turn});
       this.incomeChart.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
       teamTurnsIncomeSet?.add(turn);
       this.incomeChart.update();
-    }*/
+    }
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
