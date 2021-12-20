@@ -176,7 +176,9 @@ export default class Renderer {
     const ids = bodies.arrays.id;
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
-    const abilities = bodies.arrays.ability;
+    const actions = bodies.arrays.action;
+    const portables = bodies.arrays.portable;
+    const prototypes = bodies.arrays.prototype;
     const minY = world.minCorner.y;
     const maxY = world.maxCorner.y -1;
 
@@ -219,12 +221,12 @@ export default class Renderer {
       const PORTABLE: number = 1;
       const PROTOTYPE: number = 2;
       let body_status = DEFAULT
-      console.log(i, bodies.length, types.length, "hhh");
-      console.log(bodies[i]);
-      if (Boolean(bodies[i].portable)){
+      // console.log(i, bodies.length, types.length, "hhh");
+      // console.log(bodies[i]);
+      if (Boolean(portables[i])){
         body_status = PORTABLE;
       } 
-      if (Boolean(bodies[i].prototype)){
+      if (Boolean(prototypes[i])){
         body_status = PROTOTYPE;
       } 
       const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
