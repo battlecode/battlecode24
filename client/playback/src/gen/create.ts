@@ -593,7 +593,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     const goldXs = [Math.floor(SIZE*Math.random())]
     const goldYs = [Math.floor(SIZE*Math.random())]
     const goldLocs = createVecTable(builder, goldXs, goldYs);
-    const goldVals = schema.Round.createGoldDropValuesVector(builder, [1]);
+    const goldVals = schema.Round.createGoldDropValuesVector(builder, [Math.floor(100*Math.random())]);
 
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
