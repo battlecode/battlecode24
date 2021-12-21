@@ -78,31 +78,31 @@ public strictfp class Server implements Runnable {
     // ***** NOTIFICATIONS **********
     // ******************************
 
-    public void startNotification(){
+    public void startNotification() {
         state = ServerState.READY;
     }
 
-    public void pauseNotification(){
+    public void pauseNotification() {
         state = ServerState.PAUSED;
     }
 
-    public void resumeNotification(){
-        if (state == ServerState.PAUSED){
+    public void resumeNotification() {
+        if (state == ServerState.PAUSED) {
             state = ServerState.RUNNING;
         }
     }
 
-    public void runNotification(){
+    public void runNotification() {
         if (state != ServerState.PAUSED) {
             state = ServerState.RUNNING;
         }
     }
 
-    public void addGameNotification(GameInfo gameInfo){
+    public void addGameNotification(GameInfo gameInfo) {
         this.gameQueue.add(gameInfo);
     }
 
-    public void terminateNotification(){
+    public void terminateNotification() {
         this.gameQueue.add(POISON);
     }
 

@@ -52,7 +52,7 @@ public class RobotTypeTaglet implements Taglet {
         return false;
     }
 
-    public String toString(Tag tag){
+    public String toString(Tag tag) {
         throw new IllegalArgumentException("The robot tag may not be used inline.");
     }
 

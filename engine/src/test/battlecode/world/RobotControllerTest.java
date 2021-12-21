@@ -192,7 +192,7 @@ public class RobotControllerTest {
     //     final int soldierB = game.spawn(7, 5, RobotType.MINER, Team.B);
 
     //     game.round((id, rc) -> {
-    //         if(id != soldierA) return;
+    //         if (id != soldierA) return;
 
     //         RobotInfo actualBot = rc.senseRobotAtLocation(new MapLocation(3,5));
     //         RobotInfo nullBot = rc.senseRobotAtLocation(new MapLocation(5,7));
@@ -215,7 +215,7 @@ public class RobotControllerTest {
 
     //     int[] testIDs = new int[TEST_UNITS];
 
-    //     for(int i=0; i<TEST_UNITS; i++) {
+    //     for (int i=0; i<TEST_UNITS; i++) {
     //         testIDs[i] = game.spawn(2+i*3,5,RobotType.SOLDIER,Team.A);
     //     }
     //     final int archonA = game.spawn(40,5,RobotType.ARCHON,Team.A);
@@ -224,7 +224,7 @@ public class RobotControllerTest {
     //     TIntArrayList executionOrder = new TIntArrayList();
 
     //     game.round((id, rc) -> {
-    //         if(rc.getType() == RobotType.SOLDIER) {
+    //         if (rc.getType() == RobotType.SOLDIER) {
     //             executionOrder.add(id);
     //         } else if (id == archonA) {
     //             assertTrue(rc.canHireGardener(Direction.EAST));
@@ -239,7 +239,7 @@ public class RobotControllerTest {
 
     //     // Assert IDs aren't in order (random change, but very unlikely unless something is wrong)
     //     boolean sorted = true;
-    //     for(int i=0; i<TEST_UNITS-1; i++) {
+    //     for (int i=0; i<TEST_UNITS-1; i++) {
     //         if (testIDs[i] < testIDs[i+1])
     //             sorted = false;
     //     }
@@ -247,7 +247,7 @@ public class RobotControllerTest {
 
 
     //     // Assert execution IS in order
-    //     for(int i=0; i<TEST_UNITS; i++) {
+    //     for (int i=0; i<TEST_UNITS; i++) {
     //         assertEquals(testIDs[i],executionOrder.get(i));
     //     }
     // }

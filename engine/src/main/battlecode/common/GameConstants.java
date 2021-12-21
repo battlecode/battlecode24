@@ -72,6 +72,7 @@ public class GameConstants {
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
+    /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 15;
     public static final double ALCHEMIST_LONELINESS_K = 0.02;
@@ -85,5 +86,4 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
-
 }

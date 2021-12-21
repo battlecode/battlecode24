@@ -46,7 +46,7 @@ public class TestMapBuilder {
     
     public TestMapBuilder setPassability() {
         this.passabilityArray = new double[width * height];
-        for(int i = 0; i < width; i++) {
+        for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 this.passabilityArray[i + j * width] = (i * j + i + j) / (i * j + 1);
             }
