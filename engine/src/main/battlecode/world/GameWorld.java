@@ -281,7 +281,7 @@ public strictfp class GameWorld {
      * @param location with rubble of interest, if any
      * @return the cooldown due to rubble.
      */
-    public int getCooldownMultiplier(int cooldown, MapLocation location) {
+    public int getCooldownWithMultiplier(int cooldown, MapLocation location) {
         return (int) ((1 + this.getRubble(location) / 10) * cooldown);
     }
 

@@ -218,7 +218,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int newActionCooldownTurns = this.gameWorld.getCooldownMultiplier(numActionCooldownToAdd, this.location);
+        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location);
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
@@ -226,8 +226,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newMovementCooldownTurns = this.gameWorld.getCooldownMultiplier(numMovementCooldownToAdd, this.location);
+        int cooldownMultiplier = this.gameWorld.getCooldownWithMultiplier(this.location);
+        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numMovementCooldownToAdd, this.location);
         setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
 
