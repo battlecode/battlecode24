@@ -22,7 +22,8 @@ type BuffDisplay = {
 }
 
 type IncomeDisplay = {
-  income: HTMLSpanElement
+  leadIncome: HTMLSpanElement
+  goldIncome: HTMLSpanElement
 }
 
 /**
@@ -128,8 +129,8 @@ export default class Stats {
     for (let value in this.robotTds[teamID]) {
       robotCounts[value] = document.createElement("tr");
       const title = document.createElement("td");
-      if (value === "conviction") title.innerHTML = "<b>C</b>";
-      if (value === "influence") title.innerHTML = "<b>I</b>";
+      if (value === "count") title.innerHTML = "<b>Count</b>";
+      if (value === "hp") title.innerHTML = "<b>HP</b>";
       robotCounts[value].appendChild(title);
     }
 
@@ -137,15 +138,15 @@ export default class Stats {
       let robotName: string = cst.bodyTypeToString(robot);
       let tdRobot: HTMLTableCellElement = document.createElement("td");
       tdRobot.className = "robotSpriteStats";
-      tdRobot.style.height = "100px";
-      tdRobot.style.width = "100px";
+      tdRobot.style.height = "45px";
+      tdRobot.style.width = "60px";
 
-      // const img: HTMLImageElement = this.robotImages[robotName][inGameID];
-      // img.style.width = "60%";
-      // img.style.height = "60%";
+      const img: HTMLImageElement = this.robotImages[robotName][inGameID];
+      img.style.width = "100%";
+      img.style.height = "100%";
       // TODO: images
 
-      // tdRobot.appendChild(img);
+      tdRobot.appendChild(img);
       robotImages.appendChild(tdRobot);
 
       for (let value in this.robotTds[teamID]) {
@@ -289,11 +290,15 @@ export default class Stats {
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
-      const income = document.createElement("span");
-      income.style.color = hex[id];
-      income.style.fontWeight = "bold";
-      income.textContent = "1";
-      incomeDisplays[id] = {income: income};
+      const leadIncome = document.createElement("span");
+      const goldIncome = document.createElement("span");
+      leadIncome.style.color = hex[id];
+      leadIncome.style.fontWeight = "bold";
+      leadIncome.textContent = "1";
+      goldIncome.style.color = hex[id];
+      goldIncome.style.fontWeight = "bold";
+      goldIncome.textContent = "2";
+      incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
     });
     return incomeDisplays;
   }
@@ -326,10 +331,10 @@ export default class Stats {
     table.style.width = "100%";
 
     const title = document.createElement('td');
-    title.colSpan = 2;
+    title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Income Per Turn';
+    label.innerText = 'Total Lead & Gold Income Per Turn';
 
     const row = document.createElement("tr");
 
@@ -338,7 +343,8 @@ export default class Stats {
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cell.appendChild(this.incomeDisplays[id].income);
+      cell.appendChild(this.incomeDisplays[id].leadIncome);
+      cell.appendChild(this.incomeDisplays[id].goldIncome);
       row.appendChild(cell);
     });
 
@@ -463,7 +469,7 @@ export default class Stats {
 
       // Create td elements for the robot counts and store them in robotTds
       // so we can update these robot counts later; maps robot type to count
-      for (let value of ["count", "conviction", "influence"]) {
+      for (let value of ["count", "hp"]) {
         this.robotTds[teamID][value] = new Map<number, HTMLTableCellElement>();
         for (let robot of this.robots) {
           let td: HTMLTableCellElement = document.createElement("td");
@@ -504,17 +510,31 @@ export default class Stats {
       type: 'line',
       data: {
           datasets: [{
-            label: 'Red',
+            label: 'Red Lead',
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
-            borderColor: 'rgb(219, 54, 39)',
+            borderColor: 'rgb(131,24,27)',
             pointRadius: 0,
           },
           {
-            label: 'Blue',
+            label: 'Blue Lead',
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
-            borderColor: 'rgb(79, 126, 230)',
+            borderColor: 'rgb(108, 140, 188)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Red Gold',
+            data: [],
+            backgroundColor: 'rgba(162, 162, 235, 0)',
+            borderColor: 'rgb(205,162,163)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Blue Gold',
+            data: [],
+            backgroundColor: 'rgba(54, 0, 235, 0)',
+            borderColor: 'rgb(68, 176, 191)',
             pointRadius: 0,
           }]
       },
@@ -561,20 +581,21 @@ export default class Stats {
    */
   setRobotCount(teamID: number, robotType: schema.BodyType, count: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["count"][robotType];
+    console.log(count, robotType);
     td.innerHTML = String(count);
   }
 
   /**
-   * Change the robot conviction on the stats bar
+   * Change the robot HP (previously conviction) on the stats bar
    */
-  setRobotConviction(teamID: number, robotType: schema.BodyType, conviction: number, totalConviction: number) {
-    let td: HTMLTableCellElement = this.robotTds[teamID]["conviction"][robotType];
-    td.innerHTML = String(conviction);
+  setRobotHP(teamID: number, robotType: schema.BodyType, HP: number, totalHP: number) {
+    let td: HTMLTableCellElement = this.robotTds[teamID]["hp"][robotType];
+    td.innerHTML = String(HP);
 
     const robotName: string = cst.bodyTypeToString(robotType);
     let img = this.robotImages[robotName][teamID];
 
-    const size = (55 + 45 * conviction / totalConviction);
+    const size = (55 + 45 * HP / totalHP);
     img.style.width = size + "%";
     img.style.height = size + "%";
   }
@@ -582,10 +603,10 @@ export default class Stats {
   /**
    * Change the robot influence on the stats bar
    */
-  setRobotInfluence(teamID: number, robotType: schema.BodyType, influence: number) {
+  /**### setRobotInfluence(teamID: number, robotType: schema.BodyType, influence: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["influence"][robotType];
     td.innerHTML = String(influence);
-  }
+  }*/
 
   /**
    * Change the votes of the given team
@@ -607,12 +628,12 @@ export default class Stats {
     // }
   }
 
-  setTeamInfluence(teamID: number, influence: number, totalInfluence: number) {
+  /** setTeamInfluence(teamID: number, influence: number, totalInfluence: number) {
     const relBar: HTMLDivElement = this.relativeBars[teamID];
     relBar.innerText = String(influence);
     if (totalInfluence == 0) relBar.style.width = '50%';
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
-  }
+  }*/
 
   setBuffs(teamID: number, numBuffs: number) {
     //this.buffDisplays[teamID].numBuffs.textContent = String(numBuffs);
@@ -620,8 +641,9 @@ export default class Stats {
     this.buffDisplays[teamID].buff.style.fontSize = 14 * Math.sqrt(Math.min(9, cst.buffFactor(numBuffs))) + "px";
   }
 
-  setIncome(teamID: number, income: number, turn: number) {
-    this.incomeDisplays[teamID].income.textContent = String(income);
+  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
+    this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
+    this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }
@@ -629,7 +651,9 @@ export default class Stats {
     
     if (!teamTurnsIncomeSet!.has(turn)) {
       //@ts-ignore
-      this.incomeChart.data.datasets![teamID - 1].data?.push({y:income, x: turn});
+      this.incomeChart.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
+      //@ts-ignore
+      this.incomeChart.data.datasets![teamID + 1].data?.push({y: goldIncome, x: turn});
       this.incomeChart.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });

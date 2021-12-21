@@ -37,7 +37,8 @@ type BodiesType = {
   teamIDs: number[],
   types: number[],
   xs: number[],
-  ys: number[],
+  ys: number[]//,
+  //levels: number[]
 };
 
 type MapType = {
@@ -114,7 +115,7 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     teamIDs: Array(unitCount),
     types: Array(unitCount),
     xs: Array(unitCount),
-    ys: Array(unitCount),
+    ys: Array(unitCount)
     //levels: Array(unitCount)
   };
 
@@ -124,7 +125,7 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     bodies.types[i] = bodyTypeList[random(0, bodyVariety-1)];
     bodies.xs[i] = random(0, SIZE-1);
     bodies.ys[i] = random(0, SIZE-1);
-    //bodies.levels[i] = random(1, 3);
+    //bodies.levels[i] = 1; //random(1, 3); TODO: upgrades
   }
 
   return bodies;
