@@ -56,6 +56,9 @@ public class GameConstants {
     /** The number of cooldown turns per transformation. */
     public static final int TRANSFORM_COOLDOWN = 100;
 
+    /** The number of cooldown turns per upgrade. */
+    public static final int UPGRADE_COOLDOWN = 100;
+
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
