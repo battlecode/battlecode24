@@ -15,15 +15,6 @@ public class AnomalyScheduleEntry {
      * @return a copy of the entry
      */
     public AnomalyScheduleEntry copyEntry(AnomalyType anomalyType) {
-        return AnomalyScheduleEntry(
-                this.roundNumber,
-                AnomalyType(
-                    anomalyType.isGlobalAnomaly,
-                    anomalyType.isSageAnomaly,
-                    anomalyType.globalPercentage,
-                    anomalyType.sagePercentage
-                )
-        );
+        return new AnomalyScheduleEntry(this.roundNumber, this.anomalyType);
     }
-
 }
