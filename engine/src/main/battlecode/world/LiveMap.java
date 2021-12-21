@@ -224,7 +224,7 @@ public strictfp class LiveMap {
      * @return true if the given circle is on the map,
      *         false if it's not
      */
-    public boolean onTheMap(MapLocation loc, int radius){
+    public boolean onTheMap(MapLocation loc, int radius) {
         return (onTheMap(loc.translate(-radius, 0)) &&
                 onTheMap(loc.translate(radius, 0)) &&
                 onTheMap(loc.translate(0, -radius)) &&
@@ -275,7 +275,7 @@ public strictfp class LiveMap {
      * @param y to get lead at
      * @return the amount of lead at this location
      */
-    public int getLeadAtLocation(int x, int y){
+    public int getLeadAtLocation(int x, int y) {
         assert onTheMap(new MapLocation(x, y));
         return this.leadMap[x][y];
     }
@@ -286,7 +286,7 @@ public strictfp class LiveMap {
      * @param y to set lead at 
      * @param amount of lead to put at this location
      */
-    public void setLeadAtLocation(int x, int y, int amount){
+    public void setLeadAtLocation(int x, int y, int amount) {
         assert onTheMap(new MapLocation(x, y));
         this.leadMap[x][y] = amount;
     }
@@ -297,7 +297,7 @@ public strictfp class LiveMap {
      * @param y to set lead at 
      * @param amountToAdd
      */
-    public void addLeadAtLocation(int x, int y, int amountToAdd){
+    public void addLeadAtLocation(int x, int y, int amountToAdd) {
         assert onTheMap(new MapLocation(x, y));
         this.leadMap[x][y] += amountToAdd; 
     }
@@ -305,7 +305,7 @@ public strictfp class LiveMap {
     /**
      * @return a copy of the next Anomaly that hasn't happened yet.
      */
-    public AnomalyScheduleEntry viewNextAnomaly(){
+    public AnomalyScheduleEntry viewNextAnomaly() {
         return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
     }
 
@@ -313,27 +313,23 @@ public strictfp class LiveMap {
      * Removes the current anomaly by advancing to the next one.
      * @return the next Anomaly.
      */
-    public AnomalyScheduleEntry takeNextAnomaly(){
+    public AnomalyScheduleEntry takeNextAnomaly() {
         return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
     }
 
     /**
      * @return a copy of the anomaly schedule
      */
-    public AnomalyScheduleEntry[] getAnomalySchedule(){
-
+    public AnomalyScheduleEntry[] getAnomalySchedule() {
         AnomalyScheduleEntry[] anomalyCopy = new AnomalyScheduleEntry[this.anomalySchedule.length];
-
-        for(int i = 0; i < this.anomalySchedule.length ; i++)
+        for (int i = 0; i < this.anomalySchedule.length ; i++)
             anomalyCopy[i] = this.anomalySchedule[i].copyEntry();
-
         return anomalyCopy;
     }
 
-
     @Override
     public String toString() {
-        if (rubbleArray.length == 0){
+        if (rubbleArray.length == 0) {
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
@@ -345,7 +341,7 @@ public strictfp class LiveMap {
                     ", len=" + Integer.toString(rubbleArray.length) +
                     "}";
         }
-        else{
+        else {
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +

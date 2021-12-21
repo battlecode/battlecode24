@@ -187,7 +187,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * 
      * @param toSense the MapLocation to act
      */
-    public boolean canActLocation(MapLocation toSense){
+    public boolean canActLocation(MapLocation toSense) {
         return this.location.distanceSquaredTo(toSense) <= getActionRadiusSquared();
     }
 
@@ -389,7 +389,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public int numberOfVisibleFriendlyRobots(){
+    public int numberOfVisibleFriendlyRobots() {
         return this.controller.numberOfVisibleFriendlyRobots();
     }
 
