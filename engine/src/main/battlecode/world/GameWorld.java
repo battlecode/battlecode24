@@ -606,8 +606,26 @@ public strictfp class GameWorld {
 
     /**
      * Mutates state to peform the global Vortex.
+     * Note that in this year's game, width == height (only square maps)
+     * Only mutates the rubble array in this class; doesn't change the LiveMap
      */
     public void causeVortexGlobal() {
-        // TODO
+        int n = this.gameMap.getWidth();
+        for (int x = 0; x < n / 2; x++) {
+            for (int y = 0; y < (n + 1) / 2; y++) {
+                int curX = x;
+                int curY = y;
+                int lastRubble = this.rubble[curX + curY * n];
+                for (int i = 0; i < 4; i++) {
+                    int tempX = curX;
+                    curX = curY;
+                    curY = (n - 1) - tempX;
+                    int idx = curX + curY * n;
+                    int tempRubble = this.rubble[idx];
+                    this.rubble[idx] = lastRubble;
+                    lastRubble = tempRubble;
+                }
+            }
+        }
     }
 }
