@@ -27,9 +27,14 @@ public strictfp class LiveMap {
     private final MapLocation origin;
 
     /**
-     * How much lead is stored per square.
+     * Factor to multiply cooldowns by
      */
-    private final int[][] leadMap;
+    private int[] rubbleArray;
+
+    /**
+     * How much lead is on each square
+     */
+    private final int[] leadArray;
 
     /**
      * The random seed contained in the map file
@@ -63,8 +68,6 @@ public strictfp class LiveMap {
      */
     private final RobotInfo[] initialBodies; // only contains Enlightenment Centers
 
-    private int[] rubbleArray; // factor to multiply cooldowns by
-
     public LiveMap(int width,
                    int height,
                    MapLocation origin,
@@ -90,7 +93,6 @@ public strictfp class LiveMap {
         // TODO: initialize with potentially hardcoded anomalies
         this.anomalySchedule = null;
         this.nextAnomalyIndex = 0;
-
     }
 
     public LiveMap(int width,
@@ -266,40 +268,18 @@ public strictfp class LiveMap {
         return origin;
     }
 
+    /**
+     * @return the rubble array of the map
+     */
     public int[] getRubbleArray() {
         return rubbleArray;
     }
 
     /**
-     * @param x to get lead at
-     * @param y to get lead at
-     * @return the amount of lead at this location
+     * @return the lead array of the map
      */
-    public int getLeadAtLocation(int x, int y) {
-        assert onTheMap(new MapLocation(x, y));
-        return this.leadMap[x][y];
-    }
-
-    /**
-     * Changes the amount of lead to amount
-     * @param x to set lead at
-     * @param y to set lead at 
-     * @param amount of lead to put at this location
-     */
-    public void setLeadAtLocation(int x, int y, int amount) {
-        assert onTheMap(new MapLocation(x, y));
-        this.leadMap[x][y] = amount;
-    }
-
-    /**
-     * Adds the amount of lead to current amount at a given square
-     * @param x to set lead at
-     * @param y to set lead at 
-     * @param amountToAdd
-     */
-    public void addLeadAtLocation(int x, int y, int amountToAdd) {
-        assert onTheMap(new MapLocation(x, y));
-        this.leadMap[x][y] += amountToAdd; 
+    public int[] getLeadArray() {
+        return leadArray;
     }
 
     /**

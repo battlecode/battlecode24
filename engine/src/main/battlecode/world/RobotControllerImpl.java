@@ -590,7 +590,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(OUT_OF_RANGE,
                     "This location can't be mined because it is out of range.");
         }
-        int leadAmount = gameWorld.getLeadCount(loc);
+        int leadAmount = gameWorld.getLead(loc);
         if (leadAmount < 0) {
             throw new GameActionException(CANT_DO_THAT, 
                     "Lead amount must be positive to be mined.");
@@ -625,7 +625,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(OUT_OF_RANGE,
                     "This location can't be mined because it is out of range.");
         }
-        int goldAmount = gameWorld.getGoldCount(loc);
+        int goldAmount = gameWorld.getGold(loc);
         if (goldAmount < 0) {
             throw new GameActionException(CANT_DO_THAT, 
                     "Gold amount must be positive to be mined.");
