@@ -83,9 +83,8 @@ public strictfp class LiveMap {
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.rubbleArray = new int[width * height];
-        for (int i = 0; i < rubbleArray.length; i++) {
-            this.rubbleArray[i] = 1; // default cooldown factor is 1
-        }
+        Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
+        this.leadArray = new int[width * height]; // TODO: we guarantee there to be lead within vision range of archons
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -102,7 +101,9 @@ public strictfp class LiveMap {
                    int rounds,
                    String mapName,
                    RobotInfo[] initialBodies,
-                   int[] rubbleArray) {
+                   int[] rubbleArray,
+                   int[] leadArray,
+                   AnomalyScheduleEntry[] anomalySchedule) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -114,6 +115,16 @@ public strictfp class LiveMap {
         for (int i = 0; i < rubbleArray.length; i++) {
             this.rubbleArray[i] = rubbleArray[i];
         }
+        this.leadArray = new int[leadArray.length];
+        for (int i = 0; i < leadArray.length; i++) {
+            this.leadArray[i] = leadArray[i];
+        }
+
+        this.anomalySchedule = new int[anomalySchedule.length];
+        for (int i = 0; i < anomalySchedule.length; i++) {
+            this.anomalySchedule[i] = anomalySchedule[i];
+        }
+        this.nextAnomalyIndex = 0;
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -126,21 +137,20 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.initialBodies,
-             gm.rubbleArray);
+             gm.rubbleArray, gm.leadArray, gm.anomalySchedule);
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof LiveMap)) return false;
-
         return this.equals((LiveMap) o);
     }
 
     /**
      * Returns whether two GameMaps are equal.
      *
-     * @param other the other map to compare to.
-     * @return whether the two maps are equivalent.
+     * @param other the other map to compare to
+     * @return whether the two maps are equivalent
      */
     public boolean equals(LiveMap other) {
         if (this.rounds != other.rounds) return false;
@@ -150,6 +160,8 @@ public strictfp class LiveMap {
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
         if (!Arrays.equals(this.rubbleArray, other.rubbleArray)) return false;
+        if (!Arrays.equals(this.leadArray, other.leadArary)) return false;
+        if (!Arrays.equals(this.anomalySchedule, other.anomalySchedule)) return false;
         return Arrays.equals(this.initialBodies, other.initialBodies);
     }
 
@@ -162,6 +174,8 @@ public strictfp class LiveMap {
         result = 31 * result + rounds;
         result = 31 * result + mapName.hashCode();
         result = 31 * result + Arrays.hashCode(rubbleArray);
+        result = 31 * result + Arrays.hashCode(leadArray);
+        result = 31 * result + Arrays.hashCode(anomalySchedule);
         result = 31 * result + Arrays.hashCode(initialBodies);
         return result;
     }
@@ -286,7 +300,9 @@ public strictfp class LiveMap {
      * @return a copy of the next Anomaly that hasn't happened yet.
      */
     public AnomalyScheduleEntry viewNextAnomaly() {
-        return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
+        if (this.nextAnomalyIndex < this.anomalySchedule.length)
+            return this.anomalySchedule[this.nextAnomalyIndex].copyEntry();
+        return null;
     }
 
     /**
@@ -294,7 +310,9 @@ public strictfp class LiveMap {
      * @return the next Anomaly.
      */
     public AnomalyScheduleEntry takeNextAnomaly() {
-        return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
+        if (this.nextAnomalyIndex < this.anomalySchedule.length)
+            return this.anomalySchedule[this.nextAnomalyIndex++].copyEntry();
+        return null;
     }
 
     /**
@@ -330,7 +348,9 @@ public strictfp class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
-                    ", rubbleArray=:)" +  Arrays.toString(rubbleArray) +
+                    ", rubbleArray=" +  Arrays.toString(rubbleArray) +
+                    ", leadArray=" +  Arrays.toString(leadArray) +
+                    ", anomalySchedule=" +  Arrays.toString(anomalySchedule) +
                     "}"; 
         }
     }
