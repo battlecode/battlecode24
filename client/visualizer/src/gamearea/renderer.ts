@@ -59,7 +59,6 @@ export default class Renderer {
     this.renderResources(world);
 
     this.renderBodies(world, curTime, nextStep, lerpAmount);
-    world.mapStats.goldVals
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
 
@@ -165,7 +164,7 @@ export default class Renderer {
         else this.ctx.drawImage(goldImg, cy + (1-size)/2, cx + (1-size)/2, scale * size, scale * size);
       }
       if(map.leadVals[idxVal] > 0){
-        let size = sigmoid(map.goldVals[idxVal] / 50);
+        let size = sigmoid(map.leadVals[idxVal] / 50);
         if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1-size)/2, cy + (1-size)/2, scale * size, scale * size);
         else this.ctx.drawImage(leadImg, cy + (1-size)/2, cx + (1-size)/2, scale * size, scale * size);
       }
