@@ -338,8 +338,7 @@ public strictfp class LiveMap {
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", len=" + Integer.toString(rubbleArray.length) +
                     "}";
-        }
-        else {
+        } else {
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
