@@ -20,6 +20,8 @@ public class MapBuilder {
     public int seed;
     private MapSymmetry symmetry;
     private int[] rubbleArray;
+    private int[] leadArray;
+    private ArrayList<AnomalyScheduleEntry> anomalySchedule;
     private int idCounter;
 
     private List<RobotInfo> bodies;
@@ -35,10 +37,10 @@ public class MapBuilder {
         // default values
         this.symmetry = MapSymmetry.vertical;
         this.idCounter = 0;
-        this.rubbleArray = new int[width*height];
-        for (int i = 0; i < rubbleArray.length; i++) {
-            rubbleArray[i] = 1; // default cooldown factor is 1
-        }
+        this.rubbleArray = new int[width * height];
+        Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
+        this.leadArray = new int[width * height];
+        this.anomalySchedule = new ArrayList<>();
     }
 
     // ********************
@@ -55,7 +57,7 @@ public class MapBuilder {
         return x + y * width;
     }
 
-    public void addEnlightenmentCenter(int id, Team team, int influence, MapLocation loc) {
+    public void addArchon(int id, Team team, MapLocation loc) {
         // check if something already exists here, if so shout
         for (RobotInfo r : bodies) {
             if (r.location.equals(loc)) {
@@ -65,18 +67,17 @@ public class MapBuilder {
         bodies.add(new RobotInfo(
                 id,
                 team,
-                RobotType.ENLIGHTENMENT_CENTER,
-                influence,
-                influence, // Enlightenment Centers conviction == influence
+                RobotType.ARCHON,
+                1,
+                RobotType.ARCHON.health;
                 loc
         ));
     }
 
-    public void addEnlightenmentCenter(int x, int y, Team team, int influence) {
-        addEnlightenmentCenter(
+    public void addArchon(int x, int y, Team team) {
+        addArchon(
                 idCounter++,
                 team,
-                influence,
                 new MapLocation(x, y)
         );
     }
@@ -85,10 +86,17 @@ public class MapBuilder {
         this.rubbleArray[locationToIndex(x, y)] = value;
     }
 
+    public void setLead(int x, int y, int value) {
+        this.leadArray[locationToIndex(x, y)] = value;
+    }
+
+    public void addAnomalyScheduleEntry(int round, AnomalyType anomaly) {
+        this.anomalySchedule.add(new AnomalyScheduleEntry(round, anomaly));
+    }
+
     public void setSymmetry(MapSymmetry symmetry) {
         this.symmetry = symmetry;
     }
-
 
     // ********************
     // SYMMETRY METHODS
@@ -101,6 +109,7 @@ public class MapBuilder {
     public int symmetricX(int x) {
         return symmetricX(x, symmetry);
     }
+
     public int symmetricY(int y, MapSymmetry symmetry) {
         switch (symmetry) {
             case vertical:
@@ -132,19 +141,19 @@ public class MapBuilder {
      * @param x x position
      * @param y y position
      */
-    public void addSymmetricEnlightenmentCenter(int x, int y) {
-        addEnlightenmentCenter(x, y, Team.A, GameConstants.INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE);
-        addEnlightenmentCenter(symmetricX(x), symmetricY(y), Team.B, GameConstants.INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE);
-    }
-
-    public void addSymmetricNeutralEnlightenmentCenter(int x, int y, int influence) {
-        addEnlightenmentCenter(x, y, Team.NEUTRAL, influence);
-        addEnlightenmentCenter(symmetricX(x), symmetricY(y), Team.NEUTRAL, influence);
+    public void addSymmetricArchon(int x, int y) {
+        addArchon(x, y, Team.A);
+        addArchon(symmetricX(x), symmetricY(y), Team.B);
     }
 
     public void setSymmetricRubble(int x, int y, int value) {
         this.rubbleArray[locationToIndex(x, y)] = value;
         this.rubbleArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
+    }
+
+    public void setSymmetricLead(int x, int y, int value) {
+        this.leadArray[locationToIndex(x, y)] = value;
+        this.leadArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
     // ********************
@@ -153,7 +162,8 @@ public class MapBuilder {
 
     public LiveMap build() {
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
-                bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray);
+                bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray, leadArray,
+                anomalySchedule.toArray(new AnomalyScheduleEntry[anomalySchedule.size()]));
     }
 
     /**
@@ -169,60 +179,51 @@ public class MapBuilder {
     }
 
     /**
-     * Returns true if the map is valid.
-     *
-     * WARNING: DON'T TRUST THIS COMPLETELY. THIS DOES NOT VERIFY SYMMETRY.
-     * @return
+     * Throws a RuntimeException if the map is invalid.
      */
     public void assertIsValid() {
-
         System.out.println("Validating " + name + "...");
 
         // get robots
-        RobotInfo[] robots = new RobotInfo[width*height];
+        RobotInfo[] robots = new RobotInfo[width * height];
         for (RobotInfo r : bodies) {
-            assert robots[locationToIndex(r.location.x, r.location.y)] == null;
+            if (robots[locationToIndex(r.location.x, r.location.y)] != null)
+                throw new RuntimeException("Two robots on the same square");
             robots[locationToIndex(r.location.x, r.location.y)] = r;
-            if (r.influence < 50 || r.influence > 500) // this really should be a GameConstant, but oh well
-                throw new RuntimeException("Influence not in [50, 500]");
         }
 
+        if (width < GameConstants.MAP_MIN_WIDTH || height < GameConstants.MAP_MIN_HEIGHT || 
+            width > GameConstants.MAP_MAX_WIDTH || height > GameConstants.MAP_MAX_HEIGHT)
+            throw new RuntimeException("The map size must be between " + GameConstants.MAP_MIN_WIDTH + "x" +
+                                       GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
+                                       GameConstants.MAP_MAX_HEIGHT + ", inclusive");
 
-        if (width < 32 || height < 32 || width > 64 || height > 64)
-            throw new RuntimeException("The map size must be between 32x32 and 64x64, inclusive.");
-
-        // checks at least one Enlightenment Center of each team
-        // only needs to check there's an Enlightenment Center of Team A, because symmetry is checked
-        boolean noTeamARobots = true;
+        // checks between 1 and 4 Archons of each team
+        // only needs to check the Archons of Team A, because symmetry is checked
+        int numTeamARobots = 0;
         for (RobotInfo r : bodies) {
             if (r.getTeam() == Team.A) {
-                noTeamARobots = false;
-                break;
+                numTeamARobots++;
             }
         }
-        if (noTeamARobots) {
-            throw new RuntimeException("Map must have starting robots of each team");
+        if (numTeamARobots < GameConstants.MIN_STARTING_ARCHONS ||
+            numTeamARobots > GameConstants.MAX_STARTING_ARCHONS) {
+            throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_ARCHONS +
+                                       "and " + GameConstants.MAX_STARTING_ARCHONS + " starting Archons of each team");
         }
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                MapLocation current = new MapLocation(x, y);
-                // This should also be a GameConstant, but I'm speed-coding this and we can fix this later
-                if (rubbleArray[locationToIndex(current.x, current.y)] <= 100 || rubbleArray[locationToIndex(current.x, current.y)] >= 0) {
-                    throw new RuntimeException("Map rubble not between 0 and 100");
-                }
+        for (int i = 0; i < rubbleArray.length; i++) {
+            if (rubbleArray[i] < GameConstants.MIN_RUBBLE || rubbleArray[i] > GameConstants.MAX_RUBBLE) {
+                throw new RuntimeException("Map rubble must be between " + GameConstants.MIN_RUBBLE +
+                                           " and " + GameConstants.MAX_RUBBLE);
             }
         }
 
-        // assert rubble and Enlightenment Center symmetry
+        // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
-        boolean doesContain = false;
-        for (MapSymmetry sss : allMapSymmetries) {
-            if (sss == symmetry) doesContain = true;
-        }
-        if (!doesContain) {
-            throw new RuntimeException("Rubble and Enlightenment Centers must be symmetric according to the given symmetry; they are not currently.");
+        if (allMapSymmetries.isEmpty()) {
+            throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
         }
     }
 
@@ -235,8 +236,10 @@ public class MapBuilder {
                                idx / this.width);
     }
 
+    /**
+     * @return the list of symmetries, empty if map is invalid
+     */
     private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
-
         ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
         possible.add(MapSymmetry.vertical);
         possible.add(MapSymmetry.horizontal);
@@ -245,35 +248,35 @@ public class MapBuilder {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 MapLocation current = new MapLocation(x, y);
+                int curIdx = locationToIndex(current.x, current.y);
                 RobotInfo cri = robots[locationToIndex(current.x, current.y)];
-                for (int i = possible.size()-1; i >= 0; i--) { // iterating backwards so we can remove in the loop
+                for (int i = possible.size() - 1; i >= 0; i--) { // iterating backwards so we can remove in the loop
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
-                    if (rubbleArray[locationToIndex(current.x, current.y)] != rubbleArray[locationToIndex(symm.x, symm.y)]) possible.remove(symmetry);
-                    RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
-                    if (!(cri == null) || !(sri == null)) {
-                        if (cri == null || sri == null) {
-                            possible.remove(symmetry);
-                        } else if (cri.getType() != sri.getType()) {
-                            possible.remove(symmetry);
-                        } else if (!symmetricTeams(cri.getTeam(), sri.getTeam())) {
-                            possible.remove(symmetry);
+                    int symIdx = locationToIndex(symm.x, symm.y);
+                    if (rubbleArray[curIdx] != rubbleArray[symIdx])
+                        possible.remove(symmetry);
+                    else if (leadArray[curIdx] != leadArray[symIdx])
+                        possible.remove(symmetry);
+                    else {
+                        RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
+                        if (cri != null || sri != null) {
+                            if (cri == null || sri == null) {
+                                possible.remove(symmetry);
+                            } else if (cri.getType() != sri.getType()) {
+                                possible.remove(symmetry);
+                            } else if (!symmetricTeams(cri.getTeam(), sri.getTeam())) {
+                                possible.remove(symmetry);
+                            }
                         }
                     }
                 }
-                if (possible.size() <= 1) break;
             }
-            if (possible.size() <= 1) break;
         }
-
         return possible;
     }
 
     private boolean symmetricTeams(Team a, Team b) {
-        switch (a) {
-            case A: return b == Team.B;
-            case B: return b == Team.A;
-            default: return b == Team.NEUTRAL;
-        }
+        return a != b;
     }
 }
