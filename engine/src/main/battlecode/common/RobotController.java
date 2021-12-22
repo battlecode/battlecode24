@@ -26,7 +26,7 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-     * Returns the number of robots on your team, including Centers of Enlightenment.
+     * Returns the number of robots on your team, including Archons.
      * If this number ever reaches zero, you immediately lose.
      *
      * @return the number of robots on your team
