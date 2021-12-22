@@ -7,7 +7,7 @@ public enum DominationFactor {
     /**
      * Win by all enemy archons being destroyed (early end).
      */
-    ANNIHILATED,
+    ANNIHILATION,
     /**
      * Win by having more Archons.
      */

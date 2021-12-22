@@ -12,7 +12,6 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int[] archonCounts;
     private int[] leadCounts;
     private int[] goldCounts;
 
@@ -21,10 +20,8 @@ public class TeamInfo {
      *
      * @param gameWorld the gameWorld the teams exist in
      */
-    public TeamInfo(GameWorld gameWorld, int numArchons) {
+    public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.archonCount = new int[2];
-        Arrays.fill(this.archonCount, numArchons);
         this.leadCount = new int[2];
         this.goldCount = new int[2];
     }
@@ -32,16 +29,6 @@ public class TeamInfo {
     // *********************************
     // ***** GETTER METHODS ************
     // *********************************
-
-    /**
-     * Get the number of remaining Archons.
-     *
-     * @param team the team to query
-     * @return the number of archons remaining
-     */
-    public int getArchonCount(Team team) {
-        return this.archonCount[team.ordinal()];
-    }
 
     /**
      * Get the amount of lead.
@@ -66,19 +53,6 @@ public class TeamInfo {
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
-
-    /**
-     * Decrease the number of Archons.
-     * 
-     * @param team the team to query
-     * @throws IllegalArgumentException if the new Archon count goes below 0
-     */
-    public void decreaseArchonCount(Team team) throws IllegalArgumentException {
-        if (this.archonCount[team.ordinal()] == 0) {
-            throw new IllegalArgumentException("Invalid archon count");
-        }
-        this.archonCount[team.ordinal()]--;
-    }
 
     /**
      * Add to the amount of lead. If amount is negative, subtract from lead instead. 
