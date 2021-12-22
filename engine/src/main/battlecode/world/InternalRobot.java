@@ -187,10 +187,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Returns whether this robot can perform actions on the given location.
      * 
-     * @param toSense the MapLocation to act
+     * @param toAct the MapLocation to act
      */
-    public boolean canActLocation(MapLocation toSense) {
-        return this.location.distanceSquaredTo(toSense) <= getActionRadiusSquared();
+    public boolean canActLocation(MapLocation toAct) {
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
     }
 
     /**
@@ -200,6 +200,31 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canActRadiusSquared(int radiusSquared) {
         return radiusSquared <= getActionRadiusSquared();
+    }
+
+    /**
+     * Returns the robot's vision radius squared.
+     */
+    public int getVisionRadiusSquared() {
+        return this.type.visionRadiusSquared;
+    }
+
+    /**
+     * Returns whether this robot can see the given location.
+     * 
+     * @param toSee the MapLocation to see
+     */
+    public boolean canSeeLocation(MapLocation toSee) {
+        return this.location.distanceSquaredTo(toSee) <= getVisionRadiusSquared();
+    }
+
+    /**
+     * Returns whether this robot can see a given radius away.
+     * 
+     * @param radiusSquared the distance squared to act
+     */
+    public boolean canSeeRadiusSquared(int radiusSquared) {
+        return radiusSquared <= getVisionRadiusSquared();
     }
 
     // ******************************************
