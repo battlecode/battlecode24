@@ -171,7 +171,7 @@ public strictfp interface RobotController {
      * vision range.
      *
      * @param id the ID of the robot to query
-     * @return true if the given robot is within this robot's vision range;
+     * @return true if the given robot is within this robot's vision range and exists;
      * false otherwise.
      *
      * @battlecode.doc.costlymethod
@@ -295,8 +295,6 @@ public strictfp interface RobotController {
      */
     MapLocation adjacentLocation(Direction dir);
 
-
-
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
@@ -377,9 +375,6 @@ public strictfp interface RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-
-    // TODO: is upgrade level a part of type or an extra parameter?
-
     /**
      * Tests whether the robot can build a robot of the given type in the
      * given direction. Checks that the robot is of a type that can build,
@@ -418,7 +413,7 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is an attacking type unit and that the given location
      * is within the robot's reach (based on attack type). Also checks that an 
-     * enemy unit exists in the given square. 
+     * enemy unit exists in the given square, and there are no cooldown turns remaining.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location.
@@ -431,6 +426,7 @@ public strictfp interface RobotController {
      * Attack a given location.
      *
      * @throws GameActionException if conditions for attacking are not satisfied
+     *
      * @battlecode.doc.costlymethod 
      */
     void attack(MapLocation loc) throws GameActionException;
@@ -440,9 +436,9 @@ public strictfp interface RobotController {
     // *****************************
 
     /**
-     * Tests whether this robot can use an anomaly centered at the robots location.
+     * Tests whether this robot can use an anomaly centered at the robot's location.
      * 
-     * Checks that the robot is a sage. 
+     * Checks that the robot is a sage, and there are no cooldown turns remaining.
      *
      * @return whether it is possible to use an anomaly centered at the robots location.
      *
@@ -454,6 +450,7 @@ public strictfp interface RobotController {
      * Use anomaly centered at robots location.
      *
      * @throws GameActionException if conditions for using anomaly are not satisfied
+     *
      * @battlecode.doc.costlymethod 
      */
     void useAnomaly(AnomalyType anomaly) throws GameActionException;
@@ -466,8 +463,8 @@ public strictfp interface RobotController {
      * Tests whether this robot can heal a droid at the given location.
      * 
      * Checks that the robot is an archon unit and that the given location
-     * is within the robot's action radius. Also checks that a 
-     * friendly droid robot exists in the given square. 
+     * is within the robot's action radius. Also checks that a friendly droid
+     * exists in the given square, and there are no cooldown turns remaining.
      *
      * @param loc target location to heal at 
      * @return whether it is possible to heal a droid robot at the given location.
@@ -484,7 +481,6 @@ public strictfp interface RobotController {
      */
     void healDroid(MapLocation loc) throws GameActionException;
 
- 
     // ***********************
     // **** MINER METHODS **** 
     // ***********************
@@ -495,7 +491,7 @@ public strictfp interface RobotController {
      * Checks that the robot is a Miner, that the given location is a valid 
      * mining location. Valid mining locations must be the current location 
      * or adjacent to the current location. Valid mining locations must also
-     * have positive lead amounts. 
+     * have positive lead amounts. Also checks that no cooldown turns remain.
      *
      * @param loc target location to mine 
      * @return whether it is possible to mine at the given location.
@@ -508,7 +504,8 @@ public strictfp interface RobotController {
      * Mine lead at a given location.
      *
      * @throws GameActionException if conditions for mining are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void mineLead(MapLocation loc) throws GameActionException;
 
@@ -518,7 +515,7 @@ public strictfp interface RobotController {
      * Checks that the robot is a Miner, that the given location is a valid 
      * mining location. Valid mining locations must be the current location 
      * or adjacent to the current location. Valid mining locations must also
-     * have positive gold amounts. 
+     * have positive gold amounts. Also checks that no cooldown turns remain.
      *
      * @param loc target location to mine 
      * @return whether it is possible to mine at the given location.
@@ -531,7 +528,8 @@ public strictfp interface RobotController {
      * Mine a gold at given location.
      *
      * @throws GameActionException if conditions for mining are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void mineGold(MapLocation loc) throws GameActionException;
 
@@ -544,7 +542,8 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is a Builder, that the given location is a valid 
      * upgrade location. Valid upgrade locations must be adjacent to the current 
-     * location and contain an upgradable building. The upgrade must also be affordable.
+     * location and contain an upgradable building. The upgrade must also be
+     * affordable, and there must be no cooldown turns remaining.
      *
      * @param loc target location to upgrade 
      * @return whether it is possible to upgrade at the given location.
@@ -557,16 +556,17 @@ public strictfp interface RobotController {
      * Upgrade a building at a given location.
      *
      * @throws GameActionException if conditions for upgrading are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void upgrade(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether this robot can repair a building at the given location.
      * 
-     * Checks that the robot is a builder unit and that the given location
-     * is within the robot's action radius. Also checks that a 
-     * friendly unit which is a building exists in the given square. 
+     * Checks that the robot is a builder unit and that the given location is
+     * within the robot's action radius. Also checks that a friendly unit which
+     * is a building exists in the given square, and no cooldown turns remain.
      *
      * @param loc target location to repair building at 
      * @return whether it is possible to repair a building at the given location.
@@ -579,19 +579,20 @@ public strictfp interface RobotController {
      * Repairs building at a given location.
      *
      * @throws GameActionException if conditions for repairing building are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void repairBuilding(MapLocation loc) throws GameActionException;
 
     // *******************************
-    // **** ALCHEMIST LAB METHODS **** 
+    // **** ALCHEMIST LAB METHODS ****
     // *******************************
 
     /**
      * Tests whether this robot can convert lead into gold.
      * 
      * Checks that the robot is a lab and the player has sufficient lead to
-     * perform a conversion. 
+     * perform a conversion. Also checks that no cooldown turns remain.
      *
      * @return whether it is possible to convert lead into gold
      *
@@ -600,9 +601,9 @@ public strictfp interface RobotController {
     boolean canConvert();
 
     /** 
-     * Get lead to gold conversion rate. 
+     * Get lead to gold conversion rate. Returns 0 if robot is not a lab.
      *
-     * @battlecode.doc.costlymethod 
+     * @battlecode.doc.costlymethod
      */
     public int getGoldExchangeRate();
 
@@ -610,7 +611,7 @@ public strictfp interface RobotController {
      * Convert lead into gold.
      *
      * @throws GameActionException if conditions for converting are not satisfied
-     * @battlecode.doc.costlymethod 
+     * @battlecode.doc.costlymethod
      */
     void convert() throws GameActionException;
 
@@ -619,9 +620,10 @@ public strictfp interface RobotController {
     // *******************************
 
     /**
-     * Tests whether this tower can transform.
+     * Tests whether this robot can transform.
      * 
-     * Checks that the robot is a turret or portable
+     * Checks that the robot is a building and is not a prototype; also checks
+     * that there are no cooldown turns remaining.
      *
      * @return whether it is possible to transform
      *
@@ -633,56 +635,57 @@ public strictfp interface RobotController {
      * Transform from turret into portable or vice versa.
      *
      * @throws GameActionException if conditions for transforming are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void transform() throws GameActionException;
-
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
 
     /**
-     * Checks whether the robot can set the flag to a specified integer.
+     * Checks whether the robot can set the team array's value at a specified index.
      *
-     * @return whether the robot can set the flag to the specified integer.
+     * @param index the index in the team's shared array
+     * @param value the value to set that index to
+     * @return whether the robot can set the team array's value at the given index
      */
-    boolean canSetFlag(int flag);
+    boolean canSetTeamArray(int index, int value);
 
     /** 
-     * Sets a robot's flag to an integer.
+     * Sets a team's array value at a specified index.
      *
-     * @param flag the flag value.
-     * @throws GameActionException if the specified integer is not a valid flag
+     * @param index the index in the team's shared array
+     * @param value the value to set that index to
+     * @throws GameActionException if the index or value is invalid
      *
      * @battlecode.doc.costlymethod
      */
-    void setFlag(int flag) throws GameActionException;
+    void setTeamArray(int index, int value) throws GameActionException;
 
     /**
-     * Given a robot's ID, checks if a robot can get the flag of that robot.
+     * Given an index, checks if a robot can get the value at that index in the team array.
      *
-     * Checks that a robot exists, and that either (a) the robot is an Enlightenment
-     * Center or (b) the target robot is within sensor range.
+     * Checks that the index is valid.
      *
-     * @param id the target robot's ID
-     * @return whether it is possible to get the robot's flag
+     * @param index the index in the team's shared array
+     * @return whether it is possible to get the value at that index
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canGetFlag(int id);
+    boolean canGetTeamArray(int index);
 
     /** 
-     * Given a robot's ID, returns the flag of the robot.
+     * Given an index, returns the value at that index in the team array.
      *
-     * @param id the target robot's ID
-     * @throws GameActionException if conditions for getting the flag are not satisfied
-     * @return the flag of the robot
+     * @param index the index in the team's shared array
+     * @throws GameActionException if conditions for getting the value are not satisfied
+     * @return the value at that index in the team's shared array
      *
      * @battlecode.doc.costlymethod
      */
-    int getFlag(int id) throws GameActionException;
-
+    int getTeamArray(int index) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
