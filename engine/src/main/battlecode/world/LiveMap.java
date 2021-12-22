@@ -86,12 +86,12 @@ public strictfp class LiveMap {
         Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
         this.leadArray = new int[width * height]; // TODO: we guarantee there to be lead within vision range of archons
 
+        this.anomalySchedule = new int[1];
+        this.anomalySchedule[0] = new AnomalyScheduleEntry(GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, AnomalyType.SINGULARITY);
+        this.nextAnomalyIndex = 0;
+
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
-        
-        // TODO: initialize with potentially hardcoded anomalies
-        this.anomalySchedule = null;
-        this.nextAnomalyIndex = 0;
     }
 
     public LiveMap(int width,
