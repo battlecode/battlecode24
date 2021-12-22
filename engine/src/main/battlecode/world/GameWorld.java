@@ -281,7 +281,7 @@ public strictfp class GameWorld {
      * @return the cooldown due to rubble.
      */
     public int getCooldownWithMultiplier(int cooldown, MapLocation location) {
-        return (int) ((1 + this.getRubble(location) / 10) * cooldown);
+        return (int) ((1 + getRubble(location) / 10.0) * cooldown);
     }
 
     // *********************************
@@ -607,7 +607,7 @@ public strictfp class GameWorld {
             droids,  
             (InternalRobot robot1, InternalRobot robot2) -> 
                 // 12/10/21: https://www.geeksforgeeks.org/arrays-sort-in-java-with-examples/
-                (robot2.numberOfVisibleFriendlyRobots() - robot1.numberOfVisibleFriendlyRobots())
+                (robot2.getNumVisibleFriendlyRobots() - robot1.getNumVisibleFriendlyRobots())
                 // end reference on how to compare things with subtraction
         );
 

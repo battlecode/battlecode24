@@ -240,7 +240,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public int numberOfVisibleFriendlyRobots() {
+    public int getNumVisibleFriendlyRobots() {
         return this.seeNearbyRobots(
             this.robot.getVisionRadiusSquared(),
             this.robot.getTeam()
@@ -804,7 +804,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanTransform() throws GameActionException {
         assertIsActionReady();
         assertIsMovementReady();
-        if (!robot.getMode() == RobotMode.TURRET || !robot.getMode() == RobotMode.PORTABLE) {
+        if (robot.getMode() != RobotMode.TURRET && robot.getMode() != RobotMode.PORTABLE) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not transformable.");
         }
@@ -823,8 +823,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransform();
         robot.transform();
         RobotMode mode = robot.getMode();
-        addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-        addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        if (mode == RobotMode.TURRET)
+            addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        else
+            addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
     }
 
     // ***********************************

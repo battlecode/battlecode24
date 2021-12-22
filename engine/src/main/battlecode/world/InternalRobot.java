@@ -226,7 +226,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownWithMultiplier(this.location);
         int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numMovementCooldownToAdd, this.location);
         setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
@@ -389,8 +388,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public int numberOfVisibleFriendlyRobots() {
-        return this.controller.numberOfVisibleFriendlyRobots();
+    public int getNumVisibleFriendlyRobots() {
+        return this.controller.getNumVisibleFriendlyRobots();
     }
 
     @Override
