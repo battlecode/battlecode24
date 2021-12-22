@@ -27,10 +27,10 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-
-    private double[] passability;
-    private int[] leadCount;
-    private int[] goldCount;
+    
+    private int[] rubble;
+    private int[] lead;
+    private int[] gold;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -44,12 +44,10 @@ public strictfp class GameWorld {
 
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
-        this.passability = gm.getPassabilityArray();
-        this.leadCount = gm.getLeadArray();
-        this.goldCount = gm.getGoldArray();
-        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be
-                                                                        // height-width, but this should allow us to
-                                                                        // index x-y
+        this.rubble = gm.getRubbleArray();
+        this.lead = gm.getLeadArray();
+        this.gold = new int[this.lead.length];
+        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -195,12 +193,20 @@ public strictfp class GameWorld {
         return this.rubble[locationToIndex(loc)];
     }
 
-    public int getLeadCount(MapLocation loc) {
-        return this.leadCount[locationToIndex(loc)];
+    public int getLead(MapLocation loc) {
+        return this.lead[locationToIndex(loc)];
     }
 
-    public int getGoldCount(MapLocation loc) {
-        return this.goldCount[locationToIndex(loc)];
+    public int setLead(MapLocation loc, int amount) {
+        this.lead[locationToIndex(loc)] = amount;
+    }
+
+    public int getGold(MapLocation loc) {
+        return this.gold[locationToIndex(loc)];
+    }
+
+    public int setGold(MapLocation loc, int amount) {
+        this.gold[locationToIndex(loc)] = amount;
     }
 
     /**
@@ -389,10 +395,9 @@ public strictfp class GameWorld {
     public void processEndOfRound() {
         // Add lead resources to the map
         if ((this.currentRound + 1) % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0) // +1 so we don't add lead the first round
-            for (int x = 0; x < gameMap.getWidth(); x++)
-                for (int y = 0; y < gameMap.getHeight(); y++)
-                    if (gameMap.getLeadAtLocation(x, y) > 0) 
-                        gameMap.addLeadAtLocation(x, y, GameConstants.ADD_LEAD);
+            for (int i = 0; i < this.lead.length)
+                if (this.lead[i] > 0) 
+                    this.lead[i] += GameConstants.ADD_LEAD;
 
         // Add lead resources to the team
         teamInfo.changeLead(teamInfo.getLead() + GameConstants.PASSIVE_LEAD_INCREASE);
@@ -455,8 +460,8 @@ public strictfp class GameWorld {
         int leadDropped = robot.getType().getLeadDropped(robot.getLevel());
         int goldDropped = robot.getType().getGoldDropped(robot.getLevel());
         
-        this.leadCount[locationToIndex(robot.getLocation())] += leadDropped;
-        this.goldCount[locationToIndex(robot.getLocation())] += goldDropped;
+        this.lead[locationToIndex(robot.getLocation())] += leadDropped;
+        this.gold[locationToIndex(robot.getLocation())] += goldDropped;
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -497,17 +502,13 @@ public strictfp class GameWorld {
      */
     private void causeAbyssGridUpdate(float reduceFactor, MapLocation[] locations) {
         for (int i = 0; i < locations.length; i++) {
-            MapLocation currentLocation = locations[i];
-            int x = currentLocation.x;
-            int y = currentLocation.y;
-
-            int currentLead = gameMap.getLeadAtLocation(x, y);
+            int currentLead = getLead(locations[i]);
             int leadUpdate = (int) (reduceFactor * currentLead);
-            gameMap.setLeadAtLocation(x, y, currentLead - leadUpdate);
+            setLead(locations[i], currentLead - leadUpdate);
 
-            int currentGold = gameMap.getGoldAtLocation(x, y);
+            int currentGold = getGold(locations[i]);
             int goldUpdate = (int) (reduceFactor * currentGold);
-            gameMap.setLeadAtLocation(x, y, currentGold - goldUpdate);
+            setGold(locations[i], currentGold - goldUpdate);
         }
     }
 
