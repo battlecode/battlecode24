@@ -45,10 +45,6 @@ public strictfp interface RobotController {
      */
     int getArchonCount();
 
-    // TODO: getNetWorth()
-    //       is this desired??
-
-
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
