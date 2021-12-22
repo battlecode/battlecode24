@@ -12,23 +12,21 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int archonCount;
-    private int leadCount;
-    private int goldCount;
+    private int[] archonCounts;
+    private int[] leadCounts;
+    private int[] goldCounts;
 
     /**
      * Create a new representation of TeamInfo
      *
-     * @param gameWorld the gameWorld the team exists in
-     * @param archonCount the number of remaining archons
-     * @param leadCount the amount of lead stored
-     * @param goldCount the amount of gold stored
+     * @param gameWorld the gameWorld the teams exist in
      */
-    public TeamInfo(GameWorld gameWorld) {
+    public TeamInfo(GameWorld gameWorld, int numArchons) {
         this.gameWorld = gameWorld;
-        this.archonCount = 0;
-        this.leadCount = 0;
-        this.goldCount = 0;
+        this.archonCount = new int[2];
+        Arrays.fill(this.archonCount, numArchons);
+        this.leadCount = new int[2];
+        this.goldCount = new int[2];
     }
     
     // *********************************
@@ -38,28 +36,31 @@ public class TeamInfo {
     /**
      * Get the number of remaining Archons.
      *
+     * @param team the team to query
      * @return the number of archons remaining
      */
-    public int getArchonCount() {
-        return this.archonCount;
+    public int getArchonCount(Team team) {
+        return this.archonCount[team.ordinal()];
     }
 
     /**
      * Get the amount of lead.
      *
+     * @param team the team to query
      * @return the team's lead count
      */
-    public int getLead() {
-        return this.leadCount;
+    public int getLead(Team team) {
+        return this.leadCount[team.ordinal()];
     }
 
     /**
      * Get the amount of gold.
      *
+     * @param team the team to query
      * @return the team's gold count
      */
-    public int getGold() {
-        return this.goldCount;
+    public int getGold(Team team) {
+        return this.goldCount[team.ordinal()];
     }
 
     // *********************************
@@ -67,44 +68,43 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Set the number of Archons. 
+     * Decrease the number of Archons.
      * 
-     * @param newArchonCount the new number of Archons
-     * 
-     * @throws IllegalArgumentException if the newArchonCount is negative
+     * @param team the team to query
+     * @throws IllegalArgumentException if the new Archon count goes below 0
      */
-    public void setArchonCount(int newArchonCount) throws IllegalArgumentException {
-        if (newArchonCount < 0) {
+    public void decreaseArchonCount(Team team) throws IllegalArgumentException {
+        if (this.archonCount[team.ordinal()] == 0) {
             throw new IllegalArgumentException("Invalid archon count");
         }
-        this.archonCount = newArchonCount;
+        this.archonCount[team.ordinal()]--;
     }
 
     /**
      * Add to the amount of lead. If leadChange is negative, subtract from lead instead. 
      * 
+     * @param team the team to query
      * @param leadChange the change in the lead count
-     * 
      * @throws IllegalArgumentException if the resulting amount of lead is negative
      */
-    public void changeLead(int leadChange) throws IllegalArgumentException {
-        if (leadCount + leadChange < 0) {
+    public void changeLead(Team team, int leadChange) throws IllegalArgumentException {
+        if (this.leadCount[team.ordinal()] + leadChange < 0) {
             throw new IllegalArgumentException("Invalid lead change");
         }
-        this.leadCount += leadChange;
+        this.leadCount[team.ordinal()] += leadChange;
     }
 
     /**
      * Add to the amount of gold. If goldChange is negative, subtract from gold instead. 
      * 
+     * @param team the team to query
      * @param goldChange the change in the gold count
-     * 
      * @throws IllegalArgumentException if the resulting amount of gold is negative
      */
-    public void changeGold(int goldChange) throws IllegalArgumentException {
-        if (goldCount + goldChange < 0) {
+    public void changeGold(Team team, int goldChange) throws IllegalArgumentException {
+        if (this.goldCount[team.ordinal()] + goldChange < 0) {
             throw new IllegalArgumentException("Invalid gold change");
         }
-        this.goldCount += goldChange;
+        this.goldCount[team.ordinal()] += goldChange;
     }
 }
