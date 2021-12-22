@@ -48,9 +48,7 @@ public final strictfp class GameMapIO {
      * @return LiveMap for map
      * @throws IOException if the map fails to load or can't be found.
      */
-    public static LiveMap loadMap(String mapName, File mapDir)
-            throws IOException {
-
+    public static LiveMap loadMap(String mapName, File mapDir) throws IOException {
         final LiveMap result;
 
         final File mapFile = new File(mapDir, mapName + MAP_EXTENSION);
