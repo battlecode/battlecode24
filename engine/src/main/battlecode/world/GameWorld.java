@@ -402,7 +402,7 @@ public strictfp class GameWorld {
         // Add lead resources to the team
         teamInfo.changeLead(teamInfo.getLead() + GameConstants.PASSIVE_LEAD_INCREASE);
 
-        // Process end of each robot's round (currently empty in InternalRobot)
+        // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processEndOfRound();
             return true;
