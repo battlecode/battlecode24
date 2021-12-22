@@ -27,6 +27,18 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 80;
 
+    /** The minimum number of starting Archons per team. */
+    public static final int MIN_STARTING_ARCHONS = 1;
+
+    /** The maximum number of starting Archons per team. */
+    public static final int MAX_STARTING_ARCHONS = 4;
+
+    /** The minimum amount of rubble per square. */
+    public static final int MIN_RUBBLE = 100;
+
+    /** The maximum amount of rubble per square. */
+    public static final int MAX_RUBBLE = 100;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************

@@ -160,7 +160,7 @@ public strictfp class LiveMap {
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
         if (!Arrays.equals(this.rubbleArray, other.rubbleArray)) return false;
-        if (!Arrays.equals(this.leadArray, other.leadArary)) return false;
+        if (!Arrays.equals(this.leadArray, other.leadArray)) return false;
         if (!Arrays.equals(this.anomalySchedule, other.anomalySchedule)) return false;
         return Arrays.equals(this.initialBodies, other.initialBodies);
     }
