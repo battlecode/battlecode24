@@ -19,7 +19,7 @@ public strictfp interface RobotController {
      * match.
      *
      * @return the current round number, where round 1 is the first round of the
-     * match.
+     * match
      *
      * @battlecode.doc.costlymethod
      */
@@ -52,7 +52,7 @@ public strictfp interface RobotController {
     /**
      * Returns the ID of this robot.
      *
-     * @return the ID of this robot.
+     * @return the ID of this robot
      *
      * @battlecode.doc.costlymethod
      */
@@ -61,7 +61,7 @@ public strictfp interface RobotController {
     /**
      * Returns this robot's Team.
      *
-     * @return this robot's Team.
+     * @return this robot's Team
      *
      * @battlecode.doc.costlymethod
      */
@@ -70,7 +70,7 @@ public strictfp interface RobotController {
     /**
      * Returns this robot's type (MINER, ARCHON, BUILDER, etc.).
      *
-     * @return this robot's type.
+     * @return this robot's type
      *
      * @battlecode.doc.costlymethod
      */
@@ -79,7 +79,7 @@ public strictfp interface RobotController {
     /**
      * Returns this robot's current location.
      *
-     * @return this robot's current location.
+     * @return this robot's current location
      *
      * @battlecode.doc.costlymethod
      */
@@ -88,7 +88,7 @@ public strictfp interface RobotController {
     /**
      * Returns this robot's current health.
      *
-     * @return this robot's current health.
+     * @return this robot's current health
      *
      * @battlecode.doc.costlymethod
      */
@@ -97,11 +97,11 @@ public strictfp interface RobotController {
     /**
      * Returns this robot's current level.
      *
-     * @return this robot's current level.
+     * @return this robot's current level
      *
      * @battlecode.doc.costlymethod
      */
-    int getUpgradeLevel();
+    int getLevel();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -112,8 +112,8 @@ public strictfp interface RobotController {
      * the location is not within the vision range.
      *
      * @param loc the location to check
-     * @return true if the location is on the map; false otherwise.
-     * @throws GameActionException if the location is not within vision range.
+     * @return true if the location is on the map; false otherwise
+     * @throws GameActionException if the location is not within vision range
      *
      * @battlecode.doc.costlymethod
      */
@@ -123,7 +123,7 @@ public strictfp interface RobotController {
      * Checks whether the given location is within the robot's vision range, and if it is on the map.
      *
      * @param loc the location to check
-     * @return true if the given location is within the robot's vision range and is on the map; false otherwise.
+     * @return true if the given location is within the robot's vision range and is on the map; false otherwise
      *
      * @battlecode.doc.costlymethod
      */
@@ -133,7 +133,7 @@ public strictfp interface RobotController {
      * Checks whether a point at the given radius squared is within the robot's vision range.
      *
      * @param radiusSquared the radius to check
-     * @return true if the given radius is within the robot's vision range; false otherwise.
+     * @return true if the given radius is within the robot's vision range; false otherwise
      *
      * @battlecode.doc.costlymethod
      */
@@ -143,8 +143,8 @@ public strictfp interface RobotController {
      * Checks whether a robot is at a given location. Assumes the location is valid.  
      *
      * @param loc the location to check
-     * @return true if a robot is at the location.
-     * @throws GameActionException if the location is not within vision range or on the map.
+     * @return true if a robot is at the location
+     * @throws GameActionException if the location is not within vision range or on the map
      *
      * @battlecode.doc.costlymethod
      */
@@ -155,8 +155,8 @@ public strictfp interface RobotController {
      * there.
      *
      * @param loc the location to check
-     * @return the robot at the given location.
-     * @throws GameActionException if the location is not within vision range.
+     * @return the robot at the given location
+     * @throws GameActionException if the location is not within vision range
      *
      * @battlecode.doc.costlymethod
      */
@@ -168,7 +168,7 @@ public strictfp interface RobotController {
      *
      * @param id the ID of the robot to query
      * @return true if the given robot is within this robot's vision range and exists;
-     * false otherwise.
+     * false otherwise
      *
      * @battlecode.doc.costlymethod
      */
@@ -178,9 +178,9 @@ public strictfp interface RobotController {
      * Sees information about a particular robot given its ID.
      *
      * @param id the ID of the robot to query
-     * @return a RobotInfo object for the seen robot.
+     * @return a RobotInfo object for the seen robot
      * @throws GameActionException if the robot cannot be seen (for example,
-     * if it doesn't exist or is out of vision range).
+     * if it doesn't exist or is out of vision range)
      *
      * @battlecode.doc.costlymethod
      */
@@ -191,7 +191,7 @@ public strictfp interface RobotController {
      * particular order.
      *
      * @return array of RobotInfo objects, which contain information about all
-     * the robots you saw.
+     * the robots you saw
      *
      * @battlecode.doc.costlymethod
      */
@@ -202,10 +202,10 @@ public strictfp interface RobotController {
      * robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * this robot; if -1 is passed, all robots within vision radius are returned;
      * if radiusSquared is larger than the robot's vision radius, the vision
-     * radius is used.
-     * @return array of RobotInfo objects of all the robots you saw.
+     * radius is used
+     * @return array of RobotInfo objects of all the robots you saw
      *
      * @battlecode.doc.costlymethod
      */
@@ -216,12 +216,12 @@ public strictfp interface RobotController {
      * distance of this robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * this robot; if -1 is passed, all robots within vision radius are returned;
      * if radiusSquared is larger than the robot's vision radius, the vision
-     * radius is used.
-     * @param team filter game objects by the given team. If null is passed,
+     * radius is used
+     * @param team filter game objects by the given team; if null is passed,
      * robots from any team are returned
-     * @return array of RobotInfo objects of all the robots you saw.
+     * @return array of RobotInfo objects of all the robots you saw
      *
      * @battlecode.doc.costlymethod
      */
@@ -234,12 +234,12 @@ public strictfp interface RobotController {
      *
      * @param center center of the given search radius
      * @param radiusSquared return robots this distance away from the center of
-     * this robot. If -1 is passed, all robots within vision radius are returned.
+     * this robot; if -1 is passed, all robots within vision radius are returned;
      * if radiusSquared is larger than the robot's vision radius, the vision
-     * radius is used.
-     * @param team filter game objects by the given team. If null is passed,
+     * radius is used
+     * @param team filter game objects by the given team; if null is passed,
      * objects from all teams are returned
-     * @return sorted array of RobotInfo objects of the robots you saw.
+     * @return sorted array of RobotInfo objects of the robots you saw
      *
      * @battlecode.doc.costlymethod
      */
@@ -252,7 +252,7 @@ public strictfp interface RobotController {
      * greater cooldowns for making actions.
      * 
      * @param loc the given location
-     * @return the rubble of that location.
+     * @return the rubble of that location
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
@@ -263,7 +263,7 @@ public strictfp interface RobotController {
      * Given a location, returns the lead count of that location.
      * 
      * @param loc the given location
-     * @return the amount of lead at that location.
+     * @return the amount of lead at that location
      * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
@@ -274,7 +274,7 @@ public strictfp interface RobotController {
      * Given a location, returns the gold count of that location.
      * 
      * @param loc the given location
-     * @return the amount of gold at that location.
+     * @return the amount of gold at that location
      * @throws GameActionException if the robot cannot see the given location
      *
      * @battlecode.doc.costlymethod
@@ -285,7 +285,7 @@ public strictfp interface RobotController {
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
-     * @return the location adjacent to current location in the given direction.
+     * @return the location adjacent to current location in the given direction
      *
      * @battlecode.doc.costlymethod
      */
@@ -299,7 +299,7 @@ public strictfp interface RobotController {
      * Tests whether the robot can act. Returns
      * <code>getCooldownTurns() &lt; 1</code>.
      * 
-     * @return true if the robot can act.
+     * @return true if the robot can act
      *
      * @battlecode.doc.costlymethod
      */
@@ -310,7 +310,7 @@ public strictfp interface RobotController {
      * When this number is strictly less than 1, isActionReady() is true and the robot
      * can act again.
      *
-     * @return the number of action turns remaining before this unit can act again.
+     * @return the number of action turns remaining before this unit can act again
      *
      * @battlecode.doc.costlymethod
      */
@@ -320,7 +320,7 @@ public strictfp interface RobotController {
      * Tests whether the robot can move. Returns
      * <code>getCooldownTurns() &lt; 1</code>.
      * 
-     * @return true if the robot can move.
+     * @return true if the robot can move
      *
      * @battlecode.doc.costlymethod
      */
@@ -331,7 +331,7 @@ public strictfp interface RobotController {
      * When this number is strictly less than 1, isMovementReady() is true and the robot
      * can move again.
      *
-     * @return the number of cooldown turns remaining before this unit can move again.
+     * @return the number of cooldown turns remaining before this unit can move again
      *
      * @battlecode.doc.costlymethod
      */
@@ -361,7 +361,7 @@ public strictfp interface RobotController {
      * @throws GameActionException if the robot cannot move one step in this
      * direction, such as cooldown being &gt;= 1, the target location being
      * off the map, or the target destination being occupied by
-     * another robot.
+     * another robot
      *
      * @battlecode.doc.costlymethod
      */
@@ -382,7 +382,7 @@ public strictfp interface RobotController {
      * @param type the type of robot to build
      * @param dir the direction to build in
      * @return whether it is possible to build a robot of the given type in the
-     * given direction.
+     * given direction
      *
      * @battlecode.doc.costlymethod
      */
@@ -394,7 +394,7 @@ public strictfp interface RobotController {
      * @param type the type of robot to build
      * @param dir the direction to spawn the unit
      * @throws GameActionException if the conditions of <code>canBuildRobot</code>
-     * are not all satisfied.
+     * are not all satisfied
      *
      * @battlecode.doc.costlymethod
      */
@@ -412,7 +412,7 @@ public strictfp interface RobotController {
      * enemy unit exists in the given square, and there are no cooldown turns remaining.
      *
      * @param loc target location to attack 
-     * @return whether it is possible to attack the given location.
+     * @return whether it is possible to attack the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -423,7 +423,7 @@ public strictfp interface RobotController {
      *
      * @throws GameActionException if conditions for attacking are not satisfied
      *
-     * @battlecode.doc.costlymethod 
+     * @battlecode.doc.costlymethod
      */
     void attack(MapLocation loc) throws GameActionException;
 
@@ -436,7 +436,7 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is a sage, and there are no cooldown turns remaining.
      *
-     * @return whether it is possible to use an anomaly centered at the robots location.
+     * @return whether it is possible to use an anomaly centered at the robots location
      *
      * @battlecode.doc.costlymethod
      */
@@ -447,7 +447,7 @@ public strictfp interface RobotController {
      *
      * @throws GameActionException if conditions for using anomaly are not satisfied
      *
-     * @battlecode.doc.costlymethod 
+     * @battlecode.doc.costlymethod
      */
     void useAnomaly(AnomalyType anomaly) throws GameActionException;
 
@@ -462,8 +462,8 @@ public strictfp interface RobotController {
      * is within the robot's action radius. Also checks that a friendly droid
      * exists in the given square, and there are no cooldown turns remaining.
      *
-     * @param loc target location to heal at 
-     * @return whether it is possible to heal a droid robot at the given location.
+     * @param loc target location to heal at
+     * @return whether it is possible to heal a droid robot at the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -473,7 +473,8 @@ public strictfp interface RobotController {
      * Heals at a given location.
      *
      * @throws GameActionException if conditions for healing are not satisfied
-     * @battlecode.doc.costlymethod 
+     *
+     * @battlecode.doc.costlymethod
      */
     void healDroid(MapLocation loc) throws GameActionException;
 
@@ -490,7 +491,7 @@ public strictfp interface RobotController {
      * have positive lead amounts. Also checks that no cooldown turns remain.
      *
      * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location.
+     * @return whether it is possible to mine at the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -514,7 +515,7 @@ public strictfp interface RobotController {
      * have positive gold amounts. Also checks that no cooldown turns remain.
      *
      * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location.
+     * @return whether it is possible to mine at the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -542,7 +543,7 @@ public strictfp interface RobotController {
      * affordable, and there must be no cooldown turns remaining.
      *
      * @param loc target location to upgrade 
-     * @return whether it is possible to upgrade at the given location.
+     * @return whether it is possible to upgrade at the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -565,7 +566,7 @@ public strictfp interface RobotController {
      * is a building exists in the given square, and no cooldown turns remain.
      *
      * @param loc target location to repair building at 
-     * @return whether it is possible to repair a building at the given location.
+     * @return whether it is possible to repair a building at the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -597,7 +598,9 @@ public strictfp interface RobotController {
     boolean canConvert();
 
     /** 
-     * Get lead to gold conversion rate. Returns 0 if robot is not a lab.
+     * Get lead to gold conversion rate.
+     *
+     * @return the lead to gold conversion rate, 0 if the robot is not a lab
      *
      * @battlecode.doc.costlymethod
      */
@@ -607,6 +610,7 @@ public strictfp interface RobotController {
      * Convert lead into gold.
      *
      * @throws GameActionException if conditions for converting are not satisfied
+     *
      * @battlecode.doc.costlymethod
      */
     void convert() throws GameActionException;
@@ -688,6 +692,13 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
+     * @return the anomaly schedule
+     *
+     * @battlecode.doc.costlymethod
+     */
+    AnomalyScheduleEntry[] getAnomalySchedule();
+
+    /**
      * Destroys the robot. 
      *
      * @battlecode.doc.costlymethod
@@ -708,10 +719,10 @@ public strictfp interface RobotController {
     /**
      * Draw a dot on the game map for debugging purposes.
      *
-     * @param loc the location to draw the dot.
-     * @param red the red component of the dot's color.
-     * @param green the green component of the dot's color.
-     * @param blue the blue component of the dot's color.
+     * @param loc the location to draw the dot
+     * @param red the red component of the dot's color
+     * @param green the green component of the dot's color
+     * @param blue the blue component of the dot's color
      *
      * @battlecode.doc.costlymethod
      */
@@ -720,11 +731,11 @@ public strictfp interface RobotController {
     /**
      * Draw a line on the game map for debugging purposes.
      *
-     * @param startLoc the location to draw the line from.
-     * @param endLoc the location to draw the line to.
-     * @param red the red component of the line's color.
-     * @param green the green component of the line's color.
-     * @param blue the blue component of the line's color.
+     * @param startLoc the location to draw the line from
+     * @param endLoc the location to draw the line to
+     * @param red the red component of the line's color
+     * @param green the green component of the line's color
+     * @param blue the blue component of the line's color
      *
      * @battlecode.doc.costlymethod
      */
