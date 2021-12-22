@@ -360,17 +360,17 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case ANNIHILATED:
-                sb.append("The winning team won by annihilating the enemy team.");
+            case ANNIHILATION:
+                sb.append("The winning team won by annihilating the enemy team's Archons.");
                 break;
-            case MORE_VOTES:
-                sb.append("The winning team won by having more votes.");
+            case MORE_ARCHONS:
+                sb.append("The winning team won by having more Archons.");
                 break;
-            case MORE_ENLIGHTENMENT_CENTERS:
-                sb.append("The winning team won on tiebreakers (more Enlightenment Centers).");
+            case MORE_GOLD_NET_WORTH:
+                sb.append("The winning team won on tiebreakers (more gold net worth).");
                 break;
-            case MORE_INFLUENCE:
-                sb.append("The winning team won on tiebreakers (more total unit influence).");
+            case MORE_LEAD_NET_WORTH:
+                sb.append("The winning team won on tiebreakers (more lead net worth).");
                 break;
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (coin flip).");
