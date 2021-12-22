@@ -81,30 +81,30 @@ public class TeamInfo {
     }
 
     /**
-     * Add to the amount of lead. If leadChange is negative, subtract from lead instead. 
+     * Add to the amount of lead. If amount is negative, subtract from lead instead. 
      * 
      * @param team the team to query
-     * @param leadChange the change in the lead count
+     * @param amount the change in the lead count
      * @throws IllegalArgumentException if the resulting amount of lead is negative
      */
-    public void changeLead(Team team, int leadChange) throws IllegalArgumentException {
-        if (this.leadCount[team.ordinal()] + leadChange < 0) {
+    public void addLead(Team team, int amount) throws IllegalArgumentException {
+        if (this.leadCount[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid lead change");
         }
-        this.leadCount[team.ordinal()] += leadChange;
+        this.leadCount[team.ordinal()] += amount;
     }
 
     /**
-     * Add to the amount of gold. If goldChange is negative, subtract from gold instead. 
+     * Add to the amount of gold. If amount is negative, subtract from gold instead. 
      * 
      * @param team the team to query
-     * @param goldChange the change in the gold count
+     * @param amount the change in the gold count
      * @throws IllegalArgumentException if the resulting amount of gold is negative
      */
-    public void changeGold(Team team, int goldChange) throws IllegalArgumentException {
-        if (this.goldCount[team.ordinal()] + goldChange < 0) {
+    public void addGold(Team team, int amount) throws IllegalArgumentException {
+        if (this.goldCount[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid gold change");
         }
-        this.goldCount[team.ordinal()] += goldChange;
+        this.goldCount[team.ordinal()] += amount;
     }
 }
