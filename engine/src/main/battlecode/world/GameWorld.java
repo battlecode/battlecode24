@@ -394,7 +394,7 @@ public strictfp class GameWorld {
 
     public void processEndOfRound() {
         // Add lead resources to the map
-        if ((this.currentRound + 1) % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0) // +1 so we don't add lead the first round
+        if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
             for (int i = 0; i < this.lead.length)
                 if (this.lead[i] > 0) 
                     this.lead[i] += GameConstants.ADD_LEAD;
@@ -410,7 +410,8 @@ public strictfp class GameWorld {
 
         // Trigger any anomalies
         // note: singularity is handled below in the "check for end of match"
-        if (this.gameMap.viewNextAnomaly().roundNumber == this.currentRound) {
+        AnomalyScheduleEntry nextAnomaly = this.gameMap.viewNextAnomaly();
+        if (nextAnomaly != null && nextAnomaly.roundNumber == this.currentRound) {
             AnomalyType anomaly = this.gameMap.takeNextAnomaly().anomalyType;
             if (anomaly == AnomalyType.ABYSS) causeAbyssGlobal(anomaly);
             if (anomaly == AnomalyType.CHARGE) causeChargeGlobal(anomaly);

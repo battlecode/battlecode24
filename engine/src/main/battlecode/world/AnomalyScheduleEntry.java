@@ -17,4 +17,15 @@ public class AnomalyScheduleEntry {
     public AnomalyScheduleEntry copyEntry(AnomalyType anomalyType) {
         return new AnomalyScheduleEntry(this.roundNumber, this.anomalyType);
     }
+
+    /**
+     * Returns whether two AnomalyScheduleEntrys are equal.
+     *
+     * @param other the other anomaly schedule entry to compare to
+     * @return whether the two anomaly schedules entry are equivalent
+     */
+    public boolean equals(AnomalyScheduleEntry other) {
+        if (this.roundNumber != other.roundNumber) return false;
+        return this.anomalyType == other.anomalyType;
+    }
 }
