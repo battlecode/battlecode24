@@ -33,6 +33,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int roundsAlive;
     private int actionCooldownTurns;
     private int movementCooldownTurns;
+    private int numVisibleFriendlyRobots;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -66,6 +67,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
+        this.numVisibleFriendlyRobots = 0;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -388,8 +390,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public int getNumVisibleFriendlyRobots() {
-        return this.controller.getNumVisibleFriendlyRobots();
+    public int updateNumVisibleFriendlyRobots() {
+        return this.numVisibleFriendlyRobots = this.controller.getNumVisibleFriendlyRobots();
     }
 
     @Override

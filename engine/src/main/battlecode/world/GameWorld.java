@@ -70,7 +70,6 @@ public strictfp class GameWorld {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             int newID = spawnRobot(robot.type, newLocation, robot.team);
-
             initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, 1, robot.health, newLocation);
         }
 
@@ -81,7 +80,7 @@ public strictfp class GameWorld {
     /**
      * Run a single round of the game.
      *
-     * @return the state of the game after the round has run.
+     * @return the state of the game after the round has run
      */
     public synchronized GameState runRound() {
         if (!this.isRunning()) {
@@ -269,16 +268,16 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return all of the locations on the grid.
+     * @return all of the locations on the grid
      */
     private MapLocation[] getAllLocations() {
         return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
     }
 
     /**
-     * @param cooldown without multiplier applied.
+     * @param cooldown without multiplier applied
      * @param location with rubble of interest, if any
-     * @return the cooldown due to rubble.
+     * @return the cooldown due to rubble
      */
     public int getCooldownWithMultiplier(int cooldown, MapLocation location) {
         return (int) ((1 + getRubble(location) / 10.0) * cooldown);
@@ -343,14 +342,14 @@ public strictfp class GameWorld {
      * @return whether a team has a greater net Au value
      */
     public boolean setWinnerIfMoreGoldValue() {
-        int[] totalInfluences = new int[2];
+        int[] totalGoldValues = new int[2];
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalInfluences[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
+            totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
         }
-        if (totalInfluences[0] > totalInfluences[1]) {
+        if (totalGoldValues[0] > totalGoldValues[1]) {
             setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
             return true;
-        } else if (totalInfluences[1] > totalInfluences[0]) {
+        } else if (totalGoldValues[1] > totalGoldValues[0]) {
             setWinner(Team.B, DominationFactor.MORE_GOLD_NET_WORTH);
             return true;
         }
@@ -361,14 +360,14 @@ public strictfp class GameWorld {
      * @return whether a team has a greater net Pb value
      */
     public boolean setWinnerIfMoreLeadValue() {
-        int[] totalInfluences = new int[2];
+        int[] totalLeadValues = new int[2];
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalInfluences[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
+            totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
         }
-        if (totalInfluences[0] > totalInfluences[1]) {
+        if (totalLeadValues[0] > totalLeadValues[1]) {
             setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
             return true;
-        } else if (totalInfluences[1] > totalInfluences[0]) {
+        } else if (totalLeadValues[1] > totalLeadValues[0]) {
             setWinner(Team.B, DominationFactor.MORE_LEAD_NET_WORTH);
             return true;
         }
@@ -388,11 +387,11 @@ public strictfp class GameWorld {
 
     public void processEndOfRound() {
         // Add lead resources to the map
-        if (this.currentRound == GameConstants.ADD_RESOURCE_EVERY_ROUNDS)
+        if ((this.currentRound + 1) % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0) // +1 so we don't add lead the first round
             for (int x = 0; x < gameMap.getWidth(); x++)
                 for (int y = 0; y < gameMap.getHeight(); y++)
-                    if (gameMap.getLeadAtLocation(x, y) >= 1) 
-                        gameMap.addLeadAtLocation(x, y, 5);
+                    if (gameMap.getLeadAtLocation(x, y) > 0) 
+                        gameMap.addLeadAtLocation(x, y, GameConstants.ADD_LEAD);
 
         // Add lead resources to the team
         teamInfo.changeLead(teamInfo.getLead() + GameConstants.PASSIVE_LEAD_INCREASE);
@@ -407,11 +406,10 @@ public strictfp class GameWorld {
         // note: singularity is handled below in the "check for end of match"
         if (this.gameMap.viewNextAnomaly().roundNumber == this.currentRound) {
             AnomalyType anomaly = this.gameMap.takeNextAnomaly().anomalyType;
-            if (anomaly == AnomalyType.ABYSS) this.causeAbyssGlobal(anomaly);
-            if (anomaly == AnomalyType.CHARGE) this.causeChargeGlobal(anomaly);
-            if (anomaly == AnomalyType.FURY) this.causeFuryGlobal(anomaly);
-            // TODO: uncomment this whenever causeVortexGlobal is called.
-            // if (anomaly == AnomalyType.VORTEX) this.causeVortexGlobal(anomaly);
+            if (anomaly == AnomalyType.ABYSS) causeAbyssGlobal(anomaly);
+            if (anomaly == AnomalyType.CHARGE) causeChargeGlobal(anomaly);
+            if (anomaly == AnomalyType.FURY) causeFuryGlobal(anomaly);
+            if (anomaly == AnomalyType.VORTEX) causeVortexGlobal(anomaly);
         }
 
         // Check for end of match
@@ -450,7 +448,6 @@ public strictfp class GameWorld {
     // *********************************
 
     public void destroyRobot(int id) {
-
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
         
@@ -474,7 +471,6 @@ public strictfp class GameWorld {
         if (profilerCollections == null) {
             profilerCollections = new HashMap<>();
         }
-
         profilerCollections.put(team, profilerCollection);
     }
 
@@ -484,8 +480,8 @@ public strictfp class GameWorld {
 
     /**
      * Finds all of the locations that a given Sage can affect with an Anomaly.
-     * @param robot that is causing the anomaly. Must be a Sage.
-     * @return all of the locations that are within range of this sage.
+     * @param robot that is causing the anomaly; must be a Sage
+     * @return all of the locations that are within range of this sage
      */
     private MapLocation[] getSageActionLocations(InternalRobot robot) {
         assert robot.getType() == RobotType.SAGE;
@@ -494,10 +490,9 @@ public strictfp class GameWorld {
     }
 
     /**
-     * Performs the Abyss anomaly.
-     *   Changes the resources in the squares and the team.
+     * Performs the Abyss anomaly. Changes the resources in the squares and the team.
      * @param reduceFactor associated with anomaly (a decimal percentage)
-     * @param locations that can be affected by the Abyss.
+     * @param locations that can be affected by the Abyss
      */
     private void causeAbyssGridUpdate(float reduceFactor, MapLocation[] locations) {
         for (int i = 0; i < locations.length; i++) {
@@ -516,104 +511,100 @@ public strictfp class GameWorld {
     }
 
     /**
-     * Performs the Fury anomaly.
-     *   Changes the health of the relevant robots.
+     * Mutates state to perform the Sage Abyss anomaly.
+     * @param robot that is the Sage
+     */
+    public void causeAbyssSage(InternalRobot robot) {
+        assert robot.getType() == RobotType.SAGE;
+        // calculate the right effect range
+        this.causeAbyssGridUpdate(AnomalyType.ABYSS.sagePercentage, this.getSageActionLocations(robot));
+    }
+
+    /**
+     * Mutates state to perform the global Abyss anomaly.
+     */
+    public void causeAbyssGlobal() {
+        this.causeAbyssGridUpdate(AnomalyType.ABYSS.globalPercentage, this.getAllLocations());
+        // change team resources
+        teamInfo.changeLead((int) (-1 * AnomalyType.ABYSS.globalPercentage * teamInfo.getLead()));
+        teamInfo.changeGold((int) (-1 * AnomalyType.ABYSS.globalPercentage * teamInfo.getGold()));
+    }
+
+    /**
+     * Mutates state to perform the Sage Charge.
+     * @param robot performing the Charge, must be a Sage
+     */
+    public void causeChargeSage(InternalRobot robot) {
+        assert robot.getType() == RobotType.SAGE;
+
+        MapLocation[] actionLocations = this.getSageActionLocations(robot);
+        for (int i = 0; i < actionLocations.length; i++) {
+            InternalRobot currentRobot = getRobot(actionLocations[i]);
+            if (currentRobot != null && currentRobot.getTeam() != robot.getTeam())
+                currentRobot.addHealth((int) (-1 * AnomalyType.CHARGE.sagePercentage * currentRobot.getType().getMaxHealth(currentRobot.getLevel())));
+        }
+    }
+
+    /**
+     * Mutates state to peform the global Charge.
+     */
+    public void causeChargeGlobal() {
+        ArrayList<InternalRobot> droids = new ArrayList<InternalRobot>();
+        for (InternalRobot currentRobot : this.objectInfo.robotsArray()) {
+            if (currentRobot.getMode() == RobotMode.DROID) {
+                droids.add(currentRobot);
+                currentRobot.updateNumVisibleFriendlyRobots();
+            }
+        }
+        Collections.sort(droids, new SortByFriends());
+
+        int affectedDroidsLimit = (int) (AnomalyType.CHARGE.globalPercentage * droids.size());
+        for (int i = 0; i < affectedDroidsLimit; i++) {
+            this.destroyRobot(droids.get(i).getID());
+        }
+    }
+
+    /** Used to sort droids for charge */
+    class SortByFriends implements Comparator<InternalRobot> {
+        public int compare(InternalRobot a, InternalRobot b) {
+            return a.numVisibleFriendlyRobots - b.numVisibleFriendlyRobots;
+        }
+    }
+
+    /**
+     * Performs the Fury anomaly. Changes the health of the relevant robots.
      * @param reduceFactor associated with anomaly (a decimal percentage)
      * @param locations that can be affected by the Fury (by radius, not by state of robot)
      */
     public void causeFuryUpdate(float reduceFactor, MapLocation[] locations) {
         for (int i = 0; i < locations.length; i++) {
             InternalRobot robot = this.getRobot(locations[i]);
-            if (robot.getType().isBuilding() && robot.getMode() == RobotMode.TURRET) {
+            if (robot.getMode() == RobotMode.TURRET) {
                 robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor));
             }
         }
     }
 
     /**
-     * Mutates state to perform the Sage Abyss anomaly.
-     * @param robot that is the Sage
-     * @param anomaly that corresponds to Abyss type
-     */
-    public void causeAbyssSage(InternalRobot robot, AnomalyType anomaly) {
-        assert robot.getType() == RobotType.SAGE;
-        assert anomaly == AnomalyType.ABYSS;
-        // calculate the right effect range
-        this.causeAbyssGridUpdate(anomaly.sagePercentage, this.getSageActionLocations(robot));
-    }
-
-    /**
-     * Mutates state to perform the global Abyss anomaly.
-     * @param anomaly that corresponds to Abyss type
-     */
-    public void causeAbyssGlobal(AnomalyType anomaly) {
-        assert anomaly == AnomalyType.ABYSS;
-        this.causeAbyssGridUpdate(anomaly.globalPercentage, this.getAllLocations());
-        // change team resources
-        teamInfo.changeLead((int) (-1 * anomaly.globalPercentage * teamInfo.getLead()));
-        teamInfo.changeGold((int) (-1 * anomaly.globalPercentage * teamInfo.getGold()));
-    }
-
-    /**
      * Mutates state to perform the Sage Fury.
      * @param robot performing the Fury, must be a Sage
-     * @param anomaly that corresponds to Fury type
      */
-    public void causeFurySage(InternalRobot robot, AnomalyType anomaly) {
+    public void causeFurySage(InternalRobot robot) {
         assert robot.getType() == RobotType.SAGE;
-        assert anomaly == AnomalyType.FURY;
-        this.causeFuryUpdate(anomaly.sagePercentage, this.getSageActionLocations(robot));
+        this.causeFuryUpdate(AnomalyType.FURY.sagePercentage, this.getSageActionLocations(robot));
     }
 
     /**
      * Mutates state to peform the global Fury.
-     * @param anomaly that corresponds to Fury type
      */
-    public void causeFuryGlobal(AnomalyType anomaly) {
-        assert anomaly == AnomalyType.FURY;
-        this.causeFuryUpdate(anomaly.globalPercentage, this.getAllLocations());
+    public void causeFuryGlobal() {
+        this.causeFuryUpdate(AnomalyType.FURY.globalPercentage, this.getAllLocations());
     }
 
     /**
-     * Mutates state to perform the Sage Charge.
-     * @param robot performing the Charge, must be a Sage
-     * @param anomaly that corresponds to Charge type
+     * Mutates state to peform the global Vortex.
      */
-    public void causeChargeSage(InternalRobot robot, AnomalyType anomaly) {
-        assert robot.getType() == RobotType.SAGE;
-        assert anomaly == AnomalyType.CHARGE;
-
-        MapLocation[] actionLocations = this.getSageActionLocations(robot);
-        for (int i = 0; i < actionLocations.length; i++) {
-            InternalRobot currentRobot = getRobot(actionLocations[i]);
-            currentRobot.addHealth((int) (-1 * anomaly.sagePercentage * currentRobot.getType().getMaxHealth(currentRobot.getLevel())));
-        }
-    }
-
-    /**
-     * Mutates state to peform the global Charge.
-     * @param anomaly that corresponds to Charge type
-     */
-    public void causeChargeGlobal(AnomalyType anomaly) {
-        assert anomaly == AnomalyType.CHARGE;
-
-        ArrayList<InternalRobot> rawDroids = new ArrayList<InternalRobot>();
-        for (InternalRobot currentRobot : this.objectInfo.robotsArray())
-            if (!currentRobot.getType().isBuilding())
-                rawDroids.add(currentRobot);
-
-        InternalRobot[] droids = rawDroids.toArray(new InternalRobot[rawDroids.size()]);
-        Arrays.sort(
-            droids,  
-            (InternalRobot robot1, InternalRobot robot2) -> 
-                // 12/10/21: https://www.geeksforgeeks.org/arrays-sort-in-java-with-examples/
-                (robot2.getNumVisibleFriendlyRobots() - robot1.getNumVisibleFriendlyRobots())
-                // end reference on how to compare things with subtraction
-        );
-
-        int affectedDroidsLimit = (int) (anomaly.globalPercentage * droids.length);
-        for (int i = 0; i < affectedDroidsLimit; i++) {
-            this.destroyRobot(droids[i].getID());
-        }
+    public void causeVortexGlobal() {
+        // TODO
     }
 }
