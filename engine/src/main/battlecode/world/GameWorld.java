@@ -54,7 +54,6 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo(this);
 
         this.profilerCollections = new HashMap<>();
 
@@ -65,13 +64,17 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
+        int numArchons = 0;
         RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             int newID = spawnRobot(robot.type, newLocation, robot.team);
             initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, 1, robot.health, newLocation);
+            if (robot.team == Team.A && robot.type == RobotType.ARCHON)
+                numArchons++;
         }
+        this.teamInfo = new TeamInfo(this, numArchons);
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
@@ -311,29 +314,11 @@ public strictfp class GameWorld {
     }
 
     /**
-     * Sets the winner if one of the teams has been annihilated.
-     *
-     * @return whether or not a winner was set
-     */
-    public boolean setWinnerIfAnnihilated() {
-        int robotCountA = objectInfo.getRobotCount(Team.A);
-        int robotCountB = objectInfo.getRobotCount(Team.B);
-        if (robotCountA == 0) {
-            setWinner(Team.B, DominationFactor.ANNIHILATED);
-            return true;
-        } else if (robotCountB == 0) {
-            setWinner(Team.A, DominationFactor.ANNIHILATED);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @return whether a team has more archons
      */
     public boolean setWinnerIfMoreArchons() {
-        int archonCountA = objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
-        int archonCountB = objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
+        int archonCountA = this.objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
+        int archonCountB = this.objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
 
         if (archonCountA > archonCountB) {
             setWinner(Team.A, DominationFactor.MORE_ARCHONS);
@@ -400,7 +385,8 @@ public strictfp class GameWorld {
                     this.lead[i] += GameConstants.ADD_LEAD;
 
         // Add lead resources to the team
-        teamInfo.changeLead(teamInfo.getLead() + GameConstants.PASSIVE_LEAD_INCREASE);
+        this.teamInfo.addLead(Team.A, GameConstants.PASSIVE_LEAD_INCREASE);
+        this.teamInfo.addLead(Team.B, GameConstants.PASSIVE_LEAD_INCREASE);
 
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
@@ -420,7 +406,6 @@ public strictfp class GameWorld {
         }
 
         // Check for end of match
-        setWinnerIfAnnihilated();
         if (timeLimitReached() && gameStats.getWinner() == null)
             if (!setWinnerIfMoreArchons())
                 if (!setWinnerIfMoreGoldValue())
@@ -456,6 +441,8 @@ public strictfp class GameWorld {
 
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
+        RobotType type = robot.getType();
+        Team team = robot.getTeam();
         removeRobot(robot.getLocation());
         
         int leadDropped = robot.getType().getLeadDropped(robot.getLevel());
@@ -466,6 +453,10 @@ public strictfp class GameWorld {
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
+
+        // this happens here because both teams' Archons can die in the same round
+        if (type == RobotType.ARCHON && this.objectInfo.getRobotTypeCount(team, RobotType.ARCHON) == 0)
+            setWinner(1 - team, DominationFactor.ANNIHILATION);
 
         matchMaker.addDied(id);
     }
@@ -528,9 +519,12 @@ public strictfp class GameWorld {
      */
     public void causeAbyssGlobal() {
         this.causeAbyssGridUpdate(AnomalyType.ABYSS.globalPercentage, this.getAllLocations());
-        // change team resources
-        teamInfo.changeLead((int) (-1 * AnomalyType.ABYSS.globalPercentage * teamInfo.getLead()));
-        teamInfo.changeGold((int) (-1 * AnomalyType.ABYSS.globalPercentage * teamInfo.getGold()));
+        
+        this.teamInfo.addLead(Team.A, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getLead(Team.A)));
+        this.teamInfo.addLead(Team.B, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getLead(Team.B)));
+
+        this.teamInfo.addGold(Team.A, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.A)));
+        this.teamInfo.addGold(Team.B, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.B)));
     }
 
     /**
