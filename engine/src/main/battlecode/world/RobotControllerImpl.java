@@ -240,7 +240,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     /**
      * @return the number of friendly robots within sensor (vision) radius.
      */
-    public int numberOfVisibleFriendlyRobots() {
+    public int getNumVisibleFriendlyRobots() {
         return this.seeNearbyRobots(
             this.robot.getVisionRadiusSquared(),
             this.robot.getTeam()
@@ -757,8 +757,46 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void convert() throws GameActionException {
         assertCanConvert();
-        this.robot.convert();
-        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT);
+        RobotType type = this.robot.getType();
+        this.robot.addActionCooldownTurns(type.actionCooldown);
+        Team robotTeam = this.robot.getTeam();
+        int nearbyRobotCount = seeNearbyRobots();
+        robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE * getGoldExchangeRate());
+        robotTeam.addGold(1);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY);
+    }
+
+    // *******************************
+    // **** GENERAL TOWER METHODS **** 
+    // *******************************
+
+    private void assertCanTransform() throws GameActionException {
+        assertIsActionReady();
+        assertIsMovementReady();
+        if (robot.getMode() != RobotMode.TURRET && robot.getMode() != RobotMode.PORTABLE) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not transformable.");
+        }
+    }
+
+    @Override
+    public boolean canTransform() {
+        try {
+            assertCanTransform();
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void transform() throws GameActionException {
+        assertCanTransform();
+        robot.transform();
+        RobotMode mode = robot.getMode();
+        if (mode == RobotMode.TURRET)
+            addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        else
+            addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
     }
 
     // ***********************************
