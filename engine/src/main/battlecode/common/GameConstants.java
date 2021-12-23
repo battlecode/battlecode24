@@ -46,6 +46,12 @@ public class GameConstants {
     /** The number of indicator strings that a player can associate with a robot. */
     public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
 
+    /** The length of each team's shared communication array. */
+    public static final int SHARED_ARRAY_LENGTH = 64;
+
+    /** The maximum value in shared communication arrays. */
+    public static final int MAX_SHARED_ARRAY_VALUE = Short.MAX_VALUE;
+
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
