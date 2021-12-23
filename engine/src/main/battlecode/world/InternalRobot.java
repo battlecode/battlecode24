@@ -133,6 +133,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return movementCooldownTurns;
     }
 
+    public int getTransformCooldownTurns() {
+        if (this.mode == RobotMode.TURRET)
+            return this.actionCooldownTurns;
+        if (this.mode == RobotMode.PORTABLE)
+            return this.movementCooldownTurns;
+        return -1;
+    }
+
     public RobotInfo getRobotInfo() {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
@@ -331,28 +339,20 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     /**
      * Attacks another robot. Assumes bot is in range.
-     * Note: this is relatively inefficient(?), can possibly optimize
-     *  by making better helper methods in GameWorld
      * 
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        if (!this.canActLocation(bot.location))
-            return; // TODO: throw exception?
         int dmg = this.type.getDamage(this.level);
         bot.addHealth(-dmg);
     }
 
     /**
      * Heals another robot. Assumes bot is in range.
-     * Note: this is relatively inefficient(?), can possibly optimize
-     *  by making better helper methods in GameWorld
      * 
      * @param bot the robot to be healed
      */
     public void heal(InternalRobot bot) {
-        if (!this.canActLocation(bot.location))
-            return; // TODO: throw exception?
         int healingAmount = this.type.getHealing(this.level);
         bot.addHealth(healingAmount);
     }
@@ -416,7 +416,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @return the number of friendly robots within sensor (vision) radius.
      */
     public int updateNumVisibleFriendlyRobots() {
-        return this.numVisibleFriendlyRobots = this.controller.getNumVisibleFriendlyRobots();
+        return this.numVisibleFriendlyRobots = this.controller.seeNearbyRobots(-1, getTeam()).length;
     }
 
     @Override

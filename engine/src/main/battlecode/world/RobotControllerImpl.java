@@ -65,7 +65,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int hashCode() {
-        return robot.getID();
+        return this.robot.getID();
     }
 
     // *********************************
@@ -74,18 +74,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int getRoundNum() {
-        return gameWorld.getCurrentRound();
+        return this.gameWorld.getCurrentRound();
     }
 
     @Override
     public int getRobotCount() {
-        return gameWorld.getObjectInfo().getRobotCount(getTeam());
+        return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
     @Override
     public int getArchonCount() {
-        // TODO: Assumes getArchons() exists in TeamInfo
-        return gameWorld.getTeamInfo().getArchons();
+        return this.gameWorld.getTeamInfo().getArchonCount(getTeam());
     }
 
     // *********************************
@@ -118,8 +117,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getUpgradeLevel() {
-        return this.robot.getUpgradeLevel();  
+    public int getLevel() {
+        return this.robot.getLevel();  
     }
 
     private InternalRobot getRobotByID(int id) {
@@ -127,14 +126,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return null;
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
-
-    /**
-     * Returns a fully copied version of the anomaly schedule.
-     */
-    public AnomalyScheduleEntry[] getAnomalySchedule() {
-        this.gameWorld.getAnomalySchedule();
-    }
-
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -181,10 +172,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        InternalRobot bot = gameWorld.getRobot(loc);
-        if (bot != null)
-            return bot.getRobotInfo(getType().canTrueSense());
-        return null;
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        return bot == null ? null : bot.getRobotInfo();
     }
 
     @Override
@@ -197,8 +186,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotInfo seeRobot(int id) throws GameActionException {
         if (!canSeeRobot(id))
             throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't see given robot; It may not exist anymore");
-        return getRobotByID(id).getRobotInfo(getType().canTrueSense());
+                    "Can't see given robot; It may be out of vision range or not exist anymore");
+        return getRobotByID(id).getRobotInfo();
     }
 
     @Override
@@ -232,25 +221,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
             // check if right team
             if (team != null && seenRobot.getTeam() != team)
                 continue;
-            validSeenRobots.add(seenRobot.getRobotInfo(getType().canTrueSense()));
+            validSeenRobots.add(seenRobot.getRobotInfo());
         }
         return validSeenRobots.toArray(new RobotInfo[validSeenRobots.size()]);
     }
 
-    /**
-     * @return the number of friendly robots within sensor (vision) radius.
-     */
-    public int getNumVisibleFriendlyRobots() {
-        return this.seeNearbyRobots(
-            this.robot.getVisionRadiusSquared(),
-            this.robot.getTeam()
-        ).length;
-    }
-
     @Override 
-    public double seePassability(MapLocation loc) throws GameActionException {
+    public int seeRubble(MapLocation loc) throws GameActionException {
         assertCanSeeLocation(loc);
-        return this.gameWorld.getPassability(loc);
+        return this.gameWorld.getRubble(loc);
     }
 
     @Override 
@@ -279,20 +258,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertIsActionReady() throws GameActionException {
-        if (getActionCooldownTurns() >= 1)
-            throw new GameActionException(IS_NOT_READY,
-                    "This robot's action cooldown has not expired.");
-        if (!robot.getMode().canAct)
+        if (!this.robot.getMode().canAct)
             throw new GameActionException(CANT_DO_THAT,
                     "This robot is not in a mode that can act.");
+        if (!this.robot.canActCooldown())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot's action cooldown has not expired.");
     }
 
-    /**
-     * Check if the robot is ready to perform an action. Returns true if
-     * the current action cooldown counter is strictly less than 1.
-     *
-     * @return true if the robot can do an action, false otherwise
-     */
     @Override
     public boolean isActionReady() {
         try {
@@ -301,31 +274,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    /**
-     * Return the action cooldown turn counter of the robot. If this is < 1, the robot
-     * can perform an action; otherwise, it cannot.
-     * The counter is decreased by 1 at the start of every
-     * turn, and increased to varying degrees by different actions taken.
-     *
-     * @return the number of action cooldown turns as a float
-     */
     @Override
     public double getActionCooldownTurns() {
         return this.robot.getActionCooldownTurns();
     }
 
     private void assertIsMovementReady() throws GameActionException {
-        if (getMovementCooldownTurns() >= 1)
+        if (!this.robot.getMode().canMove)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can move.");
+        if (!this.robot.canMoveCooldown())
             throw new GameActionException(IS_NOT_READY,
                     "This robot's movement cooldown has not expired.");
     }
 
-    /**
-     * Check if the robot is ready to move. Returns true if
-     * the current movement cooldown counter is strictly less than 1.
-     *
-     * @return true if the robot can move, false otherwise
-     */
     @Override
     public boolean isMovementReady() {
         try {
@@ -334,17 +296,32 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    /**
-     * Return the movement cooldown turn counter of the robot. If this is < 1, the robot
-     * can move; otherwise, it cannot.
-     * The counter is decreased by 1 at the start of every
-     * turn, and increased by moving.
-     *
-     * @return the number of cooldown movement turns as a float
-     */
     @Override
     public double getMovementCooldownTurns() {
         return this.robot.getMovementCooldownTurns();
+    }
+
+    private void assertIsTransformReady() throws GameActionException {
+        if (!this.robot.getMode().canTransform)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can transform.");
+        if (!this.robot.canTransformCooldown())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot's transform cooldown (either action or movement
+                    cooldown, depending on its current mode) has not expired.");
+    }
+
+    @Override
+    public boolean isTransformReady() {
+        try {
+            assertIsTransformReady();
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public double getTransformCooldownTurns() {
+        return this.robot.getTransformCooldownTurns();
     }
 
     // ***********************************
@@ -354,9 +331,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanMove(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsMovementReady();
-        if (robot.getMode().canMove)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot move.");
         MapLocation loc = adjacentLocation(dir);
         if (!onTheMap(loc))
             throw new GameActionException(OUT_OF_RANGE,
@@ -364,9 +338,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
-        if (!isMovementReady())
-            throw new GameActionException(IS_NOT_READY,
-                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     @Override
@@ -398,20 +369,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!getType().canBuild(type))
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot build robots of type" + type + ".");
+                    "Robot is of type " + getType() + " which cannot build robots of type " + type + ".");
 
-        // CHECK FUNCTION NAMES FOR GETTING LEAD/GOLD COSTS AND SUPPLIES
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
         Team team = getTeam();
-        if (gameWorld.getTeamInfo().getLead(team) < leadNeeded) {
-            throw new GameActionException(CANT_DO_THAT,
+        if (this.gameWorld.getTeamInfo().getLead(team) < leadNeeded)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of lead.");
-        }
-        if (gameWorld.getTeamInfo().getGold(team) < goldNeeded) {
-            throw new GameActionException(CANT_DO_THAT,
+        if (this.gameWorld.getTeamInfo().getGold(team) < goldNeeded)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of gold.");
-        }
 
         MapLocation spawnLoc = adjacentLocation(dir);
         if (!onTheMap(spawnLoc))
@@ -430,29 +398,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    // TODO: CHECK FUNCTION NAMES
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
         assertCanBuildRobot(type, dir);
-
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        Team team = getTeam();
         int leadNeeded = type.getLeadCost();
         int goldNeeded = type.getGoldCost();
-
-        this.robot.addCooldownTurns();
-
-        this.robot.addLead(-leadNeeded);
-        this.robot.addGold(-goldNeeded);
-
-        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
-
-        int robotID = gameWorld.spawnRobot(this.robot, type, adjacentLocation(dir), getTeam());
-
-        // Undo because setting cooldown is automatically done 
-        // // set cooldown turns here, because not all new robots have cooldown (eg. switching teams)
-        // InternalRobot newBot = getRobotByID(robotID);
-        // newBot.setCooldownTurns(type.initialCooldown);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+        this.gameWorld.getTeamInfo().addLead(team, -leadNeeded);
+        this.gameWorld.getTeamInfo().addGold(team, -goldNeeded);
+        this.gameWorld.spawnRobot(type, adjacentLocation(dir), team);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
 
     // *****************************
@@ -466,8 +422,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot attack.");
         if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
-                    "Robot can't be attacked because it is out of range.");
+                    "Location can't be attacked because it is out of range.");
         InternalRobot bot = getRobot(loc);
+        if (bot == null)
+            throw new GameActionException(CANT_DO_THAT,
+                    "There is no robot to attack at the target location.");
         if (bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
@@ -484,92 +443,86 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
-        this.robot.attack(loc);
-        InternalRobot bot = gameWorld.getRobot(loc);
-        int attackedID = bot.getID();
-        gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, attackedID);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        this.robot.attack(bot);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
     }
 
     // *****************************
     // ******** SAGE METHODS ******* 
     // *****************************
 
-    private void assertCanUseAnomaly(AnomalyType anomaly) throws GameActionException {
+    private void assertCanEnvision(AnomalyType anomaly) throws GameActionException {
         assertIsActionReady();
-        if (!getType().canUseAnomaly()) {
+        if (!getType().canEnvision())
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot use anomaly.");
-        }
-        if (!anomaly.isSageAnomaly) {
+                    "Robot is of type " + getType() + " which cannot envision.");
+        if (!anomaly.isSageAnomaly)
             throw new GameActionException(CANT_DO_THAT,
                     "Sage can not use anomaly of type " + anomaly.toString());
-        }
     }
 
     @Override
-    public boolean canUseAnomaly(AnomalyType anomaly) {
+    public boolean canEnvision(AnomalyType anomaly) {
         try {
-            assertCanUseAnomaly(anomaly);
+            assertCanEnvision(anomaly);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void useAnomaly(AnomalyType anomaly) throws GameActionException {
-        assertCanUseAnomaly(anomaly);
+    public void envision(AnomalyType anomaly) throws GameActionException {
+        assertCanEnvision(anomaly);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         switch (anomaly) {
             case ABYSS:
-                gameWorld.causeAbyssSage(this.robot, anomaly);
+                this.gameWorld.causeAbyssSage(this.robot, anomaly);
             case CHARGE:
-                gameWorld.causeChargeSage(this.robot, anomaly);
+                this.gameWorld.causeChargeSage(this.robot, anomaly);
             case FURY:
-                gameWorld.causeFurySage(this.robot, anomaly);
-            default:
-                throw IllegalArgumentException("Anomaly is not of the right type, should not get here");
+                this.gameWorld.causeFurySage(this.robot, anomaly);
         }
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
-        gameWorld.getMatchMaker().addAction(getID(), Action.USE_ANOMALY, anomaly);
+        gameWorld.getMatchMaker().addAction(getID(), Action.ENVISION, anomaly);
     }
 
     // *****************************
-    // ****** ARCHON METHODS *******
+    // ****** REPAIR METHODS *******
     // *****************************
 
-    private void assertCanHealDroid(MapLocation loc) throws GameActionException {
+    private void assertCanRepair(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
         assertIsActionReady();
-        if (!getType().canHealDroid()) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot heal droids.");
-        } else if (!this.robot.canActLocation(loc)) {
+        if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
-                    "This robot can't be healed belocation can't be min because it is out of range.");
-        }
-        InternalRobot bot = gameWorld.getRobot(loc);
-        if (!(bot.getType().canBeHealed())) {
-            throw new GameActionException(CANT_DO_THAT, 
-                    "Robot is not of a type that can be healed.");
-        }
-        if (bot.getTeam() != getTeam()) {
+                    "The target location is out of range.");
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        if (bot == null)
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is not on your team so can't be healed.");
-        }
+                    "There is no robot to repair at the target location.");
+        if (!getType().canRepair(bot.getType()))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot repair robots of type " + bot.getType() + ".");
+        if (bot.getTeam() != getTeam())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be repaired.");
     }
 
     @Override
-    public boolean canHealDroid(MapLocation loc) {
+    public boolean canRepair(MapLocation loc) {
         try {
-            assertCanHealDroid(loc);
+            assertCanRepair(loc);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void healDroid(MapLocation loc) throws GameActionException {
-        assertCanHealDroid(loc);
-        this.robot.healDroid(loc);
-        InternalRobot bot = gameWorld.getRobot(loc);
-        int healedID = bot.getID();
-        gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, healedID);
+    public void repair(MapLocation loc) throws GameActionException {
+        assertCanRepair(loc);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        this.robot.heal(bot);
+        gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, bot.getID());
     }
 
     
@@ -579,18 +532,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertIsActionReady();
-        if (!getType().canMine()) {
+        if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        } else if (!this.robot.canActLocation(loc)) {
+        if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
-                    "Robot can't be healed because it is out of range.");
-        }
-        int leadAmount = gameWorld.getLead(loc);
-        if (leadAmount < 0) {
+                    "This location can't be mined because it is out of range.");
+        if (this.gameWorld.getLead(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Lead amount must be positive to be mined.");
-        }
     }
 
     @Override
@@ -604,24 +554,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void mineLead(MapLocation loc) throws GameActionException {
         assertCanMineLead(loc);
-        this.robot.mineLead(loc);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
+        this.gameWorld.getTeamInfo().addLead(this.robot.getTeam(), 1);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
         assertIsActionReady();
-        if (!getType().canMine()) {
+        if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        } else if (!this.robot.canActLocation(loc)) {
+        if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "This location can't be mined because it is out of range.");
-        }
-        int goldAmount = gameWorld.getGold(loc);
-        if (goldAmount < 0) {
+        if (this.gameWorld.getGold(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Gold amount must be positive to be mined.");
-        }
     }
 
     @Override
@@ -635,12 +584,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void mineGold(MapLocation loc) throws GameActionException {
         assertCanMineGold(loc);
-        this.robot.mineGold(loc);
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
+        this.gameWorld.getTeamInfo().addGold(this.robot.getTeam(), 1);
         gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
     // *************************
-    // **** BUILDER METHODS **** 
+    // **** UPGRADE METHODS **** 
     // *************************
 
     private void assertCanUpgrade(MapLocation loc) throws GameActionException {
@@ -686,43 +637,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         InternalRobot bot = gameWorld.getRobot(loc);
         int upgradedID = bot.getID();
         gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
-    }
-
-    private void assertCanRepairBuilding(MapLocation loc) throws GameActionException {
-        assertIsActionReady();
-        if (!getType().canRepairBuilding()) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot repair buildings.");
-        } else if (!this.robot.canActLocation(loc)) {
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Robot can't be repaired because it is out of range.");
-        }
-        InternalRobot bot = gameWorld.getRobot(loc);
-        if (!(bot.getType().canBeUpgraded())) {
-            throw new GameActionException(CANT_DO_THAT, 
-                    "Robot is not of a type that can be repair.");
-        }
-        if (bot.getTeam() != getTeam()) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is not on your team so can't be repaired.");
-        }
-    }
-
-    @Override
-    public boolean canRepairBuilding(MapLocation loc) {
-        try {
-            assertCanRepairBuilding(loc);
-            return true;
-        } catch (GameActionException e) { return false; }  
-    }
-
-    @Override
-    public void repairBuilding(MapLocation loc) throws GameActionException {
-        assertCanRepairBuilding(loc);
-        this.robot.repairBuilding(loc);
-        InternalRobot bot = gameWorld.getRobot(loc);
-        int repairedID = bot.getID();
-        gameWorld.getMatchMaker().addAction(getID(), Action.REPAIRD, repairedID);
     }
 
     // *******************************
@@ -858,6 +772,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
+
+    @Override
+    public AnomalyScheduleEntry[] getAnomalySchedule() {
+        return this.gameWorld.getAnomalySchedule();
+    }
 
     @Override
     public void disintegrate() {

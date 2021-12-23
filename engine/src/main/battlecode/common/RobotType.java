@@ -46,14 +46,14 @@ public enum RobotType {
     /**
      * Ranged attacking robot.
     */
-    SOLDIER         ( 75,   0, 10, 16,  3,  50, 13, 20,  10000),
-    //               BCL   BCG AC  MC  HP  DMG  AR  VR       BL
+    SOLDIER         ( 75,   0,  10, 16,  3,  50, 13, 20,  10000),
+    //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
     
     /**
      * Gold robot, causes Anomalies.
      */
-    SAGE            ( 0,  50,200, 25, 45, 100, 13, 20,   10000)
-    //              BCL  BCG  AC  MC  HP  DMG  AR  VR        BL
+    SAGE            ( 0,  50, 200, 25, 45, 100, 13, 20,   10000)
+    //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
     /**
@@ -117,15 +117,6 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can attack
-     */
-    public boolean canAttack() {
-        return (this == WATCHTOWER
-            || this == SOLDIER
-            || this == SAGE);
-    }
-
-    /**
      * @param builtType type of robot being built
      * @return whether this type can build the given robot type
      */
@@ -139,9 +130,26 @@ public enum RobotType {
     }
 
     /**
+     * @return whether this type can attack
+     */
+    public boolean canAttack() {
+        return (this == WATCHTOWER
+            || this == SOLDIER);
+    }
+
+    /**
+     * @param repairedType type of robot being repaired
+     * @return whether this type can repair the given robot type
+     */
+    public boolean canRepair(RobotType repairedType) {
+        return (this == ARCHON && !builtType.isBuilding() || 
+                this == BUILDER && builtType.isBuilding());
+    }
+
+    /**
      * @return whether this type can anomalies
      */
-    public boolean canUseAnomaly() {
+    public boolean canEnvision() {
         return this == SAGE;
     }
 
