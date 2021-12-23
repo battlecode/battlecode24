@@ -4,9 +4,9 @@ package battlecode.common;
  * Holds the different anomalies in the game.
  */
 public enum AnomalyType {
-    ABYSS       (true,    true,   0.1,    0.2),
-    CHARGE      (true,    true,   0.05,   0.1),
-    FURY        (true,    true,   0.05,   0.1),
+    ABYSS       (true,    true,   0.1f,    0.2f),
+    CHARGE      (true,    true,   0.05f,   0.1f),
+    FURY        (true,    true,   0.05f,   0.1f),
     VORTEX      (true,    false,  0,      0),
     SINGULARITY (true,    false,  0,      0);
 

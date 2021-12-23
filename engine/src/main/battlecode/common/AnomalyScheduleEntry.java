@@ -1,5 +1,4 @@
-package battlecode.world;
-import battlecode.common.*;
+package battlecode.common;
 
 public class AnomalyScheduleEntry {
 
@@ -14,7 +13,7 @@ public class AnomalyScheduleEntry {
     /**
      * @return a copy of the entry
      */
-    public AnomalyScheduleEntry copyEntry(AnomalyType anomalyType) {
+    public AnomalyScheduleEntry copyEntry() {
         return new AnomalyScheduleEntry(this.roundNumber, this.anomalyType);
     }
 
