@@ -169,9 +169,9 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can convert lead into gold
+     * @return whether this type can transmute lead into gold
      */
-    public boolean canConvert() {
+    public boolean canTransmute() {
         return this == LABORATORY;
     }
 

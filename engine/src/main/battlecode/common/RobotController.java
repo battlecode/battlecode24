@@ -582,39 +582,39 @@ public strictfp interface RobotController {
      */
     void mutate(MapLocation loc) throws GameActionException;
 
-    // *******************************
-    // **** ALCHEMIST LAB METHODS ****
-    // *******************************
+    // ***************************
+    // **** TRANSMUTE METHODS ****
+    // ***************************
+
+    /** 
+     * Get lead to gold transmutation rate.
+     *
+     * @return the lead to gold transmutation rate, 0 if the robot is not a lab
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public int getTransmutationRate();
 
     /**
-     * Tests whether this robot can convert lead into gold.
+     * Tests whether this robot can transmute lead into gold.
      * 
      * Checks that the robot is a lab and the player has sufficient lead to
      * perform a conversion. Also checks that no cooldown turns remain.
      *
-     * @return whether it is possible to convert lead into gold
+     * @return whether it is possible to transmute lead into gold
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canConvert();
+    boolean canTransmute();
 
     /** 
-     * Get lead to gold conversion rate.
+     * Transmute lead into gold.
      *
-     * @return the lead to gold conversion rate, 0 if the robot is not a lab
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getGoldExchangeRate();
-
-    /** 
-     * Convert lead into gold.
-     *
-     * @throws GameActionException if conditions for converting are not satisfied
+     * @throws GameActionException if conditions for transmuting are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void convert() throws GameActionException;
+    void transmute() throws GameActionException;
 
     // *******************************
     // **** GENERAL TOWER METHODS **** 
