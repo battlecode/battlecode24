@@ -591,52 +591,58 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // *************************
-    // **** UPGRADE METHODS **** 
+    // **** MUTATE METHODS **** 
     // *************************
 
-    private void assertCanUpgrade(MapLocation loc) throws GameActionException {
+    private void assertCanMutate(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
         assertIsActionReady();
-        if (!getType().canUpgrade()) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot upgrade buildings.");
-        } else if (!this.robot.canActLocation(loc)) {
+        if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
-                    "Robot can't be upgraded because it is out of range.");
-        }
+                    "Target location for mutation is out of range.");
         InternalRobot bot = gameWorld.getRobot(loc);
-        if (!(bot.getType().canBeUpgraded())) {
-            throw new GameActionException(CANT_DO_THAT, 
-                    "Robot is not of a type that can be upgraded.");
-        }
-        if (bot.getTeam() != getTeam()) {
+        if (bot == null)
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is not on your team so can't be upgraded.");
-        }
-        if (gameWorld.getTeamInfo().getLead(team) < bot.getLeadUpgradeCost()) {
+                    "There is no robot to mutate at the target location.");
+        if (!getType().canMutate(bot.getType()))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot mutate robots of type " + bot.getType() + ".");
+        if (bot.getTeam() != getTeam())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on your team so can't be mutated.");
+        if (!bot.canMutate())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is either not in a mutable mode, or already at max level.");
+        if (gameWorld.getTeamInfo().getLead(team) < bot.getLeadMutateCost())
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "You don't have enough lead to upgrade this robot.");
-        }
-        if (gameWorld.getTeamInfo().getGold(team) < bot.getGoldUpgradeCost()) {
+                    "You don't have enough lead to mutate this robot.");
+        if (gameWorld.getTeamInfo().getGold(team) < bot.getGoldMutateCost())
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "You don't have enough gold to upgrade this robot.");
-        }
+                    "You don't have enough gold to mutate this robot.");
     }
 
     @Override
-    public boolean canUpgrade(MapLocation loc) {
+    public boolean canMutate(MapLocation loc) {
         try {
-            assertCanUpgrade(loc);
+            assertCanMutate(loc);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void upgrade(MapLocation loc) throws GameActionException {
-        assertCanUpgrade(loc);
-        this.robot.upgrade(loc);
-        InternalRobot bot = gameWorld.getRobot(loc);
-        int upgradedID = bot.getID();
-        gameWorld.getMatchMaker().addAction(getID(), Action.UPGRADE, upgradedID);
+    public void mutate(MapLocation loc) throws GameActionException {
+        assertCanMutate(loc);
+        this.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        Team team = this.robot.getTeam();
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        int leadNeeded = bot.getLeadMutateCost();
+        int goldNeeded = type.getGoldMutateCost();
+        this.gameWorld.getTeamInfo().addLead(team, -leadNeeded);
+        this.gameWorld.getTeamInfo().addGold(team, -goldNeeded);
+        bot.mutate();
+        bot.addActionCooldownTurns(GameConstants.MUTATE_COOLDOWN);
+        bot.addMovementCooldownTurns(GameConstants.MUTATE_COOLDOWN);
+        gameWorld.getMatchMaker().addAction(getID(), Action.MUTATE, bot.getID());
     }
 
     // *******************************

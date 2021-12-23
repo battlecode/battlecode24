@@ -141,6 +141,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return -1;
     }
 
+    public int getLeadMutateCost() {
+        return this.type.getLeadMutateCost(this.level + 1);
+    }
+
+    public int getGoldMutateCost() {
+        return this.type.getGoldMutateCost(this.level + 1);
+    }
+
     public RobotInfo getRobotInfo() {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
@@ -235,6 +243,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return radiusSquared <= getVisionRadiusSquared();
     }
 
+    /**
+     * @return whether this robot can mutate
+     */
+    public boolean canMutate() {
+        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
+            return false;
+        if (this.level == GameConstants.MAX_LEVEL)
+            return false;
+        return true;
+    }
+
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
@@ -326,13 +345,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Upgrade a building.
+     * Mutate a building.
      */
-    public void upgrade() {
-        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
-            return;
-        if (this.level == GameConstants.MAX_LEVEL)
-            return;
+    public void mutate() {
+        if (!canMutate()) return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
     }
