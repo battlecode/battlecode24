@@ -455,7 +455,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot envision.");
         if (!anomaly.isSageAnomaly)
             throw new GameActionException(CANT_DO_THAT,
-                    "Sage can not use anomaly of type " + anomaly.toString());
+                    "Sage can not use anomaly of type " + anomaly);
     }
 
     @Override
