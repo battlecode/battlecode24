@@ -65,7 +65,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int hashCode() {
-        return this.robot.getID();
+        return getID();
     }
 
     // *********************************
@@ -84,7 +84,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int getArchonCount() {
-        return this.gameWorld.getTeamInfo().getArchonCount(getTeam());
+        return this.gameWorld.getObjectInfo().getRobotTypeCount(getTeam(), RobotType.ARCHON);
     }
 
     // *********************************
@@ -185,7 +185,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo seeRobot(int id) throws GameActionException {
         if (!canSeeRobot(id))
-            throw new GameActionException(CANT_SENSE_THAT,
+            throw new GameActionException(CANT_SEE_THAT,
                     "Can't see given robot; It may be out of vision range or not exist anymore");
         return getRobotByID(id).getRobotInfo();
     }
@@ -208,7 +208,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo[] seeNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().sensorRadiusSquared : Math.min(radiusSquared, getType().sensorRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         InternalRobot[] allSeenRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
         List<RobotInfo> validSeenRobots = new ArrayList<>();
         for (InternalRobot seenRobot : allSeenRobots) {
@@ -307,8 +307,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "This robot is not in a mode that can transform.");
         if (!this.robot.canTransformCooldown())
             throw new GameActionException(IS_NOT_READY,
-                    "This robot's transform cooldown (either action or movement
-                    cooldown, depending on its current mode) has not expired.");
+                    "This robot's transform cooldown (either action or movement" +
+                    "cooldown, depending on its current mode) has not expired.");
     }
 
     @Override
@@ -352,7 +352,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        this.robot.addMovementCooldownTurns(this.robot.getType().movementCooldown);
+        this.robot.addMovementCooldownTurns(getType().movementCooldown);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
         this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
@@ -370,13 +370,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build robots of type " + type + ".");
 
-        int leadNeeded = type.getLeadCost();
-        int goldNeeded = type.getGoldCost();
         Team team = getTeam();
-        if (this.gameWorld.getTeamInfo().getLead(team) < leadNeeded)
+        if (this.gameWorld.getTeamInfo().getLead(team) < type.buildCostLead)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of lead.");
-        if (this.gameWorld.getTeamInfo().getGold(team) < goldNeeded)
+        if (this.gameWorld.getTeamInfo().getGold(team) < type.buildCostGold)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Insufficient amount of gold.");
 
@@ -400,14 +398,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
         assertCanBuildRobot(type, dir);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         Team team = getTeam();
-        int leadNeeded = type.getLeadCost();
-        int goldNeeded = type.getGoldCost();
-        this.gameWorld.getTeamInfo().addLead(team, -leadNeeded);
-        this.gameWorld.getTeamInfo().addGold(team, -goldNeeded);
+        this.gameWorld.getTeamInfo().addLead(team, -type.buildCostLead);
+        this.gameWorld.getTeamInfo().addGold(team, -type.buildCostGold);
         this.gameWorld.spawnRobot(type, adjacentLocation(dir), team);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, getID());
     }
 
     // *****************************
@@ -422,7 +418,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Location can't be attacked because it is out of range.");
-        InternalRobot bot = getRobot(loc);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
             throw new GameActionException(CANT_DO_THAT,
                     "There is no robot to attack at the target location.");
@@ -442,7 +438,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
         this.robot.attack(bot);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
@@ -473,14 +469,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void envision(AnomalyType anomaly) throws GameActionException {
         assertCanEnvision(anomaly);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         switch (anomaly) {
             case ABYSS:
-                this.gameWorld.causeAbyssSage(this.robot, anomaly);
+                this.gameWorld.causeAbyssSage(this.robot);
             case CHARGE:
-                this.gameWorld.causeChargeSage(this.robot, anomaly);
+                this.gameWorld.causeChargeSage(this.robot);
             case FURY:
-                this.gameWorld.causeFurySage(this.robot, anomaly);
+                this.gameWorld.causeFurySage(this.robot);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.ENVISION, anomaly);
     }
@@ -518,10 +514,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void repair(MapLocation loc) throws GameActionException {
         assertCanRepair(loc);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
         this.robot.heal(bot);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, bot.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.REPAIR, bot.getID());
     }
 
     
@@ -553,9 +549,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void mineLead(MapLocation loc) throws GameActionException {
         assertCanMineLead(loc);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
-        this.gameWorld.getTeamInfo().addLead(this.robot.getTeam(), 1);
+        this.gameWorld.getTeamInfo().addLead(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
@@ -583,9 +579,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void mineGold(MapLocation loc) throws GameActionException {
         assertCanMineGold(loc);
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
-        this.gameWorld.getTeamInfo().addGold(this.robot.getTeam(), 1);
+        this.gameWorld.getTeamInfo().addGold(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
@@ -599,7 +595,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canActLocation(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location for mutation is out of range.");
-        InternalRobot bot = gameWorld.getRobot(loc);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
             throw new GameActionException(CANT_DO_THAT,
                     "There is no robot to mutate at the target location.");
@@ -612,10 +608,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!bot.canMutate())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is either not in a mutable mode, or already at max level.");
-        if (gameWorld.getTeamInfo().getLead(team) < bot.getLeadMutateCost())
+        if (gameWorld.getTeamInfo().getLead(getTeam()) < bot.getLeadMutateCost())
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough lead to mutate this robot.");
-        if (gameWorld.getTeamInfo().getGold(team) < bot.getGoldMutateCost())
+        if (gameWorld.getTeamInfo().getGold(getTeam()) < bot.getGoldMutateCost())
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough gold to mutate this robot.");
     }
@@ -631,11 +627,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void mutate(MapLocation loc) throws GameActionException {
         assertCanMutate(loc);
-        this.addActionCooldownTurns(this.robot.getType().actionCooldown);
-        Team team = this.robot.getTeam();
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Team team = getTeam();
         InternalRobot bot = this.gameWorld.getRobot(loc);
         int leadNeeded = bot.getLeadMutateCost();
-        int goldNeeded = type.getGoldMutateCost();
+        int goldNeeded = bot.getGoldMutateCost();
         this.gameWorld.getTeamInfo().addLead(team, -leadNeeded);
         this.gameWorld.getTeamInfo().addGold(team, -goldNeeded);
         bot.mutate();
@@ -651,7 +647,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int getTransmutationRate() {
         return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
-                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * this.robot.getNumVisibleFriendlyRobots()));
+                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * this.robot.getNumVisibleFriendlyRobots(true)));
     }
 
     private void assertCanTransmute() throws GameActionException {
@@ -659,7 +655,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!getType().canTransmute())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot transmute lead to gold.");
-        if (this.gameWorld.getTeamInfo().getLead(this.robot.getTeam()) < getTransmutationRate())
+        if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate())
             throw new GameActionException(CANT_DO_THAT,
                     "You don't have enough lead to transmute to gold.");
     }
@@ -675,8 +671,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void transmute() throws GameActionException {
         assertCanTransmute();
-        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
-        Team team = this.robot.getTeam();
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Team team = getTeam();
         this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
         this.gameWorld.getTeamInfo().addGold(team, 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY, -1);
@@ -717,7 +713,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public int readSharedArray(int index) {
         if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
             return -1;
-        return this.gameWorld.getTeamInfo().readSharedArray(this.robot.getTeam(), index);
+        return this.gameWorld.getTeamInfo().readSharedArray(getTeam(), index);
     }
 
     @Override
@@ -726,7 +722,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
             return false;
-        this.gameWorld.getTeamInfo().writeSharedArray(this.robot.getTeam(), index, value);
+        this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
         return true;
     }
 
@@ -746,7 +742,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public void resign() {
-        Team team = this.robot.getTeam();
+        Team team = getTeam();
         gameWorld.getObjectInfo().eachRobot((robot) -> {
             if (robot.getTeam() == team) {
                 gameWorld.destroyRobot(robot.getID());

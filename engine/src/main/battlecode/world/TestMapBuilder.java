@@ -11,7 +11,7 @@ public class TestMapBuilder {
     private MapBuilder mapBuilder;
 
     public TestMapBuilder(String name, int oX, int oY, int width, int height, int seed) {
-        this.mapBuilder = new MapBuilder(name, width, height, oX, oY, seed)
+        this.mapBuilder = new MapBuilder(name, width, height, oX, oY, seed);
     }
 
     public TestMapBuilder addArchon(int id, Team team, MapLocation loc) {

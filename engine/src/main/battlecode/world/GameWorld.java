@@ -74,7 +74,7 @@ public strictfp class GameWorld {
             if (robot.team == Team.A && robot.type == RobotType.ARCHON)
                 numArchons++;
         }
-        this.teamInfo = new TeamInfo(this, numArchons);
+        this.teamInfo = new TeamInfo(this);
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
@@ -380,7 +380,7 @@ public strictfp class GameWorld {
     public void processEndOfRound() {
         // Add lead resources to the map
         if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
-            for (int i = 0; i < this.lead.length)
+            for (int i = 0; i < this.lead.length; i++)
                 if (this.lead[i] > 0) 
                     this.lead[i] += GameConstants.ADD_LEAD;
 
@@ -399,10 +399,10 @@ public strictfp class GameWorld {
         AnomalyScheduleEntry nextAnomaly = this.gameMap.viewNextAnomaly();
         if (nextAnomaly != null && nextAnomaly.roundNumber == this.currentRound) {
             AnomalyType anomaly = this.gameMap.takeNextAnomaly().anomalyType;
-            if (anomaly == AnomalyType.ABYSS) causeAbyssGlobal(anomaly);
-            if (anomaly == AnomalyType.CHARGE) causeChargeGlobal(anomaly);
-            if (anomaly == AnomalyType.FURY) causeFuryGlobal(anomaly);
-            if (anomaly == AnomalyType.VORTEX) causeVortexGlobal(anomaly);
+            if (anomaly == AnomalyType.ABYSS) causeAbyssGlobal();
+            if (anomaly == AnomalyType.CHARGE) causeChargeGlobal();
+            if (anomaly == AnomalyType.FURY) causeFuryGlobal();
+            if (anomaly == AnomalyType.VORTEX) causeVortexGlobal();
         }
 
         // Check for end of match
@@ -456,7 +456,7 @@ public strictfp class GameWorld {
 
         // this happens here because both teams' Archons can die in the same round
         if (type == RobotType.ARCHON && this.objectInfo.getRobotTypeCount(team, RobotType.ARCHON) == 0)
-            setWinner(1 - team, DominationFactor.ANNIHILATION);
+            setWinner(team == Team.A ? Team.B : Team.A, DominationFactor.ANNIHILATION);
 
         matchMaker.addDied(id);
     }
@@ -564,7 +564,7 @@ public strictfp class GameWorld {
     /** Used to sort droids for charge */
     class SortByFriends implements Comparator<InternalRobot> {
         public int compare(InternalRobot a, InternalRobot b) {
-            return a.numVisibleFriendlyRobots - b.numVisibleFriendlyRobots;
+            return a.getNumVisibleFriendlyRobots(false) - b.getNumVisibleFriendlyRobots(false);
         }
     }
 

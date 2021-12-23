@@ -149,8 +149,8 @@ public enum RobotType {
      * @return whether this type can repair the given robot type
      */
     public boolean canRepair(RobotType repairedType) {
-        return (this == ARCHON && !builtType.isBuilding() || 
-                this == BUILDER && builtType.isBuilding());
+        return (this == ARCHON && !repairedType.isBuilding() || 
+                this == BUILDER && repairedType.isBuilding());
     }
 
     /**
@@ -266,7 +266,7 @@ public enum RobotType {
     public int getLeadWorth(int level) {
         int leadWorth = this.buildCostLead;
         for (int i = 2; i <= level; i++) {
-            leadWorth += this.getLeadUpgradeCost(i);
+            leadWorth += this.getLeadMutateCost(i);
         }
         return leadWorth;
     }
@@ -278,7 +278,7 @@ public enum RobotType {
     public int getGoldWorth(int level) {
         int goldWorth = this.buildCostGold;
         for (int i = 2; i <= level; i++) {
-            goldWorth += this.getGoldUpgradeCost(i);
+            goldWorth += this.getGoldMutateCost(i);
         }
         return goldWorth;
     }

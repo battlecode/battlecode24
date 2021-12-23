@@ -23,8 +23,8 @@ public class TeamInfo {
      */
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.leadCount = new int[2];
-        this.goldCount = new int[2];
+        this.leadCounts = new int[2];
+        this.goldCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
     }
     
@@ -39,7 +39,7 @@ public class TeamInfo {
      * @return the team's lead count
      */
     public int getLead(Team team) {
-        return this.leadCount[team.ordinal()];
+        return this.leadCounts[team.ordinal()];
     }
 
     /**
@@ -49,7 +49,7 @@ public class TeamInfo {
      * @return the team's gold count
      */
     public int getGold(Team team) {
-        return this.goldCount[team.ordinal()];
+        return this.goldCounts[team.ordinal()];
     }
 
     /**
@@ -75,10 +75,10 @@ public class TeamInfo {
      * @throws IllegalArgumentException if the resulting amount of lead is negative
      */
     public void addLead(Team team, int amount) throws IllegalArgumentException {
-        if (this.leadCount[team.ordinal()] + amount < 0) {
+        if (this.leadCounts[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid lead change");
         }
-        this.leadCount[team.ordinal()] += amount;
+        this.leadCounts[team.ordinal()] += amount;
     }
 
     /**
@@ -89,10 +89,10 @@ public class TeamInfo {
      * @throws IllegalArgumentException if the resulting amount of gold is negative
      */
     public void addGold(Team team, int amount) throws IllegalArgumentException {
-        if (this.goldCount[team.ordinal()] + amount < 0) {
+        if (this.goldCounts[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid gold change");
         }
-        this.goldCount[team.ordinal()] += amount;
+        this.goldCounts[team.ordinal()] += amount;
     }
 
     /**
@@ -102,7 +102,7 @@ public class TeamInfo {
      * @param index the index in the shared array
      * @param value the new value
      */
-    public void setSharedArray(Team team, int index, int value) {
+    public void writeSharedArray(Team team, int index, int value) {
         this.sharedArrays[team.ordinal()][index] = value;
     }
 }

@@ -69,7 +69,7 @@ public class MapBuilder {
                 team,
                 RobotType.ARCHON,
                 1,
-                RobotType.ARCHON.health;
+                RobotType.ARCHON.health,
                 loc
         ));
     }

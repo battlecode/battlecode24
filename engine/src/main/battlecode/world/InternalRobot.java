@@ -141,8 +141,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return -1;
     }
 
-    public int getNumVisibleFriendlyRobots() {
-        updateNumVisibleFriendlyRobots();
+    public int getNumVisibleFriendlyRobots(boolean update) {
+        if (update) updateNumVisibleFriendlyRobots();
         return this.numVisibleFriendlyRobots;
     }
 

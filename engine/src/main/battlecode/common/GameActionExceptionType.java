@@ -22,10 +22,10 @@ public enum GameActionExceptionType {
      */
     IS_NOT_READY,
     /**
-     * Indicates when a robot tries to sense a robot that no longer exists or is no longer
-     * in this robot's sensor range.
+     * Indicates when a robot tries to see a robot that no longer exists or is no longer
+     * in this robot's vision range.
      */
-    CANT_SENSE_THAT,
+    CANT_SEE_THAT,
     /**
      * Indicates when a robot tries to perform an action on a location that is outside
      * its range.
