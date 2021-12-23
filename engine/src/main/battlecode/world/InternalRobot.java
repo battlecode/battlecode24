@@ -33,6 +33,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int roundsAlive;
     private int actionCooldownTurns;
     private int movementCooldownTurns;
+    private int numVisibleFriendlyRobots;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -66,6 +67,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
+        this.numVisibleFriendlyRobots = 0;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -131,6 +133,27 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return movementCooldownTurns;
     }
 
+    public int getTransformCooldownTurns() {
+        if (this.mode == RobotMode.TURRET)
+            return this.actionCooldownTurns;
+        if (this.mode == RobotMode.PORTABLE)
+            return this.movementCooldownTurns;
+        return -1;
+    }
+
+    public int getNumVisibleFriendlyRobots(boolean update) {
+        if (update) updateNumVisibleFriendlyRobots();
+        return this.numVisibleFriendlyRobots;
+    }
+
+    public int getLeadMutateCost() {
+        return this.type.getLeadMutateCost(this.level + 1);
+    }
+
+    public int getGoldMutateCost() {
+        return this.type.getGoldMutateCost(this.level + 1);
+    }
+
     public RobotInfo getRobotInfo() {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
@@ -185,10 +208,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Returns whether this robot can perform actions on the given location.
      * 
-     * @param toSense the MapLocation to act
+     * @param toAct the MapLocation to act
      */
-    public boolean canActLocation(MapLocation toSense){
-        return this.location.distanceSquaredTo(toSense) <= getActionRadiusSquared();
+    public boolean canActLocation(MapLocation toAct) {
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
     }
 
     /**
@@ -198,6 +221,42 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canActRadiusSquared(int radiusSquared) {
         return radiusSquared <= getActionRadiusSquared();
+    }
+
+    /**
+     * Returns the robot's vision radius squared.
+     */
+    public int getVisionRadiusSquared() {
+        return this.type.visionRadiusSquared;
+    }
+
+    /**
+     * Returns whether this robot can see the given location.
+     * 
+     * @param toSee the MapLocation to see
+     */
+    public boolean canSeeLocation(MapLocation toSee) {
+        return this.location.distanceSquaredTo(toSee) <= getVisionRadiusSquared();
+    }
+
+    /**
+     * Returns whether this robot can see a given radius away.
+     * 
+     * @param radiusSquared the distance squared to act
+     */
+    public boolean canSeeRadiusSquared(int radiusSquared) {
+        return radiusSquared <= getVisionRadiusSquared();
+    }
+
+    /**
+     * @return whether this robot can mutate
+     */
+    public boolean canMutate() {
+        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
+            return false;
+        if (this.level == GameConstants.MAX_LEVEL)
+            return false;
+        return true;
     }
 
     // ******************************************
@@ -218,8 +277,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newActionCooldownTurns = numActionCooldownToAdd * cooldownMultiplier;
+        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location);
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
@@ -227,8 +285,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newMovementCooldownTurns = numMovementCooldownToAdd * cooldownMultiplier;
+        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numMovementCooldownToAdd, this.location);
         setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
 
@@ -281,45 +338,43 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     /**
      * Transform from turret to portable mode, or vice versa.
+     * Assumes that cooldown is sufficient.
      */
     public void transform() {
-        if (this.canTransformCooldown()) {
-            if (this.mode == RobotMode.TURRET) {
-                this.mode = RobotMode.PORTABLE;
-                this.addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-            } else {
-                this.mode = RobotMode.TURRET;
-                this.addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-            }
+        if (this.mode == RobotMode.TURRET) {
+            this.mode = RobotMode.PORTABLE;
+        } else {
+            this.mode = RobotMode.TURRET;
         }
     }
 
     /**
-     * Upgrade a building.
+     * Mutate a building.
      */
-    public void upgrade() {
-        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
-            return;
-        if (this.level == GameConstants.MAX_LEVEL)
-            return;
+    public void mutate() {
+        if (!canMutate()) return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
-        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
-        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
     }
 
     /**
      * Attacks another robot. Assumes bot is in range.
-     * Note: this is relatively inefficient(?), can possibly optimize
-     *  by making better helper methods in GameWorld
      * 
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        if (!this.canActLocation(bot.location))
-            return; // TODO: throw exception?
         int dmg = this.type.getDamage(this.level);
         bot.addHealth(-dmg);
+    }
+
+    /**
+     * Heals another robot. Assumes bot is in range.
+     * 
+     * @param bot the robot to be healed
+     */
+    public void heal(InternalRobot bot) {
+        int healingAmount = this.type.getHealing(this.level);
+        bot.addHealth(healingAmount);
     }
 
     // *********************************
@@ -376,6 +431,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *****************************************
     // ****** MISC. METHODS ********************
     // *****************************************
+
+    /**
+     * @return the number of friendly robots within sensor (vision) radius.
+     */
+    public int updateNumVisibleFriendlyRobots() {
+        return this.numVisibleFriendlyRobots = this.controller.seeNearbyRobots(-1, getTeam()).length;
+    }
 
     @Override
     public boolean equals(Object o) {

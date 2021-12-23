@@ -46,14 +46,14 @@ public enum RobotType {
     /**
      * Ranged attacking robot.
     */
-    SOLDIER         ( 75,   0, 10, 16,  3,  50, 13, 20,  10000),
-    //               BCL   BCG AC  MC  HP  DMG  AR  VR       BL
+    SOLDIER         ( 75,   0,  10, 16,  3,  50, 13, 20,  10000),
+    //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
     
     /**
      * Gold robot, causes Anomalies.
      */
-    SAGE            ( 0,  50,200, 25, 45, 100, 13, 20,   10000)
-    //              BCL  BCG  AC  MC  HP  DMG  AR  VR        BL
+    SAGE            ( 0,  50, 200, 25, 45, 100, 13, 20,   10000)
+    //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
     /**
@@ -117,15 +117,6 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can attack
-     */
-    public boolean canAttack() {
-        return (this == WATCHTOWER
-            || this == SOLDIER
-            || this == SAGE);
-    }
-
-    /**
      * @param builtType type of robot being built
      * @return whether this type can build the given robot type
      */
@@ -139,17 +130,27 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can anomalies
+     * @return whether this type can attack
      */
-    public boolean canUseAnomaly() {
+    public boolean canAttack() {
+        return (this == WATCHTOWER
+            || this == SOLDIER);
+    }
+
+    /**
+     * @return whether this type can envision anomalies
+     */
+    public boolean canEnvision() {
         return this == SAGE;
     }
 
     /**
-     * @return whether this type can convert lead into gold
+     * @param repairedType type of robot being repaired
+     * @return whether this type can repair the given robot type
      */
-    public boolean canConvert() {
-        return this == LABORATORY;
+    public boolean canRepair(RobotType repairedType) {
+        return (this == ARCHON && !repairedType.isBuilding() || 
+                this == BUILDER && repairedType.isBuilding());
     }
 
     /**
@@ -157,6 +158,21 @@ public enum RobotType {
      */
     public boolean canMine() {
         return this == MINER;
+    }
+
+    /**
+     * @param mutatedType type of robot being mutated
+     * @return whether this type can mutate buildings
+     */
+    public boolean canMutate(RobotType mutatedType) {
+        return this == BUILDER && mutatedType.isBuilding();
+    }
+
+    /**
+     * @return whether this type can transmute lead into gold
+     */
+    public boolean canTransmute() {
+        return this == LABORATORY;
     }
 
     /**
@@ -228,18 +244,18 @@ public enum RobotType {
     // COST RELATED FUNCTIONS
 
     /**
-     * @param level the level to upgrade to
-     * @return lead component of cost to upgrade
+     * @param level the level to mutate to
+     * @return lead component of cost to mutate
      */
-    public int getLeadUpgradeCost(int level) {
+    public int getLeadMutateCost(int level) {
         return level == 2 ? 600 : 0;
     }
 
     /**
-     * @param level the level to upgrade to
-     * @return gold component of cost to upgrade.
+     * @param level the level to mutate to
+     * @return gold component of cost to mutate.
      */
-    public int getGoldUpgradeCost(int level) {
+    public int getGoldMutateCost(int level) {
         return level == 3 ? 100 : 0;
     }
 
@@ -250,7 +266,7 @@ public enum RobotType {
     public int getLeadWorth(int level) {
         int leadWorth = this.buildCostLead;
         for (int i = 2; i <= level; i++) {
-            leadWorth += this.getLeadUpgradeCost(i);
+            leadWorth += this.getLeadMutateCost(i);
         }
         return leadWorth;
     }
@@ -262,7 +278,7 @@ public enum RobotType {
     public int getGoldWorth(int level) {
         int goldWorth = this.buildCostGold;
         for (int i = 2; i <= level; i++) {
-            goldWorth += this.getGoldUpgradeCost(i);
+            goldWorth += this.getGoldMutateCost(i);
         }
         return goldWorth;
     }

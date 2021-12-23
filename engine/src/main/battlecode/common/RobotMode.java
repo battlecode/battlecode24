@@ -5,16 +5,18 @@ package battlecode.common;
  */
 public enum RobotMode {
 
-    DROID       (true,  true),
-    PROTOTYPE   (false, false),
-    TURRET      (true,  false),
-    PORTABLE    (false, true);
+    DROID       (true,  true, false),
+    PROTOTYPE   (false, false, false),
+    TURRET      (true,  false, true),
+    PORTABLE    (false, true, true);
 
     public final boolean canAct;
     public final boolean canMove;
+    public final boolean canTransform;
 
-    RobotMode(boolean canAct, boolean canMove) {
-        this.canAct     = canAct;
-        this.canMove    = canMove;
+    RobotMode(boolean canAct, boolean canMove, boolean canTransform) {
+        this.canAct         = canAct;
+        this.canMove        = canMove;
+        this.canTransform   = canTransform;
     }
 }

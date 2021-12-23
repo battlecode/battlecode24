@@ -197,7 +197,7 @@ public strictfp class GameMaker {
      * @param saveFile the file to save to
      */
     public void writeGame(File saveFile) {
-        if(saveFile == null) {
+        if (saveFile == null) {
             throw new RuntimeException("Null file provided to writeGame");
         }
 
@@ -236,7 +236,7 @@ public strictfp class GameMaker {
         return this.matchMaker;
     }
 
-    public void makeGameHeader(){
+    public void makeGameHeader() {
 
         changeState(State.GAME_HEADER, State.IN_GAME);
 
@@ -273,7 +273,7 @@ public strictfp class GameMaker {
         });
     }
 
-    public int makeBodyTypeMetadata(FlatBufferBuilder builder){
+    public int makeBodyTypeMetadata(FlatBufferBuilder builder) {
         TIntArrayList bodyTypeMetadataOffsets = new TIntArrayList();
 
         // Add robot metadata
@@ -294,7 +294,7 @@ public strictfp class GameMaker {
         return GameHeader.createBodyTypeMetadataVector(builder, bodyTypeMetadataOffsets.toArray());
     }
 
-    private byte robotTypeToBodyType(RobotType type){
+    private byte robotTypeToBodyType(RobotType type) {
         if (type == RobotType.ENLIGHTENMENT_CENTER) return BodyType.ENLIGHTENMENT_CENTER;
         if (type == RobotType.POLITICIAN) return BodyType.POLITICIAN;
         if (type == RobotType.SLANDERER) return BodyType.SLANDERER;
@@ -302,7 +302,7 @@ public strictfp class GameMaker {
         return Byte.MIN_VALUE;
     }
 
-    public void makeGameFooter(Team winner){
+    public void makeGameFooter(Team winner) {
         changeState(State.IN_GAME, State.DONE);
 
         createEvent((builder) -> EventWrapper.createEventWrapper(builder, Event.GameFooter,

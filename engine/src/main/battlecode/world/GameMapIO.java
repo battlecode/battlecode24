@@ -29,9 +29,9 @@ public final strictfp class GameMapIO {
     private static final ClassLoader BACKUP_LOADER = GameMapIO.class.getClassLoader();
 
     /**
-     * The file extension for battlecode 2021 match files.
+     * The file extension for battlecode 2022 match files.
      */
-    public static final String MAP_EXTENSION = ".map21";
+    public static final String MAP_EXTENSION = ".map22";
 
     /**
      * The package we check for maps in if they can't be found in the file system.
@@ -48,9 +48,7 @@ public final strictfp class GameMapIO {
      * @return LiveMap for map
      * @throws IOException if the map fails to load or can't be found.
      */
-    public static LiveMap loadMap(String mapName, File mapDir)
-            throws IOException {
-
+    public static LiveMap loadMap(String mapName, File mapDir) throws IOException {
         final LiveMap result;
 
         final File mapFile = new File(mapDir, mapName + MAP_EXTENSION);
@@ -228,9 +226,13 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            double[] passabilityArray = new double[width * height];
+            int[] rubbleArray = new int[width * height];
+            int[] leadArray = new int[width * height];
+            int[] goldArray = new int[width * height];
             for (int i = 0; i < width * height; i++) {
-                passabilityArray[i] = raw.passability(i);
+                rubbleArray[i] = raw.rubble(i);
+                leadArray[i] = raw.lead(i);
+                goldArray[i] = raw.gold(i);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -239,7 +241,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, initialBodies, passabilityArray
+                width, height, origin, seed, rounds, mapName, initialBodies, rubbleArray, leadArray, goldArray
             );
         }
 
@@ -254,18 +256,23 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            double[] passabilityArray = gameMap.getPassabilityArray();
+            int[] rubbleArray = gameMap.getRubbleArray();
+            int[] leadArray = gameMap.getLeadArray();
+            int[] goldArray = gameMap.getGoldArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
-            ArrayList<Integer> bodyInfluences = new ArrayList<>();
-            ArrayList<Double> passabilityArrayList = new ArrayList<>();
+            ArrayList<Integer> rubbleArrayList = new ArrayList<>();
+            ArrayList<Integer> leadArrayList = new ArrayList<>();
+            ArrayList<Integer> goldArrayList = new ArrayList<>();
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                passabilityArrayList.add(passabilityArray[i]);
+                rubbleArrayList.add(rubbleArray[i]);
+                leadArrayList.add(leadArray[i]);
+                goldArrayList.add(goldArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -274,7 +281,6 @@ public final strictfp class GameMapIO {
                 bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
                 bodyLocsXs.add(robot.location.x);
                 bodyLocsYs.add(robot.location.y);
-                bodyInfluences.add(robot.getInfluence());
             }
 
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
@@ -283,15 +289,15 @@ public final strictfp class GameMapIO {
             int locs = VecTable.createVecTable(builder,
                     VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Integer[bodyLocsXs.size()]))),
                     VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Integer[bodyLocsYs.size()]))));
-            int influences = SpawnedBodyTable.createInfluencesVector(builder, ArrayUtils.toPrimitive(bodyInfluences.toArray(new Integer[bodyInfluences.size()])));
             SpawnedBodyTable.startSpawnedBodyTable(builder);
             SpawnedBodyTable.addRobotIDs(builder, robotIDs);
             SpawnedBodyTable.addTeamIDs(builder, teamIDs);
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
-            SpawnedBodyTable.addInfluences(builder, influences);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-            int passabilityArrayInt = battlecode.schema.GameMap.createPassabilityVector(builder, ArrayUtils.toPrimitive(passabilityArrayList.toArray(new Double[passabilityArrayList.size()])));
+            int rubbleArrayInt = battlecode.schema.GameMap.createRubbleVector(builder, ArrayUtils.toPrimitive(rubbleArrayList.toArray(new Integer[rubbleArrayList.size()])));
+            int leadArrayInt = battlecode.schema.GameMap.createLeadVector(builder, ArrayUtils.toPrimitive(leadArrayList.toArray(new Integer[leadArrayList.size()])));
+            int goldArrayInt = battlecode.schema.GameMap.createGoldVector(builder, ArrayUtils.toPrimitive(goldArrayList.toArray(new Integer[goldArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -300,7 +306,9 @@ public final strictfp class GameMapIO {
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            battlecode.schema.GameMap.addPassability(builder, passabilityArrayInt);
+            battlecode.schema.GameMap.addRubble(builder, rubbleArrayInt);
+            battlecode.schema.GameMap.addLead(builder, leadArrayInt);
+            battlecode.schema.GameMap.addGold(builder, goldArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
@@ -311,16 +319,15 @@ public final strictfp class GameMapIO {
         private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
-                // all initial bodies should be enlightenment centers, with some influence and 0 conviction
+                // all initial bodies should be archons
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
                 int bodyID = bodyTable.robotIDs(i);
                 int bodyX = locs.xs(i);
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-                int bodyInfluence = bodyTable.influences(i);
-                if (bodyType == RobotType.ENLIGHTENMENT_CENTER)
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, bodyInfluence, bodyInfluence, new MapLocation(bodyX, bodyY)));
-                // ignore robots that are not enlightenment centers, TODO throw error?
+                if (bodyType == RobotType.ARCHON)
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
+                // ignore robots that are not archons, TODO throw error?
             }
         }
     }

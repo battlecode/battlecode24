@@ -46,7 +46,7 @@ public class Circle {
         mapBuilder.addSymmetricNeutralEnlightenmentCenter(0, 0, 300);
         mapBuilder.addSymmetricNeutralEnlightenmentCenter(0, 2*half, 300);
 
-        for(int i = 0; i <= half; i++) {
+        for (int i = 0; i <= half; i++) {
             for (int j = 0; j <= 2*half; j++) {
                 int d = new MapLocation(i, j).distanceSquaredTo(center);
                 mapBuilder.setSymmetricPassability(i, j,

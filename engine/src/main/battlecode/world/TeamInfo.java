@@ -12,23 +12,20 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int archonCount;
-    private int leadCount;
-    private int goldCount;
+    private int[] leadCounts;
+    private int[] goldCounts;
+    private int[][] sharedArrays;
 
     /**
      * Create a new representation of TeamInfo
      *
-     * @param gameWorld the gameWorld the team exists in
-     * @param archonCount the number of remaining archons
-     * @param leadCount the amount of lead stored
-     * @param goldCount the amount of gold stored
+     * @param gameWorld the gameWorld the teams exist in
      */
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.archonCount = 0;
-        this.leadCount = 0;
-        this.goldCount = 0;
+        this.leadCounts = new int[2];
+        this.goldCounts = new int[2];
+        this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
     }
     
     // *********************************
@@ -36,30 +33,34 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Get the number of remaining Archons.
-     *
-     * @return the number of archons remaining
-     */
-    public int getArchonCount() {
-        return this.archonCount;
-    }
-
-    /**
      * Get the amount of lead.
      *
+     * @param team the team to query
      * @return the team's lead count
      */
-    public int getLead() {
-        return this.leadCount;
+    public int getLead(Team team) {
+        return this.leadCounts[team.ordinal()];
     }
 
     /**
      * Get the amount of gold.
      *
+     * @param team the team to query
      * @return the team's gold count
      */
-    public int getGold() {
-        return this.goldCount;
+    public int getGold(Team team) {
+        return this.goldCounts[team.ordinal()];
+    }
+
+    /**
+     * Reads the shared array value.
+     *
+     * @param team the team to query
+     * @param index the index in the array
+     * @return the value at that index in the team's shared array
+     */
+    public int readSharedArray(Team team, int index) {
+        return this.sharedArrays[team.ordinal()][index];
     }
 
     // *********************************
@@ -67,44 +68,41 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Set the number of Archons. 
+     * Add to the amount of lead. If amount is negative, subtract from lead instead. 
      * 
-     * @param newArchonCount the new number of Archons
-     * 
-     * @throws IllegalArgumentException if the newArchonCount is negative
-     */
-    public void setArchonCount(int newArchonCount) throws IllegalArgumentException {
-        if (newArchonCount < 0) {
-            throw new IllegalArgumentException("Invalid archon count");
-        }
-        this.archonCount = newArchonCount;
-    }
-
-    /**
-     * Add to the amount of lead. If leadChange is negative, subtract from lead instead. 
-     * 
-     * @param leadChange the change in the lead count
-     * 
+     * @param team the team to query
+     * @param amount the change in the lead count
      * @throws IllegalArgumentException if the resulting amount of lead is negative
      */
-    public void changeLead(int leadChange) throws IllegalArgumentException {
-        if (leadCount + leadChange < 0) {
+    public void addLead(Team team, int amount) throws IllegalArgumentException {
+        if (this.leadCounts[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid lead change");
         }
-        this.leadCount += leadChange;
+        this.leadCounts[team.ordinal()] += amount;
     }
 
     /**
-     * Add to the amount of gold. If goldChange is negative, subtract from gold instead. 
+     * Add to the amount of gold. If amount is negative, subtract from gold instead. 
      * 
-     * @param goldChange the change in the gold count
-     * 
+     * @param team the team to query
+     * @param amount the change in the gold count
      * @throws IllegalArgumentException if the resulting amount of gold is negative
      */
-    public void changeGold(int goldChange) throws IllegalArgumentException {
-        if (goldCount + goldChange < 0) {
+    public void addGold(Team team, int amount) throws IllegalArgumentException {
+        if (this.goldCounts[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid gold change");
         }
-        this.goldCount += goldChange;
+        this.goldCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Sets an index in the team's shared array to a given value.
+     *
+     * @param team the team to query
+     * @param index the index in the shared array
+     * @param value the new value
+     */
+    public void writeSharedArray(Team team, int index, int value) {
+        this.sharedArrays[team.ordinal()][index] = value;
     }
 }
