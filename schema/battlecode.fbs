@@ -109,7 +109,7 @@ enum Action : byte {
     CHARGE,
     /// Target: none
     FURY,
-    /// Target: 0 if horizontal, 1 if vertical, 2 if 90 degrees clockwise
+    /// Target: 0 if 90 degrees clockwise, 1 if horizontal, 2 if vertical
     VORTEX,
     /// Dies due to an uncaught exception.
     /// Target: none
