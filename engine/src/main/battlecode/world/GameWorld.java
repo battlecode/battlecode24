@@ -141,8 +141,7 @@ public strictfp class GameWorld {
         // If the robot terminates but the death signal has not yet
         // been visited:
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            //destroyRobot(robot.getID());
-            ; // Freeze robot instead of destroying it
+            destroyRobot(robot.getID());
         return true;
     }
 
