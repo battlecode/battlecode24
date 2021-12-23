@@ -11,8 +11,6 @@ import java.util.*;
  */
 public class MapBuilder {
 
-    public enum MapSymmetry {rotational, horizontal, vertical};
-
     public String name;
     public int width;
     public int height;
@@ -35,7 +33,7 @@ public class MapBuilder {
         this.bodies = new ArrayList<>();
 
         // default values
-        this.symmetry = MapSymmetry.vertical;
+        this.symmetry = MapSymmetry.ROTATIONAL;
         this.idCounter = 0;
         this.rubbleArray = new int[width * height];
         Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
@@ -112,10 +110,10 @@ public class MapBuilder {
 
     public int symmetricY(int y, MapSymmetry symmetry) {
         switch (symmetry) {
-            case vertical:
+            case VERTICAL:
                 return y;
-            case horizontal:
-            case rotational:
+            case HORIZONTAL:
+            case ROTATIONAL:
             default:
                 return height - 1 - y;
         }
@@ -123,10 +121,10 @@ public class MapBuilder {
 
     public int symmetricX(int x, MapSymmetry symmetry) {
         switch (symmetry) {
-            case horizontal:
+            case HORIZONTAL:
                 return x;
-            case vertical:
-            case rotational:
+            case VERTICAL:
+            case ROTATIONAL:
             default:
                 return width - 1 - x;
         }
@@ -162,7 +160,7 @@ public class MapBuilder {
 
     public LiveMap build() {
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
-                bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray, leadArray,
+                symmetry, bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray, leadArray,
                 anomalySchedule.toArray(new AnomalyScheduleEntry[anomalySchedule.size()]));
     }
 
@@ -222,9 +220,10 @@ public class MapBuilder {
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
-        if (allMapSymmetries.isEmpty()) {
+        if (allMapSymmetries.isEmpty())
             throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
-        }
+        if (!allMapSymmetries.contains(this.symmetry))
+            throw new RuntimeException("This map is supposed to have " + this.symmetry + " symmetry, but it doesn't");
     }
 
     public boolean onTheMap(MapLocation loc) {
@@ -241,9 +240,9 @@ public class MapBuilder {
      */
     private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
         ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
-        possible.add(MapSymmetry.vertical);
-        possible.add(MapSymmetry.horizontal);
-        possible.add(MapSymmetry.rotational);
+        possible.add(MapSymmetry.ROTATIONAL);
+        possible.add(MapSymmetry.HORIZONTAL);
+        possible.add(MapSymmetry.VERTICAL);
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
