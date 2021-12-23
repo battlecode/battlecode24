@@ -783,8 +783,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public void resign() {
+        Team team = this.robot.getTeam();
         gameWorld.getObjectInfo().eachRobot((robot) -> {
-            if (robot.getTeam() == getTeam()) {
+            if (robot.getTeam() == team) {
                 gameWorld.destroyRobot(robot.getID());
             }
             return true;
@@ -798,14 +799,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void setIndicatorDot(MapLocation loc, int red, int green, int blue) {
         assertNotNull(loc);
-        gameWorld.getMatchMaker().addIndicatorDot(getID(), loc, red, green, blue);
+        this.gameWorld.getMatchMaker().addIndicatorDot(getID(), loc, red, green, blue);
     }
 
     @Override
     public void setIndicatorLine(MapLocation startLoc, MapLocation endLoc, int red, int green, int blue) {
         assertNotNull(startLoc);
         assertNotNull(endLoc);
-        gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
+        this.gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
     }
-
 }
