@@ -296,8 +296,7 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether the robot can act. Returns
-     * <code>getCooldownTurns() &lt; 1</code>.
+     * Tests whether the robot can act.
      * 
      * @return true if the robot can act
      *
@@ -307,8 +306,9 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of action cooldown turns remaining before this unit can act again.
-     * When this number is strictly less than 1, isActionReady() is true and the robot
-     * can act again.
+     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isActionReady()
+     * is true and the robot can act again. This number decreases by
+     * GameConstants.COOLDOWNS_PER_TURN every turn.
      *
      * @return the number of action turns remaining before this unit can act again
      *
@@ -317,8 +317,7 @@ public strictfp interface RobotController {
     double getActionCooldownTurns();
 
     /**
-     * Tests whether the robot can move. Returns
-     * <code>getCooldownTurns() &lt; 1</code>.
+     * Tests whether the robot can move.
      * 
      * @return true if the robot can move
      *
@@ -328,8 +327,9 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of movement cooldown turns remaining before this unit can move again.
-     * When this number is strictly less than 1, isMovementReady() is true and the robot
-     * can move again.
+     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isMovementReady()
+     * is true and the robot can move again. This number decreases by
+     * GameConstants.COOLDOWNS_PER_TURN every turn.
      *
      * @return the number of cooldown turns remaining before this unit can move again
      *
@@ -337,15 +337,39 @@ public strictfp interface RobotController {
      */
     double getMovementCooldownTurns();
 
+    /**
+     * Tests whether the robot can transform.
+     *
+     * Checks if the robot's mode is TURRET or PORTABLE. Also checks action
+     * or movement cooldown turns, depending on the robot's current mode.
+     * 
+     * @return true if the robot can transform
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean isTransformReady();
+
+    /**
+     * Returns the number of cooldown turns remaining before this unit can transform again.
+     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isTransformReady()
+     * is true and the robot can transform again. This number decreases by
+     * GameConstants.COOLDOWNS_PER_TURN every turn.
+     *
+     * @return the number of cooldown turns remaining before this unit can transform again
+     *
+     * @battlecode.doc.costlymethod
+     */
+    double getTransformCooldownTurns();
+
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
     /**
      * Checks whether this robot can move one step in the given direction.
-     * Returns false if the robot is a building, if the target location is not
-     * on the map, if the target location is occupied, or if there are cooldown
-     * turns remaining.
+     * Returns false if the robot is not in a mode that can move, if the target
+     * location is not on the map, if the target location is occupied, or if
+     * there are cooldown turns remaining.
      *
      * @param dir the direction to move in
      * @return true if it is possible to call <code>move</code> without an exception
@@ -359,9 +383,8 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one step in this
-     * direction, such as cooldown being &gt;= 1, the target location being
-     * off the map, or the target destination being occupied by
-     * another robot
+     * direction, such as cooldown being too high, the target location being
+     * off the map, or the target destination being occupied by another robot
      *
      * @battlecode.doc.costlymethod
      */
@@ -432,51 +455,52 @@ public strictfp interface RobotController {
     // *****************************
 
     /**
-     * Tests whether this robot can use an anomaly centered at the robot's location.
+     * Tests whether this robot can envision an anomaly centered at the robot's location.
      * 
      * Checks that the robot is a sage, and there are no cooldown turns remaining.
      *
-     * @return whether it is possible to use an anomaly centered at the robots location
+     * @return whether it is possible to envision an anomaly centered at the robots location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canUseAnomaly(AnomalyType anomaly);
+    boolean canEnvision(AnomalyType anomaly);
 
     /** 
-     * Use anomaly centered at robots location.
+     * Envision an anomaly centered at the robot's location.
      *
-     * @throws GameActionException if conditions for using anomaly are not satisfied
+     * @throws GameActionException if conditions for envisioning are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void useAnomaly(AnomalyType anomaly) throws GameActionException;
+    void envision(AnomalyType anomaly) throws GameActionException;
 
     // *****************************
-    // ****** ARCHON METHODS ****** 
+    // ****** REPAIR METHODS ****** 
     // *****************************
 
     /**
-     * Tests whether this robot can heal a droid at the given location.
+     * Tests whether this robot can repair a robot at the given location.
      * 
-     * Checks that the robot is an archon unit and that the given location
-     * is within the robot's action radius. Also checks that a friendly droid
-     * exists in the given square, and there are no cooldown turns remaining.
+     * Checks that the robot can repair other units and that the given location
+     * is within the robot's action radius. Also checks that a friendly unit
+     * of a repairable type exists in the given square, and there are no
+     * cooldown turns remaining.
      *
-     * @param loc target location to heal at
-     * @return whether it is possible to heal a droid robot at the given location
+     * @param loc target location to repair at
+     * @return whether it is possible to repair a robot at the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHealDroid(MapLocation loc);
+    boolean canRepair(MapLocation loc);
 
     /** 
-     * Heals at a given location.
+     * Repairs at a given location.
      *
-     * @throws GameActionException if conditions for healing are not satisfied
+     * @throws GameActionException if conditions for repairing are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void healDroid(MapLocation loc) throws GameActionException;
+    void repair(MapLocation loc) throws GameActionException;
 
     // ***********************
     // **** MINER METHODS **** 
@@ -485,7 +509,7 @@ public strictfp interface RobotController {
     /**
      * Tests whether the robot can mine lead at a given location.
      * 
-     * Checks that the robot is a Miner, that the given location is a valid 
+     * Checks that the robot is a Miner, and the given location is a valid 
      * mining location. Valid mining locations must be the current location 
      * or adjacent to the current location. Valid mining locations must also
      * have positive lead amounts. Also checks that no cooldown turns remain.
@@ -531,7 +555,7 @@ public strictfp interface RobotController {
     void mineGold(MapLocation loc) throws GameActionException;
 
     // *************************
-    // **** BUILDER METHODS **** 
+    // **** UPGRADE METHODS **** 
     // *************************
 
     /**
@@ -557,29 +581,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void upgrade(MapLocation loc) throws GameActionException;
-
-    /**
-     * Tests whether this robot can repair a building at the given location.
-     * 
-     * Checks that the robot is a builder unit and that the given location is
-     * within the robot's action radius. Also checks that a friendly unit which
-     * is a building exists in the given square, and no cooldown turns remain.
-     *
-     * @param loc target location to repair building at 
-     * @return whether it is possible to repair a building at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canRepairBuilding(MapLocation loc);
-
-    /** 
-     * Repairs building at a given location.
-     *
-     * @throws GameActionException if conditions for repairing building are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void repairBuilding(MapLocation loc) throws GameActionException;
 
     // *******************************
     // **** ALCHEMIST LAB METHODS ****
