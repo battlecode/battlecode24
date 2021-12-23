@@ -14,6 +14,7 @@ public class TeamInfo {
     private GameWorld gameWorld;
     private int[] leadCounts;
     private int[] goldCounts;
+    private int[][] sharedArrays;
 
     /**
      * Create a new representation of TeamInfo
@@ -24,6 +25,7 @@ public class TeamInfo {
         this.gameWorld = gameWorld;
         this.leadCount = new int[2];
         this.goldCount = new int[2];
+        this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
     }
     
     // *********************************
@@ -48,6 +50,17 @@ public class TeamInfo {
      */
     public int getGold(Team team) {
         return this.goldCount[team.ordinal()];
+    }
+
+    /**
+     * Reads the shared array value.
+     *
+     * @param team the team to query
+     * @param index the index in the array
+     * @return the value at that index in the team's shared array
+     */
+    public int readSharedArray(Team team, int index) {
+        return this.sharedArrays[team.ordinal()][index];
     }
 
     // *********************************
@@ -80,5 +93,16 @@ public class TeamInfo {
             throw new IllegalArgumentException("Invalid gold change");
         }
         this.goldCount[team.ordinal()] += amount;
+    }
+
+    /**
+     * Sets an index in the team's shared array to a given value.
+     *
+     * @param team the team to query
+     * @param index the index in the shared array
+     * @param value the new value
+     */
+    public void setSharedArray(Team team, int index, int value) {
+        this.sharedArrays[team.ordinal()][index] = value;
     }
 }

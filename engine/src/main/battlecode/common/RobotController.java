@@ -642,48 +642,28 @@ public strictfp interface RobotController {
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
 
-    /**
-     * Checks whether the robot can set the team array's value at a specified index.
-     *
-     * @param index the index in the team's shared array
-     * @param value the value to set that index to
-     * @return whether the robot can set the team array's value at the given index
-     */
-    boolean canSetTeamArray(int index, int value);
-
-    /** 
-     * Sets a team's array value at a specified index.
-     *
-     * @param index the index in the team's shared array
-     * @param value the value to set that index to
-     * @throws GameActionException if the index or value is invalid
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamArray(int index, int value) throws GameActionException;
-
-    /**
-     * Given an index, checks if a robot can get the value at that index in the team array.
-     *
-     * Checks that the index is valid.
-     *
-     * @param index the index in the team's shared array
-     * @return whether it is possible to get the value at that index
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canGetTeamArray(int index);
-
     /** 
      * Given an index, returns the value at that index in the team array.
      *
-     * @param index the index in the team's shared array
-     * @throws GameActionException if conditions for getting the value are not satisfied
-     * @return the value at that index in the team's shared array
+     * @param index the index in the team's shared array, 0-indexed
+     * @return the value at that index in the team's shared array,
+     *         or -1 if the index is invalid
      *
      * @battlecode.doc.costlymethod
      */
-    int getTeamArray(int index) throws GameActionException;
+    int readSharedArray(int index);
+
+    /** 
+     * Sets a team's array value at a specified index.
+     * No change occurs if the index or value is invalid.
+     *
+     * @param index the index in the team's shared array, 0-indexed
+     * @param value the value to set that index to
+     * @return whether the value was successfully written
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean writeSharedArray(int index, int value);
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

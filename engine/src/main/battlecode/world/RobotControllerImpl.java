@@ -713,57 +713,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
 
-    //TODO: Communication needs to be fixed
-
-    private void assertCanSetFlag(int flag) throws GameActionException {
-        if (flag < GameConstants.MIN_FLAG_VALUE || flag > GameConstants.MAX_FLAG_VALUE) {
-            throw new GameActionException(CANT_DO_THAT, "Flag value out of range");
-        }
+    @Override
+    public int readSharedArray(int index) {
+        if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
+            return -1;
+        return this.gameWorld.getTeamInfo().readSharedArray(this.robot.getTeam(), index);
     }
 
     @Override
-    public boolean canSetFlag(int flag) {
-        try {
-            assertCanSetFlag(flag);
-            return true;
-        } catch (GameActionException e) { return false; }
+    public boolean writeSharedArray(int index, int value) {
+        if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
+            return false;
+        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
+            return false;
+        this.gameWorld.getTeamInfo().writeSharedArray(this.robot.getTeam(), index, value);
+        return true;
     }
-
-    @Override
-    public void setFlag(int flag) throws GameActionException {
-        assertCanSetFlag(flag);
-        this.robot.setFlag(flag);
-        gameWorld.getMatchMaker().addAction(getID(), Action.SET_FLAG, flag);
-    }
-
-    private void assertCanGetFlag(int id) throws GameActionException {
-        InternalRobot bot = getRobotByID(id);
-        if (bot == null)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot of given ID does not exist.");
-        if (getType() != RobotType.ENLIGHTENMENT_CENTER &&
-            bot.getType() != RobotType.ENLIGHTENMENT_CENTER &&
-            !canSeeLocation(bot.getLocation()))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Robot at location is out of sensor range and not an Enlightenment Center.");
-    }
-
-    @Override
-    public boolean canGetFlag(int id) {
-        try {
-            assertCanGetFlag(id);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public int getFlag(int id) throws GameActionException {
-        assertCanGetFlag(id);
-
-        return getRobotByID(id).getFlag();
-    } 
-
-    //TODO: move this back to public?
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
