@@ -27,27 +27,32 @@ public strictfp class LiveMap {
     private final MapLocation origin;
 
     /**
-     * Factor to multiply cooldowns by
+     * The symmetry of the map.
+     */
+    private final MapSymmetry symmetry;
+
+    /**
+     * Factor to multiply cooldowns by.
      */
     private int[] rubbleArray;
 
     /**
-     * How much lead is on each square
+     * How much lead is on each square.
      */
     private final int[] leadArray;
 
     /**
-     * The random seed contained in the map file
+     * The random seed contained in the map file.
      */
     private final int seed;
 
     /**
-     * The maximum number of rounds in the game
+     * The maximum number of rounds in the game.
      */
     private final int rounds;
 
     /**
-     * The name of the map
+     * The name of the map.
      */
     private final String mapName;
 
@@ -57,7 +62,7 @@ public strictfp class LiveMap {
     private final AnomalyScheduleEntry[] anomalySchedule;
 
     /**
-     * Index of next anomaly to occur (excluding Singularity which always occurs)
+     * Index of next anomaly to occur (excluding Singularity which always occurs).
      */
     private int nextAnomalyIndex;
 
@@ -81,6 +86,7 @@ public strictfp class LiveMap {
         this.seed = seed;
         this.rounds = rounds;
         this.mapName = mapName;
+        this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.rubbleArray = new int[width * height];
         Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
@@ -100,6 +106,7 @@ public strictfp class LiveMap {
                    int seed,
                    int rounds,
                    String mapName,
+                   MapSymmetry symmetry,
                    RobotInfo[] initialBodies,
                    int[] rubbleArray,
                    int[] leadArray,
@@ -110,6 +117,7 @@ public strictfp class LiveMap {
         this.seed = seed;
         this.rounds = rounds;
         this.mapName = mapName;
+        this.symmetry = symmetry;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.rubbleArray = new int[rubbleArray.length];
         for (int i = 0; i < rubbleArray.length; i++) {
@@ -136,8 +144,8 @@ public strictfp class LiveMap {
      * @param gm the LiveMap to copy.
      */
     public LiveMap(LiveMap gm) {
-        this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.initialBodies,
-             gm.rubbleArray, gm.leadArray, gm.anomalySchedule);
+        this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
+             gm.initialBodies, gm.rubbleArray, gm.leadArray, gm.anomalySchedule);
     }
 
     @Override
@@ -190,9 +198,9 @@ public strictfp class LiveMap {
     }
 
     /**
-     * Returns the height of this map.
+     * Returns the height of the map.
      *
-     * @return the height of this map.
+     * @return the height of the map
      */
     public int getHeight() {
         return height;
@@ -201,10 +209,19 @@ public strictfp class LiveMap {
     /**
      * Returns the name of the map.
      *
-     * @return the name o the map.
+     * @return the name of the map
      */
     public String getMapName() {
         return mapName;
+    }
+
+    /**
+     * Returns the symmetry of the map.
+     *
+     * @return the symmetry of the map
+     */
+    public MapSymmetry getSymmetry() {
+        return symmetry;
     }
 
     /**
