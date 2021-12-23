@@ -616,15 +616,12 @@ public strictfp interface RobotController {
      */
     void transmute() throws GameActionException;
 
-    // *******************************
-    // **** GENERAL TOWER METHODS **** 
-    // *******************************
+    // ***************************
+    // **** TRANSFORM METHODS **** 
+    // ***************************
 
     /**
-     * Tests whether this robot can transform.
-     * 
-     * Checks that the robot is a building and is not a prototype; also checks
-     * that there are no cooldown turns remaining.
+     * Tests whether this robot can transform. Same effect as isTransformReady().
      *
      * @return whether it is possible to transform
      *

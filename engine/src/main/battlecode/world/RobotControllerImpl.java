@@ -122,7 +122,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private InternalRobot getRobotByID(int id) {
-        if (!gameWorld.getObjectInfo().existsRobot(id))
+        if (!this.gameWorld.getObjectInfo().existsRobot(id))
             return null;
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
@@ -137,7 +137,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canSeeLocation(loc))
             throw new GameActionException(CANT_SEE_THAT,
                     "Target location not within vision range");
-        return gameWorld.getGameMap().onTheMap(loc);
+        return this.gameWorld.getGameMap().onTheMap(loc);
     }
 
     private void assertCanSeeLocation(MapLocation loc) throws GameActionException {
@@ -145,7 +145,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canSeeLocation(loc))
             throw new GameActionException(CANT_SEE_THAT,
                     "Target location not within vision range");
-        if (!gameWorld.getGameMap().onTheMap(loc))
+        if (!this.gameWorld.getGameMap().onTheMap(loc))
             throw new GameActionException(CANT_SEE_THAT,
                     "Target location is not on the map");
     }
@@ -355,8 +355,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addMovementCooldownTurns(this.robot.getType().movementCooldown);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
-
-        gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
     }
 
     // ***********************************
@@ -484,7 +483,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             case FURY:
                 this.gameWorld.causeFurySage(this.robot, anomaly);
         }
-        gameWorld.getMatchMaker().addAction(getID(), Action.ENVISION, anomaly);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.ENVISION, anomaly);
     }
 
     // *****************************
@@ -523,7 +522,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
         this.robot.heal(bot);
-        gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, bot.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL_DROID, bot.getID());
     }
 
     // ***********************
@@ -558,7 +557,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
         this.gameWorld.getTeamInfo().addLead(this.robot.getTeam(), 1);
-        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
@@ -589,7 +588,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
         this.gameWorld.getTeamInfo().addGold(this.robot.getTeam(), 1);
-        gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
     }
 
     // *************************
@@ -644,7 +643,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         bot.mutate();
         bot.addActionCooldownTurns(GameConstants.MUTATE_COOLDOWN);
         bot.addMovementCooldownTurns(GameConstants.MUTATE_COOLDOWN);
-        gameWorld.getMatchMaker().addAction(getID(), Action.MUTATE, bot.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MUTATE, bot.getID());
     }
 
     // ***************************
@@ -682,20 +681,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Team team = this.robot.getTeam();
         this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
         this.gameWorld.getTeamInfo().addGold(team, 1);
-        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY, -1);
     }
 
-    // *******************************
-    // **** GENERAL TOWER METHODS **** 
-    // *******************************
+    // ***************************
+    // **** TRANSFORM METHODS **** 
+    // ***************************
 
     private void assertCanTransform() throws GameActionException {
-        assertIsActionReady();
-        assertIsMovementReady();
-        if (robot.getMode() != RobotMode.TURRET && robot.getMode() != RobotMode.PORTABLE) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is not transformable.");
-        }
+        assertIsTransformReady();
     }
 
     @Override
@@ -709,12 +703,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void transform() throws GameActionException {
         assertCanTransform();
-        robot.transform();
-        RobotMode mode = robot.getMode();
-        if (mode == RobotMode.TURRET)
-            addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        this.robot.transform();
+        if (this.robot.getMode() == RobotMode.TURRET)
+            this.robot.addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
         else
-            addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+            this.robot.addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.TRANSFORM, -1);
     }
 
     // ***********************************

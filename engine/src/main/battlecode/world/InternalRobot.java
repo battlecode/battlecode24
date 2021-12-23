@@ -338,14 +338,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     /**
      * Transform from turret to portable mode, or vice versa.
+     * Assumes that cooldown is sufficient.
      */
     public void transform() {
-        if (this.canTransformCooldown()) {
-            if (this.mode == RobotMode.TURRET) {
-                this.mode = RobotMode.PORTABLE;
-            } else {
-                this.mode = RobotMode.TURRET;
-            }
+        if (this.mode == RobotMode.TURRET) {
+            this.mode = RobotMode.PORTABLE;
+        } else {
+            this.mode = RobotMode.TURRET;
         }
     }
 
