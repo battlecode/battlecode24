@@ -138,6 +138,13 @@ public enum RobotType {
     }
 
     /**
+     * @return whether this type can envision anomalies
+     */
+    public boolean canEnvision() {
+        return this == SAGE;
+    }
+
+    /**
      * @param repairedType type of robot being repaired
      * @return whether this type can repair the given robot type
      */
@@ -147,10 +154,18 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can anomalies
+     * @return whether this type can mine
      */
-    public boolean canEnvision() {
-        return this == SAGE;
+    public boolean canMine() {
+        return this == MINER;
+    }
+
+    /**
+     * @param mutatedType type of robot being mutated
+     * @return whether this type can mutate buildings
+     */
+    public boolean canMutate(RobotType mutatedType) {
+        return this == BUILDER && mutatedType.isBuilding();
     }
 
     /**
@@ -158,13 +173,6 @@ public enum RobotType {
      */
     public boolean canConvert() {
         return this == LABORATORY;
-    }
-
-    /**
-     * @return whether this type can mine
-     */
-    public boolean canMine() {
-        return this == MINER;
     }
 
     /**
@@ -236,18 +244,18 @@ public enum RobotType {
     // COST RELATED FUNCTIONS
 
     /**
-     * @param level the level to upgrade to
-     * @return lead component of cost to upgrade
+     * @param level the level to mutate to
+     * @return lead component of cost to mutate
      */
-    public int getLeadUpgradeCost(int level) {
+    public int getLeadMutateCost(int level) {
         return level == 2 ? 600 : 0;
     }
 
     /**
-     * @param level the level to upgrade to
-     * @return gold component of cost to upgrade.
+     * @param level the level to mutate to
+     * @return gold component of cost to mutate.
      */
-    public int getGoldUpgradeCost(int level) {
+    public int getGoldMutateCost(int level) {
         return level == 3 ? 100 : 0;
     }
 

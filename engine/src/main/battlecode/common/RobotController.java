@@ -555,32 +555,32 @@ public strictfp interface RobotController {
     void mineGold(MapLocation loc) throws GameActionException;
 
     // *************************
-    // **** UPGRADE METHODS **** 
+    // **** MUTATE METHODS **** 
     // *************************
 
     /**
-     * Tests whether this robot can upgrade the building at the given location.
+     * Tests whether this robot can mutate the building at the given location.
      * 
      * Checks that the robot is a Builder, that the given location is a valid 
-     * upgrade location. Valid upgrade locations must be adjacent to the current 
-     * location and contain an upgradable building. The upgrade must also be
+     * mutate location. Valid mutate locations must be adjacent to the current 
+     * location and contain a mutable building. The mutation must also be
      * affordable, and there must be no cooldown turns remaining.
      *
-     * @param loc target location to upgrade 
-     * @return whether it is possible to upgrade at the given location
+     * @param loc target location to mutate 
+     * @return whether it is possible to mutate at the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canUpgrade(MapLocation loc);
+    boolean canMutate(MapLocation loc);
 
     /** 
-     * Upgrade a building at a given location.
+     * Mutate a building at a given location.
      *
-     * @throws GameActionException if conditions for upgrading are not satisfied
+     * @throws GameActionException if conditions for mutating are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void upgrade(MapLocation loc) throws GameActionException;
+    void mutate(MapLocation loc) throws GameActionException;
 
     // *******************************
     // **** ALCHEMIST LAB METHODS ****
