@@ -318,16 +318,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         int maxHealth = this.type.getMaxHealth(this.level);
         if (this.health > maxHealth) {
             this.health = maxHealth;
-            if (this.mode == RobotMode.PROTOTYPE)
+            if (this.mode == RobotMode.PROTOTYPE) {
                 this.mode = RobotMode.TURRET;
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.FULLY_REPAIRED, -1);
+            }
         }
         if (this.health <= 0) {
-            int leadDrop = this.type.getLeadDropped(this.level);
-            int goldDrop = this.type.getGoldDropped(this.level);
-            // TODO: drop resources at this location (interact with GameWorld)
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {
-            // TODO: double check this
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
     }

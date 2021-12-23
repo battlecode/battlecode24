@@ -675,7 +675,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Team team = getTeam();
         this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
         this.gameWorld.getTeamInfo().addGold(team, 1);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.TRANSMUTE, -1);
     }
 
     // ***************************
