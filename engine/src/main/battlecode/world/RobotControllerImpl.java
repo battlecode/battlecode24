@@ -645,46 +645,42 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addAction(getID(), Action.MUTATE, bot.getID());
     }
 
-    // *******************************
-    // **** ALCHEMIST LAB METHODS **** 
-    // *******************************
+    // ***************************
+    // **** TRANSMUTE METHODS **** 
+    // ***************************
 
-    private void assertCanConvert() throws GameActionException {
+    @Override
+    public int getTransmutationRate() {
+        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
+                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * this.robot.getNumVisibleFriendlyRobots()));
+    }
+
+    private void assertCanTransmute() throws GameActionException {
         assertIsActionReady();
-        if (!getType().canConvert()) {
+        if (!getType().canTransmute())
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot convert lead to gold.");
-        } else if (LEAD_TO_GOLD_RATE > getLead()) {
+                    "Robot is of type " + getType() + " which cannot transmute lead to gold.");
+        if (this.gameWorld.getTeamInfo().getLead(this.robot.getTeam()) < getTransmutationRate())
             throw new GameActionException(CANT_DO_THAT,
-                    "You don't have enough lead to be able to convert to gold.");
-        }
+                    "You don't have enough lead to transmute to gold.");
     }
 
     @Override
-    boolean canConvert(){
+    public boolean canTransmute() {
         try {
-            assertCanConvert();
+            assertCanTransmute();
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public int getGoldExchangeRate() {
-        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
-                                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * nearbyRobotCount));
-    }
-
-    @Override
-    public void convert() throws GameActionException {
-        assertCanConvert();
-        RobotType type = this.robot.getType();
-        this.robot.addActionCooldownTurns(type.actionCooldown);
-        Team robotTeam = this.robot.getTeam();
-        int nearbyRobotCount = seeNearbyRobots();
-        robotTeam.addLead(-GameConstants.LEAD_TO_GOLD_RATE * getGoldExchangeRate());
-        robotTeam.addGold(1);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY);
+    public void transmute() throws GameActionException {
+        assertCanTransmute();
+        this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
+        Team team = this.robot.getTeam();
+        this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
+        this.gameWorld.getTeamInfo().addGold(team, 1);
+        gameWorld.getMatchMaker().addAction(getID(), Action.CONVERT_CURRENCY, -1);
     }
 
     // *******************************
