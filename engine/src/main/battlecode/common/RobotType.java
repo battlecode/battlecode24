@@ -21,7 +21,7 @@ public enum RobotType {
      * Converts lead into gold
      *
      * @battlecode.doc.robot     */
-    LABORATORY      (800,   0, 10, 24, 130,  5, 20, 34, 10000),
+    LABORATORY      (800,   0, 10, 24, 100,  0, 0, 53, 5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -46,7 +46,7 @@ public enum RobotType {
     /**
      * Ranged attacking robot.
     */
-    SOLDIER         ( 75,   0,  10, 16,  3,  50, 13, 20,  10000),
+    SOLDIER         ( 75,   0,  10, 16,  50,  3, 13, 20,  10000),
     //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
     
     /**

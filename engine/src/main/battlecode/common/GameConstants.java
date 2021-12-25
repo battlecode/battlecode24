@@ -84,11 +84,8 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** A prototype building's starting health, as a multiplier of max health. */
-    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
-
-    /** The amount of health a prototype building has as a multiplier. */
-    public static final float PROTOTYPE_HP_PERCENTAGE = 0.1f;
+    /** A blueprint building's health, as a multiplier of max health. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.9f;
 
     /** The multiplier for reclaiming a building's cost. */
     public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
