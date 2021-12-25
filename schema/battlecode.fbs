@@ -100,9 +100,9 @@ enum Action : byte {
     /// Target: Sage location, x + y * width
     LOCAL_ABYSS,
     /// Target: Sage location, x + y * width
-    LOCAL_FURY,
-    /// Target: Sage location, x + y * width
     LOCAL_CHARGE,
+    /// Target: Sage location, x + y * width
+    LOCAL_FURY,
     /// Target: none
     ABYSS,
     /// Target: none
@@ -114,11 +114,6 @@ enum Action : byte {
     /// Dies due to an uncaught exception.
     /// Target: none
     DIE_EXCEPTION,
-    ABYSS,
-    CHARGE,
-    FURY,
-    VORTEX,
-    SINGULARITY
 }
 
 // Metadata
@@ -135,13 +130,6 @@ table BodyTypeMetadata {
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;
-    dps: int; // dps at lowest level
-    hp: int; // hp at lowest level
-    dpsMul: float; // dps multiplier for level
-    hpMul: float; // hp multiplier per level
-    buildCost: int;
-    upgradeCostLead: [int];
-    upgradeCostGold: [int];
 }
 
 /// Data relevant to a particular team.
@@ -302,12 +290,6 @@ table Round {
     indicatorStringIDs: [int];
     /// The messages of the robots who changed their indicator strings
     indicatorStrings: [string];
-
-    leadDropLocations: VecTable;
-    leadDropValues: [int];
-
-    goldDropLocations: VecTable;
-    goldDropValues: [int];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
