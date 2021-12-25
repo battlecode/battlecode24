@@ -14,28 +14,18 @@ export type DeadBodiesSchema = {
   y: Int32Array,
 }
 
-export type EmpowerSchema = {
-  id: Int32Array,
-  x: Int32Array,
-  y: Int32Array
-  team: Int8Array,
-  radius: Int32Array
-}
-
 export type BodiesSchema = {
   id: Int32Array,
   team: Int8Array,
   type: Int8Array,
   x: Int32Array,
   y: Int32Array,
-  influence: Int32Array;
-  conviction: Int32Array;
   flag: Int32Array;
   bytecodesUsed: Int32Array, // TODO: is this needed?
   ability: Int8Array,
-  bid: Int32Array,
   parent: Int32Array,
-  income: Int32Array
+  hp: Int32Array,
+  level: Int8Array
 };
 
 // NOTE: consider changing MapStats to schema to use SOA for better performance, if it has large data
@@ -47,6 +37,7 @@ export type MapStats = {
   randomSeed: number,
 
   passability: Float64Array, // double
+  lead: Int32Array;
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
@@ -92,8 +83,6 @@ export type Log = {
   round: number,
   text: string
 };
-
-
 
 /**
  * A frozen image of the game world.
@@ -487,9 +476,6 @@ export default class GameWorld {
             break;
           /// A robot can change team after being empowered
           /// Target: teamID
-          case schema.Action.CHANGE_TEAM:
-            // TODO remove the robot, don't alter it
-            break;
           /// A robot's influence changes.
           /// Target: delta value
           case schema.Action.CHANGE_INFLUENCE:
