@@ -13,64 +13,81 @@ package battlecode.schema;
 public final class Action {
   private Action() { }
   /**
-   * Politicians self-destruct and affect nearby bodies.
-   * Target: radius squared
+   * Target: ID of robot attacked
    */
-  public static final byte EMPOWER = 0;
+  public static final byte ATTACK = 0;
   /**
-   * Slanderers passively generate influence for the
-   * Enlightenment Center that created them.
-   * Target: parent ID
+   * Target: ID of robot spawned
    */
-  public static final byte EMBEZZLE = 1;
+  public static final byte SPAWN_UNIT = 1;
   /**
-   * Slanderers turn into Politicians.
+   * Target: location mined, x + y * width
+   */
+  public static final byte MINE_LEAD = 2;
+  /**
+   * Target: location mined, x + y * width
+   */
+  public static final byte MINE_GOLD = 3;
+  /**
    * Target: none
    */
-  public static final byte CAMOUFLAGE = 2;
+  public static final byte TRANSMUTE = 4;
   /**
-   * Muckrakers can expose a slanderer.
-   * Target: an enemy body
+   * Target: none
    */
-  public static final byte EXPOSE = 3;
+  public static final byte TRANSFORM = 5;
   /**
-   * Units can change their flag.
-   * Target: new flag value
+   * Target: ID of robot mutated
    */
-  public static final byte SET_FLAG = 4;
+  public static final byte MUTATE = 6;
   /**
-   * Builds a unit.
-   * Target: spawned unit
+   * Target: ID of robot repaired
    */
-  public static final byte SPAWN_UNIT = 5;
+  public static final byte REPAIR = 7;
   /**
-   * Places a bid.
-   * Target: bid value
+   * Target: change in health (can be negative)
    */
-  public static final byte PLACE_BID = 6;
+  public static final byte CHANGE_HEALTH = 8;
   /**
-   * A robot can change team after being empowered,
-   * or when a Enlightenment Center is taken over.
-   * Target: new robotID
+   * When a PROTOTYPE building upgrades to TURRET
+   * Target: none
    */
-  public static final byte CHANGE_TEAM = 7;
+  public static final byte FULLY_REPAIRED = 9;
   /**
-   * A robot's influence changes.
-   * Target: delta value
+   * Target: Sage location, x + y * width
    */
-  public static final byte CHANGE_INFLUENCE = 8;
+  public static final byte LOCAL_ABYSS = 10;
   /**
-   * A robot's conviction changes.
-   * Target: delta value, i.e. red 5 -> blue 3 is -2
+   * Target: Sage location, x + y * width
    */
-  public static final byte CHANGE_CONVICTION = 9;
+  public static final byte LOCAL_CHARGE = 11;
+  /**
+   * Target: Sage location, x + y * width
+   */
+  public static final byte LOCAL_FURY = 12;
+  /**
+   * Target: none
+   */
+  public static final byte ABYSS = 13;
+  /**
+   * Target: none
+   */
+  public static final byte CHARGE = 14;
+  /**
+   * Target: none
+   */
+  public static final byte FURY = 15;
+  /**
+   * Target: 0 if 90 degrees clockwise, 1 if horizontal, 2 if vertical
+   */
+  public static final byte VORTEX = 16;
   /**
    * Dies due to an uncaught exception.
    * Target: none
    */
-  public static final byte DIE_EXCEPTION = 10;
+  public static final byte DIE_EXCEPTION = 17;
 
-  public static final String[] names = { "EMPOWER", "EMBEZZLE", "CAMOUFLAGE", "EXPOSE", "SET_FLAG", "SPAWN_UNIT", "PLACE_BID", "CHANGE_TEAM", "CHANGE_INFLUENCE", "CHANGE_CONVICTION", "DIE_EXCEPTION", };
+  public static final String[] names = { "ATTACK", "SPAWN_UNIT", "MINE_LEAD", "MINE_GOLD", "TRANSMUTE", "TRANSFORM", "MUTATE", "REPAIR", "CHANGE_HEALTH", "FULLY_REPAIRED", "LOCAL_ABYSS", "LOCAL_CHARGE", "LOCAL_FURY", "ABYSS", "CHARGE", "FURY", "VORTEX", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }
