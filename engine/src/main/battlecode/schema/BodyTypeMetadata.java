@@ -17,69 +17,63 @@ public final class BodyTypeMetadata extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public BodyTypeMetadata __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  /**
-   * The relevant type.
-   */
   public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  /**
-   * The spawn source.
-   */
-  public byte spawnSource() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  /**
-   * the convictionRatio of this type
-   */
-  public float convictionRatio() { int o = __offset(8); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  /**
-   * cooldown of this type
-   */
-  public float actionCooldown() { int o = __offset(10); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  /**
-   * action radius if this type
-   */
-  public int actionRadiusSquared() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * sensor radius squared for this type
-   */
-  public int sensorRadiusSquared() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * detection radius of this type
-   */
-  public int detectionRadiusSquared() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * bytecode limit for this type
-   */
-  public int bytecodeLimit() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int buildCostLead(int j) { int o = __offset(6); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int buildCostLeadLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer buildCostLeadAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }
+  public ByteBuffer buildCostLeadInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 4); }
+  public int buildCostGold(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int buildCostGoldLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer buildCostGoldAsByteBuffer() { return __vector_as_bytebuffer(8, 4); }
+  public ByteBuffer buildCostGoldInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 4); }
+  public int actionCooldown() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int movementCooldown() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int health() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int damage() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionRadiusSquared() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int visionRadiusSquared() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int bytecodeLimit() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createBodyTypeMetadata(FlatBufferBuilder builder,
       byte type,
-      byte spawnSource,
-      float convictionRatio,
-      float actionCooldown,
+      int buildCostLeadOffset,
+      int buildCostGoldOffset,
+      int actionCooldown,
+      int movementCooldown,
+      int health,
+      int damage,
       int actionRadiusSquared,
-      int sensorRadiusSquared,
-      int detectionRadiusSquared,
+      int visionRadiusSquared,
       int bytecodeLimit) {
-    builder.startObject(8);
+    builder.startObject(10);
     BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
-    BodyTypeMetadata.addDetectionRadiusSquared(builder, detectionRadiusSquared);
-    BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
+    BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
     BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
+    BodyTypeMetadata.addDamage(builder, damage);
+    BodyTypeMetadata.addHealth(builder, health);
+    BodyTypeMetadata.addMovementCooldown(builder, movementCooldown);
     BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-    BodyTypeMetadata.addConvictionRatio(builder, convictionRatio);
-    BodyTypeMetadata.addSpawnSource(builder, spawnSource);
+    BodyTypeMetadata.addBuildCostGold(builder, buildCostGoldOffset);
+    BodyTypeMetadata.addBuildCostLead(builder, buildCostLeadOffset);
     BodyTypeMetadata.addType(builder, type);
     return BodyTypeMetadata.endBodyTypeMetadata(builder);
   }
 
-  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(8); }
+  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(10); }
   public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
-  public static void addSpawnSource(FlatBufferBuilder builder, byte spawnSource) { builder.addByte(1, spawnSource, 0); }
-  public static void addConvictionRatio(FlatBufferBuilder builder, float convictionRatio) { builder.addFloat(2, convictionRatio, 0.0f); }
-  public static void addActionCooldown(FlatBufferBuilder builder, float actionCooldown) { builder.addFloat(3, actionCooldown, 0.0f); }
-  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(4, actionRadiusSquared, 0); }
-  public static void addSensorRadiusSquared(FlatBufferBuilder builder, int sensorRadiusSquared) { builder.addInt(5, sensorRadiusSquared, 0); }
-  public static void addDetectionRadiusSquared(FlatBufferBuilder builder, int detectionRadiusSquared) { builder.addInt(6, detectionRadiusSquared, 0); }
-  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(7, bytecodeLimit, 0); }
+  public static void addBuildCostLead(FlatBufferBuilder builder, int buildCostLeadOffset) { builder.addOffset(1, buildCostLeadOffset, 0); }
+  public static int createBuildCostLeadVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startBuildCostLeadVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addBuildCostGold(FlatBufferBuilder builder, int buildCostGoldOffset) { builder.addOffset(2, buildCostGoldOffset, 0); }
+  public static int createBuildCostGoldVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startBuildCostGoldVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(3, actionCooldown, 0); }
+  public static void addMovementCooldown(FlatBufferBuilder builder, int movementCooldown) { builder.addInt(4, movementCooldown, 0); }
+  public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(5, health, 0); }
+  public static void addDamage(FlatBufferBuilder builder, int damage) { builder.addInt(6, damage, 0); }
+  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(7, actionRadiusSquared, 0); }
+  public static void addVisionRadiusSquared(FlatBufferBuilder builder, int visionRadiusSquared) { builder.addInt(8, visionRadiusSquared, 0); }
+  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(9, bytecodeLimit, 0); }
   public static int endBodyTypeMetadata(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
