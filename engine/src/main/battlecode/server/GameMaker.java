@@ -390,6 +390,9 @@ public strictfp class GameMaker {
         private TIntArrayList bytecodeIDs;
         private TIntArrayList bytecodesUsed;
 
+        // Used to write logs.
+        private final ByteArrayOutputStream logger;
+
         public MatchMaker() {
             this.movedIDs = new TIntArrayList();
             this.movedLocsX = new TIntArrayList();
@@ -430,6 +433,7 @@ public strictfp class GameMaker {
             this.indicatorLineRGBsGreen = new TIntArrayList();
             this.bytecodeIDs = new TIntArrayList();
             this.bytecodesUsed = new TIntArrayList();
+            this.logger = new ByteArrayOutputStream();
         }
 
         public void makeMatchHeader(LiveMap gameMap) {
@@ -499,13 +503,13 @@ public strictfp class GameMaker {
         public void makeRound(int roundNum) {
             assertState(State.IN_MATCH);
 
-            // try {
-            //     this.logger.flush();
-            // } catch (IOException e) {
-            //     throw new RuntimeException("Can't flush byte[]outputstream?", e);
-            // }
+            try {
+                this.logger.flush();
+            } catch (IOException e) {
+                throw new RuntimeException("Can't flush byte[]outputstream?", e);
+            }
             // byte[] logs = this.logger.toByteArray();
-            // this.logger.reset();
+            this.logger.reset();
 
             createEvent((builder) -> {
                 // The bodies that spawned
@@ -603,9 +607,9 @@ public strictfp class GameMaker {
         /**
          * @return an outputstream that will be baked into the output file
          */
-        // public OutputStream getOut() {
-        //     return logger;
-        // }
+        public OutputStream getOut() {
+            return logger;
+        }
 
         public void addMoved(int id, MapLocation newLocation) {
             movedIDs.add(id);
