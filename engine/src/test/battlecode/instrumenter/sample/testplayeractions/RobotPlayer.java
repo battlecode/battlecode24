@@ -11,7 +11,7 @@ import battlecode.common.*;
 public class RobotPlayer {
     public static void run(RobotController rc) throws GameActionException {
         rc.resign();
-        rc.senseNearbyRobots();
+        rc.seeNearbyRobots();
 
         System.out.println("I shouldn't overflow!");
     }
