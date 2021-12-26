@@ -204,15 +204,6 @@ public enum RobotType {
     }
 
     /**
-     * Returns the starting health of a robot by level.
-     * @param level of the robot
-     * @return the starting health of a robot by level
-     */
-    public int getStartingHealth(int level) {
-        return (int) (this.health * (this.isBuilding() ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1));
-    }
-
-    /**
      * Returns the damage of a robot by level.
      * @param level
      * @return the damage for a robot by level
