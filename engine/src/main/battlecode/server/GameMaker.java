@@ -287,12 +287,12 @@ public strictfp class GameMaker {
         for (RobotType type : RobotType.values()) {
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
-            int[] buildCostLeadArray = {type.buildCostLead, type.getLeadMutateCost(2), type.getLeadMutateCost(3)};
-            int buildCostLeadOffset = BodyTypeMetadata.createBuildCostLeadVector(builder, buildCostLeadArray);
-            int[] buildCostGoldArray = {type.buildCostGold, type.getGoldMutateCost(2), type.getGoldMutateCost(3)};
-            int buildCostGoldOffset = BodyTypeMetadata.createBuildCostGoldVector(builder, buildCostGoldArray);
-            BodyTypeMetadata.addBuildCostLead(builder, buildCostLeadOffset);
-            BodyTypeMetadata.addBuildCostGold(builder, buildCostGoldOffset);
+            BodyTypeMetadata.addBuildCostLead(builder, type.buildCostLead);
+            BodyTypeMetadata.addBuildCostGold(builder, type.buildCostGold);
+            BodyTypeMetadata.addLevel2CostLead(builder, type.getLeadMutateCost(2));
+            BodyTypeMetadata.addLevel2CostGold(builder, type.getGoldMutateCost(2));
+            BodyTypeMetadata.addLevel3CostLead(builder, type.getLeadMutateCost(3));
+            BodyTypeMetadata.addLevel3CostGold(builder, type.getGoldMutateCost(3));
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
             BodyTypeMetadata.addMovementCooldown(builder, type.movementCooldown);
             BodyTypeMetadata.addHealth(builder, type.health);
