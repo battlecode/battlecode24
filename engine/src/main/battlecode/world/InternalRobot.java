@@ -50,6 +50,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
+        this.gameWorld = gw;
+        
         this.ID = id;
         this.team = team;
         this.type = type;
@@ -69,7 +71,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.numVisibleFriendlyRobots = 0;
 
-        this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
     }
 

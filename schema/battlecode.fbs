@@ -127,12 +127,20 @@ enum Action : byte {
 /// Metadata about all bodies of a particular type.
 table BodyTypeMetadata {
     type: BodyType;
-    buildCostLead: [int]; // array of length 3, build cost and upgrade costs
-    buildCostGold: [int]; // array of length 3, build cost and upgrade costs
+    buildCostLead: int;
+    buildCostGold: int;
+    level2CostLead: int;
+    level2CostGold: int;
+    level3CostLead: int;
+    level3CostGold: int;
     actionCooldown: int;
     movementCooldown: int;
     health: int;
+    level2Health: int;
+    level3Health: int;
     damage: int;
+    level2Damage: int;
+    level3Damage: int;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;

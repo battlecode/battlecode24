@@ -40,17 +40,14 @@ public class Circle {
     public static void makeCircle() throws IOException {
         final int half = 31;
         final MapLocation center = new MapLocation(half, half);
-        MapBuilder mapBuilder = new MapBuilder(mapName, 2*half+1, 2*half+1, 25016, 12865, 116896);
-        mapBuilder.addSymmetricEnlightenmentCenter(20, 20);
-        mapBuilder.addSymmetricEnlightenmentCenter(20, 2*half-20);
-        mapBuilder.addSymmetricNeutralEnlightenmentCenter(0, 0, 300);
-        mapBuilder.addSymmetricNeutralEnlightenmentCenter(0, 2*half, 300);
+        MapBuilder mapBuilder = new MapBuilder(mapName, 2*half+1, 2*half+1, 0, 0, 116896);
+        mapBuilder.addSymmetricArchon(20, 20);
+        mapBuilder.addSymmetricArchon(20, 2*half-20);
 
         for (int i = 0; i <= half; i++) {
             for (int j = 0; j <= 2*half; j++) {
                 int d = new MapLocation(i, j).distanceSquaredTo(center);
-                mapBuilder.setSymmetricPassability(i, j,
-                        1.0 - 0.5 * Math.exp(-0.0002 * (d - 500) * (d - 500)));
+                mapBuilder.setSymmetricLead(i, j, d);
             }
         }
 
