@@ -34,7 +34,7 @@ public class GameConstants {
     public static final int MAX_STARTING_ARCHONS = 4;
 
     /** The minimum amount of rubble per square. */
-    public static final int MIN_RUBBLE = 100;
+    public static final int MIN_RUBBLE = 0;
 
     /** The maximum amount of rubble per square. */
     public static final int MAX_RUBBLE = 100;
