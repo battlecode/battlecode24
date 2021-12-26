@@ -199,7 +199,7 @@ public strictfp class GameWorld {
         return this.lead[locationToIndex(loc)];
     }
 
-    public int setLead(MapLocation loc, int amount) {
+    public void setLead(MapLocation loc, int amount) {
         this.lead[locationToIndex(loc)] = amount;
     }
 
@@ -207,7 +207,7 @@ public strictfp class GameWorld {
         return this.gold[locationToIndex(loc)];
     }
 
-    public int setGold(MapLocation loc, int amount) {
+    public void setGold(MapLocation loc, int amount) {
         this.gold[locationToIndex(loc)] = amount;
     }
 
