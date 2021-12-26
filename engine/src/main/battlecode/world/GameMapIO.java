@@ -228,7 +228,6 @@ public final strictfp class GameMapIO {
             final String mapName = raw.name();
             double[] passabilityArray = new double[width * height];
             int[] leadArray = new int[width * height];
-            int[] goldArray = new int[width * height];
             for (int i = 0; i < width * height; i++) {
                 passabilityArray[i] = raw.passability(i);
                 goldArray[i] = raw.gold(i);

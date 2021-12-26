@@ -59,6 +59,8 @@ table GameMap {
     minCorner: Vec;
     /// The top corner of the map.
     maxCorner: Vec;
+    /// The map symmetry: 0 for rotation, 1 for horizontal, 2 for vertical.
+    symmetry: int;
     /// The bodies on the map.
     bodies: SpawnedBodyTable;
     /// The random seed of the map.
@@ -67,6 +69,10 @@ table GameMap {
     rubble: [int];
     /// The lead on the map.
     lead: [int];
+    /// The anomalies scheduled: 0/1/2/3 abyss/charge/fury/vortex.
+    anomalies: [int];
+    /// The rounds the anomalies are scheduled for.
+    anomalyRounds: [int];
 }
 
 /// Actions that can be performed.
