@@ -127,6 +127,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
 
+    private int locationToInt(MapLocation loc) {
+        return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
+    }
+
     // ***********************************
     // ****** GENERAL VISION METHODS *****
     // ***********************************
@@ -474,12 +478,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         switch (anomaly) {
             case ABYSS:
                 this.gameWorld.causeAbyssSage(this.robot);
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_ABYSS, locationToInt(this.robot.getLocation()));
+                break;
             case CHARGE:
                 this.gameWorld.causeChargeSage(this.robot);
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_CHARGE, locationToInt(this.robot.getLocation()));
+                break;
             case FURY:
                 this.gameWorld.causeFurySage(this.robot);
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_FURY, locationToInt(this.robot.getLocation()));
+                break;
         }
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.ENVISION, anomaly);
     }
 
     // *****************************
@@ -553,7 +562,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
         this.gameWorld.getTeamInfo().addLead(getTeam(), 1);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, loc);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
@@ -584,7 +593,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
         this.gameWorld.getTeamInfo().addGold(getTeam(), 1);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, loc);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
     }
 
     // *************************
