@@ -39,7 +39,7 @@ public class Quadrants {
     }
 
     public static void makeQuadrants() throws IOException {
-        MapBuilder mapBuilder = new MapBuilder(mapName, 40, 40, 13265, 17387, 215957);
+        MapBuilder mapBuilder = new MapBuilder(mapName, 40, 40, 0, 0, 215957);
         mapBuilder.setSymmetry(MapSymmetry.ROTATIONAL);
         mapBuilder.addSymmetricArchon(5, 5);
         mapBuilder.addSymmetricArchon(10, 30);

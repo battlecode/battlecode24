@@ -40,7 +40,7 @@ public class Circle {
     public static void makeCircle() throws IOException {
         final int half = 31;
         final MapLocation center = new MapLocation(half, half);
-        MapBuilder mapBuilder = new MapBuilder(mapName, 2*half+1, 2*half+1, 25016, 12865, 116896);
+        MapBuilder mapBuilder = new MapBuilder(mapName, 2*half+1, 2*half+1, 0, 0, 116896);
         mapBuilder.addSymmetricArchon(20, 20);
         mapBuilder.addSymmetricArchon(20, 2*half-20);
 
