@@ -406,8 +406,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Team team = getTeam();
         this.gameWorld.getTeamInfo().addLead(team, -type.buildCostLead);
         this.gameWorld.getTeamInfo().addGold(team, -type.buildCostGold);
-        this.gameWorld.spawnRobot(type, adjacentLocation(dir), team);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, getID());
+        int newId = this.gameWorld.spawnRobot(type, adjacentLocation(dir), team);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
     }
 
     // *****************************
@@ -478,15 +478,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         switch (anomaly) {
             case ABYSS:
                 this.gameWorld.causeAbyssSage(this.robot);
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_ABYSS, locationToInt(this.robot.getLocation()));
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_ABYSS, locationToInt(getLocation()));
                 break;
             case CHARGE:
                 this.gameWorld.causeChargeSage(this.robot);
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_CHARGE, locationToInt(this.robot.getLocation()));
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_CHARGE, locationToInt(getLocation()));
                 break;
             case FURY:
                 this.gameWorld.causeFurySage(this.robot);
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_FURY, locationToInt(this.robot.getLocation()));
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.LOCAL_FURY, locationToInt(getLocation()));
                 break;
         }
     }
