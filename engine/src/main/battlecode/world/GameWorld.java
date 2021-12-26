@@ -524,6 +524,7 @@ public strictfp class GameWorld {
 
         this.teamInfo.addGold(Team.A, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.A)));
         this.teamInfo.addGold(Team.B, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.B)));
+        getMatchMaker().addAction(-1, ABYSS, -1);
     }
 
     /**
@@ -558,6 +559,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < affectedDroidsLimit; i++) {
             this.destroyRobot(droids.get(i).getID());
         }
+        getMatchMaker().addAction(-1, CHARGE, -1);
     }
 
     /** Used to sort droids for charge */
@@ -595,6 +597,7 @@ public strictfp class GameWorld {
      */
     public void causeFuryGlobal() {
         this.causeFuryUpdate(AnomalyType.FURY.globalPercentage, this.getAllLocations());
+        getMatchMaker().addAction(-1, FURY, -1);
     }
 
     private void rotatePassability() {
@@ -651,28 +654,31 @@ public strictfp class GameWorld {
      * Only mutates the rubble array in this class; doesn't change the LiveMap
      */
     public void causeVortexGlobal() {
+        int changeIdx = 0;
         switch (this.gameMap.getSymmetry()) {
             case HORIZONTAL:
                 flipPassabilityHorizontally();
+                changeIdx = 1;
                 break;
             case VERTICAL:
                 flipPassabilityVertically();
+                changeIdx = 2;
                 break;
             case ROTATIONAL:
                 // generate random choice of how rotation will occur
-                // 0 indicates horiztonal
-                // 1 indicates vertical
-                // 2 indicates rotation + horizontal
-                // 3 indicates rotation + vertical
-                int randomNumber = this.rand.nextInt(4);
-                if (randomNumber > 1) {
+                // 0 indicates rotational (clockwise)
+                // 1 indicates horizontal
+                // 2 indicates vertical
+                int randomNumber = this.rand.nextInt(3);
+                if (randomNumber == 0) {
                     rotatePassability();
-                }
-                if (randomNumber % 2 == 0) {
+                } else if (randomNumber == 1) {
                     flipPassabilityHorizontally();
-                } else {
+                } else if (randomNumber == 2) {
                     flipPassabilityVertically();
                 }
+                changeIdx = randomNumber;
                 break;
         }
+        getMatchMaker().addAction(-1, VORTEX, changeIdx);
     }
