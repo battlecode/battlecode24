@@ -44,12 +44,12 @@ public class GameMakerTest {
         gm.makeGameFooter(Team.A);
     }
 
-    @Test(expected=RuntimeException.class)
-    public void testMatchStateExceptions() {
-        GameMaker gm = new GameMaker(info, null, true);
-        gm.makeGameHeader();
-        gm.getMatchMaker().makeMatchFooter(Team.A, 23, new ArrayList<>());
-    }
+    // @Test(expected=RuntimeException.class)
+    // public void testMatchStateExceptions() {
+    //     GameMaker gm = new GameMaker(info, null, true);
+    //     gm.makeGameHeader();
+    //     gm.getMatchMaker().makeMatchFooter(Team.A, 23, new ArrayList<>());
+    // }
     
     // @Test
     // public void fullReasonableGame() throws Exception {
