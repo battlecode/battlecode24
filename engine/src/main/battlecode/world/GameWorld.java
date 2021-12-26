@@ -598,12 +598,7 @@ public strictfp class GameWorld {
         this.causeFuryUpdate(AnomalyType.FURY.globalPercentage, this.getAllLocations());
     }
 
-    /**
-     * Mutates state to peform the global Vortex.
-     * Note that in this year's game, width == height (only square maps)
-     * Only mutates the rubble array in this class; doesn't change the LiveMap
-     */
-    public void causeVortexGlobal() {
+    private void rotatePassability() {
         int n = this.gameMap.getWidth();
         for (int x = 0; x < n / 2; x++) {
             for (int y = 0; y < (n + 1) / 2; y++) {
@@ -622,4 +617,63 @@ public strictfp class GameWorld {
             }
         }
     }
-}
+
+    private void flipPassabilityHorizontally() {
+        int n = this.gameMap.getWidth();
+        for (int x = 0; x < n / 2; x++) {
+            for (int y = 0; y < this.gameMap.getHeight(); y++) {
+                int idx = x + y * n;
+                int newX = n - x;
+                int newIdx = newX + y * n;
+                int prevRubble = this.rubble[idx];
+                this.rubble[idx] = this.rubble[newIdx];
+                this.rubble[newIdx] = prevRubble;
+            }
+        }
+    }
+
+    private void flipPassabilityVertically() {
+        int n = this.gameMap.getHeight();
+        for (int y = 0; y < n / 2; y++) {
+            for (int x = 0; x < this.gameMap.getWidth(); x++) {
+                int idx = x + y * n;
+                int newY = n - y;
+                int newIdx = x + newY * n;
+                int prevRubble = this.rubble[idx];
+                this.rubble[idx] = this.rubble[newIdx];
+                this.rubble[newIdx] = prevRubble;
+            }
+        }
+    }
+
+    /**
+     * Mutates state to peform the global Vortex.
+     * Note that in this year's game, width == height (only square maps)
+     * Only mutates the rubble array in this class; doesn't change the LiveMap
+     */
+    public void causeVortexGlobal() {
+        switch (this.gameMap.getSymmetry()) {
+            case HORIZONTAL:
+                flipPassabilityHorizontally();
+                break;
+            case VERTICAL:
+                flipPassabilityVertically();
+                break;
+            case ROTATIONAL:
+                // generate random choice of how rotation will occur
+                // 0 indicates horiztonal
+                // 1 indicates vertical
+                // 2 indicates rotation + horizontal
+                // 3 indicates rotation + vertical
+                int randomNumber = this.rand.nextInt(4);
+                if (randomNumber > 1) {
+                    rotatePassability();
+                }
+                if (randomNumber % 2 == 0) {
+                    flipPassabilityHorizontally();
+                } else {
+                    flipPassabilityVertically();
+                }
+                break;
+        }
+    }
