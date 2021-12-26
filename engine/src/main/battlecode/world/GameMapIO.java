@@ -223,15 +223,19 @@ public final strictfp class GameMapIO {
             final int width = (int) (raw.maxCorner().x() - raw.minCorner().x());
             final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
             final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
+            final MapSymmetry symmetry = MaySymmetry.values()[raw.symmetry()];
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            double[] passabilityArray = new double[width * height];
+            double[] rubbleArray = new double[width * height];
             int[] leadArray = new int[width * height];
-            for (int i = 0; i < width * height; i++) {
-                passabilityArray[i] = raw.passability(i);
-                goldArray[i] = raw.gold(i);
+            for (int i = 0; i < rubbleArray.length; i++) {
+                rubbleArray[i] = raw.rubble(i);
                 leadArray[i] = raw.lead(i);
+            }
+            AnomalyScheduleEntry[] anomalySchedule = new AnomalyScheduleEntry[raw.anomaliesLength()];
+            for (int i = 0; i < anomalySchedule.length; i++) {
+                anomalySchedule[i] = new AnomalyScheduleEntry(raw.anomalyRounds(i), AnomalyType.values()[raw.anomalies(i)]);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -240,7 +244,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, initialBodies, passabilityArray, leadArray, goldArray
+                width, height, origin, seed, rounds, mapName, symmetry, initialBodies, rubbleArray, leadArray, anomalySchedule
             );
         }
 
@@ -255,9 +259,9 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            double[] passabilityArray = gameMap.getPassabilityArray();
-            double[] leadArray = gameMap.getLeadArray();
-            double[] goldArray = gameMap.getGoldArray();
+            int[] rubbleArray = gameMap.getRubbleArray();
+            int[] leadArray = gameMap.getLeadArray();
+            AnomalyScheduleEntry[] anomalySchedule = gameMap.getAnomalySchedule();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
@@ -266,12 +270,17 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
             ArrayList<Double> passabilityArrayList = new ArrayList<>();
             ArrayList<Integer> leadArrayList = new ArrayList<>();
-            ArrayList<Integer> goldArrayList = new ArrayList<>();
+            ArrayList<Integer> anomaliesArrayList = new ArrayList<>();
+            ArrayList<Integer> anomalyRoundsArrayList = new ArrayList<>();
+
+            for (int i = 0; i < anomalySchedule.length; i++) {
+                anomaliesArrayList.add(anomalySchedule[i].anomalyType.ordinal());
+                anomalyRoundsArrayList.add(anomalySchedule[i].roundNumber);
+            }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
                 passabilityArrayList.add(passabilityArray[i]);
                 leadArrayList.add(leadArray[i]);
-                goldArrayList.add(goldArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -296,18 +305,21 @@ public final strictfp class GameMapIO {
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
             int passabilityArrayInt = battlecode.schema.GameMap.createPassabilityVector(builder, ArrayUtils.toPrimitive(passabilityArrayList.toArray(new Double[passabilityArrayList.size()])));
             int leadArrayInt = battlecode.schema.GameMap.createLeadVector(builder, ArrayUtils.toPrimitive(leadArrayList.toArray(new Integer[leadArrayList.size()])));
-            int goldArrayInt = battlecode.schema.GameMap.createGoldVector(builder, ArrayUtils.toPrimitive(goldArrayList.toArray(new Integer[goldArrayList.size()])));
+            int anomaliesArrayInt = battlecode.schema.GameMap.createAnomaliesVector(builder, ArrayUtils.toPrimitive(anomaliesArrayList.toArray(new Integer[anomaliesArrayList.size()])));
+            int anomalyRoundsArrayInt = battlecode.schema.GameMap.createAnomalyRoundsVector(builder, ArrayUtils.toPrimitive(anomalyRoundsArrayList.toArray(new Integer[anomalyRoundsArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
             battlecode.schema.GameMap.addMinCorner(builder, Vec.createVec(builder, gameMap.getOrigin().x, gameMap.getOrigin().y));
             battlecode.schema.GameMap.addMaxCorner(builder, Vec.createVec(builder, gameMap.getOrigin().x + gameMap.getWidth(),
                     gameMap.getOrigin().y + gameMap.getHeight()));
+            battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
             battlecode.schema.GameMap.addPassability(builder, passabilityArrayInt);
             battlecode.schema.GameMap.addLead(builder, leadArrayInt);
-            battlecode.schema.GameMap.addGold(builder, goldArrayInt);
+            battlecode.schema.GameMap.addAnomalies(builder, anomaliesArrayInt);
+            battlecode.schema.GameMap.addAnomalyRounds(builder, anomalyRoundsArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
@@ -325,7 +337,7 @@ public final strictfp class GameMapIO {
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType == RobotType.ARCHON)
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, 1, RobotType.ARCHON.health, new MapLocation(bodyX, bodyY)));
                 // ignore robots that are not archons, TODO throw error?
             }
         }
