@@ -136,7 +136,11 @@ table BodyTypeMetadata {
     actionCooldown: int;
     movementCooldown: int;
     health: int;
+    level2Health: int;
+    level3Health: int;
     damage: int;
+    level2Damage: int;
+    level3Damage: int;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;

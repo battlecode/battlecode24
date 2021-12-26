@@ -296,7 +296,11 @@ public strictfp class GameMaker {
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
             BodyTypeMetadata.addMovementCooldown(builder, type.movementCooldown);
             BodyTypeMetadata.addHealth(builder, type.health);
+            BodyTypeMetadata.addLevel2Health(builder, type.getMaxHealth(2));
+            BodyTypeMetadata.addLevel3Health(builder, type.getMaxHealth(3));
             BodyTypeMetadata.addDamage(builder, type.damage);
+            BodyTypeMetadata.addLevel2Damage(builder, type.getDamage(2));
+            BodyTypeMetadata.addLevel3Damage(builder, type.getDamage(3));
             BodyTypeMetadata.addActionRadiusSquared(builder, type.actionRadiusSquared);
             BodyTypeMetadata.addVisionRadiusSquared(builder, type.visionRadiusSquared);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
