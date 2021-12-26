@@ -228,7 +228,6 @@ public final strictfp class GameMapIO {
             final String mapName = raw.name();
             int[] rubbleArray = new int[width * height];
             int[] leadArray = new int[width * height];
-            int[] goldArray = new int[width * height];
             for (int i = 0; i < width * height; i++) {
                 rubbleArray[i] = raw.rubble(i);
                 leadArray[i] = raw.lead(i);
