@@ -524,7 +524,7 @@ public strictfp class GameWorld {
 
         this.teamInfo.addGold(Team.A, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.A)));
         this.teamInfo.addGold(Team.B, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.B)));
-        this.matchMaker.addAction(-1, ABYSS, -1);
+        this.matchMaker.addAction(-1, Action.ABYSS, -1);
     }
 
     /**
@@ -559,7 +559,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < affectedDroidsLimit; i++) {
             this.destroyRobot(droids.get(i).getID());
         }
-        this.matchMaker.addAction(-1, CHARGE, -1);
+        this.matchMaker.addAction(-1, Action.CHARGE, -1);
     }
 
     /** Used to sort droids for charge */
@@ -597,7 +597,7 @@ public strictfp class GameWorld {
      */
     public void causeFuryGlobal() {
         this.causeFuryUpdate(AnomalyType.FURY.globalPercentage, this.getAllLocations());
-        this.matchMaker.addAction(-1, FURY, -1);
+        this.matchMaker.addAction(-1, Action.FURY, -1);
     }
 
     private void rotateRubble() {
@@ -683,6 +683,6 @@ public strictfp class GameWorld {
                 changeIdx = randomNumber;
                 break;
         }
-        this.matchMaker.addAction(-1, VORTEX, changeIdx);
+        this.matchMaker.addAction(-1, Action.VORTEX, changeIdx);
     }
 }
