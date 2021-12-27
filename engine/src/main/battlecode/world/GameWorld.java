@@ -524,7 +524,7 @@ public strictfp class GameWorld {
 
         this.teamInfo.addGold(Team.A, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.A)));
         this.teamInfo.addGold(Team.B, (int) (-1 * AnomalyType.ABYSS.globalPercentage * this.teamInfo.getGold(Team.B)));
-        getMatchMaker().addAction(-1, ABYSS, -1);
+        this.matchMaker.addAction(-1, ABYSS, -1);
     }
 
     /**
@@ -559,7 +559,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < affectedDroidsLimit; i++) {
             this.destroyRobot(droids.get(i).getID());
         }
-        getMatchMaker().addAction(-1, CHARGE, -1);
+        this.matchMaker.addAction(-1, CHARGE, -1);
     }
 
     /** Used to sort droids for charge */
@@ -597,10 +597,10 @@ public strictfp class GameWorld {
      */
     public void causeFuryGlobal() {
         this.causeFuryUpdate(AnomalyType.FURY.globalPercentage, this.getAllLocations());
-        getMatchMaker().addAction(-1, FURY, -1);
+        this.matchMaker.addAction(-1, FURY, -1);
     }
 
-    private void rotatePassability() {
+    private void rotateRubble() {
         int n = this.gameMap.getWidth();
         for (int x = 0; x < n / 2; x++) {
             for (int y = 0; y < (n + 1) / 2; y++) {
@@ -620,13 +620,14 @@ public strictfp class GameWorld {
         }
     }
 
-    private void flipPassabilityHorizontally() {
-        int n = this.gameMap.getWidth();
-        for (int x = 0; x < n / 2; x++) {
-            for (int y = 0; y < this.gameMap.getHeight(); y++) {
-                int idx = x + y * n;
-                int newX = n - x;
-                int newIdx = newX + y * n;
+    private void flipRubbleHorizontally() {
+        int w = this.gameMap.getWidth();
+        int h = this.gameMap.getHeight();
+        for (int x = 0; x < w / 2; x++) {
+            for (int y = 0; y < h; y++) {
+                int idx = x + y * w;
+                int newX = w - 1 - x;
+                int newIdx = newX + y * w;
                 int prevRubble = this.rubble[idx];
                 this.rubble[idx] = this.rubble[newIdx];
                 this.rubble[newIdx] = prevRubble;
@@ -634,13 +635,14 @@ public strictfp class GameWorld {
         }
     }
 
-    private void flipPassabilityVertically() {
-        int n = this.gameMap.getHeight();
-        for (int y = 0; y < n / 2; y++) {
-            for (int x = 0; x < this.gameMap.getWidth(); x++) {
-                int idx = x + y * n;
-                int newY = n - y;
-                int newIdx = x + newY * n;
+    private void flipRubbleVertically() {
+        int w = this.gameMap.getWidth();
+        int h = this.gameMap.getHeight();
+        for (int y = 0; y < h / 2; y++) {
+            for (int x = 0; x < w; x++) {
+                int idx = x + y * w;
+                int newY = h - 1 - y;
+                int newIdx = x + newY * w;
                 int prevRubble = this.rubble[idx];
                 this.rubble[idx] = this.rubble[newIdx];
                 this.rubble[newIdx] = prevRubble;
@@ -650,35 +652,37 @@ public strictfp class GameWorld {
 
     /**
      * Mutates state to peform the global Vortex.
-     * Note that in this year's game, width == height (only square maps)
      * Only mutates the rubble array in this class; doesn't change the LiveMap
      */
     public void causeVortexGlobal() {
         int changeIdx = 0;
         switch (this.gameMap.getSymmetry()) {
             case HORIZONTAL:
-                flipPassabilityHorizontally();
-                changeIdx = 1;
+                flipRubbleVertically();
+                changeIdx = 2;
                 break;
             case VERTICAL:
-                flipPassabilityVertically();
-                changeIdx = 2;
+                flipRubbleHorizontally();
+                changeIdx = 1;
                 break;
             case ROTATIONAL:
                 // generate random choice of how rotation will occur
-                // 0 indicates rotational (clockwise)
-                // 1 indicates horizontal
-                // 2 indicates vertical
-                int randomNumber = this.rand.nextInt(3);
+                // can only rotate if it's a square map
+                boolean squareMap = this.gameMap.getWidth() == this.gameMap.getHeight();
+                int randomNumber = this.rand.nextInt(squareMap ? 3 : 2);
+                if (!squareMap) {
+                    randomNumber++;
+                }
                 if (randomNumber == 0) {
-                    rotatePassability();
+                    rotateRubble();
                 } else if (randomNumber == 1) {
-                    flipPassabilityHorizontally();
+                    flipRubbleHorizontally();
                 } else if (randomNumber == 2) {
-                    flipPassabilityVertically();
+                    flipRubbleVertically();
                 }
                 changeIdx = randomNumber;
                 break;
         }
-        getMatchMaker().addAction(-1, VORTEX, changeIdx);
+        this.matchMaker.addAction(-1, VORTEX, changeIdx);
     }
+}
