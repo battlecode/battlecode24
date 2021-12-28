@@ -206,30 +206,39 @@ public enum RobotType {
     /**
      * Returns the damage of a robot by level.
      * @param level
-     * @return the damage for a robot by level
+     * @return the damage for a robot by level.
+     *  0 if it's a non-damaging robot.
      */
     public int getDamage(int level) {
-        if (!this.isBuilding() || level == 1) {
-            return this.damage;
-        } else if (this == RobotType.ARCHON) {
-            return level == 2 ? -3 : -4;
-        } else if (this == RobotType.LABORATORY) {
+
+        // Robots that heal or don't do damage.
+        // Note, damage is negative in the enum if healing, so cannot directly use damage.
+        if (this == RobotType.ARCHON || this == RobotType.LABORATORY || this == RobotType.BUILDER)
             return 0;
-        } else {
+        
+        if(this == RobotType.WATCHTOWER){
+            if(this.getLevel() == 1) return this.damage;
             return level == 2 ? 6 : 7;
         }
+            
+        // Non-healing droids only.
+        return this.damage;
     }
 
     /**
      * @param level
-     * @return the healing per turn for a robot by level
+     * @return the healing per turn for a robot by level as a positive amount.
+     *  0 if robot doesn't heal.
      */
     public int getHealing(int level) {
-        if (this == ARCHON || this == BUILDER) {
+        if(this == BUILDER || (this == ARCHON && level == 1))
             return (int) (-1 * this.getDamage(level));
-        } else {
-            return 0;
+        else{
+            if(this == ARCHON && level != 1)
+                return level == 2 ? 3 : 4;
         }
+
+        return 0;
     }
 
     // COST RELATED FUNCTIONS
