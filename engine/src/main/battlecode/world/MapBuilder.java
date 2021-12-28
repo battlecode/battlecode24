@@ -220,10 +220,11 @@ public class MapBuilder {
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
-        if (allMapSymmetries.isEmpty())
-            throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
         if (!allMapSymmetries.contains(this.symmetry))
-            throw new RuntimeException("This map is supposed to have " + this.symmetry + " symmetry, but it doesn't");
+            throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
+        }
+
+        // TODO: assert that at least one lead deposit inside vision range of at least one Archon
     }
 
     public boolean onTheMap(MapLocation loc) {

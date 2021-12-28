@@ -284,18 +284,11 @@ public enum RobotType {
     }
 
     /**
-     * @return Reclaim cost percentage for when robot is destroyed.
-     */
-    public float getReclaimCostPercentage() {
-        return (this.isBuilding()) ? 0.2f : 0;
-    }
-
-    /**
      * @param level the robot's current level
      * @return the amount of lead dropped
      */
     public int getLeadDropped(int level) {
-        return this.isBuilding() ? (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+        return this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER;
     }
 
     /**
@@ -303,7 +296,7 @@ public enum RobotType {
      * @return the amount of gold dropped
      */
     public int getGoldDropped(int level) {
-        return this.isBuilding() ? (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+        return this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER;
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int movementCooldown,
