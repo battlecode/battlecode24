@@ -56,7 +56,7 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** The amount of lead each team gains per turn. */
-    public static final int PASSIVE_LEAD_INCREASE = 5;
+    public static final int PASSIVE_LEAD_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
     public static final int ADD_LEAD_EVERY_ROUNDS = 20;
