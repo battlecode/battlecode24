@@ -224,7 +224,27 @@ public class MapBuilder {
             throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
         }
 
-        // TODO: assert that at least one lead deposit inside vision range of at least one Archon
+        // assert that at least one lead deposit inside vision range of at least one Archon
+
+        boolean[] hasVisibleLead = {false, false};
+
+        for (RobotInfo r : bodies) {
+            if (r.getType() != RobotType.ARCHON) continue;
+            if (hasVisibleLead[r.getTeam().ordinal()]) continue;
+
+            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquared(
+                r.getLocation(),
+                r.getVisionRadiusSquared()
+            );
+
+            for (MapLocation location : visibleLocations)
+                if (this.leadArray[locationToIndex(location.x, location.y)] > 0)
+                    hasVisibleLead[r.getTeam().ordinal()] = true;
+        }
+
+        if (!(hasVisibleLead[0] && hasVisibleLead[1])) {
+            throw new RuntimeException("Teams must have at least one lead deposit visible to an Archon.");
+        }
     }
 
     public boolean onTheMap(MapLocation loc) {

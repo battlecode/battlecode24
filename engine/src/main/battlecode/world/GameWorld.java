@@ -260,7 +260,7 @@ public strictfp class GameWorld {
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
-    public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+    public static MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
         int minX = Math.max(center.x - ceiledRadius, this.gameMap.getOrigin().x);
