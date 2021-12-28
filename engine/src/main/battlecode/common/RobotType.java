@@ -21,7 +21,7 @@ public enum RobotType {
      * Converts lead into gold
      *
      * @battlecode.doc.robot     */
-    LABORATORY      (800,   0, 10, 24, 100,  0, 0, 53, 5000),
+    LABORATORY      (800,   0, 10, 24, 100,  0, 0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -52,7 +52,7 @@ public enum RobotType {
     /**
      * Gold robot, causes Anomalies.
      */
-    SAGE            ( 0,  50, 200, 25, 45, 100, 13, 20,   10000)
+    SAGE            ( 0,  50, 200, 25, 100, 45, 13, 20,   10000)
     //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
