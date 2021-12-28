@@ -217,7 +217,7 @@ public enum RobotType {
             return 0;
         
         if(this == RobotType.WATCHTOWER){
-            if(this.getLevel() == 1) return this.damage;
+            if(level == 1) return this.damage;
             return level == 2 ? 6 : 7;
         }
             
@@ -288,7 +288,7 @@ public enum RobotType {
      * @return the amount of lead dropped
      */
     public int getLeadDropped(int level) {
-        return this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER;
+        return (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);
     }
 
     /**
@@ -296,7 +296,7 @@ public enum RobotType {
      * @return the amount of gold dropped
      */
     public int getGoldDropped(int level) {
-        return this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER;
+        return (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int movementCooldown,

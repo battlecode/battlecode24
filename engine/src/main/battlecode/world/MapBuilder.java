@@ -232,9 +232,12 @@ public class MapBuilder {
             if (r.getType() != RobotType.ARCHON) continue;
             if (hasVisibleLead[r.getTeam().ordinal()]) continue;
 
-            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquared(
+            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
+                this.origin,
+                this.width,
+                this.height,
                 r.getLocation(),
-                r.getVisionRadiusSquared()
+                r.getType().getVisionRadiusSquared(1)
             );
 
             for (MapLocation location : visibleLocations)
