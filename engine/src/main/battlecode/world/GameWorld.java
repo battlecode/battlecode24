@@ -334,6 +334,12 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfMoreGoldValue() {
         int[] totalGoldValues = new int[2];
+
+        // consider team reserves
+        totalGoldValues[Team.A] += this.teamInfo.getGold(Team.A);
+        totalGoldValues[Team.B] += this.teamInfo.getGold(Team.B);
+        
+        // sum live robots worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
             totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
         }
@@ -352,6 +358,12 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfMoreLeadValue() {
         int[] totalLeadValues = new int[2];
+
+        // consider team reserves
+        totalGoldValues[Team.A] += this.teamInfo.getLead(Team.A);
+        totalGoldValues[Team.B] += this.teamInfo.getLead(Team.B);
+
+        // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
             totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
         }
