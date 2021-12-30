@@ -58,7 +58,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.location = loc;
         this.level = 1;
         this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.DROID;
-        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
+        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;

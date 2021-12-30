@@ -261,12 +261,23 @@ public strictfp class GameWorld {
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        return getAllLocationsWithinRadiusSquaredWithoutMap(
+            this.gameMap.getOrigin(),
+            this.gameMap.getWidth(),
+            this.gameMap.getHeight(),
+            center, radiusSquared
+        );
+    }
+
+    public static MapLocation[] getAllLocationsWithinRadiusSquaredWithoutMap(MapLocation origin,
+                                                                            int width, int height,
+                                                                            MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
-        int minX = Math.max(center.x - ceiledRadius, this.gameMap.getOrigin().x);
-        int minY = Math.max(center.y - ceiledRadius, this.gameMap.getOrigin().y);
-        int maxX = Math.min(center.x + ceiledRadius, this.gameMap.getOrigin().x + this.gameMap.getWidth() - 1);
-        int maxY = Math.min(center.y + ceiledRadius, this.gameMap.getOrigin().y + this.gameMap.getHeight() - 1);
+        int minX = Math.max(center.x - ceiledRadius, origin.x);
+        int minY = Math.max(center.y - ceiledRadius, origin.y);
+        int maxX = Math.min(center.x + ceiledRadius, origin.x + width - 1);
+        int maxY = Math.min(center.y + ceiledRadius, origin.y + height - 1);
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
@@ -274,7 +285,7 @@ public strictfp class GameWorld {
                     returnLocations.add(newLocation);
             }
         }
-        return returnLocations.toArray(new MapLocation[0]);
+        return returnLocations.toArray(new MapLocation[returnLocations.size()]);
     }
 
     /**
@@ -335,6 +346,12 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfMoreGoldValue() {
         int[] totalGoldValues = new int[2];
+
+        // consider team reserves
+        totalGoldValues[Team.A.ordinal()] += this.teamInfo.getGold(Team.A);
+        totalGoldValues[Team.B.ordinal()] += this.teamInfo.getGold(Team.B);
+        
+        // sum live robots worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
             totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
         }
@@ -353,6 +370,12 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfMoreLeadValue() {
         int[] totalLeadValues = new int[2];
+
+        // consider team reserves
+        totalLeadValues[Team.A.ordinal()] += this.teamInfo.getLead(Team.A);
+        totalLeadValues[Team.B.ordinal()] += this.teamInfo.getLead(Team.B);
+
+        // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
             totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
         }
