@@ -21,7 +21,7 @@ public enum RobotType {
      * Converts lead into gold
      *
      * @battlecode.doc.robot     */
-    LABORATORY      (800,   0, 10, 24, 100,  0, 0, 53,    5000),
+    LABORATORY      (800,   0, 10, 24, 100,  0,  0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -206,39 +206,31 @@ public enum RobotType {
     /**
      * Returns the damage of a robot by level.
      * @param level
-     * @return the damage for a robot by level.
-     *  0 if it's a non-damaging robot.
+     * @return the damage for a robot by level, negative if robot heals
      */
     public int getDamage(int level) {
-
-        // Robots that heal or don't do damage.
-        // Note, damage is negative in the enum if healing, so cannot directly use damage.
-        if (this == RobotType.ARCHON || this == RobotType.LABORATORY || this == RobotType.BUILDER)
+        if (!this.isBuilding() || level == 1) {
+            return this.damage;
+        } else if (this == RobotType.ARCHON) {
+            return level == 2 ? 3 : 4;
+        } else if (this == RobotType.LABORATORY) {
             return 0;
-        
-        if(this == RobotType.WATCHTOWER){
-            if(level == 1) return this.damage;
+        } else {
             return level == 2 ? 6 : 7;
         }
-            
-        // Non-healing droids only.
-        return this.damage;
     }
 
     /**
      * @param level
-     * @return the healing per turn for a robot by level as a positive amount.
-     *  0 if robot doesn't heal.
+     * @return the healing per turn for a robot by level as a positive amount,
+     *  0 if robot doesn't heal
      */
     public int getHealing(int level) {
-        if(this == BUILDER || (this == ARCHON && level == 1))
+        if (this == ARCHON || this == BUILDER) {
             return (int) (-1 * this.getDamage(level));
-        else{
-            if(this == ARCHON && level != 1)
-                return level == 2 ? 3 : 4;
+        } else {
+            return 0;
         }
-
-        return 0;
     }
 
     // COST RELATED FUNCTIONS
