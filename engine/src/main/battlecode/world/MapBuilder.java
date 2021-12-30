@@ -190,13 +190,13 @@ public class MapBuilder {
             robots[locationToIndex(r.location.x, r.location.y)] = r;
         }
 
-        if (width <= GameConstants.MAP_MIN_WIDTH || height <= GameConstants.MAP_MIN_HEIGHT || 
-            width >= GameConstants.MAP_MAX_WIDTH || height >= GameConstants.MAP_MAX_HEIGHT)
+        if (width < GameConstants.MAP_MIN_WIDTH || height < GameConstants.MAP_MIN_HEIGHT || 
+            width > GameConstants.MAP_MAX_WIDTH || height > GameConstants.MAP_MAX_HEIGHT)
             throw new RuntimeException("The map size must be between " + GameConstants.MAP_MIN_WIDTH + "x" +
                                        GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
                                        GameConstants.MAP_MAX_HEIGHT + ", inclusive");
 
-        // checks between 1 and 4 Archons inclusive of each team
+        // checks between 1 and 4 Archons (inclusive) of each team
         // only needs to check the Archons of Team A, because symmetry is checked
         int numTeamARobots = 0;
         for (RobotInfo r : bodies) {
@@ -204,8 +204,8 @@ public class MapBuilder {
                 numTeamARobots++;
             }
         }
-        if (numTeamARobots <= GameConstants.MIN_STARTING_ARCHONS ||
-            numTeamARobots >= GameConstants.MAX_STARTING_ARCHONS) {
+        if (numTeamARobots < GameConstants.MIN_STARTING_ARCHONS ||
+            numTeamARobots > GameConstants.MAX_STARTING_ARCHONS) {
             throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_ARCHONS +
                                        "and " + GameConstants.MAX_STARTING_ARCHONS + " starting Archons of each team");
         }

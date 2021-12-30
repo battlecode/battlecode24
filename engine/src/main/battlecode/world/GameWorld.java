@@ -285,7 +285,7 @@ public strictfp class GameWorld {
                     returnLocations.add(newLocation);
             }
         }
-        return returnLocations.toArray(new MapLocation[0]);
+        return returnLocations.toArray(new MapLocation[returnLocations.size()]);
     }
 
     /**
