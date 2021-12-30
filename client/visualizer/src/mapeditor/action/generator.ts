@@ -17,7 +17,7 @@ export type UploadedMap = {
   name: string,
   width: number,
   height: number,
-  passability: number[],
+  rubble: number[],
   bodies: MapUnit[]
 }
 
@@ -129,7 +129,7 @@ export default class MapGenerator {
     // schema.SpawnedBodyTable.addInfluences(builder, influencesVectorB);
     const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-    const passability = schema.GameMap.createPassabilityVector(builder, map.passability);
+    const rubble = schema.GameMap.createRubbleVector(builder, map.rubble);
 
     // Create the game map
     let nameP = builder.createString(name);
@@ -138,7 +138,7 @@ export default class MapGenerator {
     schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, minCornerX, minCornerY));
     schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, maxCornerX, maxCornerY));
     schema.GameMap.addBodies(builder, bodies);
-    schema.GameMap.addPassability(builder, passability);
+    schema.GameMap.addRubble(builder, rubble);
     schema.GameMap.addRandomSeed(builder, randomSeed);
     const gameMap = schema.GameMap.endGameMap(builder);
 
@@ -204,7 +204,7 @@ export default class MapGenerator {
       name: map.name()!,
       width: maxCorner.x() - minCorner.x(),
       height: maxCorner.y() - minCorner.y(),
-      passability: Array.from(map.passabilityArray()!),
+      rubble: Array.from(map.rubbleArray()!),
       bodies: mapUnits
     };
   }

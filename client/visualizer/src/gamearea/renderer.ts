@@ -23,7 +23,7 @@ export default class Renderer {
 
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, passability: number) => void) {
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number) => void) {
 
     let ctx = canvas.getContext("2d")
     if (ctx === null) {
@@ -104,7 +104,7 @@ export default class Renderer {
       this.ctx.globalAlpha = 1
 
       // Fetch and draw tile image
-      const swampLevel = cst.getLevel(map.passability[idxVal])
+      const swampLevel = cst.getLevel(map.rubble[idxVal])
       const tileImg = this.imgs.tiles[swampLevel]
 
       //since tiles arent completely opaque
@@ -403,7 +403,7 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.passability[idx])
+      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx])
       this.hoverPos = { x: xrel, y: yrel }
     }
 

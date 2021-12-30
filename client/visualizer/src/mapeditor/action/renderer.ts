@@ -21,7 +21,7 @@ export default class MapRenderer {
   // Callbacks for clicking robots and trees on the canvas
   readonly onclickUnit: (id: number) => void;
   readonly onclickBlank: (x, y) => void;
-  readonly onMouseover: (x: number, y: number, passability: number) => void
+  readonly onMouseover: (x: number, y: number, rubble: number) => void
   readonly onDrag: (x, y) => void
 
   // Other useful values
@@ -33,7 +33,7 @@ export default class MapRenderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config,
     onclickUnit: (id: number) => void, onclickBlank: (x: number, y: number) => void,
-    onMouseover: (x: number, y: number, passability: number) => void,
+    onMouseover: (x: number, y: number, rubble: number) => void,
     onDrag: (x: number, y: number) => void) {
     this.canvas = canvas;
     this.conf = conf;
@@ -91,17 +91,17 @@ export default class MapRenderer {
   private renderBackground(map: GameMap): void {
     for(let i = 0; i < this.width; i++){
       for(let j = 0; j < this.height; j++){
-        const passability = map.passability[(map.height-j-1)*this.width + i];
-        this.renderTile(i, j, passability);
+        const rubble = map.rubble[(map.height-j-1)*this.width + i];
+        this.renderTile(i, j, rubble);
       }
     }
   }
 
-  private renderTile(i: number, j: number, passability: number) {
+  private renderTile(i: number, j: number, rubble: number) {
     this.ctx.save();
     const scale = 20;
     this.ctx.scale(1/scale, 1/scale);
-    const swampLevel = cst.getLevel(passability);
+    const swampLevel = cst.getLevel(rubble);
     const tileImg = this.imgs.tiles[swampLevel];
     this.ctx.drawImage(tileImg, i*scale, j*scale, scale, scale);
     this.ctx.strokeStyle = 'gray';
@@ -184,7 +184,7 @@ export default class MapRenderer {
 
     this.canvas.onmousemove = (event) => {
       const {x,y} = this.getIntegerLocation(event, this.map);
-      this.onMouseover(x, y, this.map.passability[(y)*this.width + x]);
+      this.onMouseover(x, y, this.map.rubble[(y)*this.width + x]);
       hoverPos = {x: x, y: y};
     };
 

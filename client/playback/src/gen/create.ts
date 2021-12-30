@@ -139,7 +139,7 @@ function makeRandomMap(): MapType {
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     const idxVal = i*SIZE + j;
-    map.rubble[idxVal] = Math.random();
+    map.rubble[idxVal] = Math.floor(100 * Math.random());
   }
 
   return map;
@@ -188,6 +188,9 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
 
   // all values default to zero
   const bb_rubble = schema.GameMap.createRubbleVector(builder, rubble);
+  const bb_lead = schema.GameMap.createLeadVector(builder, []); // TODO: interesting lead and anomalies 
+  const bb_anomalies = schema.GameMap.createAnomaliesVector(builder, []);
+  const bb_anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, []);
 
   schema.GameMap.startGameMap(builder);
   schema.GameMap.addName(builder, bb_name);
@@ -199,6 +202,11 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   schema.GameMap.addRandomSeed(builder, 42);
 
   schema.GameMap.addRubble(builder, bb_rubble);
+  schema.GameMap.addLead(builder, bb_rubble);
+
+  schema.GameMap.addAnomalies(builder, bb_anomalies);
+  schema.GameMap.addAnomalyRounds(builder, bb_anomalyRounds);
+
 
   return schema.GameMap.endGameMap(builder);
 }
@@ -722,17 +730,17 @@ function createSoupGame(turns: number) {
 
 function main(){
   const games = [
-    //{ name: "blank", game: createBlankGame(512)},
-    //{ name: "stand", game: createStandGame(4000) },
-    //{ name: "pick", game: createPickGame(1024) },
-    //{ name: "random-map", game: createBlankGame(512, true) },
-    //{ name: "wander", game: createWanderGame(2048, 32) },
+    { name: "blank", game: createBlankGame(512)},
+    { name: "stand", game: createStandGame(4000) },
+    // { name: "pick", game: createPickGame(1024) },
+    { name: "random-map", game: createBlankGame(512, true) },
+    { name: "wander", game: createWanderGame(2048, 32) },
     { name: "wander-actions", game: createWanderGame(2048, 32, true) },
-    //{ name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
-    //{ name: "life", game: createLifeGame(512) },
-    //{ name: "votes", game: createVotesGame(512) } 
-    //{ name: "soup", game: createSoupGame(512) }, 
-    //{ name: "viewOptions", game: createViewOptionGame(512) }
+    { name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
+    { name: "life", game: createLifeGame(512) },
+    { name: "votes", game: createVotesGame(512) } 
+    // { name: "soup", game: createSoupGame(512) }, 
+    // { name: "viewOptions", game: createViewOptionGame(512) }
   ];
   SIZE = 64;
   //games.push({ name: "big-wander", game: createWanderGame(2048, 128) });

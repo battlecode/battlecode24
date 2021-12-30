@@ -34,6 +34,7 @@ export const TILE_COLORS: Array<number>[] = [
 
 // Given passability, get index of tile to use.
 export const getLevel = (x: number): number => {
+  x /= 100;
   const nLev = TILE_COLORS.length
   const floatLevel = ((1 - x) - 0.1) / 0.9 * nLev
   const level = Math.floor(floatLevel)
