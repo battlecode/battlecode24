@@ -98,7 +98,12 @@ enum Action : byte {
     LOCAL_CHARGE,
     /// Dies due to an uncaught exception.
     /// Target: none
-    DIE_EXCEPTION
+    DIE_EXCEPTION,
+    ABYSS,
+    CHARGE,
+    FURY,
+    VORTEX,
+    SINGULARITY
 }
 
 // Metadata

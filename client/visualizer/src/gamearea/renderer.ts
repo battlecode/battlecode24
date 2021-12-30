@@ -59,7 +59,6 @@ export default class Renderer {
     this.renderResources(world);
 
     this.renderBodies(world, curTime, nextStep, lerpAmount);
-    world.mapStats.goldVals
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
 
@@ -141,26 +140,33 @@ export default class Renderer {
     let height = world.maxCorner.y - world.minCorner.y;
 
 
-    const leadImg = this.imgs.star;
-    const goldImg = this.imgs.star;
+    const leadImg = this.imgs.resources.lead;
+    const goldImg = this.imgs.resources.gold;
 
     const map = world.mapStats;
     const scale = 1;
+
+    const sigmoid = (x) => {
+      return 1 /  (1 + Math.exp(-x))
+    }
 
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
       let idxVal = map.getIdx(i,j);
       let plotJ = height-j-1;
 
+
       this.ctx.globalAlpha = 1;
       const cx = (minX+i)*scale, cy = (minY+plotJ)*scale;
 
       if(map.goldVals[idxVal] > 0){
-        if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx, cy, scale, scale);
-        else this.ctx.drawImage(goldImg, cy, cx, scale, scale);
+        let size = sigmoid(map.goldVals[idxVal] / 50);
+        if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1-size)/2, cy + (1-size)/2, scale * size, scale * size);
+        else this.ctx.drawImage(goldImg, cy + (1-size)/2, cx + (1-size)/2, scale * size, scale * size);
       }
       if(map.leadVals[idxVal] > 0){
-        if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx, cy, scale, scale);
-        else this.ctx.drawImage(leadImg, cy, cx, scale, scale);
+        let size = sigmoid(map.leadVals[idxVal] / 50);
+        if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1-size)/2, cy + (1-size)/2, scale * size, scale * size);
+        else this.ctx.drawImage(leadImg, cy + (1-size)/2, cx + (1-size)/2, scale * size, scale * size);
       }
     }
 

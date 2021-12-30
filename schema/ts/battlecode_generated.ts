@@ -48,7 +48,12 @@ export enum Action{
    * Dies due to an uncaught exception.
    * Target: none
    */
-  DIE_EXCEPTION= 13
+  DIE_EXCEPTION= 13,
+  ABYSS= 14,
+  CHARGE= 15,
+  FURY= 16,
+  VORTEX= 17,
+  SINGULARITY= 18
 }};
 
 /**

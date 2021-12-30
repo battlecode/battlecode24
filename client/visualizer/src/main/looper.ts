@@ -334,7 +334,6 @@ export default class Looper {
             let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
 
             // Update each robot count
-            console.log(teamStats.robots)
             this.stats.robots.forEach((type: schema.BodyType) => {
                 this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
                 this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
@@ -345,7 +344,8 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.leadChange, world.turn); // TODO: show gold change
+            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
+            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {
