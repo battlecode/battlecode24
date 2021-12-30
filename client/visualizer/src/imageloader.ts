@@ -244,8 +244,8 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   loadImage(result.robots.soldier, BLU, 'robots/blue_soldier');
   
 
-  loadImage(result.resources, 'lead', 'star');
-  loadImage(result.resources, 'gold', 'star');
+  loadImage(result.resources, 'lead', 'resources/lead');
+  loadImage(result.resources, 'gold', 'resources/gold');
 
 
 
