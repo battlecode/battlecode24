@@ -220,13 +220,13 @@ public class MapBuilder {
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
-        if (!allMapSymmetries.contains(this.symmetry))
+        if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
         }
 
         // assert that at least one lead deposit inside vision range of at least one Archon
 
-        boolean[] hasVisibleLead = {false, false};
+        boolean[] hasVisibleLead = new boolean[2];
 
         for (RobotInfo r : bodies) {
             if (r.getType() != RobotType.ARCHON) continue;
