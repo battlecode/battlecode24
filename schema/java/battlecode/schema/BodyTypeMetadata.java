@@ -7,104 +7,98 @@ import java.lang.*;
 import java.util.*;
 import com.google.flatbuffers.*;
 
+@SuppressWarnings("unused")
 /**
  * Metadata about all bodies of a particular type.
  */
-@SuppressWarnings("unused")
 public final class BodyTypeMetadata extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_2_0_0(); }
   public static BodyTypeMetadata getRootAsBodyTypeMetadata(ByteBuffer _bb) { return getRootAsBodyTypeMetadata(_bb, new BodyTypeMetadata()); }
   public static BodyTypeMetadata getRootAsBodyTypeMetadata(ByteBuffer _bb, BodyTypeMetadata obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public BodyTypeMetadata __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public byte spawnSource() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public int actionRadiusSquared() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int visionRadiusSquared() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public float actionCooldown() { int o = __offset(12); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public float movementCooldown() { int o = __offset(14); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public int bytecodeLimit() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int dps() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int hp() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public float dpsMul() { int o = __offset(22); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public float hpMul() { int o = __offset(24); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public int buildCost() { int o = __offset(26); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int upgradeCostLead(int j) { int o = __offset(28); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int upgradeCostLeadLength() { int o = __offset(28); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector upgradeCostLeadVector() { return upgradeCostLeadVector(new IntVector()); }
-  public IntVector upgradeCostLeadVector(IntVector obj) { int o = __offset(28); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer upgradeCostLeadAsByteBuffer() { return __vector_as_bytebuffer(28, 4); }
-  public ByteBuffer upgradeCostLeadInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 28, 4); }
-  public int upgradeCostGold(int j) { int o = __offset(30); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int upgradeCostGoldLength() { int o = __offset(30); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector upgradeCostGoldVector() { return upgradeCostGoldVector(new IntVector()); }
-  public IntVector upgradeCostGoldVector(IntVector obj) { int o = __offset(30); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer upgradeCostGoldAsByteBuffer() { return __vector_as_bytebuffer(30, 4); }
-  public ByteBuffer upgradeCostGoldInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 30, 4); }
+  public int buildCostLead() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int buildCostGold() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2CostLead() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2CostGold() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3CostLead() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3CostGold() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionCooldown() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int movementCooldown() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int health() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2Health() { int o = __offset(24); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3Health() { int o = __offset(26); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int damage() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2Damage() { int o = __offset(30); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3Damage() { int o = __offset(32); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionRadiusSquared() { int o = __offset(34); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int visionRadiusSquared() { int o = __offset(36); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int bytecodeLimit() { int o = __offset(38); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createBodyTypeMetadata(FlatBufferBuilder builder,
       byte type,
-      byte spawnSource,
+      int buildCostLead,
+      int buildCostGold,
+      int level2CostLead,
+      int level2CostGold,
+      int level3CostLead,
+      int level3CostGold,
+      int actionCooldown,
+      int movementCooldown,
+      int health,
+      int level2Health,
+      int level3Health,
+      int damage,
+      int level2Damage,
+      int level3Damage,
       int actionRadiusSquared,
       int visionRadiusSquared,
-      float actionCooldown,
-      float movementCooldown,
-      int bytecodeLimit,
-      int dps,
-      int hp,
-      float dpsMul,
-      float hpMul,
-      int buildCost,
-      int upgradeCostLeadOffset,
-      int upgradeCostGoldOffset) {
-    builder.startTable(14);
-    BodyTypeMetadata.addUpgradeCostGold(builder, upgradeCostGoldOffset);
-    BodyTypeMetadata.addUpgradeCostLead(builder, upgradeCostLeadOffset);
-    BodyTypeMetadata.addBuildCost(builder, buildCost);
-    BodyTypeMetadata.addHpMul(builder, hpMul);
-    BodyTypeMetadata.addDpsMul(builder, dpsMul);
-    BodyTypeMetadata.addHp(builder, hp);
-    BodyTypeMetadata.addDps(builder, dps);
+      int bytecodeLimit) {
+    builder.startObject(18);
     BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
-    BodyTypeMetadata.addMovementCooldown(builder, movementCooldown);
-    BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
     BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
     BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
-    BodyTypeMetadata.addSpawnSource(builder, spawnSource);
+    BodyTypeMetadata.addLevel3Damage(builder, level3Damage);
+    BodyTypeMetadata.addLevel2Damage(builder, level2Damage);
+    BodyTypeMetadata.addDamage(builder, damage);
+    BodyTypeMetadata.addLevel3Health(builder, level3Health);
+    BodyTypeMetadata.addLevel2Health(builder, level2Health);
+    BodyTypeMetadata.addHealth(builder, health);
+    BodyTypeMetadata.addMovementCooldown(builder, movementCooldown);
+    BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
+    BodyTypeMetadata.addLevel3CostGold(builder, level3CostGold);
+    BodyTypeMetadata.addLevel3CostLead(builder, level3CostLead);
+    BodyTypeMetadata.addLevel2CostGold(builder, level2CostGold);
+    BodyTypeMetadata.addLevel2CostLead(builder, level2CostLead);
+    BodyTypeMetadata.addBuildCostGold(builder, buildCostGold);
+    BodyTypeMetadata.addBuildCostLead(builder, buildCostLead);
     BodyTypeMetadata.addType(builder, type);
     return BodyTypeMetadata.endBodyTypeMetadata(builder);
   }
 
-  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startTable(14); }
+  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(18); }
   public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
-  public static void addSpawnSource(FlatBufferBuilder builder, byte spawnSource) { builder.addByte(1, spawnSource, 0); }
-  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(2, actionRadiusSquared, 0); }
-  public static void addVisionRadiusSquared(FlatBufferBuilder builder, int visionRadiusSquared) { builder.addInt(3, visionRadiusSquared, 0); }
-  public static void addActionCooldown(FlatBufferBuilder builder, float actionCooldown) { builder.addFloat(4, actionCooldown, 0.0f); }
-  public static void addMovementCooldown(FlatBufferBuilder builder, float movementCooldown) { builder.addFloat(5, movementCooldown, 0.0f); }
-  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(6, bytecodeLimit, 0); }
-  public static void addDps(FlatBufferBuilder builder, int dps) { builder.addInt(7, dps, 0); }
-  public static void addHp(FlatBufferBuilder builder, int hp) { builder.addInt(8, hp, 0); }
-  public static void addDpsMul(FlatBufferBuilder builder, float dpsMul) { builder.addFloat(9, dpsMul, 0.0f); }
-  public static void addHpMul(FlatBufferBuilder builder, float hpMul) { builder.addFloat(10, hpMul, 0.0f); }
-  public static void addBuildCost(FlatBufferBuilder builder, int buildCost) { builder.addInt(11, buildCost, 0); }
-  public static void addUpgradeCostLead(FlatBufferBuilder builder, int upgradeCostLeadOffset) { builder.addOffset(12, upgradeCostLeadOffset, 0); }
-  public static int createUpgradeCostLeadVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startUpgradeCostLeadVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addUpgradeCostGold(FlatBufferBuilder builder, int upgradeCostGoldOffset) { builder.addOffset(13, upgradeCostGoldOffset, 0); }
-  public static int createUpgradeCostGoldVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startUpgradeCostGoldVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addBuildCostLead(FlatBufferBuilder builder, int buildCostLead) { builder.addInt(1, buildCostLead, 0); }
+  public static void addBuildCostGold(FlatBufferBuilder builder, int buildCostGold) { builder.addInt(2, buildCostGold, 0); }
+  public static void addLevel2CostLead(FlatBufferBuilder builder, int level2CostLead) { builder.addInt(3, level2CostLead, 0); }
+  public static void addLevel2CostGold(FlatBufferBuilder builder, int level2CostGold) { builder.addInt(4, level2CostGold, 0); }
+  public static void addLevel3CostLead(FlatBufferBuilder builder, int level3CostLead) { builder.addInt(5, level3CostLead, 0); }
+  public static void addLevel3CostGold(FlatBufferBuilder builder, int level3CostGold) { builder.addInt(6, level3CostGold, 0); }
+  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(7, actionCooldown, 0); }
+  public static void addMovementCooldown(FlatBufferBuilder builder, int movementCooldown) { builder.addInt(8, movementCooldown, 0); }
+  public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(9, health, 0); }
+  public static void addLevel2Health(FlatBufferBuilder builder, int level2Health) { builder.addInt(10, level2Health, 0); }
+  public static void addLevel3Health(FlatBufferBuilder builder, int level3Health) { builder.addInt(11, level3Health, 0); }
+  public static void addDamage(FlatBufferBuilder builder, int damage) { builder.addInt(12, damage, 0); }
+  public static void addLevel2Damage(FlatBufferBuilder builder, int level2Damage) { builder.addInt(13, level2Damage, 0); }
+  public static void addLevel3Damage(FlatBufferBuilder builder, int level3Damage) { builder.addInt(14, level3Damage, 0); }
+  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(15, actionRadiusSquared, 0); }
+  public static void addVisionRadiusSquared(FlatBufferBuilder builder, int visionRadiusSquared) { builder.addInt(16, visionRadiusSquared, 0); }
+  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(17, bytecodeLimit, 0); }
   public static int endBodyTypeMetadata(FlatBufferBuilder builder) {
-    int o = builder.endTable();
+    int o = builder.endObject();
     return o;
-  }
-
-  public static final class Vector extends BaseVector {
-    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
-
-    public BodyTypeMetadata get(int j) { return get(new BodyTypeMetadata(), j); }
-    public BodyTypeMetadata get(BodyTypeMetadata obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

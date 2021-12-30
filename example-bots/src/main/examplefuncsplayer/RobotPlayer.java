@@ -4,10 +4,16 @@ import battlecode.common.*;
 public strictfp class RobotPlayer {
     static RobotController rc;
 
-    static final RobotType[] spawnableRobot = {
-        RobotType.POLITICIAN,
-        RobotType.SLANDERER,
-        RobotType.MUCKRAKER,
+    static final RobotType[] droids = {
+        RobotType.MINER,
+        RobotType.BUILDER,
+        RobotType.SOLDIER,
+        RobotType.SAGE,
+    };
+
+    static final RobotType[] buildings = {
+        RobotType.LABORATORY,
+        RobotType.WATCHTOWER,
     };
 
     static final Direction[] directions = {
@@ -36,7 +42,7 @@ public strictfp class RobotPlayer {
 
         turnCount = 0;
 
-        System.out.println("I'm a " + rc.getType() + " and I just got created! I have influence " + rc.getInfluence());
+        System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
         while (true) {
             turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to freeze
@@ -45,10 +51,13 @@ public strictfp class RobotPlayer {
                 // You may rewrite this into your own control structure if you wish.
                 System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
-                    case ENLIGHTENMENT_CENTER: runEnlightenmentCenter(); break;
-                    case POLITICIAN:           runPolitician();          break;
-                    case SLANDERER:            runSlanderer();           break;
-                    case MUCKRAKER:            runMuckraker();           break;
+                    case ARCHON:     runArchon();     break;
+                    case LABORATORY: runLaboratory(); break;
+                    case WATCHTOWER: runWatchtower(); break;
+                    case MINER:      runMiner();      break;
+                    case BUILDER:    runBuilder();    break;
+                    case SOLDIER:    runSoldier();    break;
+                    case SAGE:       runSage();       break;
                 }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
@@ -61,53 +70,41 @@ public strictfp class RobotPlayer {
         }
     }
 
-    static void runEnlightenmentCenter() throws GameActionException {
-        RobotType toBuild = randomSpawnableRobotType();
+    static void runArchon() throws GameActionException {
+        RobotType toBuild = randomDroid();
         int influence = 50;
         for (Direction dir : directions) {
-            if (rc.canBuildRobot(toBuild, dir, influence)) {
-                rc.buildRobot(toBuild, dir, influence);
+            if (rc.canBuildRobot(toBuild, dir)) {
+                rc.buildRobot(toBuild, dir);
             } else {
                 break;
             }
         }
-        rc.bid(1); // submit a bid for a vote
     }
 
-    static void runPolitician() throws GameActionException {
-        Team enemy = rc.getTeam().opponent();
-        int actionRadius = rc.getType().actionRadiusSquared;
-        RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
-        if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
-            System.out.println("empowering...");
-            rc.empower(actionRadius);
-            System.out.println("empowered");
-            return;
-        }
+    static void runLaboratory() throws GameActionException {
+        // TODO
+    }
+
+    static void runWatchtower() throws GameActionException {
+        // TODO
+    }
+
+    static void runMiner() throws GameActionException {
         if (tryMove(randomDirection()))
             System.out.println("I moved!");
     }
 
-    static void runSlanderer() throws GameActionException {
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
+    static void runBuilder() throws GameActionException {
+        // TODO
     }
 
-    static void runMuckraker() throws GameActionException {
-        Team enemy = rc.getTeam().opponent();
-        int actionRadius = rc.getType().actionRadiusSquared;
-        for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
-            if (robot.type.canBeExposed()) {
-                // It's a slanderer... go get them!
-                if (rc.canExpose(robot.location)) {
-                    System.out.println("e x p o s e d");
-                    rc.expose(robot.location);
-                    return;
-                }
-            }
-        }
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
+    static void runSoldier() throws GameActionException {
+        // TODO
+    }
+
+    static void runSage() throws GameActionException {
+        // TODO
     }
 
     /**
@@ -120,12 +117,12 @@ public strictfp class RobotPlayer {
     }
 
     /**
-     * Returns a random spawnable RobotType
+     * Returns a random droid
      *
      * @return a random RobotType
      */
-    static RobotType randomSpawnableRobotType() {
-        return spawnableRobot[(int) (Math.random() * spawnableRobot.length)];
+    static RobotType randomDroid() {
+        return droids[(int) (Math.random() * droids.length)];
     }
 
     /**
@@ -136,7 +133,7 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
+        System.out.println("I am trying to move " + dir + "; " + rc.isMovementReady() + " " + rc.getMovementCooldownTurns() + " " + rc.canMove(dir));
         if (rc.canMove(dir)) {
             rc.move(dir);
             return true;

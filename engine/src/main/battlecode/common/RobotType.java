@@ -5,225 +5,308 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, convictionRatio, actionCooldown, initialCooldown, actionRadiusSquared, sensorRadiusSquared, detectionRadiusSquared, bytecodeLimit
+    // Build Cost Lead, Build Cost Gold, Action Cooldown, Movement Cooldown
+    // Health (level 1), Damage (level 1), Action Radius (squared), Vision Radius (squared), Bytecode Limit
+
     /**
-     * Enlightenment Centers produce various types of robots, as well as
-     * passively generate influence and bid for votes each round. Can be
-     * converted by Politicians.
-     * 
-     * @battlecode.doc.robottype
-     */
-    ENLIGHTENMENT_CENTER    (null,  1,  2,  0,  2,  40,  40,  20000),
-    //                       SS     CR  AC  IC  AR  SR   DR   BL
-    /**
-     * Politicians Empower adjacent units, strengthening friendly robots, 
-     * converting enemy Politicians and Enlightenment Centers, and destroying
-     * enemy Slanderers and Muckrakers with their impassioned speeches.
+     * Archons are portable buildings that heal and generate robots.
+     * Losing all archons means losing the game.
      *
-     * @battlecode.doc.robottype
-     */
-    POLITICIAN              (ENLIGHTENMENT_CENTER,  1,  1,  10, 9,  25,  25,  15000),
-    //                       SS                     CR  AC  IC  AR  SR   DR   BL
+     * @battlecode.doc.robot     */
+    ARCHON          (  0, 250, 10, 24, 1000, -2, 20, 34, 20000),
+    //               BCL  BCG  AC  MC    HP DMG  AR  VR      BL
+
     /**
-     * Slanderers passively generate influence for their parent Enlightenment
-     * Center each round. They are camoflauged as Politicians to enemy units.
-     * Can be converted by Politicians.
+     * Alchemist's laboratory
+     * Converts lead into gold
      *
-     * @battlecode.doc.robottype
-     */
-    SLANDERER               (ENLIGHTENMENT_CENTER,  1,  2,  0,  0,  20,  20,  7500),
-    //                       SS                     CR  AC  IC  AR  SR   DR   BL
+     * @battlecode.doc.robot     */
+    LABORATORY      (800,   0, 10, 24, 130,  5, 20, 34, 10000),
+    //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
+
     /**
-     * Muckrakers search the map for enemy Slanderers to Expose, which destroys
-     * the Slanderer and gives a buff to their team.
+    * Guard turret 
+    */
+    WATCHTOWER      (180,  0,  10,  24, 130,  5, 20, 34,   10000),
+    //               BCL  BCG  AC   MC   HP DMG  AR  VR       BL
+
+    /**
+     * Can mine gold or lead at their or an adjacent location.
      *
-     * @battlecode.doc.robottype
-     */
-    MUCKRAKER               (ENLIGHTENMENT_CENTER,  0.7f,  1.5f,  10, 12,  30,  40,  15000),
-    //                       SS                     CR     AC     IC  AR   SR   DR   BL
-    ;
+     * @battlecode.doc.robot     */
+    MINER           ( 50,   0,  2,  20, 40,   0, 2, 20,   7500),
+    //               BCL  BCG  AC   MC  HP  DMG AR  VR       BL
+    /**
+     * Can build and repair buildings.
+     *
+     * @battlecode.doc.robot     */
+    BUILDER         ( 40,   0,  10, 20, 30, -1,  5, 20,   7500),
+    //               BCL  BCG   AC  MC  HP DMG  AR  VR      BL
     
     /**
-     * For units, this is the structure that spawns it. For non-spawnable robots, this is null.
+     * Ranged attacking robot.
+    */
+    SOLDIER         ( 75,   0,  10, 16,  3,  50, 13, 20,  10000),
+    //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
+    
+    /**
+     * Gold robot, causes Anomalies.
      */
-    public final RobotType spawnSource;
+    SAGE            ( 0,  50, 200, 25, 45, 100, 13, 20,   10000)
+    //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
+    ;
 
     /**
-     * The ratio of influence to apply when determining the
-     * robot's conviction.
+     * Lead cost to build a given robot or building 
      */
-    public final float convictionRatio;
+    public final int buildCostLead;
 
     /**
-     * Cooldown turns for how long before a robot can take 
-     * action (Build/Move/Empower/Expose) again.
+     * Gold cost to build a given robot or building (except for Archon's)
      */
-    public final float actionCooldown;
+    public final int buildCostGold;
 
     /**
-     * Initial cooldown turns when a robot is built.
-     */
-    public final float initialCooldown;
+     * Action cooldown.
+    */
+    public final int actionCooldown;
 
     /**
-     * Radius squared range of robots' abilities. For Politicians, this is
-     * the AoE range of their Empower ability. For Muckrakers, this is
-     * from how far they can Expose a Slanderer.
+     * Movement cooldown.
+     */
+    public final int movementCooldown;
+
+    /**
+    * Initial health per robot for Level 1.
+    */
+    public final int health;
+
+    /**
+    * Damage for each robot in Level 1.
+    */
+    public final int damage;
+
+    /**
+     * Radius range of robots' abilities.
      */
     public final int actionRadiusSquared;
 
     /**
-     * The radius squared range in which the robot can sense another
-     * robot's information. For Politicians, Slanderers, and
-     * Enlightenment Centers, this is the same as their detection
-     * radius squared. For Muckrakers, slightly reduced.
+     * The radius range in which the robot can sense another
+     * robot's information.
      */
-    public final int sensorRadiusSquared;
+    public final int visionRadiusSquared;
 
     /**
-     * The radius squared range in which the robot can detect the presence
-     * of other robots.
-     */
-    public final int detectionRadiusSquared;
-
-    /**
-     * Base bytecode limit of this robot.
+     * Base bytecode limit of this robot
      */
     public final int bytecodeLimit;
 
     /**
-     * Returns whether the type can build robots of the specified type.
-     *
-     * @param type the RobotType to be built
-     * @return whether the type can build robots of the specified type
+     * @return the squared action radius
      */
-    public boolean canBuild(RobotType type) {
-        return this == type.spawnSource;
+    public int getActionRadiusSquared(int level) {
+        return this.actionRadiusSquared;
     }
 
     /**
-     * Returns whether the type can distinguish slanderers and politicians.
-     *
-     * @return whether the type can distinguish slanderers and politicians.
+     * @return the squared vision radius
      */
-    public boolean canTrueSense() {
-        return this == ENLIGHTENMENT_CENTER || this == MUCKRAKER;
+    public int getVisionRadiusSquared(int level) {
+        return this.visionRadiusSquared;
     }
 
     /**
-     * Returns whether the type can apply a teamwide buff.
-     *
-     * @return whether the type can apply a teamwide buff
+     * @param builtType type of robot being built
+     * @return whether this type can build the given robot type
      */
-    public boolean canBuffTeam() {
-        return this == MUCKRAKER;
+    public boolean canBuild(RobotType builtType) {
+        return (this == ARCHON && (builtType == MINER || 
+                                   builtType == BUILDER || 
+                                   builtType == SOLDIER || 
+                                   builtType == SAGE)) || 
+               (this == BUILDER && (builtType == LABORATORY || 
+                                    builtType == WATCHTOWER));
     }
 
     /**
-     * Returns whether the type can move.
-     *
-     * @return whether the type can move
+     * @return whether this type can attack
      */
-    public boolean canMove() {
-        return this == POLITICIAN || this == SLANDERER || this == MUCKRAKER;
+    public boolean canAttack() {
+        return (this == WATCHTOWER
+            || this == SOLDIER);
     }
 
     /**
-     * Returns whether the type can Empower adjacent units.
-     *
-     * @return whether the type can Empower adjacent units
+     * @return whether this type can envision anomalies
      */
-    public boolean canEmpower() {
-        return this == POLITICIAN;
+    public boolean canEnvision() {
+        return this == SAGE;
     }
 
     /**
-     * Returns whether the type can camouflage themselves.
-     *
-     * @return whether the type can camouflage themselves
+     * @param repairedType type of robot being repaired
+     * @return whether this type can repair the given robot type
      */
-    public boolean canCamouflage() {
-        return this == SLANDERER;
+    public boolean canRepair(RobotType repairedType) {
+        return (this == ARCHON && !repairedType.isBuilding() || 
+                this == BUILDER && repairedType.isBuilding());
     }
 
     /**
-     * Returns whether the type can Expose nearby robots.
-     *
-     * @return whether the type can Expose nearby robots
+     * @return whether this type can mine
      */
-    public boolean canExpose() {
-        return this == MUCKRAKER;
+    public boolean canMine() {
+        return this == MINER;
     }
 
     /**
-     * Returns whether the type can be Exposed.
-     *
-     * @return whether the type can be Exposed
+     * @param mutatedType type of robot being mutated
+     * @return whether this type can mutate buildings
      */
-    public boolean canBeExposed() {
-        return this == SLANDERER;
+    public boolean canMutate(RobotType mutatedType) {
+        return this == BUILDER && mutatedType.isBuilding();
     }
 
     /**
-     * Returns whether the type can be converted to the other team.
-     *
-     * @return whether the type can be converted to the other team
+     * @return whether this type can transmute lead into gold
      */
-    public boolean canBeConverted() {
-        return this == ENLIGHTENMENT_CENTER || this == POLITICIAN;
+    public boolean canTransmute() {
+        return this == LABORATORY;
     }
 
     /**
-     * Returns whether the type can submit a bid.
-     * 
-     * @return whether the type can submit a bid
-     */
-    public boolean canBid() {
-        return this == ENLIGHTENMENT_CENTER;
+     * @return whether or not a given robot is a building
+    */
+    public boolean isBuilding() {
+        return (
+            this == ARCHON
+            || this == LABORATORY
+            || this == WATCHTOWER
+        );
     }
 
     /**
-     * Returns the influence cost for building a robot with a particular conviction.
+     * Returns the max health of a robot by level.
+     * @param level of the robot
+     * @return the max health of a robot by level
      */
-    public int getInfluenceCostForConviction(int conviction) {
-        int influence = (int) (conviction / this.convictionRatio);
-        while (Math.ceil(this.convictionRatio * (influence - 1)) >= conviction)
-            influence--;
-        return influence;
-    }
-
-    /**
-     * Returns the amount of passive influence that this robot generates.
-     *
-     * @param robotInfluence the amount of influence that this robot has
-     * @param roundsAlive the number of rounds the robot has been alive for
-     * @param roundNum the round number
-     */
-    public int getPassiveInfluence(int robotInfluence, int roundsAlive, int roundNum) {
-        switch (this) {
-            case ENLIGHTENMENT_CENTER:
-                return (int) Math.ceil(GameConstants.PASSIVE_INFLUENCE_RATIO_ENLIGHTENMENT_CENTER * Math.sqrt(roundNum));
-            case SLANDERER:
-                if (roundsAlive <= GameConstants.EMBEZZLE_NUM_ROUNDS)
-                    return (int) (robotInfluence *
-                            (1.0 / GameConstants.EMBEZZLE_NUM_ROUNDS +
-                            GameConstants.EMBEZZLE_SCALE_FACTOR * Math.exp(-GameConstants.EMBEZZLE_DECAY_FACTOR * robotInfluence)));
-                return 0;
-            default:
-                return 0;
+    public int getMaxHealth(int level) {
+        if (!this.isBuilding() || level == 1) {
+            return this.health;
+        } else if (this == ARCHON) {
+            return level == 2 ? 1100 : 1200;
+        } else if (this == LABORATORY) {
+            return level == 2 ? 110 : 120;
+        } else {
+            return level == 2 ? 143 : 156;
         }
     }
 
-    RobotType(RobotType spawnSource, float convictionRatio, float actionCooldown, float initialCooldown,
-              int actionRadiusSquared, int sensorRadiusSquared, int detectionRadiusSquared,
-              int bytecodeLimit) {
-        this.spawnSource            = spawnSource;
-        this.convictionRatio        = convictionRatio;
-        this.actionCooldown         = actionCooldown;
-        this.initialCooldown        = initialCooldown;
-        this.actionRadiusSquared    = actionRadiusSquared;
-        this.sensorRadiusSquared    = sensorRadiusSquared;
-        this.detectionRadiusSquared = detectionRadiusSquared;
-        this.bytecodeLimit          = bytecodeLimit;
+    /**
+     * Returns the damage of a robot by level.
+     * @param level
+     * @return the damage for a robot by level
+     */
+    public int getDamage(int level) {
+        if (!this.isBuilding() || level == 1) {
+            return this.damage;
+        } else if (this == RobotType.ARCHON) {
+            return level == 2 ? 3 : 4;
+        } else if (this == RobotType.LABORATORY) {
+            return 0;
+        } else {
+            return level == 2 ? 6 : 7;
+        }
+    }
+
+    /**
+     * @param level
+     * @return the healing per turn for a robot by level
+     */
+    public int getHealing(int level) {
+        if (this == ARCHON || this == BUILDER) {
+            return (int) (-1 * this.getDamage(level));
+        } else {
+            return 0;
+        }
+    }
+
+    // COST RELATED FUNCTIONS
+
+    /**
+     * @param level the level to mutate to
+     * @return lead component of cost to mutate
+     */
+    public int getLeadMutateCost(int level) {
+        return level == 2 ? 600 : 0;
+    }
+
+    /**
+     * @param level the level to mutate to
+     * @return gold component of cost to mutate.
+     */
+    public int getGoldMutateCost(int level) {
+        return level == 3 ? 100 : 0;
+    }
+
+    /**
+     * @param level the robot's current level
+     * @return lead component of worth
+     */
+    public int getLeadWorth(int level) {
+        int leadWorth = this.buildCostLead;
+        for (int i = 2; i <= level; i++) {
+            leadWorth += this.getLeadMutateCost(i);
+        }
+        return leadWorth;
+    }
+
+    /**
+     * @param level the robot's current level
+     * @return gold component of worth
+     */
+    public int getGoldWorth(int level) {
+        int goldWorth = this.buildCostGold;
+        for (int i = 2; i <= level; i++) {
+            goldWorth += this.getGoldMutateCost(i);
+        }
+        return goldWorth;
+    }
+
+    /**
+     * @return Reclaim cost percentage for when robot is destroyed.
+     */
+    public float getReclaimCostPercentage() {
+        return (this.isBuilding()) ? 0.2f : 0;
+    }
+
+    /**
+     * @param level the robot's current level
+     * @return the amount of lead dropped
+     */
+    public int getLeadDropped(int level) {
+        return this.isBuilding() ? (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+    }
+
+    /**
+     * @param level the robot's current level
+     * @return the amount of gold dropped
+     */
+    public int getGoldDropped(int level) {
+        return this.isBuilding() ? (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+    }
+
+    RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int movementCooldown,
+        int health, int damage, int actionRadiusSquared, int visionRadiusSquared, int bytecodeLimit) {
+        this.buildCostLead                  = buildCostLead;
+        this.buildCostGold                  = buildCostGold;
+        this.actionCooldown                 = actionCooldown;
+        this.movementCooldown               = movementCooldown;
+        this.health                         = health;
+        this.damage                         = damage;
+        this.actionRadiusSquared            = actionRadiusSquared;
+        this.visionRadiusSquared            = visionRadiusSquared;
+        this.bytecodeLimit                  = bytecodeLimit;
     }
 }

@@ -7,15 +7,14 @@ import java.lang.*;
 import java.util.*;
 import com.google.flatbuffers.*;
 
+@SuppressWarnings("unused")
 /**
  * The map a round is played on.
  */
-@SuppressWarnings("unused")
 public final class GameMap extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_2_0_0(); }
   public static GameMap getRootAsGameMap(ByteBuffer _bb) { return getRootAsGameMap(_bb, new GameMap()); }
   public static GameMap getRootAsGameMap(ByteBuffer _bb, GameMap obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public GameMap __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
@@ -27,63 +26,77 @@ public final class GameMap extends Table {
   /**
    * The bottom corner of the map.
    */
-  public battlecode.schema.Vec minCorner() { return minCorner(new battlecode.schema.Vec()); }
-  public battlecode.schema.Vec minCorner(battlecode.schema.Vec obj) { int o = __offset(6); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  public Vec minCorner() { return minCorner(new Vec()); }
+  public Vec minCorner(Vec obj) { int o = __offset(6); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
   /**
    * The top corner of the map.
    */
-  public battlecode.schema.Vec maxCorner() { return maxCorner(new battlecode.schema.Vec()); }
-  public battlecode.schema.Vec maxCorner(battlecode.schema.Vec obj) { int o = __offset(8); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  public Vec maxCorner() { return maxCorner(new Vec()); }
+  public Vec maxCorner(Vec obj) { int o = __offset(8); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  /**
+   * The map symmetry: 0 for rotation, 1 for horizontal, 2 for vertical.
+   */
+  public int symmetry() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
    * The bodies on the map.
    */
-  public battlecode.schema.SpawnedBodyTable bodies() { return bodies(new battlecode.schema.SpawnedBodyTable()); }
-  public battlecode.schema.SpawnedBodyTable bodies(battlecode.schema.SpawnedBodyTable obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public SpawnedBodyTable bodies() { return bodies(new SpawnedBodyTable()); }
+  public SpawnedBodyTable bodies(SpawnedBodyTable obj) { int o = __offset(12); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The random seed of the map.
    */
-  public int randomSeed() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int randomSeed() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The factor to divide cooldowns by
+   * The rubble on the map.
    */
-  public double passability(int j) { int o = __offset(14); return o != 0 ? bb.getDouble(__vector(o) + j * 8) : 0; }
-  public int passabilityLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
-  public DoubleVector passabilityVector() { return passabilityVector(new DoubleVector()); }
-  public DoubleVector passabilityVector(DoubleVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer passabilityAsByteBuffer() { return __vector_as_bytebuffer(14, 8); }
-  public ByteBuffer passabilityInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 8); }
-  public battlecode.schema.VecTable leadLocations() { return leadLocations(new battlecode.schema.VecTable()); }
-  public battlecode.schema.VecTable leadLocations(battlecode.schema.VecTable obj) { int o = __offset(16); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
-  public double leadAmounts(int j) { int o = __offset(18); return o != 0 ? bb.getDouble(__vector(o) + j * 8) : 0; }
-  public int leadAmountsLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
-  public DoubleVector leadAmountsVector() { return leadAmountsVector(new DoubleVector()); }
-  public DoubleVector leadAmountsVector(DoubleVector obj) { int o = __offset(18); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer leadAmountsAsByteBuffer() { return __vector_as_bytebuffer(18, 8); }
-  public ByteBuffer leadAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 8); }
+  public int rubble(int j) { int o = __offset(16); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int rubbleLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer rubbleAsByteBuffer() { return __vector_as_bytebuffer(16, 4); }
+  public ByteBuffer rubbleInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 4); }
+  /**
+   * The lead on the map.
+   */
+  public int lead(int j) { int o = __offset(18); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int leadLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer leadAsByteBuffer() { return __vector_as_bytebuffer(18, 4); }
+  public ByteBuffer leadInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 4); }
+  /**
+   * The anomalies scheduled: 0/1/2/3 abyss/charge/fury/vortex.
+   */
+  public int anomalies(int j) { int o = __offset(20); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int anomaliesLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer anomaliesAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
+  public ByteBuffer anomaliesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
+  /**
+   * The rounds the anomalies are scheduled for.
+   */
+  public int anomalyRounds(int j) { int o = __offset(22); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int anomalyRoundsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer anomalyRoundsAsByteBuffer() { return __vector_as_bytebuffer(22, 4); }
+  public ByteBuffer anomalyRoundsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 4); }
 
-  public static void startGameMap(FlatBufferBuilder builder) { builder.startTable(8); }
+  public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(10); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
   public static void addMinCorner(FlatBufferBuilder builder, int minCornerOffset) { builder.addStruct(1, minCornerOffset, 0); }
   public static void addMaxCorner(FlatBufferBuilder builder, int maxCornerOffset) { builder.addStruct(2, maxCornerOffset, 0); }
-  public static void addBodies(FlatBufferBuilder builder, int bodiesOffset) { builder.addOffset(3, bodiesOffset, 0); }
-  public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(4, randomSeed, 0); }
-  public static void addPassability(FlatBufferBuilder builder, int passabilityOffset) { builder.addOffset(5, passabilityOffset, 0); }
-  public static int createPassabilityVector(FlatBufferBuilder builder, double[] data) { builder.startVector(8, data.length, 8); for (int i = data.length - 1; i >= 0; i--) builder.addDouble(data[i]); return builder.endVector(); }
-  public static void startPassabilityVector(FlatBufferBuilder builder, int numElems) { builder.startVector(8, numElems, 8); }
-  public static void addLeadLocations(FlatBufferBuilder builder, int leadLocationsOffset) { builder.addOffset(6, leadLocationsOffset, 0); }
-  public static void addLeadAmounts(FlatBufferBuilder builder, int leadAmountsOffset) { builder.addOffset(7, leadAmountsOffset, 0); }
-  public static int createLeadAmountsVector(FlatBufferBuilder builder, double[] data) { builder.startVector(8, data.length, 8); for (int i = data.length - 1; i >= 0; i--) builder.addDouble(data[i]); return builder.endVector(); }
-  public static void startLeadAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(8, numElems, 8); }
+  public static void addSymmetry(FlatBufferBuilder builder, int symmetry) { builder.addInt(3, symmetry, 0); }
+  public static void addBodies(FlatBufferBuilder builder, int bodiesOffset) { builder.addOffset(4, bodiesOffset, 0); }
+  public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(5, randomSeed, 0); }
+  public static void addRubble(FlatBufferBuilder builder, int rubbleOffset) { builder.addOffset(6, rubbleOffset, 0); }
+  public static int createRubbleVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startRubbleVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addLead(FlatBufferBuilder builder, int leadOffset) { builder.addOffset(7, leadOffset, 0); }
+  public static int createLeadVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startLeadVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addAnomalies(FlatBufferBuilder builder, int anomaliesOffset) { builder.addOffset(8, anomaliesOffset, 0); }
+  public static int createAnomaliesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startAnomaliesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addAnomalyRounds(FlatBufferBuilder builder, int anomalyRoundsOffset) { builder.addOffset(9, anomalyRoundsOffset, 0); }
+  public static int createAnomalyRoundsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startAnomalyRoundsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endGameMap(FlatBufferBuilder builder) {
-    int o = builder.endTable();
+    int o = builder.endObject();
     return o;
-  }
-
-  public static final class Vector extends BaseVector {
-    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
-
-    public GameMap get(int j) { return get(new GameMap(), j); }
-    public GameMap get(GameMap obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

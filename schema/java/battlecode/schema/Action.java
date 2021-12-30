@@ -12,26 +12,82 @@ package battlecode.schema;
  */
 public final class Action {
   private Action() { }
+  /**
+   * Target: ID of robot attacked
+   */
   public static final byte ATTACK = 0;
+  /**
+   * Target: ID of robot spawned
+   */
   public static final byte SPAWN_UNIT = 1;
-  public static final byte MINE = 2;
-  public static final byte BUILD = 3;
-  public static final byte CONVERT_GOLD = 4;
+  /**
+   * Target: location mined, x + y * width
+   */
+  public static final byte MINE_LEAD = 2;
+  /**
+   * Target: location mined, x + y * width
+   */
+  public static final byte MINE_GOLD = 3;
+  /**
+   * Target: none
+   */
+  public static final byte TRANSMUTE = 4;
+  /**
+   * Target: none
+   */
   public static final byte TRANSFORM = 5;
-  public static final byte UPGRADE = 6;
+  /**
+   * Target: ID of robot mutated
+   */
+  public static final byte MUTATE = 6;
+  /**
+   * Target: ID of robot repaired
+   */
   public static final byte REPAIR = 7;
-  public static final byte CHANGE_HP = 8;
+  /**
+   * Target: change in health (can be negative)
+   */
+  public static final byte CHANGE_HEALTH = 8;
+  /**
+   * When a PROTOTYPE building upgrades to TURRET
+   * Target: none
+   */
   public static final byte FULLY_REPAIRED = 9;
+  /**
+   * Target: Sage location, x + y * width
+   */
   public static final byte LOCAL_ABYSS = 10;
-  public static final byte LOCAL_FURY = 11;
-  public static final byte LOCAL_CHARGE = 12;
+  /**
+   * Target: Sage location, x + y * width
+   */
+  public static final byte LOCAL_CHARGE = 11;
+  /**
+   * Target: Sage location, x + y * width
+   */
+  public static final byte LOCAL_FURY = 12;
+  /**
+   * Target: none
+   */
+  public static final byte ABYSS = 13;
+  /**
+   * Target: none
+   */
+  public static final byte CHARGE = 14;
+  /**
+   * Target: none
+   */
+  public static final byte FURY = 15;
+  /**
+   * Target: 0 if 90 degrees clockwise, 1 if horizontal, 2 if vertical
+   */
+  public static final byte VORTEX = 16;
   /**
    * Dies due to an uncaught exception.
    * Target: none
    */
-  public static final byte DIE_EXCEPTION = 13;
+  public static final byte DIE_EXCEPTION = 17;
 
-  public static final String[] names = { "ATTACK", "SPAWN_UNIT", "MINE", "BUILD", "CONVERT_GOLD", "TRANSFORM", "UPGRADE", "REPAIR", "CHANGE_HP", "FULLY_REPAIRED", "LOCAL_ABYSS", "LOCAL_FURY", "LOCAL_CHARGE", "DIE_EXCEPTION", };
+  public static final String[] names = { "ATTACK", "SPAWN_UNIT", "MINE_LEAD", "MINE_GOLD", "TRANSMUTE", "TRANSFORM", "MUTATE", "REPAIR", "CHANGE_HEALTH", "FULLY_REPAIRED", "LOCAL_ABYSS", "LOCAL_CHARGE", "LOCAL_FURY", "ABYSS", "CHARGE", "FURY", "VORTEX", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }

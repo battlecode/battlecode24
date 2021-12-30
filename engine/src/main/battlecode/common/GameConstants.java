@@ -16,16 +16,28 @@ public class GameConstants {
     // *********************************
 
     /** The minimum possible map height. */
-    public static final int MAP_MIN_HEIGHT = 32;
+    public static final int MAP_MIN_HEIGHT = 30;
 
     /** The maximum possible map height. */
-    public static final int MAP_MAX_HEIGHT = 64;
+    public static final int MAP_MAX_HEIGHT = 80;
 
     /** The minimum possible map width. */
-    public static final int MAP_MIN_WIDTH = 32;
+    public static final int MAP_MIN_WIDTH = 30;
 
     /** The maximum possible map width. */
-    public static final int MAP_MAX_WIDTH = 64;
+    public static final int MAP_MAX_WIDTH = 80;
+
+    /** The minimum number of starting Archons per team. */
+    public static final int MIN_STARTING_ARCHONS = 1;
+
+    /** The maximum number of starting Archons per team. */
+    public static final int MAX_STARTING_ARCHONS = 4;
+
+    /** The minimum amount of rubble per square. */
+    public static final int MIN_RUBBLE = 0;
+
+    /** The maximum amount of rubble per square. */
+    public static final int MAX_RUBBLE = 100;
 
     // *********************************
     // ****** GAME PARAMETERS **********
@@ -34,56 +46,60 @@ public class GameConstants {
     /** The number of indicator strings that a player can associate with a robot. */
     public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
 
+    /** The length of each team's shared communication array. */
+    public static final int SHARED_ARRAY_LENGTH = 64;
+
+    /** The maximum value in shared communication arrays. */
+    public static final int MAX_SHARED_ARRAY_VALUE = Short.MAX_VALUE;
+
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    ///** Maximum ID a Robot will have */
-    //public static final int MAX_ROBOT_ID = 32000;   Cannot be guaranteed in Battlecode 2021.
+    /** The amount of lead each team gains per turn. */
+    public static final int PASSIVE_LEAD_INCREASE = 5;
 
+    /** The number of rounds between adding lead resources to the map. */
+    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+
+    /** The amount of lead to add each round that lead is added. */
+    public static final int ADD_LEAD = 5;
+    
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
- 
+
+    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    public static final int COOLDOWN_LIMIT = 10;
+
+    /** The number of cooldown turns reduced per turn. */
+    public static final int COOLDOWNS_PER_TURN = 10;
+
+    /** The number of cooldown turns per transformation. */
+    public static final int TRANSFORM_COOLDOWN = 100;
+
+    /** The number of cooldown turns per mutation. */
+    public static final int MUTATE_COOLDOWN = 100;
 
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** The amount of conviction taxed when a Politician empowers. */
-    public static final int EMPOWER_TAX = 10;
+    /** A prototype building's starting health, as a multiplier of max health. */
+    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
 
-    /** The buff factor from exposing Slanderers. */
-    public static final double EXPOSE_BUFF_FACTOR = 0.001;
-    
-    /** The number of rounds a buff is applied. */
-    public static final int EXPOSE_BUFF_NUM_ROUNDS = 50;
+    /** The amount of health a prototype building has as a multiplier. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.1f;
 
-    /** The number of rounds Slanderers generate influence. */
-    public static final int EMBEZZLE_NUM_ROUNDS = 50;
+    /** The multiplier for reclaiming a building's cost. */
+    public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
 
-    /** The scale factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_SCALE_FACTOR = 0.03f;
+    /** The maximum level a building can be. */
+    public static final int MAX_LEVEL = 3;
 
-    /** The exponential decay factor in the Slanderer embezzle influence formula. */
-    public static final float EMBEZZLE_DECAY_FACTOR = 0.001f;
-
-    /** The number of rounds before Slanderers turns into Politicians. */
-    public static final int CAMOUFLAGE_NUM_ROUNDS = 300;
-
-    /** The initial amount of influence for each player-owned Enlightenment Center. */
-    public static final int INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE = 150;
-
-    /** The passive influence ratio for Enlightenment Centers. To multiply by sqrt(roundNum). */
-    public static final float PASSIVE_INFLUENCE_RATIO_ENLIGHTENMENT_CENTER = 0.2f;
-
-    /** Maximum allowable robot influence. */
-    public static final int ROBOT_INFLUENCE_LIMIT = 100000000;
-
-    /** The minimum allowable flag value. */
-    public static final int MIN_FLAG_VALUE = 0;
-
-    /** The maximum allowable flag value. */
-    public static final int MAX_FLAG_VALUE = 16777215;
+    /** Constants for alchemists converting lead to gold. */
+    public static final double ALCHEMIST_LONELINESS_A = 20;
+    public static final double ALCHEMIST_LONELINESS_B = 15;
+    public static final double ALCHEMIST_LONELINESS_K = 0.02;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -93,5 +109,5 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 1500;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 }

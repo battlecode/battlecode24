@@ -52,7 +52,7 @@ public class RobotTypeTaglet implements Taglet {
         return false;
     }
 
-    public String toString(Tag tag){
+    public String toString(Tag tag) {
         throw new IllegalArgumentException("The robot tag may not be used inline.");
     }
 
@@ -177,21 +177,21 @@ public class RobotTypeTaglet implements Taglet {
 
         StringBuilder builder = new StringBuilder();
         try {
-            appendField(builder, rt, "convictionRatio");
+            appendField(builder, rt, "buildCostLead");
+            builder.append("<br />");
+            appendField(builder, rt, "buildCostGold");
             builder.append("<br />");
             appendField(builder, rt, "actionCooldown");
             builder.append("<br />");
+            appendField(builder, rt, "movementCooldown");
+            builder.append("<br />");
+            appendField(builder, rt, "health");
+            builder.append("<br />");
+            appendField(builder, rt, "damage");
+            builder.append("<br />");
             appendField(builder, rt, "actionRadiusSquared");
             builder.append("<br />");
-            appendField(builder, rt, "sensorRadiusSquared");
-            builder.append("<br />");
-            appendField(builder, rt, "detectionRadiusSquared");
-
-             if (rt.spawnSource != null) {
-                 builder.append("<br />");
-                 appendField(builder, rt, "spawnSource");
-                //  appendField(builder, rt, "cost"); Cost is variable in 2021
-             }
+            appendField(builder, rt, "visionRadiusSquared");
 
             if (rt.bytecodeLimit != 0) {
                 builder.append("<br />");

@@ -38,13 +38,13 @@ public class MapTestSmall {
     }
 
     public static void makeSimple() throws IOException {
-        MapBuilder mapBuilder = new MapBuilder(mapName, 32, 32, 10000, 23921, 30);
-        mapBuilder.addSymmetricEnlightenmentCenter(5, 5);
+        MapBuilder mapBuilder = new MapBuilder(mapName, 32, 32, 0, 0, 30);
+        mapBuilder.addSymmetricArchon(5, 5);
         Random random = new Random(6147);
 
-        for(int i = 0; i < mapBuilder.width / 2; i++) {
+        for (int i = 0; i < mapBuilder.width / 2; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricPassability(i, j, random.nextDouble()*0.9+0.1);
+                mapBuilder.setSymmetricLead(i, j, random.nextInt(100));
             }
         }
 

@@ -21,20 +21,18 @@ import java.io.IOException;
 public class GenerateMaps {
     @Test
     public void makeSimple() throws IOException {
-        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100, 30, 3000)
-                .addEnlightenmentCenter(
+        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100, 30)
+                .addArchon(
                         0,
                         Team.A,
-                        GameConstants.INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE,
                         new MapLocation(
                                 1,
                                 1
                         )
                 )
-                .addEnlightenmentCenter(
+                .addArchon(
                         1,
                         Team.B,
-                        GameConstants.INITIAL_ENLIGHTENMENT_CENTER_INFLUENCE,
                         new MapLocation(
                                 99,
                                 99

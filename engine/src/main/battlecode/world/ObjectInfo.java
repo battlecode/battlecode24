@@ -41,7 +41,7 @@ public strictfp class ObjectInfo {
             Team.class);
     private int[] robotCount = new int[3];
 
-    public ObjectInfo(LiveMap gm){
+    public ObjectInfo(LiveMap gm) {
         this.mapWidth = gm.getWidth();
         this.mapHeight = gm.getHeight();
         this.mapTopLeft = gm.getOrigin();

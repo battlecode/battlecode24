@@ -273,7 +273,7 @@ task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
 
 
 task updateVersion() {
-  new File("frontend/public/version.txt").write(project.findProperty('release_version'))
+  // new File("frontend/public/version.txt").write(project.findProperty('release_version'))
 }
 
 
