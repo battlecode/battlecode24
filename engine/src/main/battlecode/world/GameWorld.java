@@ -271,7 +271,7 @@ public strictfp class GameWorld {
 
     public static MapLocation[] getAllLocationsWithinRadiusSquaredWithoutMap(MapLocation origin,
                                                                             int width, int height,
-                                                                            MapLocation center, int radiusSquared){
+                                                                            MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
         int minX = Math.max(center.x - ceiledRadius, origin.x);
