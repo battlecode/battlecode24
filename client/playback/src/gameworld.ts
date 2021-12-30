@@ -409,7 +409,7 @@ export default class GameWorld {
 
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] += delta.leadDropValues[i];
+        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] += delta.leadDropValues(i);
       })
     }
 
@@ -419,7 +419,7 @@ export default class GameWorld {
       const ys = goldLocations.ysArray();
       let inst = this;
       xs.forEach((x, i) => {
-        const y = ys[i]
+        const y = ys[i];
         inst.mapStats.goldVals[inst.mapStats.getIdx(x,y)] += delta.goldDropValues(i);
       })
     }

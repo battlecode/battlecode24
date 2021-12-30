@@ -188,7 +188,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
 
   // all values default to zero
   const bb_rubble = schema.GameMap.createRubbleVector(builder, rubble);
-  const bb_lead = schema.GameMap.createLeadVector(builder, []); // TODO: interesting lead and anomalies 
+  const bb_lead = schema.GameMap.createLeadVector(builder, new Array(SIZE*SIZE)); // TODO: interesting lead and anomalies 
   const bb_anomalies = schema.GameMap.createAnomaliesVector(builder, []);
   const bb_anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, []);
 
@@ -202,7 +202,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   schema.GameMap.addRandomSeed(builder, 42);
 
   schema.GameMap.addRubble(builder, bb_rubble);
-  schema.GameMap.addLead(builder, bb_rubble);
+  schema.GameMap.addLead(builder, bb_lead);
 
   schema.GameMap.addAnomalies(builder, bb_anomalies);
   schema.GameMap.addAnomalyRounds(builder, bb_anomalyRounds);
@@ -601,6 +601,11 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     const goldLocs = createVecTable(builder, goldXs, goldYs);
     const goldVals = schema.Round.createGoldDropValuesVector(builder, [Math.floor(100*Math.random())]);
 
+    const leadXs = [Math.floor(SIZE*Math.random())]
+    const leadYs = [Math.floor(SIZE*Math.random())]
+    const leadLocs = createVecTable(builder, leadXs, leadYs);
+    const leadVals = schema.Round.createLeadDropValuesVector(builder, [Math.floor(100*Math.random())]);
+
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
     schema.Round.addMovedLocs(builder, movedLocs);
@@ -611,6 +616,8 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     
     schema.Round.addGoldDropLocations(builder, goldLocs);
     schema.Round.addGoldDropValues(builder, goldVals);
+    schema.Round.addLeadDropLocations(builder, leadLocs);
+    schema.Round.addLeadDropValues(builder, leadVals);
 
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }

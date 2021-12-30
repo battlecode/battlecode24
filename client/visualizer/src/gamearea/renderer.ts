@@ -23,7 +23,7 @@ export default class Renderer {
 
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number) => void) {
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number) => void) {
 
     let ctx = canvas.getContext("2d")
     if (ctx === null) {
@@ -403,7 +403,7 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx])
+      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
       this.hoverPos = { x: xrel, y: yrel }
     }
 

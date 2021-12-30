@@ -220,7 +220,7 @@ export default class Controls {
 
   setDefaultText() {
     this.timeReadout.innerHTML = 'No match loaded';
-    this.tileInfo.innerHTML = 'X | Y | Passability';
+    this.tileInfo.innerHTML = 'X | Y | Rubble | Lead | Gold';
     this.speedReadout.textContent = 'UPS:  FPS: ';
   }
 
@@ -420,11 +420,13 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, passability: number): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number): void {
     let content: string = "";
     content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3);
     content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3);
-    content += ' | Passability: ' + `<b>${passability.toFixed(3)}</b>`;
+    content += ' | Rubble: ' + `<b>${rubble}</b>`;
+    content += ' | Lead: ' + `<b>${lead}</b>`;
+    content += ' | Gold: ' + `<b>${gold}</b>`;
 
     this.tileInfo.innerHTML = content;
   }
