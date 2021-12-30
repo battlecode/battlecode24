@@ -312,7 +312,12 @@ export default class Looper {
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
         let totalHP = 0;
-
+        let totalGold: Array<number> = [];
+        let totalLead: Array<number> = [];
+        for(let team in meta.teams){
+            totalGold[meta.teams[team].teamID] = 0;
+            totalLead[meta.teams[team].teamID] = 0;
+        };
         // this.stats.resetECs();
         // for (let i = 0; i < world.bodies.length; i++) {
         //     const type = world.bodies.arrays.type[i];
@@ -352,7 +357,10 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
+            this.stats.setIncome(teamID, teamStats.lead - totalLead[teamID], teamStats.gold - totalGold[teamID], world.turn, world.mapStats.leadVals.reduce((a, b) => a + b), world.mapStats.goldVals.reduce((a, b) => a + b));
+            console.log(world.mapStats.leadVals.reduce((a, b) => a + b), world.mapStats.goldVals.reduce((a, b) => a + b), "fsdfdsds");
+            totalLead[teamID] = teamStats.lead;
+            totalGold[teamID] = teamStats.gold;
             // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
         this.stats.resetECs();

@@ -168,44 +168,45 @@ export default class Stats {
     return table;
   }
 
-  private initRelativeBars(teamIDs: Array<number>) {
+  private initRelativeBars() {
+    let metalIDs = [0, 1];
+    let colors = ["#FFD700", "#212121"];
     const relativeBars: HTMLDivElement[] = [];
-    teamIDs.forEach((id: number) => {
+    metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
-      bar.style.backgroundColor = hex[id];
+      bar.style.backgroundColor = colors[id];
       bar.style.width = `100%`;
       bar.className = "influence-bar";
-      bar.innerText = "0";
+      bar.innerText = "0%";
 
       relativeBars[id] = bar;
     });
     return relativeBars;
   }
 
-  private getRelativeBarsElement(teamIDs: Array<number>): HTMLElement {
+  private getRelativeBarsElement(): HTMLElement {
+    let metalIDs = [0, 1];
     const div = document.createElement("div");
-    div.setAttribute("align", "center");
+    //div.setAttribute("align", "center");
     div.id = "relative-bars";
 
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Ideas';
+    label.innerText = 'Field Metal';
 
     const frame = document.createElement("div");
     frame.style.width = "100%";
 
-    teamIDs.forEach((id: number) => {
-      frame.appendChild(this.relativeBars[id]);
-    });
+    metalIDs.forEach((id: number) => {frame.appendChild(this.relativeBars[id]);});
 
     div.appendChild(label);
     div.appendChild(frame);
     return div;
   }
 
-  private updateRelBars(teamID: number, newval: number){
+  private updateRelBars(metalID: number, percentOpen: number){
     console.log(this.div);
-    this.relativeBars[teamID].innerHTML = (newval === undefined) ? "0" : newval.toString();
+    this.relativeBars[metalID].innerHTML = ((percentOpen === undefined) ? "0" : Math.round(percentOpen).toString()) + "%";
   }
 
   private initIncomeDisplays(teamIDs: Array<number>) {
@@ -391,8 +392,8 @@ export default class Stats {
       archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
       console.log(archonnums[id]);
     });*/
-    this.relativeBars = this.initRelativeBars(teamIDs);
-    const relativeBarsElement = this.getRelativeBarsElement(teamIDs);
+    this.relativeBars = this.initRelativeBars();
+    const relativeBarsElement = this.getRelativeBarsElement();
     this.div.appendChild(relativeBarsElement);
 
     this.incomeDisplays = this.initIncomeDisplays(teamIDs);
@@ -476,8 +477,6 @@ export default class Stats {
    */
   setRobotCount(teamID: number, robotType: schema.BodyType, count: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["count"][robotType];
-    console.log(teamID, count, "fsdfsdf");
-    if(robotType === ARCHON) this.updateRelBars(teamID, count);
     console.log(count, robotType);
     td.innerHTML = String(count);
   }
@@ -532,7 +531,7 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
+  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number, fieldLead: number, fieldGold: number) { // incomes
     this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
     this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
@@ -551,6 +550,11 @@ export default class Stats {
       teamTurnsIncomeSet?.add(turn);
       this.incomeChart.update();
     }
+    // update bars here
+    //console.log(teamID, count, "fsdfsdf");
+    //if(robotType === ARCHON) this.updateRelBars(teamID, count);
+    this.updateRelBars(0, 100.0*fieldGold/(fieldGold + goldIncome));
+    this.updateRelBars(1, 100.0*fieldLead/(fieldLead + leadIncome));
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
