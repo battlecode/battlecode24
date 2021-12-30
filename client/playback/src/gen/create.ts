@@ -543,34 +543,34 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
       for (let j = 0; j < unitCount; j++) {
         let action: number | null = null;
         let actionTarget: number | null = null;
-        let actions = []
+        let possible_actions = []
         switch (bodies.types[j]) {
             case schema.BodyType.MINER:
               action = schema.Action.MINE;
               break;
             case schema.BodyType.ARCHON:
-              actions = [schema.Action.SPAWN_UNIT, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM]; // got rid of spawn unit for now because it causes problems
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.SOLDIER:
-              actions = [schema.Action.ATTACK];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.ATTACK];
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.BUILDER:
-              actions = [schema.Action.BUILD, schema.Action.REPAIR, schema.Action.UPGRADE];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.BUILD, schema.Action.REPAIR, schema.Action.UPGRADE];
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.LABORATORY:
-              actions = [schema.Action.CONVERT_GOLD, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.CONVERT_GOLD, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.SAGE:
-              actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.WATCHTOWER:
-              actions = [schema.Action.ATTACK, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
-              action = actions[Math.floor(Math.random() * actions.length)];
+              possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             default:
               break;
@@ -582,6 +582,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
           }
           actionIDs.push(bodies.robotIDs[j]);
           actions.push(action);
+
           actionTargets.push(actionTarget);
         }
       }
@@ -725,20 +726,20 @@ function createSoupGame(turns: number) {
 
 function main(){
   const games = [
-    { name: "blank", game: createBlankGame(512)},
-    { name: "stand", game: createStandGame(4000) },
+    //{ name: "blank", game: createBlankGame(512)},
+    //{ name: "stand", game: createStandGame(4000) },
     //{ name: "pick", game: createPickGame(1024) },
-    { name: "random-map", game: createBlankGame(512, true) },
-    { name: "wander", game: createWanderGame(2048, 32) },
+    //{ name: "random-map", game: createBlankGame(512, true) },
+    //{ name: "wander", game: createWanderGame(2048, 32) },
     { name: "wander-actions", game: createWanderGame(2048, 32, true) },
-    { name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
-    { name: "life", game: createLifeGame(512) },
-    { name: "votes", game: createVotesGame(512) } 
+    //{ name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
+    //{ name: "life", game: createLifeGame(512) },
+    //{ name: "votes", game: createVotesGame(512) } 
     //{ name: "soup", game: createSoupGame(512) }, 
     //{ name: "viewOptions", game: createViewOptionGame(512) }
   ];
   SIZE = 64;
-  games.push({ name: "big-wander", game: createWanderGame(2048, 128) });
+  //games.push({ name: "big-wander", game: createWanderGame(2048, 128) });
   
   const prefix = "../examples/";
 
