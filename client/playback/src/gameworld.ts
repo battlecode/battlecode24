@@ -38,9 +38,14 @@ export type MapStats = {
   bodies: schema.SpawnedBodyTable,
   randomSeed: number,
 
-  passability: Float64Array, // double
+  rubble: Int32Array, // double
   leadVals: Int32Array;
   goldVals: Int32Array;
+
+  symmetry: number;
+
+  anomalies: Int8Array;
+  anomalyRounds: Int8Array;
 
   getIdx: (x:number, y:number) => number;
   getLoc: (idx: number) => Victor;
@@ -227,9 +232,13 @@ export default class GameWorld {
       bodies: new schema.SpawnedBodyTable(),
       randomSeed: 0,
 
-      passability: new Float64Array(0),
+      rubble: new Int32Array(0),
       leadVals: new Int32Array(0),
       goldVals: new Int32Array(0),
+
+      symmetry: 0,
+      anomalies: new Int8Array(0),
+      anomalyRounds: new Int8Array(0),
 
       getIdx: (x:number, y:number) => 0,
       getLoc: (idx: number) => new Victor(0,0)
@@ -291,7 +300,7 @@ export default class GameWorld {
     this.mapStats.maxCorner.y = maxCorner.y();
     
     this.mapStats.goldVals = new Int32Array(maxCorner.x()*maxCorner.y())
-    this.mapStats.leadVals = new Int32Array(maxCorner.x()*maxCorner.y())
+    this.mapStats.leadVals = map.leadArray();
 
     const bodies = map.bodies(this._bodiesSlot);
     if (bodies && bodies.robotIDsLength) {
@@ -300,20 +309,7 @@ export default class GameWorld {
 
     this.mapStats.randomSeed = map.randomSeed();
 
-    this.mapStats.passability = Float64Array.from(map.passabilityArray());
-
-    const leadLocations = map.leadLocations(this._vecTableSlot1);
-    if (leadLocations) {
-
-      const xs = leadLocations.xsArray();
-      const ys = leadLocations.ysArray();
-
-      xs.forEach((x, i) => {
-        const y = ys[i]
-        
-        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] = map.leadAmountsArray[i];
-      })
-    }
+    this.mapStats.rubble =  map.rubbleArray();
 
     const width = (maxCorner.x() - minCorner.x());
     this.mapStats.getIdx = (x:number, y:number) => (
@@ -322,7 +318,12 @@ export default class GameWorld {
     this.mapStats.getLoc = (idx: number) => (
       new Victor(idx % width, Math.floor(idx / width))
     );
-    
+
+    this.mapStats.symmetry = map.symmetry();
+
+    this.mapStats.anomalies = Int8Array.from(map.anomaliesArray());
+    this.mapStats.anomalyRounds = Int8Array.from(map.anomalyRoundsArray());
+
     // Check with header.totalRounds() ?
   }
 
@@ -368,10 +369,10 @@ export default class GameWorld {
       let teamID = delta.teamIDs(i);
       let statObj = this.teamStats.get(teamID);
 
-      statObj.lead += delta.teamLeadChange(i);
-      statObj.gold += delta.teamGoldChange(i);
-      statObj.leadChange = delta.teamLeadChange(i);
-      statObj.goldChange = delta.teamGoldChange(i);
+      statObj.lead += delta.teamLeadChanges(i);
+      statObj.gold += delta.teamGoldChanges(i);
+      statObj.leadChange = delta.teamLeadChanges(i);
+      statObj.goldChange = delta.teamGoldChanges(i);
 
       this.teamStats.set(teamID, statObj);
   }
@@ -408,7 +409,7 @@ export default class GameWorld {
 
       xs.forEach((x, i) => {
         const y = ys[i]
-        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] = delta.leadDropValues[i];
+        this.mapStats.leadVals[this.mapStats.getIdx(x,y)] += delta.leadDropValues[i];
       })
     }
 
@@ -419,7 +420,7 @@ export default class GameWorld {
       let inst = this;
       xs.forEach((x, i) => {
         const y = ys[i]
-        inst.mapStats.goldVals[inst.mapStats.getIdx(x,y)] = delta.goldDropValues(i);
+        inst.mapStats.goldVals[inst.mapStats.getIdx(x,y)] += delta.goldDropValues(i);
       })
     }
 
@@ -459,7 +460,7 @@ export default class GameWorld {
             setAction();
             break;
           
-          case schema.Action.CONVERT_GOLD:
+          case schema.Action.TRANSMUTE:
             setAction();
             teamStatsObj.gold += target;
             teamStatsObj.lead -= 0;
@@ -470,7 +471,7 @@ export default class GameWorld {
             this.bodies.alter({ id: robotID, portable: 1});
             break;
 
-          case schema.Action.UPGRADE:
+          case schema.Action.MUTATE:
             setAction();
             teamStatsObj.robots[body.type][body.level - 1] -= 1;
             teamStatsObj.robots[body.type][body.level + 1 - 1] += 1;
@@ -490,7 +491,7 @@ export default class GameWorld {
             setAction();
             break;
 
-          case schema.Action.CHANGE_HP:
+          case schema.Action.CHANGE_HEALTH:
             this.bodies.alter({ id: robotID, hp: body.hp + target});
             teamStatsObj.total_hp[body.type][body.level] += target;
             break;
@@ -670,7 +671,7 @@ export default class GameWorld {
       // if(teams[i] == 0) continue;
       var statObj = this.teamStats.get(teams[i]);
       statObj.robots[types[i]][0] += 1; // TODO: handle level
-      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].hp; // TODO: extract meta info
+      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
     }
     

@@ -42,7 +42,7 @@ type BodiesType = {
 };
 
 type MapType = {
-  passability: number[],
+  rubble: number[],
 };
 
 // Class to manage IDs of units
@@ -135,11 +135,11 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
 function makeRandomMap(): MapType {
 
   const map: MapType = {
-    passability: new Array(SIZE*SIZE)
+    rubble: new Array(SIZE*SIZE)
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     const idxVal = i*SIZE + j;
-    map.passability[idxVal] = Math.random();
+    map.rubble[idxVal] = Math.random();
   }
 
   return map;
@@ -179,15 +179,15 @@ function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbu
 function createMap(builder: flatbuffers.Builder, bodies: number, name: string, map?: MapType): flatbuffers.Offset {
   const bb_name = builder.createString(name);
 
-  let passability: Array<number>;
-  if (map) passability = map.passability;
+  let rubble: Array<number>;
+  if (map) rubble = map.rubble;
   else {
-      passability = new Array(SIZE*SIZE);
-      passability.fill(0);
+      rubble = new Array(SIZE*SIZE);
+      rubble.fill(0);
   }
 
   // all values default to zero
-  const bb_passability = schema.GameMap.createPassabilityVector(builder, passability);
+  const bb_rubble = schema.GameMap.createRubbleVector(builder, rubble);
 
   schema.GameMap.startGameMap(builder);
   schema.GameMap.addName(builder, bb_name);
@@ -198,7 +198,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   if(!isNull(bodies)) schema.GameMap.addBodies(builder, bodies);
   schema.GameMap.addRandomSeed(builder, 42);
 
-  schema.GameMap.addPassability(builder, bb_passability);
+  schema.GameMap.addRubble(builder, bb_rubble);
 
   return schema.GameMap.endGameMap(builder);
 }
@@ -210,14 +210,15 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   for (const body of bodyTypeList) {
     const btmd = schema.BodyTypeMetadata;
     if (body in [schema.BodyType.MINER, schema.BodyType.BUILDER, schema.BodyType.SAGE, schema.BodyType.SOLDIER]) {
-      var gold_costs = btmd.createUpgradeCostGoldVector(builder, [1])
-      var lead_costs = btmd.createUpgradeCostLeadVector(builder, [1])
+      var gold_costs = [1]
+      var lead_costs = [1]
     }
     else {
-      var gold_costs = btmd.createUpgradeCostGoldVector(builder, [1,2,3])
-      var lead_costs = btmd.createUpgradeCostLeadVector(builder, [1,2,3])
+      var gold_costs = [1,2,3]
+      var lead_costs = [1,2,3]
     }
-    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000, 5, 2, 6, 3, gold_costs, lead_costs)); //TODO: make robots interesting
+    bodies.push(btmd.createBodyTypeMetadata(builder, body, lead_costs[0], gold_costs[0], lead_costs[1], gold_costs[1], lead_costs[2], gold_costs[2], 
+                                           10, 10, 2, 6, 10, 3, 5, 11, 4, 6, 10000)); //TODO: make robots interesting
   }
 
   const teams: flatbuffers.Offset[] = [];
@@ -546,36 +547,31 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
         let possible_actions = []
         switch (bodies.types[j]) {
             case schema.BodyType.MINER:
-              action = schema.Action.MINE;
+              possible_actions = [schema.Action.MINE_GOLD, schema.Action.MINE_LEAD]; // got rid of spawn unit for now because it causes problems
               break;
             case schema.BodyType.ARCHON:
               possible_actions = [schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM]; // got rid of spawn unit for now because it causes problems
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.SOLDIER:
               possible_actions = [schema.Action.ATTACK];
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.BUILDER:
-              possible_actions = [schema.Action.BUILD, schema.Action.REPAIR, schema.Action.UPGRADE];
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
+              possible_actions = [schema.Action.REPAIR, schema.Action.MUTATE]; // got rid of spawn unit for now because it causes problems
               break;
             case schema.BodyType.LABORATORY:
-              possible_actions = [schema.Action.CONVERT_GOLD, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
+              possible_actions = [schema.Action.TRANSMUTE, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
               break;
             case schema.BodyType.SAGE:
               possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             case schema.BodyType.WATCHTOWER:
               possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
-              action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
               break;
             default:
               break;
         }
-        let building_target_actions = [schema.Action.REPAIR, schema.Action.UPGRADE]
+        action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
+        let building_target_actions = [schema.Action.REPAIR, schema.Action.MUTATE]
         if (action !== null) {
           if (building_target_actions.indexOf(action) > -1){
             actionTarget = buildings[Math.floor(Math.random() * buildings.length)];
