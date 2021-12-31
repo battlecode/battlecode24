@@ -40,6 +40,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     private RobotInfo cachedRobotInfo;
 
+    private String indicatorString;
+
     /**
      * Create a new internal representation of a robot
      *
@@ -76,6 +78,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.numVisibleFriendlyRobots = 0;
+
+        this.indicatorString = "";
 
         this.controller = new RobotControllerImpl(gameWorld, this);
     }
@@ -273,6 +277,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ******************************************
 
     /**
+     * Sets the indicator string of the robot.
+     *
+     * @param string the new indicator string of the robot
+     */
+    public void setIndicatorString(String string) {
+        this.indicatorString = string;
+    }
+
+    /**
      * Sets the location of the robot.
      * 
      * @param loc the new location of the robot
@@ -390,7 +403,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
-        // anything
+        this.indicatorString = "";
     }
 
     public void processBeginningOfTurn() {
@@ -402,6 +415,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void processEndOfTurn() {
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
+        // indicator strings!
+        this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         this.roundsAlive++;
     }
 

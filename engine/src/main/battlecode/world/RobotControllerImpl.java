@@ -773,7 +773,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public void setIndicatorString(String string) {
-        // TODO
+        if (string.length() > GameConstants.INDICATOR_STRING_MAX_LENGTH) {
+            string = string.substring(0, GameConstants.INDICATOR_STRING_MAX_LENGTH);
+        }
+        this.robot.setIndicatorString(string);
     }
 
     @Override

@@ -704,8 +704,8 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Sets the indicator string for this robot. Strings must have max
-     *  length GameConstants.INDICATOR_STRING_MAX_LENGTH.
+     * Sets the indicator string for this robot. Only the first
+     *  GameConstants.INDICATOR_STRING_MAX_LENGTH characters are used.
      *
      * @param string the indicator string this round
      *
