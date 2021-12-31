@@ -128,7 +128,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
  
     @Override
     public int getHealth() {
-        return this.robot.getHeatlh();
+        return this.robot.getHealth();
     }
 
     @Override
@@ -431,6 +431,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *****************************
 
     private void assertCanAttack(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
         assertIsActionReady();
         if (!getType().canAttack())
             throw new GameActionException(CANT_DO_THAT,
@@ -546,12 +547,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.REPAIR, bot.getID());
     }
 
-    
     // ***********************
     // **** MINER METHODS **** 
     // ***********************
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
@@ -582,6 +583,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,

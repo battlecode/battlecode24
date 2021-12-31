@@ -229,7 +229,7 @@ public strictfp class GameWorld {
      */
     public MapLocation indexToLocation(int idx) {
         return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
-                idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
+                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
     }
 
     // ***********************************
@@ -486,7 +486,7 @@ public strictfp class GameWorld {
     }
 
     // *********************************
-    // ******* PROFILER **************
+    // ********* PROFILER **************
     // *********************************
 
     public void setProfilerCollection(Team team, ProfilerCollection profilerCollection) {

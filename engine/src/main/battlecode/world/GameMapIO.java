@@ -227,7 +227,7 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            double[] rubbleArray = new double[width * height];
+            int[] rubbleArray = new int[width * height];
             int[] leadArray = new int[width * height];
             for (int i = 0; i < rubbleArray.length; i++) {
                 rubbleArray[i] = raw.rubble(i);
@@ -268,7 +268,7 @@ public final strictfp class GameMapIO {
             ArrayList<Byte> bodyTypes = new ArrayList<>();
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
-            ArrayList<Double> passabilityArrayList = new ArrayList<>();
+            ArrayList<Integer> rubbleArrayList = new ArrayList<>();
             ArrayList<Integer> leadArrayList = new ArrayList<>();
             ArrayList<Integer> anomaliesArrayList = new ArrayList<>();
             ArrayList<Integer> anomalyRoundsArrayList = new ArrayList<>();
@@ -279,7 +279,7 @@ public final strictfp class GameMapIO {
             }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                passabilityArrayList.add(passabilityArray[i]);
+                rubbleArrayList.add(rubbleArray[i]);
                 leadArrayList.add(leadArray[i]);
             }
 
@@ -303,7 +303,7 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-            int passabilityArrayInt = battlecode.schema.GameMap.createPassabilityVector(builder, ArrayUtils.toPrimitive(passabilityArrayList.toArray(new Double[passabilityArrayList.size()])));
+            int rubbleArrayInt = battlecode.schema.GameMap.createRubbleVector(builder, ArrayUtils.toPrimitive(rubbleArrayList.toArray(new Integer[rubbleArrayList.size()])));
             int leadArrayInt = battlecode.schema.GameMap.createLeadVector(builder, ArrayUtils.toPrimitive(leadArrayList.toArray(new Integer[leadArrayList.size()])));
             int anomaliesArrayInt = battlecode.schema.GameMap.createAnomaliesVector(builder, ArrayUtils.toPrimitive(anomaliesArrayList.toArray(new Integer[anomaliesArrayList.size()])));
             int anomalyRoundsArrayInt = battlecode.schema.GameMap.createAnomalyRoundsVector(builder, ArrayUtils.toPrimitive(anomalyRoundsArrayList.toArray(new Integer[anomalyRoundsArrayList.size()])));
@@ -316,7 +316,7 @@ public final strictfp class GameMapIO {
             battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            battlecode.schema.GameMap.addPassability(builder, passabilityArrayInt);
+            battlecode.schema.GameMap.addRubble(builder, rubbleArrayInt);
             battlecode.schema.GameMap.addLead(builder, leadArrayInt);
             battlecode.schema.GameMap.addAnomalies(builder, anomaliesArrayInt);
             battlecode.schema.GameMap.addAnomalyRounds(builder, anomalyRoundsArrayInt);
