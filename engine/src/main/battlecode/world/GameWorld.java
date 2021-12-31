@@ -72,6 +72,10 @@ public strictfp class GameWorld {
         }
         this.teamInfo = new TeamInfo(this);
 
+        // Add initial amounts of lead
+        this.teamInfo.addLead(Team.A, 200);
+        this.teamInfo.addLead(Team.B, 200);
+
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
     }
