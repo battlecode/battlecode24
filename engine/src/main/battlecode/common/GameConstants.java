@@ -55,6 +55,12 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
+    /** The initial amount of lead each team starts with. */
+    public static final int INITIAL_LEAD_AMOUNT = 200;
+
+    /** The initial amount of gold each team starts with. */
+    public static final int INITIAL_GOLD_AMOUNT = 0;
+
     /** The amount of lead each team gains per turn. */
     public static final int PASSIVE_LEAD_INCREASE = 2;
 

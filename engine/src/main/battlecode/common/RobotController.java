@@ -46,22 +46,22 @@ public strictfp interface RobotController {
     int getArchonCount();
 
     /**
-     * Returns the amount of lead your team has in reserve.
+     * Returns the amount of lead a team has in its reserves.
      *
-     * @return the amount of lead your team has in reserve.
+     * @return the amount of lead a team has in its reserves.
      *
      * @battlecode.doc.costlymethod
      */
-    int getTeamLeadAmount();
+    int getTeamLeadAmount(Team team);
 
     /**
-     * Returns the amount of gold your team has in reserve.
+     * Returns the amount of gold a team has in its reserves.
      *
-     * @return the amount of gold your team has in reserve.
+     * @return the amount of gold a team has in its reserves.
      *
      * @battlecode.doc.costlymethod
      */
-    int getTeamGoldAmount();
+    int getTeamGoldAmount(Team team);
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -678,7 +678,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int readSharedArray(int index);
+    int readSharedArray(int index) throws GameActionException;
 
     /** 
      * Sets a team's array value at a specified index.
@@ -690,7 +690,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean writeSharedArray(int index, int value);
+    boolean writeSharedArray(int index, int value) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

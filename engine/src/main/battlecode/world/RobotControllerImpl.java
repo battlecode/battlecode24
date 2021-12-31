@@ -88,13 +88,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getTeamLeadAmount() {
-        return this.gameWorld.getTeamInfo().getLead(getTeam());
+    public int getTeamLeadAmount(Team team) {
+        return this.gameWorld.getTeamInfo().getLead(team);
     }
 
     @Override
-    public int getTeamGoldAmount() {
-        return this.gameWorld.getTeamInfo().getGold(getTeam());
+    public int getTeamGoldAmount(Team team) {
+        return this.gameWorld.getTeamInfo().getGold(team);
     }
 
     // *********************************
@@ -742,8 +742,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void checkValue(int value) throws GameActionException {
         if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
-            throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array 
-                as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
+            throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array " +
+                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
     }
 
     @Override

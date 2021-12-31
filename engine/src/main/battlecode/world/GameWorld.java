@@ -69,13 +69,14 @@ public strictfp class GameWorld {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             spawnRobot(robot.ID, robot.type, newLocation, robot.team);
-            initialBodies[i] = new RobotInfo(robot.ID, robot.team, robot.type, 1, robot.health, newLocation);
         }
         this.teamInfo = new TeamInfo(this);
 
-        // Add initial amounts of lead
-        this.teamInfo.addLead(Team.A, 200);
-        this.teamInfo.addLead(Team.B, 200);
+        // Add initial amounts of resource
+        this.teamInfo.addLead(Team.A, GameConstants.INITIAL_LEAD_AMOUNT);
+        this.teamInfo.addLead(Team.B, GameConstants.INITIAL_LEAD_AMOUNT);
+        this.teamInfo.addGold(Team.A, GameConstants.INITIAL_GOLD_AMOUNT);
+        this.teamInfo.addGold(Team.B, GameConstants.INITIAL_GOLD_AMOUNT);
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
