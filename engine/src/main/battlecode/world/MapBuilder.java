@@ -66,6 +66,7 @@ public class MapBuilder {
                 id,
                 team,
                 RobotType.ARCHON,
+                RobotMode.TURRET,
                 1,
                 RobotType.ARCHON.health,
                 loc

@@ -64,15 +64,11 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
-        int numArchons = 0;
         RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            int newID = spawnRobot(robot.type, newLocation, robot.team);
-            initialBodies[i] = new RobotInfo(newID, robot.team, robot.type, 1, robot.health, newLocation);
-            if (robot.team == Team.A && robot.type == RobotType.ARCHON)
-                numArchons++;
+            spawnRobot(robot.type, newLocation, robot.team);
         }
         this.teamInfo = new TeamInfo(this);
 

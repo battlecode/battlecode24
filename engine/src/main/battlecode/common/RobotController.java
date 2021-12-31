@@ -77,6 +77,15 @@ public strictfp interface RobotController {
     RobotType getType();
 
     /**
+     * Returns this robot's mode (DROID, PROTOTYPE, TURRET, PORTABLE).
+     *
+     * @return this robot's mode
+     *
+     * @battlecode.doc.costlymethod
+     */
+    RobotMode getMode();
+
+    /**
      * Returns this robot's current location.
      *
      * @return this robot's current location

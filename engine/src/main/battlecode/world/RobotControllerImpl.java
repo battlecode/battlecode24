@@ -107,6 +107,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public RobotMode getMode() {
+        return this.robot.getMode();
+    }
+
+    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
