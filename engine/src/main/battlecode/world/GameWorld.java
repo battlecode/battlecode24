@@ -561,7 +561,7 @@ public strictfp class GameWorld {
         MapLocation[] actionLocations = this.getSageActionLocations(robot);
         for (int i = 0; i < actionLocations.length; i++) {
             InternalRobot currentRobot = getRobot(actionLocations[i]);
-            if (currentRobot != null && currentRobot.getTeam() != robot.getTeam())
+            if (currentRobot != null && currentRobot.getTeam() != robot.getTeam() && currentRobot.getMode() == RobotMode.DROID)
                 currentRobot.addHealth((int) (-1 * AnomalyType.CHARGE.sagePercentage * currentRobot.getType().getMaxHealth(currentRobot.getLevel())));
         }
     }

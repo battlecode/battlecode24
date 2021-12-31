@@ -469,6 +469,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *****************************
 
     private void assertCanEnvision(AnomalyType anomaly) throws GameActionException {
+        assertNotNull(anomaly);
         assertIsActionReady();
         if (!getType().canEnvision())
             throw new GameActionException(CANT_DO_THAT,
