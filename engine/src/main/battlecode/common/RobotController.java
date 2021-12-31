@@ -704,6 +704,16 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
+     * Sets the indicator string for this robot. Strings must have max
+     *  length GameConstants.INDICATOR_STRING_MAX_LENGTH.
+     *
+     * @param string the indicator string this round
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void setIndicatorString(String string);
+
+    /**
      * Draw a dot on the game map for debugging purposes.
      *
      * @param loc the location to draw the dot

@@ -219,7 +219,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toAct the MapLocation to act
      */
     public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared()
+            && this.gameWorld.getGameMap().onTheMap(toAct);
     }
 
     /**
