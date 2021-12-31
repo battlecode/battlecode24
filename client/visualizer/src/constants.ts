@@ -69,8 +69,8 @@ export const DELTA = .0001
 export const MIN_DIMENSION = 15
 export const MAX_DIMENSION = 100
 
-// Initial influence of enlightenment center, for map editor
-export const INITIAL_INFLUENCE = 150
+// Initial (default) HP of archons, for map editor
+export const INITIAL_HP = 100
 
 // Server settings
 export const NUMBER_OF_TEAMS = 2

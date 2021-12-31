@@ -243,16 +243,18 @@ export default class Looper {
                 let id = bodies.id[index];
                 let x = bodies.x[index];
                 let y = bodies.y[index];
+                let type = bodies.type[index];
                 // let influence = bodies.influence[index];
                 // let conviction = bodies.conviction[index];
-                let hp = bodies.hp[index]; // TODO: show max HP, DPS
-                let type = bodies.type[index];
+                let hp = bodies.hp[index]; 
+                let max_hp = this.meta.types[type].health;
+                let dp = this.meta.types[type].damage;
                 let bytecodes = bodies.bytecodesUsed[index];
-                let flag = bodies.flag[index];
+                let level = bodies.level[index];
                 let parent = bodies.parent[index];
                 // let bid = bodies.bid[index];
 
-                this.controls.setInfoString(id, x, y, hp, cst.bodyTypeToString(type), bytecodes, flag,
+                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
                     parent !== 0 ? parent : undefined);
             }
         }

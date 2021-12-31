@@ -15,7 +15,7 @@ export default class RobotForm {
   readonly team: HTMLSelectElement;
   readonly x: HTMLInputElement;
   readonly y: HTMLInputElement;
-  readonly influence: HTMLInputElement;
+  //readonly influence: HTMLInputElement;
 
   // Callbacks on input change
   readonly width: () => number;
@@ -151,13 +151,13 @@ export default class RobotForm {
     //   this.influence.value = isNaN(value) ? "" : String(value);
     // }
 
-    this.team.onchange = () => {
-      if (this.getTeam() !== 0) {
-        this.influence.disabled = true;
-        this.influence.value = String(cst.INITIAL_INFLUENCE);
-      }
-      else this.influence.disabled = false;
-    }
+    // this.team.onchange = () => {
+    //   if (this.getTeam() !== 0) {
+    //     this.influence.disabled = true;
+    //     this.influence.value = String(cst.INITIAL_INFLUENCE);
+    //   }
+    //   else this.influence.disabled = false;
+    // }
 
   }
 
@@ -178,9 +178,9 @@ export default class RobotForm {
     return parseInt(this.y.value);
   }
 
-  private getInfluence(): number {
-    return parseInt(this.influence.value);
-  }
+  // private getInfluence(): number {
+  //   return parseInt(this.influence.value);
+  // }
 
   getID(): number | undefined {
     const id = parseInt(this.id.textContent || "NaN");
@@ -207,8 +207,8 @@ export default class RobotForm {
   isValid(): boolean {
     const x = this.getX();
     const y = this.getY();
-    const I = this.getInfluence();
-    return !(isNaN(x) || isNaN(y) || isNaN(I));
+    //const I = this.getInfluence();
+    return !(isNaN(x) || isNaN(y)); // || isNaN(I));
   }
 
   getUnit(id: number): MapUnit | undefined {

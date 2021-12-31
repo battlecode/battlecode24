@@ -439,12 +439,13 @@ export default class Controls {
    * Bytecodes Used: bytecodes"
    */
   // TODO fix this (different stats)
-  setInfoString(id, x: number, y: number, hp: number, bodyType: string, bytecodes: number, flag: number, parent?: number): void {
+  setInfoString(id, x: number, y: number, hp: number, max_hp: number, dp: number, bodyType: string, bytecodes: number, level: number, parent?: number): void {
     // console.log(carryDirt);
     let infoString = `<span class="info-name">ID:</span> <span class="info-num">${id}</span> | `;
-    infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span><br>`;
-    infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> | `;
-    infoString += `<span class="info-name">Flag:</span> <span class="info-num">${flag}</span> | `;    
+    infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span> | `;
+    infoString += `<span class="info-name">Level:</span> <span class="info-num">${level}</span><br>`;    
+    infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `;      
+    infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`;
     if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
     

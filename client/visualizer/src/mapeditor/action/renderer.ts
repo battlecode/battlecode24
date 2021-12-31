@@ -92,7 +92,9 @@ export default class MapRenderer {
     for(let i = 0; i < this.width; i++){
       for(let j = 0; j < this.height; j++){
         const rubble = map.rubble[(map.height-j-1)*this.width + i];
+        const lead = map.leadVals[(map.height-j-1)*this.width + i];
         this.renderTile(i, j, rubble);
+        // TODO: draw lead on map
       }
     }
   }

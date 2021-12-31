@@ -104,7 +104,7 @@ export default class Sidebar {
 
     this.div.appendChild(this.innerDiv);
 
-    this.conf.mode = Mode.GAME;
+    this.conf.mode = Mode.MAPEDITOR; //GAME;
 
     this.updateModeButtons();
     this.setSidebar();
