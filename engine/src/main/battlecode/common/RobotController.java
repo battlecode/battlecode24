@@ -320,6 +320,10 @@ public strictfp interface RobotController {
 
     /**
      * Returns a list of all locations within the given radiusSquared of a location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead.
+     *
+     * Checks that radiusSquared is non-negative.
      *
      * @param center the given location
      * @param radiusSquared return locations within this distance away from center
@@ -327,7 +331,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared);
+    MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException;
 
     // ***********************************
     // ****** READINESS METHODS **********
