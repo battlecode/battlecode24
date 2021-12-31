@@ -70,9 +70,9 @@
     },
     "fileAssociations": [
       {
-        "ext": "bc21",
-        "name": "BC21",
-        "description": "Battlecode Match 2021",
+        "ext": "bc22",
+        "name": "BC22",
+        "description": "Battlecode Match 2022",
         "role": "Viewer"
       }
     ],

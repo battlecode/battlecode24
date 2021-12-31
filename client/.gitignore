@@ -13,11 +13,11 @@ playback/out/
 # built client
 dist/
 
-# Generated test bc21 files
+# Generated test bc22 files
 examples/
 
 # any battlecode files
-*.bc21
+*.bc22
 
 # for mac users?
 **/.DS_Store
