@@ -27,7 +27,7 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-    
+
     private int[] rubble;
     private int[] lead;
     private int[] gold;

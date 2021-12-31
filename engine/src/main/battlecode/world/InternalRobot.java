@@ -53,7 +53,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
         this.gameWorld = gw;
-        
+
         this.ID = id;
         this.team = team;
         this.type = type;
@@ -249,7 +249,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
+        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared()
+            && this.gameWorld.getGameMap().onTheMap(toSense);
     }
 
     /**

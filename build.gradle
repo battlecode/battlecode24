@@ -277,14 +277,18 @@ task updateVersion() {
 }
 
 
+
 publish.dependsOn(updateVersion)
 publishing {
   repositories {
     maven {
-      url = uri("https://maven.pkg.github.com/battlecode/battlecode21")
+      url = "https://us-east1-maven.pkg.dev/battlecode18/battlecode22-engine"
       credentials {
-        username = project.findProperty("gpr.user") ?: System.getenv("BC21_GITUSERNAME")
-        password = project.findProperty("gpr.key") ?: System.getenv("BC21_GITKEY")
+        username = "_json_key_base64"
+        password = System.getenv("ARTIFACT_REGISTRY_MAVEN_SECRET")
+      }
+      authentication {
+        basic(BasicAuthentication)
       }
     }
   }
