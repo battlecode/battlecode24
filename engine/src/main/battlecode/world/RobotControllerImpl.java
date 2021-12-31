@@ -87,6 +87,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotTypeCount(getTeam(), RobotType.ARCHON);
     }
 
+    @Override
+    public int getTeamLeadAmount() {
+        return this.gameWorld.getTeamInfo().getLead(getTeam());
+    }
+
+    @Override
+    public int getTeamGoldAmount() {
+        return this.gameWorld.getTeamInfo().getGold(getTeam());
+    }
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
