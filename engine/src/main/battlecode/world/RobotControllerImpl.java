@@ -735,19 +735,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
 
-    @Override
-    public int readSharedArray(int index) {
+    private void checkIndexWithinRange(int index) throws GameActionException {
         if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
-            return -1;
+            throw new GameActionException(CANT_DO_THAT, "You can't access this index as it is not within the shared array.");
+    }
+
+    private void checkValue(int value) throws GameActionException {
+        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
+            throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array 
+                as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
+    }
+
+    @Override
+    public int readSharedArray(int index) throws GameActionException {
+        checkIndexWithinRange(index);
         return this.gameWorld.getTeamInfo().readSharedArray(getTeam(), index);
     }
 
     @Override
-    public boolean writeSharedArray(int index, int value) {
-        if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
-            return false;
-        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
-            return false;
+    public boolean writeSharedArray(int index, int value) throws GameActionException {
+        checkIndexWithinRange(index);
+        checkValue(value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
         return true;
     }
