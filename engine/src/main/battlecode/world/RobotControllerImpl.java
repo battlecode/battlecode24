@@ -361,9 +361,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation center = adjacentLocation(dir);
-        this.robot.addMovementCooldownTurns(getType().movementCooldown);
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
+        // this has to happen after robot's location changed because rubble
+        this.robot.addMovementCooldownTurns(getType().movementCooldown);
         this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
     }
 
