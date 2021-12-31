@@ -43,8 +43,8 @@ public class GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The number of indicator strings that a player can associate with a robot. */
-    public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
+    /** The maximum length of indicator strings that a player can associate with a robot. */
+    public static final int INDICATOR_STRING_MAX_LENGTH = 64;
 
     /** The length of each team's shared communication array. */
     public static final int SHARED_ARRAY_LENGTH = 64;
