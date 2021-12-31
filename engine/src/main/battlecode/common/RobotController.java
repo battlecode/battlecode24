@@ -318,6 +318,17 @@ public strictfp interface RobotController {
      */
     MapLocation adjacentLocation(Direction dir);
 
+    /**
+     * Returns a list of all locations within the given radiusSquared of a location.
+     *
+     * @param center the given location
+     * @param radiusSquared return locations within this distance away from center
+     * @return list of locations on the map and within radiusSquared of center
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared);
+
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************

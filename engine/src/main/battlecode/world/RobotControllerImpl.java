@@ -268,6 +268,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getLocation().add(dir);
     }
 
+    @Override
+    public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        return this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared);
+    }
+
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
