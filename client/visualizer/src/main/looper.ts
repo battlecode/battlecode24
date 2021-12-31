@@ -312,12 +312,6 @@ export default class Looper {
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
         let totalHP = 0;
-        let totalGold: Array<number> = [];
-        let totalLead: Array<number> = [];
-        for(let team in meta.teams){
-            totalGold[meta.teams[team].teamID] = 0;
-            totalLead[meta.teams[team].teamID] = 0;
-        };
         // this.stats.resetECs();
         // for (let i = 0; i < world.bodies.length; i++) {
         //     const type = world.bodies.arrays.type[i];
@@ -326,12 +320,15 @@ export default class Looper {
         //     }
         // }
 
+        let teamLead: number[] = [];
+        let teamGold: number[] = [];
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
             totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+
         }
 
         for (let team in meta.teams) {
@@ -357,12 +354,17 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.lead - totalLead[teamID], teamStats.gold - totalGold[teamID], world.turn, world.mapStats.leadVals.reduce((a, b) => a + b), world.mapStats.goldVals.reduce((a, b) => a + b));
-            console.log(world.mapStats.leadVals.reduce((a, b) => a + b), world.mapStats.goldVals.reduce((a, b) => a + b), "fsdfdsds");
-            totalLead[teamID] = teamStats.lead;
-            totalGold[teamID] = teamStats.gold;
+            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
             // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
+
+        for(var a = 0; a < teamIDs.length; a++){
+            //@ts-ignore
+            teamLead.push(world.teamStats.get(teamIDs[a]).lead);
+            //@ts-ignore
+            teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+        }
+        this.stats.updateBars(teamLead, teamGold);
         this.stats.resetECs();
         const hps = world.bodies.arrays.hp;
         const teams = world.bodies.arrays.team;

@@ -168,45 +168,71 @@ export default class Stats {
     return table;
   }
 
-  private initRelativeBars() {
+  private initRelativeBars(teamIDs: Array<number>) {
     let metalIDs = [0, 1];
-    let colors = ["#FFD700", "#212121"];
+    let colors = ["#AA9700", "#696969"];
     const relativeBars: HTMLDivElement[] = [];
-    metalIDs.forEach((id: number) => {
+    teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
       bar.style.backgroundColor = colors[id];
-      bar.style.width = `100%`;
+      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "#C00040" : "#4000C0");
+      bar.style.width = `90%`;
       bar.className = "influence-bar";
       bar.innerText = "0%";
-
-      relativeBars[id] = bar;
-    });
+      bar.id = teamID.toString();
+      relativeBars[2*id + ((teamIDs[0] === teamID)?0:1)] = bar;
+    }));
     return relativeBars;
   }
 
-  private getRelativeBarsElement(): HTMLElement {
+  private getRelativeBarsElement(){
     let metalIDs = [0, 1];
-    const div = document.createElement("div");
-    //div.setAttribute("align", "center");
-    div.id = "relative-bars";
+    const divleft = document.createElement("div");
+    divleft.setAttribute("align", "center");
+    divleft.id = "relative-bars-left";
 
-    const label = document.createElement('div');
-    label.className = "stats-header";
-    label.innerText = 'Field Metal';
+    const labelleft = document.createElement('div');
+    labelleft.className = "stats-header";
+    labelleft.innerText = 'Gold';
 
-    const frame = document.createElement("div");
-    frame.style.width = "100%";
+    const frameleft = document.createElement("div");
+    frameleft.style.width = "100%";
 
-    metalIDs.forEach((id: number) => {frame.appendChild(this.relativeBars[id]);});
+    frameleft.appendChild(this.relativeBars[0]);
+    frameleft.appendChild(this.relativeBars[1]);
 
-    div.appendChild(label);
-    div.appendChild(frame);
-    return div;
+    divleft.appendChild(labelleft);
+    divleft.appendChild(frameleft);
+
+    const divright = document.createElement("div");
+    divright.setAttribute("align", "center");
+    divright.id = "relative-bars-right";
+
+    const labelright = document.createElement('div');
+    labelright.className = "stats-header";
+    labelright.innerText = 'Lead';
+
+    const frameright = document.createElement("div");
+    frameright.style.width = "100%";
+
+    frameright.appendChild(this.relativeBars[2]);
+    frameright.appendChild(this.relativeBars[3]);
+
+    divright.appendChild(labelright);
+    divright.appendChild(frameright);
+    return [divleft, divright];
   }
 
-  private updateRelBars(metalID: number, percentOpen: number){
+  private updateRelBars(teamLead: Array<number>, teamGold: Array<number>){
     console.log(this.div);
-    this.relativeBars[metalID].innerHTML = ((percentOpen === undefined) ? "0" : Math.round(percentOpen).toString()) + "%";
+    for(var a = 0; a < teamGold.length; a++){
+      this.relativeBars[a].innerHTML = teamGold[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
+    }
+    for(var a = 0; a < teamLead.length; a++){
+      this.relativeBars[a+2].innerHTML = teamLead[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamLead[0], teamLead[1]) === 0 ? 90:(90.0*teamLead[a]/Math.max(teamLead[0], teamLead[1]))).toString() + "%";
+    }
   }
 
   private initIncomeDisplays(teamIDs: Array<number>) {
@@ -216,10 +242,12 @@ export default class Stats {
       const goldIncome = document.createElement("span");
       leadIncome.style.color = hex[id];
       leadIncome.style.fontWeight = "bold";
-      leadIncome.textContent = "1";
+      leadIncome.textContent = "L: 0";
+      leadIncome.style.padding = "10px";
       goldIncome.style.color = hex[id];
       goldIncome.style.fontWeight = "bold";
-      goldIncome.textContent = "2";
+      goldIncome.textContent = "G: 0";
+      goldIncome.style.padding = "10px";
       incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
     });
     return incomeDisplays;
@@ -392,9 +420,9 @@ export default class Stats {
       archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
       console.log(archonnums[id]);
     });*/
-    this.relativeBars = this.initRelativeBars();
+    this.relativeBars = this.initRelativeBars(teamIDs);
     const relativeBarsElement = this.getRelativeBarsElement();
-    this.div.appendChild(relativeBarsElement);
+    relativeBarsElement.forEach((relBar: HTMLDivElement) => { this.div.appendChild(relBar);});
 
     this.incomeDisplays = this.initIncomeDisplays(teamIDs);
     const incomeElement = this.getIncomeDisplaysElement(teamIDs);
@@ -531,9 +559,9 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number, fieldLead: number, fieldGold: number) { // incomes
-    this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
-    this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
+  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
+    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome); // change incomeDisplays later
+    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }
@@ -553,8 +581,10 @@ export default class Stats {
     // update bars here
     //console.log(teamID, count, "fsdfsdf");
     //if(robotType === ARCHON) this.updateRelBars(teamID, count);
-    this.updateRelBars(0, 100.0*fieldGold/(fieldGold + goldIncome));
-    this.updateRelBars(1, 100.0*fieldLead/(fieldLead + leadIncome));
+  }
+  
+  updateBars(teamLead: Array<number>, teamGold: Array<number>){
+    this.updateRelBars(teamLead, teamGold);
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
