@@ -337,7 +337,7 @@ public final strictfp class GameMapIO {
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType == RobotType.ARCHON)
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, 1, RobotType.ARCHON.health, new MapLocation(bodyX, bodyY)));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, RobotMode.TURRET, 1, RobotType.ARCHON.health, new MapLocation(bodyX, bodyY)));
                 // ignore robots that are not archons, TODO throw error?
             }
         }

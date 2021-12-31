@@ -77,6 +77,15 @@ public strictfp interface RobotController {
     RobotType getType();
 
     /**
+     * Returns this robot's mode (DROID, PROTOTYPE, TURRET, PORTABLE).
+     *
+     * @return this robot's mode
+     *
+     * @battlecode.doc.costlymethod
+     */
+    RobotMode getMode();
+
+    /**
      * Returns this robot's current location.
      *
      * @return this robot's current location
@@ -127,7 +136,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSeeLocation(MapLocation loc);
+    boolean canSenseLocation(MapLocation loc);
 
     /**
      * Checks whether a point at the given radius squared is within the robot's vision range.
@@ -137,7 +146,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSeeRadiusSquared(int radiusSquared);
+    boolean canSenseRadiusSquared(int radiusSquared);
 
     /**
      * Checks whether a robot is at a given location. Assumes the location is valid.  
@@ -148,10 +157,10 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSeeRobotAtLocation(MapLocation loc) throws GameActionException;
+    boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
-     * Sees the robot at the given location, or null if there is no robot
+     * Senses the robot at the given location, or null if there is no robot
      * there.
      *
      * @param loc the location to check
@@ -160,7 +169,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo seeRobotAtLocation(MapLocation loc) throws GameActionException;
+    RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the given robot exists and if it is within this robot's
@@ -172,19 +181,19 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSeeRobot(int id);
+    boolean canSenseRobot(int id);
 
     /**
-     * Sees information about a particular robot given its ID.
+     * Senses information about a particular robot given its ID.
      *
      * @param id the ID of the robot to query
-     * @return a RobotInfo object for the seen robot
-     * @throws GameActionException if the robot cannot be seen (for example,
+     * @return a RobotInfo object for the sensed robot
+     * @throws GameActionException if the robot cannot be sensed (for example,
      * if it doesn't exist or is out of vision range)
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo seeRobot(int id) throws GameActionException;
+    RobotInfo senseRobot(int id) throws GameActionException;
 
     /**
      * Returns all robots within vision radius. The objects are returned in no
@@ -195,10 +204,10 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] seeNearbyRobots();
+    RobotInfo[] senseNearbyRobots();
 
     /**
-     * Returns all robots that can be seen within a certain distance of this
+     * Returns all robots that can be sensed within a certain distance of this
      * robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
@@ -209,10 +218,10 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] seeNearbyRobots(int radiusSquared);
+    RobotInfo[] senseNearbyRobots(int radiusSquared);
 
     /**
-     * Returns all robots of a given team that can be seen within a certain
+     * Returns all robots of a given team that can be sensed within a certain
      * distance of this robot. The objects are returned in no particular order.
      *
      * @param radiusSquared return robots this distance away from the center of
@@ -225,10 +234,10 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] seeNearbyRobots(int radiusSquared, Team team);
+    RobotInfo[] senseNearbyRobots(int radiusSquared, Team team);
 
     /**
-     * Returns all robots of a given team that can be seen within a certain
+     * Returns all robots of a given team that can be sensed within a certain
      * radius of a specified location. The objects are returned in no particular
      * order.
      *
@@ -243,7 +252,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] seeNearbyRobots(MapLocation center, int radiusSquared, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
 
     /**
      * Given a location, returns the rubble of that location.
@@ -257,29 +266,29 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int seeRubble(MapLocation loc) throws GameActionException;
+    int senseRubble(MapLocation loc) throws GameActionException;
 
     /**
      * Given a location, returns the lead count of that location.
      * 
      * @param loc the given location
      * @return the amount of lead at that location
-     * @throws GameActionException if the robot cannot see the given location
+     * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int seeLead(MapLocation loc) throws GameActionException;
+    int senseLead(MapLocation loc) throws GameActionException;
 
     /**
      * Given a location, returns the gold count of that location.
      * 
      * @param loc the given location
      * @return the amount of gold at that location
-     * @throws GameActionException if the robot cannot see the given location
+     * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int seeGold(MapLocation loc) throws GameActionException;
+    int senseGold(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -693,6 +702,16 @@ public strictfp interface RobotController {
     // ***********************************
     // ******** DEBUG METHODS ************
     // ***********************************
+
+    /**
+     * Sets the indicator string for this robot. Only the first
+     *  GameConstants.INDICATOR_STRING_MAX_LENGTH characters are used.
+     *
+     * @param string the indicator string this round
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void setIndicatorString(String string);
 
     /**
      * Draw a dot on the game map for debugging purposes.

@@ -21,7 +21,7 @@ public enum RobotType {
      * Converts lead into gold
      *
      * @battlecode.doc.robot     */
-    LABORATORY      (800,   0, 10, 24, 130,  5, 20, 34, 10000),
+    LABORATORY      (800,   0, 10, 24, 100,  0,  0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -46,13 +46,13 @@ public enum RobotType {
     /**
      * Ranged attacking robot.
     */
-    SOLDIER         ( 75,   0,  10, 16,  3,  50, 13, 20,  10000),
+    SOLDIER         ( 75,   0,  10, 16,  50,  3, 13, 20,  10000),
     //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
     
     /**
      * Gold robot, causes Anomalies.
      */
-    SAGE            ( 0,  50, 200, 25, 45, 100, 13, 20,   10000)
+    SAGE            ( 0,  50, 200, 25, 100, 45, 13, 20,   10000)
     //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
@@ -206,7 +206,7 @@ public enum RobotType {
     /**
      * Returns the damage of a robot by level.
      * @param level
-     * @return the damage for a robot by level
+     * @return the damage for a robot by level, negative if robot heals
      */
     public int getDamage(int level) {
         if (!this.isBuilding() || level == 1) {
@@ -222,7 +222,8 @@ public enum RobotType {
 
     /**
      * @param level
-     * @return the healing per turn for a robot by level
+     * @return the healing per turn for a robot by level as a positive amount,
+     *  0 if robot doesn't heal
      */
     public int getHealing(int level) {
         if (this == ARCHON || this == BUILDER) {
@@ -275,18 +276,11 @@ public enum RobotType {
     }
 
     /**
-     * @return Reclaim cost percentage for when robot is destroyed.
-     */
-    public float getReclaimCostPercentage() {
-        return (this.isBuilding()) ? 0.2f : 0;
-    }
-
-    /**
      * @param level the robot's current level
      * @return the amount of lead dropped
      */
     public int getLeadDropped(int level) {
-        return this.isBuilding() ? (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+        return (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);
     }
 
     /**
@@ -294,7 +288,7 @@ public enum RobotType {
      * @return the amount of gold dropped
      */
     public int getGoldDropped(int level) {
-        return this.isBuilding() ? (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER) : 0;
+        return (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);
     }
 
     RobotType(int buildCostLead, int buildCostGold, int actionCooldown, int movementCooldown,

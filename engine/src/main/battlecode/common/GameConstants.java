@@ -43,8 +43,8 @@ public class GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The number of indicator strings that a player can associate with a robot. */
-    public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
+    /** The maximum length of indicator strings that a player can associate with a robot. */
+    public static final int INDICATOR_STRING_MAX_LENGTH = 64;
 
     /** The length of each team's shared communication array. */
     public static final int SHARED_ARRAY_LENGTH = 64;
@@ -56,7 +56,7 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** The amount of lead each team gains per turn. */
-    public static final int PASSIVE_LEAD_INCREASE = 5;
+    public static final int PASSIVE_LEAD_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
     public static final int ADD_LEAD_EVERY_ROUNDS = 20;
@@ -84,11 +84,8 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** A prototype building's starting health, as a multiplier of max health. */
-    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
-
-    /** The amount of health a prototype building has as a multiplier. */
-    public static final float PROTOTYPE_HP_PERCENTAGE = 0.1f;
+    /** A blueprint building's health, as a multiplier of max health. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.9f;
 
     /** The multiplier for reclaiming a building's cost. */
     public static final float RECLAIM_COST_MULTIPLIER = 0.2f;

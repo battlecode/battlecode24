@@ -66,6 +66,7 @@ public class MapBuilder {
                 id,
                 team,
                 RobotType.ARCHON,
+                RobotMode.TURRET,
                 1,
                 RobotType.ARCHON.health,
                 loc
@@ -196,7 +197,7 @@ public class MapBuilder {
                                        GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
                                        GameConstants.MAP_MAX_HEIGHT + ", inclusive");
 
-        // checks between 1 and 4 Archons of each team
+        // checks between 1 and 4 Archons (inclusive) of each team
         // only needs to check the Archons of Team A, because symmetry is checked
         int numTeamARobots = 0;
         for (RobotInfo r : bodies) {
@@ -220,10 +221,34 @@ public class MapBuilder {
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
-        if (allMapSymmetries.isEmpty())
+        if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
-        if (!allMapSymmetries.contains(this.symmetry))
-            throw new RuntimeException("This map is supposed to have " + this.symmetry + " symmetry, but it doesn't");
+        }
+
+        // assert that at least one lead deposit inside vision range of at least one Archon
+
+        boolean[] hasVisibleLead = new boolean[2];
+
+        for (RobotInfo r : bodies) {
+            if (r.getType() != RobotType.ARCHON) continue;
+            if (hasVisibleLead[r.getTeam().ordinal()]) continue;
+
+            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
+                this.origin,
+                this.width,
+                this.height,
+                r.getLocation(),
+                r.getType().getVisionRadiusSquared(1)
+            );
+
+            for (MapLocation location : visibleLocations)
+                if (this.leadArray[locationToIndex(location.x, location.y)] > 0)
+                    hasVisibleLead[r.getTeam().ordinal()] = true;
+        }
+
+        if (!(hasVisibleLead[0] && hasVisibleLead[1])) {
+            throw new RuntimeException("Teams must have at least one lead deposit visible to an Archon.");
+        }
     }
 
     public boolean onTheMap(MapLocation loc) {

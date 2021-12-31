@@ -40,6 +40,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     private RobotInfo cachedRobotInfo;
 
+    private String indicatorString;
+
     /**
      * Create a new internal representation of a robot
      *
@@ -57,8 +59,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.type = type;
         this.location = loc;
         this.level = 1;
-        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.DROID;
-        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
+        if (this.type == RobotType.ARCHON) {
+            this.mode = RobotMode.TURRET;
+        } else if (this.type.isBuilding()) {
+            this.mode = RobotMode.PROTOTYPE;
+        } else {
+            this.mode = RobotMode.DROID;
+        }
+        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -70,6 +78,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.numVisibleFriendlyRobots = 0;
+
+        this.indicatorString = "";
 
         this.controller = new RobotControllerImpl(gameWorld, this);
     }
@@ -160,13 +170,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
+                && cachedRobotInfo.mode == mode
                 && cachedRobotInfo.level == level
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, level, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, mode, level, health, location);
         return this.cachedRobotInfo;
     }
 
@@ -212,7 +223,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toAct the MapLocation to act
      */
     public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared()
+            && this.gameWorld.getGameMap().onTheMap(toAct);
     }
 
     /**
@@ -232,20 +244,20 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns whether this robot can see the given location.
+     * Returns whether this robot can sense the given location.
      * 
-     * @param toSee the MapLocation to see
+     * @param toSense the MapLocation to sense
      */
-    public boolean canSeeLocation(MapLocation toSee) {
-        return this.location.distanceSquaredTo(toSee) <= getVisionRadiusSquared();
+    public boolean canSenseLocation(MapLocation toSense) {
+        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
     }
 
     /**
-     * Returns whether this robot can see a given radius away.
+     * Returns whether this robot can sense a given radius away.
      * 
-     * @param radiusSquared the distance squared to act
+     * @param radiusSquared the distance squared to sense
      */
-    public boolean canSeeRadiusSquared(int radiusSquared) {
+    public boolean canSenseRadiusSquared(int radiusSquared) {
         return radiusSquared <= getVisionRadiusSquared();
     }
 
@@ -263,6 +275,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
+
+    /**
+     * Sets the indicator string of the robot.
+     *
+     * @param string the new indicator string of the robot
+     */
+    public void setIndicatorString(String string) {
+        this.indicatorString = string;
+    }
 
     /**
      * Sets the location of the robot.
@@ -382,7 +403,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
-        // anything
+        this.indicatorString = "";
     }
 
     public void processBeginningOfTurn() {
@@ -394,6 +415,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void processEndOfTurn() {
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
+        // indicator strings!
+        this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         this.roundsAlive++;
     }
 
@@ -435,7 +458,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @return the number of friendly robots within sensor (vision) radius.
      */
     public int updateNumVisibleFriendlyRobots() {
-        return this.numVisibleFriendlyRobots = this.controller.seeNearbyRobots(-1, getTeam()).length;
+        return this.numVisibleFriendlyRobots = this.controller.senseNearbyRobots(-1, getTeam()).length;
     }
 
     @Override
