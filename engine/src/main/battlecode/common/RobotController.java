@@ -686,11 +686,10 @@ public strictfp interface RobotController {
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
-     * @return whether the value was successfully written
      *
      * @battlecode.doc.costlymethod
      */
-    boolean writeSharedArray(int index, int value) throws GameActionException;
+    void writeSharedArray(int index, int value) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
