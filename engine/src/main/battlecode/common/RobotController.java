@@ -26,6 +26,24 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
+     * Returns map width.
+     *
+     * @return the map width
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapWidth();
+
+    /**
+     * Returns map height.
+     *
+     * @return the map height
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapHeight();
+
+    /**
      * Returns the number of robots on your team, including Archons.
      * If this number ever reaches zero, you immediately lose.
      *
