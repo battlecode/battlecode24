@@ -16,30 +16,60 @@ public class GameConstants {
     // *********************************
 
     /** The minimum possible map height. */
-    public static final int MAP_MIN_HEIGHT = 32;
+    public static final int MAP_MIN_HEIGHT = 30;
 
     /** The maximum possible map height. */
-    public static final int MAP_MAX_HEIGHT = 64;
+    public static final int MAP_MAX_HEIGHT = 80;
 
     /** The minimum possible map width. */
-    public static final int MAP_MIN_WIDTH = 32;
+    public static final int MAP_MIN_WIDTH = 30;
 
     /** The maximum possible map width. */
-    public static final int MAP_MAX_WIDTH = 64;
+    public static final int MAP_MAX_WIDTH = 80;
+
+    /** The minimum number of starting Archons per team. */
+    public static final int MIN_STARTING_ARCHONS = 1;
+
+    /** The maximum number of starting Archons per team. */
+    public static final int MAX_STARTING_ARCHONS = 4;
+
+    /** The minimum amount of rubble per square. */
+    public static final int MIN_RUBBLE = 0;
+
+    /** The maximum amount of rubble per square. */
+    public static final int MAX_RUBBLE = 100;
 
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The number of indicator strings that a player can associate with a robot. */
-    public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
+    /** The maximum length of indicator strings that a player can associate with a robot. */
+    public static final int INDICATOR_STRING_MAX_LENGTH = 64;
+
+    /** The length of each team's shared communication array. */
+    public static final int SHARED_ARRAY_LENGTH = 64;
+
+    /** The maximum value in shared communication arrays. */
+    public static final int MAX_SHARED_ARRAY_VALUE = Short.MAX_VALUE;
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    ///** Maximum ID a Robot will have */
-    //public static final int MAX_ROBOT_ID = 32000;   Cannot be guaranteed in Battlecode 2021.
+    /** The initial amount of lead each team starts with. */
+    public static final int INITIAL_LEAD_AMOUNT = 200;
 
+    /** The initial amount of gold each team starts with. */
+    public static final int INITIAL_GOLD_AMOUNT = 0;
+
+    /** The amount of lead each team gains per turn. */
+    public static final int PASSIVE_LEAD_INCREASE = 2;
+
+    /** The number of rounds between adding lead resources to the map. */
+    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+
+    /** The amount of lead to add each round that lead is added. */
+    public static final int ADD_LEAD = 5;
+    
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
@@ -53,21 +83,26 @@ public class GameConstants {
     /** The number of cooldown turns per transformation. */
     public static final int TRANSFORM_COOLDOWN = 100;
 
-    /** The number of cooldown turns per upgrade. */
-    public static final int UPGRADE_COOLDOWN = 100;
+    /** The number of cooldown turns per mutation. */
+    public static final int MUTATE_COOLDOWN = 100;
 
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** A prototype building's starting health, as a multiplier of max health. */
-    public static final float PROTOTYPE_STARTING_HEALTH_MULTIPLIER = 0.1f;
+    /** A blueprint building's health, as a multiplier of max health. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.9f;
+
+    /** The multiplier for reclaiming a building's cost. */
+    public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
 
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
-    /** The amount damage is reduced by every ricochet. */
-    public static final float RICOCHET_DAMAGE_MULTIPLIER = 0.8f;
+    /** Constants for alchemists converting lead to gold. */
+    public static final double ALCHEMIST_LONELINESS_A = 20;
+    public static final double ALCHEMIST_LONELINESS_B = 15;
+    public static final double ALCHEMIST_LONELINESS_K = 0.02;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -77,5 +112,5 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 1500;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 }

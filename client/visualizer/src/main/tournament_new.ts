@@ -20,7 +20,7 @@ export function readTournament(jsonFile: File, cbTournament: (t: Tournament) => 
         team2: arr[1],
         map: arr[2],
         winner: arr[3],
-        url: "https://2021.battlecode.org/replays/" + arr[4] + ".bc21"
+        url: "https://2021.battlecode.org/replays/" + arr[4] + ".bc22"
       }));
       const desc: TournamentMatch[][] = data.filter(game => game != null).map((game) => (game.map(parseMatch)));
       const tournament = new Tournament(desc);

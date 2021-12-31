@@ -3,97 +3,106 @@ package battlecode.world;
 import battlecode.common.GameConstants;
 import battlecode.common.Team;
 import java.util.*;
+import static battlecode.common.GameActionExceptionType.*;
 
 /**
  * This class is used to hold information regarding team specific values such as
- * team names, and victory points.
+ * team names.
  */
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int[] teamVotes;
-    private int[] numBuffs;
-    private Map<Integer, TreeMap<Integer, Integer>> buffExpirations; // team -> round number, number of buffs expiring at the beginning of that round
+    private int[] leadCounts;
+    private int[] goldCounts;
+    private int[][] sharedArrays;
 
+    /**
+     * Create a new representation of TeamInfo
+     *
+     * @param gameWorld the gameWorld the teams exist in
+     */
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.teamVotes = new int[2];
-        this.numBuffs = new int[2];
-        this.buffExpirations = new HashMap<>();
-        for (int i = 0; i < 2; i++)
-            this.buffExpirations.put(i, new TreeMap<>());
+        this.leadCounts = new int[2];
+        this.goldCounts = new int[2];
+        this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
     }
-
+    
     // *********************************
     // ***** GETTER METHODS ************
     // *********************************
 
-    // Breaks if t.ordinal() > 1 (Team NEUTRAL)
-    public int getVotes(Team t) {
-        return this.teamVotes[t.ordinal()];
+    /**
+     * Get the amount of lead.
+     *
+     * @param team the team to query
+     * @return the team's lead count
+     */
+    public int getLead(Team team) {
+        return this.leadCounts[team.ordinal()];
     }
 
-    // returns current buff
-    public double getBuff(Team t) {
-        return 1 + GameConstants.EXPOSE_BUFF_FACTOR * this.numBuffs[t.ordinal()];
+    /**
+     * Get the amount of gold.
+     *
+     * @param team the team to query
+     * @return the team's gold count
+     */
+    public int getGold(Team team) {
+        return this.goldCounts[team.ordinal()];
     }
 
-    // returns the buff at specified round
-    public double getBuff(Team t, int roundNumber) {
-        int buffs = getNumBuffs(t, roundNumber);
-        return 1 + GameConstants.EXPOSE_BUFF_FACTOR * buffs;
-    }
-
-    // returns the number of buffs at specified round
-    public int getNumBuffs(Team t, int roundNumber) {
-        int teamIdx = t.ordinal();
-        int buffs = numBuffs[teamIdx];
-        TreeMap<Integer, Integer> map = this.buffExpirations.get(teamIdx);
-        for (int round : map.keySet()) {
-            if (round <= roundNumber) {
-                buffs -= map.get(round);
-            } else {
-                break; // treemaps are in increasing order
-            }
-        }
-        return buffs;
+    /**
+     * Reads the shared array value.
+     *
+     * @param team the team to query
+     * @param index the index in the array
+     * @return the value at that index in the team's shared array
+     */
+    public int readSharedArray(Team team, int index) {
+        return this.sharedArrays[team.ordinal()][index];
     }
 
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
 
-    public void addVote(Team t) {
-        teamVotes[t.ordinal()]++;
-    }
-
-    // called at the end of every round
-    public void addBuffs(int nextRound, Team t, int buffs) {
-        int teamIdx = t.ordinal();
-        this.numBuffs[teamIdx] += buffs;
-        TreeMap<Integer, Integer> map = this.buffExpirations.get(teamIdx);
-        int expirationRound = nextRound + GameConstants.EXPOSE_BUFF_NUM_ROUNDS;
-        map.put(expirationRound, map.getOrDefault(expirationRound, 0) + buffs);
-    }
-
-    // called at the beginning of every round
-    public void updateNumBuffs(int currentRound) {
-        updateNumBuffs(currentRound, Team.A);
-        updateNumBuffs(currentRound, Team.B);
-    }
-
-    private void updateNumBuffs(int currentRound, Team t) {
-        int teamIdx = t.ordinal();
-        TreeMap<Integer, Integer> map = this.buffExpirations.get(teamIdx);
-        Iterator<Map.Entry<Integer, Integer>> it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Integer, Integer> item = it.next();
-            if (item.getKey() <= currentRound) {
-                this.numBuffs[teamIdx] -= item.getValue();
-                it.remove();
-            } else {
-                break; // treemaps are in increasing order
-            }
+    /**
+     * Add to the amount of lead. If amount is negative, subtract from lead instead. 
+     * 
+     * @param team the team to query
+     * @param amount the change in the lead count
+     * @throws IllegalArgumentException if the resulting amount of lead is negative
+     */
+    public void addLead(Team team, int amount) throws IllegalArgumentException {
+        if (this.leadCounts[team.ordinal()] + amount < 0) {
+            throw new IllegalArgumentException("Invalid lead change");
         }
+        this.leadCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Add to the amount of gold. If amount is negative, subtract from gold instead. 
+     * 
+     * @param team the team to query
+     * @param amount the change in the gold count
+     * @throws IllegalArgumentException if the resulting amount of gold is negative
+     */
+    public void addGold(Team team, int amount) throws IllegalArgumentException {
+        if (this.goldCounts[team.ordinal()] + amount < 0) {
+            throw new IllegalArgumentException("Invalid gold change");
+        }
+        this.goldCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Sets an index in the team's shared array to a given value.
+     *
+     * @param team the team to query
+     * @param index the index in the shared array
+     * @param value the new value
+     */
+    public void writeSharedArray(Team team, int index, int value) {
+        this.sharedArrays[team.ordinal()][index] = value;
     }
 }

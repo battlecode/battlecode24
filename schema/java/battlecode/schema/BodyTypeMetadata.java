@@ -17,69 +17,85 @@ public final class BodyTypeMetadata extends Table {
   public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public BodyTypeMetadata __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  /**
-   * The relevant type.
-   */
   public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  /**
-   * The spawn source.
-   */
-  public byte spawnSource() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  /**
-   * the convictionRatio of this type
-   */
-  public float convictionRatio() { int o = __offset(8); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  /**
-   * cooldown of this type
-   */
-  public float actionCooldown() { int o = __offset(10); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  /**
-   * action radius if this type
-   */
-  public int actionRadiusSquared() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * sensor radius squared for this type
-   */
-  public int sensorRadiusSquared() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * detection radius of this type
-   */
-  public int detectionRadiusSquared() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  /**
-   * bytecode limit for this type
-   */
-  public int bytecodeLimit() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int buildCostLead() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int buildCostGold() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2CostLead() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2CostGold() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3CostLead() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3CostGold() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionCooldown() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int movementCooldown() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int health() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2Health() { int o = __offset(24); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3Health() { int o = __offset(26); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int damage() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level2Damage() { int o = __offset(30); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int level3Damage() { int o = __offset(32); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionRadiusSquared() { int o = __offset(34); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int visionRadiusSquared() { int o = __offset(36); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int bytecodeLimit() { int o = __offset(38); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createBodyTypeMetadata(FlatBufferBuilder builder,
       byte type,
-      byte spawnSource,
-      float convictionRatio,
-      float actionCooldown,
+      int buildCostLead,
+      int buildCostGold,
+      int level2CostLead,
+      int level2CostGold,
+      int level3CostLead,
+      int level3CostGold,
+      int actionCooldown,
+      int movementCooldown,
+      int health,
+      int level2Health,
+      int level3Health,
+      int damage,
+      int level2Damage,
+      int level3Damage,
       int actionRadiusSquared,
-      int sensorRadiusSquared,
-      int detectionRadiusSquared,
+      int visionRadiusSquared,
       int bytecodeLimit) {
-    builder.startObject(8);
+    builder.startObject(18);
     BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
-    BodyTypeMetadata.addDetectionRadiusSquared(builder, detectionRadiusSquared);
-    BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
+    BodyTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
     BodyTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
+    BodyTypeMetadata.addLevel3Damage(builder, level3Damage);
+    BodyTypeMetadata.addLevel2Damage(builder, level2Damage);
+    BodyTypeMetadata.addDamage(builder, damage);
+    BodyTypeMetadata.addLevel3Health(builder, level3Health);
+    BodyTypeMetadata.addLevel2Health(builder, level2Health);
+    BodyTypeMetadata.addHealth(builder, health);
+    BodyTypeMetadata.addMovementCooldown(builder, movementCooldown);
     BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-    BodyTypeMetadata.addConvictionRatio(builder, convictionRatio);
-    BodyTypeMetadata.addSpawnSource(builder, spawnSource);
+    BodyTypeMetadata.addLevel3CostGold(builder, level3CostGold);
+    BodyTypeMetadata.addLevel3CostLead(builder, level3CostLead);
+    BodyTypeMetadata.addLevel2CostGold(builder, level2CostGold);
+    BodyTypeMetadata.addLevel2CostLead(builder, level2CostLead);
+    BodyTypeMetadata.addBuildCostGold(builder, buildCostGold);
+    BodyTypeMetadata.addBuildCostLead(builder, buildCostLead);
     BodyTypeMetadata.addType(builder, type);
     return BodyTypeMetadata.endBodyTypeMetadata(builder);
   }
 
-  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(8); }
+  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(18); }
   public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
-  public static void addSpawnSource(FlatBufferBuilder builder, byte spawnSource) { builder.addByte(1, spawnSource, 0); }
-  public static void addConvictionRatio(FlatBufferBuilder builder, float convictionRatio) { builder.addFloat(2, convictionRatio, 0.0f); }
-  public static void addActionCooldown(FlatBufferBuilder builder, float actionCooldown) { builder.addFloat(3, actionCooldown, 0.0f); }
-  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(4, actionRadiusSquared, 0); }
-  public static void addSensorRadiusSquared(FlatBufferBuilder builder, int sensorRadiusSquared) { builder.addInt(5, sensorRadiusSquared, 0); }
-  public static void addDetectionRadiusSquared(FlatBufferBuilder builder, int detectionRadiusSquared) { builder.addInt(6, detectionRadiusSquared, 0); }
-  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(7, bytecodeLimit, 0); }
+  public static void addBuildCostLead(FlatBufferBuilder builder, int buildCostLead) { builder.addInt(1, buildCostLead, 0); }
+  public static void addBuildCostGold(FlatBufferBuilder builder, int buildCostGold) { builder.addInt(2, buildCostGold, 0); }
+  public static void addLevel2CostLead(FlatBufferBuilder builder, int level2CostLead) { builder.addInt(3, level2CostLead, 0); }
+  public static void addLevel2CostGold(FlatBufferBuilder builder, int level2CostGold) { builder.addInt(4, level2CostGold, 0); }
+  public static void addLevel3CostLead(FlatBufferBuilder builder, int level3CostLead) { builder.addInt(5, level3CostLead, 0); }
+  public static void addLevel3CostGold(FlatBufferBuilder builder, int level3CostGold) { builder.addInt(6, level3CostGold, 0); }
+  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(7, actionCooldown, 0); }
+  public static void addMovementCooldown(FlatBufferBuilder builder, int movementCooldown) { builder.addInt(8, movementCooldown, 0); }
+  public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(9, health, 0); }
+  public static void addLevel2Health(FlatBufferBuilder builder, int level2Health) { builder.addInt(10, level2Health, 0); }
+  public static void addLevel3Health(FlatBufferBuilder builder, int level3Health) { builder.addInt(11, level3Health, 0); }
+  public static void addDamage(FlatBufferBuilder builder, int damage) { builder.addInt(12, damage, 0); }
+  public static void addLevel2Damage(FlatBufferBuilder builder, int level2Damage) { builder.addInt(13, level2Damage, 0); }
+  public static void addLevel3Damage(FlatBufferBuilder builder, int level3Damage) { builder.addInt(14, level3Damage, 0); }
+  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(15, actionRadiusSquared, 0); }
+  public static void addVisionRadiusSquared(FlatBufferBuilder builder, int visionRadiusSquared) { builder.addInt(16, visionRadiusSquared, 0); }
+  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(17, bytecodeLimit, 0); }
   public static int endBodyTypeMetadata(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

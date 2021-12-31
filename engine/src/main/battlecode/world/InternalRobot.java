@@ -33,11 +33,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int roundsAlive;
     private int actionCooldownTurns;
     private int movementCooldownTurns;
+    private int numVisibleFriendlyRobots;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
      */
     private RobotInfo cachedRobotInfo;
+
+    private String indicatorString;
 
     /**
      * Create a new internal representation of a robot
@@ -49,13 +52,21 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
+        this.gameWorld = gw;
+
         this.ID = id;
         this.team = team;
         this.type = type;
         this.location = loc;
         this.level = 1;
-        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.ROBOT;
-        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_STARTING_HEALTH_MULTIPLIER : 1) * this.type.getMaxHealth(this.level));
+        if (this.type == RobotType.ARCHON) {
+            this.mode = RobotMode.TURRET;
+        } else if (this.type.isBuilding()) {
+            this.mode = RobotMode.PROTOTYPE;
+        } else {
+            this.mode = RobotMode.DROID;
+        }
+        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -66,8 +77,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
         this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
+        this.numVisibleFriendlyRobots = 0;
 
-        this.gameWorld = gw;
+        this.indicatorString = "";
+
         this.controller = new RobotControllerImpl(gameWorld, this);
     }
 
@@ -131,18 +144,40 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return movementCooldownTurns;
     }
 
+    public int getTransformCooldownTurns() {
+        if (this.mode == RobotMode.TURRET)
+            return this.actionCooldownTurns;
+        if (this.mode == RobotMode.PORTABLE)
+            return this.movementCooldownTurns;
+        return -1;
+    }
+
+    public int getNumVisibleFriendlyRobots(boolean update) {
+        if (update) updateNumVisibleFriendlyRobots();
+        return this.numVisibleFriendlyRobots;
+    }
+
+    public int getLeadMutateCost() {
+        return this.type.getLeadMutateCost(this.level + 1);
+    }
+
+    public int getGoldMutateCost() {
+        return this.type.getGoldMutateCost(this.level + 1);
+    }
+
     public RobotInfo getRobotInfo() {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
+                && cachedRobotInfo.mode == mode
                 && cachedRobotInfo.level == level
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, level, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, mode, level, health, location);
         return this.cachedRobotInfo;
     }
 
@@ -183,28 +218,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns the robot's sensor radius squared.
-     */
-    public int getSensorRadiusSquared() {
-        return this.type.sensorRadiusSquared;
-    }
-
-    /**
      * Returns whether this robot can perform actions on the given location.
      * 
-     * @param toSense the MapLocation to act
+     * @param toAct the MapLocation to act
      */
-    public boolean canActLocation(MapLocation toSense){
-        return this.location.distanceSquaredTo(toSense) <= getActionRadiusSquared();
-    }
-
-    /**
-     * Returns whether this robot can sense the given location.
-     * 
-     * @param toSense the MapLocation to sense
-     */
-    public boolean canSenseLocation(MapLocation toSense){
-        return this.location.distanceSquaredTo(toSense) <= getSensorRadiusSquared();
+    public boolean canActLocation(MapLocation toAct) {
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared()
+            && this.gameWorld.getGameMap().onTheMap(toAct);
     }
 
     /**
@@ -217,17 +237,54 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Returns whether this robot can sense something a given radius away.
+     * Returns the robot's vision radius squared.
+     */
+    public int getVisionRadiusSquared() {
+        return this.type.visionRadiusSquared;
+    }
+
+    /**
+     * Returns whether this robot can sense the given location.
+     * 
+     * @param toSense the MapLocation to sense
+     */
+    public boolean canSenseLocation(MapLocation toSense) {
+        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared()
+            && this.gameWorld.getGameMap().onTheMap(toSense);
+    }
+
+    /**
+     * Returns whether this robot can sense a given radius away.
      * 
      * @param radiusSquared the distance squared to sense
      */
     public boolean canSenseRadiusSquared(int radiusSquared) {
-        return radiusSquared <= getSensorRadiusSquared();
+        return radiusSquared <= getVisionRadiusSquared();
+    }
+
+    /**
+     * @return whether this robot can mutate
+     */
+    public boolean canMutate() {
+        if (this.mode == RobotMode.DROID || this.mode == RobotMode.PROTOTYPE)
+            return false;
+        if (this.level == GameConstants.MAX_LEVEL)
+            return false;
+        return true;
     }
 
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
+
+    /**
+     * Sets the indicator string of the robot.
+     *
+     * @param string the new indicator string of the robot
+     */
+    public void setIndicatorString(String string) {
+        this.indicatorString = string;
+    }
 
     /**
      * Sets the location of the robot.
@@ -243,8 +300,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newActionCooldownTurns = numActionCooldownToAdd * cooldownMultiplier;
+        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location);
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
@@ -252,8 +308,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
-        int cooldownMultiplier = this.gameWorld.getCooldownMultiplier(this.location);
-        int newMovementCooldownTurns = numMovementCooldownToAdd * cooldownMultiplier;
+        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numMovementCooldownToAdd, this.location);
         setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
 
@@ -286,16 +341,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         int maxHealth = this.type.getMaxHealth(this.level);
         if (this.health > maxHealth) {
             this.health = maxHealth;
-            if (this.mode == RobotMode.PROTOTYPE)
+            if (this.mode == RobotMode.PROTOTYPE) {
                 this.mode = RobotMode.TURRET;
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.FULLY_REPAIRED, -1);
+            }
         }
         if (this.health <= 0) {
-            int leadDrop = this.type.getLeadDropped(this.level);
-            int goldDrop = this.type.getGoldDropped(this.level);
-            // TODO: drop resources at this location (interact with GameWorld)
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {
-            // TODO: double check this
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
     }
@@ -306,83 +359,43 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     /**
      * Transform from turret to portable mode, or vice versa.
+     * Assumes that cooldown is sufficient.
      */
     public void transform() {
-        if (this.canTransformCooldown()) {
-            if (this.mode == RobotMode.TURRET) {
-                this.mode = RobotMode.PORTABLE;
-                this.addMovementCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-            } else {
-                this.mode = RobotMode.TURRET;
-                this.addActionCooldownTurns(GameConstants.TRANSFORM_COOLDOWN);
-            }
+        if (this.mode == RobotMode.TURRET) {
+            this.mode = RobotMode.PORTABLE;
+        } else {
+            this.mode = RobotMode.TURRET;
         }
     }
 
     /**
-     * Upgrade a building.
+     * Mutate a building.
      */
-    public void upgrade() {
-        if (this.mode == RobotMode.ROBOT || this.mode == RobotMode.PROTOTYPE)
-            return;
-        if (this.level == GameConstants.MAX_LEVEL)
-            return;
+    public void mutate() {
+        if (!canMutate()) return;
         this.level++;
         this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
-        this.addActionCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
-        this.addMovementCooldownTurns(GameConstants.UPGRADE_COOLDOWN);
     }
 
     /**
      * Attacks another robot. Assumes bot is in range.
-     * Note: this is relatively inefficient(?), can possibly optimize
-     *  by making better helper methods in GameWorld
      * 
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        if (!this.canActLocation(bot.location))
-            return; // TODO: throw exception?
         int dmg = this.type.getDamage(this.level);
         bot.addHealth(-dmg);
+    }
 
-        int ricochetCount = this.type.getRicochetCount(this.level);
-        if (ricochetCount == 0)
-            return;
-
-        // only wizards should execute the next chunk of code
-        InternalRobot[] robots = gameWorld.getAllRobotsWithinRadiusSquared(this.location, this.type.getActionRadiusSquared(this.level));
-        List<InternalRobot> validTargets = new ArrayList<>();
-        for (InternalRobot x : robots) {
-            if (x.team == this.team)
-                continue;
-            if (x.equals(bot))
-                continue;
-            validTargets.add(x);
-        }
-
-        MapLocation attackerLocation = this.location;
-
-        class RicochetPriority implements Comparator<InternalRobot> {
-            public int compare(InternalRobot a, InternalRobot b)
-            {
-                int aDistToTarget = bot.location.distanceSquaredTo(a.location);
-                int bDistToTarget = bot.location.distanceSquaredTo(b.location);
-                if (aDistToTarget != bDistToTarget)
-                    return aDistToTarget - bDistToTarget;
-                int aDistToAttacker = attackerLocation.distanceSquaredTo(a.location);
-                int bDistToAttacker = attackerLocation.distanceSquaredTo(b.location);
-                if (aDistToAttacker != bDistToAttacker)
-                    return aDistToAttacker - bDistToAttacker;
-                return a.compareTo(b);
-            }
-        }
-
-        Collections.sort(validTargets, new RicochetPriority());
-        for (int i = 0; i < ricochetCount && i < validTargets.size(); i++) {
-            dmg = (int) (dmg * GameConstants.RICOCHET_DAMAGE_MULTIPLIER);
-            validTargets.get(i).addHealth(-dmg);
-        }
+    /**
+     * Heals another robot. Assumes bot is in range.
+     * 
+     * @param bot the robot to be healed
+     */
+    public void heal(InternalRobot bot) {
+        int healingAmount = this.type.getHealing(this.level);
+        bot.addHealth(healingAmount);
     }
 
     // *********************************
@@ -391,7 +404,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
-        // anything
+        this.indicatorString = "";
     }
 
     public void processBeginningOfTurn() {
@@ -403,6 +416,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void processEndOfTurn() {
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
+        // indicator strings!
+        this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         this.roundsAlive++;
     }
 
@@ -439,6 +454,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *****************************************
     // ****** MISC. METHODS ********************
     // *****************************************
+
+    /**
+     * @return the number of friendly robots within sensor (vision) radius.
+     */
+    public int updateNumVisibleFriendlyRobots() {
+        return this.numVisibleFriendlyRobots = this.controller.senseNearbyRobots(-1, getTeam()).length;
+    }
 
     @Override
     public boolean equals(Object o) {

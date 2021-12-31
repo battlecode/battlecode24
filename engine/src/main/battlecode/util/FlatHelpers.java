@@ -23,14 +23,20 @@ import java.util.function.ObjIntConsumer;
 public class FlatHelpers {
     public static RobotType getRobotTypeFromBodyType(byte bodyType) {
         switch (bodyType) {
-            case BodyType.ENLIGHTENMENT_CENTER:
-                return RobotType.ENLIGHTENMENT_CENTER;
-            case BodyType.POLITICIAN:
-                return RobotType.POLITICIAN;
-            case BodyType.SLANDERER:
-                return RobotType.SLANDERER;
-            case BodyType.MUCKRAKER:
-                return RobotType.MUCKRAKER;
+            case BodyType.ARCHON:
+                return RobotType.ARCHON;
+            case BodyType.LABORATORY:
+                return RobotType.LABORATORY;
+            case BodyType.WATCHTOWER:
+                return RobotType.WATCHTOWER;
+            case BodyType.MINER:
+                return RobotType.MINER;
+            case BodyType.BUILDER:
+                return RobotType.BUILDER;
+            case BodyType.SOLDIER:
+                return RobotType.SOLDIER;
+            case BodyType.SAGE:
+                return RobotType.SAGE;
             default:
                 throw new RuntimeException("No robot type for: " + bodyType);
         }
@@ -38,14 +44,20 @@ public class FlatHelpers {
 
     public static byte getBodyTypeFromRobotType(RobotType type) {
         switch (type) {
-            case ENLIGHTENMENT_CENTER:
-                return BodyType.ENLIGHTENMENT_CENTER;
-            case POLITICIAN:
-                return BodyType.POLITICIAN;
-            case SLANDERER:
-                return BodyType.SLANDERER;
-            case MUCKRAKER:
-                return BodyType.MUCKRAKER;
+            case ARCHON:
+                return BodyType.ARCHON;
+            case LABORATORY:
+                return BodyType.LABORATORY;
+            case WATCHTOWER:
+                return BodyType.WATCHTOWER;
+            case MINER:
+                return BodyType.MINER;
+            case BUILDER:
+                return BodyType.BUILDER;
+            case SOLDIER:
+                return BodyType.SOLDIER;
+            case SAGE:
+                return BodyType.SAGE;
             default:
                 throw new RuntimeException("No body type for: " + type);
         }

@@ -93,7 +93,7 @@ export default class MapEditor {
       (Note: the name of your <code>.map21</code> file must be the same as the name of your
       map.) <br>
       <br>
-      Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc21</code>.`;
+      Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
 
     return div;
   }

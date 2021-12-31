@@ -280,8 +280,8 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
     private void addRobotDeathHandler() {
         LabelNode robotDeathLabel = new LabelNode(new Label());
         LabelNode firstTryCatch = null;
-        for(AbstractInsnNode node : instructions.toArray()) {
-            if(node.getType()==AbstractInsnNode.LABEL&&tryCatchStarts.contains(node)) {
+        for (AbstractInsnNode node : instructions.toArray()) {
+            if (node.getType()==AbstractInsnNode.LABEL&&tryCatchStarts.contains(node)) {
                 firstTryCatch = (LabelNode)node;
                 break;
             }
@@ -436,7 +436,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         }
 
         if (n.owner.equals("java/lang/String")) {
-            if((n.name.equals("<init>")&&n.desc.equals("([B)V"))
+            if ((n.name.equals("<init>")&&n.desc.equals("([B)V"))
                 ||(n.name.equals("<init>")&&n.desc.equals("([BII)V"))
                 ||(n.name.equals("getBytes")&&n.desc.equals("()[B"))) {
                 instructions.insertBefore(n,new LdcInsnNode("UTF-16"));

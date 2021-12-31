@@ -23,7 +23,7 @@ public enum GameActionExceptionType {
     IS_NOT_READY,
     /**
      * Indicates when a robot tries to sense a robot that no longer exists or is no longer
-     * in this robot's sensor range.
+     * in this robot's vision range.
      */
     CANT_SENSE_THAT,
     /**

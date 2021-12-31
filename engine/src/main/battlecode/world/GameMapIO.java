@@ -29,9 +29,9 @@ public final strictfp class GameMapIO {
     private static final ClassLoader BACKUP_LOADER = GameMapIO.class.getClassLoader();
 
     /**
-     * The file extension for battlecode 2021 match files.
+     * The file extension for battlecode 2022 match files.
      */
-    public static final String MAP_EXTENSION = ".map21";
+    public static final String MAP_EXTENSION = ".map22";
 
     /**
      * The package we check for maps in if they can't be found in the file system.
@@ -48,9 +48,7 @@ public final strictfp class GameMapIO {
      * @return LiveMap for map
      * @throws IOException if the map fails to load or can't be found.
      */
-    public static LiveMap loadMap(String mapName, File mapDir)
-            throws IOException {
-
+    public static LiveMap loadMap(String mapName, File mapDir) throws IOException {
         final LiveMap result;
 
         final File mapFile = new File(mapDir, mapName + MAP_EXTENSION);
@@ -225,12 +223,19 @@ public final strictfp class GameMapIO {
             final int width = (int) (raw.maxCorner().x() - raw.minCorner().x());
             final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
             final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
+            final MapSymmetry symmetry = MapSymmetry.values()[raw.symmetry()];
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
-            int[] cooldownMultiplierArray = new double[width * height];
-            for (int i = 0; i < width * height; i++) {
-                cooldownMultiplierArray[i] = raw.cooldownMultiplier(i); // TODO
+            int[] rubbleArray = new int[width * height];
+            int[] leadArray = new int[width * height];
+            for (int i = 0; i < rubbleArray.length; i++) {
+                rubbleArray[i] = raw.rubble(i);
+                leadArray[i] = raw.lead(i);
+            }
+            AnomalyScheduleEntry[] anomalySchedule = new AnomalyScheduleEntry[raw.anomaliesLength()];
+            for (int i = 0; i < anomalySchedule.length; i++) {
+                anomalySchedule[i] = new AnomalyScheduleEntry(raw.anomalyRounds(i), AnomalyType.values()[raw.anomalies(i)]);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -239,7 +244,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, initialBodies, cooldownMultiplierArray
+                width, height, origin, seed, rounds, mapName, symmetry, initialBodies, rubbleArray, leadArray, anomalySchedule
             );
         }
 
@@ -254,18 +259,28 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            int[] cooldownMultiplierArray = gameMap.getCooldownMultiplierArray();
+            int[] rubbleArray = gameMap.getRubbleArray();
+            int[] leadArray = gameMap.getLeadArray();
+            AnomalyScheduleEntry[] anomalySchedule = gameMap.getAnomalySchedule();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
-            ArrayList<Integer> bodyInfluences = new ArrayList<>();
-            ArrayList<Integer> cooldownMultipliersArrayList = new ArrayList<>();
+            ArrayList<Integer> rubbleArrayList = new ArrayList<>();
+            ArrayList<Integer> leadArrayList = new ArrayList<>();
+            ArrayList<Integer> anomaliesArrayList = new ArrayList<>();
+            ArrayList<Integer> anomalyRoundsArrayList = new ArrayList<>();
+
+            for (int i = 0; i < anomalySchedule.length; i++) {
+                anomaliesArrayList.add(anomalySchedule[i].anomalyType.ordinal());
+                anomalyRoundsArrayList.add(anomalySchedule[i].roundNumber);
+            }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                cooldownMultiplierArrayList.add(cooldownMultiplierArray[i]);
+                rubbleArrayList.add(rubbleArray[i]);
+                leadArrayList.add(leadArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -274,7 +289,6 @@ public final strictfp class GameMapIO {
                 bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
                 bodyLocsXs.add(robot.location.x);
                 bodyLocsYs.add(robot.location.y);
-                bodyInfluences.add(robot.getInfluence());
             }
 
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
@@ -283,26 +297,29 @@ public final strictfp class GameMapIO {
             int locs = VecTable.createVecTable(builder,
                     VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Integer[bodyLocsXs.size()]))),
                     VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Integer[bodyLocsYs.size()]))));
-            int influences = SpawnedBodyTable.createInfluencesVector(builder, ArrayUtils.toPrimitive(bodyInfluences.toArray(new Integer[bodyInfluences.size()])));
             SpawnedBodyTable.startSpawnedBodyTable(builder);
             SpawnedBodyTable.addRobotIDs(builder, robotIDs);
             SpawnedBodyTable.addTeamIDs(builder, teamIDs);
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
-            SpawnedBodyTable.addInfluences(builder, influences);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-            // TODO! fix this function call to smth that doesn't exist
-            int cooldownMultiplierArrayInt = battlecode.schema.GameMap.createCooldownMultiplierVector(builder, ArrayUtils.toPrimitive(cooldownMultiplierArrayList.toArray(new Integer[cooldownMultiplierArrayList.size()])));
+            int rubbleArrayInt = battlecode.schema.GameMap.createRubbleVector(builder, ArrayUtils.toPrimitive(rubbleArrayList.toArray(new Integer[rubbleArrayList.size()])));
+            int leadArrayInt = battlecode.schema.GameMap.createLeadVector(builder, ArrayUtils.toPrimitive(leadArrayList.toArray(new Integer[leadArrayList.size()])));
+            int anomaliesArrayInt = battlecode.schema.GameMap.createAnomaliesVector(builder, ArrayUtils.toPrimitive(anomaliesArrayList.toArray(new Integer[anomaliesArrayList.size()])));
+            int anomalyRoundsArrayInt = battlecode.schema.GameMap.createAnomalyRoundsVector(builder, ArrayUtils.toPrimitive(anomalyRoundsArrayList.toArray(new Integer[anomalyRoundsArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
             battlecode.schema.GameMap.addMinCorner(builder, Vec.createVec(builder, gameMap.getOrigin().x, gameMap.getOrigin().y));
             battlecode.schema.GameMap.addMaxCorner(builder, Vec.createVec(builder, gameMap.getOrigin().x + gameMap.getWidth(),
                     gameMap.getOrigin().y + gameMap.getHeight()));
+            battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            // TODO
-            battlecode.schema.GameMap.addCooldownMultiplier(builder, cooldownMultiplierArrayInt);
+            battlecode.schema.GameMap.addRubble(builder, rubbleArrayInt);
+            battlecode.schema.GameMap.addLead(builder, leadArrayInt);
+            battlecode.schema.GameMap.addAnomalies(builder, anomaliesArrayInt);
+            battlecode.schema.GameMap.addAnomalyRounds(builder, anomalyRoundsArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
@@ -313,16 +330,15 @@ public final strictfp class GameMapIO {
         private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
-                // all initial bodies should be enlightenment centers, with some influence and 0 conviction
+                // all initial bodies should be archons
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
                 int bodyID = bodyTable.robotIDs(i);
                 int bodyX = locs.xs(i);
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-                int bodyInfluence = bodyTable.influences(i);
-                if (bodyType == RobotType.ENLIGHTENMENT_CENTER)
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, bodyInfluence, bodyInfluence, new MapLocation(bodyX, bodyY)));
-                // ignore robots that are not enlightenment centers, TODO throw error?
+                if (bodyType == RobotType.ARCHON)
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, RobotMode.TURRET, 1, RobotType.ARCHON.health, new MapLocation(bodyX, bodyY)));
+                // ignore robots that are not archons, TODO throw error?
             }
         }
     }
