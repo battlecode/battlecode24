@@ -57,7 +57,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.type = type;
         this.location = loc;
         this.level = 1;
-        this.mode = this.type.isBuilding() ? RobotMode.PROTOTYPE : RobotMode.DROID;
+        if (this.type == RobotType.ARCHON) {
+            this.mode = RobotMode.TURRET;
+        } else if (this.type.isBuilding()) {
+            this.mode = RobotMode.PROTOTYPE;
+        } else {
+            this.mode = RobotMode.DROID;
+        }
         this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1) * this.type.getMaxHealth(this.level));
 
         this.controlBits = 0;
@@ -160,13 +166,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
+                && cachedRobotInfo.mode == mode
                 && cachedRobotInfo.level == level
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, level, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, mode, level, health, location);
         return this.cachedRobotInfo;
     }
 
