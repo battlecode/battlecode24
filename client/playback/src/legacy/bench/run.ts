@@ -3,7 +3,7 @@ import {crunch} from '../simulator';
 import {schema, flatbuffers} from 'battlecode-schema';
 
 const wrapper = schema.GameWrapper.getRootAsGameWrapper(
-  new flatbuffers.ByteBuffer(new Uint8Array(readFileSync('test.bc21')))
+  new flatbuffers.ByteBuffer(new Uint8Array(readFileSync('test.bc22')))
 );
 
 crunch(wrapper);

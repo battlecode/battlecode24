@@ -169,7 +169,7 @@ export default class Sidebar {
     press "Kill ongoing processes". Note that the part of the match that has already
     loaded will remain in the client.<br>
     <br>
-    <i>From the web client:</i> You can always upload a <code>.bc21</code> file by
+    <i>From the web client:</i> You can always upload a <code>.bc22</code> file by
     clicking the upload button in the <code>Queue</code> section.<br>
     <br>
     Use the control buttons at the top of the screen to
@@ -220,7 +220,7 @@ export default class Sidebar {
     (Note: the name of your <code>.map21</code> file must be the same as the name of your
     map.) <br>
     <br>
-    Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc21</code>.`;
+    Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
 
     if (this.conf.tournamentMode) {
       innerHTML += 
