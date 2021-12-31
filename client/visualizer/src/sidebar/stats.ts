@@ -4,16 +4,17 @@ import { AllImages } from '../imageloader';
 import { schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
+import { ARCHON } from '../constants';
 
 const hex: Object = {
   1: "#db3627",
   2: "#4f7ee6"
 };
 
-type VoteBar = {
+type ArchonBar = {
   bar: HTMLDivElement,
-  vote: HTMLSpanElement,
-  bid: HTMLSpanElement
+  archon: HTMLSpanElement,
+  //bid: HTMLSpanElement
 };
 
 type BuffDisplay = {
@@ -47,7 +48,7 @@ export default class Stats {
   private robotImages: Map<string, Array<HTMLImageElement>> = new Map(); // the robot image elements in the unit statistics display 
   private robotTds: Map<number, Map<string, Map<number, HTMLTableCellElement>>> = new Map();
 
-  private voteBars: VoteBar[];
+  private archonBars: ArchonBar[];
   private maxVotes: number;
 
   private incomeDisplays: IncomeDisplay[];
@@ -167,126 +168,73 @@ export default class Stats {
     return table;
   }
 
-  private initVoteBars(teamIDs: Array<number>) {
-    const voteBars: VoteBar[] = [];
-    teamIDs.forEach((teamID: number) => {
-      let votes = document.createElement("div");
-      votes.className = "stat-bar";
-      votes.style.backgroundColor = hex[teamID];
-      let votesSpan = document.createElement("span");
-      let bidSpan = document.createElement("span");
-      votesSpan.innerHTML = "0";
-      bidSpan.innerHTML = "0";
-      // Store the stat bars
-      voteBars[teamID] = {
-        bar: votes,
-        vote: votesSpan,
-        bid: bidSpan
-      };
-    });
-    return voteBars;
-  }
-
-  private getVoteBarElement(teamIDs: Array<number>): HTMLElement {
-    const votesDiv = document.createElement('div');
-
-    const box = document.createElement('div');
-    box.className = "votes-box";
-
-    const title = document.createElement('div');
-    title.className = "stats-header";
-    
-    const bars = document.createElement('div');
-    bars.id = "vote-bars";
-    bars.appendChild(document.createElement('div'));
-
-    const votes = document.createElement('div');
-    votes.className = "votes-info";
-    const bids = document.createElement('div');
-    bids.className = "votes-info";
-
-    title.innerHTML = "Voting";
-
-    const votesTitle = document.createElement('div');
-    votesTitle.innerHTML = "<b>Votes</b>";
-    votes.appendChild(votesTitle);
-
-    const bidsTitle = document.createElement('div');
-    bidsTitle.innerHTML = "<b>Bid</b>";
-    bids.appendChild(bidsTitle);
-
-    // build table
-
-    teamIDs.forEach((id: number) => {
-
-      const vote = document.createElement('div');
-      vote.appendChild(this.voteBars[id].vote);
-      votes.appendChild(vote);
-
-      const bid = document.createElement('div');
-      bid.appendChild(this.voteBars[id].bid);
-      bids.appendChild(bid);
-
-      bars.appendChild(this.voteBars[id].bar);
-    });
-
-    votesDiv.appendChild(title);
-    box.appendChild(bids);
-    box.appendChild(votes);
-    box.appendChild(bars);
-    votesDiv.appendChild(box);
-    return votesDiv;
-  }
-
   private initRelativeBars(teamIDs: Array<number>) {
+    let metalIDs = [0, 1];
+    let colors = ["#AA9700", "#696969"];
     const relativeBars: HTMLDivElement[] = [];
-    teamIDs.forEach((id: number) => {
+    teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
-      bar.style.backgroundColor = hex[id];
-      bar.style.width = `50%`;
+      bar.style.backgroundColor = colors[id];
+      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "#C00040" : "#4000C0");
+      bar.style.width = `90%`;
       bar.className = "influence-bar";
-      bar.innerText = "0";
-
-      relativeBars[id] = bar;
-    });
+      bar.innerText = "0%";
+      bar.id = teamID.toString();
+      relativeBars[2*id + ((teamIDs[0] === teamID)?0:1)] = bar;
+    }));
     return relativeBars;
   }
 
-  private getRelativeBarsElement(teamIDs: Array<number>): HTMLElement {
-    const div = document.createElement("div");
-    div.setAttribute("align", "center");
-    div.id = "relative-bars";
+  private getRelativeBarsElement(){
+    let metalIDs = [0, 1];
+    const divleft = document.createElement("div");
+    divleft.setAttribute("align", "center");
+    divleft.id = "relative-bars-left";
 
-    const label = document.createElement('div');
-    label.className = "stats-header";
-    label.innerText = 'Total Influence';
+    const labelleft = document.createElement('div');
+    labelleft.className = "stats-header";
+    labelleft.innerText = 'Gold';
 
-    const frame = document.createElement("div");
-    frame.style.width = "90%";
+    const frameleft = document.createElement("div");
+    frameleft.style.width = "100%";
 
-    teamIDs.forEach((id: number) => {
-      frame.appendChild(this.relativeBars[id]);
-    });
+    frameleft.appendChild(this.relativeBars[0]);
+    frameleft.appendChild(this.relativeBars[1]);
 
-    div.appendChild(label);
-    div.appendChild(frame);
-    return div;
+    divleft.appendChild(labelleft);
+    divleft.appendChild(frameleft);
+
+    const divright = document.createElement("div");
+    divright.setAttribute("align", "center");
+    divright.id = "relative-bars-right";
+
+    const labelright = document.createElement('div');
+    labelright.className = "stats-header";
+    labelright.innerText = 'Lead';
+
+    const frameright = document.createElement("div");
+    frameright.style.width = "100%";
+
+    frameright.appendChild(this.relativeBars[2]);
+    frameright.appendChild(this.relativeBars[3]);
+
+    divright.appendChild(labelright);
+    divright.appendChild(frameright);
+    return [divleft, divright];
   }
 
-  private initBuffDisplays(teamIDs: Array<number>) {
-    const buffDisplays: BuffDisplay[] = [];
-    teamIDs.forEach((id: number) => {
-      const numBuffs = document.createElement("sup");
-      const buff = document.createElement("span");
-      numBuffs.style.color = hex[id];
-      buff.style.color = hex[id];
-      buff.style.fontWeight = "bold";
-      numBuffs.textContent = "0";
-      buff.textContent = "1.000";
-      buffDisplays[id] = {numBuffs: numBuffs, buff: buff};
-    });
-    return buffDisplays;
+  private updateRelBars(teamLead: Array<number>, teamGold: Array<number>){
+    console.log(this.div);
+    for(var a = 0; a < teamGold.length; a++){
+      this.relativeBars[a].innerHTML = teamGold[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
+    }
+    for(var a = 0; a < teamLead.length; a++){
+      this.relativeBars[a+2].innerHTML = teamLead[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamLead[0], teamLead[1]) === 0 ? 90:(90.0*teamLead[a]/Math.max(teamLead[0], teamLead[1]))).toString() + "%";
+    }
   }
+
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
@@ -294,35 +242,15 @@ export default class Stats {
       const goldIncome = document.createElement("span");
       leadIncome.style.color = hex[id];
       leadIncome.style.fontWeight = "bold";
-      leadIncome.textContent = "1";
+      leadIncome.textContent = "L: 0";
+      leadIncome.style.padding = "10px";
       goldIncome.style.color = hex[id];
       goldIncome.style.fontWeight = "bold";
-      goldIncome.textContent = "2";
+      goldIncome.textContent = "G: 0";
+      goldIncome.style.padding = "10px";
       incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
     });
     return incomeDisplays;
-  }
-
-  private getBuffDisplaysElement(teamIDs: Array<number>): HTMLElement {
-    const div = document.createElement("div");
-    div.id = "buffs";
-
-    const label = document.createElement('div');
-    label.className = "stats-header";
-    label.innerText = 'Buffs';
-    div.appendChild(label);
-
-    teamIDs.forEach((id: number) => {
-      const buffDiv = document.createElement("div");
-      buffDiv.className = "buff-div";
-      // cell.appendChild(document.createTextNode("1.001"));
-      // cell.appendChild(this.buffDisplays[id].numBuffs);
-      // cell.appendChild(document.createTextNode(" = "));
-      buffDiv.appendChild(this.buffDisplays[id].buff);
-      div.appendChild(buffDiv);
-    });
-
-    return div;
   }
 
   private getIncomeDisplaysElement(teamIDs: Array<number>): HTMLElement {
@@ -365,7 +293,7 @@ export default class Stats {
     const div = document.createElement('div');
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'EC Control';
+    label.innerText = 'Archon Control';
     div.appendChild(label);
     div.appendChild(this.ECs);
     return div;
@@ -426,7 +354,6 @@ export default class Stats {
     while (this.div.firstChild) {
       this.div.removeChild(this.div.firstChild);
     }
-    this.voteBars = [];
     this.relativeBars = [];
     this.maxVotes = 750;
     this.teamMapToTurnsIncomeSet = new Map();
@@ -488,17 +415,14 @@ export default class Stats {
     this.div.appendChild(document.createElement("hr"));
 
     // Add stats table
-    this.voteBars = this.initVoteBars(teamIDs);
-    const voteBarsElement = this.getVoteBarElement(teamIDs);
-    this.div.appendChild(voteBarsElement);
-
+    /*let archonnums: Array<number> = [1, 2];
+    teamIDs.forEach((id: number) => {
+      archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
+      console.log(archonnums[id]);
+    });*/
     this.relativeBars = this.initRelativeBars(teamIDs);
-    const relativeBarsElement = this.getRelativeBarsElement(teamIDs);
-    this.div.appendChild(relativeBarsElement);
-
-    this.buffDisplays = this.initBuffDisplays(teamIDs);
-    const buffDivsElement = this.getBuffDisplaysElement(teamIDs);
-    this.div.appendChild(buffDivsElement);
+    const relativeBarsElement = this.getRelativeBarsElement();
+    relativeBarsElement.forEach((relBar: HTMLDivElement) => { this.div.appendChild(relBar);});
 
     this.incomeDisplays = this.initIncomeDisplays(teamIDs);
     const incomeElement = this.getIncomeDisplaysElement(teamIDs);
@@ -613,8 +537,8 @@ export default class Stats {
    */
   setVotes(teamID: number, count: number) {
     // TODO: figure out if statbars.get(id) can actually be null??
-    const statBar: VoteBar = this.voteBars[teamID];
-    statBar.vote.innerText = String(count);
+    const statBar: ArchonBar = this.archonBars[teamID];
+    statBar.archon.innerText = String(count);
     this.maxVotes = Math.max(this.maxVotes, count);
     statBar.bar.style.width = `${Math.min(100 * count / this.maxVotes, 100)}%`;
 
@@ -635,15 +559,9 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setBuffs(teamID: number, numBuffs: number) {
-    //this.buffDisplays[teamID].numBuffs.textContent = String(numBuffs);
-    this.buffDisplays[teamID].buff.textContent = String(cst.buffFactor(numBuffs).toFixed(3));
-    this.buffDisplays[teamID].buff.style.fontSize = 14 * Math.sqrt(Math.min(9, cst.buffFactor(numBuffs))) + "px";
-  }
-
   setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
-    this.incomeDisplays[teamID].leadIncome.textContent = String(leadIncome); // change incomeDisplays later
-    this.incomeDisplays[teamID].goldIncome.textContent = String(goldIncome);
+    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome); // change incomeDisplays later
+    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome);
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }
@@ -660,6 +578,13 @@ export default class Stats {
       teamTurnsIncomeSet?.add(turn);
       this.incomeChart.update();
     }
+    // update bars here
+    //console.log(teamID, count, "fsdfsdf");
+    //if(robotType === ARCHON) this.updateRelBars(teamID, count);
+  }
+  
+  updateBars(teamLead: Array<number>, teamGold: Array<number>){
+    this.updateRelBars(teamLead, teamGold);
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
@@ -667,7 +592,7 @@ export default class Stats {
     this.teamNameNodes[teamID].innerHTML  = "<b>" + name + "</b> " +  `<span style="color: yellow">&#x1f31f</span>`;
   }
 
-  setBid(teamID: number, bid: number) {
+  /*setBid(teamID: number, bid: number) {
     // TODO: figure out if statbars.get(id) can actually be null??
     const statBar: VoteBar = this.voteBars[teamID];
     statBar.bid.innerText = String(bid);
@@ -679,7 +604,7 @@ export default class Stats {
     // if (this.images.star.parentNode === statBar.bar) {
     //   this.images.star.remove();
     // }
-  }
+  }*/
 
   setExtraInfo(info: string) {
     this.extraInfo.innerHTML = info;
@@ -696,11 +621,12 @@ export default class Stats {
     this.ECs.innerHTML = "";
   }
 
-  addEC(teamID: number) {
+  addEC(teamID: number, health: number/*, img: HTMLImageElement */) {
     const div = document.createElement("div");
-    div.style.width = "35px";
-    div.style.height = "35px";
-    const img = this.images.robots["enlightenmentCenter"][teamID].cloneNode() as HTMLImageElement;
+    let size = 1.0/(1 + Math.exp(-(health/100))) + 0.3;
+    div.style.width = (35*size).toString() + "px";
+    div.style.height = (35*size).toString() + "px";
+    const img = /* img */this.images.robots.archon[teamID].cloneNode() as HTMLImageElement;
     img.style.width = "64px";
     img.style.height = "64px"; // update dynamically later
     div.appendChild(img);

@@ -583,9 +583,13 @@ h4 {
     width: 100%;
 }
 
-#relative-bars {
+#relative-bars-left {
     width: 50%;
     float: left;
+}
+#relative-bars-right {
+    width: 50%;
+    float: right;
 }
 
 .influence-bar {

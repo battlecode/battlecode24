@@ -15,6 +15,7 @@ import WebSocketListener from '../main/websocket';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
 import { Tournament, readTournament } from '../main/tournament';
+import { ARCHON } from '../constants';
 
 /*
 Responsible for a single match in the visualizer.
@@ -313,7 +314,6 @@ export default class Looper {
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
         let totalHP = 0;
-
         // this.stats.resetECs();
         // for (let i = 0; i < world.bodies.length; i++) {
         //     const type = world.bodies.arrays.type[i];
@@ -322,12 +322,15 @@ export default class Looper {
         //     }
         // }
 
+        let teamLead: number[] = [];
+        let teamGold: number[] = [];
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
             totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+
         }
 
         for (let team in meta.teams) {
@@ -336,10 +339,17 @@ export default class Looper {
             let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
 
             // Update each robot count
+            console.log(teamStats);
             this.stats.robots.forEach((type: schema.BodyType) => {
                 this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
                 this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
             });
+            /*const hps = world.bodies.arrays.hp;
+            const types = world.bodies.arrays.type;
+            for(var i = 0; i < hps.length; i++){
+                this.stats.setRobotCount(teamID, types[i], hps[i]); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, types[i], hps[i], teamHP); // TODO: differentiate levels, maybe
+            }*/
 
             // Set votes
             // this.stats.setVotes(teamID, teamStats.votes);
@@ -348,6 +358,21 @@ export default class Looper {
             // this.stats.setBid(teamID, teamStats.bid);
             this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
             // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
+        }
+
+        for(var a = 0; a < teamIDs.length; a++){
+            //@ts-ignore
+            teamLead.push(world.teamStats.get(teamIDs[a]).lead);
+            //@ts-ignore
+            teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+        }
+        this.stats.updateBars(teamLead, teamGold);
+        this.stats.resetECs();
+        const hps = world.bodies.arrays.hp;
+        const teams = world.bodies.arrays.team;
+        const types = world.bodies.arrays.type;
+        for(var i = 0; i < hps.length; i++){
+            if(types[i] == ARCHON) this.stats.addEC(teams[i], hps[i]);
         }
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {
