@@ -70,7 +70,7 @@ export default class MapEditorForm {
   private originalBodies: Map<number, MapUnit>;
   private symmetricBodies: Map<number, MapUnit>;
   private rubble: number[];
-  private lead_vals: number[];
+  private leadVals: number[];
 
   randomMode: boolean = false; // if true, all squares are randomly painted.
   randomHigh: number = 1;
@@ -103,7 +103,7 @@ export default class MapEditorForm {
     this.div.appendChild(this.header.div);
 
     // symmetry
-    this.symmetry = new SymmetryForm(() => {this.initRubble(); this.render()});
+    this.symmetry = new SymmetryForm(() => {this.initRubble(); this.initLead(); this.render()});
     this.div.appendChild(document.createElement("br"));
     this.div.appendChild(this.symmetry.div);
     this.div.appendChild(document.createElement("br"));
@@ -188,6 +188,7 @@ export default class MapEditorForm {
     this.renderer = new MapRenderer(canvas, imgs, conf, onclickUnit, onclickBlank, onMouseover, onDrag);
 
     this.initRubble();
+    this.initLead();
 
     // Load callbacks and finally render
     this.loadCallbacks();
@@ -450,6 +451,14 @@ export default class MapEditorForm {
     this.rubble.fill(50);
   }
 
+  /**
+   * Initialize lead based on map dimensions.
+   */
+  private initLead() {
+    this.leadVals = new Array(this.header.getHeight() * this.header.getWidth());
+    this.leadVals.fill(0);
+  }
+
   private getRubble(x: number, y: number) {
     return this.rubble[y*this.header.getWidth() + x];
   }
@@ -504,7 +513,7 @@ export default class MapEditorForm {
       originalBodies: this.originalBodies,
       symmetricBodies: this.symmetricBodies,
       rubble: this.rubble,
-      leadVals: this.lead_vals,
+      leadVals: this.leadVals,
       symmetry: this.symmetry.getSymmetry()
     };
   }
@@ -574,6 +583,7 @@ export default class MapEditorForm {
     this.originalBodies = new Map<number, MapUnit>();
     this.symmetricBodies = new Map<number, MapUnit>();
     this.initRubble();
+    this.initLead();
     this.render();
   }
 }
