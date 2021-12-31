@@ -772,6 +772,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
+    public void setIndicatorString(String string) {
+        // TODO
+    }
+
+    @Override
     public void setIndicatorDot(MapLocation loc, int red, int green, int blue) {
         assertNotNull(loc);
         this.gameWorld.getMatchMaker().addIndicatorDot(getID(), loc, red, green, blue);
