@@ -223,8 +223,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toAct the MapLocation to act
      */
     public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared()
-            && this.gameWorld.getGameMap().onTheMap(toAct);
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
     }
 
     /**
@@ -249,8 +248,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared()
-            && this.gameWorld.getGameMap().onTheMap(toSense);
+        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
     }
 
     /**

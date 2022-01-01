@@ -179,6 +179,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Target location is not on the map");
     }
 
+    private void assertCanActLocation(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        if (!this.robot.canActLocation(loc))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Target location not within action range");
+        if (!this.gameWorld.getGameMap().onTheMap(loc))
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Target location is not on the map");
+    }
+
     @Override
     public boolean canSenseLocation(MapLocation loc) {
         try {
@@ -451,13 +461,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanAttack(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canAttack())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Location can't be attacked because it is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
             throw new GameActionException(NO_ROBOT_THERE,
@@ -533,10 +541,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanRepair(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "The target location is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
             throw new GameActionException(NO_ROBOT_THERE,
@@ -572,13 +578,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "This location can't be mined because it is out of range.");
         if (this.gameWorld.getLead(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Lead amount must be positive to be mined.");
@@ -603,13 +607,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "This location can't be mined because it is out of range.");
         if (this.gameWorld.getGold(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Gold amount must be positive to be mined.");
@@ -638,10 +640,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMutate(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Target location for mutation is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
             throw new GameActionException(NO_ROBOT_THERE,
