@@ -422,6 +422,12 @@ export default class GameWorld {
       })
     }
 
+    if (delta.roundID() % this.meta.constants.increasePeriod() == 0) {
+      this.mapStats.leadVals.forEach((x,i) => {
+        this.mapStats.leadVals[i] = x > 0 ? x + this.meta.constants.leadAdditiveIncease(): 0;
+      });
+    }
+
     // Actions
     if(delta.actionsLength() > 0){
       const arrays = this.bodies.arrays;

@@ -25,6 +25,8 @@ export default class Metadata {
    */
   teams: {[key: number]: Team};
 
+  constants: schema.Constants;
+
   constructor() {
     this.specVersion = UNKNOWN_SPEC_VERSION;
     this.types = Object.create(null);
@@ -66,6 +68,7 @@ export default class Metadata {
         body.bytecodeLimit()
       );
     }
+    this.constants = header.constants();
     // SAFE
     Object.freeze(this.types);
     Object.freeze(this.teams);

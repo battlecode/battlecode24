@@ -19,7 +19,7 @@ export default class Renderer {
   // For rendering robot information on click
   private lastSelectedID: number
   // position of mouse cursor hovering
-  private hoverPos: { x: number, y: number } | null = null;
+  private hoverPos: { xrel: number, yrel: number } | null = null;
 
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
@@ -141,7 +141,7 @@ export default class Renderer {
       const scale = 20
 
       this.ctx.scale(1 / scale, 1 / scale)
-      const { x, y } = this.hoverPos
+      const { xrel: x, yrel: y } = this.hoverPos
       const cx = (minX + x) * scale, cy = (minY + (height - y - 1)) * scale
       this.ctx.strokeStyle = 'purple'
       this.ctx.lineWidth *= 2
@@ -393,6 +393,14 @@ export default class Renderer {
     // const minY = world.minCorner.y;
     // const maxY = world.maxCorner.y - 1;
 
+    if (this.hoverPos) {
+      const {xrel, yrel} = this.hoverPos;
+      const x = xrel + world.minCorner.x;
+      const y = yrel + world.minCorner.y;
+      const idx = world.mapStats.getIdx(xrel, yrel)
+      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
+    }
+
     this.canvas.onmousemove = (event) => {
       // const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
       // const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
@@ -404,7 +412,7 @@ export default class Renderer {
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
       onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
-      this.hoverPos = { x: xrel, y: yrel }
+      this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 
     this.canvas.onmouseout = (event) => {
