@@ -602,7 +602,7 @@ public strictfp class GameWorld {
     public void causeFuryUpdate(float reduceFactor, MapLocation[] locations) {
         for (int i = 0; i < locations.length; i++) {
             InternalRobot robot = this.getRobot(locations[i]);
-            if (robot.getMode() == RobotMode.TURRET) {
+            if (robot != null && robot.getMode() == RobotMode.TURRET) {
                 robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor));
             }
         }
