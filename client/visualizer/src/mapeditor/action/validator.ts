@@ -4,7 +4,7 @@ import {GameMap, MapUnit} from '../index';
 
 /**
  * Validates a map created by the map editor. If a map is valid, then the map
- * editor is ready to generate the .map21 file.
+ * editor is ready to generate the .map22 file.
  *
  * In a valid map:
  * - No units overlap

@@ -140,7 +140,7 @@ export default class MapEditorForm {
     this.div.appendChild(document.createElement('hr'));
 
     this.tileInfo = document.createElement("div");
-    this.tileInfo.textContent = "X: | Y: | Rubble:";
+    this.tileInfo.textContent = "X: | Y: | Rubble: | Lead:";
     this.div.appendChild(this.tileInfo);
     this.div.appendChild(document.createElement('hr'));
 
@@ -158,11 +158,12 @@ export default class MapEditorForm {
       this.getActiveForm().setForm(x, y);
     };
 
-    const onMouseover = (x: number, y: number, rubble: number) => {
+    const onMouseover = (x: number, y: number, rubble: number, lead: number) => {
       let content: string = "";
       content += 'X: ' + `${x}`.padStart(3);
       content += ' | Y: ' + `${y}`.padStart(3);
       content += ' | Rubble: ' + `${rubble.toFixed(3)}`;
+      content += ' | Lead: ' + `${lead.toFixed(3)}`;
       this.tileInfo.textContent = content;
     };
 
@@ -182,7 +183,7 @@ export default class MapEditorForm {
         }
         this.setAreaRubble(x, y, this.tiles.getRubble(), inBrush);
         this.render();
-      }
+      } 
     }
 
     this.renderer = new MapRenderer(canvas, imgs, conf, onclickUnit, onclickBlank, onMouseover, onDrag);
@@ -314,6 +315,12 @@ export default class MapEditorForm {
           this.setUnit(id, unit);
           form.resetForm();
         }
+      } else if (this.getActiveForm() == this.lead) {
+        const form: LeadForm = this.lead;
+        const x = form.getX();
+        const y = form.getY();
+        const lead = form.getLead();
+        this.setLead(x, y, lead);
       }
     }
 
@@ -349,7 +356,7 @@ export default class MapEditorForm {
       if (this.getActiveForm() == this.tiles) {
         for(let x: number = 0; x < this.header.getWidth(); x++) {
           for(let y:number = 0; y < this.header.getHeight(); y++) {
-            this.setRubble(x, y, Math.random() * 0.9 + 0.1);
+            this.setRubble(x, y, Math.floor(Math.random() * 101));
           }
         }
         this.render();
@@ -360,7 +367,7 @@ export default class MapEditorForm {
       if (this.getActiveForm() == this.tiles) {
         for(let x: number = 0; x < this.header.getWidth(); x++) {
           for(let y: number = 0; y < this.header.getHeight(); y++) {
-            this.rubble[y*this.header.getWidth() + x] = 1.1 - this.getRubble(x,y);
+            this.rubble[y*this.header.getWidth() + x] = 100 - this.getRubble(x,y);
           }
         }
         this.render();
@@ -451,14 +458,6 @@ export default class MapEditorForm {
     this.rubble.fill(50);
   }
 
-  /**
-   * Initialize lead based on map dimensions.
-   */
-  private initLead() {
-    this.leadVals = new Array(this.header.getHeight() * this.header.getWidth());
-    this.leadVals.fill(0);
-  }
-
   private getRubble(x: number, y: number) {
     return this.rubble[y*this.header.getWidth() + x];
   }
@@ -480,6 +479,20 @@ export default class MapEditorForm {
        }
      }
    }
+  }
+
+  /**
+ * Initialize lead based on map dimensions.
+ */
+  private initLead() {
+    this.leadVals = new Array(this.header.getHeight() * this.header.getWidth());
+    this.leadVals.fill(0);
+  }
+
+  private setLead(x: number, y: number, lead: number) {
+    const {x: translated_x, y: translated_y} = this.symmetry.transformLoc(x, y, this.header.getWidth(), this.header.getHeight());
+    this.leadVals[y*this.header.getWidth() + x] = this.leadVals[translated_y*this.header.getWidth() + translated_x] = lead;
+    this.render();
   }
 
   /**
@@ -574,6 +587,7 @@ export default class MapEditorForm {
     this.symmetricBodies = this.symmetry.getSymmetricBodies(this.originalBodies, map.width, map.height);
 
     this.rubble = map.rubble;
+    this.leadVals = map.lead;
 
     this.render();
   }

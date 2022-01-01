@@ -18,11 +18,14 @@ export type UploadedMap = {
   width: number,
   height: number,
   rubble: number[],
+  lead: number[],
+  anomalies: number[],
+  anomalyRounds: number[],
   bodies: MapUnit[]
 }
 
 /**
- * Generates a .map21 file from a GameMap. Assumes the given GameMap represents
+ * Generates a .map22 file from a GameMap. Assumes the given GameMap represents
  * a valid game map.
  */
 export default class MapGenerator {
@@ -106,8 +109,10 @@ export default class MapGenerator {
 
     // Get header information from form
     let name: string = map.name;
-    const minCornerX = Math.random() * 20000 + 10000;
-    const minCornerY = Math.random() * 20000 + 10000;
+    // const minCornerX = Math.random() * 20000 + 10000;
+    // const minCornerY = Math.random() * 20000 + 10000;
+    const minCornerX = 0;
+    const minCornerY = 0;
     let maxCornerX = minCornerX + map.width;
     let maxCornerY = minCornerY + map.height;
     let randomSeed: number = Math.round(Math.random() * 1000);
@@ -130,6 +135,9 @@ export default class MapGenerator {
     const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
     const rubble = schema.GameMap.createRubbleVector(builder, map.rubble);
+    const lead = schema.GameMap.createRubbleVector(builder, map.leadVals);
+    const anomalies = schema.GameMap.createAnomaliesVector(builder, []);
+    const anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, []);
 
     // Create the game map
     let nameP = builder.createString(name);
@@ -137,9 +145,13 @@ export default class MapGenerator {
     schema.GameMap.addName(builder, nameP);
     schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, minCornerX, minCornerY));
     schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, maxCornerX, maxCornerY));
+    schema.GameMap.addSymmetry(builder, map.symmetry);
     schema.GameMap.addBodies(builder, bodies);
-    schema.GameMap.addRubble(builder, rubble);
     schema.GameMap.addRandomSeed(builder, randomSeed);
+    schema.GameMap.addRubble(builder, rubble);
+    schema.GameMap.addLead(builder, lead);
+    schema.GameMap.addAnomalies(builder, anomalies);
+    schema.GameMap.addAnomalyRounds(builder, anomalyRounds);
     const gameMap = schema.GameMap.endGameMap(builder);
 
     // Return the game map to write to a file
@@ -173,7 +185,7 @@ export default class MapGenerator {
   }
 
   /**
-   * Reads a .map21 file.
+   * Reads a .map22 file.
    */
   static readMap(file: ArrayBuffer): UploadedMap {
     const data = new Uint8Array(file);
@@ -205,6 +217,9 @@ export default class MapGenerator {
       width: maxCorner.x() - minCorner.x(),
       height: maxCorner.y() - minCorner.y(),
       rubble: Array.from(map.rubbleArray()!),
+      lead: Array.from(map.leadArray()!),
+      anomalies: Array.from(map.anomaliesArray()!),
+      anomalyRounds: Array.from(map.anomalyRoundsArray()!),
       bodies: mapUnits
     };
   }

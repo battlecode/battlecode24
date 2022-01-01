@@ -102,32 +102,17 @@ export default class RobotForm {
       this.y.value = isNaN(value) ? "" : String(value);
     };
 
-    // this.influence.onchange = () => {
-    //   let value: number = this.getInfluence();
-    //   value = Math.max(value, 50);
-    //   value = Math.min(value, 500);
-    //   this.influence.value = isNaN(value) ? "" : String(value);
-    // }
-
-    // this.team.onchange = () => {
-    //   if (this.getTeam() !== 0) {
-    //     this.influence.disabled = true;
-    //     this.influence.value = String(cst.INITIAL_INFLUENCE);
-    //   }
-    //   else this.influence.disabled = false;
-    // }
-
   }
 
-  private getLead(): number {
+  getLead(): number {
     return parseInt(this.lead.value);
   }
 
-  private getX(): number {
+  getX(): number {
     return parseInt(this.x.value);
   }
 
-  private getY(): number {
+  getY(): number {
     return parseInt(this.y.value);
   }
 

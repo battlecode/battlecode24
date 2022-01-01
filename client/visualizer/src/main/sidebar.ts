@@ -217,7 +217,7 @@ export default class Sidebar {
     When you are happy with your map, click "Export".
     If you are directed to save your map, save it in the
     <code>/battlecode-scaffold-2021/maps</code> directory of your scaffold.
-    (Note: the name of your <code>.map21</code> file must be the same as the name of your
+    (Note: the name of your <code>.map22</code> file must be the same as the name of your
     map.) <br>
     <br>
     Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
