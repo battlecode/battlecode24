@@ -4,6 +4,7 @@ import {createWriteStream} from 'fs';
 import {gzip} from 'pako';
 import { isNull } from 'util';
 import { Signer } from 'crypto';
+import { constants } from 'buffer';
 
 let SIZE = 32;
 const maxID = 4096;
@@ -243,11 +244,17 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const version = builder.createString('IMAGINARY VERSION!!!');
   const bodiesPacked = schema.GameHeader.createBodyTypeMetadataVector(builder, bodies);
   const teamsPacked = schema.GameHeader.createTeamsVector(builder, teams);
+  
+  schema.Constants.startConstants(builder);
+  schema.Constants.addIncreasePeriod(builder, 20);
+  schema.Constants.addLeadAdditiveIncease(builder, 5);
+  const constants = schema.Constants.endConstants(builder);
 
   schema.GameHeader.startGameHeader(builder);
   schema.GameHeader.addSpecVersion(builder, version);
   schema.GameHeader.addBodyTypeMetadata(builder, bodiesPacked);
   schema.GameHeader.addTeams(builder, teamsPacked);
+  schema.GameHeader.addConstants(builder, constants);
   return schema.GameHeader.endGameHeader(builder);
 }
 
