@@ -38,9 +38,14 @@ export type AllImages = {
 export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   const dirname = "./static/img/"
 
-  const NEUTRAL: number = 0
-  const RED: number = 1
-  const BLU: number = 2
+  const NEUTRAL: number = 0;
+  const RED: number = 1;
+  const BLU: number = 2;
+  //To index additional states for buildings
+  const DEFAULT: number = 0;
+  const PORTABLE: number = 1;
+  const PROTOTYPE: number = 2;
+
 
   function loadImage(obj, slot, path, src?): void {
     const f = loadImage
@@ -196,24 +201,52 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   }
 
   // robot sprites
-  loadImage(result.robots.archon, RED, 'robots/red_archon_portable')
-  loadImage(result.robots.watchtower, RED, 'robots/red_watchtower')
-  loadImage(result.robots.builder, RED, 'robots/red_builder')
-  loadImage(result.robots.miner, RED, 'robots/red_miner')
-  loadImage(result.robots.sage, RED, 'robots/red_sage')
-  loadImage(result.robots.soldier, RED, 'robots/red_soldier')
-  loadImage(result.robots.laboratory, RED, 'robots/red_lab')
 
-  loadImage(result.robots.archon, BLU, 'robots/blue_archon_portable')
-  loadImage(result.robots.watchtower, BLU, 'robots/blue_watchtower')
-  loadImage(result.robots.builder, BLU, 'robots/blue_builder')
-  loadImage(result.robots.miner, BLU, 'robots/blue_miner')
-  loadImage(result.robots.sage, BLU, 'robots/blue_sage')
-  loadImage(result.robots.soldier, BLU, 'robots/blue_soldier')
-  loadImage(result.robots.laboratory, BLU, 'robots/blue_lab')
+  loadImage(result.robots.archon, DEFAULT * 2 + RED, 'robots/red_archon');
+  loadImage(result.robots.archon, PROTOTYPE * 2 + RED, 'robots/red_archon_prototype');
+  loadImage(result.robots.archon, PORTABLE * 2 + RED, 'robots/red_archon_portable');
 
-  loadImage(result.resources, 'lead', 'resources/lead')
-  loadImage(result.resources, 'gold', 'resources/gold')
+
+  loadImage(result.robots.watchtower, DEFAULT * 2 + RED, 'robots/red_watchtower');
+  loadImage(result.robots.watchtower, PROTOTYPE * 2 + RED, 'robots/red_watchtower_prototype');
+  loadImage(result.robots.watchtower, PORTABLE * 2 + RED, 'robots/red_watchtower_portable');
+
+
+  loadImage(result.robots.laboratory, DEFAULT * 2 + RED, 'robots/red_lab');
+  loadImage(result.robots.laboratory, PROTOTYPE * 2 + RED, 'robots/red_lab_prototype');
+  loadImage(result.robots.laboratory, PORTABLE * 2 + RED, 'robots/red_lab_portable');
+
+  
+  loadImage(result.robots.builder, RED, 'robots/red_builder');
+  loadImage(result.robots.miner, RED, 'robots/red_miner');
+  loadImage(result.robots.sage, RED, 'robots/red_sage');
+  loadImage(result.robots.soldier, RED, 'robots/red_soldier');
+  
+
+
+  loadImage(result.robots.archon, DEFAULT * 2 + BLU, 'robots/blue_archon');
+  loadImage(result.robots.archon, PROTOTYPE * 2 + BLU, 'robots/blue_archon_prototype');
+  loadImage(result.robots.archon, PORTABLE * 2 + BLU, 'robots/blue_archon_portable');
+
+  loadImage(result.robots.watchtower, DEFAULT * 2 + BLU, 'robots/blue_watchtower');
+  loadImage(result.robots.watchtower, PROTOTYPE * 2 + BLU, 'robots/blue_watchtower_prototype');
+  loadImage(result.robots.watchtower, PORTABLE * 2 + BLU, 'robots/blue_watchtower_portable');
+
+
+  loadImage(result.robots.laboratory, DEFAULT * 2 + BLU, 'robots/blue_lab');
+  loadImage(result.robots.laboratory, PROTOTYPE * 2 + BLU, 'robots/blue_lab_prototype');
+  loadImage(result.robots.laboratory, PORTABLE * 2 + BLU, 'robots/blue_lab_portable');
+
+
+  loadImage(result.robots.builder, BLU, 'robots/blue_builder');
+  loadImage(result.robots.miner, BLU, 'robots/blue_miner');
+  loadImage(result.robots.sage, BLU, 'robots/blue_sage');
+  loadImage(result.robots.soldier, BLU, 'robots/blue_soldier');
+  
+
+  loadImage(result.resources, 'lead', 'resources/lead');
+  loadImage(result.resources, 'gold', 'resources/gold');
+
 
 
   // loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');

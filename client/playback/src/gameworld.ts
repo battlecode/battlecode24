@@ -472,7 +472,7 @@ export default class GameWorld {
 
           case schema.Action.TRANSFORM:
             setAction();
-            this.bodies.alter({ id: robotID, portable: 1});
+            this.bodies.alter({ id: robotID, portable: 1 - body.portable});
             break;
 
           case schema.Action.MUTATE:

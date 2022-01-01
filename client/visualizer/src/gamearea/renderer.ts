@@ -207,19 +207,22 @@ export default class Renderer {
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
-    const bodies = world.bodies
-    const length = bodies.length
-    const types = bodies.arrays.type
-    const teams = bodies.arrays.team
-    const hps = bodies.arrays.hp
-    const ids = bodies.arrays.id
-    const xs = bodies.arrays.x
-    const ys = bodies.arrays.y
-    const abilities = bodies.arrays.ability
-    const minY = world.minCorner.y
-    const maxY = world.maxCorner.y - 1
+    const bodies = world.bodies;
+    const length = bodies.length;
+    const types = bodies.arrays.type;
+    const teams = bodies.arrays.team;
+    const hps = bodies.arrays.hp;
+    const ids = bodies.arrays.id;
+    const xs = bodies.arrays.x;
+    const ys = bodies.arrays.y;
+    const actions = bodies.arrays.action;
+    const portables = bodies.arrays.portable;
+    const prototypes = bodies.arrays.prototype;
+    const minY = world.minCorner.y;
+    const maxY = world.maxCorner.y -1;
 
-    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
+    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array;
+
     if (nextStep && lerpAmount) {
       nextXs = nextStep.bodies.arrays.x
       nextYs = nextStep.bodies.arrays.y
@@ -254,8 +257,22 @@ export default class Renderer {
     }
 
     const renderBot = (i: number) => {
-      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][teams[i]]
-      this.drawBot(img, realXs[i], realYs[i], hps[i])
+      
+      const DEFAULT: number = 0;
+      const PORTABLE: number = 1;
+      const PROTOTYPE: number = 2;
+      let body_status = DEFAULT
+      // console.log(i, bodies.length, types.length, "hhh");
+      // console.log(bodies[i]);
+      if (Boolean(portables[i])){
+        body_status = PORTABLE;
+      } 
+      if (Boolean(prototypes[i])){
+        body_status = PROTOTYPE;
+      } 
+      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
+      this.drawBot(img, realXs[i], realYs[i], hps[i]);
+
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
