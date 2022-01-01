@@ -20,7 +20,6 @@ export type BodiesSchema = {
   type: Int8Array,
   x: Int32Array,
   y: Int32Array,
-  flag: Int32Array;
   bytecodesUsed: Int32Array, // TODO: is this needed?
   action: Int8Array,
   parent: Int32Array,
@@ -200,7 +199,6 @@ export default class GameWorld {
       type: new Int8Array(0),
       x: new Int32Array(0),
       y: new Int32Array(0),
-      flag: new Int32Array(0),
       bytecodesUsed: new Int32Array(0),
       action: new Int8Array(0),
       parent: new Int32Array(0),
@@ -665,6 +663,7 @@ export default class GameWorld {
     // Store frequently used arrays
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
+    var hps = new Int32Array(bodies.robotIDsLength());
 
     // Update spawn stats
     for(let i = 0; i < bodies.robotIDsLength(); i++) {
@@ -673,6 +672,7 @@ export default class GameWorld {
       statObj.robots[types[i]][0] += 1; // TODO: handle level
       statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
+      hps[i] = this.meta.types[types[i]].health;
     }
     
     const locs = bodies.locs(this._vecTableSlot1);
@@ -701,6 +701,7 @@ export default class GameWorld {
       ability: new Int8Array(bodies.robotIDsLength()),
       bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
+      hp: hps,
       level: levels
     });
   }
