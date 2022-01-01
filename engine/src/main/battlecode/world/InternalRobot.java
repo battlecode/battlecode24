@@ -337,7 +337,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         int oldHealth = this.health;
         this.health += healthAmount;
         int maxHealth = this.type.getMaxHealth(this.level);
-        if (this.health > maxHealth) {
+        if (this.health >= maxHealth) {
             this.health = maxHealth;
             if (this.mode == RobotMode.PROTOTYPE) {
                 this.mode = RobotMode.TURRET;
