@@ -16,6 +16,10 @@ public class TeamInfo {
     private int[] goldCounts;
     private int[][] sharedArrays;
 
+    // for reporting round statistics to client
+    private int[] oldLeadCounts;
+    private int[] oldGoldCounts;
+
     /**
      * Create a new representation of TeamInfo
      *
@@ -26,6 +30,8 @@ public class TeamInfo {
         this.leadCounts = new int[2];
         this.goldCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
+        this.oldLeadCounts = new int[2];
+        this.oldGoldCounts = new int[2];
     }
     
     // *********************************
@@ -104,5 +110,20 @@ public class TeamInfo {
      */
     public void writeSharedArray(Team team, int index, int value) {
         this.sharedArrays[team.ordinal()][index] = value;
+    }
+
+    public int getRoundLeadChange(Team team) {
+        return this.leadCounts[team.ordinal()] - this.oldLeadCounts[team.ordinal()];
+    }
+
+    public int getRoundGoldChange(Team team) {
+        return this.goldCounts[team.ordinal()] - this.oldGoldCounts[team.ordinal()];
+    }
+
+    public void processEndOfRound() {
+        this.oldLeadCounts[0] = this.leadCounts[0];
+        this.oldLeadCounts[1] = this.leadCounts[1];
+        this.oldGoldCounts[0] = this.goldCounts[0];
+        this.oldGoldCounts[1] = this.goldCounts[1];
     }
 }

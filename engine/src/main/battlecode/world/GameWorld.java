@@ -429,6 +429,10 @@ public strictfp class GameWorld {
             if (anomaly == AnomalyType.VORTEX) causeVortexGlobal();
         }
 
+        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundLeadChange(Team.A), this.teamInfo.getRoundGoldChange(Team.A));
+        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
+        this.teamInfo.processEndOfRound();
+
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null)
             if (!setWinnerIfMoreArchons())
@@ -468,12 +472,15 @@ public strictfp class GameWorld {
         RobotType type = robot.getType();
         Team team = robot.getTeam();
         removeRobot(robot.getLocation());
-        
+
         int leadDropped = robot.getType().getLeadDropped(robot.getLevel());
         int goldDropped = robot.getType().getGoldDropped(robot.getLevel());
-        
+
         this.lead[locationToIndex(robot.getLocation())] += leadDropped;
         this.gold[locationToIndex(robot.getLocation())] += goldDropped;
+
+        this.matchMaker.addLeadDrop(robot.getLocation(), leadDropped);
+        this.matchMaker.addLeadDrop(robot.getLocation(), goldDropped);
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
