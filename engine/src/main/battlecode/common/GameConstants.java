@@ -16,16 +16,16 @@ public class GameConstants {
     // *********************************
 
     /** The minimum possible map height. */
-    public static final int MAP_MIN_HEIGHT = 30;
+    public static final int MAP_MIN_HEIGHT = 20;
 
     /** The maximum possible map height. */
-    public static final int MAP_MAX_HEIGHT = 80;
+    public static final int MAP_MAX_HEIGHT = 60;
 
     /** The minimum possible map width. */
-    public static final int MAP_MIN_WIDTH = 30;
+    public static final int MAP_MIN_WIDTH = 20;
 
     /** The maximum possible map width. */
-    public static final int MAP_MAX_WIDTH = 80;
+    public static final int MAP_MAX_WIDTH = 60;
 
     /** The minimum number of starting Archons per team. */
     public static final int MIN_STARTING_ARCHONS = 1;
