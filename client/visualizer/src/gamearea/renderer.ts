@@ -218,6 +218,7 @@ export default class Renderer {
     const actions = bodies.arrays.action;
     const portables = bodies.arrays.portable;
     const prototypes = bodies.arrays.prototype;
+    const levels = bodies.arrays.level;
     const minY = world.minCorner.y;
     const maxY = world.maxCorner.y -1;
 
@@ -270,7 +271,9 @@ export default class Renderer {
       if (Boolean(prototypes[i])){
         body_status = PROTOTYPE;
       } 
-      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
+      let img: HTMLImageElement;
+      if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
+      else img = this.imgs.robots[cst.bodyTypeToString(types[i])][levels[i] * 6 + body_status * 2 + teams[i]]
       this.drawBot(img, realXs[i], realYs[i], hps[i]);
 
       // TODO: draw bot
