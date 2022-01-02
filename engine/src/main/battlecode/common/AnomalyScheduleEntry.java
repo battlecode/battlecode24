@@ -1,5 +1,10 @@
 package battlecode.common;
 
+/**
+ * AnomalyScheduleEntry describes a single anomaly in the schedule.
+ *
+ * You can access information about that anomaly's round number and type.
+ */
 public class AnomalyScheduleEntry {
 
     public final int roundNumber;
@@ -22,6 +27,8 @@ public class AnomalyScheduleEntry {
      *
      * @param other the other anomaly schedule entry to compare to
      * @return whether the two anomaly schedules entry are equivalent
+     *
+     * @battlecode.doc.costlymethod
      */
     public boolean equals(AnomalyScheduleEntry other) {
         if (this.roundNumber != other.roundNumber) return false;

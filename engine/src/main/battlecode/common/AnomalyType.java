@@ -1,7 +1,9 @@
 package battlecode.common;
 
 /**
- * Holds the different anomalies in the game.
+ * AnomalyType enumerates the different types of anomalies in the game.
+ * You can also access properties about these anomalies, such as their strengths
+ * and whether they can be performed by Sages.
  */
 public enum AnomalyType {
     ABYSS       (true,    true,   0.1f,    0.2f),

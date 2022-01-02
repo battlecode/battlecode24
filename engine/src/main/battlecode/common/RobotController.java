@@ -66,6 +66,7 @@ public strictfp interface RobotController {
     /**
      * Returns the amount of lead a team has in its reserves.
      *
+     * @param team the team being queried.
      * @return the amount of lead a team has in its reserves.
      *
      * @battlecode.doc.costlymethod
@@ -75,6 +76,7 @@ public strictfp interface RobotController {
     /**
      * Returns the amount of gold a team has in its reserves.
      *
+     * @param team the team being queried.
      * @return the amount of gold a team has in its reserves.
      *
      * @battlecode.doc.costlymethod
@@ -346,6 +348,7 @@ public strictfp interface RobotController {
      * @param center the given location
      * @param radiusSquared return locations within this distance away from center
      * @return list of locations on the map and within radiusSquared of center
+     * @throws GameActionException if the radius is negative
      *
      * @battlecode.doc.costlymethod
      */
@@ -504,6 +507,7 @@ public strictfp interface RobotController {
     /** 
      * Attack a given location.
      *
+     * @param loc the target location to attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -519,6 +523,7 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is a sage, and there are no cooldown turns remaining.
      *
+     * @param anomaly the type of anomaly being queried
      * @return whether it is possible to envision an anomaly centered at the robots location
      *
      * @battlecode.doc.costlymethod
@@ -528,6 +533,7 @@ public strictfp interface RobotController {
     /** 
      * Envision an anomaly centered at the robot's location.
      *
+     * @param anomaly the type of anomaly to envision
      * @throws GameActionException if conditions for envisioning are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -556,6 +562,7 @@ public strictfp interface RobotController {
     /** 
      * Repairs at a given location.
      *
+     * @param loc target location to repair at
      * @throws GameActionException if conditions for repairing are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -584,6 +591,7 @@ public strictfp interface RobotController {
     /** 
      * Mine lead at a given location.
      *
+     * @param loc target location to mine
      * @throws GameActionException if conditions for mining are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -608,6 +616,7 @@ public strictfp interface RobotController {
     /** 
      * Mine a gold at given location.
      *
+     * @param loc target location to mine
      * @throws GameActionException if conditions for mining are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -636,6 +645,7 @@ public strictfp interface RobotController {
     /** 
      * Mutate a building at a given location.
      *
+     * @param loc target location of the building to mutate
      * @throws GameActionException if conditions for mutating are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -707,7 +717,7 @@ public strictfp interface RobotController {
      *
      * @param index the index in the team's shared array, 0-indexed
      * @return the value at that index in the team's shared array,
-     *         or -1 if the index is invalid
+     * @throws GameActionException if the index is invalid
      *
      * @battlecode.doc.costlymethod
      */
@@ -719,6 +729,8 @@ public strictfp interface RobotController {
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
+     * @throws GameActionException if the index is invalid, or the value
+     *         is out of bounds
      *
      * @battlecode.doc.costlymethod
      */

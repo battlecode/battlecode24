@@ -74,7 +74,7 @@ public class GameConstants {
     // ****** COOLDOWNS ****************
     // *********************************
 
-    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    /** If the amount of cooldown is at least this value, a robot cannot act. */
     public static final int COOLDOWN_LIMIT = 10;
 
     /** The number of cooldown turns reduced per turn. */
