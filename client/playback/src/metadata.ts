@@ -20,6 +20,8 @@ export default class Metadata {
    */
   types: {[key: number]: BodyTypeMetaData};
 
+  buildingTypes: schema.BodyType[] = [schema.BodyType.ARCHON, schema.BodyType.LABORATORY, schema.BodyType.WATCHTOWER];
+
   /**
    * All the teams in a game.
    */

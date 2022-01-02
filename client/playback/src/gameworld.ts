@@ -719,6 +719,7 @@ export default class GameWorld {
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
     var hps = new Int32Array(bodies.robotIDsLength());
+    var prototypes = new Int8Array(bodies.robotIDsLength());
 
     // Update spawn stats
     for(let i = 0; i < bodies.robotIDsLength(); i++) {
@@ -728,6 +729,7 @@ export default class GameWorld {
       statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health; // TODO: extract meta info
       this.teamStats.set(teams[i], statObj);
       hps[i] = this.meta.types[types[i]].health;
+      prototypes[i] = (this.meta.buildingTypes.includes(types[i]) && types[i] != schema.BodyType.ARCHON) ? 1 : 0;
     }
     
     const locs = bodies.locs(this._vecTableSlot1);
@@ -757,7 +759,9 @@ export default class GameWorld {
       bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
-      level: levels
+      level: levels,
+      portable: new Int8Array(bodies.robotIDsLength()),
+      prototype: prototypes,
     });
   }
 

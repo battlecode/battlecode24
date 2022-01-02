@@ -256,10 +256,13 @@ export default class Looper {
                 let bytecodes = bodies.bytecodesUsed[index];
                 let level = bodies.level[index];
                 let parent = bodies.parent[index];
+                let prototype = bodies.prototype[index];
+                let portable = bodies.portable[index];
                 // let bid = bodies.bid[index];
+                let is_building = cst.buildingTypeList.includes(type);
 
                 this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
-                    parent !== 0 ? parent : undefined);
+                    parent !== 0 ? parent : undefined, is_building ? prototype == 1 : undefined, is_building ? portable == 1 : undefined);
             }
         }
 

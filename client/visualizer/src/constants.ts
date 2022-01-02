@@ -11,6 +11,7 @@ export const SOLDIER = schema.BodyType.SOLDIER
 export const WATCHTOWER = schema.BodyType.WATCHTOWER
 
 export const bodyTypeList: number[] = [ARCHON, BUILDER, LABORATORY, MINER, SAGE, SOLDIER, WATCHTOWER]
+export const buildingTypeList: number[] = [ARCHON, LABORATORY, WATCHTOWER];
 export const initialBodyTypeList: number[] = [ARCHON]
 export const anomalyList = [schema.Action.VORTEX, schema.Action.FURY, schema.Action.CHARGE, schema.Action.ABYSS]
 
