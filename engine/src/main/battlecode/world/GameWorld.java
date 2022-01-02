@@ -27,7 +27,7 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-    
+
     private int[] rubble;
     private int[] lead;
     private int[] gold;
@@ -68,9 +68,15 @@ public strictfp class GameWorld {
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            spawnRobot(robot.type, newLocation, robot.team);
+            spawnRobot(robot.ID, robot.type, newLocation, robot.team);
         }
         this.teamInfo = new TeamInfo(this);
+
+        // Add initial amounts of resource
+        this.teamInfo.addLead(Team.A, GameConstants.INITIAL_LEAD_AMOUNT);
+        this.teamInfo.addLead(Team.B, GameConstants.INITIAL_LEAD_AMOUNT);
+        this.teamInfo.addGold(Team.A, GameConstants.INITIAL_GOLD_AMOUNT);
+        this.teamInfo.addGold(Team.B, GameConstants.INITIAL_GOLD_AMOUNT);
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
@@ -121,8 +127,7 @@ public strictfp class GameWorld {
         objectInfo.eachDynamicBodyByExecOrder((body) -> {
             if (body instanceof InternalRobot) {
                 return updateRobot((InternalRobot) body);
-            }
-            else {
+            } else {
                 throw new RuntimeException("non-robot body registered as dynamic");
             }
         });
@@ -315,7 +320,7 @@ public strictfp class GameWorld {
         });
     }
 
-    public void setWinner(Team t, DominationFactor d)  {
+    public void setWinner(Team t, DominationFactor d) {
         gameStats.setWinner(t);
         gameStats.setDominationFactor(d);
     }
@@ -424,6 +429,10 @@ public strictfp class GameWorld {
             if (anomaly == AnomalyType.VORTEX) causeVortexGlobal();
         }
 
+        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundLeadChange(Team.A), this.teamInfo.getRoundGoldChange(Team.A));
+        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
+        this.teamInfo.processEndOfRound();
+
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null)
             if (!setWinnerIfMoreArchons())
@@ -453,7 +462,7 @@ public strictfp class GameWorld {
         int ID = idGenerator.nextID();
         return spawnRobot(ID, type, location, team);
     }
-   
+
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
@@ -463,12 +472,15 @@ public strictfp class GameWorld {
         RobotType type = robot.getType();
         Team team = robot.getTeam();
         removeRobot(robot.getLocation());
-        
+
         int leadDropped = robot.getType().getLeadDropped(robot.getLevel());
         int goldDropped = robot.getType().getGoldDropped(robot.getLevel());
-        
+
         this.lead[locationToIndex(robot.getLocation())] += leadDropped;
         this.gold[locationToIndex(robot.getLocation())] += goldDropped;
+
+        this.matchMaker.addLeadDrop(robot.getLocation(), leadDropped);
+        this.matchMaker.addLeadDrop(robot.getLocation(), goldDropped);
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -481,7 +493,7 @@ public strictfp class GameWorld {
     }
 
     // *********************************
-    // *******  PROFILER  **************
+    // ********* PROFILER **************
     // *********************************
 
     public void setProfilerCollection(Team team, ProfilerCollection profilerCollection) {
@@ -557,7 +569,7 @@ public strictfp class GameWorld {
         MapLocation[] actionLocations = this.getSageActionLocations(robot);
         for (int i = 0; i < actionLocations.length; i++) {
             InternalRobot currentRobot = getRobot(actionLocations[i]);
-            if (currentRobot != null && currentRobot.getTeam() != robot.getTeam())
+            if (currentRobot != null && currentRobot.getTeam() != robot.getTeam() && currentRobot.getMode() == RobotMode.DROID)
                 currentRobot.addHealth((int) (-1 * AnomalyType.CHARGE.sagePercentage * currentRobot.getType().getMaxHealth(currentRobot.getLevel())));
         }
     }
@@ -597,7 +609,7 @@ public strictfp class GameWorld {
     public void causeFuryUpdate(float reduceFactor, MapLocation[] locations) {
         for (int i = 0; i < locations.length; i++) {
             InternalRobot robot = this.getRobot(locations[i]);
-            if (robot.getMode() == RobotMode.TURRET) {
+            if (robot != null && robot.getMode() == RobotMode.TURRET) {
                 robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor));
             }
         }

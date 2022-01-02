@@ -149,8 +149,8 @@ public enum RobotType {
      * @return whether this type can repair the given robot type
      */
     public boolean canRepair(RobotType repairedType) {
-        return (this == ARCHON && !repairedType.isBuilding() || 
-                this == BUILDER && repairedType.isBuilding());
+        return ((this == ARCHON && !repairedType.isBuilding()) || 
+                (this == BUILDER && repairedType.isBuilding()));
     }
 
     /**
