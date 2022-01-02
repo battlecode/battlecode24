@@ -22,6 +22,9 @@ export type BodiesSchema = {
   y: Int32Array,
   bytecodesUsed: Int32Array, // TODO: is this needed?
   action: Int8Array,
+  target: Int32Array,
+  targetx: Int32Array,
+  targety: Int32Array,
   parent: Int32Array,
   hp: Int32Array,
   level: Int8Array,
@@ -201,6 +204,9 @@ export default class GameWorld {
       y: new Int32Array(0),
       bytecodesUsed: new Int32Array(0),
       action: new Int8Array(0),
+      target: new Int32Array(0),
+      targetx: new Int32Array(0),
+      targety: new Int32Array(0),
       parent: new Int32Array(0),
       hp: new Int32Array(0),
       level: new Int8Array(0),
@@ -392,7 +398,8 @@ export default class GameWorld {
     }
 
     // Remove abilities from previous round
-    this.bodies.alterBulk({id: new Int32Array(this.actionRobots), ability: new Int8Array(this.actionRobots.length)});
+    this.bodies.alterBulk({id: new Int32Array(this.actionRobots), action: (new Int8Array(this.actionRobots.length)).fill(-1), 
+      target: new Int32Array(this.actionRobots.length), targetx: new Int32Array(this.actionRobots.length), targety: new Int32Array(this.actionRobots.length)});
     this.actionRobots = [];
 
     // Remove bids from previous round
@@ -438,8 +445,13 @@ export default class GameWorld {
         const target = delta.actionTargets(i);
         const body = robotID != -1 ? this.bodies.lookup(robotID) : null;
         const teamStatsObj = body != null ? this.teamStats.get(body.team) : null;
-        const setAction = () => {
+        const setAction = (set_target: Boolean = false, set_target_loc: Boolean = false) => {
           this.bodies.alter({id: robotID, action: action as number});
+          if (set_target) this.bodies.alter({id: robotID, target: target});
+          if (set_target_loc) {
+            const target_body = this.bodies.lookup(target);
+            this.bodies.alter({id: robotID, targetx: target_body.x, targety: target_body.y});
+          }
           this.actionRobots.push(robotID);
         }; // should be called for actions performed *by* the robot.
         switch (action) {
@@ -447,7 +459,7 @@ export default class GameWorld {
           // Actions list from battlecode.fbs enum Action
 
           case schema.Action.ATTACK:
-            setAction();
+            setAction(true, true);
             break;
           /// Slanderers passively generate influence for the
           /// Enlightenment Center that created them.
@@ -755,7 +767,10 @@ export default class GameWorld {
       y: locs.ysArray(),
       flag: new Int32Array(bodies.robotIDsLength()),
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
-      ability: new Int8Array(bodies.robotIDsLength()),
+      action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
+      target: new Int32Array(bodies.robotIDsLength()),
+      targetx: new Int32Array(bodies.robotIDsLength()),
+      targety: new Int32Array(bodies.robotIDsLength()),
       bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,

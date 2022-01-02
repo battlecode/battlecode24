@@ -216,6 +216,9 @@ export default class Renderer {
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
     const actions = bodies.arrays.action;
+    const targets = bodies.arrays.target;
+    const targetxs = bodies.arrays.targetx;
+    const targetys = bodies.arrays.targety;
     const portables = bodies.arrays.portable;
     const prototypes = bodies.arrays.prototype;
     const levels = bodies.arrays.level;
@@ -280,6 +283,17 @@ export default class Renderer {
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       // draw effect
+      if (actions[i] == schema.Action.ATTACK) {
+        this.ctx.save();
+        this.ctx.beginPath()
+        this.ctx.moveTo(realXs[i] + 0.5, realYs[i] + 0.5);
+        this.ctx.lineTo(targetxs[i] + 0.5, this.flip(targetys[i], minY, maxY) + 0.5) 
+        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue';
+        this.ctx.lineWidth = 0.05;
+        this.ctx.stroke();
+        this.ctx.restore();
+      };
+
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
