@@ -4,7 +4,7 @@ import {schema} from 'battlecode-playback';
 
 import {MapUnit} from '../index';
 
-export default class RobotForm {
+export default class AnomalyForm {
 
   // The public div
   readonly div: HTMLDivElement;
@@ -17,24 +17,7 @@ export default class RobotForm {
   readonly y: HTMLInputElement;
   //readonly influence: HTMLInputElement;
 
-  // Callbacks on input change
-  readonly width: () => number;
-  readonly height: () => number;
-
-  // Constant
-  private readonly ROBOT_TYPES: schema.BodyType[] = cst.initialBodyTypeList;
-
-  private readonly TEAMS = {
-    "0": "Neutral",
-    "1": "Red",
-    "2": "Blue"
-  };
-
-  constructor(width: () => number, height: () => number) {
-
-    // Store the callbacks
-    this.width = width;
-    this.height = height;
+  constructor() {
 
     // Create HTML elements
     this.div = document.createElement("div");

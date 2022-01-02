@@ -5,8 +5,7 @@ import {cow_border as cow} from '../cow';
 
 import {schema, flatbuffers} from 'battlecode-playback';
 
-import {MapRenderer, HeaderForm, SymmetryForm, RobotForm, TileForm, LeadForm, UploadedMap} from './index';
-import { SSL_OP_NO_QUERY_MTU } from 'constants';
+import {MapRenderer, HeaderForm, SymmetryForm, RobotForm, TileForm, LeadForm, AnomalyForm, UploadedMap} from './index';
 
 export type MapUnit = {
   x: number,
