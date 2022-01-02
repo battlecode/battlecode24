@@ -185,7 +185,7 @@ public strictfp interface RobotController {
     boolean canSenseRadiusSquared(int radiusSquared);
 
     /**
-     * Checks whether a robot is at a given location. Assumes the location is valid.  
+     * Checks whether a robot is at a given location. Assumes the location is valid.
      *
      * @param loc the location to check
      * @return true if a robot is at the location
@@ -193,7 +193,17 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException;
+    boolean isLocationOccupied(MapLocation loc) throws GameActionException;
+
+    /**
+     * Checks whether a robot is at a given location. Assume the location is valid.
+     *
+     * @param loc the location to check
+     * @return true if a robot is at the location, false if there is no robot or the location can not be sensed.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canSenseRobotAtLocation(MapLocation loc);
 
     /**
      * Senses the robot at the given location, or null if there is no robot

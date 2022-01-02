@@ -203,9 +203,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException {
+    public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.getRobot(loc) != null;
+    }
+
+    @Override
+    public boolean canSenseRobotAtLocation(MapLocation loc) {
+        try {
+            return isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
