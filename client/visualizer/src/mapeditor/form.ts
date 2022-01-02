@@ -25,8 +25,8 @@ export type GameMap = {
   rubble: number[],
   leadVals: number[],
   symmetry: number,
-  anomalies: [],
-  anomalyRounds: []
+  anomalies: number[],
+  anomalyRounds: number[]
 };
 
 /**
@@ -43,16 +43,17 @@ export default class MapEditorForm {
   private readonly renderer: MapRenderer;
 
   // Forms and text display
-  private readonly header: HeaderForm;
-  private readonly symmetry: SymmetryForm;
-  private readonly robots: RobotForm;
-  private readonly tiles: TileForm;
-  private readonly lead: LeadForm;
-  private readonly anomalies: AnomalyForm;
+  private readonly headerForm: HeaderForm;
+  private readonly symmetryForm: SymmetryForm;
+  private readonly robotsForm: RobotForm;
+  private readonly tilesForm: TileForm;
+  private readonly leadForm: LeadForm;
+  private readonly anomaliesForm: AnomalyForm;
 
   private robotsRadio: HTMLInputElement;
   private tilesRadio: HTMLInputElement;
   private leadRadio: HTMLInputElement;
+  private anomaliesRadio: HTMLInputElement;
 
   private forms: HTMLDivElement;
 
@@ -73,6 +74,8 @@ export default class MapEditorForm {
   private symmetricBodies: Map<number, MapUnit>;
   private rubble: number[];
   private leadVals: number[];
+  private anomalies: number[] = [];
+  private anomalyRounds: number[] = [];
 
   randomMode: boolean = false; // if true, all squares are randomly painted.
   randomHigh: number = 1;
@@ -94,20 +97,20 @@ export default class MapEditorForm {
     this.div = document.createElement("div");
 
     // callback functions for getting constants
-    const cbWidth = () => {return this.header.getWidth()};
-    const cbHeight = () => {return this.header.getHeight()};
+    const cbWidth = () => {return this.headerForm.getWidth()};
+    const cbHeight = () => {return this.headerForm.getHeight()};
 
     // header (name, width, height)
-    this.header = new HeaderForm(() => {
+    this.headerForm = new HeaderForm(() => {
       this.reset();
       this.render();
     });
-    this.div.appendChild(this.header.div);
+    this.div.appendChild(this.headerForm.div);
 
     // symmetry
-    this.symmetry = new SymmetryForm(() => {this.initRubble(); this.initLead(); this.render()});
+    this.symmetryForm = new SymmetryForm(() => {this.initRubble(); this.initLead(); this.render()});
     this.div.appendChild(document.createElement("br"));
-    this.div.appendChild(this.symmetry.div);
+    this.div.appendChild(this.symmetryForm.div);
     this.div.appendChild(document.createElement("br"));
     this.div.appendChild(document.createElement("hr"));
 
@@ -115,14 +118,16 @@ export default class MapEditorForm {
     this.tilesRadio = document.createElement("input");
     this.robotsRadio = document.createElement("input");
     this.leadRadio = document.createElement("input");
+    this.anomaliesRadio = document.createElement("input");
     this.div.appendChild(this.createUnitOption());
     this.div.appendChild(document.createElement("br"));
 
     // robot delete + add/update buttons
     this.forms = document.createElement("div");
-    this.robots = new RobotForm(cbWidth, cbHeight); // robot info (type, x, y, ...)
-    this.tiles = new TileForm(cbWidth, cbHeight);
-    this.lead = new LeadForm(cbWidth, cbHeight);
+    this.robotsForm = new RobotForm(cbWidth, cbHeight); // robot info (type, x, y, ...)
+    this.tilesForm = new TileForm(cbWidth, cbHeight);
+    this.leadForm = new LeadForm(cbWidth, cbHeight);
+    this.anomaliesForm = new AnomalyForm();
     this.buttonDelete = document.createElement("button");
     this.buttonAdd = document.createElement("button");
     this.buttonReverse = document.createElement("button");
@@ -148,11 +153,11 @@ export default class MapEditorForm {
 
     // Renderer settings
     const onclickUnit = (id: number) => {
-      if (this.originalBodies.has(id) && this.getActiveForm() == this.robots) {
+      if (this.originalBodies.has(id) && this.getActiveForm() == this.robotsForm) {
         // Set the corresponding form appropriately
         let body: MapUnit = this.originalBodies.get(id)!;
         this.robotsRadio.click();
-        this.robots.setForm(body.x, body.y, body, id);
+        this.robotsForm.setForm(body.x, body.y, body, id);
       }
     };
 
@@ -170,10 +175,10 @@ export default class MapEditorForm {
     };
 
     const onDrag = (x, y) => {
-      if (this.getActiveForm() === this.tiles && this.tiles.isValid()) {
-        let r: number = this.tiles.getBrush();
+      if (this.getActiveForm() === this.tilesForm && this.tilesForm.isValid()) {
+        let r: number = this.tilesForm.getBrush();
         let inBrush: (dx, dy) => boolean = () => true;
-        switch (this.tiles.getStyle()) {
+        switch (this.tilesForm.getStyle()) {
           case "Circle":
             inBrush = (dx, dy) => dx*dx + dy*dy < r*r;
             break;
@@ -183,7 +188,7 @@ export default class MapEditorForm {
           case "Cow":
             inBrush = (dx,dy) => (Math.abs(dx) < r && Math.abs(dy) < r && cow[Math.floor(20*(1+dx/r))][Math.floor(20*(1-dy/r))]);
         }
-        this.setAreaRubble(x, y, this.tiles.getRubble(), inBrush);
+        this.setAreaRubble(x, y, this.tilesForm.getRubble(), inBrush);
         this.render();
       } 
     }
@@ -210,7 +215,7 @@ export default class MapEditorForm {
       // Change the displayed form
       if (this.tilesRadio.checked) {
         while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-        this.forms.appendChild(this.tiles.div);
+        this.forms.appendChild(this.tilesForm.div);
         this.buttonDelete.style.display = "none";
         this.buttonAdd.style.display = "none";
         this.buttonReverse.style.display = "none";
@@ -231,7 +236,7 @@ export default class MapEditorForm {
       // Change the displayed form
       if (this.robotsRadio.checked) {
         while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-        this.forms.appendChild(this.robots.div);
+        this.forms.appendChild(this.robotsForm.div);
         this.buttonDelete.style.display = "";
         this.buttonAdd.style.display = "";
         this.buttonReverse.style.display = "";
@@ -252,7 +257,7 @@ export default class MapEditorForm {
       // Change the displayed form
       if (this.leadRadio.checked) {
         while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-        this.forms.appendChild(this.lead.div);
+        this.forms.appendChild(this.leadForm.div);
         this.buttonDelete.style.display = "";
         this.buttonAdd.style.display = "";
         this.buttonReverse.style.display = "none";
@@ -265,6 +270,28 @@ export default class MapEditorForm {
     leadLabel.setAttribute("for", this.leadRadio.id);
     leadLabel.textContent = "Lead";
 
+    // Radio button for anomalies
+    this.anomaliesRadio.id = "anomalies-radio";
+    this.anomaliesRadio.type = "radio";
+    this.anomaliesRadio.name = "edit-option";
+
+    this.anomaliesRadio.onchange = () => {
+      // Change the displayed form
+      if (this.anomaliesRadio.checked) {
+        while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
+        this.forms.appendChild(this.anomaliesForm.div);
+        this.buttonDelete.style.display = "";
+        this.buttonAdd.style.display = "";
+        this.buttonReverse.style.display = "none";
+        this.buttonRandomize.style.display = "none";
+        this.buttonInvert.style.display = "none";
+      }
+    };
+
+    const anomaliesLabel = document.createElement("label");
+    anomaliesLabel.setAttribute("for", this.anomaliesRadio.id);
+    anomaliesLabel.textContent = "Anomalies";
+    
     // Add radio buttons HTML element
     div.appendChild(this.tilesRadio);
     div.appendChild(tilesLabel);
@@ -272,6 +299,8 @@ export default class MapEditorForm {
     div.appendChild(robotsLabel);
     div.appendChild(this.leadRadio);
     div.appendChild(leadLabel);
+    div.appendChild(this.anomaliesRadio);
+    div.appendChild(anomaliesLabel);
     div.appendChild(document.createElement("br"));
 
     return div;
@@ -308,8 +337,8 @@ export default class MapEditorForm {
 
   private loadCallbacks() {
     this.buttonAdd.onclick = () => {
-      if (this.getActiveForm() == this.robots) {
-        const form: RobotForm = this.robots;
+      if (this.getActiveForm() == this.robotsForm) {
+        const form: RobotForm = this.robotsForm;
         const id: number = form.getID() || this.lastID;
         const unit: MapUnit | undefined = form.getUnit(id);
         if (unit) {
@@ -317,18 +346,24 @@ export default class MapEditorForm {
           this.setUnit(id, unit);
           form.resetForm();
         }
-      } else if (this.getActiveForm() == this.lead) {
-        const form: LeadForm = this.lead;
+      } else if (this.getActiveForm() == this.leadForm) {
+        const form: LeadForm = this.leadForm;
         const x = form.getX();
         const y = form.getY();
         const lead = form.getLead();
         this.setLead(x, y, lead);
+      } else if (this.getActiveForm() == this.anomaliesForm) {
+        const form: AnomalyForm = this.anomaliesForm;
+        const anomaly = form.getAnomaly();
+        const round = form.getRound();
+        this.anomalies.push(anomaly);
+        this.anomalyRounds.push(round);
       }
     }
 
     this.buttonDelete.onclick = () => {
-      if (this.getActiveForm() == this.robots) {
-        const id: number | undefined = this.robots.getID();
+      if (this.getActiveForm() == this.robotsForm) {
+        const id: number | undefined = this.robotsForm.getID();
         if (id && !isNaN(id)) {
           this.deleteUnit(id);
           this.getActiveForm().resetForm();
@@ -337,8 +372,8 @@ export default class MapEditorForm {
     }
 
     this.buttonReverse.onclick = () => {
-      if (this.getActiveForm() == this.robots) {
-        const form: RobotForm = this.robots;
+      if (this.getActiveForm() == this.robotsForm) {
+        const form: RobotForm = this.robotsForm;
         const id: number = form.getID() || this.lastID - 1;
         const unit: MapUnit = this.originalBodies.get(id)!;
         if (unit) {
@@ -355,9 +390,9 @@ export default class MapEditorForm {
     }
 
     this.buttonRandomize.onclick = () => {
-      if (this.getActiveForm() == this.tiles) {
-        for(let x: number = 0; x < this.header.getWidth(); x++) {
-          for(let y:number = 0; y < this.header.getHeight(); y++) {
+      if (this.getActiveForm() == this.tilesForm) {
+        for(let x: number = 0; x < this.headerForm.getWidth(); x++) {
+          for(let y:number = 0; y < this.headerForm.getHeight(); y++) {
             this.setRubble(x, y, Math.floor(Math.random() * 101));
           }
         }
@@ -366,10 +401,10 @@ export default class MapEditorForm {
     }
 
     this.buttonInvert.onclick = () => {
-      if (this.getActiveForm() == this.tiles) {
-        for(let x: number = 0; x < this.header.getWidth(); x++) {
-          for(let y: number = 0; y < this.header.getHeight(); y++) {
-            this.rubble[y*this.header.getWidth() + x] = 100 - this.getRubble(x,y);
+      if (this.getActiveForm() == this.tilesForm) {
+        for(let x: number = 0; x < this.headerForm.getWidth(); x++) {
+          for(let y: number = 0; y < this.headerForm.getHeight(); y++) {
+            this.rubble[y*this.headerForm.getWidth() + x] = 100 - this.getRubble(x,y);
           }
         }
         this.render();
@@ -456,23 +491,23 @@ export default class MapEditorForm {
    * Initialize rubble array based on map dimensions.
    */
   private initRubble() {
-    this.rubble = new Array(this.header.getHeight() * this.header.getWidth());
+    this.rubble = new Array(this.headerForm.getHeight() * this.headerForm.getWidth());
     this.rubble.fill(50);
   }
 
   private getRubble(x: number, y: number) {
-    return this.rubble[y*this.header.getWidth() + x];
+    return this.rubble[y*this.headerForm.getWidth() + x];
   }
 
   private setRubble(x: number, y: number, rubble: number) {
     if (this.randomMode) rubble = this.randomLow + (this.randomHigh - this.randomLow) * Math.random();
-    const {x: translated_x, y: translated_y} = this.symmetry.transformLoc(x, y, this.header.getWidth(), this.header.getHeight());
-    this.rubble[y*this.header.getWidth() + x] = this.rubble[translated_y*this.header.getWidth() + translated_x] = rubble;
+    const {x: translated_x, y: translated_y} = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight());
+    this.rubble[y*this.headerForm.getWidth() + x] = this.rubble[translated_y*this.headerForm.getWidth() + translated_x] = rubble;
   }
 
   private setAreaRubble(x0: number, y0: number, pass: number, inBrush: (dx, dy) => boolean) {
-    const width = this.header.getWidth();
-    const height = this.header.getHeight();
+    const width = this.headerForm.getWidth();
+    const height = this.headerForm.getHeight();
 
    for (let x = 0; x < width; x++) {
      for (let y = 0; y < height; y++) {
@@ -487,33 +522,33 @@ export default class MapEditorForm {
  * Initialize lead based on map dimensions.
  */
   private initLead() {
-    this.leadVals = new Array(this.header.getHeight() * this.header.getWidth());
+    this.leadVals = new Array(this.headerForm.getHeight() * this.headerForm.getWidth());
     this.leadVals.fill(0);
   }
 
   private setLead(x: number, y: number, lead: number) {
-    const {x: translated_x, y: translated_y} = this.symmetry.transformLoc(x, y, this.header.getWidth(), this.header.getHeight());
-    this.leadVals[y*this.header.getWidth() + x] = this.leadVals[translated_y*this.header.getWidth() + translated_x] = lead;
+    const {x: translated_x, y: translated_y} = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight());
+    this.leadVals[y*this.headerForm.getWidth() + x] = this.leadVals[translated_y*this.headerForm.getWidth() + translated_x] = lead;
     this.render();
   }
 
   /**
    * @return the active form based on which radio button is selected
    */
-  private getActiveForm(): RobotForm | TileForm | LeadForm {
-    return (this.tilesRadio.checked ? this.tiles : (this.robotsRadio.checked ? this.robots : this.lead))
+  private getActiveForm(): RobotForm | TileForm | LeadForm | AnomalyForm {
+    return (this.tilesRadio.checked ? this.tilesForm : (this.robotsRadio.checked ? this.robotsForm : (this.leadRadio.checked ? this.leadForm : this.anomaliesForm)))
   }
 
   /**
    * Re-renders the canvas based on the parameters of the map editor.
    */
   render() {
-    const width: number = this.header.getWidth();
-    const height: number = this.header.getHeight();
+    const width: number = this.headerForm.getWidth();
+    const height: number = this.headerForm.getHeight();
     const scale: number = this.conf.upscale / Math.sqrt(width * height); // arbitrary scaling factor
     this.canvas.width = width * scale;
     this.canvas.height = height * scale;
-    this.symmetricBodies = this.symmetry.getSymmetricBodies(this.originalBodies, width, height);
+    this.symmetricBodies = this.symmetryForm.getSymmetricBodies(this.originalBodies, width, height);
     this.renderer.render(this.getMap());
   }
 
@@ -522,16 +557,16 @@ export default class MapEditorForm {
    */
   getMap(): GameMap {
     return {
-      name: this.header.getName(),
-      width: this.header.getWidth(),
-      height: this.header.getHeight(),
+      name: this.headerForm.getName(),
+      width: this.headerForm.getWidth(),
+      height: this.headerForm.getHeight(),
       originalBodies: this.originalBodies,
       symmetricBodies: this.symmetricBodies,
       rubble: this.rubble,
       leadVals: this.leadVals,
-      symmetry: this.symmetry.getSymmetry(),
-      anomalies: [],
-      anomalyRounds: []
+      symmetry: this.symmetryForm.getSymmetry(),
+      anomalies: this.anomalies,
+      anomalyRounds: this.anomalyRounds
     };
   }
 
@@ -577,18 +612,18 @@ export default class MapEditorForm {
   // TODO: types
   setUploadedMap(map: UploadedMap) {
 
-    const symmetryAndBodies = this.symmetry.discoverSymmetryAndBodies(map.bodies, map.rubble, map.width, map.height);
+    const symmetryAndBodies = this.symmetryForm.discoverSymmetryAndBodies(map.bodies, map.rubble, map.width, map.height);
     console.log(symmetryAndBodies);
     if (symmetryAndBodies === null) return;
 
     this.reset();
-    this.header.setName(map.name);
-    this.header.setWidth(map.width);
-    this.header.setHeight(map.height);
-    this.symmetry.setSymmetry(symmetryAndBodies.symmetry);
+    this.headerForm.setName(map.name);
+    this.headerForm.setWidth(map.width);
+    this.headerForm.setHeight(map.height);
+    this.symmetryForm.setSymmetry(symmetryAndBodies.symmetry);
     this.originalBodies = symmetryAndBodies.originalBodies;
     this.lastID = this.originalBodies.size + 1;
-    this.symmetricBodies = this.symmetry.getSymmetricBodies(this.originalBodies, map.width, map.height);
+    this.symmetricBodies = this.symmetryForm.getSymmetricBodies(this.originalBodies, map.width, map.height);
 
     this.rubble = map.rubble;
     this.leadVals = map.lead;

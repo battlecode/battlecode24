@@ -10,25 +10,17 @@ export default class AnomalyForm {
   readonly div: HTMLDivElement;
 
   // Form elements for archon settings
-  readonly id: HTMLLabelElement;
-  readonly type: HTMLSelectElement;
-  readonly team: HTMLSelectElement;
-  readonly x: HTMLInputElement;
-  readonly y: HTMLInputElement;
-  //readonly influence: HTMLInputElement;
+  readonly anomaly: HTMLSelectElement;
+  readonly round: HTMLInputElement;
 
+  private readonly ANOMALIES = cst.anomalyList;
+  
   constructor() {
 
     // Create HTML elements
     this.div = document.createElement("div");
-    this.id = document.createElement("label");
-    this.type = document.createElement("select");
-    this.team = document.createElement("select");
-    this.x = document.createElement("input");
-    this.y = document.createElement("input");
-    // this.influence = document.createElement("input");
-    // this.influence.value = String(cst.INITIAL_INFLUENCE);
-    // this.influence.disabled = true;
+    this.anomaly = document.createElement("select");
+    this.round = document.createElement("input");
 
     // Create the form
     this.loadInputs();
@@ -40,24 +32,13 @@ export default class AnomalyForm {
    * Initializes input fields.
    */
   private loadInputs(): void {
-    this.x.type = "text";
-    this.y.type = "text";
-    this.type.disabled = true;
-    this.ROBOT_TYPES.forEach((type: schema.BodyType) => {
+    this.round.type = "text";
+    this.ANOMALIES.forEach((anomaly: schema.Action) => {
       const option = document.createElement("option");
-      option.value = String(type);
-      option.appendChild(document.createTextNode(cst.bodyTypeToString(type)));
-      this.type.appendChild(option);
+      option.value = String(anomaly);
+      option.appendChild(document.createTextNode(cst.anomalyToString(anomaly)));
+      this.anomaly.appendChild(option);
     });
-    for (let team in this.TEAMS) {
-      const option = document.createElement("option");
-      option.value = String(team);
-      option.appendChild(document.createTextNode(this.TEAMS[team]));
-      this.team.appendChild(option);
-      if (this.TEAMS[team] === "Red") {
-        option.selected = true;
-      }
-    }
   }
 
   /**
@@ -66,42 +47,21 @@ export default class AnomalyForm {
   private createForm(): HTMLFormElement {
     // HTML structure
     const form: HTMLFormElement = document.createElement("form");
-    const id: HTMLDivElement = document.createElement("div");
-    const type: HTMLDivElement = document.createElement("div");
-    const team: HTMLDivElement = document.createElement("div");
-    const x: HTMLDivElement = document.createElement("div");
-    const y: HTMLDivElement = document.createElement("div");
+    const anomaly: HTMLDivElement = document.createElement("div");
+    const round: HTMLDivElement = document.createElement("div");
     // const influence: HTMLDivElement = document.createElement("div");
     //form.appendChild(id);
-    form.appendChild(type);
-    form.appendChild(team);
-    form.appendChild(x);
-    form.appendChild(y);
-    // form.appendChild(influence);
+    form.appendChild(anomaly);
+    form.appendChild(round);
     form.appendChild(document.createElement("br"));
 
-    id.appendChild(document.createTextNode("ID: "));
-    id.appendChild(this.id);
-
     // Robot type
-    type.appendChild(document.createTextNode("Type: "));
-    type.appendChild(this.type);
-
-    // Team
-    team.appendChild(document.createTextNode("Team: "));
-    team.appendChild(this.team);
+    anomaly.appendChild(document.createTextNode("Anomaly: "));
+    anomaly.appendChild(this.anomaly);
 
     // X coordinate
-    x.appendChild(document.createTextNode("X: "));
-    x.appendChild(this.x);
-
-    // Y coordinate
-    y.appendChild(document.createTextNode("Y: "));
-    y.appendChild(this.y);
-
-    // Influence
-    // influence.appendChild(document.createTextNode("I: "));
-    // influence.appendChild(this.influence);
+    round.appendChild(document.createTextNode("Round: "));
+    round.appendChild(this.round);
 
     return form;
   }
@@ -111,88 +71,35 @@ export default class AnomalyForm {
    */
   private loadCallbacks(): void {
 
-    // X must be in the range [0, this.width]
-    this.x.onchange = () => {
-      let value: number = this.getX();
+    this.round.onchange = () => {
+      let value: number = this.getRound();
       value = Math.max(value, 0);
-      value = Math.min(value, this.width());
-      this.x.value = isNaN(value) ? "" : String(value);
+      value = Math.min(value, 2000); // TODO: don't hard code
+      this.round.value = isNaN(value) ? "" : String(value);
     };
 
-    // Y must be in the range [0, this.height]
-    this.y.onchange = () => {
-      let value: number = this.getY();
-      value = Math.max(value, 0);
-      value = Math.min(value, this.height());
-      this.y.value = isNaN(value) ? "" : String(value);
-    };
-
-    // this.influence.onchange = () => {
-    //   let value: number = this.getInfluence();
-    //   value = Math.max(value, 50);
-    //   value = Math.min(value, 500);
-    //   this.influence.value = isNaN(value) ? "" : String(value);
-    // }
-
-    // this.team.onchange = () => {
-    //   if (this.getTeam() !== 0) {
-    //     this.influence.disabled = true;
-    //     this.influence.value = String(cst.INITIAL_INFLUENCE);
-    //   }
-    //   else this.influence.disabled = false;
-    // }
-
   }
 
-
-  private getType(): schema.BodyType {
-    return parseInt(this.type.options[this.type.selectedIndex].value);
+  getAnomaly(): schema.Action {
+    return parseInt(this.anomaly.options[this.anomaly.selectedIndex].value);
   }
 
-  private getTeam(): number {
-    return parseInt(this.team.options[this.team.selectedIndex].value);
+  getRound(): number {
+    return parseInt(this.round.value);
   }
 
-  private getX(): number {
-    return parseInt(this.x.value);
-  }
-
-  private getY(): number {
-    return parseInt(this.y.value);
-  }
-
-  // private getInfluence(): number {
-  //   return parseInt(this.influence.value);
-  // }
-
-  getID(): number | undefined {
-    const id = parseInt(this.id.textContent || "NaN");
-    return isNaN(id) ? undefined : id;
+  setForm() : void {
+    return;
   }
 
   resetForm(): void {
-    this.x.value = "";
-    this.y.value = "";
+    this.anomaly.value = ""; // TODO
+    this.round.value = "100";
   }
 
   isValid(): boolean {
-    const x = this.getX();
-    const y = this.getY();
+    const round = this.getRound();
     //const I = this.getInfluence();
-    return !(isNaN(x) || isNaN(y)); // || isNaN(I));
-  }
-
-  getUnit(id: number): MapUnit | undefined {
-    if (!this.isValid()) {
-      return undefined;
-    }
-    return {
-      x: this.getX(),
-      y: this.getY(),
-      radius: 0.5,
-      type: this.getType(),
-      teamID: this.getTeam()
-      // influence: this.getInfluence()
-    }
+    return !isNaN(round);
   }
 }
