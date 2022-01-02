@@ -253,10 +253,11 @@ export default class Looper {
                 let bytecodes = bodies.bytecodesUsed[index];
                 let level = bodies.level[index];
                 let parent = bodies.parent[index];
-                // let bid = bodies.bid[index];
+
+                let indicatorString = this.match.current.indicatorStrings[id]
 
                 this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
-                    parent !== 0 ? parent : undefined);
+                    parent !== 0 ? parent : undefined, indicatorString);
             }
         }
 

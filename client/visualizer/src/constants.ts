@@ -15,14 +15,23 @@ export const initialBodyTypeList: number[] = [ARCHON]
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
+// export const TILE_COLORS: Array<number>[] = [
+//   [168, 137, 97],
+//   [147, 117, 77],
+//   [88, 129, 87],
+//   [58, 90, 64],
+//   [52, 78, 65],
+//   [11, 32, 39],
+//   [8, 20, 20]
+// ]
+
 export const TILE_COLORS: Array<number>[] = [
+  [175, 147, 110],
   [168, 137, 97],
+  [158, 127, 87],
   [147, 117, 77],
-  [88, 129, 87],
-  [58, 90, 64],
-  [52, 78, 65],
-  [11, 32, 39],
-  [8, 20, 20]
+  [134, 107, 70],
+  [120, 96, 63]
 ]
 // flashy colors
 // [0, 147, 83], // turquoise

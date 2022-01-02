@@ -16,7 +16,8 @@ export type AllImages = {
   },
   resources: {
     lead: Image,
-    gold: Image
+    gold: Image,
+    both: Image
   }
   effects: { // TODO
   },
@@ -95,7 +96,8 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     },
     resources: {
       lead: null,
-      gold: null
+      gold: null,
+      both: null
     },
     effects: {
       death: null,
@@ -246,6 +248,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
 
   loadImage(result.resources, 'lead', 'resources/lead');
   loadImage(result.resources, 'gold', 'resources/gold');
+  loadImage(result.resources, 'both', 'resources/leadgold');
 
 
 

@@ -217,6 +217,14 @@ input[type='file'] {
     margin: 0px 1px;
 }
 
+.info-string {
+  border-radius: 8px;
+  background-color: #333;
+  color: #49b5f3;
+  padding: 3px;
+  margin: 0px 1px;
+}
+
 #gamearea {
     width: calc(100vw - 405px);
     height: calc(100vh - 75px);

@@ -33,7 +33,7 @@ export default class Renderer {
     }
 
     this.ctx['imageSmoothingEnabled'] = false
-
+    //this.ctx.imageSmoothingQuality = "high"
   }
 
   /**
@@ -60,7 +60,7 @@ export default class Renderer {
 
     this.renderBodies(world, curTime, nextStep, lerpAmount)
     this.renderHoverBox(world)
-    
+
     this.renderIndicatorDotsLines(world)
     this.setMouseoverEvent(world)
 
@@ -144,7 +144,7 @@ export default class Renderer {
       const { xrel: x, yrel: y } = this.hoverPos
       const cx = (minX + x) * scale, cy = (minY + (height - y - 1)) * scale
       this.ctx.strokeStyle = 'purple'
-      this.ctx.lineWidth *= 2
+      this.ctx.lineWidth = 2
       this.ctx.globalAlpha = 1
       if (!this.conf.doingRotate) this.ctx.strokeRect(cx, cy, scale, scale)
       else this.ctx.strokeRect(cy, cx, scale, scale)
@@ -176,30 +176,57 @@ export default class Renderer {
       let idxVal = map.getIdx(i, j)
       let plotJ = height - j - 1
 
-
+      this.ctx.lineWidth = 1 / 20
       this.ctx.globalAlpha = 1
+
       const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
 
       if (map.goldVals[idxVal] > 0) {
-        let size = sigmoid(map.goldVals[idxVal] / 50)
-        if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
-        else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
+        if (map.leadVals[idxVal] <= 0) {
+          //gold only
+          let size = sigmoid(map.goldVals[idxVal] / 50) * .94
+          if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
+          else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
+
+          this.ctx.strokeStyle = 'gold'
+          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
+
+        } else {
+          let goldShift = -.18;
+          let leadShift = .13;
+
+          //lead and gold
+          let size = sigmoid(map.leadVals[idxVal] / 50) * .85
+          if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1 - size) / 2, cy + (1 - size) / 2 + leadShift, scale * size, scale * size)
+          else this.ctx.drawImage(leadImg, cy + (1 - size) / 2, cx + (1 - size) / 2 + leadShift, scale * size, scale * size)
 
 
-        this.ctx.strokeStyle = 'gold'
-        this.ctx.lineWidth = 1 / 30
-        if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
-        else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-      }
-      if (map.leadVals[idxVal] > 0) {
-        let size = sigmoid(map.leadVals[idxVal] / 50)
+          size = sigmoid(map.goldVals[idxVal] / 50) * .85
+          if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2 + goldShift, scale * size, scale * size)
+          else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2 + goldShift, scale * size, scale * size)
+
+          
+          this.ctx.strokeStyle = 'gold'
+          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
+
+          this.ctx.setLineDash([.1,.1]);
+          this.ctx.strokeStyle = '#59727d'
+          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
+          this.ctx.setLineDash([]);
+        }
+      } else if (map.leadVals[idxVal] > 0) {
+        //lead only
+        let size = sigmoid(map.leadVals[idxVal] / 50) * .94
         if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
         else this.ctx.drawImage(leadImg, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
 
         this.ctx.strokeStyle = '#59727d'
-        this.ctx.lineWidth = 1 / 30
         if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
         else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
+
       }
     }
 
@@ -207,21 +234,21 @@ export default class Renderer {
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
-    const bodies = world.bodies;
-    const length = bodies.length;
-    const types = bodies.arrays.type;
-    const teams = bodies.arrays.team;
-    const hps = bodies.arrays.hp;
-    const ids = bodies.arrays.id;
-    const xs = bodies.arrays.x;
-    const ys = bodies.arrays.y;
-    const actions = bodies.arrays.action;
-    const portables = bodies.arrays.portable;
-    const prototypes = bodies.arrays.prototype;
-    const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y -1;
+    const bodies = world.bodies
+    const length = bodies.length
+    const types = bodies.arrays.type
+    const teams = bodies.arrays.team
+    const hps = bodies.arrays.hp
+    const ids = bodies.arrays.id
+    const xs = bodies.arrays.x
+    const ys = bodies.arrays.y
+    const actions = bodies.arrays.action
+    const portables = bodies.arrays.portable
+    const prototypes = bodies.arrays.prototype
+    const minY = world.minCorner.y
+    const maxY = world.maxCorner.y - 1
 
-    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array;
+    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
 
     if (nextStep && lerpAmount) {
       nextXs = nextStep.bodies.arrays.x
@@ -257,21 +284,21 @@ export default class Renderer {
     }
 
     const renderBot = (i: number) => {
-      
-      const DEFAULT: number = 0;
-      const PORTABLE: number = 1;
-      const PROTOTYPE: number = 2;
+
+      const DEFAULT: number = 0
+      const PORTABLE: number = 1
+      const PROTOTYPE: number = 2
       let body_status = DEFAULT
       // console.log(i, bodies.length, types.length, "hhh");
       // console.log(bodies[i]);
-      if (Boolean(portables[i])){
-        body_status = PORTABLE;
-      } 
-      if (Boolean(prototypes[i])){
-        body_status = PROTOTYPE;
-      } 
-      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
-      this.drawBot(img, realXs[i], realYs[i], hps[i]);
+      if (Boolean(portables[i])) {
+        body_status = PORTABLE
+      }
+      if (Boolean(prototypes[i])) {
+        body_status = PROTOTYPE
+      }
+      const img: HTMLImageElement = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]]
+      this.drawBot(img, realXs[i], realYs[i], hps[i])
 
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
@@ -411,9 +438,9 @@ export default class Renderer {
     // const maxY = world.maxCorner.y - 1;
 
     if (this.hoverPos) {
-      const {xrel, yrel} = this.hoverPos;
-      const x = xrel + world.minCorner.x;
-      const y = yrel + world.minCorner.y;
+      const { xrel, yrel } = this.hoverPos
+      const x = xrel + world.minCorner.x
+      const y = yrel + world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
       onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
     }
