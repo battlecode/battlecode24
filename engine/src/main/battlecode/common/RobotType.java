@@ -129,20 +129,6 @@ public enum RobotType {
     public final int bytecodeLimit;
 
     /**
-     * @return the squared action radius
-     */
-    public int getActionRadiusSquared(int level) {
-        return this.actionRadiusSquared;
-    }
-
-    /**
-     * @return the squared vision radius
-     */
-    public int getVisionRadiusSquared(int level) {
-        return this.visionRadiusSquared;
-    }
-
-    /**
      * Returns whether this type can build a robot of another given type.
      *
      * @param builtType type of robot being built

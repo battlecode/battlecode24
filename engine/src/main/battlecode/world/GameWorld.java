@@ -515,7 +515,7 @@ public strictfp class GameWorld {
     private MapLocation[] getSageActionLocations(InternalRobot robot) {
         assert robot.getType() == RobotType.SAGE;
         MapLocation center = robot.getLocation();
-        return getAllLocationsWithinRadiusSquared(center, robot.getType().getActionRadiusSquared(robot.getLevel()));
+        return getAllLocationsWithinRadiusSquared(center, robot.getType().actionRadiusSquared);
     }
 
     /**
