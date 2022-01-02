@@ -238,7 +238,7 @@ public class MapBuilder {
                 this.width,
                 this.height,
                 r.getLocation(),
-                r.getType().getVisionRadiusSquared(1)
+                r.getType().visionRadiusSquared
             );
 
             for (MapLocation location : visibleLocations)

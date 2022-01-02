@@ -1,7 +1,7 @@
 package battlecode.common;
 
 /**
- * Defines constants that affect gameplay.
+ * GameConstants defines constants that affect gameplay.
  */
 @SuppressWarnings("unused")
 public class GameConstants {
@@ -9,7 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.0";
+    public static final String SPEC_VERSION = "2022.0.1.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -74,7 +74,7 @@ public class GameConstants {
     // ****** COOLDOWNS ****************
     // *********************************
 
-    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    /** If the amount of cooldown is at least this value, a robot cannot act. */
     public static final int COOLDOWN_LIMIT = 10;
 
     /** The number of cooldown turns reduced per turn. */
