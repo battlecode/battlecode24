@@ -509,6 +509,54 @@ export default class GameWorld {
             console.log(`Exception occured: robotID(${robotID}), target(${target}`);
             break;
 
+          case schema.Action.VORTEX:
+            console.log("vortex");
+            let w = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
+            let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
+            switch (target) {
+              case 0:
+                for (let x = 0; x < w / 2; x++) {
+                    for (let y = 0; y < (w + 1) / 2; y++) {
+                        let curX = x;
+                        let curY = y;
+                        let lastRubble = this.mapStats.rubble[curX + curY * w];
+                        for (let i = 0; i < 4; i++) {
+                            let tempX = curX;
+                            curX = curY;
+                            curY = (w - 1) - tempX;
+                            let idx = curX + curY * w;
+                            let tempRubble = this.mapStats.rubble[idx];
+                            this.mapStats.rubble[idx] = lastRubble;
+                            lastRubble = tempRubble;
+                        }
+                    }
+                }
+              case 1:
+                  for (let x = 0; x < w / 2; x++) {
+                      for (let y = 0; y < h; y++) {
+                          let idx = x + y * w;
+                          let newX = w - 1 - x;
+                          let newIdx = newX + y * w;
+                          let prevRubble = this.mapStats.rubble[idx];
+                          this.mapStats.rubble[idx] = this.mapStats.rubble[newIdx];
+                          this.mapStats.rubble[newIdx] = prevRubble;
+                      }
+                  }
+                  break;
+                case 2:
+                  for (let y = 0; y < h / 2; y++) {
+                      for (let x = 0; x < w; x++) {
+                          let idx = x + y * w;
+                          let newY = h - 1 - y;
+                          let newIdx = x + newY * w;
+                          let prevRubble = this.mapStats.rubble[idx];
+                          this.mapStats.rubble[idx] = this.mapStats.rubble[newIdx];
+                          this.mapStats.rubble[newIdx] = prevRubble;
+                      }
+                  }
+                  break;
+            }
+
           default:
             //console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
             break;
