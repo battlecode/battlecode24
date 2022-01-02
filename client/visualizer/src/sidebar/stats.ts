@@ -131,7 +131,7 @@ export default class Stats {
       robotCounts[value] = document.createElement("tr");
       const title = document.createElement("td");
       if (value === "count") title.innerHTML = "<b>Count</b>";
-      if (value === "hp") title.innerHTML = "<b>HP</b>";
+      if (value === "hp") title.innerHTML = "<b>Σ(HP)</b>";
       robotCounts[value].appendChild(title);
     }
 
