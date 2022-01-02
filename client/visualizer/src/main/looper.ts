@@ -17,6 +17,9 @@ import { TeamStats } from 'battlecode-playback/out/gameworld';
 import { Tournament, readTournament } from '../main/tournament';
 import { ARCHON } from '../constants';
 
+
+import * as bcg from "../../../../schema/ts/battlecode_generated";
+let anomConsts = bcg.battlecode.schema.Action;
 /*
 Responsible for a single match in the visualizer.
 */
@@ -44,7 +47,7 @@ export default class Looper {
         private matchqueue: MatchQueue, private profiler?: Profiler,
         private mapinfo: string = "",
         showTourneyUpload: boolean = true) {
-
+        
         this.console = cconsole;
 
         this.conf.mode = config.Mode.GAME;
@@ -304,6 +307,22 @@ export default class Looper {
 
         //this.updateStats(this.match.current, this.meta);
         this.loopID = window.requestAnimationFrame((curTime) => this.loop.call(this, curTime));
+        //console.log(this.match.current.mapStats.anomalies, this.match.current.mapStats.anomalyRounds, "ANOMALIES");
+        /* Rendering anomalies */
+        let world = this.match.current.mapStats;
+
+        //let testAnom = [anomConsts.ABYSS, anomConsts.CHARGE];
+        //let testAnomRounds = [300, 1000];
+        for(var i = 0; i < world.anomalies.length; i++){
+            let anom = world.anomalies[i];
+            let anomRound = world.anomalyRounds[i];
+            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Grey" : "White";
+            var pos = Math.round(anomRound*300.0/this.match.lastTurn);
+            this.controls.ctx.beginPath();
+            this.controls.ctx.moveTo(pos, 0);
+            this.controls.ctx.lineTo(pos, 1);
+            this.controls.ctx.stroke();
+        }
     }
 
     /**
@@ -329,20 +348,21 @@ export default class Looper {
             let teamStats = world.teamStats.get(teamID) as TeamStats;
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
-            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => ((a === NaN)?0:a)+((b === NaN)?0:b));
 
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => ((a === NaN)?0:a)+((b === NaN)?0:b));
 
             // Update each robot count
-            console.log(teamStats);
+            console.log(teamStats), "teamStats";
             this.stats.robots.forEach((type: schema.BodyType) => {
                 this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
-                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
+                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => ((a === NaN)?0:a)+((b === NaN)?0:b)), teamHP); // TODO: differentiate levels, maybe
+                console.log(teamStats.total_hp[type], "asfsdfs");
             });
             /*const hps = world.bodies.arrays.hp;
             const types = world.bodies.arrays.type;
@@ -365,7 +385,10 @@ export default class Looper {
             teamLead.push(world.teamStats.get(teamIDs[a]).lead);
             //@ts-ignore
             teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+            //@ts-ignore
+            //console.log(world.teamStats.get(teamIDs[a]).lead, world.teamStats.get(teamIDs[a]).gold, teamIDs[a]);
         }
+    
         this.stats.updateBars(teamLead, teamGold);
         this.stats.resetECs();
         const hps = world.bodies.arrays.hp;
