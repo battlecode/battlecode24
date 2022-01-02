@@ -531,6 +531,7 @@ export default class GameWorld {
                         }
                     }
                 }
+                break;
               case 1:
                   for (let x = 0; x < w / 2; x++) {
                       for (let y = 0; y < h; y++) {
