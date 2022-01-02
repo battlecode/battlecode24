@@ -436,8 +436,8 @@ export default class GameWorld {
         const action = delta.actions(i);
         const robotID = delta.actionIDs(i);
         const target = delta.actionTargets(i);
-        const body = this.bodies.lookup(robotID);
-        const teamStatsObj: TeamStats = this.teamStats.get(body.team);
+        const body = robotID != -1 ? this.bodies.lookup(robotID) : null;
+        const teamStatsObj = body != null ? this.teamStats.get(body.team) : null;
         const setAction = () => {
           this.bodies.alter({id: robotID, action: action as number});
           this.actionRobots.push(robotID);
@@ -510,10 +510,10 @@ export default class GameWorld {
             break;
 
           default:
-            console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
+            //console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
             break;
         }
-        this.teamStats.set(body.team, teamStatsObj); // TODO: is this necessary
+        if (body) this.teamStats.set(body.team, teamStatsObj);
       }
     }
 
