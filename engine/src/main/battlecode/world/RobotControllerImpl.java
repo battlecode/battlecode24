@@ -323,7 +323,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getActionCooldownTurns() {
+    public int getActionCooldownTurns() {
         return this.robot.getActionCooldownTurns();
     }
 
@@ -345,7 +345,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getMovementCooldownTurns() {
+    public int getMovementCooldownTurns() {
         return this.robot.getMovementCooldownTurns();
     }
 
@@ -368,7 +368,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getTransformCooldownTurns() {
+    public int getTransformCooldownTurns() throws GameActionException {
+        if (!this.robot.getMode().canTransform)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can transform.");
         return this.robot.getTransformCooldownTurns();
     }
 

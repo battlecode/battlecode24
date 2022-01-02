@@ -374,7 +374,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double getActionCooldownTurns();
+    int getActionCooldownTurns();
 
     /**
      * Tests whether the robot can move.
@@ -395,7 +395,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double getMovementCooldownTurns();
+    int getMovementCooldownTurns();
 
     /**
      * Tests whether the robot can transform.
@@ -416,10 +416,11 @@ public strictfp interface RobotController {
      * GameConstants.COOLDOWNS_PER_TURN every turn.
      *
      * @return the number of cooldown turns remaining before this unit can transform again
+     * @throws GameActionException if the robot's mode is not TURRET or PORTABLE
      *
      * @battlecode.doc.costlymethod
      */
-    double getTransformCooldownTurns();
+    int getTransformCooldownTurns() throws GameActionException;
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
