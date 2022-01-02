@@ -11,7 +11,7 @@ export default class TileForm {
   readonly div: HTMLDivElement;
 
   // Form elements
-  readonly pass: HTMLInputElement;
+  readonly rubble: HTMLInputElement;
   readonly brush: HTMLInputElement;
   readonly style: HTMLSelectElement;
 
@@ -27,7 +27,7 @@ export default class TileForm {
 
     // Create HTML elements
     this.div = document.createElement("div");
-    this.pass = document.createElement("input");
+    this.rubble = document.createElement("input");
     this.brush = document.createElement("input");
     this.style = document.createElement("select");
 
@@ -41,7 +41,7 @@ export default class TileForm {
    * Initializes input fields.
    */
   private loadInputs(): void {
-    this.pass.value = "0.5";
+    this.rubble.value = "50";
     this.brush.value = "3";
 
     for (var styleString of ["Circle", "Square", "Cow"]) {
@@ -63,8 +63,8 @@ export default class TileForm {
     const brush: HTMLDivElement = document.createElement("div");
     const style: HTMLDivElement = document.createElement("div");
     
-    pass.appendChild(document.createTextNode("Passability:"));
-    pass.appendChild(this.pass);
+    pass.appendChild(document.createTextNode("Rubble:"));
+    pass.appendChild(this.rubble);
     form.appendChild(pass);
     
     brush.appendChild(document.createTextNode("Brush size:"));
@@ -85,16 +85,16 @@ export default class TileForm {
    * Add callbacks to the form elements.
    */
   private loadCallbacks(): void {
-    this.pass.onchange = () => {
-      this.pass.value = !isNaN(this.getPass()) ? this.validate(this.getPass(), 0.1, 1) : "";
+    this.rubble.onchange = () => {
+      this.rubble.value = !isNaN(this.getRubble()) ? this.validate(this.getRubble(), 0, 100) : "";
     };
     this.brush.onchange = () => {
         this.brush.value = !isNaN(this.getBrush()) ? this.validate(this.getBrush(), 1) : "";
       };
   }
 
-  getPass(): number {
-    return parseFloat(this.pass.value);
+  getRubble(): number {
+    return parseFloat(this.rubble.value);
   }
 
   getBrush(): number {
@@ -106,7 +106,7 @@ export default class TileForm {
   }
 
   resetForm(): void {
-    this.pass.value = "";
+    this.rubble.value = "";
   }
 
   setForm(): void {
@@ -119,6 +119,6 @@ export default class TileForm {
   }
 
   isValid(): boolean {
-    return !(isNaN(this.getPass()));
+    return !(isNaN(this.getRubble()));
   }
 }

@@ -1,18 +1,29 @@
-import { schema } from 'battlecode-playback';
-import { Symmetry } from './mapeditor/index';
+import { schema } from 'battlecode-playback'
+import { Symmetry } from './mapeditor/index'
 
 // Body types
-export const ENLIGHTENMENT_CENTER = schema.BodyType.ENLIGHTENMENT_CENTER;
-export const POLITICIAN = schema.BodyType.POLITICIAN;
-export const SLANDERER = schema.BodyType.SLANDERER;
-export const MUCKRAKER = schema.BodyType.MUCKRAKER;
+export const ARCHON = schema.BodyType.ARCHON
+export const BUILDER = schema.BodyType.BUILDER
+export const LABORATORY = schema.BodyType.LABORATORY
+export const MINER = schema.BodyType.MINER
+export const SAGE = schema.BodyType.SAGE
+export const SOLDIER = schema.BodyType.SOLDIER
+export const WATCHTOWER = schema.BodyType.WATCHTOWER
 
-export const bodyTypeList: number[] = [ENLIGHTENMENT_CENTER, POLITICIAN, SLANDERER, MUCKRAKER];
-export const initialBodyTypeList: number[] = [ENLIGHTENMENT_CENTER];
+export const bodyTypeList: number[] = [ARCHON, BUILDER, LABORATORY, MINER, SAGE, SOLDIER, WATCHTOWER]
+export const initialBodyTypeList: number[] = [ARCHON]
 
-export const bodyTypePriority: number[] = []; // for guns, drones, etc. that should be drawn over other robots
+export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
-export const TILE_COLORS: Array<number>[] = [[119, 228, 88], [144, 230, 83], [166, 231, 79], [187, 232, 76], [206, 233, 76], [231, 207, 66], [245, 182, 72], [249, 158, 86], [219, 115, 109], [163, 90, 118], [99, 73, 103], [51, 52, 65]];
+export const TILE_COLORS: Array<number>[] = [
+  [168, 137, 97],
+  [147, 117, 77],
+  [88, 129, 87],
+  [58, 90, 64],
+  [52, 78, 65],
+  [11, 32, 39],
+  [8, 20, 20]
+]
 // flashy colors
 // [0, 147, 83], // turquoise
 // [29, 201, 2], // green
@@ -23,45 +34,47 @@ export const TILE_COLORS: Array<number>[] = [[119, 228, 88], [144, 230, 83], [16
 
 // Given passability, get index of tile to use.
 export const getLevel = (x: number): number => {
-  const nLev = TILE_COLORS.length;
-  const floatLevel = ((1 - x) - 0.1) / 0.9 * nLev;
+  x = 100 - x;
+  x /= 100;
+  const nLev = TILE_COLORS.length
+  const floatLevel = ((1 - x) - 0.1) / 0.9 * nLev
   const level = Math.floor(floatLevel)
-  return Math.min(nLev - 1, Math.max(0, level));
+  return Math.min(nLev - 1, Math.max(0, level))
 }
 
 export const passiveInfluenceRate = (round: number): number => {
   //return Math.floor((1/50 + 0.03 * Math.exp(-0.001 * x)) * x); this one's for slanderers
-  return Math.ceil(0.2 * Math.sqrt(round));
+  return Math.ceil(0.2 * Math.sqrt(round))
 }
 
 export const buffFactor = (numBuffs: number): number => {
-  return 1 + 0.001 * numBuffs;
+  return 1 + 0.001 * numBuffs
 }
 
-export const ACTION_RADIUS_COLOR = "#46ff00";
-export const SENSOR_RADIUS_COLOR = "#0000ff";
+export const ACTION_RADIUS_COLOR = "#46ff00"
+export const VISION_RADIUS_COLOR = "#0000ff"
 
 // Expected bot image size
-export const IMAGE_SIZE = 128;
+export const IMAGE_SIZE = 50
 
 // Game canvas rendering sizes
-export const INDICATOR_DOT_SIZE = .3;
-export const INDICATOR_LINE_WIDTH = .3;
+export const INDICATOR_DOT_SIZE = .3
+export const INDICATOR_LINE_WIDTH = .3
 export const SIGHT_RADIUS_LINE_WIDTH = .15
 
 // Game canvas rendering parameters
-export const EFFECT_STEP = 200; //time change between effect animations
+export const EFFECT_STEP = 200 //time change between effect animations
 
 // Map editor canvas parameters
-export const DELTA = .0001;
-export const MIN_DIMENSION = 15;
-export const MAX_DIMENSION = 100;
+export const DELTA = .0001
+export const MIN_DIMENSION = 15
+export const MAX_DIMENSION = 100
 
-// Initial influence of enlightenment center, for map editor
-export const INITIAL_INFLUENCE = 150;
+// Initial (default) HP of archons, for map editor
+export const INITIAL_HP = 100
 
 // Server settings
-export const NUMBER_OF_TEAMS = 2;
+export const NUMBER_OF_TEAMS = 2
 // export const VICTORY_POINT_THRESH = 1000;
 
 // Other constants
@@ -81,12 +94,12 @@ export enum MapType {
 
 // Map types to filter in runner
 export const mapTypes: MapType[] = [MapType.DEFAULT,
-  MapType.SPRINT_1,
-  MapType.SPRINT_2,
-  MapType.QUALIFYING,
-  MapType.HS_NEWBIE,
-  MapType.FINAL,
-  MapType.CUSTOM];
+MapType.SPRINT_1,
+MapType.SPRINT_2,
+MapType.QUALIFYING,
+MapType.HS_NEWBIE,
+MapType.FINAL,
+MapType.CUSTOM]
 
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["maptestsmall", MapType.DEFAULT],
@@ -165,51 +178,57 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["Stonks", MapType.FINAL],
   ["TheClientMapEditorIsSuperiorToGoogleSheetsEom", MapType.FINAL],
   ["TheSnackThatSmilesBack", MapType.FINAL]
-]);
+])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
   switch (bodyType) {
-    case ENLIGHTENMENT_CENTER:
-      return "enlightenmentCenter";
-    case POLITICIAN:
-      return "politician";
-    case SLANDERER:
-      return "slanderer";
-    case MUCKRAKER:
-      return "muckraker";
-    default: throw new Error("invalid body type");
+    case ARCHON:
+      return "archon"
+    case WATCHTOWER:
+      return "watchtower"
+    case BUILDER:
+      return "builder"
+    case MINER:
+      return "miner"
+    case SAGE:
+      return "sage"
+    case SOLDIER:
+      return "soldier"
+    case LABORATORY:
+      return "laboratory"
+    default: throw new Error("invalid body type")
   }
 }
 
 export function symmetryToString(symmetry: Symmetry) {
   switch (symmetry) {
-    case Symmetry.ROTATIONAL: return "Rotational";
-    case Symmetry.HORIZONTAL: return "Horizontal";
-    case Symmetry.VERTICAL: return "Vertical";
-    default: throw new Error("invalid symmetry");
+    case Symmetry.ROTATIONAL: return "Rotational"
+    case Symmetry.HORIZONTAL: return "Horizontal"
+    case Symmetry.VERTICAL: return "Vertical"
+    default: throw new Error("invalid symmetry")
   }
 }
 
 export function abilityToEffectString(effect: number): string | null {
   switch (effect) {
     case 1:
-      return "empower";
+      return "empower"
     case 2:
-      return "expose";
+      return "expose"
     case 3:
-      return "embezzle";
+      return "embezzle"
     case 4:
-      return "camouflage_red";
+      return "camouflage_red"
     case 5:
-      return "camouflage_blue";
+      return "camouflage_blue"
     default:
-      return null;
+      return null
   }
 }
 
 // TODO: fix radius (is this vision that can be toggled in sidebar?)
 export function radiusFromBodyType(bodyType: schema.BodyType) {
-  return -1;
+  return -1
   // switch(bodyType) {
   //   case MINER:
   //   case LANDSCAPER:

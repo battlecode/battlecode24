@@ -21,7 +21,7 @@ export default class MapRenderer {
   // Callbacks for clicking robots and trees on the canvas
   readonly onclickUnit: (id: number) => void;
   readonly onclickBlank: (x, y) => void;
-  readonly onMouseover: (x: number, y: number, passability: number) => void
+  readonly onMouseover: (x: number, y: number, rubble: number, lead: number) => void
   readonly onDrag: (x, y) => void
 
   // Other useful values
@@ -33,7 +33,7 @@ export default class MapRenderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config,
     onclickUnit: (id: number) => void, onclickBlank: (x: number, y: number) => void,
-    onMouseover: (x: number, y: number, passability: number) => void,
+    onMouseover: (x: number, y: number, rubble: number, lead: number) => void,
     onDrag: (x: number, y: number) => void) {
     this.canvas = canvas;
     this.conf = conf;
@@ -58,7 +58,6 @@ export default class MapRenderer {
    * Renders the game map.
    */
   render(map: GameMap): void {
-    console.log("map:", map);
     const scale = this.canvas.width / map.width;
     this.width = map.width;
     this.height = map.height;
@@ -71,6 +70,7 @@ export default class MapRenderer {
 
     this.renderBackground(map);
     this.renderBodies(map);
+    this.renderResources(map);
 
     // restore default rendering
   }
@@ -91,23 +91,55 @@ export default class MapRenderer {
   private renderBackground(map: GameMap): void {
     for(let i = 0; i < this.width; i++){
       for(let j = 0; j < this.height; j++){
-        const passability = map.passability[(map.height-j-1)*this.width + i];
-        this.renderTile(i, j, passability);
+        const rubble = map.rubble[(map.height-j-1)*this.width + i];
+        this.renderTile(i, j, rubble);
+        
       }
     }
   }
 
-  private renderTile(i: number, j: number, passability: number) {
+  private renderTile(i: number, j: number, rubble: number) {
     this.ctx.save();
     const scale = 20;
     this.ctx.scale(1/scale, 1/scale);
-    const swampLevel = cst.getLevel(passability);
+    const swampLevel = cst.getLevel(rubble);
     const tileImg = this.imgs.tiles[swampLevel];
     this.ctx.drawImage(tileImg, i*scale, j*scale, scale, scale);
     this.ctx.strokeStyle = 'gray';
     this.ctx.globalAlpha = 1;
     this.ctx.strokeRect(i*scale, j*scale, scale, scale);
     this.ctx.restore();
+  }
+
+  private renderResources(map: GameMap) {
+    this.ctx.save()
+    this.ctx.globalAlpha = 1
+
+    const leadImg = this.imgs.resources.lead
+
+    const scale = 1
+
+    const sigmoid = (x) => {
+      return 1 / (1 + Math.exp(-x))
+    }
+
+    for (let i = 0; i < this. width; i++) for (let j = 0; j < this.height; j++) {
+      const lead = map.leadVals[(map.height-j-1)*this.width + i];
+
+      this.ctx.globalAlpha = 1
+      const cx = i*scale, cy = j*scale
+
+      if (lead > 0) {
+        let size = sigmoid(lead / 50)
+        this.ctx.drawImage(leadImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
+
+        this.ctx.strokeStyle = '#59727d'
+        this.ctx.lineWidth = 1 / 30
+        this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+      }
+    }
+
+    this.ctx.restore()
   }
 
   /**
@@ -184,7 +216,7 @@ export default class MapRenderer {
 
     this.canvas.onmousemove = (event) => {
       const {x,y} = this.getIntegerLocation(event, this.map);
-      this.onMouseover(x, y, this.map.passability[(y)*this.width + x]);
+      this.onMouseover(x, y, this.map.rubble[(y)*this.width + x], this.map.leadVals[y*this.width + x]);
       hoverPos = {x: x, y: y};
     };
 

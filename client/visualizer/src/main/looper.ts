@@ -15,6 +15,7 @@ import WebSocketListener from '../main/websocket';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
 import { Tournament, readTournament } from '../main/tournament';
+import { ARCHON } from '../constants';
 
 /*
 Responsible for a single match in the visualizer.
@@ -82,9 +83,9 @@ export default class Looper {
             this.lastSelectedID = id;
             this.console.setIDFilter(id);
         };
-        const onMouseover = (x: number, y: number, xrel: number, yrel: number, passability: number) => {
+        const onMouseover = (x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number) => {
             // Better make tile type and hand that over
-            controls.setTileInfo(x, y, xrel, yrel, passability);
+            controls.setTileInfo(x, y, xrel, yrel, rubble, lead, gold);
         };
 
         // Configure renderer for this match
@@ -243,16 +244,19 @@ export default class Looper {
                 let id = bodies.id[index];
                 let x = bodies.x[index];
                 let y = bodies.y[index];
-                let influence = bodies.influence[index];
-                let conviction = bodies.conviction[index];
                 let type = bodies.type[index];
+                // let influence = bodies.influence[index];
+                // let conviction = bodies.conviction[index];
+                let hp = bodies.hp[index]; 
+                let max_hp = this.meta.types[type].health;
+                let dp = this.meta.types[type].damage;
                 let bytecodes = bodies.bytecodesUsed[index];
-                let flag = bodies.flag[index];
+                let level = bodies.level[index];
                 let parent = bodies.parent[index];
-                let bid = bodies.bid[index];
+                // let bid = bodies.bid[index];
 
-                this.controls.setInfoString(id, x, y, influence, conviction, cst.bodyTypeToString(type), bytecodes, flag,
-                    bid !== 0 ? bid : undefined, parent !== 0 ? parent : undefined);
+                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
+                    parent !== 0 ? parent : undefined);
             }
         }
 
@@ -307,46 +311,68 @@ export default class Looper {
      * team in the current game world.
      */
     private updateStats(world: GameWorld, meta: Metadata) {
-        let totalInfluence = 0;
-        let totalConviction = 0;
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
+        let totalHP = 0;
+        // this.stats.resetECs();
+        // for (let i = 0; i < world.bodies.length; i++) {
+        //     const type = world.bodies.arrays.type[i];
+        //     if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
+        //         this.stats.addEC(world.bodies.arrays.team[i]);
+        //     }
+        // }
 
-        this.stats.resetECs();
-        for (let i = 0; i < world.bodies.length; i++) {
-            const type = world.bodies.arrays.type[i];
-            if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
-                this.stats.addEC(world.bodies.arrays.team[i]);
-            }
-        }
-
+        let teamLead: number[] = [];
+        let teamGold: number[] = [];
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            totalInfluence += teamStats.influence.reduce((a, b) => a + b);
-            totalConviction += teamStats.conviction.reduce((a, b) => a + b);
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
+            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
 
             // Update each robot count
+            console.log(teamStats);
             this.stats.robots.forEach((type: schema.BodyType) => {
-                this.stats.setRobotCount(teamID, type, teamStats.robots[type]);
-                this.stats.setRobotConviction(teamID, type, teamStats.conviction[type], totalConviction);
-                this.stats.setRobotInfluence(teamID, type, teamStats.influence[type]);
+                this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
             });
+            /*const hps = world.bodies.arrays.hp;
+            const types = world.bodies.arrays.type;
+            for(var i = 0; i < hps.length; i++){
+                this.stats.setRobotCount(teamID, types[i], hps[i]); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, types[i], hps[i], teamHP); // TODO: differentiate levels, maybe
+            }*/
 
             // Set votes
-            this.stats.setVotes(teamID, teamStats.votes);
-            this.stats.setTeamInfluence(teamID, teamStats.influence.reduce((a, b) => a + b),
-                totalInfluence);
-            this.stats.setBuffs(teamID, teamStats.numBuffs);
-            this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.income, world.turn);
+            // this.stats.setVotes(teamID, teamStats.votes);
+            //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
+            // this.stats.setBuffs(teamID, teamStats.numBuffs);
+            // this.stats.setBid(teamID, teamStats.bid);
+            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
+            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
+        }
+
+        for(var a = 0; a < teamIDs.length; a++){
+            //@ts-ignore
+            teamLead.push(world.teamStats.get(teamIDs[a]).lead);
+            //@ts-ignore
+            teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+        }
+        this.stats.updateBars(teamLead, teamGold);
+        this.stats.resetECs();
+        const hps = world.bodies.arrays.hp;
+        const teams = world.bodies.arrays.team;
+        const types = world.bodies.arrays.type;
+        for(var i = 0; i < hps.length; i++){
+            if(types[i] == ARCHON) this.stats.addEC(teams[i], hps[i]);
         }
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {

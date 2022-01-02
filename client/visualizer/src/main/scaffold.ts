@@ -121,8 +121,8 @@ export default class ScaffoldCommunicator {
         }
 
         // paths are relative for readdir
-        return cb(null, new Set(files.filter((file) => file.endsWith('.map21'))
-                  .map((file) => file.substring(0, file.length - '.map21'.length))
+        return cb(null, new Set(files.filter((file) => file.endsWith('.map22'))
+                  .map((file) => file.substring(0, file.length - '.map22'.length))
                   .concat(Array.from(SERVER_MAPS.keys()))));
       });
     });
@@ -137,7 +137,7 @@ export default class ScaffoldCommunicator {
       fs.mkdirSync(dir);
     }
 
-    fs.writeFile(path.join(this.scaffoldPath, 'maps', `${mapName}.map21`),
+    fs.writeFile(path.join(this.scaffoldPath, 'maps', `${mapName}.map22`),
                  new Buffer(mapData),
                  cb);
   }

@@ -20,8 +20,8 @@ if (!project.hasProperty("maps")) {
 }
 
 if (project.hasProperty("release_version")) {
-    if (!project.property("release_version").startsWith("2021")) {
-        throw new StopExecutionException("release version must start with 2021!")
+    if (!project.property("release_version").startsWith("2022")) {
+        throw new StopExecutionException("release version must start with 2022!")
     }
 }
 
