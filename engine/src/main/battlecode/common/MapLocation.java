@@ -138,7 +138,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * If <code>location</code> equals this location then the return value is Direction.CENTER.
      *
      * @param location The location to which the Direction will be calculated
-     * @return The Direction to <code>location</code> from this MapLocation.
+     * @return the Direction to <code>location</code> from this MapLocation
      *
      * @battlecode.doc.costlymethod
      */

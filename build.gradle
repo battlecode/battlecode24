@@ -272,13 +272,6 @@ task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
 
 
 
-task updateVersion() {
-  // new File("frontend/public/version.txt").write(project.findProperty('release_version'))
-}
-
-
-
-publish.dependsOn(updateVersion)
 publishing {
   repositories {
     maven {
@@ -296,11 +289,10 @@ publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21'
+      artifactId 'battlecode22'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
-    
 
       artifact release_docs {
         classifier 'javadoc'
@@ -312,7 +304,7 @@ publishing {
 
     clientWin(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21-client-win'
+      artifactId 'battlecode22-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin
@@ -320,7 +312,7 @@ publishing {
     
     clientMac(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21-client-mac'
+      artifactId 'battlecode22-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientMac
@@ -328,7 +320,7 @@ publishing {
 
     clientLinux(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21-client-linux'
+      artifactId 'battlecode22-client-linux'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux
@@ -336,7 +328,7 @@ publishing {
 
     clientWin32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21-client-win-32'
+      artifactId 'battlecode22-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin32
@@ -344,7 +336,7 @@ publishing {
 
     clientLinux32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode21-client-linux-32'
+      artifactId 'battlecode22-client-linux-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux32
