@@ -189,7 +189,7 @@ public strictfp interface RobotController {
     boolean canSenseRadiusSquared(int radiusSquared);
 
     /**
-     * Checks whether a robot is at a given location. Assumes the location is valid.  
+     * Checks whether a robot is at a given location. Assumes the location is valid.
      *
      * @param loc the location to check
      * @return true if a robot is at the location
@@ -197,7 +197,17 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException;
+    boolean isLocationOccupied(MapLocation loc) throws GameActionException;
+
+    /**
+     * Checks whether a robot is at a given location. Assume the location is valid.
+     *
+     * @param loc the location to check
+     * @return true if a robot is at the location, false if there is no robot or the location can not be sensed.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canSenseRobotAtLocation(MapLocation loc);
 
     /**
      * Senses the robot at the given location, or null if there is no robot
@@ -379,7 +389,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double getActionCooldownTurns();
+    int getActionCooldownTurns();
 
     /**
      * Tests whether the robot can move.
@@ -400,7 +410,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    double getMovementCooldownTurns();
+    int getMovementCooldownTurns();
 
     /**
      * Tests whether the robot can transform.
@@ -421,10 +431,11 @@ public strictfp interface RobotController {
      * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
      *
      * @return the number of cooldown turns remaining before this unit can transform again
+     * @throws GameActionException if the robot's mode is not TURRET or PORTABLE
      *
      * @battlecode.doc.costlymethod
      */
-    double getTransformCooldownTurns();
+    int getTransformCooldownTurns() throws GameActionException;
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********

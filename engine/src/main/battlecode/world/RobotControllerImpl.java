@@ -203,9 +203,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException {
+    public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.getRobot(loc) != null;
+    }
+
+    @Override
+    public boolean canSenseRobotAtLocation(MapLocation loc) {
+        try {
+            return isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
@@ -301,10 +308,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
 
-    private boolean isLocationOccupied(MapLocation loc) throws GameActionException {
-        return this.gameWorld.getRobot(loc) != null;
-    }
-
     private void assertIsActionReady() throws GameActionException {
         if (!this.robot.getMode().canAct)
             throw new GameActionException(CANT_DO_THAT,
@@ -323,7 +326,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getActionCooldownTurns() {
+    public int getActionCooldownTurns() {
         return this.robot.getActionCooldownTurns();
     }
 
@@ -345,7 +348,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getMovementCooldownTurns() {
+    public int getMovementCooldownTurns() {
         return this.robot.getMovementCooldownTurns();
     }
 
@@ -368,7 +371,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getTransformCooldownTurns() {
+    public int getTransformCooldownTurns() throws GameActionException {
+        if (!this.robot.getMode().canTransform)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can transform.");
         return this.robot.getTransformCooldownTurns();
     }
 

@@ -47,9 +47,7 @@ public enum AnomalyType {
      * The values of {@link #globalPercentage} and {@link #sagePercentage} are
      * unused.
      */
-    VORTEX      (true,    false,  0,      0),
-
-    SINGULARITY (true,    false,  0,      0);
+    VORTEX      (true,    false,  0,      0);
 
     /**
      * Whether this type of Anomaly could appear in the global schedule.
