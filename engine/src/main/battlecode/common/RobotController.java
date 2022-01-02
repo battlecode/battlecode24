@@ -26,7 +26,8 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-     * Returns map width.
+     * Returns the width of the game map. Valid x coordinates range from
+     * 0 (inclusive) to the width (exclusive).
      *
      * @return the map width
      *
@@ -35,7 +36,8 @@ public strictfp interface RobotController {
     int getMapWidth();
 
     /**
-     * Returns map height.
+     * Returns the height of the game map. Valid y coordinates range from
+     * 0 (inclusive) to the height (exclusive).
      *
      * @return the map height
      *
@@ -369,9 +371,9 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of action cooldown turns remaining before this unit can act again.
-     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isActionReady()
+     * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT}, isActionReady()
      * is true and the robot can act again. This number decreases by
-     * GameConstants.COOLDOWNS_PER_TURN every turn.
+     * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
      *
      * @return the number of action turns remaining before this unit can act again
      *
@@ -390,9 +392,9 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of movement cooldown turns remaining before this unit can move again.
-     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isMovementReady()
+     * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT}, isMovementReady()
      * is true and the robot can move again. This number decreases by
-     * GameConstants.COOLDOWNS_PER_TURN every turn.
+     * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
      *
      * @return the number of cooldown turns remaining before this unit can move again
      *
@@ -414,9 +416,9 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of cooldown turns remaining before this unit can transform again.
-     * When this number is strictly less than GameConstants.COOLDOWN_LIMIT, isTransformReady()
+     * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT}, isTransformReady()
      * is true and the robot can transform again. This number decreases by
-     * GameConstants.COOLDOWNS_PER_TURN every turn.
+     * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
      *
      * @return the number of cooldown turns remaining before this unit can transform again
      *
@@ -766,8 +768,8 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Sets the indicator string for this robot. Only the first
-     *  GameConstants.INDICATOR_STRING_MAX_LENGTH characters are used.
+     * Sets the indicator string for this robot for debugging purposes. Only the first
+     * {@link GameConstants#INDICATOR_STRING_MAX_LENGTH} characters are used.
      *
      * @param string the indicator string this round
      *
