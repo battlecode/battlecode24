@@ -227,7 +227,7 @@ export default class Stats {
     console.log(this.div);
     for(var a = 0; a < teamGold.length; a++){
       this.relativeBars[a].innerHTML = teamGold[a].toString();
-      this.relativeBars[a+2].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
+      this.relativeBars[a].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
     }
     for(var a = 0; a < teamLead.length; a++){
       this.relativeBars[a+2].innerHTML = teamLead[a].toString();

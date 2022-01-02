@@ -368,6 +368,11 @@ export default class MapEditorForm {
           this.deleteUnit(id);
           this.getActiveForm().resetForm();
         }
+      } else if (this.getActiveForm() == this.leadForm) {
+        const form: LeadForm = this.leadForm;
+        const x = form.getX();
+        const y = form.getY();
+        this.setLead(x, y, 0);
       }
     }
 

@@ -466,8 +466,8 @@ export default class GameWorld {
           
           case schema.Action.TRANSMUTE:
             setAction();
-            teamStatsObj.gold += target;
-            teamStatsObj.lead -= 0;
+            // teamStatsObj.gold += target;
+            // teamStatsObj.lead -= 0;
             break;
 
           case schema.Action.TRANSFORM:
@@ -497,12 +497,12 @@ export default class GameWorld {
 
           case schema.Action.CHANGE_HEALTH:
             this.bodies.alter({ id: robotID, hp: body.hp + target});
-            teamStatsObj.total_hp[body.type][body.level] += target;
+            teamStatsObj.total_hp[body.type][body.level - 1] += target;
             break;
 
           case schema.Action.FULLY_REPAIRED:
             this.bodies.alter({ id: robotID, prototype: 0});
-            teamStatsObj.total_hp[body.type][body.level] += target;
+            //teamStatsObj.total_hp[body.type][body.level] += target;
             break;
 
           case schema.Action.DIE_EXCEPTION:
@@ -510,7 +510,6 @@ export default class GameWorld {
             break;
 
           case schema.Action.VORTEX:
-            console.log("vortex");
             let w = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
             let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
             switch (target) {
@@ -607,7 +606,8 @@ export default class GameWorld {
           if(!statObj) {continue;} // In case this is a neutral bot
           statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1;
           let hp = this.bodies.arrays.hp[index];
-          statObj.total_hp[type][this.bodies.arrays.level[index] - 1] -= hp;
+          let level = this.bodies.arrays.level[index];
+          statObj.total_hp[type][level - 1] -= hp;
           this.teamStats.set(team, statObj);
       }
 

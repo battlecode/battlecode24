@@ -348,21 +348,18 @@ export default class Looper {
             let teamStats = world.teamStats.get(teamID) as TeamStats;
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
-            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => ((a === NaN)?0:a)+((b === NaN)?0:b));
-
+            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => ((a === NaN)?0:a)+((b === NaN)?0:b));
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a+b);
 
             // Update each robot count
-            console.log(teamStats), "teamStats";
             this.stats.robots.forEach((type: schema.BodyType) => {
                 this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
-                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => ((a === NaN)?0:a)+((b === NaN)?0:b)), teamHP); // TODO: differentiate levels, maybe
-                console.log(teamStats.total_hp[type], "asfsdfs");
+                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
             });
             /*const hps = world.bodies.arrays.hp;
             const types = world.bodies.arrays.type;
