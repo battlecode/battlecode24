@@ -308,10 +308,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
 
-    private boolean isLocationOccupied(MapLocation loc) throws GameActionException {
-        return this.gameWorld.getRobot(loc) != null;
-    }
-
     private void assertIsActionReady() throws GameActionException {
         if (!this.robot.getMode().canAct)
             throw new GameActionException(CANT_DO_THAT,
