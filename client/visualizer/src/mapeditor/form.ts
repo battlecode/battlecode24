@@ -25,7 +25,9 @@ export type GameMap = {
   symmetricBodies: Map<number, MapUnit>,
   rubble: number[],
   leadVals: number[],
-  symmetry: number
+  symmetry: number,
+  anomalies: [],
+  anomalyRounds: []
 };
 
 /**
@@ -47,6 +49,7 @@ export default class MapEditorForm {
   private readonly robots: RobotForm;
   private readonly tiles: TileForm;
   private readonly lead: LeadForm;
+  private readonly anomalies: AnomalyForm;
 
   private robotsRadio: HTMLInputElement;
   private tilesRadio: HTMLInputElement;
@@ -218,7 +221,7 @@ export default class MapEditorForm {
     };
     const tilesLabel = document.createElement("label");
     tilesLabel.setAttribute("for", this.tilesRadio.id);
-    tilesLabel.textContent = "Place Rubble";
+    tilesLabel.textContent = "Rubble";
 
     // Radio button for placing units
     this.robotsRadio.id = "robots-radio";
@@ -239,7 +242,7 @@ export default class MapEditorForm {
     };
     const robotsLabel = document.createElement("label");
     robotsLabel.setAttribute("for", this.robotsRadio.id);
-    robotsLabel.textContent = "Place Robots";
+    robotsLabel.textContent = "Robots";
 
     // Radio button for placing lead
     this.leadRadio.id = "lead-radio";
@@ -261,7 +264,7 @@ export default class MapEditorForm {
 
     const leadLabel = document.createElement("label");
     leadLabel.setAttribute("for", this.leadRadio.id);
-    leadLabel.textContent = "Place Lead";
+    leadLabel.textContent = "Lead";
 
     // Add radio buttons HTML element
     div.appendChild(this.tilesRadio);
@@ -527,7 +530,9 @@ export default class MapEditorForm {
       symmetricBodies: this.symmetricBodies,
       rubble: this.rubble,
       leadVals: this.leadVals,
-      symmetry: this.symmetry.getSymmetry()
+      symmetry: this.symmetry.getSymmetry(),
+      anomalies: [],
+      anomalyRounds: []
     };
   }
 
