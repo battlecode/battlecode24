@@ -134,7 +134,8 @@ public enum RobotType {
      */
     public boolean canAttack() {
         return (this == WATCHTOWER
-            || this == SOLDIER);
+            || this == SOLDIER
+            || this == SAGE);
     }
 
     /**
