@@ -1,3 +1,8 @@
+# TODO enforce state of repo up-to-date
+# TODO enforce the following --
+# Pay attention to the version number at the top of specs.md.html, and to the changelog at the bottom.
+# push to master!
+
 # Note: this script is not in the specs folder, on purpose --
 # I don't want this script to get deployed too.
 

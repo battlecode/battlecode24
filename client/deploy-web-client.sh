@@ -1,14 +1,14 @@
+# TODO move this to deploy folder
 # TODO enforce state of repo up-to-date
 # TODO year as arg
 # TODO prereqs: npm, tsc, java?, flatc
 
-# TODO check rel_java.md sidebyside to see if any missing steps
-
 BUCKET_NAME="bc-game-storage"
 # TODO make gs://$BUCKET_NAME/clients/2022/ a var, and use it
 
-echo "IMPORTANT: Make sure to update gameVersion in client/visualizer/src/config."
-read -p "When done, press enter to proceed..."
+echo "IMPORTANT: Make sure that gameVersion is updated in client/visualizer/src/config."
+echo "If it is not, change it now. Make sure to push to the repo later too."
+read -p "Press enter to proceed..."
 
 cd ../schema
 npm install
