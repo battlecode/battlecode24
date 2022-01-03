@@ -6,6 +6,7 @@ import {cow_border as cow} from '../cow';
 import {schema, flatbuffers} from 'battlecode-playback';
 
 import {MapRenderer, HeaderForm, SymmetryForm, RobotForm, TileForm, LeadForm, AnomalyForm, UploadedMap} from './index';
+import { throws } from 'assert';
 
 export type MapUnit = {
   x: number,
@@ -64,6 +65,7 @@ export default class MapEditorForm {
   readonly buttonInvert: HTMLButtonElement;
 
   readonly tileInfo: HTMLDivElement;
+  readonly anomalyInfo: HTMLDivElement;
 
   // Options
   private readonly conf: Config
@@ -149,6 +151,10 @@ export default class MapEditorForm {
     this.tileInfo = document.createElement("div");
     this.tileInfo.textContent = "X: | Y: | Rubble: | Lead:";
     this.div.appendChild(this.tileInfo);
+    this.div.appendChild(document.createElement('hr'));
+
+    this.anomalyInfo = document.createElement("div");
+    this.div.appendChild(this.anomalyInfo);
     this.div.appendChild(document.createElement('hr'));
 
     // Renderer settings
@@ -358,6 +364,7 @@ export default class MapEditorForm {
         const round = form.getRound();
         this.anomalies.push(anomaly);
         this.anomalyRounds.push(round);
+        this.setAnomalyInfo();
       }
     }
 
@@ -373,6 +380,16 @@ export default class MapEditorForm {
         const x = form.getX();
         const y = form.getY();
         this.setLead(x, y, 0);
+      } else if (this.getActiveForm() == this.anomaliesForm) {
+        const form: AnomalyForm = this.anomaliesForm;
+        const round = form.getRound();
+        let i = this.anomalyRounds.indexOf(round);
+        console.log("index:", i);
+        if (i != -1) {
+          this.anomalyRounds.splice(i, 1);
+          this.anomalies.splice(i, 1);
+        }
+        this.setAnomalyInfo();
       }
     }
 
@@ -557,6 +574,17 @@ export default class MapEditorForm {
     this.renderer.render(this.getMap());
   }
 
+  private setAnomalyInfo() {
+    while (this.anomalyInfo.firstChild) this.anomalyInfo.removeChild(this.anomalyInfo.firstChild);
+    this.anomalies.forEach((anomaly, i) => {
+      let anomaly_str = cst.anomalyToString(anomaly);
+      let round = this.anomalyRounds[i]; 
+      let anomaly_el: HTMLSpanElement = document.createElement("div");
+      anomaly_el.innerHTML = `Round ${round}: <b>${anomaly_str}</b>`;
+      this.anomalyInfo.appendChild(anomaly_el);
+    })
+  }
+
   /**
    * Returns a map with the given name, width, height, and bodies.
    */
@@ -633,15 +661,22 @@ export default class MapEditorForm {
     this.rubble = map.rubble;
     this.leadVals = map.lead;
 
+    this.anomalies = map.anomalies;
+    this.anomalyRounds = map.anomalyRounds;
+
     this.render();
+    this.setAnomalyInfo();
   }
 
   reset(): void {
     this.lastID = 1;
     this.originalBodies = new Map<number, MapUnit>();
     this.symmetricBodies = new Map<number, MapUnit>();
+    this.anomalies = [];
+    this.anomalyRounds = [];
     this.initRubble();
     this.initLead();
     this.render();
+    this.setAnomalyInfo();
   }
 }
