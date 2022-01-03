@@ -135,7 +135,9 @@ MapType.FINAL,
 MapType.CUSTOM]
 
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
-  ["maptestsmall", MapType.DEFAULT]
+  ["maptestsmall", MapType.DEFAULT],
+  ["eckleburg", MapType.DEFAULT],
+  ["intersection", MapType.DEFAULT]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
