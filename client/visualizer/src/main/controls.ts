@@ -390,9 +390,9 @@ export default class Controls {
    * Redraws the timeline and sets the current round displayed in the controls.
    */
   // TODO scale should be constant; should not depend on loadedTime
-  setTime(time: number, loadedTime: number, upsUnpaused: number, paused: Boolean, fps: number, lagging: Boolean) {
+  setTime(time: number, loadedTime: number, upsUnpaused: number, paused: Boolean, fps: number, lagging: Boolean, maxTurn: number) {
 
-    if (this.conf.tournamentMode) loadedTime = 1500;
+    if (this.conf.tournamentMode) loadedTime = maxTurn;
 
    // if (!this.conf.tournamentMode) {
       // Redraw the timeline

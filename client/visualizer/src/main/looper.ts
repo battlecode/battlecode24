@@ -229,7 +229,8 @@ export default class Looper {
             this.controls.getUPS(),
             this.isPaused(),
             this.rendersPerSecond.tps,
-            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2)
+            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2),
+            this.match.maxTurn
         );
 
         // run simulation
@@ -324,7 +325,7 @@ export default class Looper {
             console.log("round:", anomRound);
             this.controls.ctx.save();
             this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
-            var pos = Math.round(anomRound/ (this.conf.tournamentMode ? cst.MAX_ROUNDS : this.match.lastTurn) * this.controls.canvas.width);
+            var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);
             this.controls.ctx.beginPath();
             this.controls.ctx.moveTo(pos, 0);
             this.controls.ctx.lineTo(pos, 1);
