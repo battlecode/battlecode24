@@ -17,6 +17,8 @@ export const anomalyList = [0, 1, 2, 3]
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
+export const MAX_ROUNDS = 2000;
+
 // export const TILE_COLORS: Array<number>[] = [
 //   [168, 137, 97],
 //   [147, 117, 77],

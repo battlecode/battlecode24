@@ -46,8 +46,8 @@ export type MapStats = {
 
   symmetry: number
 
-  anomalies: Int8Array
-  anomalyRounds: Int8Array
+  anomalies: Int32Array
+  anomalyRounds: Int32Array
 
   getIdx: (x: number, y: number) => number
   getLoc: (idx: number) => Victor
@@ -62,7 +62,9 @@ export type TeamStats = {
   gold: number,
   total_hp: [number[], number[], number[], number[], number[], number[], number[]],
   leadChange: number,
-  goldChange: number
+  goldChange: number,
+  leadIncome: number,
+  goldIncome: number
 }
 
 export type IndicatorDotsSchema = {
@@ -230,7 +232,9 @@ export default class GameWorld {
         gold: 0,
         total_hp: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
         leadChange: 0,
-        goldChange: 0
+        goldChange: 0,
+        leadIncome: 0,
+        goldIncome: 0
       })
     }
 
@@ -247,8 +251,8 @@ export default class GameWorld {
       goldVals: new Int32Array(0),
 
       symmetry: 0,
-      anomalies: new Int8Array(0),
-      anomalyRounds: new Int8Array(0),
+      anomalies: new Int32Array(0),
+      anomalyRounds: new Int32Array(0),
 
       getIdx: (x: number, y: number) => 0,
       getLoc: (idx: number) => new Victor(0, 0)
@@ -333,8 +337,8 @@ export default class GameWorld {
 
     this.mapStats.symmetry = map.symmetry()
 
-    this.mapStats.anomalies = Int8Array.from(map.anomaliesArray())
-    this.mapStats.anomalyRounds = Int8Array.from(map.anomalyRoundsArray())
+    this.mapStats.anomalies = Int32Array.from(map.anomaliesArray())
+    this.mapStats.anomalyRounds = Int32Array.from(map.anomalyRoundsArray())
 
     // Check with header.totalRounds() ?
   }
