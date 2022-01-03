@@ -89,7 +89,7 @@ export default class GameArea {
       
         var options = {
           host: '2022.battlecode.org',
-          path: '/version.txt'
+          path: '/versions/2022/version.txt'
         };
 
         var req = http.get(options, function(res) {

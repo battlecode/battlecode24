@@ -263,8 +263,8 @@ export default class Sidebar {
       (async function (splashDiv, version) {
 
         var options = {
-          host: '2021.battlecode.org',
-          path: '/version.txt'
+          host: 'play.battlecode.org',
+          path: '/versions/2022/version.txt'
         };
 
         var req = http.get(options, function(res) {
