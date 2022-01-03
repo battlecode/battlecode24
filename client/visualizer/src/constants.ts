@@ -10,7 +10,7 @@ export const SAGE = schema.BodyType.SAGE
 export const SOLDIER = schema.BodyType.SOLDIER
 export const WATCHTOWER = schema.BodyType.WATCHTOWER
 
-export const bodyTypeList: number[] = [ARCHON, BUILDER, LABORATORY, MINER, SAGE, SOLDIER, WATCHTOWER]
+export const bodyTypeList: number[] = [ARCHON, WATCHTOWER, LABORATORY, SOLDIER, BUILDER,  MINER, SAGE]
 export const buildingTypeList: number[] = [ARCHON, LABORATORY, WATCHTOWER];
 export const initialBodyTypeList: number[] = [ARCHON]
 export const anomalyList = [0, 1, 2, 3]
@@ -68,7 +68,27 @@ export const ACTION_RADIUS_COLOR = "#46ff00"
 export const VISION_RADIUS_COLOR = "#0000ff"
 
 // Expected bot image size
-export const IMAGE_SIZE = 50
+//export const IMAGE_SIZE = 25
+
+export function bodyTypeToSize(bodyType: schema.BodyType) {
+  switch (bodyType) {
+    case ARCHON:
+      return 50
+    case WATCHTOWER:
+      return 50
+    case BUILDER:
+      return 25
+    case MINER:
+      return 35
+    case SAGE:
+      return 25
+    case SOLDIER:
+      return 35
+    case LABORATORY:
+      return 50
+    default: throw new Error("invalid body type")
+  }
+}
 
 // Game canvas rendering sizes
 export const INDICATOR_DOT_SIZE = .3

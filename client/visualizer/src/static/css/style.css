@@ -37,6 +37,10 @@ p {
     color: #4f7ee6;
 }
 
+/* .graph {
+    width: 50% !important;
+} */
+
 .red {
     color: #db3627;
 }
@@ -48,6 +52,7 @@ p {
     margin-bottom: 16px;
     font-family: Tahoma, sans-serif;
 }
+
 
 .robotSpriteStats img {
     width: 30px;
