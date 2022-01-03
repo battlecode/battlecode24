@@ -400,13 +400,13 @@ export default class Controls {
       const scale = this.canvas.width / loadedTime;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      this.ctx.fillStyle = "rgb(39, 39, 39)";
+      this.ctx.fillStyle = "rgb(144, 238, 144)";
       this.ctx.fillRect(0, 0, time * scale, this.canvas.height);
 
       this.ctx.fillStyle = "#777";
       this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height);
 
-      this.ctx.fillStyle = 'rgb(255,0,0)';
+      this.ctx.fillStyle = 'rgb(0, 0, 0)';
       this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
    // }
 
