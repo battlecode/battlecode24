@@ -609,6 +609,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
         this.gameWorld.getTeamInfo().addLead(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addLeadDrop(robot.getLocation(), -1);
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
@@ -638,6 +639,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
         this.gameWorld.getTeamInfo().addGold(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addGoldDrop(robot.getLocation(), -1);
     }
 
     // *************************
