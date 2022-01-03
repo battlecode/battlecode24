@@ -90,7 +90,7 @@ export default class Sidebar {
 
     this.modeButtons = new Map<Mode, HTMLButtonElement>();
     modePanelRow1.appendChild(this.modeButton(Mode.GAME, "Game"));
-    modePanelRow1.appendChild(this.modeButton(Mode.LOGS, "Logs"));
+    // modePanelRow1.appendChild(this.modeButton(Mode.LOGS, "Logs"));
     modePanelRow1.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
     modePanelRow1.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
     if (this.conf.useProfiler) modePanelRow2.appendChild(this.modeButton(Mode.PROFILER, "Profiler"));
@@ -263,8 +263,8 @@ export default class Sidebar {
       (async function (splashDiv, version) {
 
         var options = {
-          host: '2021.battlecode.org',
-          path: '/version.txt'
+          host: 'play.battlecode.org',
+          path: '/versions/2022/version.txt'
         };
 
         var req = http.get(options, function(res) {

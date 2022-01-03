@@ -67,7 +67,8 @@ export default class Stats {
 
   private tourneyUpload: HTMLDivElement;
 
-  private incomeChart: Chart;
+  private incomeChartLead: Chart;
+  private incomeChartGold: Chart;
 
   private ECs: HTMLDivElement;
   
@@ -262,18 +263,28 @@ export default class Stats {
     title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Lead & Gold Mined Per Turn';
+    label.innerText = 'Total Lead & Gold Income Per Turn';
 
     const row = document.createElement("tr");
 
+    const cellLead = document.createElement("td");
     teamIDs.forEach((id: number) => {
-      const cell = document.createElement("td");
+      
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cell.appendChild(this.incomeDisplays[id].leadIncome);
-      cell.appendChild(this.incomeDisplays[id].goldIncome);
-      row.appendChild(cell);
+      cellLead.appendChild(this.incomeDisplays[id].leadIncome);
+      row.appendChild(cellLead);
+    });
+
+    const cellGold = document.createElement("td");
+    teamIDs.forEach((id: number) => {
+      
+      // cell.appendChild(document.createTextNode("1.001"));
+      // cell.appendChild(this.buffDisplays[id].numBuffs);
+      // cell.appendChild(document.createTextNode(" = "));
+      cellGold.appendChild(this.incomeDisplays[id].goldIncome);
+      row.appendChild(cellGold);
     });
 
     title.appendChild(label);
@@ -283,9 +294,17 @@ export default class Stats {
     return table;
   }
 
-  private getIncomeDominationGraph() {
+  private getIncomeLeadGraph() {
     const canvas = document.createElement("canvas");
-    canvas.id = "myChart";
+    canvas.id = "leadGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getIncomeGoldGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "goldGraph";
+    canvas.className = "graph";
     return canvas;
   }
 
@@ -428,9 +447,23 @@ export default class Stats {
     const incomeElement = this.getIncomeDisplaysElement(teamIDs);
     this.div.appendChild(incomeElement);
 
-    const canvasElement = this.getIncomeDominationGraph();
-    this.div.appendChild(canvasElement);
-    this.incomeChart = new Chart(canvasElement, {
+    const graphs = document.createElement("div");
+    graphs.style.display = 'flex';
+    const leadWrapper = document.createElement("div");
+    leadWrapper.style.width = "50%";
+    leadWrapper.style.float = "left";
+    const canvasElementLead = this.getIncomeLeadGraph();
+    leadWrapper.appendChild(canvasElementLead);    
+    graphs.appendChild(leadWrapper);
+    const goldWrapper = document.createElement("div");
+    goldWrapper.style.width = "50%";
+    goldWrapper.style.float = "right";
+    const canvasElementGold = this.getIncomeGoldGraph();
+    goldWrapper.appendChild(canvasElementGold);    
+    graphs.appendChild(goldWrapper);
+    this.div.appendChild(graphs);
+
+    this.incomeChartLead = new Chart(canvasElementLead, {
       type: 'line',
       data: {
           datasets: [{
@@ -446,7 +479,35 @@ export default class Stats {
             backgroundColor: 'rgba(54, 162, 235, 0)',
             borderColor: 'rgb(108, 140, 188)',
             pointRadius: 0,
-          },
+          }]
+      },
+      options: {
+          aspectRatio: 0.75,
+          scales: {
+            xAxes: [{
+              type: 'linear',
+              ticks: {
+                beginAtZero: true
+            },
+              scaleLabel: {
+                display: true,
+                labelString: "Turn"
+              }
+            }],
+              yAxes: [{
+                type: 'linear',
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+    });
+
+    this.incomeChartGold = new Chart(canvasElementGold, {
+      type: 'line',
+      data: {
+          datasets: [
           {
             label: 'Red Gold',
             data: [],
@@ -463,7 +524,7 @@ export default class Stats {
           }]
       },
       options: {
-          aspectRatio: 1.5,
+          aspectRatio: 0.75,
           scales: {
             xAxes: [{
               type: 'linear',
@@ -569,14 +630,18 @@ export default class Stats {
     
     if (!teamTurnsIncomeSet!.has(turn)) {
       //@ts-ignore
-      this.incomeChart.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
+      this.incomeChartLead.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
       //@ts-ignore
-      this.incomeChart.data.datasets![teamID + 1].data?.push({y: goldIncome, x: turn});
-      this.incomeChart.data.datasets?.forEach((d) => {
+      this.incomeChartGold.data.datasets![teamID - 1].data?.push({y: goldIncome, x: turn});
+      this.incomeChartLead.data.datasets?.forEach((d) => {
+        d.data?.sort((a, b) => a.x - b.x);
+      });
+      this.incomeChartGold.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
       teamTurnsIncomeSet?.add(turn);
-      this.incomeChart.update();
+      this.incomeChartLead.update();
+      this.incomeChartGold.update();
     }
     // update bars here
     //console.log(teamID, count, "fsdfsdf");
@@ -616,19 +681,24 @@ export default class Stats {
   }
 
   resetECs() {
-    // while (this.ECs.lastChild) this.ECs.removeChild(this.ECs.lastChild);
+    while (this.ECs.lastChild) this.ECs.removeChild(this.ECs.lastChild);
     // console.log(this.ECs);
     this.ECs.innerHTML = "";
   }
 
-  addEC(teamID: number, health: number/*, img: HTMLImageElement */) {
+  addEC(teamID: number, health: number, body_status: number/*, img: HTMLImageElement */) {
     const div = document.createElement("div");
     let size = 1.0/(1 + Math.exp(-(health/100))) + 0.3;
-    div.style.width = (35*size).toString() + "px";
-    div.style.height = (35*size).toString() + "px";
-    const img = /* img */this.images.robots.archon[teamID].cloneNode() as HTMLImageElement;
-    img.style.width = "64px";
-    img.style.height = "64px"; // update dynamically later
+    div.style.width = (28*size).toString() + "px";
+    div.style.height = (28*size).toString() + "px";
+    div.style.position = 'releative';
+    div.style.top = '50%';
+    div.style.transform  = `translateY(-${50*size - 35}%)`;
+    const img = /* img */this.images.robots.archon[body_status * 2 + teamID].cloneNode() as HTMLImageElement;
+    img.style.width = `${56 * size}px`;
+    img.style.height = `${56 * size}px`; // update dynamically later
+    // img.style.marginTop = `${28*size}px`;
+
     div.appendChild(img);
     this.ECs.appendChild(div);
   }

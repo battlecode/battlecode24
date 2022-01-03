@@ -401,9 +401,14 @@ export default class Looper {
         const hps = world.bodies.arrays.hp;
         const teams = world.bodies.arrays.team;
         const types = world.bodies.arrays.type;
-        for(var i = 0; i < hps.length; i++){
-            if(types[i] == ARCHON) this.stats.addEC(teams[i], hps[i]);
-        }
+        const portables = world.bodies.arrays.portable;
+        teamIDs.forEach((team) => { 
+            for(var i = 0; i < hps.length; i++){
+                if(types[i] == ARCHON && teams[i] == team) {
+                    this.stats.addEC(teams[i], hps[i], portables[i]);
+                }
+            }
+        });
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {
             this.stats.setWinner(this.match.winner, teamNames, teamIDs);

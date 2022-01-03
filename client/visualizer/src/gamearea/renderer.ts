@@ -284,7 +284,7 @@ export default class Renderer {
       const effectImgs: HTMLImageElement[] = this.imgs.effects[effect]
       const whichImg = (Math.floor(curTime / cst.EFFECT_STEP) % effectImgs.length)
       const effectImg = effectImgs[whichImg]
-      this.drawBot(effectImg, x, y, 0)
+      //this.drawBot(effectImg, x, y, 0)
     }
 
     const renderBot = (i: number) => {
@@ -304,7 +304,7 @@ export default class Renderer {
       let img: HTMLImageElement;
       if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
       else img = this.imgs.robots[cst.bodyTypeToString(types[i])][levels[i] * 6 + body_status * 2 + teams[i]]
-      this.drawBot(img, realXs[i], realYs[i], hps[i]);
+      this.drawBot(img, realXs[i], realYs[i], hps[i], cst.bodyTypeToSize(types[i]));
 
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
@@ -401,10 +401,10 @@ export default class Renderer {
   /**
    * Draws an image centered at (x, y), such that an image with default size covers a 1x1 cell
    */
-  private drawBot(img: HTMLImageElement, x: number, y: number, c: number) {
+  private drawBot(img: HTMLImageElement, x: number, y: number, c: number, img_size: number) {
     if (this.conf.doingRotate) [x, y] = [y, x]
-    let realWidth = img.naturalWidth / cst.IMAGE_SIZE
-    let realHeight = img.naturalHeight / cst.IMAGE_SIZE
+    let realWidth = img.naturalWidth / img_size
+    let realHeight = img.naturalHeight / img_size
     const sigmoid = (x) => {
       return 1 / (1 + Math.exp(-x))
     }
