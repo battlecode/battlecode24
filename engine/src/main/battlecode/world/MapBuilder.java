@@ -136,7 +136,7 @@ public class MapBuilder {
     }
 
     /**
-     * Add team A Enlightenment Center to (x,y) and team B Enlightenment Center to symmetric position.
+     * Add team A Archon to (x,y) and team B Archon to symmetric position.
      * @param x x position
      * @param y y position
      */

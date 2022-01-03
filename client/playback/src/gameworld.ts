@@ -22,6 +22,9 @@ export type BodiesSchema = {
   y: Int32Array,
   bytecodesUsed: Int32Array, // TODO: is this needed?
   action: Int8Array,
+  target: Int32Array,
+  targetx: Int32Array,
+  targety: Int32Array,
   parent: Int32Array,
   hp: Int32Array,
   level: Int8Array,
@@ -207,6 +210,9 @@ export default class GameWorld {
       y: new Int32Array(0),
       bytecodesUsed: new Int32Array(0),
       action: new Int8Array(0),
+      target: new Int32Array(0),
+      targetx: new Int32Array(0),
+      targety: new Int32Array(0),
       parent: new Int32Array(0),
       hp: new Int32Array(0),
       level: new Int8Array(0),
@@ -401,8 +407,9 @@ export default class GameWorld {
     }
 
     // Remove abilities from previous round
-    this.bodies.alterBulk({ id: new Int32Array(this.actionRobots), ability: new Int8Array(this.actionRobots.length) })
-    this.actionRobots = []
+    this.bodies.alterBulk({id: new Int32Array(this.actionRobots), action: (new Int8Array(this.actionRobots.length)).fill(-1), 
+      target: new Int32Array(this.actionRobots.length), targetx: new Int32Array(this.actionRobots.length), targety: new Int32Array(this.actionRobots.length)});
+    this.actionRobots = [];
 
     // Remove bids from previous round
     this.bodies.alterBulk({ id: new Int32Array(this.bidRobots), bid: new Int32Array(this.bidRobots.length) })
@@ -438,26 +445,31 @@ export default class GameWorld {
     }
 
     // Actions
-    if (delta.actionsLength() > 0) {
-      const arrays = this.bodies.arrays
-
-      for (let i = 0; i < delta.actionsLength(); i++) {
-        const action = delta.actions(i)
-        const robotID = delta.actionIDs(i)
-        const target = delta.actionTargets(i)
-        const body = robotID != -1 ? this.bodies.lookup(robotID) : null
-        const teamStatsObj = body != null ? this.teamStats.get(body.team) : null
-        const setAction = () => {
-          this.bodies.alter({ id: robotID, action: action as number })
-          this.actionRobots.push(robotID)
-        } // should be called for actions performed *by* the robot.
+    if(delta.actionsLength() > 0){
+      const arrays = this.bodies.arrays;
+      
+      for(let i=0; i<delta.actionsLength(); i++){
+        const action = delta.actions(i);
+        const robotID = delta.actionIDs(i);
+        const target = delta.actionTargets(i);
+        const body = robotID != -1 ? this.bodies.lookup(robotID) : null;
+        const teamStatsObj = body != null ? this.teamStats.get(body.team) : null;
+        const setAction = (set_target: Boolean = false, set_target_loc: Boolean = false) => {
+          this.bodies.alter({id: robotID, action: action as number});
+          if (set_target) this.bodies.alter({id: robotID, target: target});
+          if (set_target_loc) {
+            const target_body = this.bodies.lookup(target);
+            this.bodies.alter({id: robotID, targetx: target_body.x, targety: target_body.y});
+          }
+          this.actionRobots.push(robotID);
+        }; // should be called for actions performed *by* the robot.
         switch (action) {
           // TODO: validate actions?
           // Actions list from battlecode.fbs enum Action
 
           case schema.Action.ATTACK:
-            setAction()
-            break
+            setAction(true, true);
+            break;
           /// Slanderers passively generate influence for the
           /// Enlightenment Center that created them.
           /// Target: parent ID
@@ -474,10 +486,10 @@ export default class GameWorld {
             break
 
           case schema.Action.TRANSMUTE:
-            setAction()
-            teamStatsObj.gold += target
-            teamStatsObj.lead -= 0
-            break
+            setAction();
+            // teamStatsObj.gold += target;
+            // teamStatsObj.lead -= 0;
+            break;
 
           case schema.Action.TRANSFORM:
             setAction()
@@ -505,23 +517,22 @@ export default class GameWorld {
             break
 
           case schema.Action.CHANGE_HEALTH:
-            this.bodies.alter({ id: robotID, hp: body.hp + target })
-            teamStatsObj.total_hp[body.type][body.level] += target
-            break
+            this.bodies.alter({ id: robotID, hp: body.hp + target});
+            teamStatsObj.total_hp[body.type][body.level - 1] += target;
+            break;
 
           case schema.Action.FULLY_REPAIRED:
-            this.bodies.alter({ id: robotID, prototype: 0 })
-            teamStatsObj.total_hp[body.type][body.level] += target
-            break
+            this.bodies.alter({ id: robotID, prototype: 0});
+            //teamStatsObj.total_hp[body.type][body.level] += target;
+            break;
 
           case schema.Action.DIE_EXCEPTION:
             console.log(`Exception occured: robotID(${robotID}), target(${target}`)
             break
 
           case schema.Action.VORTEX:
-            console.log("vortex")
-            let w = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
-            let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y
+            let w = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
+            let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
             switch (target) {
               case 0:
                 for (let x = 0; x < w / 2; x++) {
@@ -607,17 +618,18 @@ export default class GameWorld {
     // Died bodies
     if (delta.diedIDsLength() > 0) {
       // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray())
-      for (let i = 0; i < delta.diedIDsLength(); i++) {
-        let index = indices[i]
-        let team = this.bodies.arrays.team[index]
-        let type = this.bodies.arrays.type[index]
-        let statObj = this.teamStats.get(team)
-        if (!statObj) { continue } // In case this is a neutral bot
-        statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1
-        let hp = this.bodies.arrays.hp[index]
-        statObj.total_hp[type][this.bodies.arrays.level[index] - 1] -= hp
-        this.teamStats.set(team, statObj)
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
+          let index = indices[i];
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
+          let statObj = this.teamStats.get(team);
+          if(!statObj) {continue;} // In case this is a neutral bot
+          statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1;
+          let hp = this.bodies.arrays.hp[index];
+          let level = this.bodies.arrays.level[index];
+          statObj.total_hp[type][level - 1] -= hp;
+          this.teamStats.set(team, statObj);
       }
 
       // Update bodies soa
@@ -731,18 +743,20 @@ export default class GameWorld {
   private insertBodies(bodies: schema.SpawnedBodyTable) {
 
     // Store frequently used arrays
-    var teams = bodies.teamIDsArray()
-    var types = bodies.typesArray()
-    var hps = new Int32Array(bodies.robotIDsLength())
+    var teams = bodies.teamIDsArray();
+    var types = bodies.typesArray();
+    var hps = new Int32Array(bodies.robotIDsLength());
+    var prototypes = new Int8Array(bodies.robotIDsLength());
 
     // Update spawn stats
     for (let i = 0; i < bodies.robotIDsLength(); i++) {
       // if(teams[i] == 0) continue;
-      var statObj = this.teamStats.get(teams[i])
-      statObj.robots[types[i]][0] += 1 // TODO: handle level
-      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health // TODO: extract meta info
-      this.teamStats.set(teams[i], statObj)
-      hps[i] = this.meta.types[types[i]].health
+      var statObj = this.teamStats.get(teams[i]);
+      statObj.robots[types[i]][0] += 1; // TODO: handle level
+      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health; // TODO: extract meta info
+      this.teamStats.set(teams[i], statObj);
+      hps[i] = this.meta.types[types[i]].health;
+      prototypes[i] = (this.meta.buildingTypes.includes(types[i]) && types[i] != schema.BodyType.ARCHON) ? 1 : 0;
     }
 
     const locs = bodies.locs(this._vecTableSlot1)
@@ -768,12 +782,17 @@ export default class GameWorld {
       y: locs.ysArray(),
       flag: new Int32Array(bodies.robotIDsLength()),
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
-      ability: new Int8Array(bodies.robotIDsLength()),
+      action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
+      target: new Int32Array(bodies.robotIDsLength()),
+      targetx: new Int32Array(bodies.robotIDsLength()),
+      targety: new Int32Array(bodies.robotIDsLength()),
       bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
-      level: levels
-    })
+      level: levels,
+      portable: new Int8Array(bodies.robotIDsLength()),
+      prototype: prototypes,
+    });
   }
 
   /**

@@ -53,12 +53,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
         this.gameWorld = gw;
-        
+
         this.ID = id;
         this.team = team;
         this.type = type;
         this.location = loc;
         this.level = 1;
+
         if (this.type == RobotType.ARCHON) {
             this.mode = RobotMode.TURRET;
         } else if (this.type.isBuilding()) {
@@ -66,7 +67,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             this.mode = RobotMode.DROID;
         }
-        this.health = (int) ((this.mode == RobotMode.PROTOTYPE ? GameConstants.PROTOTYPE_HP_PERCENTAGE : 1) * this.type.getMaxHealth(this.level));
+
+        this.health = this.type.getMaxHealth(this.level);
+        if (this.mode == RobotMode.PROTOTYPE) {
+            int newHealth = (int) (GameConstants.PROTOTYPE_HP_PERCENTAGE * this.health);
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, newHealth - this.health);
+            this.health = newHealth;
+        }
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -223,8 +230,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toAct the MapLocation to act
      */
     public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared()
-            && this.gameWorld.getGameMap().onTheMap(toAct);
+        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
     }
 
     /**
@@ -338,7 +344,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         int oldHealth = this.health;
         this.health += healthAmount;
         int maxHealth = this.type.getMaxHealth(this.level);
-        if (this.health > maxHealth) {
+        if (this.health >= maxHealth) {
             this.health = maxHealth;
             if (this.mode == RobotMode.PROTOTYPE) {
                 this.mode = RobotMode.TURRET;

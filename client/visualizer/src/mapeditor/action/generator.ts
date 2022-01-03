@@ -136,8 +136,8 @@ export default class MapGenerator {
 
     const rubble = schema.GameMap.createRubbleVector(builder, map.rubble);
     const lead = schema.GameMap.createRubbleVector(builder, map.leadVals);
-    const anomalies = schema.GameMap.createAnomaliesVector(builder, []);
-    const anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, []);
+    const anomalies = schema.GameMap.createAnomaliesVector(builder, map.anomalies);
+    const anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, map.anomalyRounds);
 
     // Create the game map
     let nameP = builder.createString(name);

@@ -26,6 +26,24 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
+     * Returns map width.
+     *
+     * @return the map width
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapWidth();
+
+    /**
+     * Returns map height.
+     *
+     * @return the map height
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapHeight();
+
+    /**
      * Returns the number of robots on your team, including Archons.
      * If this number ever reaches zero, you immediately lose.
      *
@@ -44,6 +62,24 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getArchonCount();
+
+    /**
+     * Returns the amount of lead a team has in its reserves.
+     *
+     * @return the amount of lead a team has in its reserves.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getTeamLeadAmount(Team team);
+
+    /**
+     * Returns the amount of gold a team has in its reserves.
+     *
+     * @return the amount of gold a team has in its reserves.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getTeamGoldAmount(Team team);
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -299,6 +335,21 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     MapLocation adjacentLocation(Direction dir);
+
+    /**
+     * Returns a list of all locations within the given radiusSquared of a location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead.
+     *
+     * Checks that radiusSquared is non-negative.
+     *
+     * @param center the given location
+     * @param radiusSquared return locations within this distance away from center
+     * @return list of locations on the map and within radiusSquared of center
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException;
 
     // ***********************************
     // ****** READINESS METHODS **********
@@ -660,7 +711,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int readSharedArray(int index);
+    int readSharedArray(int index) throws GameActionException;
 
     /** 
      * Sets a team's array value at a specified index.
@@ -668,11 +719,10 @@ public strictfp interface RobotController {
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
-     * @return whether the value was successfully written
      *
      * @battlecode.doc.costlymethod
      */
-    boolean writeSharedArray(int index, int value);
+    void writeSharedArray(int index, int value) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

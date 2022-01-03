@@ -204,55 +204,33 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
 
   // robot sprites
 
-  loadImage(result.robots.archon, DEFAULT * 2 + RED, 'robots/red_archon');
-  loadImage(result.robots.archon, PROTOTYPE * 2 + RED, 'robots/red_archon_prototype');
-  loadImage(result.robots.archon, PORTABLE * 2 + RED, 'robots/red_archon_portable');
+  for (let team of [RED, BLU]) {
+    let team_str = team == RED ? 'red' : 'blue';
+    for (let level = 1; level <= 3; level++) { 
+      loadImage(result.robots.archon, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_archon_level${level}`);
+      loadImage(result.robots.watchtower, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_watchtower_level${level}`);
+      loadImage(result.robots.laboratory, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_lab_level${level}`);
+      loadImage(result.robots.archon, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_archon_portable_level${level}`);
+      loadImage(result.robots.watchtower, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_watchtower_portable_level${level}`);
+      loadImage(result.robots.laboratory, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_lab_portable_level${level}`);
+    }
+    loadImage(result.robots.soldier, DEFAULT * 2 + team, `robots/${team_str}_soldier`);
+    loadImage(result.robots.sage, DEFAULT * 2 + team, `robots/${team_str}_sage`);
+    loadImage(result.robots.miner, DEFAULT * 2 + team, `robots/${team_str}_miner`);
+    loadImage(result.robots.builder, DEFAULT * 2 + team, `robots/${team_str}_builder`);
+    loadImage(result.robots.archon, DEFAULT * 2 + team, `robots/${team_str}_archon`);
+    loadImage(result.robots.watchtower, DEFAULT * 2 + team, `robots/${team_str}_watchtower`);
+    loadImage(result.robots.laboratory, DEFAULT * 2 + team, `robots/${team_str}_lab`);
+    loadImage(result.robots.archon, PROTOTYPE * 2 + team, `robots/${team_str}_archon_prototype`);
+    loadImage(result.robots.watchtower, PROTOTYPE * 2 + team, `robots/${team_str}_watchtower_prototype`);
+    loadImage(result.robots.laboratory, PROTOTYPE * 2 + team, `robots/${team_str}_lab_prototype`);
+  }
 
-
-  loadImage(result.robots.watchtower, DEFAULT * 2 + RED, 'robots/red_watchtower');
-  loadImage(result.robots.watchtower, PROTOTYPE * 2 + RED, 'robots/red_watchtower_prototype');
-  loadImage(result.robots.watchtower, PORTABLE * 2 + RED, 'robots/red_watchtower_portable');
-
-
-  loadImage(result.robots.laboratory, DEFAULT * 2 + RED, 'robots/red_lab');
-  loadImage(result.robots.laboratory, PROTOTYPE * 2 + RED, 'robots/red_lab_prototype');
-  loadImage(result.robots.laboratory, PORTABLE * 2 + RED, 'robots/red_lab_portable');
-
-  
-  loadImage(result.robots.builder, RED, 'robots/red_builder');
-  loadImage(result.robots.miner, RED, 'robots/red_miner');
-  loadImage(result.robots.sage, RED, 'robots/red_sage');
-  loadImage(result.robots.soldier, RED, 'robots/red_soldier');
-  
-
-
-  loadImage(result.robots.archon, DEFAULT * 2 + BLU, 'robots/blue_archon');
-  loadImage(result.robots.archon, PROTOTYPE * 2 + BLU, 'robots/blue_archon_prototype');
-  loadImage(result.robots.archon, PORTABLE * 2 + BLU, 'robots/blue_archon_portable');
-
-  loadImage(result.robots.watchtower, DEFAULT * 2 + BLU, 'robots/blue_watchtower');
-  loadImage(result.robots.watchtower, PROTOTYPE * 2 + BLU, 'robots/blue_watchtower_prototype');
-  loadImage(result.robots.watchtower, PORTABLE * 2 + BLU, 'robots/blue_watchtower_portable');
-
-
-  loadImage(result.robots.laboratory, DEFAULT * 2 + BLU, 'robots/blue_lab');
-  loadImage(result.robots.laboratory, PROTOTYPE * 2 + BLU, 'robots/blue_lab_prototype');
-  loadImage(result.robots.laboratory, PORTABLE * 2 + BLU, 'robots/blue_lab_portable');
-
-
-  loadImage(result.robots.builder, BLU, 'robots/blue_builder');
-  loadImage(result.robots.miner, BLU, 'robots/blue_miner');
-  loadImage(result.robots.sage, BLU, 'robots/blue_sage');
-  loadImage(result.robots.soldier, BLU, 'robots/blue_soldier');
-  
 
   loadImage(result.resources, 'lead', 'resources/lead');
   loadImage(result.resources, 'gold', 'resources/gold');
   loadImage(result.resources, 'both', 'resources/leadgold');
 
-
-
-  // loadImage(result.robots.enlightenmentCenter, NEUTRAL, 'robots/center');
 
   // effects
   // loadImage(result.effects, 'death', 'effects/death/death_empty');

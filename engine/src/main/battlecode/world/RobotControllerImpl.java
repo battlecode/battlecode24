@@ -78,6 +78,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getMapWidth() {
+        return this.gameWorld.getGameMap().getWidth();
+    }
+
+    @Override
+    public int getMapHeight() {
+        return this.gameWorld.getGameMap().getHeight();
+    }
+
+    @Override
     public int getRobotCount() {
         return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -85,6 +95,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int getArchonCount() {
         return this.gameWorld.getObjectInfo().getRobotTypeCount(getTeam(), RobotType.ARCHON);
+    }
+
+    @Override
+    public int getTeamLeadAmount(Team team) {
+        return this.gameWorld.getTeamInfo().getLead(team);
+    }
+
+    @Override
+    public int getTeamGoldAmount(Team team) {
+        return this.gameWorld.getTeamInfo().getGold(team);
     }
 
     // *********************************
@@ -154,6 +174,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canSenseLocation(loc))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within vision range");
+        if (!this.gameWorld.getGameMap().onTheMap(loc))
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Target location is not on the map");
+    }
+
+    private void assertCanActLocation(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        if (!this.robot.canActLocation(loc))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Target location not within action range");
         if (!this.gameWorld.getGameMap().onTheMap(loc))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location is not on the map");
@@ -256,6 +286,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
+    }
+
+    @Override
+    public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        return this.gameWorld.getAllLocationsWithinRadiusSquared(center, Math.min(radiusSquared, getType().visionRadiusSquared));
     }
 
     // ***********************************
@@ -422,16 +461,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanAttack(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canAttack())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Location can't be attacked because it is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NO_ROBOT_THERE,
                     "There is no robot to attack at the target location.");
         if (bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
@@ -460,6 +497,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *****************************
 
     private void assertCanEnvision(AnomalyType anomaly) throws GameActionException {
+        assertNotNull(anomaly);
         assertIsActionReady();
         if (!getType().canEnvision())
             throw new GameActionException(CANT_DO_THAT,
@@ -503,13 +541,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanRepair(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "The target location is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NO_ROBOT_THERE,
                     "There is no robot to repair at the target location.");
         if (!getType().canRepair(bot.getType()))
             throw new GameActionException(CANT_DO_THAT,
@@ -542,13 +578,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "This location can't be mined because it is out of range.");
         if (this.gameWorld.getLead(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Lead amount must be positive to be mined.");
@@ -573,13 +607,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
         if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot mine.");
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "This location can't be mined because it is out of range.");
         if (this.gameWorld.getGold(loc) < 1)
             throw new GameActionException(CANT_DO_THAT, 
                     "Gold amount must be positive to be mined.");
@@ -608,13 +640,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanMutate(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assertIsActionReady();
-        if (!this.robot.canActLocation(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Target location for mutation is out of range.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null)
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NO_ROBOT_THERE,
                     "There is no robot to mutate at the target location.");
         if (!getType().canMutate(bot.getType()))
             throw new GameActionException(CANT_DO_THAT,
@@ -673,7 +703,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot transmute lead to gold.");
         if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate())
-            throw new GameActionException(CANT_DO_THAT,
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough lead to transmute to gold.");
     }
 
@@ -726,21 +756,28 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
 
-    @Override
-    public int readSharedArray(int index) {
+    private void assertValidIndex(int index) throws GameActionException {
         if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
-            return -1;
+            throw new GameActionException(CANT_DO_THAT, "You can't access this index as it is not within the shared array.");
+    }
+
+    private void assertValidValue(int value) throws GameActionException {
+        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
+            throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array " +
+                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
+    }
+
+    @Override
+    public int readSharedArray(int index) throws GameActionException {
+        assertValidIndex(index);
         return this.gameWorld.getTeamInfo().readSharedArray(getTeam(), index);
     }
 
     @Override
-    public boolean writeSharedArray(int index, int value) {
-        if (index < 0 || index >= GameConstants.SHARED_ARRAY_LENGTH)
-            return false;
-        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
-            return false;
+    public void writeSharedArray(int index, int value) throws GameActionException {
+        assertValidIndex(index);
+        assertValidValue(value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
-        return true;
     }
 
     // ***********************************

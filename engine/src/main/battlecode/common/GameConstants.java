@@ -16,16 +16,16 @@ public class GameConstants {
     // *********************************
 
     /** The minimum possible map height. */
-    public static final int MAP_MIN_HEIGHT = 30;
+    public static final int MAP_MIN_HEIGHT = 20;
 
     /** The maximum possible map height. */
-    public static final int MAP_MAX_HEIGHT = 80;
+    public static final int MAP_MAX_HEIGHT = 60;
 
     /** The minimum possible map width. */
-    public static final int MAP_MIN_WIDTH = 30;
+    public static final int MAP_MIN_WIDTH = 20;
 
     /** The maximum possible map width. */
-    public static final int MAP_MAX_WIDTH = 80;
+    public static final int MAP_MAX_WIDTH = 60;
 
     /** The minimum number of starting Archons per team. */
     public static final int MIN_STARTING_ARCHONS = 1;
@@ -54,6 +54,12 @@ public class GameConstants {
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
+
+    /** The initial amount of lead each team starts with. */
+    public static final int INITIAL_LEAD_AMOUNT = 200;
+
+    /** The initial amount of gold each team starts with. */
+    public static final int INITIAL_GOLD_AMOUNT = 0;
 
     /** The amount of lead each team gains per turn. */
     public static final int PASSIVE_LEAD_INCREASE = 2;

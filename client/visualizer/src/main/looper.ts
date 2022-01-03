@@ -17,6 +17,9 @@ import { TeamStats } from 'battlecode-playback/out/gameworld';
 import { Tournament, readTournament } from '../main/tournament';
 import { ARCHON } from '../constants';
 
+
+import * as bcg from "../../../../schema/ts/battlecode_generated";
+let anomConsts = bcg.battlecode.schema.Action;
 /*
 Responsible for a single match in the visualizer.
 */
@@ -44,7 +47,7 @@ export default class Looper {
         private matchqueue: MatchQueue, private profiler?: Profiler,
         private mapinfo: string = "",
         showTourneyUpload: boolean = true) {
-
+        
         this.console = cconsole;
 
         this.conf.mode = config.Mode.GAME;
@@ -253,11 +256,14 @@ export default class Looper {
                 let bytecodes = bodies.bytecodesUsed[index];
                 let level = bodies.level[index];
                 let parent = bodies.parent[index];
-
+                let prototype = bodies.prototype[index];
+                let portable = bodies.portable[index];
                 let indicatorString = this.match.current.indicatorStrings[id]
+                // let bid = bodies.bid[index];
+                let is_building = cst.buildingTypeList.includes(type);
 
-                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
-                    parent !== 0 ? parent : undefined, indicatorString);
+                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level, indicatorString,
+                    parent !== 0 ? parent : undefined, is_building ? prototype == 1 : undefined, is_building ? portable == 1 : undefined);
             }
         }
 
@@ -305,6 +311,22 @@ export default class Looper {
 
         //this.updateStats(this.match.current, this.meta);
         this.loopID = window.requestAnimationFrame((curTime) => this.loop.call(this, curTime));
+        //console.log(this.match.current.mapStats.anomalies, this.match.current.mapStats.anomalyRounds, "ANOMALIES");
+        /* Rendering anomalies */
+        let world = this.match.current.mapStats;
+
+        //let testAnom = [anomConsts.ABYSS, anomConsts.CHARGE];
+        //let testAnomRounds = [300, 1000];
+        for(var i = 0; i < world.anomalies.length; i++){
+            let anom = world.anomalies[i];
+            let anomRound = world.anomalyRounds[i];
+            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Grey" : "White";
+            var pos = Math.round(anomRound*300.0/this.match.lastTurn);
+            this.controls.ctx.beginPath();
+            this.controls.ctx.moveTo(pos, 0);
+            this.controls.ctx.lineTo(pos, 1);
+            this.controls.ctx.stroke();
+        }
     }
 
     /**
@@ -331,16 +353,14 @@ export default class Looper {
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
             totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
-
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a+b);
 
             // Update each robot count
-            console.log(teamStats);
             this.stats.robots.forEach((type: schema.BodyType) => {
                 this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
                 this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
@@ -366,7 +386,10 @@ export default class Looper {
             teamLead.push(world.teamStats.get(teamIDs[a]).lead);
             //@ts-ignore
             teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+            //@ts-ignore
+            //console.log(world.teamStats.get(teamIDs[a]).lead, world.teamStats.get(teamIDs[a]).gold, teamIDs[a]);
         }
+    
         this.stats.updateBars(teamLead, teamGold);
         this.stats.resetECs();
         const hps = world.bodies.arrays.hp;
