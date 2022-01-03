@@ -13,7 +13,7 @@ export const WATCHTOWER = schema.BodyType.WATCHTOWER
 export const bodyTypeList: number[] = [ARCHON, BUILDER, LABORATORY, MINER, SAGE, SOLDIER, WATCHTOWER]
 export const buildingTypeList: number[] = [ARCHON, LABORATORY, WATCHTOWER];
 export const initialBodyTypeList: number[] = [ARCHON]
-export const anomalyList = [schema.Action.VORTEX, schema.Action.FURY, schema.Action.CHARGE, schema.Action.ABYSS]
+export const anomalyList = [0, 1, 2, 3]
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
@@ -224,13 +224,13 @@ export function symmetryToString(symmetry: Symmetry) {
 
 export function anomalyToString(anomaly: schema.Action) {
   switch (anomaly) {
-    case schema.Action.VORTEX:
+    case 3:
       return "vortex"
-    case schema.Action.FURY:
+    case 2:
       return "fury"
-    case schema.Action.ABYSS:
+    case 0:
       return "abyss"
-    case schema.Action.CHARGE:
+    case 1:
       return "charge"
     default: throw new Error("invalid anomaly")
   }

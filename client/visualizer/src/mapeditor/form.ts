@@ -363,16 +363,22 @@ export default class MapEditorForm {
         const anomaly = form.getAnomaly();
         const round = form.getRound();
 
-        this.anomalies.push(anomaly);
-        this.anomalyRounds.push(round);
+        let exists = this.anomalyRounds.indexOf(round);
+        if (exists == -1) {
+          this.anomalies.push(anomaly);
+          this.anomalyRounds.push(round);
 
-        let indices = Array.from(this.anomalyRounds.keys())
-        indices.sort((i, j) => 
-            this.anomalyRounds[i] - this.anomalyRounds[j]);
-        this.anomalyRounds.sort((a,b) => a-b);
-        let old_anomalies = this.anomalies.slice();
-        for (let i = 0; i < indices.length; i++) {
-          this.anomalies[i] = old_anomalies[indices[i]];
+          let indices = Array.from(this.anomalyRounds.keys())
+          indices.sort((i, j) => 
+              this.anomalyRounds[i] - this.anomalyRounds[j]);
+          this.anomalyRounds.sort((a,b) => a-b);
+          let old_anomalies = this.anomalies.slice();
+          for (let i = 0; i < indices.length; i++) {
+            this.anomalies[i] = old_anomalies[indices[i]];
+          }
+        } 
+        else {
+          this.anomalies[exists] = anomaly;
         }
         this.setAnomalyInfo();
       }
