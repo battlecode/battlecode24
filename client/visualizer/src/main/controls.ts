@@ -400,13 +400,13 @@ export default class Controls {
       const scale = this.canvas.width / loadedTime;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      this.ctx.fillStyle = "rgb(39, 39, 39)";
+      this.ctx.fillStyle = "rgb(144, 238, 144)";
       this.ctx.fillRect(0, 0, time * scale, this.canvas.height);
 
       this.ctx.fillStyle = "#777";
       this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height);
 
-      this.ctx.fillStyle = 'rgb(255,0,0)';
+      this.ctx.fillStyle = 'rgb(0, 0, 0)';
       this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
    // }
 
@@ -439,17 +439,22 @@ export default class Controls {
    * Bytecodes Used: bytecodes"
    */
   // TODO fix this (different stats)
-  setInfoString(id, x: number, y: number, hp: number, max_hp: number, dp: number, bodyType: string, bytecodes: number, level: number, parent?: number, portable?: boolean, prototype?: boolean): void {
+  setInfoString(id, x: number, y: number, hp: number, max_hp: number, dp: number, bodyType: string, bytecodes: number, level: number, indicatorString: string, parent?: number, portable?: boolean, prototype?: boolean): void {
     // console.log(carryDirt);
+    if(!indicatorString)
+      indicatorString = '&nbsp;'
+
     let infoString = `<span class="info-name">ID:</span> <span class="info-num">${id}</span> | `;
     infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span> | `;
     infoString += `<span class="info-name">Level:</span> <span class="info-num">${level}</span> | `; 
-    if (portable !== undefined && prototype !== undefined) infoString += `<span class="info-name">Mode:</span> <span class="info-num">${portable ? 'Port' : prototype ? 'Prot' : 'Turr'}</span><br>`;
+    if (portable !== undefined && prototype !== undefined) infoString += `<span class="info-name">Mode:</span> <span class="info-num">${portable ? 'Port' : prototype ? 'Prot' : 'Turr'}</span>`;
+    infoString += `<br>`;
     infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `;      
     infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`;
     if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
-    
+    infoString += `<br><span class="info-name">Indicator String:</span> <span class="info-string">${indicatorString}</span>`;
+
     // (${bodyType})<br>
      // Location: (${x}, ${y})<br>
       //Influence: ${influence}, Conviction: ${conviction} <br>

@@ -258,10 +258,11 @@ export default class Looper {
                 let parent = bodies.parent[index];
                 let prototype = bodies.prototype[index];
                 let portable = bodies.portable[index];
+                let indicatorString = this.match.current.indicatorStrings[id]
                 // let bid = bodies.bid[index];
                 let is_building = cst.buildingTypeList.includes(type);
 
-                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level,
+                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level, indicatorString,
                     parent !== 0 ? parent : undefined, is_building ? prototype == 1 : undefined, is_building ? portable == 1 : undefined);
             }
         }
@@ -316,15 +317,19 @@ export default class Looper {
 
         //let testAnom = [anomConsts.ABYSS, anomConsts.CHARGE];
         //let testAnomRounds = [300, 1000];
+        // TODO: move this to controls
         for(var i = 0; i < world.anomalies.length; i++){
-            let anom = world.anomalies[i];
+            let anom = world.anomalies[i] + anomConsts.ABYSS;
             let anomRound = world.anomalyRounds[i];
-            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Grey" : "White";
+            this.controls.ctx.save();
+            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
             var pos = Math.round(anomRound*300.0/this.match.lastTurn);
             this.controls.ctx.beginPath();
             this.controls.ctx.moveTo(pos, 0);
             this.controls.ctx.lineTo(pos, 1);
+            this.controls.ctx.lineWidth = 4;
             this.controls.ctx.stroke();
+            this.controls.ctx.restore();
         }
     }
 

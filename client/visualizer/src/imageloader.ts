@@ -16,7 +16,7 @@ export type AllImages = {
   },
   resources: {
     lead: Image,
-    gold: Image
+    gold: Image,
   }
   effects: { // TODO
   },
