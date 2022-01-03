@@ -229,7 +229,8 @@ export default class Looper {
             this.controls.getUPS(),
             this.isPaused(),
             this.rendersPerSecond.tps,
-            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2)
+            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2),
+            this.match.maxTurn
         );
 
         // run simulation
@@ -321,9 +322,10 @@ export default class Looper {
         for(var i = 0; i < world.anomalies.length; i++){
             let anom = world.anomalies[i] + anomConsts.ABYSS;
             let anomRound = world.anomalyRounds[i];
+            console.log("round:", anomRound);
             this.controls.ctx.save();
             this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
-            var pos = Math.round(anomRound*300.0/this.match.lastTurn);
+            var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);
             this.controls.ctx.beginPath();
             this.controls.ctx.moveTo(pos, 0);
             this.controls.ctx.lineTo(pos, 1);
@@ -381,7 +383,7 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
+            this.stats.setIncome(teamID, teamStats.leadMined, teamStats.goldMined, world.turn);
             // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
 

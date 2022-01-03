@@ -262,7 +262,7 @@ export default class Stats {
     title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Lead & Gold Income Per Turn';
+    label.innerText = 'Total Lead & Gold Mined Per Turn';
 
     const row = document.createElement("tr");
 
@@ -293,7 +293,7 @@ export default class Stats {
     const div = document.createElement('div');
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Archon Control';
+    label.innerText = 'Archon Status';
     div.appendChild(label);
     div.appendChild(this.ECs);
     return div;

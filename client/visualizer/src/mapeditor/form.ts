@@ -362,10 +362,24 @@ export default class MapEditorForm {
         const form: AnomalyForm = this.anomaliesForm;
         const anomaly = form.getAnomaly();
         const round = form.getRound();
-        this.anomalies.push(anomaly);
-        this.anomalyRounds.push(round);
-        this.anomalies.sort((i,j) => this.anomalyRounds[this.anomalies.indexOf(i)] - this.anomalyRounds[this.anomalies.indexOf(j)]);
-        this.anomalyRounds.sort((a,b) => a-b);
+
+        let exists = this.anomalyRounds.indexOf(round);
+        if (exists == -1) {
+          this.anomalies.push(anomaly);
+          this.anomalyRounds.push(round);
+
+          let indices = Array.from(this.anomalyRounds.keys())
+          indices.sort((i, j) => 
+              this.anomalyRounds[i] - this.anomalyRounds[j]);
+          this.anomalyRounds.sort((a,b) => a-b);
+          let old_anomalies = this.anomalies.slice();
+          for (let i = 0; i < indices.length; i++) {
+            this.anomalies[i] = old_anomalies[indices[i]];
+          }
+        } 
+        else {
+          this.anomalies[exists] = anomaly;
+        }
         this.setAnomalyInfo();
       }
     }
@@ -516,7 +530,7 @@ export default class MapEditorForm {
    */
   private initRubble() {
     this.rubble = new Array(this.headerForm.getHeight() * this.headerForm.getWidth());
-    this.rubble.fill(50);
+    this.rubble.fill(0);
   }
 
   private getRubble(x: number, y: number) {
