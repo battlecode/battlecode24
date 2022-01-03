@@ -18,8 +18,6 @@ public class BuildMaps {
      */
     public static void main(String[] args) {
         MapTestSmall.main(args);
-        Circle.main(args);
-        Quadrants.main(args);
     }
 
 }

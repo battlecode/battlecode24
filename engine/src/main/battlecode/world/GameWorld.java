@@ -480,7 +480,7 @@ public strictfp class GameWorld {
         this.gold[locationToIndex(robot.getLocation())] += goldDropped;
 
         this.matchMaker.addLeadDrop(robot.getLocation(), leadDropped);
-        this.matchMaker.addLeadDrop(robot.getLocation(), goldDropped);
+        this.matchMaker.addGoldDrop(robot.getLocation(), goldDropped);
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -528,10 +528,12 @@ public strictfp class GameWorld {
             int currentLead = getLead(locations[i]);
             int leadUpdate = (int) (reduceFactor * currentLead);
             setLead(locations[i], currentLead - leadUpdate);
+            if (leadUpdate != 0) this.matchMaker.addLeadDrop(locations[i], -leadUpdate);
 
             int currentGold = getGold(locations[i]);
             int goldUpdate = (int) (reduceFactor * currentGold);
             setGold(locations[i], currentGold - goldUpdate);
+            if (goldUpdate != 0) this.matchMaker.addGoldDrop(locations[i], -goldUpdate);
         }
     }
 
@@ -597,7 +599,7 @@ public strictfp class GameWorld {
     /** Used to sort droids for charge */
     class SortByFriends implements Comparator<InternalRobot> {
         public int compare(InternalRobot a, InternalRobot b) {
-            return a.getNumVisibleFriendlyRobots(false) - b.getNumVisibleFriendlyRobots(false);
+            return b.getNumVisibleFriendlyRobots(false) - a.getNumVisibleFriendlyRobots(false);
         }
     }
 
