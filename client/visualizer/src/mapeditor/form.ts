@@ -516,7 +516,7 @@ export default class MapEditorForm {
    */
   private initRubble() {
     this.rubble = new Array(this.headerForm.getHeight() * this.headerForm.getWidth());
-    this.rubble.fill(50);
+    this.rubble.fill(0);
   }
 
   private getRubble(x: number, y: number) {

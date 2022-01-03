@@ -25,7 +25,6 @@ export default class RobotForm {
   private readonly ROBOT_TYPES: schema.BodyType[] = cst.initialBodyTypeList;
 
   private readonly TEAMS = {
-    "0": "Neutral",
     "1": "Red",
     "2": "Blue"
   };
