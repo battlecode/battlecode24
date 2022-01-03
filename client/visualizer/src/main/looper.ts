@@ -383,7 +383,7 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.leadChange, teamStats.goldChange, world.turn);
+            this.stats.setIncome(teamID, teamStats.leadMined, teamStats.goldMined, world.turn);
             // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
 

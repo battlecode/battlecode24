@@ -63,8 +63,8 @@ export type TeamStats = {
   total_hp: [number[], number[], number[], number[], number[], number[], number[]],
   leadChange: number,
   goldChange: number,
-  leadIncome: number,
-  goldIncome: number
+  leadMined: number,
+  goldMined: number
 }
 
 export type IndicatorDotsSchema = {
@@ -233,8 +233,8 @@ export default class GameWorld {
         total_hp: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
         leadChange: 0,
         goldChange: 0,
-        leadIncome: 0,
-        goldIncome: 0
+        leadMined: 0,
+        goldMined: 0
       })
     }
 
@@ -390,6 +390,8 @@ export default class GameWorld {
       statObj.gold += delta.teamGoldChanges(i)
       statObj.leadChange = delta.teamLeadChanges(i)
       statObj.goldChange = delta.teamGoldChanges(i)
+      statObj.leadMined = 0
+      statObj.goldMined = 0
 
       this.teamStats.set(teamID, statObj)
     }
@@ -466,7 +468,7 @@ export default class GameWorld {
             this.bodies.alter({id: robotID, targetx: target_body.x, targety: target_body.y});
           }
           this.actionRobots.push(robotID);
-        }; // should be called for actions performed *by* the robot.
+        }; // should be called for actions performed *by* the robot
         switch (action) {
           // TODO: validate actions?
           // Actions list from battlecode.fbs enum Action
@@ -499,6 +501,15 @@ export default class GameWorld {
             setAction()
             this.bodies.alter({ id: robotID, portable: 1 - body.portable })
             break
+
+          case schema.Action.MINE_LEAD:
+            setAction()
+            teamStatsObj.leadMined += 1;
+            break
+
+          case schema.Action.MINE_GOLD:
+            setAction()
+            teamStatsObj.goldMined += 1;  
 
           case schema.Action.MUTATE:
             setAction()
