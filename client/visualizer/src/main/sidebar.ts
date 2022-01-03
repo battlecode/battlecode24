@@ -124,11 +124,6 @@ export default class Sidebar {
   private initializeHelp(): HTMLDivElement {
     var innerHTML: string =
     `
-    <b class="red" style="font-size: 16px">Beware of too much logging!</b>
-    <br>
-    If your match has a significant amount of logging, please <b>turn off log processing with
-    the L key.</b><br>
-    <br>
     <b class="red">Issues?</b>
     <ol style="margin-left: -20px; margin-top: 0px;">
     <li>Refresh (Ctrl-R or Command-R).</li>
@@ -148,12 +143,8 @@ export default class Sidebar {
     G - Toggle Grid<br>
     N - Toggle Action Radius<br>
     M - Toggle Sensor Radius<br>
-    , - Toggle Detection Radius<br>
-    H - Toggle Shorter Log Headers<br>
     B - Toggle Interpolation<br>
-    L - Toggle whether to process logs.<br>
     Q - Toggle whether to profile matches.<br>
-    Z - Toggle whether to rotate tall maps.<br>
     [ - Hide/unhide sidebar navigation.<br>
     <br>
     <b class="blue">Keyboard Shortcuts (Map Editor)</b><br
@@ -175,16 +166,9 @@ export default class Sidebar {
     Use the control buttons at the top of the screen to
     navigate the match. Click on different matches in the <code>Queue</code> section to switch between them.<br>
     <br>
-    <b class="blue">How to Use the Console</b><br>
-    The console displays all <code>System.out.println()</code> data up to the current round.
-    You can filter teams by checking the boxes and robot IDs by clicking the
-    robot. You can also change the maximum number of rounds displayed in the
-    input box. Beware of doing too much logging! This slows down the client.
-    (WARNING: If you want to, say, suddenly display 3000 rounds
-    of data, pause the client first to prevent freezing.)<br>
     <br>
     <b class="blue">How to Use the Profiler</b><br>
-    <i class="red"> Be cautious of memory issues when profiling large games. To disable profiling
+    <i class="red"> The profiler is a competitor tool, and is not officially supported by Teh Devs. Be cautious of memory issues when profiling large games. To disable profiling
     on a profiled match file, press "Q".</i><br>
     The profiler can be used to find out which methods are using a lot of
     bytecodes. To use it, tick the "Profiler enabled" checkbox in the
@@ -216,7 +200,7 @@ export default class Sidebar {
     overlapping units. -->
     When you are happy with your map, click "Export".
     If you are directed to save your map, save it in the
-    <code>/battlecode-scaffold-2021/maps</code> directory of your scaffold.
+    <code>/battlecode-scaffold-2022/maps</code> directory of your scaffold.
     (Note: the name of your <code>.map22</code> file must be the same as the name of your
     map.) <br>
     <br>
