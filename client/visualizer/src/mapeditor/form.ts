@@ -364,6 +364,8 @@ export default class MapEditorForm {
         const round = form.getRound();
         this.anomalies.push(anomaly);
         this.anomalyRounds.push(round);
+        this.anomalies.sort((i,j) => this.anomalyRounds[j] - this.anomalyRounds[i]);
+        this.anomalyRounds.sort();
         this.setAnomalyInfo();
       }
     }
