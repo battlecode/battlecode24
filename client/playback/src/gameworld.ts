@@ -493,6 +493,7 @@ export default class GameWorld {
 
           case schema.Action.TRANSMUTE:
             setAction();
+            teamStatsObj.goldMined += 1;
             // teamStatsObj.gold += target;
             // teamStatsObj.lead -= 0;
             break;
