@@ -68,7 +68,27 @@ export const ACTION_RADIUS_COLOR = "#46ff00"
 export const VISION_RADIUS_COLOR = "#0000ff"
 
 // Expected bot image size
-export const IMAGE_SIZE = 50
+//export const IMAGE_SIZE = 25
+
+export function bodyTypeToSize(bodyType: schema.BodyType) {
+  switch (bodyType) {
+    case ARCHON:
+      return 40
+    case WATCHTOWER:
+      return 40
+    case BUILDER:
+      return 25
+    case MINER:
+      return 35
+    case SAGE:
+      return 25
+    case SOLDIER:
+      return 35
+    case LABORATORY:
+      return 40
+    default: throw new Error("invalid body type")
+  }
+}
 
 // Game canvas rendering sizes
 export const INDICATOR_DOT_SIZE = .3
