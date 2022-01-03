@@ -28,12 +28,17 @@ export const bodyTypePriority: number[] = [] // for guns, drones, etc. that shou
 // ]
 
 export const TILE_COLORS: Array<number>[] = [
-  [175, 147, 110],
-  [168, 137, 97],
-  [158, 127, 87],
-  [147, 117, 77],
-  [134, 107, 70],
-  [120, 96, 63]
+  [204, 191, 173],
+  [191, 179, 163],
+  [184, 169, 151],
+  [171, 157, 138],
+  [161, 146, 127],
+  [156, 143, 126],
+  [145, 130, 110],
+  [130, 117, 100],
+  [122, 109,  91],
+  [115, 102,  85],
+  [102,  92,  75]
 ]
 // flashy colors
 // [0, 147, 83], // turquoise
@@ -45,11 +50,8 @@ export const TILE_COLORS: Array<number>[] = [
 
 // Given passability, get index of tile to use.
 export const getLevel = (x: number): number => {
-  x = 100 - x;
-  x /= 100;
   const nLev = TILE_COLORS.length
-  const floatLevel = ((1 - x) - 0.1) / 0.9 * nLev
-  const level = Math.floor(floatLevel)
+  const level = Math.floor((x + 9) / 10);
   return Math.min(nLev - 1, Math.max(0, level))
 }
 
