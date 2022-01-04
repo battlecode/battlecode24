@@ -770,9 +770,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertValidValue(int value) throws GameActionException {
-        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
+        if (value < 0 || value > GameConstants.MAX_SHARED_ARRAY_VALUE)
             throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array " +
-                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
+                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + "].");
     }
 
     @Override
