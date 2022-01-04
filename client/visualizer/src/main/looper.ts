@@ -322,7 +322,6 @@ export default class Looper {
         for(var i = 0; i < world.anomalies.length; i++){
             let anom = world.anomalies[i] + anomConsts.ABYSS;
             let anomRound = world.anomalyRounds[i];
-            console.log("round:", anomRound);
             this.controls.ctx.save();
             this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
             var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);

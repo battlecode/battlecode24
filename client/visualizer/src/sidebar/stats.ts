@@ -225,7 +225,6 @@ export default class Stats {
   }
 
   private updateRelBars(teamLead: Array<number>, teamGold: Array<number>){
-    console.log(this.div);
     for(var a = 0; a < teamGold.length; a++){
       this.relativeBars[a].innerHTML = teamGold[a].toString();
       this.relativeBars[a].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
@@ -566,7 +565,6 @@ export default class Stats {
    */
   setRobotCount(teamID: number, robotType: schema.BodyType, count: number) {
     let td: HTMLTableCellElement = this.robotTds[teamID]["count"][robotType];
-    console.log(count, robotType);
     td.innerHTML = String(count);
   }
 

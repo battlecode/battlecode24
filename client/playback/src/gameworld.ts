@@ -511,14 +511,15 @@ export default class GameWorld {
           case schema.Action.MINE_GOLD:
             setAction()
             teamStatsObj.goldMined += 1;  
+            break
 
           case schema.Action.MUTATE:
-            setAction()
-            teamStatsObj.robots[body.type][body.level - 1] -= 1
-            teamStatsObj.robots[body.type][body.level + 1 - 1] += 1
-            teamStatsObj.total_hp[body.type][body.level - 1] -= body.hp
-            teamStatsObj.total_hp[body.type][body.level + 1 - 1] += body.hp
-            this.bodies.alter({ id: robotID, level: body.level + 1 })
+            const target_body = this.bodies.lookup(target);
+            teamStatsObj.robots[target_body.type][target_body.level - 1] -= 1
+            teamStatsObj.robots[target_body.type][target_body.level + 1 - 1] += 1
+            teamStatsObj.total_hp[target_body.type][target_body.level - 1] -= body.hp
+            teamStatsObj.total_hp[target_body.type][target_body.level + 1 - 1] += body.hp
+            this.bodies.alter({ id: target, level: target_body.level + 1 })
             break
 
           /// Builds a unit (enlightent center).
@@ -650,7 +651,6 @@ export default class GameWorld {
 
       // Update bodies soa
       this.insertDiedBodies(delta)
-
       this.bodies.deleteBulk(delta.diedIDsArray())
     }
 
