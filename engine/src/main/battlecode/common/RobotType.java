@@ -258,7 +258,7 @@ public enum RobotType {
         if (!this.isBuilding() || level == 1) {
             return this.damage;
         } else if (this == RobotType.ARCHON) {
-            return level == 2 ? 3 : 4;
+            return level == 2 ? -3 : -4;
         } else if (this == RobotType.LABORATORY) {
             return 0;
         } else {
