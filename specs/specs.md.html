@@ -17,27 +17,13 @@
 
 # Formal specification
 
-
-<aside>
-🚫 The formal specifications of Battlecode 2022 are strictly confidential until the game is released on the first day of IAP at 7pm on January 3, 2022. Do not disclose any information about the game to anybody before that time.
-
-</aside>
-
-*This is the formal specification of the Battlecode 2022 game.*
-
-Current version: *2022.0.0.3-alpha*
-
----
+*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.0.1.0*
 
 **Welcome to Battlecode 2022: Mutation.**
 
 This is a high-level overview of this year's game. It is highly recommended to read this entire document before you begin writing bots.
 
----
-
 *This document and the game it describes may be tweaked as the competition progresses. We'll try to keep changes to a minimum, but may have to make modifications to keep the game balanced. Any changes will be announced in the official Discord channel. You may find a Changelog at the bottom of this document.*
-
----
 
 # Background
 
@@ -298,7 +284,7 @@ Throwing any `Exception`s cause a bytecode penalty of 500 bytecodes. Unhandled e
 
 Every function you could possibly use to interact with the game can be found in our javadocs.
 
-# Appendix: **Other restrictions**
+# Appendix: Other restrictions
 
 ## **Java language usage**
 
@@ -331,23 +317,14 @@ Basic operations like integer comparison and array indexing cost small numbers o
 
 Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRAY`, and `MULTIANEWARRAY`; see [here](https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings) for reference) have an effective cost greater than a single bytecode. This is because these instructions, although they are represented as a single bytecode, can be vastly more expensive than other instructions in terms of computational cost. To remedy this, these instructions have a bytecode cost equal to the total length of the instantiated array. Note that this should have minimal impact on the typical team, and is only intended to prevent teams from repeatedly instantiating excessively large arrays.
 
-# Appendix: **Lingering questions and clarifications**
+# Appendix: Lingering questions and clarifications
 
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
 
-- Version 2022.0.0.3-alpha (November 22, 2021)
-    
-    Address proofreading comments from Gaurav + Serena.
-    
-- Version 2022.0.0.2-alpha (November 21, 2021)
-    
-    Reorganise specs layout for easier understanding, include robot data information.
-    
-- Version 2022.0.0.1-alpha (November 13, 2021)
-    
-    Publish alpha specifications
+- Version 2022.0.1.0 (January 3, 2022)
+  - Initial release
 
 <style class="fallback">body{visibility:hidden}</style>
 <script>markdeepOptions={tocStyle:'long'};</script>
