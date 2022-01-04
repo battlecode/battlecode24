@@ -30,6 +30,8 @@ npm install
 npm run prod
 cd ..
 
+read -p "Press Ctrl-C if things don't look right. If done, press enter to proceed..."
+
 gsutil -m rm gs://$BUCKET_NAME/clients/2022/**
 gsutil -m cp -r visualizer/out gs://$BUCKET_NAME/clients/2022/
 gsutil -m cp visualizer/visualizer.html gs://$BUCKET_NAME/clients/2022/
