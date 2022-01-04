@@ -12,12 +12,14 @@ read -p "Press enter to proceed..."
 
 cd ../schema
 npm install
-npm run build
+# Don't do npm run build; 
+# this regenerates flatbuffers which is pretty annoying
+# npm run build
 # TODO the following replacement could be done automatically i think
-echo "IMPORTANT: "
-echo "NOW, change line 3 of schema/ts/battlecode_generated.ts to \`import { flatbuffers } from \"flatbuffers\"\`."
-echo "DON'T FORGET TO SAVE!"
-read -p "When done, press enter to proceed..."
+# echo "IMPORTANT: "
+# echo "NOW, change line 3 of schema/ts/battlecode_generated.ts to \`import { flatbuffers } from \"flatbuffers\"\`."
+# echo "DON'T FORGET TO SAVE!"
+# read -p "When done, press enter to proceed..."
 cd ../client
 
 cd playback
