@@ -186,18 +186,19 @@ export default class Sidebar {
     <b class="blue">How to Use the Map Editor</b><br>
     Select the initial map settings: name, width, height, and symmetry. <br>
     <br>
-    To place enlightenment centers, enter the "change robots" mode, set the coordinates, set the initial influence of the
-    center (abbreviated as "I"), and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
+    To place archons, choose "Robots", and to place to lead, choose "Lead". Then, set the coordinates, and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
     <!--The "ID" of a robot is a unique identifier for a pair of symmetric robots. It is not the ID the robot will have in the game! --><br>
     <br>
-    To set tiles' passability values, enter the "change tiles" mode, select the passability value, brush size, and brush style,
+    To set tiles' rubble values, choose "Rubble", select the rubble value, brush size, and brush style,
     and then <b>hold and drag</b> your mouse across the map. <br>
     <br>
-    To save an intermediary version of your map, copy the map JSON. You can input this JSON later to retrieve your map in the map editor for further editing. <br>
+    To schedule anomalies, choose "Anomalies", fill in the anomaly type and round, and click "Add/Update". Anomalies at a particular round can be updated by specifying a
+    round number and clicking "Add/Update", and deleted by specifying a round number and clicking "Delete".
     <br>
     <!--Before exporting, click "Validate" to see if any changes need to be
     made, and <b>"Remove Invalid Units"</b> to automatically remove off-map or
     overlapping units. -->
+    <br>
     When you are happy with your map, click "Export".
     If you are directed to save your map, save it in the
     <code>/battlecode-scaffold-2022/maps</code> directory of your scaffold.
