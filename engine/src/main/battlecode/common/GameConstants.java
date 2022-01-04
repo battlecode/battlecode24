@@ -50,7 +50,7 @@ public class GameConstants {
     public static final int SHARED_ARRAY_LENGTH = 64;
 
     /** The maximum value in shared communication arrays. */
-    public static final int MAX_SHARED_ARRAY_VALUE = Short.MAX_VALUE;
+    public static final int MAX_SHARED_ARRAY_VALUE = (1 << 16) - 1;
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
