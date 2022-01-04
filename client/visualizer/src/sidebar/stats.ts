@@ -686,7 +686,7 @@ export default class Stats {
     this.ECs.innerHTML = "";
   }
 
-  addEC(teamID: number, health: number, body_status: number/*, img: HTMLImageElement */) {
+  addEC(teamID: number, health: number, body_status: number, level: number/*, img: HTMLImageElement */) {
     const div = document.createElement("div");
     let size = 1.0/(1 + Math.exp(-(health/100))) + 0.3;
     div.style.width = (28*size).toString() + "px";
@@ -694,7 +694,7 @@ export default class Stats {
     div.style.position = 'releative';
     div.style.top = '50%';
     div.style.transform  = `translateY(-${50*size - 35}%)`;
-    const img = /* img */this.images.robots.archon[body_status * 2 + teamID].cloneNode() as HTMLImageElement;
+    const img = /* img */this.images.robots.archon[level * 6 + body_status * 2 + teamID].cloneNode() as HTMLImageElement;
     img.style.width = `${56 * size}px`;
     img.style.height = `${56 * size}px`; // update dynamically later
     // img.style.marginTop = `${28*size}px`;

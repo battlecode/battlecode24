@@ -402,10 +402,11 @@ export default class Looper {
         const teams = world.bodies.arrays.team;
         const types = world.bodies.arrays.type;
         const portables = world.bodies.arrays.portable;
+        const levels = world.bodies.arrays.portable;
         teamIDs.forEach((team) => { 
             for(var i = 0; i < hps.length; i++){
                 if(types[i] == ARCHON && teams[i] == team) {
-                    this.stats.addEC(teams[i], hps[i], portables[i]);
+                    this.stats.addEC(teams[i], hps[i], portables[i], levels[i]);
                 }
             }
         });
