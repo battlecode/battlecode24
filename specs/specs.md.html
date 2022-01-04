@@ -174,26 +174,26 @@ Games must end in finite amounts of time. If games do not end by round 2000, the
 
 Robots perform actions to interact with the game world, and some cannot be performed multiple times in a single turn or in a short period of time. These actions are:
 
-- Attacking. Attacking can only be done if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `attack()` method. This targets a particular occupied square in range, and attacks the robot on that square.
-This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
-- Moving. Moving can only be done if the robot's movement cooldown is less than 10 (can check with the `isMovementReady()` method) and if the ending square is unoccupied. Moving can be performed by calling the `move()` method. This moves the robot in the specified direction. If you wish to check whether a move is valid, you can use the `canMove()` method.
-This increases the robot's movement cooldown as determined by the robot type and the rubble on the ending square.
-- Mining. Miners can mine resources on adjacent squares only if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mineLead()` and `mineGold()` methods. This extracts one unit of metal from the targeted square, and adds it to your team's reserve.
-This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
-- Constructing. Archons can construct other Droids, and Builders can construct other Buildings, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `buildRobot()` method. This deducts the cost of the robot from the player's stockpile, then creates one robot of the specified type in the adjacent square of the specified direction. The `canBuild()` method can be used to check whether a construction is legal.
-This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
-- Mutating. Builders can Mutate other Buildings, but only when the Builder's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mutate()` method. This deducts the cost of the Mutation from the player's stockpile, then increases the mutation level of the specified Building. The `canMutation()` method can be used to check whether a Mutation is legal.
-This increases the action cooldown of the Builder, and also both cooldowns of the Building by 100.
-- Repairing. Archons can repair other Droids, and Builders can repair other Buildings increasing the health of the robot that they are repairing, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `repair()` method. The `canRepair()` method can be used to check whether the action is legal.
-This increases the action cooldown of the robot performing a repair as determined by the robot type and the rubble on the robot's square.
+- Attacking. Attacking can only be done if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `attack()` method. This targets a particular occupied square in range, and attacks the robot on that square. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
+
+- Moving. Moving can only be done if the robot's movement cooldown is less than 10 (can check with the `isMovementReady()` method) and if the ending square is unoccupied. Moving can be performed by calling the `move()` method. This moves the robot in the specified direction. If you wish to check whether a move is valid, you can use the `canMove()` method. This increases the robot's movement cooldown as determined by the robot type and the rubble on the ending square.
+
+- Mining. Miners can mine resources on adjacent squares only if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mineLead()` and `mineGold()` methods. This extracts one unit of metal from the targeted square, and adds it to your team's reserve. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
+
+- Constructing. Archons can construct other Droids, and Builders can construct other Buildings, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `buildRobot()` method. This deducts the cost of the robot from the player's stockpile, then creates one robot of the specified type in the adjacent square of the specified direction. The `canBuild()` method can be used to check whether a construction is legal. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
+
+- Mutating. Builders can Mutate other Buildings, but only when the Builder's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mutate()` method. This deducts the cost of the Mutation from the player's stockpile, then increases the mutation level of the specified Building. The `canMutation()` method can be used to check whether a Mutation is legal. This increases the action cooldown of the Builder, and also both cooldowns of the Building by 100.
+
+- Repairing. Archons can repair other Droids, and Builders can repair other Buildings increasing the health of the robot that they are repairing, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `repair()` method. The `canRepair()` method can be used to check whether the action is legal. This increases the action cooldown of the robot performing a repair as determined by the robot type and the rubble on the robot's square.
+
 - Transforming. Buildings can change modes, but only when their movement and action cooldowns are both less than 10 (can check with the `canTransform()` method), and can be performed by calling the `transform()` method. This transforms a Turret into Portable, or a Portable into a Turret, and increases both of the Building's cooldowns by 100.
-- Envisioning. Sages can envision an Anomaly, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `envision()` method. The `canEnvision()` method can be used to check whether the action is legal.
-This increases the robot's action cooldown as determined by the Sage robot type and the rubble on the robot's square.
-- Transmuting. Laboratories can transmute Lead into Gold, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `transmute()` method. This deducts the applicable amount of Lead from your stockpile to gain 1 Au. The `canTransmute()` method can be used to check whether there is sufficient Lead available.
-    
-    This increases the robot's action cooldown as determined by the Laboratory robot type and the rubble on the robot's square.
+
+- Envisioning. Sages can envision an Anomaly, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `envision()` method. The `canEnvision()` method can be used to check whether the action is legal. This increases the robot's action cooldown as determined by the Sage robot type and the rubble on the robot's square.
+
+- Transmuting. Laboratories can transmute Lead into Gold, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `transmute()` method. This deducts the applicable amount of Lead from your stockpile to gain 1 Au. The `canTransmute()` method can be used to check whether there is sufficient Lead available. This increases the robot's action cooldown as determined by the Laboratory robot type and the rubble on the robot's square.
     
 - Communicating. All robots can read the team array by calling `readSharedArray()`, for standard Java bytecode costs. Robots can also update the contents of the shared array with `writeSharedArray()`, which incurs a flat bytecode cost of 100 bytecodes per write.
+
 - Disintegrating. Any robot can call the `disintegrate()` method. This immediately destroys the robot that calls it.
 
 After every turn, the movement and action cooldowns of all robots are decremented by 10.
@@ -222,8 +222,11 @@ The cost of Mutating a Building to level 2 is 600 Pb. The cost of Mutating a Bui
 | Action radius | (repair) 20 | N/A | 20 |
 | Vision radius | 34 | 53 | 34 |
 | Bytecode limit | 20,000 | 5,000 | 10,000 |
+
 - Archon: the headquarters robot type. Can construct and repair other Droids. Cannot be built.
+
 - Laboratory: the house of the alchemist. Can convert Lead into Gold. Since alchemists prefer solitude, if there are $n$ friendly robots within the Laboratory's vision range, 1 Au can be created by expending $\left\lfloor A-Be^{-kn}\right\rfloor$ Pb, where $A=20, B=15, k=0.02$. This formula can be accessed with the method `getTransmutationRate()`.
+
 - Watchtower: a defensive reinforcement. Can attack enemy robots that stray within the attack radius.
 
 ## Droids
@@ -240,9 +243,13 @@ Droids are mobile robots, built by Archons.
 | Action radius | (mine) 2 | (repair) 5 | 13 | 13 |
 | Vision radius | 20 | 20 | 20 | 20 |
 | Bytecode limit | 7,500 | 7,500 | 10,000 | 10,000 |
+
 - Miners: the resource collecting robot. Can mine squares for Lead and Gold.
+
 - Builders: the construction robot. Can build new Prototypes, and repair existing Buildings.
+
 - Soldiers: the general-purpose attack robot. Can attack nearby robots.
+
 - Sage: the bringer of Anomalies. Sages are able to produce concentrated attacks, as well as the following Anomalies, but at a very slow rate:
     - Abyss: 20% of resources in all squares within action range are lost.
     - Charge: The air begins to conduct electricity, and all enemy Droids within action range lose health equal to 10% of their maximum health.
@@ -265,7 +272,7 @@ The per-turn bytecode limits for various robots are as follows:
 
 Some standard functions such as the math library and sensing functions have fixed bytecode costs, available here[???]. More details on this at the end of the spec.
 
-# Appendix: Other resources an**d utilities**
+# Appendix: Other resources and utilities
 
 ## **Sample player**
 
