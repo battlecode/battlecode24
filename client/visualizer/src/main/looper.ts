@@ -264,7 +264,7 @@ export default class Looper {
                 let is_building = cst.buildingTypeList.includes(type);
 
                 this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level, indicatorString,
-                    parent !== 0 ? parent : undefined, is_building ? prototype == 1 : undefined, is_building ? portable == 1 : undefined);
+                    parent !== 0 ? parent : undefined, is_building ? portable == 1 : undefined, is_building ? prototype == 1 : undefined);
             }
         }
 
