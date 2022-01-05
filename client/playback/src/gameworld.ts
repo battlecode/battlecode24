@@ -552,8 +552,8 @@ export default class GameWorld {
             let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
             switch (target) {
               case 0:
-                for (let x = 0; x < w / 2; x++) {
-                  for (let y = 0; y < (w + 1) / 2; y++) {
+                for (let x = 0; x < Math.floor(w / 2); x++) {
+                  for (let y = 0; y < Math.floor((w + 1) / 2); y++) {
                     let curX = x
                     let curY = y
                     let lastRubble = this.mapStats.rubble[curX + curY * w]
@@ -570,7 +570,7 @@ export default class GameWorld {
                 }
                 break
               case 1:
-                for (let x = 0; x < w / 2; x++) {
+                for (let x = 0; x < Math.floor(w / 2); x++) {
                   for (let y = 0; y < h; y++) {
                     let idx = x + y * w
                     let newX = w - 1 - x
@@ -582,7 +582,7 @@ export default class GameWorld {
                 }
                 break
               case 2:
-                for (let y = 0; y < h / 2; y++) {
+                for (let y = 0; y < Math.floor(h / 2); y++) {
                   for (let x = 0; x < w; x++) {
                     let idx = x + y * w
                     let newY = h - 1 - y
