@@ -291,6 +291,38 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException {
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        radiusSquared = Math.min(radiusSquared, getType().visionRadiusSquared);
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(getLocation(), radiusSquared)) {
+            if (this.gameWorld.getLead(m) > 0) {
+                locations.add(m);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException {
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        radiusSquared = Math.min(radiusSquared, getType().visionRadiusSquared);
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(getLocation(), radiusSquared)) {
+            if (this.gameWorld.getGold(m) > 0) {
+                locations.add(m);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
     }

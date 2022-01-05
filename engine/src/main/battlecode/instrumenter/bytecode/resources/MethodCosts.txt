@@ -76,6 +76,8 @@ battlecode/common/RobotController/repair                                0    tru
 battlecode/common/RobotController/resign                                0    true
 battlecode/common/RobotController/senseGold                             5    true
 battlecode/common/RobotController/senseLead                             5    true
+battlecode/common/RobotController/senseNearbyLocationsWithLead          100  true
+battlecode/common/RobotController/senseNearbyLocationsWithGold          100  true
 battlecode/common/RobotController/senseNearbyRobots                     100  true
 battlecode/common/RobotController/senseRobot                            25   true
 battlecode/common/RobotController/senseRobotAtLocation                  25   true

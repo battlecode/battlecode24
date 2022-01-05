@@ -341,6 +341,38 @@ public strictfp interface RobotController {
     int senseGold(MapLocation loc) throws GameActionException;
 
     /**
+     * Return all locations that contain a nonzero amount of lead, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead.
+     *
+     * Checks that radiusSquared is non-negative.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of lead within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that contain a nonzero amount of gold, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead.
+     *
+     * Checks that radiusSquared is non-negative.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of gold within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
