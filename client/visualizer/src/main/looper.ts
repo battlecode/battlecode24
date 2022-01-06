@@ -252,10 +252,10 @@ export default class Looper {
                 // let influence = bodies.influence[index];
                 // let conviction = bodies.conviction[index];
                 let hp = bodies.hp[index]; 
-                let max_hp = this.meta.types[type].health;
-                let dp = this.meta.types[type].damage;
                 let bytecodes = bodies.bytecodesUsed[index];
                 let level = bodies.level[index];
+                let max_hp = level == 1 ? this.meta.types[type].health : level == 2 ? this.meta.types[type].level2Health : this.meta.types[type].level3Health;
+                let dp = level == 1 ? this.meta.types[type].damage : level == 2 ? this.meta.types[type].level2Damage : this.meta.types[type].level3Damage;
                 let parent = bodies.parent[index];
                 let prototype = bodies.prototype[index];
                 let portable = bodies.portable[index];
