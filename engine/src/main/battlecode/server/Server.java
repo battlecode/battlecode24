@@ -210,7 +210,6 @@ public strictfp class Server implements Runnable {
 
         try {
             loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
-            debug("running map " + loadedMap);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");
             throw e;
