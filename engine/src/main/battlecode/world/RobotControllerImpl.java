@@ -291,14 +291,38 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyLocationsWithLead() {
+        try {
+            return senseNearbyLocationsWithLead(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
     public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, minLead);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         if (radiusSquared < 0)
             throw new GameActionException(CANT_DO_THAT,
                     "Radius squared must be non-negative.");
-        radiusSquared = Math.min(radiusSquared, getType().visionRadiusSquared);
         ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(getLocation(), radiusSquared)) {
-            if (this.gameWorld.getLead(m) > 0) {
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getLead(m) >= minLead) {
                 locations.add(m);
             }
         }
@@ -307,14 +331,38 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyLocationsWithGold() {
+        try {
+            return senseNearbyLocationsWithGold(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
     public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, minGold);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         if (radiusSquared < 0)
             throw new GameActionException(CANT_DO_THAT,
                     "Radius squared must be non-negative.");
-        radiusSquared = Math.min(radiusSquared, getType().visionRadiusSquared);
         ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(getLocation(), radiusSquared)) {
-            if (this.gameWorld.getGold(m) > 0) {
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getGold(m) >= minGold) {
                 locations.add(m);
             }
         }
