@@ -619,8 +619,8 @@ export default class Stats {
   }*/
 
   setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
-    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome); // change incomeDisplays later
-    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome);
+    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome.toFixed(2)); // change incomeDisplays later
+    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome.toFixed(2));
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }
