@@ -380,7 +380,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void mutate() {
         if (!canMutate()) return;
         this.level++;
-        this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
+        int healthIncrease = this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, healthIncrease);
+        this.health += healthIncrease;
     }
 
     /**
