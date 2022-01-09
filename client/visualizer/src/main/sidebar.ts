@@ -130,6 +130,8 @@ export default class Sidebar {
     <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
     <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
     </ol>
+    <b class="blue">Notes on game stats (Game)</b><br>
+    Lead and gold incomes are running averages over the past 100 turns.<br>
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>

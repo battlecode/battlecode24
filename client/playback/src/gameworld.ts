@@ -64,7 +64,9 @@ export type TeamStats = {
   leadChange: number,
   goldChange: number,
   leadMined: number,
-  goldMined: number
+  goldMined: number,
+  leadMinedHist: number[],
+  goldMinedHist: number[],
 }
 
 export type IndicatorDotsSchema = {
@@ -234,7 +236,9 @@ export default class GameWorld {
         leadChange: 0,
         goldChange: 0,
         leadMined: 0,
-        goldMined: 0
+        goldMined: 0,
+        leadMinedHist: [],
+        goldMinedHist: []
       })
     }
 
@@ -603,11 +607,14 @@ export default class GameWorld {
       }
     }
 
-    // for (let team in this.meta.teams) {
-    //   let teamID = this.meta.teams[team].teamID;
-    //   let teamStats = this.teamStats.get(teamID) as TeamStats;
-    //   teamStats.income = 0;
-    // }
+    for (let team in this.meta.teams) {
+      let teamID = this.meta.teams[team].teamID;
+      let statsObj = this.teamStats.get(teamID) as TeamStats;
+      if (statsObj.leadMinedHist.length > 100) statsObj.leadMinedHist.pop();
+      statsObj.leadMinedHist.push(statsObj.leadMined);
+      if (statsObj.goldMinedHist.length > 100) statsObj.goldMinedHist.pop();
+      statsObj.goldMinedHist.push(statsObj.leadMined);
+    }
 
     // income
     // this.bodies.arrays.type.forEach((type, i) => {
