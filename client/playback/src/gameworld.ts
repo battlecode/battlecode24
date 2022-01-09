@@ -610,10 +610,10 @@ export default class GameWorld {
     for (let team in this.meta.teams) {
       let teamID = this.meta.teams[team].teamID;
       let statsObj = this.teamStats.get(teamID) as TeamStats;
-      if (statsObj.leadMinedHist.length > 100) statsObj.leadMinedHist.pop();
       statsObj.leadMinedHist.push(statsObj.leadMined);
-      if (statsObj.goldMinedHist.length > 100) statsObj.goldMinedHist.pop();
+      if (statsObj.leadMinedHist.length > 100) statsObj.leadMinedHist.shift();
       statsObj.goldMinedHist.push(statsObj.leadMined);
+      if (statsObj.goldMinedHist.length > 100) statsObj.goldMinedHist.shift();
     }
 
     // income
