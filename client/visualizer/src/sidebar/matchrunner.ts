@@ -270,7 +270,7 @@ export default class MatchRunner {
     }
     // Found the packages, make the team selectors
     if (packages) {
-      for (let player of packages) {
+      for (let player of packages.sort((a, b) => a.localeCompare(b))) {
         // Add the player to team A
         const optionA = document.createElement("option");
         optionA.value = player;
