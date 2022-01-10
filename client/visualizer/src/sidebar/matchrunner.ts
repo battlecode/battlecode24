@@ -38,6 +38,7 @@ export default class MatchRunner {
   // Match information
   private teamA: HTMLSelectElement;
   private teamB: HTMLSelectElement;
+  private swapTeamsButton: HTMLButtonElement;
   private profilerEnabled: HTMLInputElement;
   private selectAllMaps: HTMLButtonElement;
   private deselectAllMaps: HTMLButtonElement;
@@ -119,6 +120,8 @@ export default class MatchRunner {
     this.runMatchWithoutViewing = document.createElement("button");
     this.killProcs = document.createElement("button");
 
+    this.swapTeamsButton = document.createElement("button");
+
     this.profilerEnabled = document.createElement("input");
     this.profilerEnabled.type = 'checkbox';
     this.profilerEnabled.id = 'profiler-enabled';
@@ -141,6 +144,14 @@ export default class MatchRunner {
     divB.appendChild(this.teamB);
     divB.appendChild(document.createElement("br"));
     div.appendChild(divB);
+
+    // Swap teams button
+    this.swapTeamsButton.type = "button";
+    this.swapTeamsButton.appendChild(document.createTextNode("Swap Teams"));
+    this.swapTeamsButton.className = "custom-button";
+    this.swapTeamsButton.onclick = this.swapTeams;
+    div.appendChild(this.swapTeamsButton);
+    div.appendChild(document.createElement("br"));
 
     // Profiler enabled checkbox
     const divProfiler = document.createElement("p");
@@ -284,6 +295,16 @@ export default class MatchRunner {
         this.teamB.appendChild(optionB);
       }
     }
+  }
+
+  private swapTeams = () => {
+    if (this.teamA.options.length === 0 || this.teamB.options.length === 0) {
+      return;
+    }
+
+    const teamAIndex = this.teamA.selectedIndex;
+    this.teamA.selectedIndex = this.teamB.selectedIndex;
+    this.teamB.selectedIndex = teamAIndex;
   }
 
   /**
