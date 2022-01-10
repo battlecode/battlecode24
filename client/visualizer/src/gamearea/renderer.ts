@@ -416,6 +416,7 @@ export default class Renderer {
   private setInfoStringEvent(world: GameWorld,
     xs: Int32Array, ys: Int32Array) {
     // world information
+    const length = world.bodies.length
     const width = world.maxCorner.x - world.minCorner.x
     const height = world.maxCorner.y - world.minCorner.y
     const ids: Int32Array = world.bodies.arrays.id
@@ -430,7 +431,7 @@ export default class Renderer {
       // Get the ID of the selected robot
       let selectedRobotID
       let possiblePriorityID: number | undefined = undefined
-      for (let i in ids) {
+      for (let i = 0; i < length; i++) {
         if (xs[i] == x && ys[i] == y) {
           selectedRobotID = ids[i]
           if (cst.bodyTypePriority.includes(types[i]))

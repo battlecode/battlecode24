@@ -612,7 +612,7 @@ export default class GameWorld {
       let statsObj = this.teamStats.get(teamID) as TeamStats;
       statsObj.leadMinedHist.push(statsObj.leadMined);
       if (statsObj.leadMinedHist.length > 100) statsObj.leadMinedHist.shift();
-      statsObj.goldMinedHist.push(statsObj.leadMined);
+      statsObj.goldMinedHist.push(statsObj.goldMined);
       if (statsObj.goldMinedHist.length > 100) statsObj.goldMinedHist.shift();
     }
 
