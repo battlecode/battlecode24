@@ -81,9 +81,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
         this.roundsAlive = 0;
         this.actionCooldownTurns = 0;
-        this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
-        this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.numVisibleFriendlyRobots = 0;
 
         this.indicatorString = "";
