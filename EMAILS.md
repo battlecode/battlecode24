@@ -17,8 +17,8 @@ We currently maintain the following lists on Mailman:
 1. Update the administrator to the Battlecode contact email (this is the publicly viewable list owner), and set yourself and others to be moderators.
    After doing this, you will need to re-authenticate (you're no longer the admin), using the password that was emailed to you.
 1. Set list parameters. Below are some examples.
-    - Description: MIT Battlecode 2021
-    - Subject prefix: [battlecode-21]
+    - Description: MIT Battlecode 2022
+    - Subject prefix: [battlecode-22]
     - Hide sender = Yes. All sent emails will appear to come from the list, not you.
     - Strip Reply-To header = Yes, explicit Reply-To = the battlecode address. This configures replies to not go back to the list.
     - In the privacy menu:
@@ -39,6 +39,8 @@ mmblanche
 to be able to use it. (`add consult` only works when running through bash, for some reason.)
 
 Get a list of emails, and convert it to the format as specified by mmblanche's `-f` argument: one email per line. (For example, if you're working with a Google Form, you can get a Google Sheet of responses. Create a new tab -- **not** the tab where form responses are being collected!. Convert it into only one column of values such that all the values are emails -- strip out timestamps, header row, and the like. Then download this as a csv. If you'd like to export emails from our database, you can use a nice interface to download a table as a csv, and work with it.)
+
+If you have a terminal database client, you can instead run a command like `\copy (select email from api_user) to './emails.csv' with csv;`.
 
 Move this file to your Athena locker; you can use `scp` for this (example [here](https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh)).
 

@@ -50,9 +50,14 @@ public enum Direction {
     CENTER(0, 0);
 
     /**
-     * Change in x, change in y.
+     * Change in x.
      */
-    public final int dx, dy;
+    public final int dx;
+
+    /**
+     * Change in y.
+     */
+    public final int dy;
 
     Direction(int dx, int dy) {
         this.dx = dx;
@@ -102,9 +107,9 @@ public enum Direction {
 
     /**
      * Returns a list of all directions. This is equivalent to calling
-     * Direction.values().
+     * {@link Direction#values}.
      *
-     * @return array of all directions.
+     * @return array of all directions
      */
     public static Direction[] allDirections() {
         return Direction.values();
@@ -113,7 +118,7 @@ public enum Direction {
     /**
      * Returns a list of all cardinal directions.
      *
-     * @return array of all cardinal directions.
+     * @return array of all cardinal directions
      */
     public static Direction[] cardinalDirections() {
         return new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
@@ -122,7 +127,7 @@ public enum Direction {
     /**
      * Returns the delta X of the direction.
      *
-     * @return the delta X of the direction.
+     * @return the delta X of the direction
      */
     public int getDeltaX() {
         return this.dx;
@@ -131,7 +136,7 @@ public enum Direction {
     /**
      * Returns the delta Y of the direction.
      *
-     * @return the delta Y of the direction.
+     * @return the delta Y of the direction
      */
     public int getDeltaY() {
         return this.dy;

@@ -482,19 +482,16 @@ export default class Runner {
         case 78: // "n" - Toggle action radius
           this.conf.seeActionRadius = !this.conf.seeActionRadius;
           break;
-        case 77: // "m" - Toggle sensor radius
-          this.conf.seeSensorRadius = !this.conf.seeSensorRadius;
-          break;
-        case 188: // "," - Toggle detection radius
-          this.conf.seeDetectionRadius = !this.conf.seeDetectionRadius;
+        case 77: // "m" - Toggle vision radius
+          this.conf.seeVisionRadius = !this.conf.seeVisionRadius;
           break;
         case 71: // "g" - Toogle grid view
           this.conf.showGrid = !this.conf.showGrid;
           break;
-        case 72: // "h" - Toggle short log header
-          this.conf.shorterLogHeader = !this.conf.shorterLogHeader;
-          this.console.updateLogHeader();
-          break;
+        // case 72: // "h" - Toggle short log header
+        //   this.conf.shorterLogHeader = !this.conf.shorterLogHeader;
+        //   this.console.updateLogHeader();
+        //   break;
         case 65: // "a" - previous tournament Match
           this.previousTournamentState();
           this.processTournamentState();
@@ -508,18 +505,18 @@ export default class Runner {
           this.stats.hideTourneyUpload();
           this.showTourneyUpload = !this.showTourneyUpload;
           break;
-        case 76: // 'l' - Toggle process logs
-          this.conf.processLogs = !this.conf.processLogs;
-          this.console.setNotLoggingDiv();
-          break;
+        // case 76: // 'l' - Toggle process logs
+        //   this.conf.processLogs = !this.conf.processLogs;
+        //   this.console.setNotLoggingDiv();
+        //   break;
         case 81: // 'q' - Toggle profiler
           if (this.profiler) {
             this.conf.doProfiling = !this.conf.doProfiling;
             this.profiler.setNotProfilingDiv();
           }
           break;
-        case 90: // 'z' - Toggle rotate
-          this.conf.doRotate = !this.conf.doRotate;
+        // case 90: // 'z' - Toggle rotate
+        //   this.conf.doRotate = !this.conf.doRotate;
       }
     }
 

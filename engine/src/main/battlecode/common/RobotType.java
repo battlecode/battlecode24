@@ -1,7 +1,11 @@
 package battlecode.common;
 
 /**
- * Contains details on various attributes of the different robots. All of this information is in the specs in a more organized form.
+ * Enumerates the possible types of robots. More information about the
+ * capabilities of each robot type are available in the game specs.
+ *
+ * You can check the type of another robot by inspecting {@link RobotInfo#type},
+ * or your own type by inspecting {@link RobotController#getType}.
  */
 public enum RobotType {
 
@@ -9,81 +13,103 @@ public enum RobotType {
     // Health (level 1), Damage (level 1), Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
-     * Archons are portable buildings that heal and generate robots.
-     * Losing all archons means losing the game.
+     * Archons are the headquarters of your army. They are Buildings that can
+     * build and repair Droids.
      *
-     * @battlecode.doc.robot     */
-    ARCHON          (  0, 250, 10, 24, 1000, -2, 20, 34, 20000),
+     * @battlecode.doc.robottype
+     */
+    ARCHON          (  0, 100, 10, 24, 600, -2, 20, 34, 20000),
     //               BCL  BCG  AC  MC    HP DMG  AR  VR      BL
 
     /**
-     * Alchemist's laboratory
-     * Converts lead into gold
+     * Laboratories house the magic of the alchemist. They are Buildings that
+     * can transmute lead into gold.
      *
-     * @battlecode.doc.robot     */
-    LABORATORY      (800,   0, 10, 24, 100,  0,  0, 53,    5000),
+     * @battlecode.doc.robottype
+     */
+    LABORATORY      (250,   0, 10, 24, 100,  0,  0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
-    * Guard turret 
-    */
-    WATCHTOWER      (180,  0,  10,  24, 130,  5, 20, 34,   10000),
+     * Watchtowers are defensive strongholds. They are Buildings that can
+     * attack robots that stray too close.
+     *
+     * @battlecode.doc.robottype
+     */
+    WATCHTOWER      (180,  0,  10,  24, 150,  4, 20, 34,   10000),
     //               BCL  BCG  AC   MC   HP DMG  AR  VR       BL
 
     /**
-     * Can mine gold or lead at their or an adjacent location.
+     * Miners are resource-collecting robots. They are Droids that can mine lead
+     * or gold at their or an adjacent location.
      *
-     * @battlecode.doc.robot     */
+     * @battlecode.doc.robottype
+     */
     MINER           ( 50,   0,  2,  20, 40,   0, 2, 20,   7500),
     //               BCL  BCG  AC   MC  HP  DMG AR  VR       BL
+
     /**
-     * Can build and repair buildings.
+     * Builders are resource-spending robots. They are Droids that can build,
+     * repair and mutate Buildings.
      *
-     * @battlecode.doc.robot     */
+     * @battlecode.doc.robottype
+     */
     BUILDER         ( 40,   0,  10, 20, 30, -1,  5, 20,   7500),
     //               BCL  BCG   AC  MC  HP DMG  AR  VR      BL
-    
+
     /**
-     * Ranged attacking robot.
-    */
+     * Soldiers are general-purpose attacking robots. They are Droids that can
+     * attack robots within a range.
+     *
+     * @battlecode.doc.robottype
+     */
     SOLDIER         ( 75,   0,  10, 16,  50,  3, 13, 20,  10000),
     //               BCL   BCG  AC  MC  HP  DMG  AR  VR       BL
-    
+
     /**
-     * Gold robot, causes Anomalies.
+     * Sages are wise robots with extraordinary abilities. They are Droids
+     * fashioned out of pure gold, able to envision Anomalies to the detriment
+     * of the enemy.
+     *
+     * @battlecode.doc.robottype
      */
-    SAGE            ( 0,  50, 200, 25, 100, 45, 13, 20,   10000)
+    SAGE            ( 0,  20, 200, 25, 100, 45, 20, 34,   10000)
     //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
     /**
-     * Lead cost to build a given robot or building 
+     * Lead cost to build a given robot or building.
      */
     public final int buildCostLead;
 
     /**
-     * Gold cost to build a given robot or building (except for Archon's)
+     * Gold cost to build a given robot or building.
      */
     public final int buildCostGold;
 
     /**
-     * Action cooldown.
+     * The action cooldown applied to the robot per action.
     */
     public final int actionCooldown;
 
     /**
-     * Movement cooldown.
+     * The movement cooldown applied to the robot per move.
      */
     public final int movementCooldown;
 
     /**
-    * Initial health per robot for Level 1.
-    */
+     * The maximum health for a Level 1 robot of this type.
+     *
+     * @see #getMaxHealth
+     */
     public final int health;
 
     /**
-    * Damage for each robot in Level 1.
-    */
+     * The damage per attack for a Level 1 robot of this type. This value is
+     * negative for robots with repairing abilities.
+     *
+     * @see #getDamage
+     */
     public final int damage;
 
     /**
@@ -98,27 +124,17 @@ public enum RobotType {
     public final int visionRadiusSquared;
 
     /**
-     * Base bytecode limit of this robot
+     * Base bytecode limit of this robot.
      */
     public final int bytecodeLimit;
 
     /**
-     * @return the squared action radius
-     */
-    public int getActionRadiusSquared(int level) {
-        return this.actionRadiusSquared;
-    }
-
-    /**
-     * @return the squared vision radius
-     */
-    public int getVisionRadiusSquared(int level) {
-        return this.visionRadiusSquared;
-    }
-
-    /**
+     * Returns whether this type can build a robot of another given type.
+     *
      * @param builtType type of robot being built
      * @return whether this type can build the given robot type
+     *
+     * @battlecode.doc.costlymethod
      */
     public boolean canBuild(RobotType builtType) {
         return (this == ARCHON && (builtType == MINER || 
@@ -130,23 +146,34 @@ public enum RobotType {
     }
 
     /**
+     * Returns whether this type can attack.
+     *
      * @return whether this type can attack
+     * @battlecode.doc.costlymethod
      */
     public boolean canAttack() {
         return (this == WATCHTOWER
-            || this == SOLDIER);
+            || this == SOLDIER
+            || this == SAGE);
     }
 
     /**
-     * @return whether this type can envision anomalies
+     * Returns whether this type can envision Anomalies.
+     *
+     * @return whether this type can envision Anomalies
+     * @battlecode.doc.costlymethod
      */
     public boolean canEnvision() {
         return this == SAGE;
     }
 
     /**
+     * Returns whether this type can repair another robot of a given type.
+     *
      * @param repairedType type of robot being repaired
      * @return whether this type can repair the given robot type
+     *
+     * @battlecode.doc.costlymethod
      */
     public boolean canRepair(RobotType repairedType) {
         return ((this == ARCHON && !repairedType.isBuilding()) || 
@@ -154,30 +181,43 @@ public enum RobotType {
     }
 
     /**
-     * @return whether this type can mine
+     * Returns whether this type can mine for metal.
+     *
+     * @return whether this type can mine for metal
+     * @battlecode.doc.costlymethod
      */
     public boolean canMine() {
         return this == MINER;
     }
 
     /**
+     * Returns whether this type can mutate another robot of a given type.
+     *
      * @param mutatedType type of robot being mutated
-     * @return whether this type can mutate buildings
+     * @return whether this type can mutate another robot of a given type
+     *
+     * @battlecode.doc.costlymethod
      */
     public boolean canMutate(RobotType mutatedType) {
         return this == BUILDER && mutatedType.isBuilding();
     }
 
     /**
+     * Returns whether this type can transmute lead into gold.
+     *
      * @return whether this type can transmute lead into gold
+     * @battlecode.doc.costlymethod
      */
     public boolean canTransmute() {
         return this == LABORATORY;
     }
 
     /**
-     * @return whether or not a given robot is a building
-    */
+     * Returns whether or not a given robot is a Building.
+     *
+     * @return whether or not a given robot is a Building
+     * @battlecode.doc.costlymethod
+     */
     public boolean isBuilding() {
         return (
             this == ARCHON
@@ -188,42 +228,52 @@ public enum RobotType {
 
     /**
      * Returns the max health of a robot by level.
+     *
      * @param level of the robot
      * @return the max health of a robot by level
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getMaxHealth(int level) {
         if (!this.isBuilding() || level == 1) {
             return this.health;
         } else if (this == ARCHON) {
-            return level == 2 ? 1100 : 1200;
+            return level == 2 ? 1080 : 1944;
         } else if (this == LABORATORY) {
-            return level == 2 ? 110 : 120;
+            return level == 2 ? 180 : 324;
         } else {
-            return level == 2 ? 143 : 156;
+            return level == 2 ? 270 : 486;
         }
     }
 
     /**
-     * Returns the damage of a robot by level.
-     * @param level
-     * @return the damage for a robot by level, negative if robot heals
+     * Determine the damage power of a robot by level.
+     *
+     * @param level The specific level of the robot.
+     * @return the damage for a robot by level, negative if robot repairs
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getDamage(int level) {
         if (!this.isBuilding() || level == 1) {
             return this.damage;
         } else if (this == RobotType.ARCHON) {
-            return level == 2 ? 3 : 4;
+            return level == 2 ? -4 : -6;
         } else if (this == RobotType.LABORATORY) {
             return 0;
         } else {
-            return level == 2 ? 6 : 7;
+            return level == 2 ? 8 : 12;
         }
     }
 
     /**
-     * @param level
-     * @return the healing per turn for a robot by level as a positive amount,
-     *  0 if robot doesn't heal
+     * Determine the repairing power of a robot by level.
+     *
+     * @param level The specific level of the robot.
+     * @return the repair per turn for a robot by level as a positive amount,
+     *         or 0 if robot doesn't repair
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getHealing(int level) {
         if (this == ARCHON || this == BUILDER) {
@@ -236,24 +286,52 @@ public enum RobotType {
     // COST RELATED FUNCTIONS
 
     /**
+     * Determine the lead cost of Mutating this robot to a specific level.
+     *
      * @param level the level to mutate to
-     * @return lead component of cost to mutate
+     * @return lead cost to mutate, unspecified if mutation is invalid
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getLeadMutateCost(int level) {
-        return level == 2 ? 600 : 0;
+        if (level != 2) {
+            return 0;
+        }
+        switch (this) {
+            case ARCHON:     return 400;
+            case WATCHTOWER: return 200;
+            case LABORATORY: return 200;
+            default:         return 0;
+        }
     }
 
     /**
+     * Determine the gold cost of Mutating this robot to a specific level.
+     *
      * @param level the level to mutate to
-     * @return gold component of cost to mutate.
+     * @return gold cost to mutate, unspecified if mutation is invalid
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getGoldMutateCost(int level) {
-        return level == 3 ? 100 : 0;
+        if (level != 3) {
+            return 0;
+        }
+        switch (this) {
+            case ARCHON:     return 80;
+            case WATCHTOWER: return 60;
+            case LABORATORY: return 25;
+            default:         return 0;
+        }
     }
 
     /**
+     * Determine the robot's net worth in lead.
+     *
      * @param level the robot's current level
      * @return lead component of worth
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getLeadWorth(int level) {
         int leadWorth = this.buildCostLead;
@@ -264,8 +342,12 @@ public enum RobotType {
     }
 
     /**
+     * Determine the robot's net worth in gold.
+     *
      * @param level the robot's current level
      * @return gold component of worth
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getGoldWorth(int level) {
         int goldWorth = this.buildCostGold;
@@ -276,16 +358,24 @@ public enum RobotType {
     }
 
     /**
+     * Determine the amount of lead dropped if this robot dies.
+     *
      * @param level the robot's current level
      * @return the amount of lead dropped
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getLeadDropped(int level) {
         return (int) (this.getLeadWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);
     }
 
     /**
+     * Determine the amount of gold dropped if this robot dies.
+     *
      * @param level the robot's current level
      * @return the amount of gold dropped
+     *
+     * @battlecode.doc.costlymethod
      */
     public int getGoldDropped(int level) {
         return (int) (this.getGoldWorth(level) * GameConstants.RECLAIM_COST_MULTIPLIER);

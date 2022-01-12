@@ -90,7 +90,7 @@ export default class Sidebar {
 
     this.modeButtons = new Map<Mode, HTMLButtonElement>();
     modePanelRow1.appendChild(this.modeButton(Mode.GAME, "Game"));
-    modePanelRow1.appendChild(this.modeButton(Mode.LOGS, "Logs"));
+    // modePanelRow1.appendChild(this.modeButton(Mode.LOGS, "Logs"));
     modePanelRow1.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
     modePanelRow1.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
     if (this.conf.useProfiler) modePanelRow2.appendChild(this.modeButton(Mode.PROFILER, "Profiler"));
@@ -104,7 +104,7 @@ export default class Sidebar {
 
     this.div.appendChild(this.innerDiv);
 
-    this.conf.mode = Mode.GAME;
+    this.conf.mode = Mode.GAME; // MAPEDITOR;
 
     this.updateModeButtons();
     this.setSidebar();
@@ -124,17 +124,15 @@ export default class Sidebar {
   private initializeHelp(): HTMLDivElement {
     var innerHTML: string =
     `
-    <b class="red" style="font-size: 16px">Beware of too much logging!</b>
-    <br>
-    If your match has a significant amount of logging, please <b>turn off log processing with
-    the L key.</b><br>
-    <br>
     <b class="red">Issues?</b>
     <ol style="margin-left: -20px; margin-top: 0px;">
     <li>Refresh (Ctrl-R or Command-R).</li>
     <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
     <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
     </ol>
+    <b class="blue">Notes on game stats (Game)</b><br>
+    Lead and gold incomes are running averages over the past 100 turns.<br>
+    <br>
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
@@ -148,12 +146,8 @@ export default class Sidebar {
     G - Toggle Grid<br>
     N - Toggle Action Radius<br>
     M - Toggle Sensor Radius<br>
-    , - Toggle Detection Radius<br>
-    H - Toggle Shorter Log Headers<br>
     B - Toggle Interpolation<br>
-    L - Toggle whether to process logs.<br>
     Q - Toggle whether to profile matches.<br>
-    Z - Toggle whether to rotate tall maps.<br>
     [ - Hide/unhide sidebar navigation.<br>
     <br>
     <b class="blue">Keyboard Shortcuts (Map Editor)</b><br
@@ -175,16 +169,9 @@ export default class Sidebar {
     Use the control buttons at the top of the screen to
     navigate the match. Click on different matches in the <code>Queue</code> section to switch between them.<br>
     <br>
-    <b class="blue">How to Use the Console</b><br>
-    The console displays all <code>System.out.println()</code> data up to the current round.
-    You can filter teams by checking the boxes and robot IDs by clicking the
-    robot. You can also change the maximum number of rounds displayed in the
-    input box. Beware of doing too much logging! This slows down the client.
-    (WARNING: If you want to, say, suddenly display 3000 rounds
-    of data, pause the client first to prevent freezing.)<br>
     <br>
     <b class="blue">How to Use the Profiler</b><br>
-    <i class="red"> Be cautious of memory issues when profiling large games. To disable profiling
+    <i class="red"> The profiler is a competitor tool, and is not officially supported by Teh Devs. Be cautious of memory issues when profiling large games. To disable profiling
     on a profiled match file, press "Q".</i><br>
     The profiler can be used to find out which methods are using a lot of
     bytecodes. To use it, tick the "Profiler enabled" checkbox in the
@@ -202,22 +189,23 @@ export default class Sidebar {
     <b class="blue">How to Use the Map Editor</b><br>
     Select the initial map settings: name, width, height, and symmetry. <br>
     <br>
-    To place enlightenment centers, enter the "change robots" mode, set the coordinates, set the initial influence of the
-    center (abbreviated as "I"), and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
+    To place archons, choose "Robots", and to place to lead, choose "Lead". Then, set the coordinates, and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
     <!--The "ID" of a robot is a unique identifier for a pair of symmetric robots. It is not the ID the robot will have in the game! --><br>
     <br>
-    To set tiles' passability values, enter the "change tiles" mode, select the passability value, brush size, and brush style,
+    To set tiles' rubble values, choose "Rubble", select the rubble value, brush size, and brush style,
     and then <b>hold and drag</b> your mouse across the map. <br>
     <br>
-    To save an intermediary version of your map, copy the map JSON. You can input this JSON later to retrieve your map in the map editor for further editing. <br>
+    To schedule anomalies, choose "Anomalies", fill in the anomaly type and round, and click "Add/Update". Anomalies at a particular round can be updated by specifying a
+    round number and clicking "Add/Update", and deleted by specifying a round number and clicking "Delete".
     <br>
     <!--Before exporting, click "Validate" to see if any changes need to be
     made, and <b>"Remove Invalid Units"</b> to automatically remove off-map or
     overlapping units. -->
+    <br>
     When you are happy with your map, click "Export".
     If you are directed to save your map, save it in the
-    <code>/battlecode-scaffold-2021/maps</code> directory of your scaffold.
-    (Note: the name of your <code>.map21</code> file must be the same as the name of your
+    <code>/battlecode-scaffold-2022/maps</code> directory of your scaffold.
+    (Note: the name of your <code>.map22</code> file must be the same as the name of your
     map.) <br>
     <br>
     Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
@@ -263,8 +251,8 @@ export default class Sidebar {
       (async function (splashDiv, version) {
 
         var options = {
-          host: '2021.battlecode.org',
-          path: '/version.txt'
+          host: 'play.battlecode.org',
+          path: '/versions/2022/version.txt'
         };
 
         var req = http.get(options, function(res) {
@@ -299,7 +287,7 @@ export default class Sidebar {
     logo.id = "logo";
 
     let boldText = document.createElement("b");
-    boldText.innerHTML = "Battlecode 2021";
+    boldText.innerHTML = "Battlecode 2022";
     logo.appendChild(boldText);
     return logo;
   }

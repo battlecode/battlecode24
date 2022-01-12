@@ -4,15 +4,19 @@ import {createWriteStream} from 'fs';
 import {gzip} from 'pako';
 import { isNull } from 'util';
 import { Signer } from 'crypto';
+import { constants } from 'buffer';
 
 let SIZE = 32;
 const maxID = 4096;
 
 const bodyTypeList = [
-  schema.BodyType.ENLIGHTENMENT_CENTER,
-  schema.BodyType.POLITICIAN,
-  schema.BodyType.SLANDERER,
-  schema.BodyType.MUCKRAKER
+  schema.BodyType.MINER,
+  schema.BodyType.ARCHON,
+  schema.BodyType.BUILDER,
+  schema.BodyType.LABORATORY,
+  schema.BodyType.SOLDIER,
+  schema.BodyType.SAGE,
+  schema.BodyType.WATCHTOWER
 ];
 
 const bodyVariety = bodyTypeList.length;
@@ -27,17 +31,19 @@ function trimEdge(x: number, l: number, r: number): number{
   return Math.min(Math.max(l, x), r);
 }
 
+//I think this is the same as 
+//schemaspawnedBodyTable
 type BodiesType = {
   robotIDs: number[],
   teamIDs: number[],
   types: number[],
   xs: number[],
-  ys: number[],
-  influences: number[]
+  ys: number[]//,
+  //levels: number[]
 };
 
 type MapType = {
-  passability: number[],
+  rubble: number[],
 };
 
 // Class to manage IDs of units
@@ -110,8 +116,8 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     teamIDs: Array(unitCount),
     types: Array(unitCount),
     xs: Array(unitCount),
-    ys: Array(unitCount),
-    influences: Array(unitCount)
+    ys: Array(unitCount)
+    //levels: Array(unitCount)
   };
 
   for(let i=0; i<unitCount; i++){
@@ -120,7 +126,7 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     bodies.types[i] = bodyTypeList[random(0, bodyVariety-1)];
     bodies.xs[i] = random(0, SIZE-1);
     bodies.ys[i] = random(0, SIZE-1);
-    bodies.influences[i] = random(0,10);
+    //bodies.levels[i] = 1; //random(1, 3); TODO: upgrades
   }
 
   return bodies;
@@ -130,16 +136,15 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
 function makeRandomMap(): MapType {
 
   const map: MapType = {
-    passability: new Array(SIZE*SIZE)
+    rubble: new Array(SIZE*SIZE)
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     const idxVal = i*SIZE + j;
-    map.passability[idxVal] = Math.random();
+    map.rubble[idxVal] = Math.floor(100 * Math.random());
   }
 
   return map;
 }
-
 function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
   schema.EventWrapper.startEventWrapper(builder);
   schema.EventWrapper.addEType(builder, type);
@@ -161,29 +166,32 @@ function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbu
   const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, bodies.robotIDs);
   const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, bodies.teamIDs);
   const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, bodies.types);
-  const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, bodies.influences);
+  //const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, bodies.influences);
 
   schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
   schema.SpawnedBodyTable.addLocs(builder, bb_locs);
   schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
   schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
+  //schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
   return schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 }
 
 function createMap(builder: flatbuffers.Builder, bodies: number, name: string, map?: MapType): flatbuffers.Offset {
   const bb_name = builder.createString(name);
 
-  let passability: Array<number>;
-  if (map) passability = map.passability;
+  let rubble: Array<number>;
+  if (map) rubble = map.rubble;
   else {
-      passability = new Array(SIZE*SIZE);
-      passability.fill(0);
+      rubble = new Array(SIZE*SIZE);
+      rubble.fill(0);
   }
 
   // all values default to zero
-  const bb_passability = schema.GameMap.createPassabilityVector(builder, passability);
+  const bb_rubble = schema.GameMap.createRubbleVector(builder, rubble);
+  const bb_lead = schema.GameMap.createLeadVector(builder, new Array(SIZE*SIZE)); // TODO: interesting lead and anomalies 
+  const bb_anomalies = schema.GameMap.createAnomaliesVector(builder, []);
+  const bb_anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, []);
 
   schema.GameMap.startGameMap(builder);
   schema.GameMap.addName(builder, bb_name);
@@ -194,7 +202,12 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   if(!isNull(bodies)) schema.GameMap.addBodies(builder, bodies);
   schema.GameMap.addRandomSeed(builder, 42);
 
-  schema.GameMap.addPassability(builder, bb_passability);
+  schema.GameMap.addRubble(builder, bb_rubble);
+  schema.GameMap.addLead(builder, bb_lead);
+
+  schema.GameMap.addAnomalies(builder, bb_anomalies);
+  schema.GameMap.addAnomalyRounds(builder, bb_anomalyRounds);
+
 
   return schema.GameMap.endGameMap(builder);
 }
@@ -205,7 +218,16 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   // Is there any way to automate this?
   for (const body of bodyTypeList) {
     const btmd = schema.BodyTypeMetadata;
-    bodies.push(btmd.createBodyTypeMetadata(builder, body, body, 10, 10, 2, 6, 10, 10000)); //TODO: make robots interesting
+    if (body in [schema.BodyType.MINER, schema.BodyType.BUILDER, schema.BodyType.SAGE, schema.BodyType.SOLDIER]) {
+      var gold_costs = [1]
+      var lead_costs = [1]
+    }
+    else {
+      var gold_costs = [1,2,3]
+      var lead_costs = [1,2,3]
+    }
+    bodies.push(btmd.createBodyTypeMetadata(builder, body, lead_costs[0], gold_costs[0], lead_costs[1], gold_costs[1], lead_costs[2], gold_costs[2], 
+                                           10, 10, 2, 6, 10, 3, 5, 11, 4, 6, 10000)); //TODO: make robots interesting
   }
 
   const teams: flatbuffers.Offset[] = [];
@@ -222,11 +244,17 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const version = builder.createString('IMAGINARY VERSION!!!');
   const bodiesPacked = schema.GameHeader.createBodyTypeMetadataVector(builder, bodies);
   const teamsPacked = schema.GameHeader.createTeamsVector(builder, teams);
+  
+  schema.Constants.startConstants(builder);
+  schema.Constants.addIncreasePeriod(builder, 20);
+  schema.Constants.addLeadAdditiveIncease(builder, 5);
+  const constants = schema.Constants.endConstants(builder);
 
   schema.GameHeader.startGameHeader(builder);
   schema.GameHeader.addSpecVersion(builder, version);
   schema.GameHeader.addBodyTypeMetadata(builder, bodiesPacked);
   schema.GameHeader.addTeams(builder, teamsPacked);
+  schema.GameHeader.addConstants(builder, constants);
   return schema.GameHeader.endGameHeader(builder);
 }
 
@@ -300,7 +328,7 @@ function createStandGame(turns: number) {
   let types = [];
   let xs = [];
   let ys = [];
-  let influences = [];
+  //let influences = [];
 
   var i = 0;
   for (i = 0; i < bodyVariety * 2; i++) {
@@ -314,10 +342,12 @@ function createStandGame(turns: number) {
     xs[i] = Math.floor(i/2) * 2 + 5;
     ys[i] = 5*(i%2)+5;
   }
-  // add neutral enlightenment center
+  // used to add neutral enlightenment center
+  //disabled in stupid way
+
   robotIDs.push(i);
-  teamIDs.push(0);
-  types.push(schema.BodyType.ENLIGHTENMENT_CENTER);
+  teamIDs.push(1);
+  types.push(schema.BodyType.SAGE);
   xs[i] = Math.floor(i/2) * 2 + 5;
   ys[i] = 5*(i%2)+5;  
 
@@ -325,13 +355,13 @@ function createStandGame(turns: number) {
   const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
   const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
   const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
-  const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, influences);
+  //const bb_influences = schema.SpawnedBodyTable.createInfluencesVector(builder, influences);
   schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
   schema.SpawnedBodyTable.addLocs(builder, bb_locs);
   schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
   schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
+  //schema.SpawnedBodyTable.addInfluences(builder, bb_influences);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
   const map = createMap(builder, bodies, "Stand Demo");
@@ -477,6 +507,7 @@ function createLifeGame(turns: number) {
 
 // Game with every units, moving in random constant speed & direction, with optional actions
 function createWanderGame(turns: number, unitCount: number, doActions: boolean = false, randomMap: boolean = false) {
+  //TODO probably add building uphgrades here
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -498,13 +529,17 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
   const xs = bodies.xs;
   const ys = bodies.ys;
 
+  let building_types = [schema.BodyType.ARCHON, schema.BodyType.LABORATORY, schema.BodyType.WATCHTOWER];
   for (let i = 1; i < turns+1; i++) {
-
+    let buildings=[]
     // movement
     for (let j = 0; j < unitCount; j++) {
       if(random(0, 32) === 0){
         velxs[j] = random(-1, 1);
         velys[j] = random(-1, 1);
+      }
+      if(building_types.indexOf(bodies.types[j]) > -1 ){
+        buildings.push(bodies.robotIDs[j])
       }
       xs[j] = trimEdge(xs[j] + velxs[j], 0, SIZE-1);
       ys[j] = trimEdge(ys[j] + velys[j], 0, SIZE-1);
@@ -524,21 +559,41 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
       for (let j = 0; j < unitCount; j++) {
         let action: number | null = null;
         let actionTarget: number | null = null;
+        let possible_actions = []
         switch (bodies.types[j]) {
-            case schema.BodyType.POLITICIAN:
-              action = schema.Action.EMPOWER;
+            case schema.BodyType.MINER:
+              possible_actions = [schema.Action.MINE_GOLD, schema.Action.MINE_LEAD]; // got rid of spawn unit for now because it causes problems
               break;
-            case schema.BodyType.MUCKRAKER:
-              action = schema.Action.EXPOSE;
+            case schema.BodyType.ARCHON:
+              possible_actions = [schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM]; // got rid of spawn unit for now because it causes problems
               break;
-            case schema.BodyType.SLANDERER:
-              action = schema.Action.EMBEZZLE;
+            case schema.BodyType.SOLDIER:
+              possible_actions = [schema.Action.ATTACK];
+              break;
+            case schema.BodyType.BUILDER:
+              possible_actions = [schema.Action.REPAIR, schema.Action.MUTATE]; // got rid of spawn unit for now because it causes problems
+              break;
+            case schema.BodyType.LABORATORY:
+              possible_actions = [schema.Action.TRANSMUTE, schema.Action.FULLY_REPAIRED, schema.Action.TRANSFORM];
+              break;
+            case schema.BodyType.SAGE:
+              possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_ABYSS, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              break;
+            case schema.BodyType.WATCHTOWER:
+              possible_actions = [schema.Action.ATTACK, schema.Action.LOCAL_CHARGE, schema.Action.LOCAL_FURY];
+              break;
             default:
               break;
         }
+        action = possible_actions[Math.floor(Math.random() * possible_actions.length)];
+        let building_target_actions = [schema.Action.REPAIR, schema.Action.MUTATE]
         if (action !== null) {
+          if (building_target_actions.indexOf(action) > -1){
+            actionTarget = buildings[Math.floor(Math.random() * buildings.length)];
+          }
           actionIDs.push(bodies.robotIDs[j]);
           actions.push(action);
+
           actionTargets.push(actionTarget);
         }
       }
@@ -548,6 +603,16 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     const bb_actions = schema.Round.createActionsVector(builder, actions);
     const bb_actionTargets = schema.Round.createActionTargetsVector(builder, actionTargets);
 
+    const goldXs = [Math.floor(SIZE*Math.random())]
+    const goldYs = [Math.floor(SIZE*Math.random())]
+    const goldLocs = createVecTable(builder, goldXs, goldYs);
+    const goldVals = schema.Round.createGoldDropValuesVector(builder, [Math.floor(100*Math.random())]);
+
+    const leadXs = [Math.floor(SIZE*Math.random())]
+    const leadYs = [Math.floor(SIZE*Math.random())]
+    const leadLocs = createVecTable(builder, leadXs, leadYs);
+    const leadVals = schema.Round.createLeadDropValuesVector(builder, [Math.floor(100*Math.random())]);
+
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
     schema.Round.addMovedLocs(builder, movedLocs);
@@ -555,6 +620,11 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
     schema.Round.addActionIDs(builder, bb_actionIDs);
     schema.Round.addActions(builder, bb_actions);
     schema.Round.addActionTargets(builder, bb_actionTargets);
+    
+    schema.Round.addGoldDropLocations(builder, goldLocs);
+    schema.Round.addGoldDropValues(builder, goldVals);
+    schema.Round.addLeadDropLocations(builder, leadLocs);
+    schema.Round.addLeadDropValues(builder, leadVals);
 
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
@@ -579,11 +649,11 @@ function createVotesGame(turns: number) {
 
   for (let i = 1; i < turns+1; i++) {
     const bb_teamIDs = schema.Round.createTeamIDsVector(builder, [1, 2]);
-    const bb_teamVPs = schema.Round.createTeamVotesVector(builder, [1, (Math.random() > 0.5 ? 1 : 0)]);
+    //const bb_teamVPs = schema.Round.createTeamVotesVector(builder, [1, (Math.random() > 0.5 ? 1 : 0)]);
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
     schema.Round.addTeamIDs(builder, bb_teamIDs);
-    schema.Round.addTeamVotes(builder, bb_teamVPs);
+    //schema.Round.addTeamVotes(builder, bb_teamVPs);
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
@@ -676,18 +746,18 @@ function main(){
   const games = [
     { name: "blank", game: createBlankGame(512)},
     { name: "stand", game: createStandGame(4000) },
-    //{ name: "pick", game: createPickGame(1024) },
+    // { name: "pick", game: createPickGame(1024) },
     { name: "random-map", game: createBlankGame(512, true) },
     { name: "wander", game: createWanderGame(2048, 32) },
     { name: "wander-actions", game: createWanderGame(2048, 32, true) },
     { name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
     { name: "life", game: createLifeGame(512) },
     { name: "votes", game: createVotesGame(512) } 
-    //{ name: "soup", game: createSoupGame(512) }, 
-    //{ name: "viewOptions", game: createViewOptionGame(512) }
+    // { name: "soup", game: createSoupGame(512) }, 
+    // { name: "viewOptions", game: createViewOptionGame(512) }
   ];
   SIZE = 64;
-  games.push({ name: "big-wander", game: createWanderGame(2048, 128) });
+  //games.push({ name: "big-wander", game: createWanderGame(2048, 128) });
   
   const prefix = "../examples/";
 

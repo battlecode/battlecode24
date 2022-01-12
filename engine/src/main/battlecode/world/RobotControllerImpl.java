@@ -203,9 +203,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRobotAtLocation(MapLocation loc) throws GameActionException {
+    public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.getRobot(loc) != null;
+    }
+
+    @Override
+    public boolean canSenseRobotAtLocation(MapLocation loc) {
+        try {
+            return isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
@@ -284,6 +291,86 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyLocationsWithLead() {
+        try {
+            return senseNearbyLocationsWithLead(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, minLead);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getLead(m) >= minLead) {
+                locations.add(m);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold() {
+        try {
+            return senseNearbyLocationsWithGold(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, minGold);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getGold(m) >= minGold) {
+                locations.add(m);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
     }
@@ -300,10 +387,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
-
-    private boolean isLocationOccupied(MapLocation loc) throws GameActionException {
-        return this.gameWorld.getRobot(loc) != null;
-    }
 
     private void assertIsActionReady() throws GameActionException {
         if (!this.robot.getMode().canAct)
@@ -323,7 +406,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getActionCooldownTurns() {
+    public int getActionCooldownTurns() {
         return this.robot.getActionCooldownTurns();
     }
 
@@ -345,7 +428,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getMovementCooldownTurns() {
+    public int getMovementCooldownTurns() {
         return this.robot.getMovementCooldownTurns();
     }
 
@@ -368,7 +451,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public double getTransformCooldownTurns() {
+    public int getTransformCooldownTurns() throws GameActionException {
+        if (!this.robot.getMode().canTransform)
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot is not in a mode that can transform.");
         return this.robot.getTransformCooldownTurns();
     }
 
@@ -603,6 +689,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLead(loc, this.gameWorld.getLead(loc) - 1);
         this.gameWorld.getTeamInfo().addLead(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addLeadDrop(loc, -1);
     }
 
     private void assertCanMineGold(MapLocation loc) throws GameActionException {
@@ -632,6 +719,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setGold(loc, this.gameWorld.getGold(loc) - 1);
         this.gameWorld.getTeamInfo().addGold(getTeam(), 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addGoldDrop(loc, -1);
     }
 
     // *************************
@@ -762,9 +850,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertValidValue(int value) throws GameActionException {
-        if (value < 0 || value >= GameConstants.MAX_SHARED_ARRAY_VALUE)
+        if (value < 0 || value > GameConstants.MAX_SHARED_ARRAY_VALUE)
             throw new GameActionException(CANT_DO_THAT, "You can't write this value to the shared array " +
-                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + ").");
+                "as it is not within the range of allowable values: [0, " + GameConstants.MAX_SHARED_ARRAY_VALUE + "].");
     }
 
     @Override

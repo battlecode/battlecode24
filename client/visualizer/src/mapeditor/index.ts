@@ -8,11 +8,13 @@ import HeaderForm from './forms/header';
 import RobotForm from './forms/robots';
 import SymmetryForm, {Symmetry} from './forms/symmetry';
 import TileForm from './forms/tiles';
+import LeadForm from './forms/lead';
+import AnomalyForm from './forms/anomalies';
 
 import {GameMap} from './form';
 import MapEditorForm from './form';
 import MapEditor from './mapeditor';
 
 export {MapGenerator, MapUnit, MapRenderer, MapValidator, UploadedMap}
-export {HeaderForm, RobotForm, Symmetry, SymmetryForm, TileForm}
+export {HeaderForm, RobotForm, Symmetry, SymmetryForm, TileForm, LeadForm, AnomalyForm}
 export {GameMap, MapEditorForm, MapEditor};

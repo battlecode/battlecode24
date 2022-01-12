@@ -1,6 +1,6 @@
 {
   "name": "battlecode-client",
-  "version": "2021.0.0",
+  "version": "2022.0.0",
   "description": "Client wrapper of visualizer and playback",
   "main": "visualizer/electron-main.js",
   "scripts": {

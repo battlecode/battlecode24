@@ -15,7 +15,11 @@ import WebSocketListener from '../main/websocket';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
 import { Tournament, readTournament } from '../main/tournament';
+import { ARCHON } from '../constants';
 
+
+import * as bcg from "../../../../schema/ts/battlecode_generated";
+let anomConsts = bcg.battlecode.schema.Action;
 /*
 Responsible for a single match in the visualizer.
 */
@@ -43,7 +47,7 @@ export default class Looper {
         private matchqueue: MatchQueue, private profiler?: Profiler,
         private mapinfo: string = "",
         showTourneyUpload: boolean = true) {
-
+        
         this.console = cconsole;
 
         this.conf.mode = config.Mode.GAME;
@@ -82,9 +86,9 @@ export default class Looper {
             this.lastSelectedID = id;
             this.console.setIDFilter(id);
         };
-        const onMouseover = (x: number, y: number, xrel: number, yrel: number, passability: number) => {
+        const onMouseover = (x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number) => {
             // Better make tile type and hand that over
-            controls.setTileInfo(x, y, xrel, yrel, passability);
+            controls.setTileInfo(x, y, xrel, yrel, rubble, lead, gold);
         };
 
         // Configure renderer for this match
@@ -225,7 +229,8 @@ export default class Looper {
             this.controls.getUPS(),
             this.isPaused(),
             this.rendersPerSecond.tps,
-            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2)
+            Math.abs(this.updatesPerSecond.tps) < Math.max(0, Math.abs(this.goalUPS) - 2),
+            this.match.maxTurn
         );
 
         // run simulation
@@ -243,16 +248,23 @@ export default class Looper {
                 let id = bodies.id[index];
                 let x = bodies.x[index];
                 let y = bodies.y[index];
-                let influence = bodies.influence[index];
-                let conviction = bodies.conviction[index];
                 let type = bodies.type[index];
+                // let influence = bodies.influence[index];
+                // let conviction = bodies.conviction[index];
+                let hp = bodies.hp[index]; 
                 let bytecodes = bodies.bytecodesUsed[index];
-                let flag = bodies.flag[index];
+                let level = bodies.level[index];
+                let max_hp = level == 1 ? this.meta.types[type].health : level == 2 ? this.meta.types[type].level2Health : this.meta.types[type].level3Health;
+                let dp = level == 1 ? this.meta.types[type].damage : level == 2 ? this.meta.types[type].level2Damage : this.meta.types[type].level3Damage;
                 let parent = bodies.parent[index];
-                let bid = bodies.bid[index];
+                let prototype = bodies.prototype[index];
+                let portable = bodies.portable[index];
+                let indicatorString = this.match.current.indicatorStrings[id]
+                // let bid = bodies.bid[index];
+                let is_building = cst.buildingTypeList.includes(type);
 
-                this.controls.setInfoString(id, x, y, influence, conviction, cst.bodyTypeToString(type), bytecodes, flag,
-                    bid !== 0 ? bid : undefined, parent !== 0 ? parent : undefined);
+                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level, indicatorString,
+                    parent !== 0 ? parent : undefined, is_building ? portable == 1 : undefined, is_building ? prototype == 1 : undefined);
             }
         }
 
@@ -300,6 +312,26 @@ export default class Looper {
 
         //this.updateStats(this.match.current, this.meta);
         this.loopID = window.requestAnimationFrame((curTime) => this.loop.call(this, curTime));
+        //console.log(this.match.current.mapStats.anomalies, this.match.current.mapStats.anomalyRounds, "ANOMALIES");
+        /* Rendering anomalies */
+        let world = this.match.current.mapStats;
+
+        //let testAnom = [anomConsts.ABYSS, anomConsts.CHARGE];
+        //let testAnomRounds = [300, 1000];
+        // TODO: move this to controls
+        for(var i = 0; i < world.anomalies.length; i++){
+            let anom = world.anomalies[i] + anomConsts.ABYSS;
+            let anomRound = world.anomalyRounds[i];
+            this.controls.ctx.save();
+            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
+            var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);
+            this.controls.ctx.beginPath();
+            this.controls.ctx.moveTo(pos, 0);
+            this.controls.ctx.lineTo(pos, 1);
+            this.controls.ctx.lineWidth = 4;
+            this.controls.ctx.stroke();
+            this.controls.ctx.restore();
+        }
     }
 
     /**
@@ -307,47 +339,77 @@ export default class Looper {
      * team in the current game world.
      */
     private updateStats(world: GameWorld, meta: Metadata) {
-        let totalInfluence = 0;
-        let totalConviction = 0;
         let teamIDs: number[] = [];
         let teamNames: string[] = [];
+        let totalHP = 0;
+        // this.stats.resetECs();
+        // for (let i = 0; i < world.bodies.length; i++) {
+        //     const type = world.bodies.arrays.type[i];
+        //     if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
+        //         this.stats.addEC(world.bodies.arrays.team[i]);
+        //     }
+        // }
 
-        this.stats.resetECs();
-        for (let i = 0; i < world.bodies.length; i++) {
-            const type = world.bodies.arrays.type[i];
-            if (type === schema.BodyType.ENLIGHTENMENT_CENTER) {
-                this.stats.addEC(world.bodies.arrays.team[i]);
-            }
-        }
-
+        let teamLead: number[] = [];
+        let teamGold: number[] = [];
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            totalInfluence += teamStats.influence.reduce((a, b) => a + b);
-            totalConviction += teamStats.conviction.reduce((a, b) => a + b);
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
+            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
+            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a+b);
 
             // Update each robot count
             this.stats.robots.forEach((type: schema.BodyType) => {
-                this.stats.setRobotCount(teamID, type, teamStats.robots[type]);
-                this.stats.setRobotConviction(teamID, type, teamStats.conviction[type], totalConviction);
-                this.stats.setRobotInfluence(teamID, type, teamStats.influence[type]);
+                this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
             });
+            /*const hps = world.bodies.arrays.hp;
+            const types = world.bodies.arrays.type;
+            for(var i = 0; i < hps.length; i++){
+                this.stats.setRobotCount(teamID, types[i], hps[i]); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, types[i], hps[i], teamHP); // TODO: differentiate levels, maybe
+            }*/
 
             // Set votes
-            this.stats.setVotes(teamID, teamStats.votes);
-            this.stats.setTeamInfluence(teamID, teamStats.influence.reduce((a, b) => a + b),
-                totalInfluence);
-            this.stats.setBuffs(teamID, teamStats.numBuffs);
-            this.stats.setBid(teamID, teamStats.bid);
-            this.stats.setIncome(teamID, teamStats.income, world.turn);
+            // this.stats.setVotes(teamID, teamStats.votes);
+            //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
+            // this.stats.setBuffs(teamID, teamStats.numBuffs);
+            // this.stats.setBid(teamID, teamStats.bid);
+            const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
+            this.stats.setIncome(teamID, average(teamStats.leadMinedHist), average(teamStats.goldMinedHist), world.turn);
+            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
+
+        for(var a = 0; a < teamIDs.length; a++){
+            //@ts-ignore
+            teamLead.push(world.teamStats.get(teamIDs[a]).lead);
+            //@ts-ignore
+            teamGold.push(world.teamStats.get(teamIDs[a]).gold);
+            //@ts-ignore
+            //console.log(world.teamStats.get(teamIDs[a]).lead, world.teamStats.get(teamIDs[a]).gold, teamIDs[a]);
+        }
+    
+        this.stats.updateBars(teamLead, teamGold);
+        this.stats.resetECs();
+        const hps = world.bodies.arrays.hp;
+        const teams = world.bodies.arrays.team;
+        const types = world.bodies.arrays.type;
+        const portables = world.bodies.arrays.portable;
+        const levels = world.bodies.arrays.portable;
+        teamIDs.forEach((team) => { 
+            for(var i = 0; i < hps.length; i++){
+                if(types[i] == ARCHON && teams[i] == team) {
+                    this.stats.addEC(teams[i], hps[i], portables[i], levels[i]);
+                }
+            }
+        });
 
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {
             this.stats.setWinner(this.match.winner, teamNames, teamIDs);

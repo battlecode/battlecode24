@@ -3,11 +3,11 @@
 🚩
 
 ## Note, Competitors
-This is the development repo! Do not clone this. Instead, follow the instructions [here](http://2021.battlecode.org/getting-started)
+This is the development repo! You most likely won't need anything in here; do not clone this.
+Instead, follow the instructions [here](https://play.battlecode.org/getting-started) to get started.
+
 ## Repository Structure
 
-- `/backend`: Backend API in Django Rest Framework
-- `/frontend`: Frontend dashboard in React
 - `/engine`: Game engine in Java
 - `/specs`: Game specs in Markdown (and HTML generation)
 - `/schema`: Game serialization schema (basically, an encoding of all units and events in a game)

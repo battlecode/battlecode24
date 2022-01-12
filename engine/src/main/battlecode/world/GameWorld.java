@@ -402,11 +402,6 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-        // Add lead resources to the map
-        if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
-            for (int i = 0; i < this.lead.length; i++)
-                if (this.lead[i] > 0) 
-                    this.lead[i] += GameConstants.ADD_LEAD;
 
         // Add lead resources to the team
         this.teamInfo.addLead(Team.A, GameConstants.PASSIVE_LEAD_INCREASE);
@@ -428,6 +423,12 @@ public strictfp class GameWorld {
             if (anomaly == AnomalyType.FURY) causeFuryGlobal();
             if (anomaly == AnomalyType.VORTEX) causeVortexGlobal();
         }
+
+        // Add lead resources to the map
+        if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
+            for (int i = 0; i < this.lead.length; i++)
+                if (this.lead[i] > 0)
+                    this.lead[i] += GameConstants.ADD_LEAD;
 
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundLeadChange(Team.A), this.teamInfo.getRoundGoldChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
@@ -480,7 +481,7 @@ public strictfp class GameWorld {
         this.gold[locationToIndex(robot.getLocation())] += goldDropped;
 
         this.matchMaker.addLeadDrop(robot.getLocation(), leadDropped);
-        this.matchMaker.addLeadDrop(robot.getLocation(), goldDropped);
+        this.matchMaker.addGoldDrop(robot.getLocation(), goldDropped);
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -515,7 +516,7 @@ public strictfp class GameWorld {
     private MapLocation[] getSageActionLocations(InternalRobot robot) {
         assert robot.getType() == RobotType.SAGE;
         MapLocation center = robot.getLocation();
-        return getAllLocationsWithinRadiusSquared(center, robot.getType().getActionRadiusSquared(robot.getLevel()));
+        return getAllLocationsWithinRadiusSquared(center, robot.getType().actionRadiusSquared);
     }
 
     /**
@@ -528,10 +529,12 @@ public strictfp class GameWorld {
             int currentLead = getLead(locations[i]);
             int leadUpdate = (int) (reduceFactor * currentLead);
             setLead(locations[i], currentLead - leadUpdate);
+            if (leadUpdate != 0) this.matchMaker.addLeadDrop(locations[i], -leadUpdate);
 
             int currentGold = getGold(locations[i]);
             int goldUpdate = (int) (reduceFactor * currentGold);
             setGold(locations[i], currentGold - goldUpdate);
+            if (goldUpdate != 0) this.matchMaker.addGoldDrop(locations[i], -goldUpdate);
         }
     }
 
@@ -597,7 +600,7 @@ public strictfp class GameWorld {
     /** Used to sort droids for charge */
     class SortByFriends implements Comparator<InternalRobot> {
         public int compare(InternalRobot a, InternalRobot b) {
-            return a.getNumVisibleFriendlyRobots(false) - b.getNumVisibleFriendlyRobots(false);
+            return b.getNumVisibleFriendlyRobots(false) - a.getNumVisibleFriendlyRobots(false);
         }
     }
 

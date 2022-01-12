@@ -1,7 +1,7 @@
 package battlecode.common;
 
 /**
- * Defines constants that affect gameplay.
+ * GameConstants defines constants that affect gameplay.
  */
 @SuppressWarnings("unused")
 public class GameConstants {
@@ -9,7 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.0";
+    public static final String SPEC_VERSION = "2022.1.0.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -50,7 +50,7 @@ public class GameConstants {
     public static final int SHARED_ARRAY_LENGTH = 64;
 
     /** The maximum value in shared communication arrays. */
-    public static final int MAX_SHARED_ARRAY_VALUE = Short.MAX_VALUE;
+    public static final int MAX_SHARED_ARRAY_VALUE = (1 << 16) - 1;
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
@@ -65,16 +65,16 @@ public class GameConstants {
     public static final int PASSIVE_LEAD_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+    public static final int ADD_LEAD_EVERY_ROUNDS = 40;
 
     /** The amount of lead to add each round that lead is added. */
-    public static final int ADD_LEAD = 5;
+    public static final int ADD_LEAD = 3;
     
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
 
-    /** If the number of cooldown turns is >= this number, a robot cannot act. */
+    /** If the amount of cooldown is at least this value, a robot cannot act. */
     public static final int COOLDOWN_LIMIT = 10;
 
     /** The number of cooldown turns reduced per turn. */
@@ -91,7 +91,7 @@ public class GameConstants {
     // *********************************
 
     /** A blueprint building's health, as a multiplier of max health. */
-    public static final float PROTOTYPE_HP_PERCENTAGE = 0.9f;
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.8f;
 
     /** The multiplier for reclaiming a building's cost. */
     public static final float RECLAIM_COST_MULTIPLIER = 0.2f;

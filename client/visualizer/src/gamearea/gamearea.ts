@@ -74,7 +74,7 @@ export default class GameArea {
     splashSubtitle.id = "splashSubtitle";
 
     if (!this.conf.tournamentMode) {
-      splashTitle.appendChild(document.createTextNode("Battlecode 2021 Client"));
+      splashTitle.appendChild(document.createTextNode("Battlecode 2022 Client"));
       splashSubtitle.appendChild(document.createTextNode("v" + this.conf.gameVersion));
     }
     else {
@@ -88,8 +88,8 @@ export default class GameArea {
       (async function (splashDiv, version) {
       
         var options = {
-          host: '2021.battlecode.org',
-          path: '/version.txt'
+          host: '2022.battlecode.org',
+          path: '/versions/2022/version.txt'
         };
 
         var req = http.get(options, function(res) {

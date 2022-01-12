@@ -220,7 +220,7 @@ export default class Controls {
 
   setDefaultText() {
     this.timeReadout.innerHTML = 'No match loaded';
-    this.tileInfo.innerHTML = 'X | Y | Passability';
+    this.tileInfo.innerHTML = 'X | Y | Rubble | Lead | Gold';
     this.speedReadout.textContent = 'UPS:  FPS: ';
   }
 
@@ -390,9 +390,9 @@ export default class Controls {
    * Redraws the timeline and sets the current round displayed in the controls.
    */
   // TODO scale should be constant; should not depend on loadedTime
-  setTime(time: number, loadedTime: number, upsUnpaused: number, paused: Boolean, fps: number, lagging: Boolean) {
+  setTime(time: number, loadedTime: number, upsUnpaused: number, paused: Boolean, fps: number, lagging: Boolean, maxTurn: number) {
 
-    if (this.conf.tournamentMode) loadedTime = 1500;
+    if (this.conf.tournamentMode) loadedTime = maxTurn;
 
    // if (!this.conf.tournamentMode) {
       // Redraw the timeline
@@ -400,13 +400,13 @@ export default class Controls {
       const scale = this.canvas.width / loadedTime;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      this.ctx.fillStyle = "rgb(39, 39, 39)";
+      this.ctx.fillStyle = "rgb(144, 238, 144)";
       this.ctx.fillRect(0, 0, time * scale, this.canvas.height);
 
       this.ctx.fillStyle = "#777";
       this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height);
 
-      this.ctx.fillStyle = 'rgb(255,0,0)';
+      this.ctx.fillStyle = 'rgb(0, 0, 0)';
       this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
    // }
 
@@ -420,11 +420,13 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, passability: number): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number): void {
     let content: string = "";
     content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3);
     content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3);
-    content += ' | Passability: ' + `<b>${passability.toFixed(3)}</b>`;
+    content += ' | Rubble: ' + `<b>${rubble}</b>`;
+    content += ' | Lead: ' + `<b>${lead}</b>`;
+    content += ' | Gold: ' + `<b>${gold}</b>`;
 
     this.tileInfo.innerHTML = content;
   }
@@ -437,17 +439,22 @@ export default class Controls {
    * Bytecodes Used: bytecodes"
    */
   // TODO fix this (different stats)
-  setInfoString(id, x: number, y: number, influence: number, conviction: number, bodyType: string, bytecodes: number, flag: number, bid?: number, parent?: number): void {
+  setInfoString(id, x: number, y: number, hp: number, max_hp: number, dp: number, bodyType: string, bytecodes: number, level: number, indicatorString: string, parent?: number, portable?: boolean, prototype?: boolean): void {
     // console.log(carryDirt);
+    if(!indicatorString)
+      indicatorString = '&nbsp;'
+
     let infoString = `<span class="info-name">ID:</span> <span class="info-num">${id}</span> | `;
-    infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span><br>`;
-    infoString += `<span class="info-name">Influence:</span> <span class="info-num">${influence}</span> | `;
-    infoString += `<span class="info-name">Conviction:</span> <span class="info-num">${conviction}</span><br>`;
-    infoString += `<span class="info-name">Flag:</span> <span class="info-num">${flag}</span> | `;    
+    infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span> | `;
+    infoString += `<span class="info-name">Level:</span> <span class="info-num">${level}</span> | `; 
+    if (portable !== undefined && prototype !== undefined) infoString += `<span class="info-name">Mode:</span> <span class="info-num">${portable ? 'Port' : prototype ? 'Prot' : 'Turr'}</span>`;
+    infoString += `<br>`;
+    infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `;      
+    infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`;
-    if (bid !== undefined) infoString += ` | <span class="info-name">Bid:</span> <span class="info-num">${bid}</span>`;
     if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
-    
+    infoString += `<br><span class="info-name">Indicator String:</span> <span class="info-string"><span class="info-num">${indicatorString}</span></span>`;
+
     // (${bodyType})<br>
      // Location: (${x}, ${y})<br>
       //Influence: ${influence}, Conviction: ${conviction} <br>

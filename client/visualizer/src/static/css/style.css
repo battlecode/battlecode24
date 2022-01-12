@@ -37,6 +37,10 @@ p {
     color: #4f7ee6;
 }
 
+/* .graph {
+    width: 50% !important;
+} */
+
 .red {
     color: #db3627;
 }
@@ -48,6 +52,7 @@ p {
     margin-bottom: 16px;
     font-family: Tahoma, sans-serif;
 }
+
 
 .robotSpriteStats img {
     width: 30px;
@@ -215,6 +220,14 @@ input[type='file'] {
     color: #46ff00;
     padding: 3px;
     margin: 0px 1px;
+}
+
+.info-string {
+  border-radius: 8px;
+  background-color: #333;
+  color: #49b5f3;
+  padding: 3px;
+  margin: 0px 1px;
 }
 
 #gamearea {
@@ -583,9 +596,13 @@ h4 {
     width: 100%;
 }
 
-#relative-bars {
+#relative-bars-left {
     width: 50%;
     float: left;
+}
+#relative-bars-right {
+    width: 50%;
+    float: right;
 }
 
 .influence-bar {
