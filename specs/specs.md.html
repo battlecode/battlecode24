@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.0.3.1*
+*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.1.0.0*
 
 **Welcome to Battlecode 2022: Mutation.**
 
@@ -322,6 +322,33 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 2022.1.0.0 (January 11, 2022)
+  - Breaking changes: Sprint I Balancing changes
+    - Archons:
+      - Decrease nominal worth to 100 Au
+      - Decrease level 2 Mutation cost to 400 Pb
+      - Decrease level 3 Mutation cost to 80 Au
+      - Change mutation health to 600 → 1080 → 1944
+      - Change mutation repair to 2 → 4 → 6
+    - Watchtowers:
+      - Decrease level 2 Mutation cost to 200 Pb
+      - Decrease level 3 Mutation cost to 60 Au
+      - Charge mutation health to 150 → 270 → 486
+      - Change mutation damage to 4 → 8 → 12
+    - Laboratories:
+      - Decrease build cost to 250 Pb
+      - Decrease level 2 Mutation cost to 200 Pb
+      - Decrease level 3 Mutation cost to 25 Au
+      - Change mutation health to 100 → 180 → 324
+    - Sages:
+      - Decrease build cost to 20 Au
+      - Increase action radius to 20
+      - Increase vision radius to 34
+    - Lead regeneration:
+      - Decrease rate to 3 Pb every 40 turns
+  - Sprint maps released
+
 - Version 2022.0.3.1 (January 10, 2022)
   - Client
     - Fix robot selection on (0, 0)
