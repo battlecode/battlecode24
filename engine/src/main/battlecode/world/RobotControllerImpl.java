@@ -321,9 +321,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Radius squared must be non-negative.");
         ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
-            if (this.gameWorld.getLead(m) >= minLead) {
-                locations.add(m);
+        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getLead(loc) >= minLead && canSenseLocation(loc)) {
+                locations.add(loc);
             }
         }
         MapLocation[] result = new MapLocation[locations.size()];
@@ -361,9 +361,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Radius squared must be non-negative.");
         ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation m : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
-            if (this.gameWorld.getGold(m) >= minGold) {
-                locations.add(m);
+        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getGold(loc) >= minGold && canSenseLocation(loc)) {
+                locations.add(loc);
             }
         }
         MapLocation[] result = new MapLocation[locations.size()];
