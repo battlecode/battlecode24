@@ -117,7 +117,7 @@ The core resources are Lead (symbol: Pb) and Gold (symbol: Au). Each team has a 
 
 There are Lead deposits scattered on the map, which can be collected by Miners. Whereas Lead is comparatively plentiful, Gold is not found naturally. Building a Laboratory will allow you to discover the science of alchemy; the Gold you synthesize will unlock the most powerful mechanics available in the world.
 
-Every round, each team will gain a passive income of 2 Pb. Additionally, every 20 rounds, any square of the map containing at least 1 Pb will generate an additional 5 Pb.
+Every round, each team will gain a passive income of 2 Pb. Additionally, every 40 rounds, any square of the map containing at least 1 Pb will generate an additional 3 Pb.
 
 Both teams start the game with 200 Pb and 0 Au. Resource costs for robot construction can be found in the in-depth section further below.
 
@@ -129,7 +129,7 @@ Whenever a robot moves, attacks, or performs any other action, any cooldown it i
 
 # Resource reclaim
 
-Whenever a robot is destroyed, 20% of its build cost is dropped on the square it last occupied. This includes its initial build cost, as well as the cost of any Mutations applied to it. Although Archons cannot be built, they have a nominal cost of 250 Au to be used in calculating the reclaim value.
+Whenever a robot is destroyed, 20% of its build cost is dropped on the square it last occupied. This includes its initial build cost, as well as the cost of any Mutations applied to it. Although Archons cannot be built, they have a nominal cost of 100 Au to be used in calculating the reclaim value.
 
 Notice that resource reclaim is the only way in which Gold will enter the game map and be available for collection by Miners.
 
@@ -196,18 +196,20 @@ Buildings are upgradeable robots, built by Builders. They are initially built in
 
 Buildings can also be Mutated, which upgrades their properties. Being Mutated by a Builder also incurs a cost of 100 cooldown for both of the Building's cooldown timers.
 
-The cost of Mutating a Building to level 2 is 600 Pb. The cost of Mutating a Building to level 3 is 100 Au.
+The cost of Mutating a Building depends on the Building type, as listed in the table below.
 
 |  | Archon | Laboratory | Watchtower |
 | --- | --- | --- | --- |
-| Cost | 250 Au (nominal) | 800 Pb | 180 Pb |
+| Cost | 100 Au (nominal) | 250 Pb | 180 Pb |
 | Cooldown / action | 10 | 10 | 10 |
 | Cooldown / move | 24 | 24 | 24 |
-| Health mutations | 1000 → 1100 → 1200 | 100 → 110 → 120 | 130 → 143 → 156 |
-| Attack mutations | -2 → -3 → -4 | N/A | 5 → 6 → 7 |
+| Health mutations | 600 → 1080 → 1944 | 100 → 180 → 324 | 150 → 270 → 486 |
+| Attack mutations | -2 → -4 → -6 | N/A | 4 → 8 → 12 |
 | Action radius | (repair) 20 | N/A | 20 |
 | Vision radius | 34 | 53 | 34 |
 | Bytecode limit | 20,000 | 5,000 | 10,000 |
+| Level 2 mutation cost | 400 Pb | 200 Pb | 200 Pb |
+| Level 3 mutation cost | 80 Au | 25 Au | 60 Au |
 
 - Archon: the headquarters robot type. Can construct and repair other Droids. Cannot be built.
 
@@ -221,13 +223,13 @@ Droids are mobile robots, built by Archons.
 
 |  | Miner | Builder | Soldier | Sage |
 | --- | --- | --- | --- | --- |
-| Cost | 50 Pb | 40 Pb | 75 Pb | 50 Au |
+| Cost | 50 Pb | 40 Pb | 75 Pb | 20 Au |
 | Cooldown / action | 2 | 10 | 10 | 200 |
 | Cooldown / move | 20 | 20 | 16 | 25 |
 | Health | 40 | 30 | 50 | 100 |
 | Attack | N/A | -1 | 3 | 45 |
-| Action radius | (mine) 2 | (repair) 5 | 13 | 13 |
-| Vision radius | 20 | 20 | 20 | 20 |
+| Action radius | (mine) 2 | (repair) 5 | 13 | 20 |
+| Vision radius | 20 | 20 | 20 | 34 |
 | Bytecode limit | 7,500 | 7,500 | 10,000 | 10,000 |
 
 - Miners: the resource collecting robot. Can mine squares for Lead and Gold.
