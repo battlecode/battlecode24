@@ -65,10 +65,10 @@ public class GameConstants {
     public static final int PASSIVE_LEAD_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+    public static final int ADD_LEAD_EVERY_ROUNDS = 40;
 
     /** The amount of lead to add each round that lead is added. */
-    public static final int ADD_LEAD = 5;
+    public static final int ADD_LEAD = 3;
     
     // *********************************
     // ****** COOLDOWNS ****************

@@ -18,7 +18,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    ARCHON          (  0, 250, 10, 24, 1000, -2, 20, 34, 20000),
+    ARCHON          (  0, 100, 10, 24, 600, -2, 20, 34, 20000),
     //               BCL  BCG  AC  MC    HP DMG  AR  VR      BL
 
     /**
@@ -27,7 +27,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    LABORATORY      (800,   0, 10, 24, 100,  0,  0, 53,    5000),
+    LABORATORY      (250,   0, 10, 24, 100,  0,  0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -36,7 +36,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    WATCHTOWER      (180,  0,  10,  24, 130,  5, 20, 34,   10000),
+    WATCHTOWER      (180,  0,  10,  24, 150,  4, 20, 34,   10000),
     //               BCL  BCG  AC   MC   HP DMG  AR  VR       BL
 
     /**
@@ -73,7 +73,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    SAGE            ( 0,  50, 200, 25, 100, 45, 13, 20,   10000)
+    SAGE            ( 0,  20, 200, 25, 100, 45, 20, 34,   10000)
     //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
@@ -238,11 +238,11 @@ public enum RobotType {
         if (!this.isBuilding() || level == 1) {
             return this.health;
         } else if (this == ARCHON) {
-            return level == 2 ? 1100 : 1200;
+            return level == 2 ? 1080 : 1944;
         } else if (this == LABORATORY) {
-            return level == 2 ? 110 : 120;
+            return level == 2 ? 180 : 324;
         } else {
-            return level == 2 ? 143 : 156;
+            return level == 2 ? 270 : 486;
         }
     }
 
@@ -258,11 +258,11 @@ public enum RobotType {
         if (!this.isBuilding() || level == 1) {
             return this.damage;
         } else if (this == RobotType.ARCHON) {
-            return level == 2 ? -3 : -4;
+            return level == 2 ? -4 : -6;
         } else if (this == RobotType.LABORATORY) {
             return 0;
         } else {
-            return level == 2 ? 6 : 7;
+            return level == 2 ? 8 : 12;
         }
     }
 
@@ -294,7 +294,15 @@ public enum RobotType {
      * @battlecode.doc.costlymethod
      */
     public int getLeadMutateCost(int level) {
-        return level == 2 ? 600 : 0;
+        if (level != 2) {
+            return 0;
+        }
+        switch (this) {
+            case ARCHON:     return 400;
+            case WATCHTOWER: return 200;
+            case LABORATORY: return 200;
+            default:         return 0;
+        }
     }
 
     /**
@@ -306,7 +314,15 @@ public enum RobotType {
      * @battlecode.doc.costlymethod
      */
     public int getGoldMutateCost(int level) {
-        return level == 3 ? 100 : 0;
+        if (level != 3) {
+            return 0;
+        }
+        switch (this) {
+            case ARCHON:     return 80;
+            case WATCHTOWER: return 60;
+            case LABORATORY: return 25;
+            default:         return 0;
+        }
     }
 
     /**
