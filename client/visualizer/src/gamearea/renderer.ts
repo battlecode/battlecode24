@@ -193,8 +193,8 @@ export default class Renderer {
           else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
 
         } else {
-          let goldShift = -.18;
-          let leadShift = .13;
+          let goldShift = -.18
+          let leadShift = .13
 
           //lead and gold
           let size = sigmoid(map.leadVals[idxVal] / 50) * .85
@@ -206,16 +206,16 @@ export default class Renderer {
           if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2 + goldShift, scale * size, scale * size)
           else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2 + goldShift, scale * size, scale * size)
 
-          
+
           this.ctx.strokeStyle = 'gold'
           if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
           else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
 
-          this.ctx.setLineDash([.1,.1]);
+          this.ctx.setLineDash([.1, .1])
           this.ctx.strokeStyle = '#59727d'
           if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
           else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-          this.ctx.setLineDash([]);
+          this.ctx.setLineDash([])
         }
       } else if (map.leadVals[idxVal] > 0) {
         //lead only
@@ -234,25 +234,25 @@ export default class Renderer {
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
-    const bodies = world.bodies;
-    const length = bodies.length;
-    const types = bodies.arrays.type;
-    const teams = bodies.arrays.team;
-    const hps = bodies.arrays.hp;
-    const ids = bodies.arrays.id;
-    const xs = bodies.arrays.x;
-    const ys = bodies.arrays.y;
-    const actions = bodies.arrays.action;
-    const targets = bodies.arrays.target;
-    const targetxs = bodies.arrays.targetx;
-    const targetys = bodies.arrays.targety;
-    const portables = bodies.arrays.portable;
-    const prototypes = bodies.arrays.prototype;
-    const levels = bodies.arrays.level;
-    const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y -1;
+    const bodies = world.bodies
+    const length = bodies.length
+    const types = bodies.arrays.type
+    const teams = bodies.arrays.team
+    const hps = bodies.arrays.hp
+    const ids = bodies.arrays.id
+    const xs = bodies.arrays.x
+    const ys = bodies.arrays.y
+    const actions = bodies.arrays.action
+    const targets = bodies.arrays.target
+    const targetxs = bodies.arrays.targetx
+    const targetys = bodies.arrays.targety
+    const portables = bodies.arrays.portable
+    const prototypes = bodies.arrays.prototype
+    const levels = bodies.arrays.level
+    const minY = world.minCorner.y
+    const maxY = world.maxCorner.y - 1
 
-    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array;
+    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
 
     if (nextStep && lerpAmount) {
       nextXs = nextStep.bodies.arrays.x
@@ -295,30 +295,32 @@ export default class Renderer {
       let body_status = DEFAULT
       // console.log(i, bodies.length, types.length, "hhh");
       // console.log(bodies[i]);
-      if (Boolean(portables[i])){
-        body_status = PORTABLE;
-      } 
-      if (Boolean(prototypes[i])){
-        body_status = PROTOTYPE;
-      } 
-      let img: HTMLImageElement;
-      if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
+      if (Boolean(portables[i])) {
+        body_status = PORTABLE
+      }
+      if (Boolean(prototypes[i])) {
+        body_status = PROTOTYPE
+      }
+      let img: HTMLImageElement
+      if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]]
       else img = this.imgs.robots[cst.bodyTypeToString(types[i])][levels[i] * 6 + body_status * 2 + teams[i]]
-      this.drawBot(img, realXs[i], realYs[i], hps[i], cst.bodyTypeToSize(types[i]));
+      this.drawBot(img, realXs[i], realYs[i], hps[i], cst.bodyTypeToSize(types[i]))
 
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       // draw effect
       if (actions[i] == schema.Action.ATTACK) {
-        this.ctx.save();
+        let yshift = (teams[i] - 1.5) * .15 + 0.5
+        let xshift = (teams[i] - 1.5) * .15 + 0.5
+        this.ctx.save()
         this.ctx.beginPath()
-        this.ctx.moveTo(realXs[i] + 0.5, realYs[i] + 0.5);
-        this.ctx.lineTo(targetxs[i] + 0.5, this.flip(targetys[i], minY, maxY) + 0.5) 
-        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue';
-        this.ctx.lineWidth = 0.05;
-        this.ctx.stroke();
-        this.ctx.restore();
+        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
+        this.ctx.lineWidth = 0.05
+        this.ctx.stroke()
+        this.ctx.restore()
       };
 
       // TODO: handle abilities/actions
