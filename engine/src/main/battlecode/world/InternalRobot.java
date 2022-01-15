@@ -333,12 +333,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.movementCooldownTurns = newMovementTurns;
     }
 
+    public void addHealth(int healthAmount) {
+        addHealth(healthAmount, true);
+    }
+
     /**
      * Adds health to a robot. Input can be negative to subtract health.
      * 
      * @param healthAmount the amount to change health by (can be negative)
+     * @param checkArchonDeath whether to end the game if an Archon dies
      */
-    public void addHealth(int healthAmount) {
+    public void addHealth(int healthAmount, boolean checkArchonDeath) {
         int oldHealth = this.health;
         this.health += healthAmount;
         int maxHealth = this.type.getMaxHealth(this.level);
@@ -350,7 +355,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             }
         }
         if (this.health <= 0) {
-            this.gameWorld.destroyRobot(this.ID);
+            this.gameWorld.destroyRobot(this.ID, checkArchonDeath);
         } else if (this.health != oldHealth) {
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
