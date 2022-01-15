@@ -1,6 +1,8 @@
 package battlecode.server;
 
 import battlecode.common.GameConstants;
+import battlecode.common.RobotInfo;
+import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.world.*;
 import battlecode.world.control.*;
@@ -194,7 +196,44 @@ public strictfp class Server implements Runnable {
             gameMaker.writeGame(currentGame.getSaveFile());
         }
     }
-
+    
+    private void validateMapOnGameConstants(LiveMap liveMap) {
+        // Check map dimensions
+        if (liveMap.getWidth() > GameConstants.MAP_MAX_WIDTH) {
+            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
+        }
+        if (liveMap.getWidth() < GameConstants.MAP_MIN_WIDTH) {
+            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
+        }
+        if (liveMap.getHeight() > GameConstants.MAP_MAX_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
+        }
+        if (liveMap.getHeight() < GameConstants.MAP_MIN_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
+        }
+        
+        // Check rubble
+        for (int rubble : liveMap.getRubbleArray()) {
+            if (rubble < GameConstants.MIN_RUBBLE) {
+                throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_RUBBLE");
+            }
+            if (rubble > GameConstants.MAX_RUBBLE) {
+                throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_RUBBLE");
+            }
+        }
+        
+        // Check starting Archons
+        int archonCount = 0;
+        for (RobotInfo robotInfo : liveMap.getInitialBodies()) {
+            if (robotInfo.type == RobotType.ARCHON) archonCount++;
+        }
+        if (archonCount < GameConstants.MIN_STARTING_ARCHONS*2) {
+            throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_STARTING_ARCHONS");
+        }
+        if (archonCount > GameConstants.MAX_STARTING_ARCHONS*2) {
+            throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
+        }
+    }
 
     /**
      * @return the winner of the match
@@ -218,19 +257,8 @@ public strictfp class Server implements Runnable {
         // Create the game world!
         currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
         
-        // Check map dimensions
-        if (currentWorld.getGameMap().getWidth() > GameConstants.MAP_MAX_WIDTH) {
-            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
-        }
-        if (currentWorld.getGameMap().getWidth() < GameConstants.MAP_MIN_WIDTH) {
-            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
-        }
-        if (currentWorld.getGameMap().getHeight() > GameConstants.MAP_MAX_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
-        }
-        if (currentWorld.getGameMap().getHeight() < GameConstants.MAP_MIN_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
-        }
+        // Validate the map
+        validateMapOnGameConstants(currentWorld.getGameMap());
 
         // Get started
         if (interactive) {
