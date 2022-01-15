@@ -227,7 +227,7 @@ public strictfp class Server implements Runnable {
         for (RobotInfo robotInfo : liveMap.getInitialBodies()) {
             if (robotInfo.type == RobotType.ARCHON) archonCount++;
         }
-        if (archonCount < GameConstants.MIN_STARTING_ARCHONS*2) {
+        if (archonCount < GameConstants.MIN_STARTING_ARCHONS * 2) {
             throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_STARTING_ARCHONS");
         }
         if (archonCount > GameConstants.MAX_STARTING_ARCHONS*2) {
