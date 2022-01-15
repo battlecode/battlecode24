@@ -402,7 +402,6 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-
         // Add lead resources to the team
         this.teamInfo.addLead(Team.A, GameConstants.PASSIVE_LEAD_INCREASE);
         this.teamInfo.addLead(Team.B, GameConstants.PASSIVE_LEAD_INCREASE);
@@ -469,6 +468,10 @@ public strictfp class GameWorld {
     // *********************************
 
     public void destroyRobot(int id) {
+        destroyRobot(id, true);
+    }
+
+    public void destroyRobot(int id, boolean checkArchonDeath) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         RobotType type = robot.getType();
         Team team = robot.getTeam();
@@ -486,9 +489,11 @@ public strictfp class GameWorld {
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
-        // this happens here because both teams' Archons can die in the same round
-        if (type == RobotType.ARCHON && this.objectInfo.getRobotTypeCount(team, RobotType.ARCHON) == 0)
-            setWinner(team == Team.A ? Team.B : Team.A, DominationFactor.ANNIHILATION);
+        if (checkArchonDeath) {
+            // this happens here because both teams' Archons can die in the same round
+            if (type == RobotType.ARCHON && this.objectInfo.getRobotTypeCount(team, RobotType.ARCHON) == 0)
+                setWinner(team == Team.A ? Team.B : Team.A, DominationFactor.ANNIHILATION);
+        }
 
         matchMaker.addDied(id);
     }
@@ -613,8 +618,21 @@ public strictfp class GameWorld {
         for (int i = 0; i < locations.length; i++) {
             InternalRobot robot = this.getRobot(locations[i]);
             if (robot != null && robot.getMode() == RobotMode.TURRET) {
-                robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor));
+                robot.addHealth((int) (-1 * robot.getType().getMaxHealth(robot.getLevel()) * reduceFactor), false);
             }
+        }
+
+        boolean teamAEliminated = this.objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON) == 0;
+        boolean teamBEliminated = this.objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON) == 0;
+        if (teamAEliminated && teamBEliminated) {
+            // copy pasted from processEndOfRound
+            if (!setWinnerIfMoreGoldValue())
+                if (!setWinnerIfMoreLeadValue())
+                    setWinnerArbitrary();
+        } else if (teamAEliminated) {
+            setWinner(Team.B, DominationFactor.ANNIHILATION);
+        } else if (teamBEliminated) {
+            setWinner(Team.A, DominationFactor.ANNIHILATION);
         }
     }
 
