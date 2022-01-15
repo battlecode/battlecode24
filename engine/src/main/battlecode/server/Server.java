@@ -217,6 +217,20 @@ public strictfp class Server implements Runnable {
 
         // Create the game world!
         currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
+        
+        // Check map dimensions
+        if (currentWorld.getGameMap().getWidth() > GameConstants.MAP_MAX_WIDTH) {
+            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
+        }
+        if (currentWorld.getGameMap().getWidth() < GameConstants.MAP_MIN_WIDTH) {
+            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
+        }
+        if (currentWorld.getGameMap().getHeight() > GameConstants.MAP_MAX_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
+        }
+        if (currentWorld.getGameMap().getHeight() < GameConstants.MAP_MIN_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
+        }
 
         // Get started
         if (interactive) {
