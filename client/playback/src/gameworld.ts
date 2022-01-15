@@ -534,7 +534,7 @@ export default class GameWorld {
             break
 
           case schema.Action.REPAIR:
-            setAction()
+            setAction(true, true);
             break
 
           case schema.Action.CHANGE_HEALTH:

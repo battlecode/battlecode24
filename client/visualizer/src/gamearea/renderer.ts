@@ -323,6 +323,19 @@ export default class Renderer {
         this.ctx.restore()
       };
 
+      if (actions[i] == schema.Action.REPAIR) {
+        let yshift = 0.5
+        let xshift = 0.5
+        this.ctx.save()
+        this.ctx.beginPath()
+        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        this.ctx.strokeStyle = '#54FF79'
+        this.ctx.lineWidth = 0.075
+        this.ctx.stroke()
+        this.ctx.restore()
+      };
+
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
