@@ -230,7 +230,7 @@ public strictfp class Server implements Runnable {
         if (archonCount < GameConstants.MIN_STARTING_ARCHONS * 2) {
             throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_STARTING_ARCHONS");
         }
-        if (archonCount > GameConstants.MAX_STARTING_ARCHONS*2) {
+        if (archonCount > GameConstants.MAX_STARTING_ARCHONS * 2) {
             throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
         }
     }
