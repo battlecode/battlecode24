@@ -139,7 +139,7 @@ export default class Renderer {
       this.ctx.globalAlpha = 1;
       this.lastTime = time;
       this.lastAnomaly = anom;
-    } else if (time - this.lastTime < 1000) {
+    } else if (time - this.lastTime < 400) {
       let anom = this.lastAnomaly;
       let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
       this.ctx.fillStyle = color;
