@@ -322,8 +322,17 @@ export default class Renderer {
         this.ctx.lineWidth = 0.05
         this.ctx.stroke()
         this.ctx.restore()
-      };
-
+      } 
+      
+      if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
+        this.ctx.globalAlpha = 0.4;
+        this.ctx.beginPath();
+        this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
+        this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
+        this.ctx.fill();
+        this.ctx.globalAlpha = 1;
+      }
+ 
       if (actions[i] == schema.Action.REPAIR) {
         let yshift = 0.5
         let xshift = 0.5
