@@ -352,7 +352,8 @@ export default class Renderer {
         this.ctx.globalAlpha = 0.4;
         this.ctx.beginPath();
         this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
-        this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
+        //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
+        this.ctx.fillStyle = teams[i] == 1 ? 'red' : 'blue';
         this.ctx.fill();
         this.ctx.globalAlpha = 1;
       }
