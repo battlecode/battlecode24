@@ -21,6 +21,9 @@ export default class Renderer {
   // position of mouse cursor hovering
   private hoverPos: { xrel: number, yrel: number } | null = null;
 
+  private lastTime: number = 0;
+  private lastAnomaly: number = 0;
+
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
     readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number) => void) {
@@ -122,6 +125,27 @@ export default class Renderer {
         if (!this.conf.doingRotate) this.ctx.strokeRect(cx, cy, scale, scale)
         else this.ctx.strokeRect(cy, cx, scale, scale)
       }
+    }
+
+    let i = world.mapStats.anomalyRounds.indexOf(world.turn);
+    const d = new Date();
+    let time = d.getTime();
+    if (i != -1) {
+      let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
+      let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+      this.ctx.fillStyle = color;
+      this.ctx.globalAlpha = 0.2;
+      this.ctx.fillRect(0, 0, width*scale, height*scale);
+      this.ctx.globalAlpha = 1;
+      this.lastTime = time;
+      this.lastAnomaly = anom;
+    } else if (time - this.lastTime < 1000) {
+      let anom = this.lastAnomaly;
+      let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+      this.ctx.fillStyle = color;
+      this.ctx.globalAlpha = 0.2;
+      this.ctx.fillRect(0, 0, width*scale, height*scale);
+      this.ctx.globalAlpha = 1;
     }
 
     this.ctx.restore()
