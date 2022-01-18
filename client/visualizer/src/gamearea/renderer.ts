@@ -304,7 +304,8 @@ export default class Renderer {
       let img: HTMLImageElement;
       if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]];
       else img = this.imgs.robots[cst.bodyTypeToString(types[i])][levels[i] * 6 + body_status * 2 + teams[i]]
-      this.drawBot(img, realXs[i], realYs[i], hps[i], cst.bodyTypeToSize(types[i]));
+      let max_hp = levels[i] == 1 ? this.metadata.types[types[i]].health : levels[i] == 2 ? this.metadata.types[types[i]].level2Health : this.metadata.types[types[i]].level3Health
+      this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]));
 
       // TODO: draw bot
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
@@ -401,7 +402,7 @@ export default class Renderer {
   /**
    * Draws an image centered at (x, y), such that an image with default size covers a 1x1 cell
    */
-  private drawBot(img: HTMLImageElement, x: number, y: number, c: number, img_size: number) {
+  private drawBot(img: HTMLImageElement, x: number, y: number, c: number, ratio: number, img_size: number) {
     if (this.conf.doingRotate) [x, y] = [y, x]
     let realWidth = img.naturalWidth / img_size
     let realHeight = img.naturalHeight / img_size
@@ -409,8 +410,14 @@ export default class Renderer {
       return 1 / (1 + Math.exp(-x))
     }
     //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
-    let size = sigmoid(c / 100) * 1 + 0.3
+    let size = ratio;
     this.ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y + 1);
+    this.ctx.lineTo(x + realWidth * ratio, y + 1);
+    this.ctx.strokeStyle = "green";
+    this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
+    this.ctx.stroke();
   }
 
   private setInfoStringEvent(world: GameWorld,
