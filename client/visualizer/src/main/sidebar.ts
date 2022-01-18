@@ -136,8 +136,10 @@ export default class Sidebar {
 
     Abyss - <span style="color:blue">Blue</span><br>
     Vortex - <span style="color:purple">Purple</span><br>
-    Fury - <span style="color:blue">Red</span><br>
-    Charge - <span style="color:blue">Yellow</span><br>
+    Fury - <span style="color:red">Red</span><br>
+    Charge - <span style="color:yellow">Yellow</span><br>
+    <br>
+
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
