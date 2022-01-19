@@ -779,12 +779,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // **** TRANSMUTE METHODS **** 
     // ***************************
 
-    public int getTransmutationRate(alchemist_level) {
-        alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L1
-        if (alchemist_level == 2) {
-            alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L2
-        } else if (alchemist_level == 3) {
-            alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L3
+    @Override
+    public int getTransmutationRate() {
+        if (getType() != RobotType.LABORATORY) {
+            return 0;
+        }
+        return getTransmutationRate(getLevel());
+    }
+
+    @Override
+    public int getTransmutationRate(int laboratory_level) {
+        final double alchemist_loneliness_k;
+        switch (laboratory_level) {
+            case 1: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L1; break;
+            case 2: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L2; break;
+            case 3: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L3; break;
+            default: return 0;
         }
         return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B *
                       Math.exp(-alchemist_loneliness_k * this.robot.getNumVisibleFriendlyRobots(true)));
@@ -795,7 +805,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!getType().canTransmute())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot transmute lead to gold.");
-        if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate(getLevel()))
+        if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate())
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough lead to transmute to gold.");
     }
@@ -813,7 +823,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransmute();
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Team team = getTeam();
-        this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate(getLevel()));
+        this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
         this.gameWorld.getTeamInfo().addGold(team, 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.TRANSMUTE, -1);
     }
