@@ -779,10 +779,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // **** TRANSMUTE METHODS **** 
     // ***************************
 
-    @Override
-    public int getTransmutationRate() {
-        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
-                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * this.robot.getNumVisibleFriendlyRobots(true)));
+    public int getTransmutationRate(alchemist_level) {
+        alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L1
+        if (alchemist_level == 2) {
+            alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L2
+        } else if (alchemist_level == 3) {
+            alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L3
+        }
+        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B *
+                      Math.exp(-alchemist_loneliness_k * this.robot.getNumVisibleFriendlyRobots(true)));
     }
 
     private void assertCanTransmute() throws GameActionException {
@@ -790,7 +795,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!getType().canTransmute())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot transmute lead to gold.");
-        if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate())
+        if (this.gameWorld.getTeamInfo().getLead(getTeam()) < getTransmutationRate(getLevel()))
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "You don't have enough lead to transmute to gold.");
     }
@@ -808,7 +813,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransmute();
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Team team = getTeam();
-        this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate());
+        this.gameWorld.getTeamInfo().addLead(team, -getTransmutationRate(getLevel()));
         this.gameWorld.getTeamInfo().addGold(team, 1);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.TRANSMUTE, -1);
     }

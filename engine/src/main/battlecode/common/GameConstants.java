@@ -102,7 +102,9 @@ public class GameConstants {
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 15;
-    public static final double ALCHEMIST_LONELINESS_K = 0.02;
+    public static final double ALCHEMIST_LONELINESS_K_L1 = 0.02;
+    public static final double ALCHEMIST_LONELINESS_K_L2 = 0.01;
+    public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
