@@ -21,7 +21,7 @@ public enum AnomalyType {
      * {@link #globalPercentage} and {@link #sagePercentage} specify the
      * proportion of metals lost.
      */
-    ABYSS       (true,    true,   0.1f,    0.2f),
+    ABYSS       (true,    true,   0.1f,    0.99f),
 
     /**
      * Charge deals concentrated damage to Droids. When global, the top
@@ -29,7 +29,7 @@ public enum AnomalyType {
      * destroyed. When envisioned, all nearby enemy Droids lose
      * {@link #sagePercentage} of their maximum health.
      */
-    CHARGE      (true,    true,   0.05f,   0.1f),
+    CHARGE      (true,    true,   0.05f,   0.22f),
 
     /**
      * Fury deals concentrated proportional damage to Turrets. When global, all

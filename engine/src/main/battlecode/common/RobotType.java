@@ -27,7 +27,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    LABORATORY      (250,   0, 10, 24, 100,  0,  0, 53,    5000),
+    LABORATORY      (180,   0, 10, 24, 100,  0,  0, 53,    5000),
     //               BCL  BCG  AC  MC   HP DMG  AR  VR      BL
 
     /**
@@ -36,7 +36,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    WATCHTOWER      (180,  0,  10,  24, 150,  4, 20, 34,   10000),
+    WATCHTOWER      (150,  0,  10,  24, 150,  4, 20, 34,   10000),
     //               BCL  BCG  AC   MC   HP DMG  AR  VR       BL
 
     /**
@@ -45,7 +45,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    MINER           ( 50,   0,  2,  20, 40,   0, 2, 20,   7500),
+    MINER           ( 50,   0,  2,  20, 40,   0, 2, 20,  10000),
     //               BCL  BCG  AC   MC  HP  DMG AR  VR       BL
 
     /**
@@ -54,7 +54,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    BUILDER         ( 40,   0,  10, 20, 30, -1,  5, 20,   7500),
+    BUILDER         ( 40,   0,  10, 20, 30, -2,  5, 20,   7500),
     //               BCL  BCG   AC  MC  HP DMG  AR  VR      BL
 
     /**
@@ -73,7 +73,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    SAGE            ( 0,  20, 200, 25, 100, 45, 20, 34,   10000)
+    SAGE            ( 0,  20, 200, 25, 100, 45, 25, 34,   10000)
     //              BCL  BCG   AC  MC  HP  DMG  AR  VR        BL
     ;
 
@@ -298,9 +298,9 @@ public enum RobotType {
             return 0;
         }
         switch (this) {
-            case ARCHON:     return 400;
-            case WATCHTOWER: return 200;
-            case LABORATORY: return 200;
+            case ARCHON:     return 300;
+            case WATCHTOWER: return 150;
+            case LABORATORY: return 150;
             default:         return 0;
         }
     }

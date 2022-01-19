@@ -781,8 +781,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int getTransmutationRate() {
-        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B * 
-                      Math.exp(-GameConstants.ALCHEMIST_LONELINESS_K * this.robot.getNumVisibleFriendlyRobots(true)));
+        if (getType() != RobotType.LABORATORY) {
+            return 0;
+        }
+        return getTransmutationRate(getLevel());
+    }
+
+    @Override
+    public int getTransmutationRate(int laboratory_level) {
+        final double alchemist_loneliness_k;
+        switch (laboratory_level) {
+            case 1: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L1; break;
+            case 2: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L2; break;
+            case 3: alchemist_loneliness_k = GameConstants.ALCHEMIST_LONELINESS_K_L3; break;
+            default: return 0;
+        }
+        return (int) (GameConstants.ALCHEMIST_LONELINESS_A - GameConstants.ALCHEMIST_LONELINESS_B *
+                      Math.exp(-alchemist_loneliness_k * this.robot.getNumVisibleFriendlyRobots(true)));
     }
 
     private void assertCanTransmute() throws GameActionException {

@@ -65,10 +65,10 @@ public class GameConstants {
     public static final int PASSIVE_LEAD_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 40;
+    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
 
     /** The amount of lead to add each round that lead is added. */
-    public static final int ADD_LEAD = 3;
+    public static final int ADD_LEAD = 5;
     
     // *********************************
     // ****** COOLDOWNS ****************
@@ -101,8 +101,10 @@ public class GameConstants {
 
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
-    public static final double ALCHEMIST_LONELINESS_B = 15;
-    public static final double ALCHEMIST_LONELINESS_K = 0.02;
+    public static final double ALCHEMIST_LONELINESS_B = 18;
+    public static final double ALCHEMIST_LONELINESS_K_L1 = 0.02;
+    public static final double ALCHEMIST_LONELINESS_K_L2 = 0.01;
+    public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
 
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

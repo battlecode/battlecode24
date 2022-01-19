@@ -824,6 +824,16 @@ public strictfp interface RobotController {
      */
     public int getTransmutationRate();
 
+    /** 
+     * Get lead to gold transmutation rate for a laboratory of specified level.
+     *
+     * @param laboratory_level the level of the laboratory
+     * @return the lead to gold transmutation rate, 0 if the level is invalid
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public int getTransmutationRate(int laboratory_level);
+
     /**
      * Tests whether this robot can transmute lead into gold.
      * 
