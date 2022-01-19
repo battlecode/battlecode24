@@ -402,11 +402,6 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-        // Add lead resources to the map
-        if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
-            for (int i = 0; i < this.lead.length; i++)
-                if (this.lead[i] > 0) 
-                    this.lead[i] += GameConstants.ADD_LEAD;
 
         // Add lead resources to the team
         this.teamInfo.addLead(Team.A, GameConstants.PASSIVE_LEAD_INCREASE);
@@ -428,6 +423,12 @@ public strictfp class GameWorld {
             if (anomaly == AnomalyType.FURY) causeFuryGlobal();
             if (anomaly == AnomalyType.VORTEX) causeVortexGlobal();
         }
+
+        // Add lead resources to the map
+        if (this.currentRound % GameConstants.ADD_LEAD_EVERY_ROUNDS == 0)
+            for (int i = 0; i < this.lead.length; i++)
+                if (this.lead[i] > 0)
+                    this.lead[i] += GameConstants.ADD_LEAD;
 
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundLeadChange(Team.A), this.teamInfo.getRoundGoldChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));

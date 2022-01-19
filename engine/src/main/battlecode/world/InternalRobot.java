@@ -81,9 +81,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
         this.roundsAlive = 0;
         this.actionCooldownTurns = 0;
-        this.addActionCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = 0;
-        this.addMovementCooldownTurns(GameConstants.COOLDOWNS_PER_TURN);
         this.numVisibleFriendlyRobots = 0;
 
         this.indicatorString = "";
@@ -380,7 +378,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void mutate() {
         if (!canMutate()) return;
         this.level++;
-        this.health += this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
+        int healthIncrease = this.type.getMaxHealth(this.level) - this.type.getMaxHealth(this.level - 1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, healthIncrease);
+        this.health += healthIncrease;
     }
 
     /**

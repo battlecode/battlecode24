@@ -341,6 +341,152 @@ public strictfp interface RobotController {
     int senseGold(MapLocation loc) throws GameActionException;
 
     /**
+     * Return all locations that contain a nonzero amount of lead.
+     *
+     * @return all locations within vision radius that contain a nonzero amount of lead
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead();
+
+    /**
+     * Return all locations that contain a nonzero amount of lead, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of lead within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that contain a nonzero amount of lead, within a
+     * specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of lead within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that contain at least a certain amount of lead, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param minLead the minimum amount of lead
+     * @return all locations that contain at least minLead lead within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException;
+
+    /**
+     * Return all locations that contain at least a certain amount of lead, within a
+     * specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param minLead the minimum amount of lead
+     * @return all locations that contain at least minLead lead within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException;
+
+    /**
+     * Return all locations that contain a nonzero amount of gold.
+     *
+     * @return all locations within vision radius that contain a nonzero amount of gold
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold();
+
+    /**
+     * Return all locations that contain a nonzero amount of gold, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of gold within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that contain a nonzero amount of gold, within a
+     * specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain a nonzero amount of gold within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that contain at least a certain amount of gold, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param minGold the minimum amount of gold
+     * @return all locations that contain at least minGold gold within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException;
+
+    /**
+     * Return all locations that contain at least a certain amount of gold, within a
+     * specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param minGold the minimum amount of gold
+     * @return all locations that contain at least minGold gold within the radius
+     * @throws GameActionException if the radius is negative
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction

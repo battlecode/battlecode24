@@ -291,6 +291,86 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyLocationsWithLead() {
+        try {
+            return senseNearbyLocationsWithLead(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithLead(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException {
+        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, minLead);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getLead(loc) >= minLead && canSenseLocation(loc)) {
+                locations.add(loc);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold() {
+        try {
+            return senseNearbyLocationsWithGold(getLocation(), -1, 1);
+        } catch (GameActionException willNeverHappen) {
+            throw new RuntimeException("impossible", willNeverHappen);
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyLocationsWithGold(center, radiusSquared, 1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException {
+        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, minGold);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException {
+        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        if (radiusSquared < 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Radius squared must be non-negative.");
+        ArrayList<MapLocation> locations = new ArrayList<>();
+        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
+            if (this.gameWorld.getGold(loc) >= minGold && canSenseLocation(loc)) {
+                locations.add(loc);
+            }
+        }
+        MapLocation[] result = new MapLocation[locations.size()];
+        return locations.toArray(result);
+    }
+
+    @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
     }

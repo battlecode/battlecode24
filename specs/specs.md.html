@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.0.1.1*
+*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.1.0.1*
 
 **Welcome to Battlecode 2022: Mutation.**
 
@@ -117,7 +117,7 @@ The core resources are Lead (symbol: Pb) and Gold (symbol: Au). Each team has a 
 
 There are Lead deposits scattered on the map, which can be collected by Miners. Whereas Lead is comparatively plentiful, Gold is not found naturally. Building a Laboratory will allow you to discover the science of alchemy; the Gold you synthesize will unlock the most powerful mechanics available in the world.
 
-Every round, each team will gain a passive income of 2 Pb. Additionally, every 20 rounds, any square of the map containing at least 1 Pb will generate an additional 5 Pb.
+Every round, each team will gain a passive income of 2 Pb. Additionally, every 40 rounds, any square of the map containing at least 1 Pb will generate an additional 3 Pb.
 
 Both teams start the game with 200 Pb and 0 Au. Resource costs for robot construction can be found in the in-depth section further below.
 
@@ -129,7 +129,7 @@ Whenever a robot moves, attacks, or performs any other action, any cooldown it i
 
 # Resource reclaim
 
-Whenever a robot is destroyed, 20% of its build cost is dropped on the square it last occupied. This includes its initial build cost, as well as the cost of any Mutations applied to it. Although Archons cannot be built, they have a nominal cost of 250 Au to be used in calculating the reclaim value.
+Whenever a robot is destroyed, 20% of its build cost is dropped on the square it last occupied. This includes its initial build cost, as well as the cost of any Mutations applied to it. Although Archons cannot be built, they have a nominal cost of 100 Au to be used in calculating the reclaim value.
 
 Notice that resource reclaim is the only way in which Gold will enter the game map and be available for collection by Miners.
 
@@ -196,18 +196,20 @@ Buildings are upgradeable robots, built by Builders. They are initially built in
 
 Buildings can also be Mutated, which upgrades their properties. Being Mutated by a Builder also incurs a cost of 100 cooldown for both of the Building's cooldown timers.
 
-The cost of Mutating a Building to level 2 is 600 Pb. The cost of Mutating a Building to level 3 is 100 Au.
+The cost of Mutating a Building depends on the Building type, as listed in the table below.
 
 |  | Archon | Laboratory | Watchtower |
 | --- | --- | --- | --- |
-| Cost | 250 Au (nominal) | 800 Pb | 180 Pb |
+| Cost | 100 Au (nominal) | 250 Pb | 180 Pb |
 | Cooldown / action | 10 | 10 | 10 |
 | Cooldown / move | 24 | 24 | 24 |
-| Health mutations | 1000 → 1100 → 1200 | 100 → 110 → 120 | 130 → 143 → 156 |
-| Attack mutations | -2 → -3 → -4 | N/A | 5 → 6 → 7 |
+| Health mutations | 600 → 1080 → 1944 | 100 → 180 → 324 | 150 → 270 → 486 |
+| Attack mutations | -2 → -4 → -6 | N/A | 4 → 8 → 12 |
 | Action radius | (repair) 20 | N/A | 20 |
 | Vision radius | 34 | 53 | 34 |
 | Bytecode limit | 20,000 | 5,000 | 10,000 |
+| Level 2 mutation cost | 400 Pb | 200 Pb | 200 Pb |
+| Level 3 mutation cost | 80 Au | 25 Au | 60 Au |
 
 - Archon: the headquarters robot type. Can construct and repair other Droids. Cannot be built.
 
@@ -221,13 +223,13 @@ Droids are mobile robots, built by Archons.
 
 |  | Miner | Builder | Soldier | Sage |
 | --- | --- | --- | --- | --- |
-| Cost | 50 Pb | 40 Pb | 75 Pb | 50 Au |
+| Cost | 50 Pb | 40 Pb | 75 Pb | 20 Au |
 | Cooldown / action | 2 | 10 | 10 | 200 |
 | Cooldown / move | 20 | 20 | 16 | 25 |
 | Health | 40 | 30 | 50 | 100 |
 | Attack | N/A | -1 | 3 | 45 |
-| Action radius | (mine) 2 | (repair) 5 | 13 | 13 |
-| Vision radius | 20 | 20 | 20 | 20 |
+| Action radius | (mine) 2 | (repair) 5 | 13 | 20 |
+| Vision radius | 20 | 20 | 20 | 34 |
 | Bytecode limit | 7,500 | 7,500 | 10,000 | 10,000 |
 
 - Miners: the resource collecting robot. Can mine squares for Lead and Gold.
@@ -256,7 +258,7 @@ The per-turn bytecode limits for various robots are as follows:
 - Watchtower: 10,000
 - Laboratory: 5,000
 
-Some standard functions such as the math library and sensing functions have fixed bytecode costs, available here[???]. More details on this at the end of the spec.
+Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode22/blob/main/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
 
 # Appendix: Other resources and utilities
 
@@ -264,7 +266,7 @@ Some standard functions such as the math library and sensing functions have fixe
 
 examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what `RobotPlayer` files should look like.
 
-If you are interested, you may find the full game engine implementation here. This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
+If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode22/tree/main/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
 
 ## **Debugging**
 
@@ -322,6 +324,67 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 2022.1.0.1 (January 12, 2022)
+  - Engine
+    - Remove initial cooldown for all newly built robots
+    - Fix bug in lead and gold sensing functions
+
+- Version 2022.1.0.0 (January 11, 2022)
+  - Breaking changes: Sprint I Balancing changes
+    - Archons:
+      - Decrease nominal worth to 100 Au
+      - Decrease level 2 Mutation cost to 400 Pb
+      - Decrease level 3 Mutation cost to 80 Au
+      - Change mutation health to 600 → 1080 → 1944
+      - Change mutation repair to 2 → 4 → 6
+    - Watchtowers:
+      - Decrease level 2 Mutation cost to 200 Pb
+      - Decrease level 3 Mutation cost to 60 Au
+      - Charge mutation health to 150 → 270 → 486
+      - Change mutation damage to 4 → 8 → 12
+    - Laboratories:
+      - Decrease build cost to 250 Pb
+      - Decrease level 2 Mutation cost to 200 Pb
+      - Decrease level 3 Mutation cost to 25 Au
+      - Change mutation health to 100 → 180 → 324
+    - Sages:
+      - Decrease build cost to 20 Au
+      - Increase action radius to 20
+      - Increase vision radius to 34
+    - Lead regeneration:
+      - Decrease rate to 3 Pb every 40 turns
+  - Sprint maps released
+
+- Version 2022.0.3.1 (January 10, 2022)
+  - Client
+    - Fix robot selection on (0, 0)
+    - Fix gold income
+    - Improvements to runner team selection (thanks @jmerle!)
+  - Other
+    - Improvements to Javadoc deploy script
+
+- Version 2022.0.3.0 (January 9, 2022)
+  - Engine
+    - (New feature) Add overloads for sensing nearby locations with metals
+    - Do not dump debug map information at start of match
+  - Client
+    - Track HP change on mutations and fix DP display
+    - Running averages for lead and gold income
+  - Other
+    - Javadocs are 2022, not 2017
+
+- Version 2022.0.2.0 (January 5, 2022)
+  - Engine
+    - (New feature) Add `rc.senseNearbyLocationsWithLead` and `rc.senseNearbyLocationsWithGold`
+    - Make passive Lead increase occur after Anomalies are processed
+  - Client
+    - Fix portable Archon display
+    - Fix mutation tracking
+    - Update help text
+    - Fix Vortex anomaly rendering
+  - Other
+    - Improvements to release scripts
 
 - Version 2022.0.1.1 (January 4, 2022)
   - Specs

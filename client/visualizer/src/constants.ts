@@ -137,7 +137,18 @@ MapType.CUSTOM]
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["maptestsmall", MapType.DEFAULT],
   ["eckleburg", MapType.DEFAULT],
-  ["intersection", MapType.DEFAULT]
+  ["intersection", MapType.DEFAULT],
+  ["colosseum", MapType.SPRINT_1],
+  ["fortress", MapType.SPRINT_1],
+  ["jellyfish", MapType.SPRINT_1],
+  ["nottestsmall", MapType.SPRINT_1],
+  ["progress", MapType.SPRINT_1],
+  ["rivers", MapType.SPRINT_1],
+  ["sandwich", MapType.SPRINT_1],
+  ["squer", MapType.SPRINT_1],
+  ["uncomfortable", MapType.SPRINT_1],
+  ["underground", MapType.SPRINT_1],
+  ["valley", MapType.SPRINT_1]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
