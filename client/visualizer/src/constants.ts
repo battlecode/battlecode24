@@ -100,8 +100,8 @@ export const EFFECT_STEP = 200 //time change between effect animations
 
 // Map editor canvas parameters
 export const DELTA = .0001
-export const MIN_DIMENSION = 15
-export const MAX_DIMENSION = 100
+export const MIN_DIMENSION = 20
+export const MAX_DIMENSION = 60
 
 // Initial (default) HP of archons, for map editor
 export const INITIAL_HP = 100
