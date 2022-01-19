@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.1.0.2*
+*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.2.0.0*
 
 **Welcome to Battlecode 2022: Mutation.**
 
@@ -117,7 +117,7 @@ The core resources are Lead (symbol: Pb) and Gold (symbol: Au). Each team has a 
 
 There are Lead deposits scattered on the map, which can be collected by Miners. Whereas Lead is comparatively plentiful, Gold is not found naturally. Building a Laboratory will allow you to discover the science of alchemy; the Gold you synthesize will unlock the most powerful mechanics available in the world.
 
-Every round, each team will gain a passive income of 2 Pb. Additionally, every 40 rounds, any square of the map containing at least 1 Pb will generate an additional 3 Pb.
+Every round, each team will gain a passive income of 2 Pb. Additionally, every 20 rounds, any square of the map containing at least 1 Pb will generate an additional 5 Pb.
 
 Both teams start the game with 200 Pb and 0 Au. Resource costs for robot construction can be found in the in-depth section further below.
 
@@ -200,7 +200,7 @@ The cost of Mutating a Building depends on the Building type, as listed in the t
 
 |  | Archon | Laboratory | Watchtower |
 | --- | --- | --- | --- |
-| Cost | 100 Au (nominal) | 250 Pb | 180 Pb |
+| Cost | 100 Au (nominal) | 180 Pb | 150 Pb |
 | Cooldown / action | 10 | 10 | 10 |
 | Cooldown / move | 24 | 24 | 24 |
 | Health mutations | 600 → 1080 → 1944 | 100 → 180 → 324 | 150 → 270 → 486 |
@@ -208,12 +208,12 @@ The cost of Mutating a Building depends on the Building type, as listed in the t
 | Action radius | (repair) 20 | N/A | 20 |
 | Vision radius | 34 | 53 | 34 |
 | Bytecode limit | 20,000 | 5,000 | 10,000 |
-| Level 2 mutation cost | 400 Pb | 200 Pb | 200 Pb |
+| Level 2 mutation cost | 300 Pb | 150 Pb | 150 Pb |
 | Level 3 mutation cost | 80 Au | 25 Au | 60 Au |
 
 - Archon: the headquarters robot type. Can construct and repair other Droids. Cannot be built.
 
-- Laboratory: the house of the alchemist. Can convert Lead into Gold. Since alchemists prefer solitude, if there are $n$ friendly robots within the Laboratory's vision range, 1 Au can be created by expending $\left\lfloor A-Be^{-kn}\right\rfloor$ Pb, where $A=20, B=15, k=0.02$. This formula can be accessed with the method `getTransmutationRate()`.
+- Laboratory: the house of the alchemist. Can convert Lead into Gold. Since alchemists prefer solitude, if there are $n$ friendly robots within the Laboratory's vision range, 1 Au can be created by expending $\left\lfloor A-Be^{-kn}\right\rfloor$ Pb, where $A=20, B=18$. The value of $k$ depends on the Mutation level of the Laboratory, and is 0.02 at level 1, 0.01 at level 2, and 0.005 at level 3. This formula can be accessed with the method `getTransmutationRate()`.
 
 - Watchtower: a defensive reinforcement. Can attack enemy robots that stray within the attack radius.
 
@@ -227,10 +227,10 @@ Droids are mobile robots, built by Archons.
 | Cooldown / action | 2 | 10 | 10 | 200 |
 | Cooldown / move | 20 | 20 | 16 | 25 |
 | Health | 40 | 30 | 50 | 100 |
-| Attack | N/A | -1 | 3 | 45 |
-| Action radius | (mine) 2 | (repair) 5 | 13 | 20 |
+| Attack | N/A | -2 | 3 | 45 |
+| Action radius | (mine) 2 | (repair) 5 | 13 | 25 |
 | Vision radius | 20 | 20 | 20 | 34 |
-| Bytecode limit | 7,500 | 7,500 | 10,000 | 10,000 |
+| Bytecode limit | 10,000 | 7,500 | 10,000 | 10,000 |
 
 - Miners: the resource collecting robot. Can mine squares for Lead and Gold.
 
@@ -239,8 +239,8 @@ Droids are mobile robots, built by Archons.
 - Soldiers: the general-purpose attack robot. Can attack nearby robots.
 
 - Sage: the bringer of Anomalies. Sages are able to produce concentrated attacks, as well as the following Anomalies, but at a very slow rate:
-    - Abyss: 20% of resources in all squares within action range are lost.
-    - Charge: The air begins to conduct electricity, and all enemy Droids within action range lose health equal to 10% of their maximum health.
+    - Abyss: 99% of resources in all squares within action range are lost.
+    - Charge: The air begins to conduct electricity, and all enemy Droids within action range lose health equal to 22% of their maximum health.
     - Fury: A searing solar flare erupts from the sun. All buildings within action range in turret mode have 10% of their max health burned off.
     - Vortex and Singularity are not available to Sages.
 
@@ -253,8 +253,8 @@ Every round each robot sequentially takes its turn. If a robot attempts to excee
 The per-turn bytecode limits for various robots are as follows:
 
 - Archon: 20,000
-- Builder, Miner: 7,500
-- Soldier, Sage: 10,000
+- Builder: 7,500
+- Miner, Soldier, Sage: 10,000
 - Watchtower: 10,000
 - Laboratory: 5,000
 
@@ -324,6 +324,34 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 2022.2.0.0 (January 18, 2022)
+  - Breaking changes: Sprint II Balancing changes
+    - Archons:
+      - Decrease level 2 Mutation cost to 300 Pb
+    - Watchtowers:
+      - Decrease initial cost to 150 Pb
+      - Decrease level 2 Mutation cost to 150 Pb
+    - Laboratories:
+      - Decrease build cost to 180 Pb
+      - Decrease level 2 Mutation cost to 150 Pb
+      - Change exchange rate constants to $A=20, B=18$
+      - Change exchange rate constant $k$ to 0.02 for level 1, 0.01 for level 2, 0.005 for level 3
+    - Miners:
+      - Increase bytecode limit to 10,000
+    - Builders:
+      - Increase attack to -2 (ie. repair to 2)
+    - Sages:
+      - Increase action radius to 25
+      - Increase Abyss depletion rate to 99%
+      - Increase Charge damage rate to 22%
+    - Lead regeneration:
+      - Increase rate to 5 Pb every 20 turns
+  - Client:
+    - Visualize repair actions and Anomalies
+    - Add health bar
+    - Shift attack visualizations so they do not overlap
+  - Sprint maps released
 
 - Version 2022.1.0.2 (January 16, 2022)
   - Engine
