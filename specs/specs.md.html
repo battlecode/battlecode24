@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.2.0.0*
+*This is the formal specification of the Battlecode 2022 game.* Current version: *2022.2.0.1*
 
 **Welcome to Battlecode 2022: Mutation.**
 
@@ -262,33 +262,33 @@ Some standard functions such as the math library and sensing functions have fixe
 
 # Appendix: Other resources and utilities
 
-## **Sample player**
+## Sample player
 
 examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what `RobotPlayer` files should look like.
 
 If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode22/tree/main/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
 
-## **Debugging**
+## Debugging
 
 Debugging is extremely important. See the debugging tips to learn about our useful debug tools.
 
-## **Monitoring**
+## Monitoring
 
 The `Clock` class provides a way to identify the current round (`rc.getRoundNum()`), and how many bytecodes have been executed during the current round (`Clock.getBytecodeNum()`).
 
-## **GameActionExceptions**
+## GameActionExceptions
 
 `GameActionException`s are thrown when something cannot be done. It is often the result of illegal actions such as moving onto another robot, or an unexpected round change in your code. Thus, you must write your player defensively and handle `GameActionException`s judiciously. You should also be prepared for any ability to fail and make sure that this has as little effect as possible on the control flow of your program.
 
 Throwing any `Exception`s cause a bytecode penalty of 500 bytecodes. Unhandled exceptions may paralyze your robot.
 
-## **Complete documentation**
+## Complete documentation
 
 Every function you could possibly use to interact with the game can be found in our javadocs.
 
 # Appendix: Other restrictions
 
-## **Java language usage**
+## Java language usage
 
 Players may use classes from any of the packages listed in `AllowedPackages.txt`, except for classes listed in `DisallowedPackages.txt`. These files can be found here.
 
@@ -298,11 +298,11 @@ Furthermore, the following restrictions apply:
 
 Note that violating any of the above restrictions will cause the robots to explode when run, even if the source files compile without problems.
 
-## **Memory usage**
+## Memory usage
 
 Robots must keep their memory usage reasonable. If a robot uses more than 8 Mb of heap space during a tournament or scrimmage match, the robot may explode.
 
-## **More information on bytecode costs**
+## More information on bytecode costs
 
 Classes in `java.util`, `java.math`, and scala and their subpackages are bytecode counted as if they were your own code. The following functions in `java.lang` are also bytecode counted as if they were your own code.
 
@@ -324,6 +324,12 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 2022.2.0.1 (January 20, 2022)
+  - Client:
+    - Release maps from Sprint II too
+  - Specs:
+    - Minor typographic and stylistic improvements
 
 - Version 2022.2.0.0 (January 18, 2022)
   - Breaking changes: Sprint II Balancing changes
@@ -354,12 +360,12 @@ If something is unclear, direct your questions to our Discord where other people
   - Sprint maps released
 
 - Version 2022.1.0.2 (January 16, 2022)
-  - Engine
+  - Engine:
     - Trigger tiebreakers if all Archons are destroyed simultaneously during Fury.
     - Add some map validation to main server (thanks @stefangimmillaro!)
 
 - Version 2022.1.0.1 (January 12, 2022)
-  - Engine
+  - Engine:
     - Remove initial cooldown for all newly built robots
     - Fix bug in lead and gold sensing functions
 
@@ -390,40 +396,40 @@ If something is unclear, direct your questions to our Discord where other people
   - Sprint maps released
 
 - Version 2022.0.3.1 (January 10, 2022)
-  - Client
+  - Client:
     - Fix robot selection on (0, 0)
     - Fix gold income
     - Improvements to runner team selection (thanks @jmerle!)
-  - Other
+  - Other:
     - Improvements to Javadoc deploy script
 
 - Version 2022.0.3.0 (January 9, 2022)
-  - Engine
+  - Engine:
     - (New feature) Add overloads for sensing nearby locations with metals
     - Do not dump debug map information at start of match
-  - Client
+  - Client:
     - Track HP change on mutations and fix DP display
     - Running averages for lead and gold income
-  - Other
+  - Other:
     - Javadocs are 2022, not 2017
 
 - Version 2022.0.2.0 (January 5, 2022)
-  - Engine
+  - Engine:
     - (New feature) Add `rc.senseNearbyLocationsWithLead` and `rc.senseNearbyLocationsWithGold`
     - Make passive Lead increase occur after Anomalies are processed
-  - Client
+  - Client:
     - Fix portable Archon display
     - Fix mutation tracking
     - Update help text
     - Fix Vortex anomaly rendering
-  - Other
+  - Other:
     - Improvements to release scripts
 
 - Version 2022.0.1.1 (January 4, 2022)
-  - Specs
+  - Specs:
     - Clarify that Archons are not guaranteed to have ID at least 10,000
     - Update various URLs
-  - Engine
+  - Engine:
     - Fix Archon damage to always be negative (ie. repair)
     - Fix maximum value for communication array to actually be $2^{16}-1$
 
