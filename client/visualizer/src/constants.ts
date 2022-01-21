@@ -148,7 +148,19 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["squer", MapType.SPRINT_1],
   ["uncomfortable", MapType.SPRINT_1],
   ["underground", MapType.SPRINT_1],
-  ["valley", MapType.SPRINT_1]
+  ["valley", MapType.SPRINT_1],
+  ["chessboard", MapType.SPRINT_2],
+  ["collaboration", MapType.SPRINT_2],
+  ["dodgeball", MapType.SPRINT_2],
+  ["equals", MapType.SPRINT_2],
+  ["highway", MapType.SPRINT_2],
+  ["nyancat", MapType.SPRINT_2],
+  ["panda", MapType.SPRINT_2],
+  ["pillars", MapType.SPRINT_2],
+  ["snowflake", MapType.SPRINT_2],
+  ["spine", MapType.SPRINT_2],
+  ["stronghold", MapType.SPRINT_2],
+  ["tower", MapType.SPRINT_2]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
