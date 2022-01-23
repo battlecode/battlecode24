@@ -488,6 +488,9 @@ export default class Runner {
         case 71: // "g" - Toogle grid view
           this.conf.showGrid = !this.conf.showGrid;
           break;
+        case 71: // "k"
+          this.conf.showAnomalies = !this.conf.showAnomalies;
+          break;
         // case 72: // "h" - Toggle short log header
         //   this.conf.shorterLogHeader = !this.conf.shorterLogHeader;
         //   this.console.updateLogHeader();

@@ -124,6 +124,8 @@ export interface Config {
    * Whether the map is currently rotated. TODO: don't make this a global variable.
    */
   doingRotate: boolean;
+
+  showAnomalies: boolean;
 }
 
 /**
@@ -168,7 +170,8 @@ export function defaults(supplied?: any): Config {
     useProfiler: true,
     doProfiling: true,
     doRotate: false,
-    doingRotate: false
+    doingRotate: false,
+    showAnomalies: true
   };
   return Object.assign(conf, supplied);
 }

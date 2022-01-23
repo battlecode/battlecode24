@@ -156,6 +156,7 @@ export default class Sidebar {
     B - Toggle Interpolation<br>
     Q - Toggle whether to profile matches.<br>
     [ - Hide/unhide sidebar navigation.<br>
+    K - Toggle anomaly visualization.<br>
     <br>
     <b class="blue">Keyboard Shortcuts (Map Editor)</b><br
     <br>

@@ -130,22 +130,27 @@ export default class Renderer {
     let i = world.mapStats.anomalyRounds.indexOf(world.turn);
     const d = new Date();
     let time = d.getTime();
-    if (i != -1) {
-      let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
-      let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-      this.ctx.fillStyle = color;
-      this.ctx.globalAlpha = 0.2;
-      this.ctx.fillRect(0, 0, width*scale, height*scale);
-      this.ctx.globalAlpha = 1;
-      this.lastTime = time;
-      this.lastAnomaly = anom;
-    } else if (time - this.lastTime < 400) {
-      let anom = this.lastAnomaly;
-      let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-      this.ctx.fillStyle = color;
-      this.ctx.globalAlpha = 0.2;
-      this.ctx.fillRect(0, 0, width*scale, height*scale);
-      this.ctx.globalAlpha = 1;
+    if (this.conf.showAnomalies) {
+      if (i != -1) {
+        let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
+        let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 15;
+        this.ctx.globalAlpha = 0.5;
+        this.ctx.strokeRect(0, 0, width*scale, height*scale);
+        this.ctx.stroke();
+        this.lastTime = time;
+        this.lastAnomaly = anom;
+      } else if (time - this.lastTime < 1000) {
+        let anom = this.lastAnomaly;
+        let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 15;
+        this.ctx.globalAlpha = 0.5;
+        this.ctx.strokeRect(0, 0, width*scale, height*scale);
+        this.ctx.stroke();
+        //this.ctx.globalAlpha = 1;
+      }
     }
 
     this.ctx.restore()
@@ -348,14 +353,26 @@ export default class Renderer {
         this.ctx.restore()
       } 
       
-      if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
-        this.ctx.globalAlpha = 0.4;
-        this.ctx.beginPath();
-        this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
-        //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
-        this.ctx.fillStyle = teams[i] == 1 ? 'red' : 'blue';
-        this.ctx.fill();
-        this.ctx.globalAlpha = 1;
+      if (this.conf.showAnomalies) {
+        if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
+          this.ctx.save();
+          this.ctx.globalAlpha = 1;
+          this.ctx.beginPath();
+          this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
+          //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
+          this.ctx.setLineDash([1,2]);
+          this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue';
+          this.ctx.stroke();
+
+          this.ctx.beginPath();
+          this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
+          this.ctx.strokeStyle = (actions[i] === schema.Action.LOCAL_ABYSS) ? "Blue" : (actions[i] === schema.Action.LOCAL_CHARGE) ? "Yellow" : (actions[i] === schema.Action.LOCAL_FURY) ? "Red" : "White";
+          this.ctx.setLineDash([1,1.5]);
+          this.ctx.stroke();
+
+          this.ctx.globalAlpha = 1;
+          this.ctx.restore();
+        }
       }
  
       if (actions[i] == schema.Action.REPAIR) {
