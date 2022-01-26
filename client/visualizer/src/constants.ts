@@ -119,7 +119,8 @@ export enum MapType {
   DEFAULT,
   SPRINT_1,
   SPRINT_2,
-  QUALIFYING,
+  INTL_QUALIFYING,
+  US_QUALIFYING,
   HS_NEWBIE,
   FINAL,
   CUSTOM
@@ -129,7 +130,8 @@ export enum MapType {
 export const mapTypes: MapType[] = [MapType.DEFAULT,
 MapType.SPRINT_1,
 MapType.SPRINT_2,
-MapType.QUALIFYING,
+MapType.INTL_QUALIFYING,
+MapType.US_QUALIFYING,
 MapType.HS_NEWBIE,
 MapType.FINAL,
 MapType.CUSTOM]
@@ -160,7 +162,31 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["snowflake", MapType.SPRINT_2],
   ["spine", MapType.SPRINT_2],
   ["stronghold", MapType.SPRINT_2],
-  ["tower", MapType.SPRINT_2]
+  ["tower", MapType.SPRINT_2],
+  ["charge", MapType.INTL_QUALIFYING],
+  ["definitely_not_league", MapType.INTL_QUALIFYING],
+  ["fire", MapType.INTL_QUALIFYING],
+  ["highway_redux", MapType.INTL_QUALIFYING],
+  ["lotus", MapType.INTL_QUALIFYING],
+  ["maze", MapType.INTL_QUALIFYING],
+  ["olympics", MapType.INTL_QUALIFYING],
+  ["one_river", MapType.INTL_QUALIFYING],
+  ["planets", MapType.INTL_QUALIFYING],
+  ["snowflake_redux", MapType.INTL_QUALIFYING],
+  ["treasure", MapType.INTL_QUALIFYING],
+  ["walls", MapType.INTL_QUALIFYING],
+  ["chalice", MapType.US_QUALIFYING],
+  ["cobra", MapType.US_QUALIFYING],
+  ["deer", MapType.US_QUALIFYING],
+  ["desert", MapType.US_QUALIFYING],
+  ["despair", MapType.US_QUALIFYING],
+  ["flowers", MapType.US_QUALIFYING],
+  ["island_hopping", MapType.US_QUALIFYING],
+  ["octopus_game", MapType.US_QUALIFYING],
+  ["rugged", MapType.US_QUALIFYING],
+  ["snowman", MapType.US_QUALIFYING],
+  ["tunnels", MapType.US_QUALIFYING],
+  ["vault", MapType.US_QUALIFYING]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {

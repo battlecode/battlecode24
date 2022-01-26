@@ -710,11 +710,11 @@ public strictfp class GameWorld {
     public void causeVortexGlobal() {
         int changeIdx = 0;
         switch (this.gameMap.getSymmetry()) {
-            case HORIZONTAL:
+            case VERTICAL:
                 flipRubbleVertically();
                 changeIdx = 2;
                 break;
-            case VERTICAL:
+            case HORIZONTAL:
                 flipRubbleHorizontally();
                 changeIdx = 1;
                 break;
