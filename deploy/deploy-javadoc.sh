@@ -20,7 +20,7 @@ BUCKET_NAME="bc-game-storage"
 
 # TODO put this into a bucket, and configure properly, etc
 
-read -p "IMPORTANT: Ensure that the docs are in the `javadoc` folder. Press enter to proceed..."
+read -p "IMPORTANT: Ensure that the docs are in the 'javadoc' folder. Press enter to proceed..."
 
 gsutil -m rm gs://$BUCKET_NAME/javadocs/2022/**
 # Upload
