@@ -102,6 +102,12 @@ enum Action : byte {
     PLACE_ANCHOR,
     /// Target: change in health (can be negative)
     CHANGE_HEALTH,
+    /// Target: change in adamantium (can be negative)
+    CHANGE_ADAMANTIUM,
+    /// Target: change in mana (can be negative)
+    CHANGE_MANA,
+    /// Target: change in elixir (can be negative)
+    CHANGE_ELIXIR,
     /// Dies due to an uncaught exception
     /// Target: none
     DIE_EXCEPTION,
@@ -117,7 +123,6 @@ table BodyTypeMetadata {
     actionCooldown: int;
     movementCooldown: int;
     health: int;
-    carryingCapacity: int;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     bytecodeLimit: int;
@@ -272,15 +277,21 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have any value
     actionTargets: [int];
 
-    /// IDs of the islands that changed ownership
+    /// The IDs of all islands
     islandIDs: [int];
-    /// The teamID for the previous owners of the island. TODO: this may not actually be helpful but I thought it may be for showing total held/highlighting a change
-    islandOldOwnership: [int];
-    /// The teamID for the new owners of the island. 
-    islandNewOwnership: [int];
+    /// The number of turns the opposing team has been occupying each island
+    islandTurnoverTurns: [int];
+    /// The teamID for the owners of each island. 
+    islandOwnership: [int];
 
-    /// The locations of the resources wells being changed
+    /// The locations of the resources wells being given resources
     resourceWellLocs: VecTable;
+    /// The change in adamantium stored in the well
+    wellAdamantiumChange: [int];
+    /// The change in mana stored in the well
+    wellManaChange: [int];
+    /// The change in elixir stored in the well
+    wellElixirChange: [int];
     /// The ID for the new resource this well now contains
     resourceID: [int];
 
