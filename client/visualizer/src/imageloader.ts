@@ -283,8 +283,8 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
         const blue: ImageData = makeBlue(trans)
         const path_red: String = dataToSrc(red)
         const path_blue: String = dataToSrc(blue)
-        loadImage(result.effects.empower_red, i, "", path_red.slice(0, path_red.length - 4))
-        loadImage(result.effects.empower_blue, i, "", path_blue.slice(0, path_blue.length - 4))
+        // loadImage(result.effects.empower_red, i, "", path_red.slice(0, path_red.length - 4))
+        // loadImage(result.effects.empower_blue, i, "", path_blue.slice(0, path_blue.length - 4))
       }
     }
   }

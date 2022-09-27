@@ -16,6 +16,78 @@ background: rgb(252, 252, 252);
 background: rgb(39, 39, 39);
 }*/
 
+body{
+    margin: 0;
+}
+
+#root {
+    font-family: tahoma;
+    font-size: 14px;
+    width: 100vw;
+    height: 100vh;
+    margin: 0px;
+    display: flex;
+}
+
+#rightside{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#sidebar {
+    /* Positioning */
+    height: 100%;
+    width: 400px;
+    min-width: 400px;
+    /* position: fixed; */
+    z-index: 1;
+    /* top: 0;
+    left: 0; */
+    overflow-x: hidden;
+    box-sizing: border-box;
+
+    /* Inner style */
+    background-color: white;
+    color: rgb(39, 39, 39);
+    text-align: center;
+    font-size: 14px;
+    font-family: sans-serif;
+
+    /* Inner formatting */
+    padding: 10px;
+}
+
+#gamearea {
+    display: flex;
+    flex-grow: 1;
+    /* position: fixed; */
+    /* top: 75px;
+    left: 405px; */
+    background: rgb(39, 39, 39);
+    align-items: center; /* Vertical center alignment */
+    justify-content: center; /* Horizontal center alignment */
+}
+
+#baseDiv {
+    /* width: 100%; */
+    height: 65px;
+    /* margin-left: 410px; */
+    /* position: fixed; */
+    z-index: 0.5;
+    /* top: 0; */
+    overflow-x: hidden;
+    overflow-y: hidden;
+    color: rgb(39, 39, 39);
+    background-color: white;
+    padding: 10px;
+    white-space: nowrap;
+}
+
+.new-button{
+
+}
+
 .gameWrapper {
     background: #e0e0e0;
     color: #222;
@@ -120,12 +192,6 @@ form {
     border: 0;
 }
 
-#gamearea {
-    display:flex;
-    align-items: center; /* Vertical center alignment */
-    justify-content: center; /* Horizontal center alignment */
-}
-
 #gamearea:empty {
     display: none;
 }
@@ -144,14 +210,6 @@ form {
 #export {
     font-size: 16px;
     width: 90%;
-}
-
-#root {
-    font-family: tahoma;
-    font-size: 14px;
-    width: 100%;
-    height: 100%;
-    margin: 0px;
 }
 
 input[type='file'] {
@@ -230,15 +288,6 @@ input[type='file'] {
   margin: 0px 1px;
 }
 
-#gamearea {
-    width: calc(100vw - 405px);
-    height: calc(100vh - 75px);
-    position: fixed;
-    top: 75px;
-    left: 405px;
-    background: rgb(39, 39, 39);
-}
-
 .teamHeader {
     padding: 14px;
     font-size: 20px;
@@ -300,20 +349,6 @@ input, select {
     display: inline-block;
 }
 
-#baseDiv {
-    width: 100%;
-    height: 65px;
-    margin-left: 410px;
-    position: fixed;
-    z-index: 0.5;
-    top: 0;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    color: rgb(39, 39, 39);
-    background-color: white;
-    padding: 10px;
-}
-
 #timelineCanvas {
     height: 32px;
     width: 300px;
@@ -340,29 +375,6 @@ h4 {
     text-align: left;
     font-family: Tahoma, sans-serif;
     font-size: 14px;
-    padding: 10px;
-}
-
-
-#sidebar {
-    /* Positioning */
-    height: 100%;
-    width: 400px;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    overflow-x: hidden;
-    box-sizing: border-box;
-
-    /* Inner style */
-    background-color: white;
-    color: rgb(39, 39, 39);
-    text-align: center;
-    font-size: 14px;
-    font-family: sans-serif;
-
-    /* Inner formatting */
     padding: 10px;
 }
 
@@ -498,9 +510,9 @@ h4 {
     font-weight: bold;
 }
 
-.control-button {
+/* .control-button {
     background-color: #bbb !important;
-}
+} */
 
 #robotLogs {
     height: 70vh;
@@ -572,7 +584,7 @@ h4 {
 #battlecode-splash {
     position: absolute;
     text-align: center;
-    z-index: -1;
+    /* z-index: -1; */
     overflow: hidden;
 }
 
