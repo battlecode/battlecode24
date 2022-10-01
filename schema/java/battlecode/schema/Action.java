@@ -10,7 +10,6 @@ package battlecode.schema;
  * Actions may have 'targets', which are the units on which
  * the actions were performed.
  */
-@SuppressWarnings("unused")
 public final class Action {
   private Action() { }
   /**

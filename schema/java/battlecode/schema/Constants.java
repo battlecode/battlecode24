@@ -9,10 +9,9 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 public final class Constants extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_2_0_0(); }
   public static Constants getRootAsConstants(ByteBuffer _bb) { return getRootAsConstants(_bb, new Constants()); }
   public static Constants getRootAsConstants(ByteBuffer _bb, Constants obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public Constants __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int increasePeriod() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -23,27 +22,20 @@ public final class Constants extends Table {
       int increasePeriod,
       int AdAdditiveIncease,
       int MnAdditiveIncease) {
-    builder.startTable(3);
+    builder.startObject(3);
     Constants.addMnAdditiveIncease(builder, MnAdditiveIncease);
     Constants.addAdAdditiveIncease(builder, AdAdditiveIncease);
     Constants.addIncreasePeriod(builder, increasePeriod);
     return Constants.endConstants(builder);
   }
 
-  public static void startConstants(FlatBufferBuilder builder) { builder.startTable(3); }
+  public static void startConstants(FlatBufferBuilder builder) { builder.startObject(3); }
   public static void addIncreasePeriod(FlatBufferBuilder builder, int increasePeriod) { builder.addInt(0, increasePeriod, 0); }
   public static void addAdAdditiveIncease(FlatBufferBuilder builder, int AdAdditiveIncease) { builder.addInt(1, AdAdditiveIncease, 0); }
   public static void addMnAdditiveIncease(FlatBufferBuilder builder, int MnAdditiveIncease) { builder.addInt(2, MnAdditiveIncease, 0); }
   public static int endConstants(FlatBufferBuilder builder) {
-    int o = builder.endTable();
+    int o = builder.endObject();
     return o;
-  }
-
-  public static final class Vector extends BaseVector {
-    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
-
-    public Constants get(int j) { return get(new Constants(), j); }
-    public Constants get(Constants obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 
