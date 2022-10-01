@@ -7,14 +7,15 @@ import java.lang.*;
 import java.util.*;
 import com.google.flatbuffers.*;
 
-@SuppressWarnings("unused")
 /**
  * The first event sent in the game. Contains all metadata about the game.
  */
+@SuppressWarnings("unused")
 public final class GameHeader extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_2_0_0(); }
   public static GameHeader getRootAsGameHeader(ByteBuffer _bb) { return getRootAsGameHeader(_bb, new GameHeader()); }
   public static GameHeader getRootAsGameHeader(ByteBuffer _bb, GameHeader obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public GameHeader __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
@@ -26,24 +27,28 @@ public final class GameHeader extends Table {
   /**
    * The teams participating in the game.
    */
-  public TeamData teams(int j) { return teams(new TeamData(), j); }
-  public TeamData teams(TeamData obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public battlecode.schema.TeamData teams(int j) { return teams(new battlecode.schema.TeamData(), j); }
+  public battlecode.schema.TeamData teams(battlecode.schema.TeamData obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
   public int teamsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public battlecode.schema.TeamData.Vector teamsVector() { return teamsVector(new battlecode.schema.TeamData.Vector()); }
+  public battlecode.schema.TeamData.Vector teamsVector(battlecode.schema.TeamData.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
   /**
    * Information about all body types in the game.
    */
-  public BodyTypeMetadata bodyTypeMetadata(int j) { return bodyTypeMetadata(new BodyTypeMetadata(), j); }
-  public BodyTypeMetadata bodyTypeMetadata(BodyTypeMetadata obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public battlecode.schema.BodyTypeMetadata bodyTypeMetadata(int j) { return bodyTypeMetadata(new battlecode.schema.BodyTypeMetadata(), j); }
+  public battlecode.schema.BodyTypeMetadata bodyTypeMetadata(battlecode.schema.BodyTypeMetadata obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
   public int bodyTypeMetadataLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
-  public Constants constants() { return constants(new Constants()); }
-  public Constants constants(Constants obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public battlecode.schema.BodyTypeMetadata.Vector bodyTypeMetadataVector() { return bodyTypeMetadataVector(new battlecode.schema.BodyTypeMetadata.Vector()); }
+  public battlecode.schema.BodyTypeMetadata.Vector bodyTypeMetadataVector(battlecode.schema.BodyTypeMetadata.Vector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public battlecode.schema.Constants constants() { return constants(new battlecode.schema.Constants()); }
+  public battlecode.schema.Constants constants(battlecode.schema.Constants obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
 
   public static int createGameHeader(FlatBufferBuilder builder,
       int specVersionOffset,
       int teamsOffset,
       int bodyTypeMetadataOffset,
       int constantsOffset) {
-    builder.startObject(4);
+    builder.startTable(4);
     GameHeader.addConstants(builder, constantsOffset);
     GameHeader.addBodyTypeMetadata(builder, bodyTypeMetadataOffset);
     GameHeader.addTeams(builder, teamsOffset);
@@ -51,7 +56,7 @@ public final class GameHeader extends Table {
     return GameHeader.endGameHeader(builder);
   }
 
-  public static void startGameHeader(FlatBufferBuilder builder) { builder.startObject(4); }
+  public static void startGameHeader(FlatBufferBuilder builder) { builder.startTable(4); }
   public static void addSpecVersion(FlatBufferBuilder builder, int specVersionOffset) { builder.addOffset(0, specVersionOffset, 0); }
   public static void addTeams(FlatBufferBuilder builder, int teamsOffset) { builder.addOffset(1, teamsOffset, 0); }
   public static int createTeamsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
@@ -61,8 +66,15 @@ public final class GameHeader extends Table {
   public static void startBodyTypeMetadataVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addConstants(FlatBufferBuilder builder, int constantsOffset) { builder.addOffset(3, constantsOffset, 0); }
   public static int endGameHeader(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public GameHeader get(int j) { return get(new GameHeader(), j); }
+    public GameHeader get(GameHeader obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

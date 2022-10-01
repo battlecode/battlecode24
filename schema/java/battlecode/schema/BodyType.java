@@ -4,19 +4,18 @@ package battlecode.schema;
 
 /**
  * The possible types of things that can exist.
- * Note that bullets are not treated as bodies.
  */
+@SuppressWarnings("unused")
 public final class BodyType {
   private BodyType() { }
-  public static final byte MINER = 0;
-  public static final byte BUILDER = 1;
-  public static final byte SOLDIER = 2;
-  public static final byte SAGE = 3;
-  public static final byte ARCHON = 4;
-  public static final byte LABORATORY = 5;
-  public static final byte WATCHTOWER = 6;
+  public static final byte HEADQUARTERS = 0;
+  public static final byte CARRIER = 1;
+  public static final byte LAUNCHER = 2;
+  public static final byte AMPLIFIER = 3;
+  public static final byte DESTABILIZER = 4;
+  public static final byte BOOSTER = 5;
 
-  public static final String[] names = { "MINER", "BUILDER", "SOLDIER", "SAGE", "ARCHON", "LABORATORY", "WATCHTOWER", };
+  public static final String[] names = { "HEADQUARTERS", "CARRIER", "LAUNCHER", "AMPLIFIER", "DESTABILIZER", "BOOSTER", };
 
   public static String name(int e) { return names[e]; }
 }
