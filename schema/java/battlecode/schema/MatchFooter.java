@@ -7,15 +7,14 @@ import java.lang.*;
 import java.util.*;
 import com.google.flatbuffers.*;
 
+@SuppressWarnings("unused")
 /**
  * Sent to end a match.
  */
-@SuppressWarnings("unused")
 public final class MatchFooter extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_2_0_0(); }
   public static MatchFooter getRootAsMatchFooter(ByteBuffer _bb) { return getRootAsMatchFooter(_bb, new MatchFooter()); }
   public static MatchFooter getRootAsMatchFooter(ByteBuffer _bb, MatchFooter obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
   public MatchFooter __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
@@ -29,39 +28,30 @@ public final class MatchFooter extends Table {
   /**
    * Profiler data for team A and B if profiling is enabled.
    */
-  public battlecode.schema.ProfilerFile profilerFiles(int j) { return profilerFiles(new battlecode.schema.ProfilerFile(), j); }
-  public battlecode.schema.ProfilerFile profilerFiles(battlecode.schema.ProfilerFile obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public ProfilerFile profilerFiles(int j) { return profilerFiles(new ProfilerFile(), j); }
+  public ProfilerFile profilerFiles(ProfilerFile obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
   public int profilerFilesLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
-  public battlecode.schema.ProfilerFile.Vector profilerFilesVector() { return profilerFilesVector(new battlecode.schema.ProfilerFile.Vector()); }
-  public battlecode.schema.ProfilerFile.Vector profilerFilesVector(battlecode.schema.ProfilerFile.Vector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createMatchFooter(FlatBufferBuilder builder,
       byte winner,
       int totalRounds,
       int profilerFilesOffset) {
-    builder.startTable(3);
+    builder.startObject(3);
     MatchFooter.addProfilerFiles(builder, profilerFilesOffset);
     MatchFooter.addTotalRounds(builder, totalRounds);
     MatchFooter.addWinner(builder, winner);
     return MatchFooter.endMatchFooter(builder);
   }
 
-  public static void startMatchFooter(FlatBufferBuilder builder) { builder.startTable(3); }
+  public static void startMatchFooter(FlatBufferBuilder builder) { builder.startObject(3); }
   public static void addWinner(FlatBufferBuilder builder, byte winner) { builder.addByte(0, winner, 0); }
   public static void addTotalRounds(FlatBufferBuilder builder, int totalRounds) { builder.addInt(1, totalRounds, 0); }
   public static void addProfilerFiles(FlatBufferBuilder builder, int profilerFilesOffset) { builder.addOffset(2, profilerFilesOffset, 0); }
   public static int createProfilerFilesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startProfilerFilesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endMatchFooter(FlatBufferBuilder builder) {
-    int o = builder.endTable();
+    int o = builder.endObject();
     return o;
-  }
-
-  public static final class Vector extends BaseVector {
-    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
-
-    public MatchFooter get(int j) { return get(new MatchFooter(), j); }
-    public MatchFooter get(MatchFooter obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 
