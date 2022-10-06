@@ -51,7 +51,7 @@ export type MapStats = {
   island_stats: Map<number, { owner: number, flip_progress: number, locations: number[] }>,
 
   resources: Int8Array,
-  resource_well_stats: Map<number, { adamantium: number, mana: number }>,
+  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number }>,
 
 
   //these are unused because there is no way for a resource to be dropped on the ground
@@ -360,7 +360,7 @@ export default class GameWorld {
     this.mapStats.resources = Int8Array.from(map.resourcesArray())
     for (let i = 0; i < this.mapStats.resources.length; i++) {
       if (this.mapStats.resources[i] != 0) {
-        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0 })
+        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0 })
       }
     }
 
@@ -620,7 +620,7 @@ export default class GameWorld {
 
       let well_resource = delta.resourceID(i)
       let well_adamantium_change = delta.wellAdamantiumChange(i)
-      // let well_elixir_change = delta.wellElixirChange(i)
+      let well_elixir_change = delta.wellElixirChange(i)
       let well_mana_change = delta.wellManaChange(i)
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
@@ -630,6 +630,7 @@ export default class GameWorld {
       //WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
+      current_resource_stats.elixir += well_elixir_change
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {
