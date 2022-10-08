@@ -55,36 +55,6 @@ public strictfp interface RobotController {
      */
     int getRobotCount();
 
-    /**
-     * Returns the number of Archons on your team.
-     * If this number ever reaches zero, you immediately lose.
-     *
-     * @return the number of Archons on your team
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getArchonCount();
-
-    /**
-     * Returns the amount of lead a team has in its reserves.
-     *
-     * @param team the team being queried.
-     * @return the amount of lead a team has in its reserves.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTeamLeadAmount(Team team);
-
-    /**
-     * Returns the amount of gold a team has in its reserves.
-     *
-     * @param team the team being queried.
-     * @return the amount of gold a team has in its reserves.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTeamGoldAmount(Team team);
-
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -108,22 +78,13 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (MINER, ARCHON, BUILDER, etc.).
+     * Returns this robot's type (TODO).
      *
      * @return this robot's type
      *
      * @battlecode.doc.costlymethod
      */
     RobotType getType();
-
-    /**
-     * Returns this robot's mode (DROID, PROTOTYPE, TURRET, PORTABLE).
-     *
-     * @return this robot's mode
-     *
-     * @battlecode.doc.costlymethod
-     */
-    RobotMode getMode();
 
     /**
      * Returns this robot's current location.
@@ -144,13 +105,40 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns this robot's current level.
+     * Returns the amount of adamantium this robot is holding
      *
-     * @return this robot's current level
+     * @return the amount of adamantium this robot is holding
      *
      * @battlecode.doc.costlymethod
      */
-    int getLevel();
+    int getAdAmount();
+
+    /**
+     * Returns the amount of mana this robot is holding
+     *
+     * @return the amount of mana this robot is holding
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMnAmount();
+
+    /**
+     * Returns the amount of elixir this robot is holding
+     *
+     * @return the amount of elixir this robot is holding
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getExAmount();
+
+    /**
+     * Returns the number of reality anchors this robot is holding
+     *
+     * @return the number of reality anchors this robot is holding
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumRealityAnchors();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
