@@ -645,9 +645,9 @@ public strictfp interface RobotController {
      */
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
-    // *****************************
-    // **** COMBAT UNIT METHODS **** 
-    // *****************************
+    // ****************************
+    // ***** LAUNCHER METHODS ***** 
+    // ****************************
 
     /**
      * Tests whether this robot can attack the given location.
@@ -673,9 +673,9 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-    // *****************************
-    // ******** SAGE METHODS ******* 
-    // *****************************
+    // **************************************
+    // ******** DESTABILIZER METHODS ********
+    // **************************************
 
     /**
      * Tests whether this robot can envision an anomaly centered at the robot's location.
@@ -700,7 +700,7 @@ public strictfp interface RobotController {
     void envision(AnomalyType anomaly) throws GameActionException;
 
     // *****************************
-    // ****** REPAIR METHODS ****** 
+    // ****** BOOSTER METHODS ****** 
     // *****************************
 
     /**
@@ -728,9 +728,9 @@ public strictfp interface RobotController {
      */
     void repair(MapLocation loc) throws GameActionException;
 
-    // ***********************
-    // **** MINER METHODS **** 
-    // ***********************
+    // ***************************
+    // ***** CARRIER METHODS *****
+    // ***************************
 
     /**
      * Tests whether the robot can mine lead at a given location.
@@ -782,9 +782,9 @@ public strictfp interface RobotController {
      */
     void mineGold(MapLocation loc) throws GameActionException;
 
-    // *************************
-    // **** MUTATE METHODS **** 
-    // *************************
+    // ***************************
+    // **** AMPLIFIER METHODS **** 
+    // ***************************
 
     /**
      * Tests whether this robot can mutate the building at the given location.
@@ -810,72 +810,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void mutate(MapLocation loc) throws GameActionException;
-
-    // ***************************
-    // **** TRANSMUTE METHODS ****
-    // ***************************
-
-    /** 
-     * Get lead to gold transmutation rate.
-     *
-     * @return the lead to gold transmutation rate, 0 if the robot is not a lab
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getTransmutationRate();
-
-    /** 
-     * Get lead to gold transmutation rate for a laboratory of specified level.
-     *
-     * @param laboratory_level the level of the laboratory
-     * @return the lead to gold transmutation rate, 0 if the level is invalid
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getTransmutationRate(int laboratory_level);
-
-    /**
-     * Tests whether this robot can transmute lead into gold.
-     * 
-     * Checks that the robot is a lab and the player has sufficient lead to
-     * perform a conversion. Also checks that no cooldown turns remain.
-     *
-     * @return whether it is possible to transmute lead into gold
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransmute();
-
-    /** 
-     * Transmute lead into gold.
-     *
-     * @throws GameActionException if conditions for transmuting are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transmute() throws GameActionException;
-
-    // ***************************
-    // **** TRANSFORM METHODS **** 
-    // ***************************
-
-    /**
-     * Tests whether this robot can transform. Same effect as isTransformReady().
-     *
-     * @return whether it is possible to transform
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransform();
-
-    /** 
-     * Transform from turret into portable or vice versa.
-     *
-     * @throws GameActionException if conditions for transforming are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transform() throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
