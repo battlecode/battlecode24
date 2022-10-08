@@ -96,9 +96,9 @@ enum Action : byte {
     /// Target: location boost is centralized at, x + y * width
     BOOST,
     // TODO: If client is interested in visualizing changes in movement speed, should probably add it as an action or to Round
-    /// Target: none
+    /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
     PICK_UP_ANCHOR,
-    /// Target: location to place anchor, x + y * width
+    /// Target: island id for the island the anchor is being placed on
     PLACE_ANCHOR,
     /// Target: change in health (can be negative)
     CHANGE_HEALTH,
@@ -285,7 +285,7 @@ table Round {
     islandOwnership: [int];
 
     /// The locations of the resources wells being given resources
-    resourceWellLocs: VecTable;
+    resourceWellLocs: [int];
     /// The change in adamantium stored in the well
     wellAdamantiumChange: [int];
     /// The change in mana stored in the well
@@ -294,6 +294,8 @@ table Round {
     wellElixirChange: [int];
     /// The ID for the new resource this well now contains
     resourceID: [int];
+    /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
+    resourceAccelerationID: [int];
 
     /// The IDs of the robots who changed their indicator strings
     indicatorStringIDs: [int];
