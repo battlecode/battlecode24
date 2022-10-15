@@ -4,6 +4,7 @@ import { AllImages } from '../imageloader';
 import { schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
+import { ARCHON } from '../constants';
 
 const hex: Object = {
   1: "#db3627",
