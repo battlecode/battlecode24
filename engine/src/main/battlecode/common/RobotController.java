@@ -305,67 +305,126 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
 
     /**
-     * Given a location, returns the rubble of that location.
-     *
-     * Higher rubble means that robots on this location may be penalized
-     * greater cooldowns for making actions.
+     * Given a location, returns whether that location is passable.
      * 
      * @param loc the given location
-     * @return the rubble of that location
+     * @return whether that location is passable
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseRubble(MapLocation loc) throws GameActionException;
+    boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Given a location, returns the lead count of that location.
+     * Given a location, returns the index of the island located at that location.
      * 
      * @param loc the given location
-     * @return the amount of lead at that location
+     * @return the index of the island at that location or -1 if there is no island
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseLead(MapLocation loc) throws GameActionException;
+    int senseIsland(MapLocation loc) throws GameActionException;
 
     /**
-     * Given a location, returns the gold count of that location.
+     * Return all locations that are filled by the island with index idx.
+     *
+     * @return all locations within vision radius that are filled by the island with index idx
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyIslandLocations(int idx);
+
+    /**
+     * Return all locations that are filled by the island with the index idx, within a
+     * specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that are filled by the island with the index idx
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyIslandLocations(int idx, int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all locations that are filled by the island with the index idx, within a
+     * specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that are filled by the island with the index idx
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyIslandLocations(int idx, MapLocation center, int radiusSquared) throws GameActionException;
+
+    /**
+     * Given a location, returns whether this location is an adamantium reserve.
      * 
      * @param loc the given location
-     * @return the amount of gold at that location
+     * @return whether the location is an adamantium reserve
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseGold(MapLocation loc) throws GameActionException;
+    boolean senseAdamantium(MapLocation loc) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of lead.
-     *
-     * @return all locations within vision radius that contain a nonzero amount of lead
+     * Given a location, returns whether this location is a mana reserve.
+     * 
+     * @param loc the given location
+     * @return whether the location is a mana reserve
+     * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithLead();
+    boolean senseMana(MapLocation loc) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of lead, within a
+     * Given a location, returns whether this location is an elixir reserve.
+     * 
+     * @param loc the given location
+     * @return whether the location is an elixir reserve
+     * @throws GameActionException if the robot cannot sense the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean senseElixir(MapLocation loc) throws GameActionException;
+
+    /**
+     * Return all locations that contain adamantium reserves.
+     *
+     * @return all locations within vision radius that contain adamantium reserves
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithAdamantium();
+
+    /**
+     * Return all locations that contain adamantium reserves, within a
      * specified radius of your robot location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
      * are returned.
      *
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of lead within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain adamantium reserves within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithAdamantium(int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of lead, within a
+     * Return all locations that contain adamantium reserves, within a
      * specified radius of a center location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
@@ -373,31 +432,39 @@ public strictfp interface RobotController {
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of lead within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain an adamantium reserve within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithAdamantium(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that contain at least a certain amount of lead, within a
+     * Return all locations that contain mana reserves.
+     *
+     * @return all locations within vision radius that contain mana reserves
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyLocationsWithMana();
+
+    /**
+     * Return all locations that contain mana reserves, within a
      * specified radius of your robot location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
      * are returned.
      *
      * @param radiusSquared the squared radius of all locations to be returned
-     * @param minLead the minimum amount of lead
-     * @return all locations that contain at least minLead lead within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain mana reserves within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithMana(int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that contain at least a certain amount of lead, within a
+     * Return all locations that contain mana reserves, within a
      * specified radius of a center location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
@@ -405,40 +472,39 @@ public strictfp interface RobotController {
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
-     * @param minLead the minimum amount of lead
-     * @return all locations that contain at least minLead lead within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain mana reserves within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithMana(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of gold.
+     * Return all locations that contain elixir reserves.
      *
-     * @return all locations within vision radius that contain a nonzero amount of gold
+     * @return all locations within vision radius that contain elixir reserves
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithGold();
+    MapLocation[] senseNearbyLocationsWithElixir();
 
     /**
-     * Return all locations that contain a nonzero amount of gold, within a
+     * Return all locations that contain elixir reserves, within a
      * specified radius of your robot location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
      * are returned.
      *
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of gold within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain elixir reserves within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithElixir(int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of gold, within a
+     * Return all locations that contain elixir reserves, within a
      * specified radius of a center location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
@@ -446,45 +512,12 @@ public strictfp interface RobotController {
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of gold within the radius
-     * @throws GameActionException if the radius is negative
+     * @return all locations that contain elixir reserves within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException;
-
-    /**
-     * Return all locations that contain at least a certain amount of gold, within a
-     * specified radius of your robot location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minGold the minimum amount of gold
-     * @return all locations that contain at least minGold gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException;
-
-    /**
-     * Return all locations that contain at least a certain amount of gold, within a
-     * specified radius of a center location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param center the center of the search area
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minGold the minimum amount of gold
-     * @return all locations that contain at least minGold gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException;
+    MapLocation[] senseNearbyLocationsWithElixir(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
