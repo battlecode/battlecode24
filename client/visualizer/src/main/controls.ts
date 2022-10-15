@@ -13,17 +13,17 @@ type ButtonInfo = {
 };
 
 export enum ControlType {
-  goNext = 0,
-  goPrevious = 1,
-  playbackPause = 2,
-  playbackStart = 3,
-  playbackStop = 4,
-  matchForward = 5,
-  matchBackward = 6,
-  reverseUPS = 7,
-  doubleUPS = 8,
-  halveUPS = 9,
-  goEnd = 10
+  GO_NEXT = 0,
+  GO_PREVIOUS = 1,
+  PLAYBACK_PAUSE = 2,
+  PLAYBACK_START = 3,
+  PLAYBACK_STOP = 4,
+  MATCH_FORWARD = 5,
+  MATCH_BACKWARD = 6,
+  REVERSE_UPS = 7,
+  DOUBLE_UPS = 8,
+  HALVE_UPS = 9,
+  GO_END = 10
 };
 
 /**

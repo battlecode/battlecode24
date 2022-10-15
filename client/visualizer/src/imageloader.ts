@@ -4,8 +4,8 @@ import * as cst from "./constants"
 import { ControlType } from './main/controls'
 type Image = HTMLImageElement
 type ImageArray = Array<Image>
-type ImageMap = Record<number, Image>
-type ImageArrayMap = Record<number, ImageArray>
+type ImageMap = Record<string, Image>
+type ImageArrayMap = Record<string, ImageArray>
 
 export type AllImages = {
   star: Image,
@@ -296,17 +296,17 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
 
   // load controls
   // buttons are from https://material.io/resources/icons
-  loadImageInMap(result.controls, ControlType.goNext, 'controls/go-next')
-  loadImageInMap(result.controls, ControlType.goPrevious, 'controls/go-previous')
-  loadImageInMap(result.controls, ControlType.playbackPause, 'controls/playback-pause')
-  loadImageInMap(result.controls, ControlType.playbackStart, 'controls/playback-start')
-  loadImageInMap(result.controls, ControlType.playbackStop, 'controls/playback-stop')
-  loadImageInMap(result.controls, ControlType.reverseUPS, 'controls/reverse')
-  loadImageInMap(result.controls, ControlType.doubleUPS, 'controls/skip-forward')
-  loadImageInMap(result.controls, ControlType.halveUPS, 'controls/skip-backward')
-  loadImageInMap(result.controls, ControlType.goEnd, 'controls/go-end')
-  loadImageInMap(result.controls, ControlType.matchBackward, 'controls/green-previous')
-  loadImageInMap(result.controls, ControlType.matchForward, 'controls/green-next')
+  loadImageInMap(result.controls, ControlType.GO_NEXT, 'controls/go-next')
+  loadImageInMap(result.controls, ControlType.GO_PREVIOUS, 'controls/go-previous')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_PAUSE, 'controls/playback-pause')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_START, 'controls/playback-start')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_STOP, 'controls/playback-stop')
+  loadImageInMap(result.controls, ControlType.REVERSE_UPS, 'controls/reverse')
+  loadImageInMap(result.controls, ControlType.DOUBLE_UPS, 'controls/skip-forward')
+  loadImageInMap(result.controls, ControlType.HALVE_UPS, 'controls/skip-backward')
+  loadImageInMap(result.controls, ControlType.GO_END, 'controls/go-end')
+  loadImageInMap(result.controls, ControlType.MATCH_BACKWARD, 'controls/green-previous')
+  loadImageInMap(result.controls, ControlType.MATCH_FORWARD, 'controls/green-next')
 
   // mark as finished
   loadImage.requestedAll = true

@@ -53,14 +53,14 @@ export default class MatchQueue {
     back.setAttribute("class", "custom-button");
     back.setAttribute("type", "button");
     back.onclick = () => this.runner.goPreviousMatch();
-    back.appendChild(this.images.controls[ControlType.matchBackward]);
+    back.appendChild(this.images.controls[ControlType.MATCH_BACKWARD]);
 
     // Go the next match/round
     let next = document.createElement("button");
     next.setAttribute("class", "custom-button");
     next.setAttribute("type", "button");
     next.onclick = () => this.runner.goNextMatch();
-    next.appendChild(this.images.controls[ControlType.matchForward]);
+    next.appendChild(this.images.controls[ControlType.MATCH_FORWARD]);
 
     // Append all the HTML elements
     title.appendChild(this.gameNum);
