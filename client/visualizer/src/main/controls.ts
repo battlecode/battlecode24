@@ -12,6 +12,20 @@ type ButtonInfo = {
   changeTo?: string
 };
 
+export enum ControlType {
+  goNext = 0,
+  goPrevious = 1,
+  playbackPause = 2,
+  playbackStart = 3,
+  playbackStop = 4,
+  matchForward = 5,
+  matchBackward = 6,
+  reverseUPS = 7,
+  doubleUPS = 8,
+  halveUPS = 9,
+  goEnd = 10
+};
+
 /**
  * Game controls: pause/unpause, fast forward, rewind
  */
