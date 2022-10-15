@@ -127,8 +127,8 @@ public enum RobotType {
      * @battlecode.doc.costlymethod
      */
     public boolean canAttack() {
-        return (this == LAUNCHER
-            || this == DESTABILIZER);
+        return (this == CARRIER
+            || this == LAUNCHER);
     }
 
     /**
@@ -140,6 +140,7 @@ public enum RobotType {
     public boolean canExtract() {
         return this == CARRIER;
     }
+
     /**
      * Returns whether this type can place reality anchors
      *
@@ -148,6 +149,26 @@ public enum RobotType {
      */
     public boolean canPlaceAnchor() {
         return this == CARRIER;
+    }
+
+    /**
+     * Returns whether this type can boost nearby allies
+     *
+     * @return whether this type can buff nearby allies
+     * @battlecode.doc.costlymethod
+     */
+    public boolean canBoost() {
+        return this == BOOSTER;
+    }
+
+    /**
+     * Returns whether this type can destablize nearby enemies
+     * 
+     * @return whether this type can buff nearby allies
+     * @battlecode.doc.costlymethod
+     */
+    public boolean canDestablize() {
+        return this == DESTABILIZER;
     }
 
     /**
