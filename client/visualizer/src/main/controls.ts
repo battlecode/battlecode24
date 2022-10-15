@@ -82,15 +82,15 @@ export default class Controls {
     this.conf = conf;
     const imgs = images.controls;
     this.buttons = {
-      playbackStart: { img: imgs.playbackStart, text: "Start", onclick: () => this.pause(), changeTo: 'playbackPause' },
-      playbackPause: { img: imgs.playbackPause, text: "Pause", onclick: () => this.pause(), changeTo: 'playbackStart' },
-      playbackStop: { img: imgs.playbackStop, text: "Stop", onclick: () => this.stop() },
-      goNext: { img: imgs.goNext, text: "Next", onclick: () => this.stepForward() },
-      goPrevious: { img: imgs.goPrevious, text: "Prev", onclick: () => this.stepBackward() },
-      reverseUPS: { img: imgs.reverseUPS, text: "Reverse", onclick: () => this.reverseUPS() },
-      doubleUPS: { img: imgs.doubleUPS, text: "Faster", onclick: () => this.doubleUPS() },
-      halveUPS: { img: imgs.halveUPS, text: "Slower", onclick: () => this.halveUPS() },
-      goEnd: {img: imgs.goEnd, text: "End", onclick: () => this.end()}
+      playbackStart: { img: imgs[ControlType.PLAYBACK_START], text: "Start", onclick: () => this.pause(), changeTo: 'playbackPause' },
+      playbackPause: { img: imgs[ControlType.PLAYBACK_PAUSE], text: "Pause", onclick: () => this.pause(), changeTo: 'playbackStart' },
+      playbackStop: { img: imgs[ControlType.PLAYBACK_STOP], text: "Stop", onclick: () => this.stop() },
+      goNext: { img: imgs[ControlType.GO_NEXT], text: "Next", onclick: () => this.stepForward() },
+      goPrevious: { img: imgs[ControlType.GO_PREVIOUS], text: "Prev", onclick: () => this.stepBackward() },
+      reverseUPS: { img: imgs[ControlType.REVERSE_UPS], text: "Reverse", onclick: () => this.reverseUPS() },
+      doubleUPS: { img: imgs[ControlType.DOUBLE_UPS], text: "Faster", onclick: () => this.doubleUPS() },
+      halveUPS: { img: imgs[ControlType.HALVE_UPS], text: "Slower", onclick: () => this.halveUPS() },
+      goEnd: {img: imgs[ControlType.GO_END], text: "End", onclick: () => this.end()}
     };
     this.runner = runner;
 
