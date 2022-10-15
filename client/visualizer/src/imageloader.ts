@@ -1,38 +1,19 @@
 import { basename } from 'path'
 import { Config } from './config'
 import * as cst from "./constants"
+import { ControlType } from './main/controls'
 type Image = HTMLImageElement
+type ImageArray = Array<Image>
+type ImageMap = Record<number, Image>
+type ImageArrayMap = Record<number, ImageArray>
 
 export type AllImages = {
   star: Image,
-  tiles: Array<Image>,
-  robots: {
-    archon: Array<Image>,
-    builder: Array<Image>,
-    lab: Array<Image>,
-    sage: Array<Image>,
-    soldier: Array<Image>,
-    watchtower: Array<Image>,
-  },
-  resources: {
-    lead: Image,
-    gold: Image,
-  }
-  effects: { // TODO
-  },
-  controls: {
-    goNext: Image,
-    goPrevious: Image,
-    playbackPause: Image,
-    playbackStart: Image,
-    playbackStop: Image,
-    matchForward: Image,
-    matchBackward: Image,
-    reverseUPS: Image,
-    doubleUPS: Image,
-    halveUPS: Image,
-    goEnd: Image
-  }
+  tiles: ImageArray,
+  robots: ImageArrayMap,
+  resources: ImageMap,
+  effects: ImageArrayMap,
+  controls: ImageMap
 }
 
 export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
@@ -41,17 +22,20 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   const NEUTRAL: number = 0;
   const RED: number = 1;
   const BLU: number = 2;
+  
   //To index additional states for buildings
   const DEFAULT: number = 0;
   const PORTABLE: number = 1;
   const PROTOTYPE: number = 2;
 
-
-  function loadImage(obj, slot, path, src?): void {
+  function loadImage(
+    image: Image,
+    path: string,
+    src?: string
+  ): void {
     const f = loadImage
     f.expected++
-    const image = new Image()
-
+    
     function onFinish() {
       if (f.requestedAll && f.expected == f.success + f.failure) {
         console.log(`Total ${f.expected} images loaded: ${f.success} successful, ${f.failure} failed.`)
@@ -60,66 +44,78 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     }
 
     image.onload = () => {
-      obj[slot] = image
       f.success++
       onFinish()
     }
 
     image.onerror = () => {
-      obj[slot] = image
       f.failure++
-      console.error(`CANNOT LOAD IMAGE: ${slot}, ${path}, ${image}`)
+      console.error(`CANNOT LOAD IMAGE: ${path}, ${image}`)
       if (src) console.error(`Source: ${src}`)
       onFinish()
     }
 
     // might want to use path library
     // webpack url loader triggers on require("<path>.png"), so .png should be explicit
-    image.src = (src ? src : require(dirname + path + '.png').default)
+    image.src = (src ?? require(dirname + path + '.png').default)
   }
   loadImage.expected = 0
   loadImage.success = 0
   loadImage.failure = 0
   loadImage.requestedAll = false
 
+  function loadImageInArray(
+    array: ImageArray,
+    index: number,
+    path: string,
+    src?: string
+  ): void {
+    const image = new Image()
+    loadImage(image, path, src);
+    
+    while (array.length <= index)
+      array.push(new Image());
+    
+    array[index] = image;
+  }
+
+  function loadImageInMap(
+    Map: ImageMap,
+    key: number,
+    path: string,
+    src?: string
+  ): void {
+    const image = new Image();
+
+    // Ensure record entry exists
+    if (!(key in Map))
+      Map[key] = image;
+
+    loadImage(image, path, src);
+  }
+
+  function loadImageInArrayMap(
+    Map: ImageArrayMap,
+    key: number,
+    arrayIndex: number,
+    path: string,
+    src?: string
+  ): void {
+    // Ensure record entry exists
+    if (!(key in Map))
+      Map[key] = [];
+
+    loadImageInArray(Map[key], arrayIndex, path, src);
+  }
+
   const result = {
     tiles: [],
-    robots: {
-      archon: [],
-      watchtower: [],
-      builder: [],
-      miner: [],
-      sage: [],
-      soldier: [],
-      laboratory: [],
-    },
-    resources: {
-      lead: null,
-      gold: null
-    },
-    effects: {
-      death: null,
-      embezzle: [],
-      empower_red: [],
-      empower_blue: [],
-      expose: [],
-      camouflage_red: [],
-      camouflage_blue: []
-    },
-    controls: {
-      goNext: null,
-      goPrevious: null,
-      playbackPause: null,
-      playbackStart: null,
-      playbackStop: null,
-      matchForward: null,
-      matchBackward: null,
-      reverseUPS: null,
-      doubleUPS: null,
-      halveUPS: null,
-      goEnd: null
-    }
+    robots: {},
+    resources: {},
+    effects: {},
+    controls: {}
   }
+  
   // helper function to manipulate images
   const htmlToData = (ele: HTMLImageElement): ImageData => {
     const canvas = document.createElement('canvas')
@@ -130,6 +126,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     context.drawImage(ele, 0, 0)
     return context.getImageData(0, 0, ele.width, ele.height)
   }
+
   const dataToSrc = (data: ImageData): String => {
     var canvas = document.createElement("canvas")
     canvas.width = data.width
@@ -141,7 +138,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     return canvas.toDataURL(`edited.png`)
   }
 
-  loadImage(result, 'star', 'star')
+  // loadImage(result, 'star', 'star')
 
   // terrain tiles
   {
@@ -196,22 +193,23 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     for (let i = 0; i < nLev; i++) {
       const tinted: ImageData = randomTile(25, <Uint8Array><unknown>cst.TILE_COLORS, i)
       const path: String = dataToSrc(tinted)
-      loadImage(result.tiles, i, "", path.slice(0, path.length - 4))
+      loadImageInArray(result.tiles, i, "", path.slice(0, path.length - 4))
     }
   }
 
   // robot sprites
-
   for (let team of [RED, BLU]) {
     let team_str = team == RED ? 'red' : 'blue';
     for (let level = 1; level <= 3; level++) { 
-      loadImage(result.robots.archon, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_archon_level${level}`);
-      loadImage(result.robots.watchtower, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_watchtower_level${level}`);
-      loadImage(result.robots.laboratory, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_lab_level${level}`);
-      loadImage(result.robots.archon, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_archon_portable_level${level}`);
-      loadImage(result.robots.watchtower, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_watchtower_portable_level${level}`);
-      loadImage(result.robots.laboratory, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_lab_portable_level${level}`);
+      loadImageInArrayMap(result.robots, cst.HEADQUARTERS, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_archon_level${level}`);
+      loadImageInArrayMap(result.robots, cst.CARRIER, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_watchtower_level${level}`);
+      loadImageInArrayMap(result.robots, cst.LAUNCHER, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_lab_level${level}`);
+      loadImageInArrayMap(result.robots, cst.AMPLIFIER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_archon_portable_level${level}`);
+      loadImageInArrayMap(result.robots, cst.DESTABILIZER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_watchtower_portable_level${level}`);
+      loadImageInArrayMap(result.robots, cst.BOOSTER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_lab_portable_level${level}`);
     }
+    
+    /*
     loadImage(result.robots.soldier, DEFAULT * 2 + team, `robots/${team_str}_soldier`);
     loadImage(result.robots.sage, DEFAULT * 2 + team, `robots/${team_str}_sage`);
     loadImage(result.robots.miner, DEFAULT * 2 + team, `robots/${team_str}_miner`);
@@ -222,16 +220,17 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     loadImage(result.robots.archon, PROTOTYPE * 2 + team, `robots/${team_str}_archon_prototype`);
     loadImage(result.robots.watchtower, PROTOTYPE * 2 + team, `robots/${team_str}_watchtower_prototype`);
     loadImage(result.robots.laboratory, PROTOTYPE * 2 + team, `robots/${team_str}_lab_prototype`);
+    */
   }
 
-
+  // resources
+  /*
   loadImage(result.resources, 'lead', 'resources/lead');
   loadImage(result.resources, 'gold', 'resources/gold');
-
+  */
 
   // effects
   // loadImage(result.effects, 'death', 'effects/death/death_empty');
-
   // loadImage(result.effects.embezzle, 0, 'effects/embezzle/slanderer_embezzle_empty_1');
   // loadImage(result.effects.embezzle, 1, 'effects/embezzle/slanderer_embezzle_empty_2');
 
@@ -289,27 +288,26 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     }
   }
 
+  /*
   loadImage(result.effects.expose, 0, 'effects/expose/expose_empty')
-
   loadImage(result.effects.camouflage_red, 0, 'effects/camouflage/camo_red')
   loadImage(result.effects.camouflage_blue, 0, 'effects/camouflage/camo_blue')
+  */
 
+  // load controls
   // buttons are from https://material.io/resources/icons
-  loadImage(result.controls, 'goNext', 'controls/go-next')
-  loadImage(result.controls, 'goPrevious', 'controls/go-previous')
-  loadImage(result.controls, 'playbackPause', 'controls/playback-pause')
-  loadImage(result.controls, 'playbackStart', 'controls/playback-start')
-  loadImage(result.controls, 'playbackStop', 'controls/playback-stop')
-  loadImage(result.controls, 'reverseUPS', 'controls/reverse')
-  loadImage(result.controls, 'doubleUPS', 'controls/skip-forward')
-  loadImage(result.controls, 'halveUPS', 'controls/skip-backward')
-  loadImage(result.controls, 'goEnd', 'controls/go-end')
-
-  loadImage(result.controls, 'matchBackward', 'controls/green-previous')
-  loadImage(result.controls, 'matchForward', 'controls/green-next')
+  loadImageInMap(result.controls, ControlType.goNext, 'controls/go-next')
+  loadImageInMap(result.controls, ControlType.goPrevious, 'controls/go-previous')
+  loadImageInMap(result.controls, ControlType.playbackPause, 'controls/playback-pause')
+  loadImageInMap(result.controls, ControlType.playbackStart, 'controls/playback-start')
+  loadImageInMap(result.controls, ControlType.playbackStop, 'controls/playback-stop')
+  loadImageInMap(result.controls, ControlType.reverseUPS, 'controls/reverse')
+  loadImageInMap(result.controls, ControlType.doubleUPS, 'controls/skip-forward')
+  loadImageInMap(result.controls, ControlType.halveUPS, 'controls/skip-backward')
+  loadImageInMap(result.controls, ControlType.goEnd, 'controls/go-end')
+  loadImageInMap(result.controls, ControlType.matchBackward, 'controls/green-previous')
+  loadImageInMap(result.controls, ControlType.matchForward, 'controls/green-next')
 
   // mark as finished
   loadImage.requestedAll = true
 }
-
-

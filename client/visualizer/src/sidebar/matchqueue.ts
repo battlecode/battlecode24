@@ -3,6 +3,7 @@ import {AllImages} from '../imageloader';
 
 import {Game} from 'battlecode-playback';
 import Runner from '../runner';
+import { ControlType } from '../main/controls';
 
 export default class MatchQueue {
 
@@ -52,14 +53,14 @@ export default class MatchQueue {
     back.setAttribute("class", "custom-button");
     back.setAttribute("type", "button");
     back.onclick = () => this.runner.goPreviousMatch();
-    back.appendChild(this.images.controls.matchBackward);
+    back.appendChild(this.images.controls[ControlType.matchBackward]);
 
     // Go the next match/round
     let next = document.createElement("button");
     next.setAttribute("class", "custom-button");
     next.setAttribute("type", "button");
     next.onclick = () => this.runner.goNextMatch();
-    next.appendChild(this.images.controls.matchForward);
+    next.appendChild(this.images.controls[ControlType.matchForward]);
 
     // Append all the HTML elements
     title.appendChild(this.gameNum);
