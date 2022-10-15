@@ -23,8 +23,9 @@ type BuffDisplay = {
 }
 
 type IncomeDisplay = {
-  leadIncome: HTMLSpanElement
-  goldIncome: HTMLSpanElement
+  adamantiumIncome: HTMLSpanElement
+  elixirIncome: HTMLSpanElement
+  manaIncome: HTMLSpanElement
 }
 
 /**
@@ -238,17 +239,22 @@ export default class Stats {
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
-      const leadIncome = document.createElement("span");
-      const goldIncome = document.createElement("span");
-      leadIncome.style.color = hex[id];
-      leadIncome.style.fontWeight = "bold";
-      leadIncome.textContent = "L: 0";
-      leadIncome.style.padding = "10px";
-      goldIncome.style.color = hex[id];
-      goldIncome.style.fontWeight = "bold";
-      goldIncome.textContent = "G: 0";
-      goldIncome.style.padding = "10px";
-      incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
+      const adamantiumIncome = document.createElement("span");
+      const manaIncome = document.createElement("span");
+      const elixirIncome = document.createElement("span");
+      adamantiumIncome.style.color = hex[id];
+      adamantiumIncome.style.fontWeight = "bold";
+      adamantiumIncome.textContent = "L: 0";
+      adamantiumIncome.style.padding = "10px";
+      manaIncome.style.color = hex[id];
+      manaIncome.style.fontWeight = "bold";
+      manaIncome.textContent = "G: 0";
+      manaIncome.style.padding = "10px";
+      elixirIncome.style.color = hex[id];
+      elixirIncome.style.fontWeight = "bold";
+      elixirIncome.textContent = "G: 0";
+      elixirIncome.style.padding = "10px";
+      incomeDisplays[id] = {adamantiumIncome: adamantiumIncome, elixirIncome: elixirIncome, manaIncome: manaIncome};
     });
     return incomeDisplays;
   }
@@ -262,28 +268,38 @@ export default class Stats {
     title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Lead & Gold Income Per Turn';
+    label.innerText = 'Total Resource Income Per Turn';
 
     const row = document.createElement("tr");
 
-    const cellLead = document.createElement("td");
+    const cellAdamantium = document.createElement("td");
     teamIDs.forEach((id: number) => {
       
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cellLead.appendChild(this.incomeDisplays[id].leadIncome);
-      row.appendChild(cellLead);
+      cellAdamantium.appendChild(this.incomeDisplays[id].adamantiumIncome);
+      row.appendChild(cellAdamantium);
     });
 
-    const cellGold = document.createElement("td");
+    const cellElixir = document.createElement("td");
     teamIDs.forEach((id: number) => {
       
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cellGold.appendChild(this.incomeDisplays[id].goldIncome);
-      row.appendChild(cellGold);
+      cellElixir.appendChild(this.incomeDisplays[id].elixirIncome);
+      row.appendChild(cellElixir);
+    });
+
+    const cellMana = document.createElement("td");
+    teamIDs.forEach((id: number) => {
+      
+      // cell.appendChild(document.createTextNode("1.001"));
+      // cell.appendChild(this.buffDisplays[id].numBuffs);
+      // cell.appendChild(document.createTextNode(" = "));
+      cellMana.appendChild(this.incomeDisplays[id].manaIncome);
+      row.appendChild(cellMana);
     });
 
     title.appendChild(label);
@@ -618,9 +634,10 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
-    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome.toFixed(2)); // change incomeDisplays later
-    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome.toFixed(2));
+  setIncome(teamID: number, adamantiumIncome: number, elixirIncome: number, manaIncome:number, turn: number) { // incomes
+    this.incomeDisplays[teamID].adamantiumIncome.textContent = "Ad: " + String(adamantiumIncome.toFixed(2)); // change incomeDisplays later
+    this.incomeDisplays[teamID].elixirIncome.textContent = "El: " + String(elixirIncome.toFixed(2));
+    this.incomeDisplays[teamID].manaIncome.textContent = "Mn: " + String(manaIncome.toFixed(2));
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }

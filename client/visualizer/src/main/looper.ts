@@ -254,8 +254,8 @@ export default class Looper {
                 let hp = bodies.hp[index]; 
                 let bytecodes = bodies.bytecodesUsed[index];
                 let level = bodies.level[index];
-                let max_hp = level == 1 ? this.meta.types[type].health : level == 2 ? this.meta.types[type].level2Health : this.meta.types[type].level3Health;
-                let dp = level == 1 ? this.meta.types[type].damage : level == 2 ? this.meta.types[type].level2Damage : this.meta.types[type].level3Damage;
+                let max_hp = this.meta.types[type].health
+                // let dp = this.meta.types[type].damage
                 let parent = bodies.parent[index];
                 let prototype = bodies.prototype[index];
                 let portable = bodies.portable[index];
@@ -263,7 +263,7 @@ export default class Looper {
                 // let bid = bodies.bid[index];
                 let is_building = cst.buildingTypeList.includes(type);
 
-                this.controls.setInfoString(id, x, y, hp, max_hp, dp, cst.bodyTypeToString(type), bytecodes, level, indicatorString,
+                this.controls.setInfoString(id, x, y, hp, max_hp, /*dp,*/ cst.bodyTypeToString(type), bytecodes, level, indicatorString,
                     parent !== 0 ? parent : undefined, is_building ? portable == 1 : undefined, is_building ? prototype == 1 : undefined);
             }
         }
@@ -312,26 +312,30 @@ export default class Looper {
 
         //this.updateStats(this.match.current, this.meta);
         this.loopID = window.requestAnimationFrame((curTime) => this.loop.call(this, curTime));
+        
+        
+        
+        
         //console.log(this.match.current.mapStats.anomalies, this.match.current.mapStats.anomalyRounds, "ANOMALIES");
         /* Rendering anomalies */
-        let world = this.match.current.mapStats;
+        // let world = this.match.current.mapStats;
 
         //let testAnom = [anomConsts.ABYSS, anomConsts.CHARGE];
         //let testAnomRounds = [300, 1000];
         // TODO: move this to controls
-        for(var i = 0; i < world.anomalies.length; i++){
-            let anom = world.anomalies[i] + anomConsts.ABYSS;
-            let anomRound = world.anomalyRounds[i];
-            this.controls.ctx.save();
-            this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
-            var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);
-            this.controls.ctx.beginPath();
-            this.controls.ctx.moveTo(pos, 0);
-            this.controls.ctx.lineTo(pos, 1);
-            this.controls.ctx.lineWidth = 4;
-            this.controls.ctx.stroke();
-            this.controls.ctx.restore();
-        }
+    //     for(var i = 0; i < world.anomalies.length; i++){
+    //         let anom = world.anomalies[i] + anomConsts.ABYSS;
+    //         let anomRound = world.anomalyRounds[i];
+    //         this.controls.ctx.save();
+    //         this.controls.ctx.strokeStyle = (anom === anomConsts.ABYSS) ? "Blue" : (anom === anomConsts.CHARGE) ? "Yellow" : (anom === anomConsts.FURY) ? "Red" : (anom === anomConsts.VORTEX) ? "Purple" : "White";
+    //         var pos = Math.round(anomRound/ (this.conf.tournamentMode ? this.match.maxTurn : this.match.lastTurn) * this.controls.canvas.width);
+    //         this.controls.ctx.beginPath();
+    //         this.controls.ctx.moveTo(pos, 0);
+    //         this.controls.ctx.lineTo(pos, 1);
+    //         this.controls.ctx.lineWidth = 4;
+    //         this.controls.ctx.stroke();
+    //         this.controls.ctx.restore();
+    //     }
     }
 
     /**
@@ -357,18 +361,18 @@ export default class Looper {
             let teamStats = world.teamStats.get(teamID) as TeamStats;
             teamIDs.push(teamID);
             teamNames.push(meta.teams[team].name);
-            totalHP += teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a + b);
+            totalHP += teamStats.total_hp.reduce((a,b) => a + b);
         }
 
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
-            let teamHP = teamStats.total_hp.reduce((a,b) => a.concat(b)).reduce((a, b) => a+b);
+            let teamHP = teamStats.total_hp.reduce((a,b) => a+b);
 
             // Update each robot count
             this.stats.robots.forEach((type: schema.BodyType) => {
-                this.stats.setRobotCount(teamID, type, teamStats.robots[type].reduce((a, b) => a + b)); // TODO: show number of robots per level
-                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type].reduce((a,b) => a+b), teamHP); // TODO: differentiate levels, maybe
+                this.stats.setRobotCount(teamID, type, teamStats.robots[type]); // TODO: show number of robots per level
+                this.stats.setRobotHP(teamID, type, teamStats.total_hp[type], teamHP); // TODO: differentiate levels, maybe
             });
             /*const hps = world.bodies.arrays.hp;
             const types = world.bodies.arrays.type;
