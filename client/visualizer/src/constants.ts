@@ -2,17 +2,16 @@ import { schema } from 'battlecode-playback'
 import { Symmetry } from './mapeditor/index'
 
 // Body types
-export const ARCHON = schema.BodyType.ARCHON
-export const BUILDER = schema.BodyType.BUILDER
-export const LABORATORY = schema.BodyType.LABORATORY
-export const MINER = schema.BodyType.MINER
-export const SAGE = schema.BodyType.SAGE
-export const SOLDIER = schema.BodyType.SOLDIER
-export const WATCHTOWER = schema.BodyType.WATCHTOWER
+export const HEADQUARTERS = schema.BodyType.HEADQUARTERS
+export const CARRIER = schema.BodyType.CARRIER
+export const LAUNCHER = schema.BodyType.LAUNCHER
+export const AMPLIFIER = schema.BodyType.AMPLIFIER
+export const DESTABILIZER = schema.BodyType.DESTABILIZER
+export const BOOSTER = schema.BodyType.BOOSTER
 
-export const bodyTypeList: number[] = [ARCHON, WATCHTOWER, LABORATORY, SOLDIER, BUILDER,  MINER, SAGE]
-export const buildingTypeList: number[] = [ARCHON, LABORATORY, WATCHTOWER];
-export const initialBodyTypeList: number[] = [ARCHON]
+export const bodyTypeList: number[] = [HEADQUARTERS, CARRIER, LAUNCHER, AMPLIFIER, DESTABILIZER, BOOSTER]
+export const buildingTypeList: number[] = [HEADQUARTERS];
+export const initialBodyTypeList: number[] = [HEADQUARTERS]
 export const anomalyList = [0, 1, 2, 3]
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
@@ -72,20 +71,18 @@ export const VISION_RADIUS_COLOR = "#0000ff"
 
 export function bodyTypeToSize(bodyType: schema.BodyType) {
   switch (bodyType) {
-    case ARCHON:
+    case HEADQUARTERS:
       return 50
-    case WATCHTOWER:
+    case CARRIER:
       return 50
-    case BUILDER:
+    case LAUNCHER:
       return 25
-    case MINER:
+    case AMPLIFIER:
       return 35
-    case SAGE:
+    case DESTABILIZER:
+      return 35
+    case BOOSTER:
       return 25
-    case SOLDIER:
-      return 35
-    case LABORATORY:
-      return 50
     default: throw new Error("invalid body type")
   }
 }
@@ -191,20 +188,18 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
   switch (bodyType) {
-    case ARCHON:
-      return "archon"
-    case WATCHTOWER:
-      return "watchtower"
-    case BUILDER:
-      return "builder"
-    case MINER:
-      return "miner"
-    case SAGE:
-      return "sage"
-    case SOLDIER:
-      return "soldier"
-    case LABORATORY:
-      return "laboratory"
+    case HEADQUARTERS:
+      return "headquarters"
+    case CARRIER:
+      return "carrier"
+    case LAUNCHER:
+      return "launcher"
+    case AMPLIFIER:
+      return "amplifier"
+    case DESTABILIZER:
+      return "destabilizer"
+    case BOOSTER:
+      return "booster"
     default: throw new Error("invalid body type")
   }
 }
