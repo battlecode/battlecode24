@@ -206,8 +206,8 @@ export default class Renderer {
 
       if (map.resources[idxVal] > 0) {
         // let size = sigmoid(map.goldVals[idxVal] / 50) * .94
-        let size = map.resource_well_stats.get(idxVal).upgraded ? 1 : .75
-        let img = this.imgs.wells[map.resources[idxVal]]
+        let size = map.resource_well_stats.get(idxVal)!.upgraded ? 1 : .75
+        let img = this.imgs.resources[map.resources[idxVal]]
         if (!this.conf.doingRotate) this.ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
         else this.ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
       }

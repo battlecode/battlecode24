@@ -51,7 +51,7 @@ export type MapStats = {
   island_stats: Map<number, { owner: number, flip_progress: number, locations: number[] }>,
 
   resources: Int8Array,
-  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number }>,
+  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
 
 
   //these are unused because there is no way for a resource to be dropped on the ground
@@ -360,7 +360,7 @@ export default class GameWorld {
     this.mapStats.resources = Int8Array.from(map.resourcesArray())
     for (let i = 0; i < this.mapStats.resources.length; i++) {
       if (this.mapStats.resources[i] != 0) {
-        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0 })
+        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0, upgraded: false })
       }
     }
 
