@@ -699,34 +699,34 @@ public strictfp interface RobotController {
      */
     void envision(AnomalyType anomaly) throws GameActionException;
 
-    // *****************************
-    // ****** BOOSTER METHODS ****** 
-    // *****************************
+   // ***********************************
+    // ******** BOOSTERS METHODS *********
+    // ***********************************
 
     /**
-     * Tests whether this robot can repair a robot at the given location.
+     * Tests whether this robot is able to boost
      * 
-     * Checks that the robot can repair other units and that the given location
-     * is within the robot's action radius. Also checks that a friendly unit
-     * of a repairable type exists in the given square, and there are no
+     * Checks that the robot can boost other units. Also checks that there are no 
      * cooldown turns remaining.
      *
-     * @param loc target location to repair at
-     * @return whether it is possible to repair a robot at the given location
+     * @param  none
+     * @return whether it is possible for that robot to boost
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canRepair(MapLocation loc);
+    boolean canBoost();
+
 
     /** 
-     * Repairs at a given location.
+     * Boosts at a given location.
      *
-     * @param loc target location to repair at
-     * @throws GameActionException if conditions for repairing are not satisfied
+     * @param none
+     * @throws GameActionException if conditions for boosting are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void repair(MapLocation loc) throws GameActionException;
+    void boost() throws GameActionException;
+
 
     // ***************************
     // ***** CARRIER METHODS *****
