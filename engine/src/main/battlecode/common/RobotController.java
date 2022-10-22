@@ -1,5 +1,4 @@
 package battlecode.common;
-import java.util.ArrayList;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -733,54 +732,91 @@ public strictfp interface RobotController {
     // ***************************
 
     /**
-     * Tests whether the robot can mine lead at a given location.
+     * Tests whether the robot can transfer adamantium to a given location.
      * 
-     * Checks that the robot is a Miner, and the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive lead amounts. Also checks that no cooldown turns remain.
+     * Checks that the robot is a Carrier, and the given location is a valid HQ
+     * or adamantium well location. Valid well locations must be the current location 
+     * or adjacent to the current location. Checks that carrier can transfer amount
+     * (contains at least the amount, or is not currently full).
+     * Also checks that no cooldown turns remain.
      *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
+     * @param loc target location to transfer to
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineLead(MapLocation loc);
+    boolean canTransferAd(MapLocation loc, int amount);
 
     /** 
-     * Mine lead at a given location.
-     *
-     * @param loc target location to mine
+     * Transfers adamantium to/from given location. Carrier capacity 
+     * naturally limited at carrier max amount.
+     * 
+     * @param loc target location to transfer to/from
+     * @param int amount to be transferred (negative = from loc, positive = to)
      * @throws GameActionException if conditions for mining are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void mineLead(MapLocation loc) throws GameActionException;
+    void transferAd(MapLocation loc, int amount) throws GameActionException;
 
     /**
-     * Tests whether the robot can mine gold at a given location.
+     * Tests whether the robot can mine mana at a given location.
      * 
-     * Checks that the robot is a Miner, that the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive gold amounts. Also checks that no cooldown turns remain.
+     * Checks that the robot is a Carrier, that the given location is a valid HQ
+     * or mana well location. Valid well locations must be the current location 
+     * or adjacent to the current location. Checks that carrier can transfer amount
+     * (contains at least the amount, or is not currently full).
+     * Also checks that no cooldown turns remain.
      *
      * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
+     * @param int amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineGold(MapLocation loc);
+    boolean canTransferMana(MapLocation loc, int amount);
 
     /** 
-     * Mine a gold at given location.
+     * Transfers mana to/from given location. Carrier capacity 
+     * naturally limited at carrier max amount.
      *
      * @param loc target location to mine
+     * @param int amount to be transferred (negative = from loc, positive = to)
      * @throws GameActionException if conditions for mining are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void mineGold(MapLocation loc) throws GameActionException;
+    void transferMana(MapLocation loc, int amount) throws GameActionException;    
+
+    /**
+     * Tests whether the robot can mine elixir at a given location.
+     * 
+     * Checks that the robot is a Carrier, that the given location is a valid 
+     * elixir well location. Valid well locations must be the current location 
+     * or adjacent to the current location. Checks that carrier can transfer amount
+     * (contains at least the amount, or is not currently full).
+     * Also checks that no cooldown turns remain.
+     *
+     * @param loc target location to mine 
+     * @param int amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransferElixir(MapLocation loc, int amount);
+
+    /** 
+     * Transfers elixir to/from given location. Carrier capacity 
+     * naturally limited at carrier max amount.
+     *
+     * @param loc target location to mine
+     * @param int amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for mining are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void transferElixir(MapLocation loc, int amount) throws GameActionException;
 
     // ***************************
     // **** AMPLIFIER METHODS **** 
