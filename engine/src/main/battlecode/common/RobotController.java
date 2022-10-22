@@ -710,7 +710,7 @@ public strictfp interface RobotController {
      * cooldown turns remaining.
      *
      * @param  none
-     * @return whether it is possible for that robot to boost
+     * @return whether it is possible for this robot to boost
      *
      * @battlecode.doc.costlymethod
      */
