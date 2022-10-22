@@ -631,6 +631,7 @@ export default class GameWorld {
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
       current_resource_stats.elixir += well_elixir_change
+      current_resource_stats.upgraded = delta.wellAccelerationVal(i)
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {
