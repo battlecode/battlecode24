@@ -733,6 +733,22 @@ public strictfp interface RobotController {
     // ***** CARRIER METHODS *****
     // ***************************
 
+    boolean canCollectResource();
+
+    void collectResource() throws GameActionException;
+
+    boolean canTransferAdamantium()
+
+    void transferAdamantium()
+
+    boolean canTransferMana()
+
+    void transferMana()
+
+    boolean canTransferElixir()
+
+    void transferElixir()
+
     /**
      * Tests whether the robot can mine lead at a given location.
      * 
