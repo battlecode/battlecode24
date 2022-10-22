@@ -646,15 +646,16 @@ public strictfp interface RobotController {
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
     // ****************************
-    // ***** LAUNCHER METHODS ***** 
+    // ***** ATTACK METHODS ***** 
     // ****************************
 
     /**
      * Tests whether this robot can attack the given location.
      * 
-     * Checks that the robot is an attacking type unit and that the given location
-     * is within the robot's reach (based on attack type). Also checks that an 
-     * enemy unit exists in the given square, and there are no cooldown turns remaining.
+     * Checks that the robot is an attacking type unit (Launcher or Carrier) and that the given location
+     * is within the robot's reach (based on attack type). If robot is a Carrier, also checks that they 
+     * are carrying resources. Also checks that an enemy unit exists in the given square,
+     * and there are no cooldown turns remaining.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
