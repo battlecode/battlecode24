@@ -610,14 +610,10 @@ export default class GameWorld {
     }
 
     //resource wells (THIS SHOULD JUST BE IDS)
-    const wells = delta.resourceWellLocs(this._vecTableSlot1)
+    // const wells = delta.resourceWellLocs(this._vecTableSlot1)
 
-    for (let i = 0; i < wells.xsLength(); i++) {
-      let well_x = wells.xs(i)
-      let well_y = wells.ys(i)
-      let width = (this.mapStats.maxCorner.x - this.mapStats.minCorner.x)
-      let well_index = well_x + well_y * width
-
+    for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
+      let well_index = delta.resourceWellLocs(i)
       let well_resource = delta.resourceID(i)
       let well_adamantium_change = delta.wellAdamantiumChange(i)
       let well_elixir_change = delta.wellElixirChange(i)
@@ -631,7 +627,7 @@ export default class GameWorld {
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
       current_resource_stats.elixir += well_elixir_change
-      current_resource_stats.upgraded = delta.wellAccelerationVal(i)
+      current_resource_stats.upgraded = delta.resourceAccelerationID(i) > 0
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {
