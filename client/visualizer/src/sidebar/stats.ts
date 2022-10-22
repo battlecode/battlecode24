@@ -138,13 +138,12 @@ export default class Stats {
     }
 
     for (let robot of this.robots) {
-      let robotName: string = cst.bodyTypeToString(robot);
       let tdRobot: HTMLTableCellElement = document.createElement("td");
       tdRobot.className = "robotSpriteStats";
       tdRobot.style.height = "45px";
       tdRobot.style.width = "60px";
 
-      const img: HTMLImageElement = this.robotImages[robotName][inGameID];
+      const img: HTMLImageElement = this.robotImages[robot][inGameID];
       img.style.width = "100%";
       img.style.height = "100%";
       // TODO: images
