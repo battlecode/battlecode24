@@ -10,13 +10,12 @@ let SIZE = 32;
 const maxID = 4096;
 
 const bodyTypeList = [
-  schema.BodyType.MINER,
-  schema.BodyType.ARCHON,
-  schema.BodyType.BUILDER,
-  schema.BodyType.LABORATORY,
-  schema.BodyType.SOLDIER,
-  schema.BodyType.SAGE,
-  schema.BodyType.WATCHTOWER
+  schema.BodyType.CARRIER,
+  schema.BodyType.LAUNCHER,
+  schema.BodyType.AMPLIFIER,
+  schema.BodyType.DESTABILIZER,
+  schema.BodyType.BOOSTER,
+  schema.BodyType.HEADQUARTERS // TODO: SHOULD I REMOVE BUILDINGS?
 ];
 
 const bodyVariety = bodyTypeList.length;
@@ -43,7 +42,11 @@ type BodiesType = {
 };
 
 type MapType = {
-  rubble: number[],
+  walls: boolean[],
+  resources: number[],
+  clouds: boolean[],
+  islands: number[], 
+  currents: number [],
 };
 
 // Class to manage IDs of units
@@ -136,13 +139,21 @@ function makeRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
 function makeRandomMap(): MapType {
 
   const map: MapType = {
-    rubble: new Array(SIZE*SIZE)
+    walls: new Array(SIZE*SIZE),
+    resources: new Array(SIZE*SIZE),
+    clouds: new Array(SIZE*SIZE),
+    islands: new Array(SIZE*SIZE), 
+    currents: new Array(SIZE*SIZE),
   };
+
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     const idxVal = i*SIZE + j;
-    map.rubble[idxVal] = Math.floor(100 * Math.random());
+    map.walls[idxVal] = (Math.random() > .9);
+    map.resources[idxVal] = Math.floor(3 * Math.random());
+    map.clouds[idxVal] = (Math.random() > .5);
+    map.islands[idxVal] = 0; //TODO make better islands
+    map.currents[idxVal] =  Math.floor(6 * Math.random()); //TODO: is 6 direction
   }
-
   return map;
 }
 function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
@@ -180,12 +191,53 @@ function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbu
 function createMap(builder: flatbuffers.Builder, bodies: number, name: string, map?: MapType): flatbuffers.Offset {
   const bb_name = builder.createString(name);
 
-  let rubble: Array<number>;
-  if (map) rubble = map.rubble;
-  else {
-      rubble = new Array(SIZE*SIZE);
-      rubble.fill(0);
+  /*
+    map.walls[idxVal] = (Math.random() > .9);
+    map.resources[idxVal] = Math.floor(3 * Math.random());
+    map.clouds[idxVal] = (Math.random() > .5);
+    map.islands[idxVal] = 0; //TODO make better islands
+    map.currents[idxVal] =  Math.floor(6 * Math.random()); //TODO: is 6 direction
+  
+  walls: boolean[],
+  resources: number[],
+  clouds: boolean[],
+  islands: number[], 
+  currents: number [],
+    */
+
+    
+
+  let walls: Array<boolean>;
+  let resources: Array<number>;
+  let clouds: Array<boolean>;
+  let islands: Array<number>;
+  let currents: Array<number>;
+  if (map){
+    walls = map.walls;
+    resources = map.resources;
+    clouds = map.clouds;
+    islands = map.islands;
+    currents= map.currents;
   }
+  else {
+      walls = new Array(SIZE*SIZE);
+      walls.fill(false);
+      resources = new Array(SIZE*SIZE);
+      resources.fill(0);
+      clouds = new Array(SIZE*SIZE);
+      clouds.fill(false);
+      islands = new Array(SIZE*SIZE);
+      islands.fill(0);
+      currents = new Array(SIZE*SIZE);
+      currents.fill(0);   
+      
+  }
+
+  schema.GameMap.createWallsVector(builder, )
+  schema.GameMap.createResourcesVector(builder, )
+  schema.GameMap.createCloudsVector(builder, )
+  schema.GameMap.createIslandsVector(builder, )
+  schema.GameMap.createCurrentsVector(builder, )
 
   // all values default to zero
   const bb_rubble = schema.GameMap.createRubbleVector(builder, rubble);
@@ -637,6 +689,7 @@ function createWanderGame(turns: number, unitCount: number, doActions: boolean =
   return builder.asUint8Array();
 }
 
+/*
 // Game with voting
 function createVotesGame(turns: number) {
   let builder = new flatbuffers.Builder();
@@ -664,7 +717,7 @@ function createVotesGame(turns: number) {
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
-
+*/
 /*
 function createViewOptionGame(turns: number) {
   let builder = new flatbuffers.Builder();
@@ -752,7 +805,7 @@ function main(){
     { name: "wander-actions", game: createWanderGame(2048, 32, true) },
     { name: "wander-actions-random-map", game: createWanderGame(2048, 32, true, true)},
     { name: "life", game: createLifeGame(512) },
-    { name: "votes", game: createVotesGame(512) } 
+    //{ name: "votes", game: createVotesGame(512) } 
     // { name: "soup", game: createSoupGame(512) }, 
     // { name: "viewOptions", game: createViewOptionGame(512) }
   ];
