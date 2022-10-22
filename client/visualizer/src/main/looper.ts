@@ -387,8 +387,7 @@ export default class Looper {
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
             const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
-            this.stats.setIncome(teamID, average(teamStats.leadMinedHist), average(teamStats.goldMinedHist), world.turn);
-            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
+            this.stats.setIncome(teamID, average(teamStats.adamantiumMinedHist), average(teamStats.manaMinedHist), average(teamStats.elixirMinedHist), world.turn);            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
         }
 
         for(var a = 0; a < teamIDs.length; a++){

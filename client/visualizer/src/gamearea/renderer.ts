@@ -26,18 +26,16 @@ export default class Renderer {
 
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number) => void) {
-
-    let ctx = canvas.getContext("2d")
-    if (ctx === null) {
-      throw new Error("Couldn't load canvas2d context")
-    } else {
-      this.ctx = ctx
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number, resource: number) => void) {
+      let ctx = canvas.getContext("2d")
+      if (ctx === null) {
+        throw new Error("Couldn't load canvas2d context")
+      } else {
+        this.ctx = ctx
+      }
+      this.ctx['imageSmoothingEnabled'] = false
+      //this.ctx.imageSmoothingQuality = "high"
     }
-
-    this.ctx['imageSmoothingEnabled'] = false
-    //this.ctx.imageSmoothingQuality = "high"
-  }
 
   /**
    * world: world to render
@@ -107,8 +105,8 @@ export default class Renderer {
       this.ctx.globalAlpha = 1
 
       // Fetch and draw tile image
-      const swampLevel = cst.getLevel(map.rubble[idxVal])
-      const tileImg = this.imgs.tiles[swampLevel]
+      // const walls = cst.getLevel(map.walls[idxVal])
+      const tileImg = this.imgs.tiles[map.walls[idxVal]]
 
       //since tiles arent completely opaque
       if (!this.conf.doingRotate) this.ctx.clearRect(cx, cy, scale + .5, scale + .5)
@@ -127,31 +125,31 @@ export default class Renderer {
       }
     }
 
-    let i = world.mapStats.anomalyRounds.indexOf(world.turn);
-    const d = new Date();
-    let time = d.getTime();
-    if (this.conf.showAnomalies) {
-      if (i != -1) {
-        let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
-        let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 15;
-        this.ctx.globalAlpha = 0.5;
-        this.ctx.strokeRect(0, 0, width*scale, height*scale);
-        this.ctx.stroke();
-        this.lastTime = time;
-        this.lastAnomaly = anom;
-      } else if (time - this.lastTime < 1000) {
-        let anom = this.lastAnomaly;
-        let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 15;
-        this.ctx.globalAlpha = 0.5;
-        this.ctx.strokeRect(0, 0, width*scale, height*scale);
-        this.ctx.stroke();
-        //this.ctx.globalAlpha = 1;
-      }
-    }
+    // let i = world.mapStats.anomalyRounds.indexOf(world.turn);
+    // const d = new Date();
+    // let time = d.getTime();
+    // if (this.conf.showAnomalies) {
+    //   if (i != -1) {
+    //     let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
+    //     let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+    //     this.ctx.strokeStyle = color;
+    //     this.ctx.lineWidth = 15;
+    //     this.ctx.globalAlpha = 0.5;
+    //     this.ctx.strokeRect(0, 0, width*scale, height*scale);
+    //     this.ctx.stroke();
+    //     this.lastTime = time;
+    //     this.lastAnomaly = anom;
+    //   } else if (time - this.lastTime < 1000) {
+    //     let anom = this.lastAnomaly;
+    //     let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
+    //     this.ctx.strokeStyle = color;
+    //     this.ctx.lineWidth = 15;
+    //     this.ctx.globalAlpha = 0.5;
+    //     this.ctx.strokeRect(0, 0, width*scale, height*scale);
+    //     this.ctx.stroke();
+    //     //this.ctx.globalAlpha = 1;
+    //   }
+    // }
 
     this.ctx.restore()
   }
@@ -190,10 +188,6 @@ export default class Renderer {
     let width = world.maxCorner.x - world.minCorner.x
     let height = world.maxCorner.y - world.minCorner.y
 
-
-    const leadImg = this.imgs.resources.lead
-    const goldImg = this.imgs.resources.gold
-
     const map = world.mapStats
     const scale = 1
 
@@ -210,52 +204,12 @@ export default class Renderer {
 
       const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
 
-      if (map.goldVals[idxVal] > 0) {
-        if (map.leadVals[idxVal] <= 0) {
-          //gold only
-          let size = sigmoid(map.goldVals[idxVal] / 50) * .94
-          if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
-          else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
-
-          this.ctx.strokeStyle = 'gold'
-          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
-          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-
-        } else {
-          let goldShift = -.18
-          let leadShift = .13
-
-          //lead and gold
-          let size = sigmoid(map.leadVals[idxVal] / 50) * .85
-          if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1 - size) / 2, cy + (1 - size) / 2 + leadShift, scale * size, scale * size)
-          else this.ctx.drawImage(leadImg, cy + (1 - size) / 2, cx + (1 - size) / 2 + leadShift, scale * size, scale * size)
-
-
-          size = sigmoid(map.goldVals[idxVal] / 50) * .85
-          if (!this.conf.doingRotate) this.ctx.drawImage(goldImg, cx + (1 - size) / 2, cy + (1 - size) / 2 + goldShift, scale * size, scale * size)
-          else this.ctx.drawImage(goldImg, cy + (1 - size) / 2, cx + (1 - size) / 2 + goldShift, scale * size, scale * size)
-
-
-          this.ctx.strokeStyle = 'gold'
-          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
-          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-
-          this.ctx.setLineDash([.1, .1])
-          this.ctx.strokeStyle = '#59727d'
-          if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
-          else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-          this.ctx.setLineDash([])
-        }
-      } else if (map.leadVals[idxVal] > 0) {
-        //lead only
-        let size = sigmoid(map.leadVals[idxVal] / 50) * .94
-        if (!this.conf.doingRotate) this.ctx.drawImage(leadImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
-        else this.ctx.drawImage(leadImg, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
-
-        this.ctx.strokeStyle = '#59727d'
-        if (!this.conf.doingRotate) this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
-        else this.ctx.strokeRect(cy + .05, cx + .05, scale * .9, scale * .9)
-
+      if (map.resources[idxVal] > 0) {
+        // let size = sigmoid(map.goldVals[idxVal] / 50) * .94
+        let size = map.resource_well_stats.get(idxVal)!.upgraded ? 1 : .75
+        let img = this.imgs.resources[map.resources[idxVal]]
+        if (!this.conf.doingRotate) this.ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
+        else this.ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
       }
     }
 
@@ -275,9 +229,6 @@ export default class Renderer {
     const targets = bodies.arrays.target
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
-    const portables = bodies.arrays.portable
-    const prototypes = bodies.arrays.prototype
-    const levels = bodies.arrays.level
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
@@ -317,76 +268,59 @@ export default class Renderer {
     }
 
     const renderBot = (i: number) => {
-
-      const DEFAULT: number = 0
-      const PORTABLE: number = 1
-      const PROTOTYPE: number = 2
-      let body_status = DEFAULT
-      // console.log(i, bodies.length, types.length, "hhh");
-      // console.log(bodies[i]);
-      if (Boolean(portables[i])) {
-        body_status = PORTABLE
-      }
-      if (Boolean(prototypes[i])) {
-        body_status = PROTOTYPE
-      }
-      let img: HTMLImageElement
-      if (!cst.buildingTypeList.includes(types[i]) || body_status == PROTOTYPE) img = this.imgs.robots[cst.bodyTypeToString(types[i])][body_status * 2 + teams[i]]
-      else img = this.imgs.robots[cst.bodyTypeToString(types[i])][levels[i] * 6 + body_status * 2 + teams[i]]
-      let max_hp = levels[i] == 1 ? this.metadata.types[types[i]].health : levels[i] == 2 ? this.metadata.types[types[i]].level2Health : this.metadata.types[types[i]].level3Health
-      this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]));
-
-      // TODO: draw bot
+      let img = this.imgs.robots[cst.bodyTypeToString(types[i])][teams[i]]
+      let max_hp = this.metadata.types[types[i]].health
+      this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]))
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
-      // draw effect
-      if (actions[i] == schema.Action.ATTACK) {
-        let yshift = (teams[i] - 1.5) * .15 + 0.5
-        let xshift = (teams[i] - 1.5) * .15 + 0.5
-        this.ctx.save()
-        this.ctx.beginPath()
-        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
-        this.ctx.lineWidth = 0.05
-        this.ctx.stroke()
-        this.ctx.restore()
-      } 
-      
-      if (this.conf.showAnomalies) {
-        if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
-          this.ctx.save();
-          this.ctx.globalAlpha = 1;
-          this.ctx.beginPath();
-          this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
-          //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
-          this.ctx.setLineDash([1,2]);
-          this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue';
-          this.ctx.stroke();
+      // // draw effect
+      // if (actions[i] == schema.Action.ATTACK) {
+      //   let yshift = (teams[i] - 1.5) * .15 + 0.5
+      //   let xshift = (teams[i] - 1.5) * .15 + 0.5
+      //   this.ctx.save()
+      //   this.ctx.beginPath()
+      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+      //   this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
+      //   this.ctx.lineWidth = 0.05
+      //   this.ctx.stroke()
+      //   this.ctx.restore()
+      // }
 
-          this.ctx.beginPath();
-          this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false);
-          this.ctx.strokeStyle = (actions[i] === schema.Action.LOCAL_ABYSS) ? "Blue" : (actions[i] === schema.Action.LOCAL_CHARGE) ? "Yellow" : (actions[i] === schema.Action.LOCAL_FURY) ? "Red" : "White";
-          this.ctx.setLineDash([1,1.5]);
-          this.ctx.stroke();
+      // if (this.conf.showAnomalies) {
+      //   if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
+      //     this.ctx.save()
+      //     this.ctx.globalAlpha = 1
+      //     this.ctx.beginPath()
+      //     this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false)
+      //     //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
+      //     this.ctx.setLineDash([1, 2])
+      //     this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
+      //     this.ctx.stroke()
 
-          this.ctx.globalAlpha = 1;
-          this.ctx.restore();
-        }
-      }
- 
-      if (actions[i] == schema.Action.REPAIR) {
-        let yshift = 0.5
-        let xshift = 0.5
-        this.ctx.save()
-        this.ctx.beginPath()
-        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-        this.ctx.strokeStyle = '#54FF79'
-        this.ctx.lineWidth = 0.075
-        this.ctx.stroke()
-        this.ctx.restore()
-      };
+      //     this.ctx.beginPath()
+      //     this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false)
+      //     this.ctx.strokeStyle = (actions[i] === schema.Action.LOCAL_ABYSS) ? "Blue" : (actions[i] === schema.Action.LOCAL_CHARGE) ? "Yellow" : (actions[i] === schema.Action.LOCAL_FURY) ? "Red" : "White"
+      //     this.ctx.setLineDash([1, 1.5])
+      //     this.ctx.stroke()
+
+      //     this.ctx.globalAlpha = 1
+      //     this.ctx.restore()
+      //   }
+      // }
+
+      // if (actions[i] == schema.Action.REPAIR) {
+      //   let yshift = 0.5
+      //   let xshift = 0.5
+      //   this.ctx.save()
+      //   this.ctx.beginPath()
+      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+      //   this.ctx.strokeStyle = '#54FF79'
+      //   this.ctx.lineWidth = 0.075
+      //   this.ctx.stroke()
+      //   this.ctx.restore()
+      // };
 
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
@@ -404,18 +338,6 @@ export default class Renderer {
     }
 
     priorityIndices.forEach((i) => renderBot(i))
-
-    // Render empowered bodies
-    // TODO: something similar for lead and gold
-    // const empowered = world.empowered;
-    // const empowered_id = world.empowered.arrays.id;
-    // const empowered_x = world.empowered.arrays.x;
-    // const empowered_y = world.empowered.arrays.y;
-    // const empowered_team = world.empowered.arrays.team;
-
-    // for (let i = 0; i < empowered.length; i++) {
-    //   drawEffect(empowered_team[i] == 1 ? "empower_red" : "empower_blue", empowered_x[i], this.flip(empowered_y[i], minY, maxY));
-    // }
 
     this.setInfoStringEvent(world, xs, ys)
   }
@@ -476,14 +398,14 @@ export default class Renderer {
       return 1 / (1 + Math.exp(-x))
     }
     //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
-    let size = ratio * 0.5 + 0.5;
+    let size = ratio * 0.5 + 0.5
     this.ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
-    this.ctx.beginPath();
-    this.ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1);
-    this.ctx.lineTo(x +  realWidth * size / 2 + realWidth * ratio / 2, y + 1);
-    this.ctx.strokeStyle = "green";
+    this.ctx.beginPath()
+    this.ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1)
+    this.ctx.lineTo(x + realWidth * size / 2 + realWidth * ratio / 2, y + 1)
+    this.ctx.strokeStyle = "green"
     this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
-    this.ctx.stroke();
+    this.ctx.stroke()
   }
 
   private setInfoStringEvent(world: GameWorld,
@@ -533,7 +455,7 @@ export default class Renderer {
       const x = xrel + world.minCorner.x
       const y = yrel + world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
+      onMouseover(x, y, xrel, yrel, world.mapStats.walls[idx], world.mapStats.resources[idx])
     }
 
     this.canvas.onmousemove = (event) => {
@@ -546,7 +468,7 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.rubble[idx], world.mapStats.leadVals[idx], world.mapStats.goldVals[idx])
+      onMouseover(x, y, xrel, yrel, world.mapStats.walls[idx], world.mapStats.resources[idx])
       this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 

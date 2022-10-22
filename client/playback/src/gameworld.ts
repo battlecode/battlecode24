@@ -48,10 +48,10 @@ export type MapStats = {
   currents: Int8Array,
 
   islands: Int32Array,
-  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[] }>,
+  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean }>,
 
   resources: Int8Array,
-  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number }>,
+  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
 
 
   //these are unused because there is no way for a resource to be dropped on the ground
@@ -360,7 +360,7 @@ export default class GameWorld {
     this.mapStats.resources = Int8Array.from(map.resourcesArray())
     for (let i = 0; i < this.mapStats.resources.length; i++) {
       if (this.mapStats.resources[i] != 0) {
-        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0 })
+        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0, upgraded: false })
       }
     }
 
@@ -373,7 +373,7 @@ export default class GameWorld {
           existing_island.locations.push(i)
           // this.mapStats.island_stats.set(island_id, existing_island)
         } else {
-          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i] })
+          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false })
         }
       }
     }
@@ -559,12 +559,15 @@ export default class GameWorld {
 
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
-            this.bodies.alter({ id: robotID, anchor: 1 })
+            this.bodies.alter({ id: robotID, anchor: target + 1 })
             break
 
           case schema.Action.PLACE_ANCHOR:
             setAction(false, false, true)
             this.bodies.alter({ id: robotID, anchor: 0 })
+            let curr_island = this.mapStats.island_stats.get(target)
+            let curr_robot = this.bodies.lookup(robotID)
+            curr_island.is_accelerated = curr_robot.anchor == 2
             break
 
           case schema.Action.CHANGE_ADAMANTIUM:
@@ -610,14 +613,10 @@ export default class GameWorld {
     }
 
     //resource wells (THIS SHOULD JUST BE IDS)
-    const wells = delta.resourceWellLocs(this._vecTableSlot1)
+    // const wells = delta.resourceWellLocs(this._vecTableSlot1)
 
-    for (let i = 0; i < wells.xsLength(); i++) {
-      let well_x = wells.xs(i)
-      let well_y = wells.ys(i)
-      let width = (this.mapStats.maxCorner.x - this.mapStats.minCorner.x)
-      let well_index = well_x + well_y * width
-
+    for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
+      let well_index = delta.resourceWellLocs(i)
       let well_resource = delta.resourceID(i)
       let well_adamantium_change = delta.wellAdamantiumChange(i)
       let well_elixir_change = delta.wellElixirChange(i)
@@ -631,6 +630,7 @@ export default class GameWorld {
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
       current_resource_stats.elixir += well_elixir_change
+      current_resource_stats.upgraded = delta.resourceAccelerationID(i) > 0
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {
@@ -639,6 +639,9 @@ export default class GameWorld {
       let turnover = delta.islandTurnoverTurns(i)
       let island_stats = this.mapStats.island_stats.get(id)
       island_stats.flip_progress = turnover
+      if (island_stats.owner != owner) {
+        island_stats.is_accelerated = false
+      }
       island_stats.owner = owner
     }
 
