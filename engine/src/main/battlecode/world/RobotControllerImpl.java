@@ -698,6 +698,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     }
 
+    private boolean canCollectResource(MapLocation loc){
+
+    }
+
+    private void collectResource(MapLocation loc){
+        
+    }
+
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
