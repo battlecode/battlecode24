@@ -789,13 +789,50 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
-    private boolean canCollectResource(MapLocation loc){
+    private void assertCanCollect(MapLocation loc){
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (!getType() == RobotType.CARRIER)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot collect.");
+        if (!isWell(loc))
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Location is not a well");
+    }
 
+    private boolean canCollectResource(MapLocation loc){
+        try {
+            assertCanCollect(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
     }
 
     private void collectResource(MapLocation loc){
-        
+        assertCanCollectResource(loc);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+    
+        // For methods below, Inventory class would have to first be implemented
+        // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
+        // Also assuming that ResourceType is a class tht returns an enum
+        // --> Would check to see what resources a well holds
+
+        Inventory robotInv = this.robot.getInventory();
+        int amount = this.gameWorld.getWell(loc).isUpgraded() ? 2:4
+
+        if (robotInv.canAdd()) {
+            if (getWellType(loc) == ResourceType.ELIXIR)
+                robotInv.addElixir(amount);
+            else if (getWellType(loc) == ResourceType.MANA)
+                robotInv.addMana(amount);
+            else
+                robotInv.addAdamantium(amount);
+            }
+
+        // Will need ot update this last line
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
     }
+        
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
