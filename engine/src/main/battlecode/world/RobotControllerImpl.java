@@ -662,6 +662,42 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // **** MINER METHODS **** 
     // ***********************
 
+    private boolean isWell(MapLocation loc) {
+
+    }
+
+    private boolean isHeadquarter(MapLocation loc){
+        
+    }
+
+    private void assertCanTransfer(MapLocation loc, ) throws GameActionException {
+        
+    }
+
+    private boolean canTransferAdamantium(MapLocation loc){
+
+    }
+
+    private void transferAdamantium(MapLocation loc){
+
+    }
+
+    private boolean canTransferMana(MapLocation loc){
+
+    }
+
+    private void transferMana(MapLocation loc){
+
+    }
+
+    private boolean canTransferElixir(MapLocation loc){
+
+    }
+
+    private void transferElixir(MapLocation loc){
+
+    }
+
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
