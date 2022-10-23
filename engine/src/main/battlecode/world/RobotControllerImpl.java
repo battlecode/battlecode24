@@ -662,40 +662,131 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // **** MINER METHODS **** 
     // ***********************
 
-    private boolean isWell(MapLocation loc) {
+    /*
+     * ASSUMED METHODS:
+     * 
+     * InternalRobot:
+     * 
+     * Inventory getInventory()
+     * 
+     * 
+     * Inventory:
+     * 
+     * void add___(amount)
+     * 
+     * int get___()
+     * 
+     * boolean canAdd(int amount)
+     * 
+     * 
+     * GameWorld:
+     * 
+     * Well getWell(MapLocation loc)
+     * 
+     */
 
+    private boolean isWell(MapLocation loc) {
+        //TODO checks if the location is a well
     }
 
     private boolean isHeadquarter(MapLocation loc){
-        
+        //TODO checks if the location is a headquarter
     }
 
-    private void assertCanTransfer(MapLocation loc, ) throws GameActionException {
-        
+    private void assertCanTransferResource(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+
+        if(!getType() == RobotType.CARRIER)
+            throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
+        if(!isWell(loc) && !isHeadquarter(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that
+            is not a well or a headquarter");
     }
 
-    private boolean canTransferAdamantium(MapLocation loc){
-
+    private boolean canTransferResource(MapLocation loc){
+        try {
+            assertCanTransferResource(loc);
+            return true;
+        } catch(GameActionException e) {return false;}
+        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
     private void transferAdamantium(MapLocation loc){
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        if(isWell(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
+            int amount = robotInv.getAdamantium();
 
+            wellInv.addAdamantium(amount);
+            robotInv.addAdamantium(-amount);
+        }
+        else if(isHeadquarter(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            int amount = robotInv.getAdamantium();
+
+            this.gameWorld.getTeamInfo().addAdamantium(getTeam(), amount);
+            robotInv.removeAdamantium(amount);
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
     private boolean canTransferMana(MapLocation loc){
-
+        try {
+            assertCanTransferResource(loc);
+            return true;
+        } catch(GameActionException e) {return false;}
+        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
     private void transferMana(MapLocation loc){
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        if(isWell(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
+            int amount = robotInv.getMana();
 
+            wellInv.addMana(amount);
+            robotInv.addMana(-amount);
+        }
+        else if(isHeadquarter(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            int amount = robotInv.getMana();
+
+            this.gameWorld.getTeamInfo().addMana(getTeam(), amount);
+            robotInv.removeMana(amount);
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
     private boolean canTransferElixir(MapLocation loc){
-
+        try {
+            assertCanTransferResource(loc);
+            return true;
+        } catch(GameActionException e) {return false;}
+        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
     private void transferElixir(MapLocation loc){
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        if(isWell(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
+            int amount = robotInv.getElixir();
 
+            wellInv.addElixir(amount);
+            robotInv.addElixir(-amount);
+        }
+        else if(isHeadquarter(loc)){
+            Inventory robotInv = this.robot.getInventory();
+            int amount = robotInv.getElixir();
+
+            this.gameWorld.getTeamInfo().addElixir(getTeam(), amount);
+            robotInv.removeElixir(amount);
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
     private boolean canCollectResource(MapLocation loc){
