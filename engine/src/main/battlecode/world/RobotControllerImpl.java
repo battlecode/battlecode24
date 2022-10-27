@@ -812,9 +812,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int amount = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
 
         if (robotInv.canAdd()) {
-            if (gameWorld.getWellType(loc) == ResourceType.ELIXIR)
+            if (gameWorld.getWell().getType(loc) == ResourceType.ELIXIR)
                 robotInv.addElixir(amount);
-            else if (gameWorld.getWellType(loc) == ResourceType.MANA)
+            else if (gameWorld.getWell().getType(loc) == ResourceType.MANA)
                 robotInv.addMana(amount);
             else
                 robotInv.addAdamantium(amount);
