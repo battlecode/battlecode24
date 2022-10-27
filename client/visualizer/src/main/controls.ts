@@ -434,7 +434,7 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, rubble: number, lead: number, gold: number): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, walls: number, resource: { type: number, adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
     let content: string = "";
     content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3);
     content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3);

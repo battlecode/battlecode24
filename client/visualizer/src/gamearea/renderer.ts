@@ -26,7 +26,7 @@ export default class Renderer {
 
   constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, rubble: number, resource: number) => void) {
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: { type: number, adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void) {
       let ctx = canvas.getContext("2d")
       if (ctx === null) {
         throw new Error("Couldn't load canvas2d context")
