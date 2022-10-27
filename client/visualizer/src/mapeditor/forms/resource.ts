@@ -4,16 +4,15 @@ import {schema} from 'battlecode-playback';
 
 import {MapUnit} from '../index';
 
-export default class RobotForm {
+export default class ResourceForm {
 
   // The public div
   readonly div: HTMLDivElement;
 
-  // Form elements for archon settings
-  readonly lead: HTMLInputElement;
+  readonly adamantium: HTMLInputElement;
+  readonly mana: HTMLInputElement;
   readonly x: HTMLInputElement;
   readonly y: HTMLInputElement;
-  //readonly influence: HTMLInputElement;
 
   // Callbacks on input change
   readonly width: () => number;
@@ -27,7 +26,12 @@ export default class RobotForm {
 
     // Create HTML elements
     this.div = document.createElement("div");
-    this.lead = document.createElement("input");
+    this.adamantium = document.createElement("input");
+    this.mana = document.createElement("input");
+    this.adamantium.type = "radio"
+    this.adamantium.name = "resource_type"
+    this.mana.type = "radio"
+    this.mana.name = "resource_type"
     this.x = document.createElement("input");
     this.y = document.createElement("input");
 
@@ -43,7 +47,7 @@ export default class RobotForm {
   private loadInputs(): void {
     this.x.type = "text";
     this.y.type = "text";
-    this.lead.value = "50";
+    this.adamantium.checked = true;
   }
 
   /**
@@ -52,19 +56,21 @@ export default class RobotForm {
   private createForm(): HTMLFormElement {
     // HTML structure
     const form: HTMLFormElement = document.createElement("form");
-    const lead: HTMLDivElement = document.createElement("div");
+    const resources: HTMLDivElement = document.createElement("div");
     const x: HTMLDivElement = document.createElement("div");
     const y: HTMLDivElement = document.createElement("div");
     // const influence: HTMLDivElement = document.createElement("div");
     //form.appendChild(id);
-    form.appendChild(lead);
+    form.appendChild(resources);
     form.appendChild(x);
     form.appendChild(y);
     // form.appendChild(influence);
     form.appendChild(document.createElement("br"));
 
-    lead.appendChild(document.createTextNode("Lead: "));
-    lead.appendChild(this.lead);
+    resources.appendChild(document.createTextNode("Adamantium: "));
+    resources.appendChild(this.adamantium);
+    resources.appendChild(document.createTextNode("Mana: "));
+    resources.appendChild(this.mana);
 
     // X coordinate
     x.appendChild(document.createTextNode("X: "));
@@ -104,8 +110,8 @@ export default class RobotForm {
 
   }
 
-  getLead(): number {
-    return parseInt(this.lead.value);
+  getResource(): number {
+    return this.adamantium.checked ? 1 : (this.mana.checked ? 2 : 0);
   }
 
   getX(): number {
@@ -119,7 +125,7 @@ export default class RobotForm {
   resetForm(): void {
     this.x.value = "";
     this.y.value = "";
-    this.lead.value = "50";
+    this.adamantium.checked = true;
   }
 
   setForm(x, y): void {

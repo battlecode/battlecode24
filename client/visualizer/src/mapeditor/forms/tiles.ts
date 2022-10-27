@@ -11,7 +11,7 @@ export default class TileForm {
   readonly div: HTMLDivElement;
 
   // Form elements
-  readonly rubble: HTMLInputElement;
+  readonly walls: HTMLInputElement;
   readonly brush: HTMLInputElement;
   readonly style: HTMLSelectElement;
 
@@ -27,7 +27,8 @@ export default class TileForm {
 
     // Create HTML elements
     this.div = document.createElement("div");
-    this.rubble = document.createElement("input");
+    this.walls = document.createElement("input");
+    this.walls.type = "checkbox"
     this.brush = document.createElement("input");
     this.style = document.createElement("select");
 
@@ -41,7 +42,7 @@ export default class TileForm {
    * Initializes input fields.
    */
   private loadInputs(): void {
-    this.rubble.value = "50";
+    this.walls.value = "50";
     this.brush.value = "3";
 
     for (var styleString of ["Circle", "Square", "Cow"]) {
@@ -63,8 +64,8 @@ export default class TileForm {
     const brush: HTMLDivElement = document.createElement("div");
     const style: HTMLDivElement = document.createElement("div");
     
-    pass.appendChild(document.createTextNode("Rubble:"));
-    pass.appendChild(this.rubble);
+    pass.appendChild(document.createTextNode("Walls:"));
+    pass.appendChild(this.walls);
     form.appendChild(pass);
     
     brush.appendChild(document.createTextNode("Brush size:"));
@@ -85,16 +86,13 @@ export default class TileForm {
    * Add callbacks to the form elements.
    */
   private loadCallbacks(): void {
-    this.rubble.onchange = () => {
-      this.rubble.value = !isNaN(this.getRubble()) ? this.validate(this.getRubble(), 0, 100) : "";
-    };
     this.brush.onchange = () => {
         this.brush.value = !isNaN(this.getBrush()) ? this.validate(this.getBrush(), 1) : "";
       };
   }
 
-  getRubble(): number {
-    return parseFloat(this.rubble.value);
+  getWalls(): boolean {
+    return this.walls.value == "true";
   }
 
   getBrush(): number {
@@ -106,7 +104,7 @@ export default class TileForm {
   }
 
   resetForm(): void {
-    this.rubble.value = "";
+    this.walls.value = "";
   }
 
   setForm(): void {
@@ -119,6 +117,6 @@ export default class TileForm {
   }
 
   isValid(): boolean {
-    return !(isNaN(this.getRubble()));
+    return true;
   }
 }
