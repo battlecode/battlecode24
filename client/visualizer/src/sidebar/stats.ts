@@ -171,7 +171,7 @@ export default class Stats {
   }
 
   private initRelativeBars(teamIDs: Array<number>) {
-    let metalIDs = [0, 1];
+    let metalIDs = [0, 1, 2];
     let colors = ["#AA9700", "#696969"];
     const relativeBars: HTMLDivElement[] = [];
     teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
