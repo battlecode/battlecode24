@@ -279,7 +279,7 @@ export default class Stats {
       cellElixir.appendChild(this.incomeDisplays[id].elixirIncome);
       row.appendChild(cellElixir);
     });
-
+    
     const cellMana = document.createElement("td");
     teamIDs.forEach((id: number) => {
       
@@ -489,28 +489,41 @@ export default class Stats {
     const graphs = document.createElement("div");
     graphs.style.display = 'flex';
     graphs.style.flexDirection = "column";
-
+    
+    const row1=  document.createElement("div");
+    row1.style.display = 'flex';
+    row1.style.flexDirection = "row";
     // Adamantium
     const adamantiumWrapper = document.createElement("div");
-    adamantiumWrapper.style.width = "100%";
+    adamantiumWrapper.style.width = "50%";
     const canvasElementAdamantium = this.getIncomeAdamantiumGraph();
     adamantiumWrapper.appendChild(canvasElementAdamantium);    
-    graphs.appendChild(adamantiumWrapper);
-    
+    row1.appendChild(adamantiumWrapper);
+
     // Mana
     const manaWrapper = document.createElement("div");
+    manaWrapper.style.width = "50%";
     const canvasElementMana = this.getIncomeManaGraph();
     manaWrapper.appendChild(canvasElementMana);    
-    graphs.appendChild(manaWrapper);
-    this.div.appendChild(graphs);
+    row1.appendChild(manaWrapper);
+
+    graphs.append(row1);
+
+    const row2=  document.createElement("div")
+    row2.style.display = 'flex';
+    row2.style.flexDirection = "row";
+    row2.style.justifyContent = "center";
 
     // Elixir
     const elixirWrapper = document.createElement("div");
+    elixirWrapper.style.width = "50%";
     const canvasElementElixir = this.getIncomeElixirGraph();
     elixirWrapper.appendChild(canvasElementElixir);    
-    graphs.appendChild(elixirWrapper);
-    this.div.appendChild(graphs);
+    row2.append(elixirWrapper)
+    graphs.append(row2);
 
+    this.div.appendChild(graphs);
+    
     this.incomeChartAdamantium = new Chart(canvasElementAdamantium, {
       type: 'line',
       data: {
