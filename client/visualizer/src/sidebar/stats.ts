@@ -172,7 +172,7 @@ export default class Stats {
 
   private initRelativeBars(teamIDs: Array<number>) {
     let metalIDs = [0, 1, 2];
-    let colors = ["#AA9700", "#696969"];
+    let colors = ["#963749", "#25b5bc", "#f413b1"];
     const relativeBars: HTMLDivElement[] = [];
     teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
@@ -187,62 +187,23 @@ export default class Stats {
     return relativeBars;
   }
 
-  private getRelativeBarsElement(){
-    let metalIDs = [0, 1];
-    // left: Adamantium
-    const divleft = document.createElement("div");
-    divleft.setAttribute("align", "center");
-    divleft.id = "relative-bars-left";
+  private createStatBarsElement(statName: string, barIndex: number){
+    const div = document.createElement("div");
 
-    const labelleft = document.createElement('div');
-    labelleft.className = "stats-header";
-    labelleft.innerText = 'Adamantium';
+    const label = document.createElement('div');
+    label.className = "stats-header";
+    label.innerText = statName;
 
-    const frameleft = document.createElement("div");
-    frameleft.style.width = "100%";
+    const frame = document.createElement("div");
+    frame.style.width = "100%";
 
-    frameleft.appendChild(this.relativeBars[0]);
-    frameleft.appendChild(this.relativeBars[1]);
+    frame.appendChild(this.relativeBars[barIndex * 2]);
+    frame.appendChild(this.relativeBars[barIndex * 2 + 1]);
 
-    divleft.appendChild(labelleft);
-    divleft.appendChild(frameleft);
+    div.appendChild(label);
+    div.appendChild(frame);
 
-    // mid: Mana
-    const divmid = document.createElement("div");
-    divmid.setAttribute("align", "center");
-    divmid.id = "relative-bars-mid";
-
-    const labelmid = document.createElement('div');
-    labelmid.className = "stats-header";
-    labelmid.innerText = 'Mana';
-
-    const framemid = document.createElement("div");
-    framemid.style.width = "100%";
-
-    framemid.appendChild(this.relativeBars[2]);
-    framemid.appendChild(this.relativeBars[3]);
-
-    divmid.appendChild(labelmid);
-    divmid.appendChild(framemid);
-    
-    // right: Elixir
-    const divright = document.createElement("div");
-    divright.setAttribute("align", "center");
-    divright.id = "relative-bars-right";
-
-    const labelright = document.createElement('div');
-    labelright.className = "stats-header";
-    labelright.innerText = 'Elixir';
-
-    const frameright = document.createElement("div");
-    frameright.style.width = "100%";
-
-    frameright.appendChild(this.relativeBars[4]);
-    frameright.appendChild(this.relativeBars[5]);
-
-    divright.appendChild(labelright);
-    divright.appendChild(frameright);
-    return [divleft, divmid, divright];
+    return div;
   }
   private updateRelBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
     for(var a = 0; a < teamAdamantium.length; a++){
@@ -484,9 +445,19 @@ export default class Stats {
       archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
       console.log(archonnums[id]);
     });*/
+    const relativeBarsParent = document.createElement("div");
+    relativeBarsParent.style.width = "100%";
+    relativeBarsParent.style.display = "flex";
+    relativeBarsParent.style.flexDirection = "column";
+    this.div.appendChild(relativeBarsParent);
+
     this.relativeBars = this.initRelativeBars(teamIDs);
-    const relativeBarsElement = this.getRelativeBarsElement();
-    relativeBarsElement.forEach((relBar: HTMLDivElement) => { this.div.appendChild(relBar);});
+    const relativeBarsElements = [
+      this.createStatBarsElement("Adamantium", 0),
+      this.createStatBarsElement("Mana", 1),
+      this.createStatBarsElement("Elixir", 2)
+    ];
+    relativeBarsElements.forEach((relBar: HTMLDivElement) => { relativeBarsParent.appendChild(relBar);});
 
     this.incomeDisplays = this.initIncomeDisplays(teamIDs);
     const incomeElement = this.getIncomeDisplaysElement(teamIDs);
@@ -494,19 +465,17 @@ export default class Stats {
 
     const graphs = document.createElement("div");
     graphs.style.display = 'flex';
+    graphs.style.flexDirection = "column";
+
     // Adamantium
     const adamantiumWrapper = document.createElement("div");
-    adamantiumWrapper.style.width = "33%";
-    adamantiumWrapper.style.float = "left";
+    adamantiumWrapper.style.width = "100%";
     const canvasElementAdamantium = this.getIncomeAdamantiumGraph();
     adamantiumWrapper.appendChild(canvasElementAdamantium);    
     graphs.appendChild(adamantiumWrapper);
     
     // Mana
     const manaWrapper = document.createElement("div");
-    manaWrapper.style.width = "33%";
-    //TODO: double check the float of the middle element (Mana)
-    manaWrapper.style.float = "none";
     const canvasElementMana = this.getIncomeManaGraph();
     manaWrapper.appendChild(canvasElementMana);    
     graphs.appendChild(manaWrapper);
@@ -514,8 +483,6 @@ export default class Stats {
 
     // Elixir
     const elixirWrapper = document.createElement("div");
-    elixirWrapper.style.width = "33%";
-    elixirWrapper.style.float = "right";
     const canvasElementElixir = this.getIncomeElixirGraph();
     elixirWrapper.appendChild(canvasElementElixir);    
     graphs.appendChild(elixirWrapper);
