@@ -13,13 +13,6 @@ public enum RobotType {
     // Health, Damage, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
-     * Headquarters (TODO: description)
-     * @battlecode.doc.robottype
-     */
-    HEADQUARTERS    (  0,   0,   0,   0,   0,  0,   0,  0, 40, 20000),
-    //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
-
-    /**
      * Carrier (TODO: description)
      * @battlecode.doc.robottype
      */
@@ -108,17 +101,6 @@ public enum RobotType {
      * Base bytecode limit of this robot.
      */
     public final int bytecodeLimit;
-
-    /**
-     * Returns whether this type can build other robots
-     *
-     * @return whether this type can build other robots
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public boolean canBuild() {
-        return this == HEADQUARTERS;
-    }
 
     /**
      * Returns whether this type can attack.

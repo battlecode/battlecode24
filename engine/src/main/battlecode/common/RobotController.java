@@ -132,13 +132,13 @@ public strictfp interface RobotController {
     int getExAmount();
 
     /**
-     * Returns the number of reality anchors this robot is holding
+     * Returns whether a robot is holding a reality anchor
      *
-     * @return the number of reality anchors this robot is holding
+     * @return whether a robot is holding a reality anchor
      *
      * @battlecode.doc.costlymethod
      */
-    int getNumRealityAnchors();
+    boolean getNumRealityAnchors();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
