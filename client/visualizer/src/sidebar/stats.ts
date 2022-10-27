@@ -176,7 +176,7 @@ export default class Stats {
     const relativeBars: HTMLDivElement[] = [];
     teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
-      bar.style.backgroundColor = colors[id];
+      // bar.style.backgroundColor = colors[id];
       bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "#C00040" : "#4000C0");
       bar.style.width = `90%`;
       bar.className = "influence-bar";
@@ -187,23 +187,27 @@ export default class Stats {
     return relativeBars;
   }
 
-  private createStatBarsElement(statName: string, barIndex: number){
-    const div = document.createElement("div");
+  private createRelativeBarsRow(statName: string, rowIndex: number){
+    const tr = document.createElement("tr");
+    tr.style.width = "100%";
 
-    const label = document.createElement('div');
+    const label = document.createElement('td');
     label.className = "stats-header";
     label.innerText = statName;
 
-    const frame = document.createElement("div");
-    frame.style.width = "100%";
+    const cell1 = document.createElement("td");
+    cell1.style.width = "50%";
+    cell1.appendChild(this.relativeBars[rowIndex * 2]);
+    
+    const cell2 = document.createElement("td");
+    cell2.style.width = "50%";
+    cell2.appendChild(this.relativeBars[rowIndex * 2 + 1]);
 
-    frame.appendChild(this.relativeBars[barIndex * 2]);
-    frame.appendChild(this.relativeBars[barIndex * 2 + 1]);
+    tr.appendChild(label);
+    tr.appendChild(cell1);
+    tr.appendChild(cell2);
 
-    div.appendChild(label);
-    div.appendChild(frame);
-
-    return div;
+    return tr;
   }
   private updateRelBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
     for(var a = 0; a < teamAdamantium.length; a++){
@@ -445,17 +449,36 @@ export default class Stats {
       archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
       console.log(archonnums[id]);
     });*/
-    const relativeBarsParent = document.createElement("div");
+    // Create table structure
+    const relativeBarsTable = document.createElement("table");
+    relativeBarsTable.style.margin = "1rem 0 1rem 0";
+    const relativeBarsHeader = document.createElement("thead");
+    relativeBarsTable.appendChild(relativeBarsHeader);
+    const relativeBarsHeaderRow = document.createElement("tr");
+    relativeBarsHeader.appendChild(relativeBarsHeaderRow);
+
+    // Create blue/red team header
+    relativeBarsHeaderRow.appendChild(document.createElement("td")); // Empty cell
+    const redTeamHeader = document.createElement("td");
+    redTeamHeader.className = "stats-header";
+    redTeamHeader.innerText = "Red";
+    const blueTeamHeader = document.createElement("td");
+    blueTeamHeader.className = "stats-header";
+    blueTeamHeader.innerText = "Blue";
+    relativeBarsHeaderRow.appendChild(redTeamHeader);
+    relativeBarsHeaderRow.appendChild(blueTeamHeader);
+
+    // Create resource rows
+    const relativeBarsParent = document.createElement("tbody");
     relativeBarsParent.style.width = "100%";
-    relativeBarsParent.style.display = "flex";
-    relativeBarsParent.style.flexDirection = "column";
-    this.div.appendChild(relativeBarsParent);
+    relativeBarsTable.appendChild(relativeBarsParent);
+    this.div.appendChild(relativeBarsTable);
 
     this.relativeBars = this.initRelativeBars(teamIDs);
     const relativeBarsElements = [
-      this.createStatBarsElement("Adamantium", 0),
-      this.createStatBarsElement("Mana", 1),
-      this.createStatBarsElement("Elixir", 2)
+      this.createRelativeBarsRow("Adamantium", 0),
+      this.createRelativeBarsRow("Mana", 1),
+      this.createRelativeBarsRow("Elixir", 2)
     ];
     relativeBarsElements.forEach((relBar: HTMLDivElement) => { relativeBarsParent.appendChild(relBar);});
 
