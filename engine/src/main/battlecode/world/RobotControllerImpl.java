@@ -818,20 +818,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // --> Would check to see what resources a well holds
 
         Inventory robotInv = this.robot.getInventory();
-        int amount = this.gameWorld.getWell(loc).isUpgraded() ? 2:4
+        int amount = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
 
         if (robotInv.canAdd()) {
-            if (getWellType(loc) == ResourceType.ELIXIR)
+            if (gameWorld.getWellType(loc) == ResourceType.ELIXIR)
                 robotInv.addElixir(amount);
-            else if (getWellType(loc) == ResourceType.MANA)
+            else if (gameWorld.getWellType(loc) == ResourceType.MANA)
                 robotInv.addMana(amount);
             else
                 robotInv.addAdamantium(amount);
             }
 
-        // Will need ot update this last line
+        // Will need to update this last line
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
     }
+
+
         
 
     private void assertCanMineLead(MapLocation loc) throws GameActionException {
