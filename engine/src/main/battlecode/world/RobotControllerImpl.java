@@ -662,29 +662,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // **** MINER METHODS **** 
     // ***********************
 
-    /*
-     * ASSUMED METHODS:
-     * 
-     * InternalRobot:
-     * 
-     * Inventory getInventory()
-     * 
-     * 
-     * Inventory:
-     * 
-     * void add___(amount)
-     * 
-     * int get___()
-     * 
-     * boolean canAdd(int amount)
-     * 
-     * 
-     * GameWorld:
-     * 
-     * Well getWell(MapLocation loc)
-     * 
-     */
-
     private boolean isWell(MapLocation loc) {
         //TODO checks if the location is a well
     }
