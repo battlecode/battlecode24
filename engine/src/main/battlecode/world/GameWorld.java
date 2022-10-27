@@ -32,6 +32,8 @@ public strictfp class GameWorld {
     private int[] lead;
     private int[] gold;
     private InternalRobot[][] robots;
+    private int[] islandIds;
+    private HashMap<Integer, Island> islandIdToIsland;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -48,6 +50,7 @@ public strictfp class GameWorld {
         this.lead = gm.getLeadArray();
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
+        this.islandIds = new int[this.lead.length];
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -71,6 +74,24 @@ public strictfp class GameWorld {
             spawnRobot(robot.ID, robot.type, newLocation, robot.team);
         }
         this.teamInfo = new TeamInfo(this);
+
+        this.islandIdToIsland = new HashMap<>();
+        HashMap<Integer, List<MapLocation>> islandIdToLocations = new HashMap<>();
+        // Populate idToIsland map
+        for (int idx = 0; idx < islandIds.length; idx++) {
+            int islandId = islandIds[idx];
+            // Assume islandId 0 is not a real island and all other islands are actual islands
+            if (islandId != 0) {
+                List<MapLocation> prevLocations = islandIdToLocations.getOrDefault(islandId, new ArrayList<MapLocation>());
+                prevLocations.add(this.indexToLocation(idx));
+                islandIdToLocations.put(islandId, prevLocations);
+            }
+        }
+        this.islandIdToIsland.put(0, null);
+        for (int key : islandIdToLocations.keySet()) {
+            Island newIsland = new Island(this, key, islandIdToLocations.get(key));
+            this.islandIdToIsland.put(key, newIsland);            
+        }
 
         // Add initial amounts of resource
         this.teamInfo.addLead(Team.A, GameConstants.INITIAL_LEAD_AMOUNT);
@@ -238,6 +259,10 @@ public strictfp class GameWorld {
 
     public InternalRobot getRobot(MapLocation loc) {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+    }
+
+    public Island getIsland(MapLocation loc) {
+        return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
