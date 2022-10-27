@@ -394,8 +394,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        int dmg = this.type.getDamage(this.level);
-        bot.addHealth(-dmg);
+        if (!(bot == null)) {
+            int dmg = this.type.getDamage(this.level);
+            bot.addHealth(-dmg);
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
+        }
+        bot.addAdamantium(-bot.getAdamantium());
+        bot.addElixir(-bot.getElixir());
+        bot.addMana(-bot.getMana());
     }
 
     /**

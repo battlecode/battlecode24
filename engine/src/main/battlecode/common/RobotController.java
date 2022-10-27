@@ -652,8 +652,9 @@ public strictfp interface RobotController {
      * Tests whether this robot can attack the given location.
      * 
      * Checks that the robot is an attacking type unit and that the given location
-     * is within the robot's reach (based on attack type). Also checks that an 
-     * enemy unit exists in the given square, and there are no cooldown turns remaining.
+     * is within the robot's reach (based on attack type). Also checks that 
+     * there are no cooldown turns remaining and that a robot of the same team
+     * is not at the given location.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
