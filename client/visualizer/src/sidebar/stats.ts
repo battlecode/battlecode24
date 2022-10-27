@@ -4,16 +4,16 @@ import { AllImages } from '../imageloader';
 import { schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
-import { ARCHON } from '../constants';
+import { HEADQUARTERS } from '../constants';
 
 const hex: Object = {
   1: "#db3627",
   2: "#4f7ee6"
 };
 
-type ArchonBar = {
+type HeadQuarterBar = {
   bar: HTMLDivElement,
-  archon: HTMLSpanElement,
+  headQuarter: HTMLSpanElement,
   //bid: HTMLSpanElement
 };
 
@@ -49,7 +49,7 @@ export default class Stats {
   private robotImages: Map<string, Array<HTMLImageElement>> = new Map(); // the robot image elements in the unit statistics display 
   private robotTds: Map<number, Map<string, Map<number, HTMLTableCellElement>>> = new Map();
 
-  private archonBars: ArchonBar[];
+  private headQuarterBars: HeadQuarterBar[];
   private maxVotes: number;
 
   private incomeDisplays: IncomeDisplay[];
@@ -68,8 +68,9 @@ export default class Stats {
 
   private tourneyUpload: HTMLDivElement;
 
-  private incomeChartLead: Chart;
-  private incomeChartGold: Chart;
+  private incomeChartAdamantium: Chart;
+  private incomeChartMana: Chart;
+  private incomeChartElixir: Chart;
 
   private ECs: HTMLDivElement;
   
@@ -188,13 +189,14 @@ export default class Stats {
 
   private getRelativeBarsElement(){
     let metalIDs = [0, 1];
+    // left: Adamantium
     const divleft = document.createElement("div");
     divleft.setAttribute("align", "center");
     divleft.id = "relative-bars-left";
 
     const labelleft = document.createElement('div');
     labelleft.className = "stats-header";
-    labelleft.innerText = 'Gold';
+    labelleft.innerText = 'Adamantium';
 
     const frameleft = document.createElement("div");
     frameleft.style.width = "100%";
@@ -205,33 +207,55 @@ export default class Stats {
     divleft.appendChild(labelleft);
     divleft.appendChild(frameleft);
 
+    // mid: Mana
+    const divmid = document.createElement("div");
+    divmid.setAttribute("align", "center");
+    divmid.id = "relative-bars-mid";
+
+    const labelmid = document.createElement('div');
+    labelmid.className = "stats-header";
+    labelmid.innerText = 'Mana';
+
+    const framemid = document.createElement("div");
+    framemid.style.width = "100%";
+
+    framemid.appendChild(this.relativeBars[2]);
+    framemid.appendChild(this.relativeBars[3]);
+
+    divmid.appendChild(labelmid);
+    divmid.appendChild(framemid);
+    
+    // right: Elixir
     const divright = document.createElement("div");
     divright.setAttribute("align", "center");
     divright.id = "relative-bars-right";
 
     const labelright = document.createElement('div');
     labelright.className = "stats-header";
-    labelright.innerText = 'Lead';
+    labelright.innerText = 'Elixir';
 
     const frameright = document.createElement("div");
     frameright.style.width = "100%";
 
-    frameright.appendChild(this.relativeBars[2]);
-    frameright.appendChild(this.relativeBars[3]);
+    frameright.appendChild(this.relativeBars[4]);
+    frameright.appendChild(this.relativeBars[5]);
 
     divright.appendChild(labelright);
     divright.appendChild(frameright);
-    return [divleft, divright];
+    return [divleft, divmid, divright];
   }
-
-  private updateRelBars(teamLead: Array<number>, teamGold: Array<number>){
-    for(var a = 0; a < teamGold.length; a++){
-      this.relativeBars[a].innerHTML = teamGold[a].toString();
-      this.relativeBars[a].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
+  private updateRelBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
+    for(var a = 0; a < teamAdamantium.length; a++){
+      this.relativeBars[a].innerHTML = teamAdamantium[a].toString();
+      this.relativeBars[a].style.width = (Math.max(teamAdamantium[0], teamAdamantium[1]) === 0 ? 90:(90.0*teamAdamantium[a]/Math.max(teamAdamantium[0], teamAdamantium[1]))).toString() + "%";
     }
-    for(var a = 0; a < teamLead.length; a++){
-      this.relativeBars[a+2].innerHTML = teamLead[a].toString();
-      this.relativeBars[a+2].style.width = (Math.max(teamLead[0], teamLead[1]) === 0 ? 90:(90.0*teamLead[a]/Math.max(teamLead[0], teamLead[1]))).toString() + "%";
+    for(var a = 0; a < teamMana.length; a++){
+      this.relativeBars[a+2].innerHTML = teamMana[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamMana[0], teamMana[1]) === 0 ? 90:(90.0*teamMana[a]/Math.max(teamMana[0], teamMana[1]))).toString() + "%";
+    }
+    for(var a = 0; a < teamElixir.length; a++){
+      this.relativeBars[a+4].innerHTML = teamElixir[a].toString();
+      this.relativeBars[a+4].style.width = (Math.max(teamElixir[0], teamElixir[1]) === 0 ? 90:(90.0*teamElixir[a]/Math.max(teamElixir[0], teamElixir[1]))).toString() + "%";
     }
   }
 
@@ -308,16 +332,23 @@ export default class Stats {
     return table;
   }
 
-  private getIncomeLeadGraph() {
+  private getIncomeManaGraph() {
     const canvas = document.createElement("canvas");
-    canvas.id = "leadGraph";
+    canvas.id = "manaGraph";
     canvas.className = "graph";
     return canvas;
   }
 
-  private getIncomeGoldGraph() {
+  private getIncomeAdamantiumGraph() {
     const canvas = document.createElement("canvas");
-    canvas.id = "goldGraph";
+    canvas.id = "adamantiumGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getIncomeElixirGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "elixirGraph";
     canvas.className = "graph";
     return canvas;
   }
@@ -326,7 +357,7 @@ export default class Stats {
     const div = document.createElement('div');
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Archon Status';
+    label.innerText = 'HeadQuarter Status';
     div.appendChild(label);
     div.appendChild(this.ECs);
     return div;
@@ -463,32 +494,45 @@ export default class Stats {
 
     const graphs = document.createElement("div");
     graphs.style.display = 'flex';
-    const leadWrapper = document.createElement("div");
-    leadWrapper.style.width = "50%";
-    leadWrapper.style.float = "left";
-    const canvasElementLead = this.getIncomeLeadGraph();
-    leadWrapper.appendChild(canvasElementLead);    
-    graphs.appendChild(leadWrapper);
-    const goldWrapper = document.createElement("div");
-    goldWrapper.style.width = "50%";
-    goldWrapper.style.float = "right";
-    const canvasElementGold = this.getIncomeGoldGraph();
-    goldWrapper.appendChild(canvasElementGold);    
-    graphs.appendChild(goldWrapper);
+    // Adamantium
+    const adamantiumWrapper = document.createElement("div");
+    adamantiumWrapper.style.width = "33%";
+    adamantiumWrapper.style.float = "left";
+    const canvasElementAdamantium = this.getIncomeAdamantiumGraph();
+    adamantiumWrapper.appendChild(canvasElementAdamantium);    
+    graphs.appendChild(adamantiumWrapper);
+    
+    // Mana
+    const manaWrapper = document.createElement("div");
+    manaWrapper.style.width = "33%";
+    //TODO: double check the float of the middle element (Mana)
+    manaWrapper.style.float = "none";
+    const canvasElementMana = this.getIncomeManaGraph();
+    manaWrapper.appendChild(canvasElementMana);    
+    graphs.appendChild(manaWrapper);
     this.div.appendChild(graphs);
 
-    this.incomeChartLead = new Chart(canvasElementLead, {
+    // Elixir
+    const elixirWrapper = document.createElement("div");
+    elixirWrapper.style.width = "33%";
+    elixirWrapper.style.float = "right";
+    const canvasElementElixir = this.getIncomeElixirGraph();
+    elixirWrapper.appendChild(canvasElementElixir);    
+    graphs.appendChild(elixirWrapper);
+    this.div.appendChild(graphs);
+
+    this.incomeChartAdamantium = new Chart(canvasElementAdamantium, {
       type: 'line',
       data: {
           datasets: [{
-            label: 'Red Lead',
+            label: 'Red Adamantium',
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
             borderColor: 'rgb(131,24,27)',
             pointRadius: 0,
           },
           {
-            label: 'Blue Lead',
+            label: 'Blue Adamantium',
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
             borderColor: 'rgb(108, 140, 188)',
@@ -518,22 +562,63 @@ export default class Stats {
       }
     });
 
-    this.incomeChartGold = new Chart(canvasElementGold, {
+    this.incomeChartMana = new Chart(canvasElementMana, {
       type: 'line',
       data: {
           datasets: [
           {
-            label: 'Red Gold',
+            label: 'Red Mana',
             data: [],
             backgroundColor: 'rgba(162, 162, 235, 0)',
             borderColor: 'rgb(205,162,163)',
             pointRadius: 0,
           },
           {
-            label: 'Blue Gold',
+            label: 'Blue Mana',
             data: [],
             backgroundColor: 'rgba(54, 0, 235, 0)',
             borderColor: 'rgb(68, 176, 191)',
+            pointRadius: 0,
+          }]
+      },
+      options: {
+          aspectRatio: 0.75,
+          scales: {
+            xAxes: [{
+              type: 'linear',
+              ticks: {
+                beginAtZero: true
+            },
+              scaleLabel: {
+                display: true,
+                labelString: "Turn"
+              }
+            }],
+              yAxes: [{
+                type: 'linear',
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+    });
+
+    this.incomeChartElixir = new Chart(canvasElementElixir, {
+      type: 'line',
+      data: {
+          datasets: [{
+            label: 'Red Elixir',
+            data: [],
+            backgroundColor: 'rgba(255, 99, 132, 0)',
+            borderColor: 'rgb(131,24,27)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Blue Elixir',
+            data: [],
+            backgroundColor: 'rgba(54, 162, 235, 0)',
+            borderColor: 'rgb(108, 140, 188)',
             pointRadius: 0,
           }]
       },
@@ -611,8 +696,8 @@ export default class Stats {
    */
   setVotes(teamID: number, count: number) {
     // TODO: figure out if statbars.get(id) can actually be null??
-    const statBar: ArchonBar = this.archonBars[teamID];
-    statBar.archon.innerText = String(count);
+    const statBar: HeadQuarterBar = this.headQuarterBars[teamID];
+    statBar.headQuarter.innerText = String(count);
     this.maxVotes = Math.max(this.maxVotes, count);
     statBar.bar.style.width = `${Math.min(100 * count / this.maxVotes, 100)}%`;
 
@@ -644,26 +729,34 @@ export default class Stats {
     
     if (!teamTurnsIncomeSet!.has(turn)) {
       //@ts-ignore
-      this.incomeChartLead.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
+      this.incomeChartAdamantium.data.datasets![teamID - 1].data?.push({y: adamantiumIncome, x: turn});
       //@ts-ignore
-      this.incomeChartGold.data.datasets![teamID - 1].data?.push({y: goldIncome, x: turn});
-      this.incomeChartLead.data.datasets?.forEach((d) => {
+      this.incomeChartMana.data.datasets![teamID - 1].data?.push({y: manaIncome, x: turn});
+      //@ts-ignore
+      this.incomeChartElixir.data.datasets![teamID - 1].data?.push({y: elixirIncome, x: turn});
+
+      this.incomeChartAdamantium.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
-      this.incomeChartGold.data.datasets?.forEach((d) => {
+      this.incomeChartMana.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
+      this.incomeChartElixir.data.datasets?.forEach((d) => {
+        d.data?.sort((a, b) => a.x - b.x);
+      });
+
       teamTurnsIncomeSet?.add(turn);
-      this.incomeChartLead.update();
-      this.incomeChartGold.update();
+      this.incomeChartAdamantium.update();
+      this.incomeChartMana.update();
+      this.incomeChartElixir.update();
     }
     // update bars here
     //console.log(teamID, count, "fsdfsdf");
     //if(robotType === ARCHON) this.updateRelBars(teamID, count);
   }
   
-  updateBars(teamLead: Array<number>, teamGold: Array<number>){
-    this.updateRelBars(teamLead, teamGold);
+  updateBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
+    this.updateRelBars(teamAdamantium, teamMana, teamElixir);
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
