@@ -705,7 +705,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             is not a well or a headquarter");
     }
 
-    private boolean canTransferResource(MapLocation loc){
+    private boolean canTransferAdamantium(MapLocation loc){
         try {
             assertCanTransferResource(loc);
             return true;
@@ -714,21 +714,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void transferAdamantium(MapLocation loc){
+        assertCanTransferResource(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Inventory robotInv = this.robot.getInventory();
+        int amount = robotInv.getAdamantium();
         if(isWell(loc)){
-            Inventory robotInv = this.robot.getInventory();
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            int amount = robotInv.getAdamantium();
-
             wellInv.addAdamantium(amount);
             robotInv.addAdamantium(-amount);
         }
         else if(isHeadquarter(loc)){
-            Inventory robotInv = this.robot.getInventory();
-            int amount = robotInv.getAdamantium();
-
             this.gameWorld.getTeamInfo().addAdamantium(getTeam(), amount);
-            robotInv.removeAdamantium(amount);
+            robotInv.addAdamantium(-amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
@@ -742,21 +739,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void transferMana(MapLocation loc){
+        assertCanTransferResource(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Inventory robotInv = this.robot.getInventory();
+        int amount = robotInv.getMana();
         if(isWell(loc)){
-            Inventory robotInv = this.robot.getInventory();
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            int amount = robotInv.getMana();
-
             wellInv.addMana(amount);
             robotInv.addMana(-amount);
         }
         else if(isHeadquarter(loc)){
-            Inventory robotInv = this.robot.getInventory();
-            int amount = robotInv.getMana();
-
             this.gameWorld.getTeamInfo().addMana(getTeam(), amount);
-            robotInv.removeMana(amount);
+            robotInv.addMana(-amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
@@ -770,21 +764,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void transferElixir(MapLocation loc){
+        assertCanTransferResource(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Inventory robotInv = this.robot.getInventory();
+        int amount = robotInv.getElixir();
         if(isWell(loc)){
-            Inventory robotInv = this.robot.getInventory();
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            int amount = robotInv.getElixir();
-
             wellInv.addElixir(amount);
             robotInv.addElixir(-amount);
         }
         else if(isHeadquarter(loc)){
-            Inventory robotInv = this.robot.getInventory();
-            int amount = robotInv.getElixir();
-
             this.gameWorld.getTeamInfo().addElixir(getTeam(), amount);
-            robotInv.removeElixir(amount);
+            robotInv.addElixir(-amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
