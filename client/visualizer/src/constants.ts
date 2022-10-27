@@ -10,9 +10,10 @@ export const DESTABILIZER = schema.BodyType.DESTABILIZER
 export const BOOSTER = schema.BodyType.BOOSTER
 
 export const bodyTypeList: number[] = [HEADQUARTERS, CARRIER, LAUNCHER, AMPLIFIER, DESTABILIZER, BOOSTER]
-export const buildingTypeList: number[] = [HEADQUARTERS];
+export const buildingTypeList: number[] = [HEADQUARTERS]
 export const initialBodyTypeList: number[] = [HEADQUARTERS]
-export const anomalyList = [0, 1, 2, 3]
+
+export const RESOURCENAMES = { 0: "none", 1: "adamantium", 2: "elixir", 3: "mana" }
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
@@ -35,9 +36,9 @@ export const TILE_COLORS: Array<number>[] = [
   [156, 143, 126],
   [145, 130, 110],
   [130, 117, 100],
-  [122, 109,  91],
-  [115, 102,  85],
-  [102,  92,  75]
+  [122, 109, 91],
+  [115, 102, 85],
+  [102, 92, 75]
 ]
 // flashy colors
 // [0, 147, 83], // turquoise
@@ -50,7 +51,7 @@ export const TILE_COLORS: Array<number>[] = [
 // Given passability, get index of tile to use.
 export const getLevel = (x: number): number => {
   const nLev = TILE_COLORS.length
-  const level = Math.floor((x + 9) / 10);
+  const level = Math.floor((x + 9) / 10)
   return Math.min(nLev - 1, Math.max(0, level))
 }
 

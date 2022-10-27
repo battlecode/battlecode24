@@ -15,10 +15,10 @@ import WebSocketListener from '../main/websocket';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
 import { Tournament, readTournament } from '../main/tournament';
-import { ARCHON } from '../constants';
 
 
 import * as bcg from "../../../../schema/ts/battlecode_generated";
+import { HEADQUARTERS } from '../constants'
 let anomConsts = bcg.battlecode.schema.Action;
 /*
 Responsible for a single match in the visualizer.
@@ -86,9 +86,9 @@ export default class Looper {
             this.lastSelectedID = id;
             this.console.setIDFilter(id);
         };
-        const onMouseover = (x: number, y: number, xrel: number, yrel: number, walls: number, resource: { type: number, adamantium: number, mana: number, elixir: number, upgraded: boolean }) => {
+        const onMouseover = (x: number, y: number, xrel: number, yrel: number, walls: number, resource_type: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => {
             // Better make tile type and hand that over
-            controls.setTileInfo(x, y, xrel, yrel, walls, resource);
+            controls.setTileInfo(x, y, xrel, yrel, walls, resource_type, well_stats);
         };
 
         // Configure renderer for this match
@@ -354,8 +354,9 @@ export default class Looper {
         //     }
         // }
 
-        let teamLead: number[] = [];
-        let teamGold: number[] = [];
+        let teamAdamantium: number[] = [];
+        let teamMana: number[] = [];
+        let teamElixir: number[] = [];
         for (let team in meta.teams) {
             let teamID = meta.teams[team].teamID;
             let teamStats = world.teamStats.get(teamID) as TeamStats;
@@ -391,25 +392,20 @@ export default class Looper {
         }
 
         for(var a = 0; a < teamIDs.length; a++){
-            //@ts-ignore
-            teamLead.push(world.teamStats.get(teamIDs[a]).lead);
-            //@ts-ignore
-            teamGold.push(world.teamStats.get(teamIDs[a]).gold);
-            //@ts-ignore
-            //console.log(world.teamStats.get(teamIDs[a]).lead, world.teamStats.get(teamIDs[a]).gold, teamIDs[a]);
+            teamAdamantium.push(world.teamStats.get(teamIDs[a])!.adamantium)
+            teamMana.push(world.teamStats.get(teamIDs[a])!.mana)
+            teamElixir.push(world.teamStats.get(teamIDs[a])!.elixir)
         }
     
-        this.stats.updateBars(teamLead, teamGold);
+        this.stats.updateBars(teamAdamantium, teamMana, teamElixir);
         this.stats.resetECs();
         const hps = world.bodies.arrays.hp;
         const teams = world.bodies.arrays.team;
         const types = world.bodies.arrays.type;
-        const portables = world.bodies.arrays.portable;
-        const levels = world.bodies.arrays.portable;
         teamIDs.forEach((team) => { 
             for(var i = 0; i < hps.length; i++){
-                if(types[i] == ARCHON && teams[i] == team) {
-                    this.stats.addEC(teams[i], hps[i], portables[i], levels[i]);
+                if(types[i] == HEADQUARTERS && teams[i] == team) {
+                    this.stats.addEC(teams[i], hps[i]);
                 }
             }
         });

@@ -434,13 +434,18 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, walls: number, resource: { type: number, adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
     let content: string = "";
     content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3);
     content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3);
-    content += ' | Rubble: ' + `<b>${rubble}</b>`;
-    content += ' | Lead: ' + `<b>${lead}</b>`;
-    content += ' | Gold: ' + `<b>${gold}</b>`;
+    content += ' | Wall: ' + `<b>${walls}</b>`;
+    
+    content += ' | Resource: ' + `<b>${cst.RESOURCENAMES[resource]}</b>`;
+    if(resource > 0){
+      content += ' < Well: ';
+      content += JSON.stringify(well_stats)
+      content += '>'
+    }
 
     this.tileInfo.innerHTML = content;
   }
