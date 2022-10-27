@@ -91,19 +91,18 @@ export default class MapRenderer {
   private renderBackground(map: GameMap): void {
     for(let i = 0; i < this.width; i++){
       for(let j = 0; j < this.height; j++){
-        const rubble = map.rubble[(map.height-j-1)*this.width + i];
-        this.renderTile(i, j, rubble);
+        const wall = map.walls[(map.height-j-1)*this.width + i];
+        this.renderTile(i, j, wall);
         
       }
     }
   }
 
-  private renderTile(i: number, j: number, rubble: number) {
+  private renderTile(i: number, j: number, wall: boolean) {
     this.ctx.save();
     const scale = 20;
     this.ctx.scale(1/scale, 1/scale);
-    const swampLevel = cst.getLevel(rubble);
-    const tileImg = this.imgs.tiles[swampLevel];
+    const tileImg = this.imgs.tiles[0];
     this.ctx.drawImage(tileImg, i*scale, j*scale, scale, scale);
     this.ctx.strokeStyle = 'gray';
     this.ctx.globalAlpha = 1;
@@ -123,6 +122,7 @@ export default class MapRenderer {
       return 1 / (1 + Math.exp(-x))
     }
 
+    /*
     for (let i = 0; i < this. width; i++) for (let j = 0; j < this.height; j++) {
       const lead = map.leadVals[(map.height-j-1)*this.width + i];
 
@@ -138,6 +138,7 @@ export default class MapRenderer {
         this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
       }
     }
+    */
 
     this.ctx.restore()
   }
@@ -216,7 +217,7 @@ export default class MapRenderer {
 
     this.canvas.onmousemove = (event) => {
       const {x,y} = this.getIntegerLocation(event, this.map);
-      this.onMouseover(x, y, this.map.rubble[(y)*this.width + x], this.map.leadVals[y*this.width + x]);
+      //this.onMouseover(x, y, this.map.rubble[(y)*this.width + x], this.map.leadVals[y*this.width + x]);
       hoverPos = {x: x, y: y};
     };
 
