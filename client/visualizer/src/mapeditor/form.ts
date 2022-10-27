@@ -5,7 +5,7 @@ import {cow_border as cow} from '../cow';
 
 import {schema, flatbuffers} from 'battlecode-playback';
 
-import {MapRenderer, HeaderForm, SymmetryForm, RobotForm, TileForm, LeadForm, AnomalyForm, UploadedMap} from './index';
+import {MapRenderer, HeaderForm, SymmetryForm, RobotForm, TileForm, LeadForm, UploadedMap} from './index';
 import { throws } from 'assert';
 
 export type MapUnit = {
@@ -49,7 +49,6 @@ export default class MapEditorForm {
   private readonly robotsForm: RobotForm;
   private readonly tilesForm: TileForm;
   private readonly leadForm: LeadForm;
-  private readonly anomaliesForm: AnomalyForm;
 
   private robotsRadio: HTMLInputElement;
   private tilesRadio: HTMLInputElement;
@@ -129,7 +128,6 @@ export default class MapEditorForm {
     this.robotsForm = new RobotForm(cbWidth, cbHeight); // robot info (type, x, y, ...)
     this.tilesForm = new TileForm(cbWidth, cbHeight);
     this.leadForm = new LeadForm(cbWidth, cbHeight);
-    this.anomaliesForm = new AnomalyForm();
     this.buttonDelete = document.createElement("button");
     this.buttonAdd = document.createElement("button");
     this.buttonReverse = document.createElement("button");
@@ -276,28 +274,7 @@ export default class MapEditorForm {
     leadLabel.setAttribute("for", this.leadRadio.id);
     leadLabel.textContent = "Lead";
 
-    // Radio button for anomalies
-    this.anomaliesRadio.id = "anomalies-radio";
-    this.anomaliesRadio.type = "radio";
-    this.anomaliesRadio.name = "edit-option";
 
-    this.anomaliesRadio.onchange = () => {
-      // Change the displayed form
-      if (this.anomaliesRadio.checked) {
-        while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-        this.forms.appendChild(this.anomaliesForm.div);
-        this.buttonDelete.style.display = "";
-        this.buttonAdd.style.display = "";
-        this.buttonReverse.style.display = "none";
-        this.buttonRandomize.style.display = "none";
-        this.buttonInvert.style.display = "none";
-      }
-    };
-
-    const anomaliesLabel = document.createElement("label");
-    anomaliesLabel.setAttribute("for", this.anomaliesRadio.id);
-    anomaliesLabel.textContent = "Anomalies";
-    
     // Add radio buttons HTML element
     div.appendChild(this.tilesRadio);
     div.appendChild(tilesLabel);
@@ -306,7 +283,6 @@ export default class MapEditorForm {
     div.appendChild(this.leadRadio);
     div.appendChild(leadLabel);
     div.appendChild(this.anomaliesRadio);
-    div.appendChild(anomaliesLabel);
     div.appendChild(document.createElement("br"));
 
     return div;
@@ -358,29 +334,6 @@ export default class MapEditorForm {
         const y = form.getY();
         const lead = form.getLead();
         this.setLead(x, y, lead);
-      } else if (this.getActiveForm() == this.anomaliesForm) {
-        const form: AnomalyForm = this.anomaliesForm;
-        const anomaly = form.getAnomaly();
-        const round = form.getRound();
-
-        let exists = this.anomalyRounds.indexOf(round);
-        if (exists == -1) {
-          this.anomalies.push(anomaly);
-          this.anomalyRounds.push(round);
-
-          let indices = Array.from(this.anomalyRounds.keys())
-          indices.sort((i, j) => 
-              this.anomalyRounds[i] - this.anomalyRounds[j]);
-          this.anomalyRounds.sort((a,b) => a-b);
-          let old_anomalies = this.anomalies.slice();
-          for (let i = 0; i < indices.length; i++) {
-            this.anomalies[i] = old_anomalies[indices[i]];
-          }
-        } 
-        else {
-          this.anomalies[exists] = anomaly;
-        }
-        this.setAnomalyInfo();
       }
     }
 
@@ -396,16 +349,6 @@ export default class MapEditorForm {
         const x = form.getX();
         const y = form.getY();
         this.setLead(x, y, 0);
-      } else if (this.getActiveForm() == this.anomaliesForm) {
-        const form: AnomalyForm = this.anomaliesForm;
-        const round = form.getRound();
-        let i = this.anomalyRounds.indexOf(round);
-        console.log("index:", i);
-        if (i != -1) {
-          this.anomalyRounds.splice(i, 1);
-          this.anomalies.splice(i, 1);
-        }
-        this.setAnomalyInfo();
       }
     }
 
@@ -573,8 +516,8 @@ export default class MapEditorForm {
   /**
    * @return the active form based on which radio button is selected
    */
-  private getActiveForm(): RobotForm | TileForm | LeadForm | AnomalyForm {
-    return (this.tilesRadio.checked ? this.tilesForm : (this.robotsRadio.checked ? this.robotsForm : (this.leadRadio.checked ? this.leadForm : this.anomaliesForm)))
+  private getActiveForm(): RobotForm | TileForm | LeadForm {
+    return (this.tilesRadio.checked ? this.tilesForm : (this.robotsRadio.checked ? this.robotsForm : this.leadForm))
   }
 
   /**
