@@ -138,7 +138,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean getNumRealityAnchors();
+    boolean checkHasAnchor();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
