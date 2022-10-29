@@ -273,42 +273,27 @@ export default class Renderer {
       this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]))
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
-      // // draw effect
-      // if (actions[i] == schema.Action.ATTACK) {
-      //   let yshift = (teams[i] - 1.5) * .15 + 0.5
-      //   let xshift = (teams[i] - 1.5) * .15 + 0.5
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-      //   this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
-      //   this.ctx.lineWidth = 0.05
-      //   this.ctx.stroke()
-      //   this.ctx.restore()
-      // }
-
-      // if (this.conf.showAnomalies) {
-      //   if (actions[i] == schema.Action.LOCAL_ABYSS || actions[i] == schema.Action.LOCAL_CHARGE || actions[i] == schema.Action.LOCAL_FURY) {
-      //     this.ctx.save()
-      //     this.ctx.globalAlpha = 1
-      //     this.ctx.beginPath()
-      //     this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false)
-      //     //this.ctx.fillStyle = actions[i] == schema.Action.LOCAL_ABYSS ? "purple" : actions[i] == schema.Action.LOCAL_CHARGE ? "yellow" : "red";
-      //     this.ctx.setLineDash([1, 2])
-      //     this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
-      //     this.ctx.stroke()
-
-      //     this.ctx.beginPath()
-      //     this.ctx.arc(realXs[i] + 0.5, realYs[i] + 0.5, Math.sqrt(this.metadata.types[types[i]].actionRadiusSquared), 0, 2 * Math.PI, false)
-      //     this.ctx.strokeStyle = (actions[i] === schema.Action.LOCAL_ABYSS) ? "Blue" : (actions[i] === schema.Action.LOCAL_CHARGE) ? "Yellow" : (actions[i] === schema.Action.LOCAL_FURY) ? "Red" : "White"
-      //     this.ctx.setLineDash([1, 1.5])
-      //     this.ctx.stroke()
-
-      //     this.ctx.globalAlpha = 1
-      //     this.ctx.restore()
-      //   }
-      // }
-
+      // draw effect
+      if (actions[i] == schema.Action.THROW_ATTACK) {
+        // Direction
+        const target = targets[i];
+        let yshift = (teams[i] - 1.5) * .15 + 0.5
+        let xshift = (teams[i] - 1.5) * .15 + 0.5
+        this.ctx.save()
+        this.ctx.beginPath()
+        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
+        this.ctx.lineWidth = 0.05
+        this.ctx.stroke()
+        this.ctx.restore()
+      }
+      
+      if (actions[i] == schema.Action.DESTABILIZE || actions[i] == schema.Action.BOOST) {
+        const color = actions[i] == schema.Action.DESTABILIZE ? "#573f5e3F" : "#00F0003F"
+        this.drawCircle(realXs[i], realYs[i], 25, color, teams[i] == 1 ? "red" : "blue");
+      }
+      
       // if (actions[i] == schema.Action.REPAIR) {
       //   let yshift = 0.5
       //   let xshift = 0.5
@@ -363,6 +348,17 @@ export default class Renderer {
     this.ctx.strokeStyle = color
     this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
     this.ctx.stroke()
+  }
+
+  private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
+    if (this.conf.doingRotate) [x, y] = [y, x]
+    this.ctx.beginPath()
+    this.ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
+    this.ctx.strokeStyle = borderColor
+    this.ctx.lineWidth = 0.10;
+    this.ctx.stroke()
+    this.ctx.fillStyle = color;
+    this.ctx.fill()
   }
 
   /**
