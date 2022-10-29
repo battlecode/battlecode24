@@ -670,91 +670,90 @@ public final strictfp class RobotControllerImpl implements RobotController {
         //TODO checks if the location is a headquarter
     }
 
-    private void assertCanTransferResource(MapLocation loc) throws GameActionException {
+    private void assertCanTransferResource(MapLocation loc, ResourceType type, int amount) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
 
-        if(!getType() == RobotType.CARRIER)
+        if(getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
+        if(this.robot.getInventory.getResource(type) < amount)
+            throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         if(!isWell(loc) && !isHeadquarter(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that
             is not a well or a headquarter");
     }
 
-    private boolean canTransferAdamantium(MapLocation loc){
+    private boolean canTransferAd(MapLocation loc, int amount){
         try {
-            assertCanTransferResource(loc);
+            assertCanTrarnsferResource(loc, ResourceType.ADAMANTIUM, amount);
             return true;
         } catch(GameActionException e) {return false;}
-        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
-    private void transferAdamantium(MapLocation loc){
-        assertCanTransferResource(loc);
+    private void transferAd(MapLocation loc, int amount){
+        assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
-        int amount = robotInv.getAdamantium();
         if(isWell(loc)){
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
             wellInv.addAdamantium(amount);
             robotInv.addAdamantium(-amount);
         }
         else if(isHeadquarter(loc)){
-            this.gameWorld.getTeamInfo().addAdamantium(getTeam(), amount);
-            robotInv.addAdamantium(-amount);
+            Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
+            headquarterInv.addAdamantium(amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
+        //TODO update addAction once we have new action types!
     }
 
-    private boolean canTransferMana(MapLocation loc){
+    private boolean canTransferMn(MapLocation loc, int amount){
         try {
-            assertCanTransferResource(loc);
+            assertCanTrarnsferResource(loc, ResourceType.MANA, amount);
             return true;
         } catch(GameActionException e) {return false;}
-        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
-    private void transferMana(MapLocation loc){
-        assertCanTransferResource(loc);
+    private void transferMn(MapLocation loc, int amount){
+        assertCanTransferResource(loc, ResourceType.MANA, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
-        int amount = robotInv.getMana();
         if(isWell(loc)){
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
             wellInv.addMana(amount);
             robotInv.addMana(-amount);
         }
         else if(isHeadquarter(loc)){
-            this.gameWorld.getTeamInfo().addMana(getTeam(), amount);
-            robotInv.addMana(-amount);
+            Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
+            headquarterInv.addMana(amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
+        //TODO update addAction once we have new action types!
     }
 
-    private boolean canTransferElixir(MapLocation loc){
+    private boolean canTransferEx(MapLocation loc, int amount){
         try {
-            assertCanTransferResource(loc);
+            assertCanTrarnsferResource(loc, ResourceType.ELIXIR, amount);
             return true;
         } catch(GameActionException e) {return false;}
-        //TODO should we allow the wrong type of resource to be thrown into a well?
     }
 
     private void transferElixir(MapLocation loc){
-        assertCanTransferResource(loc);
+        assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
-        int amount = robotInv.getElixir();
         if(isWell(loc)){
             Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
             wellInv.addElixir(amount);
             robotInv.addElixir(-amount);
         }
         else if(isHeadquarter(loc)){
-            this.gameWorld.getTeamInfo().addElixir(getTeam(), amount);
-            robotInv.addElixir(-amount);
+            Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
+            headquarterInv.addElixir(amount);
         }
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
+        //TODO update addAction once we have new action types!
     }
 
     private void assertCanCollect(MapLocation loc){
