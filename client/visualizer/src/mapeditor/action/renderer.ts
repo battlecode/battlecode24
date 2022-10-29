@@ -102,7 +102,7 @@ export default class MapRenderer {
     this.ctx.save();
     const scale = 20;
     this.ctx.scale(1/scale, 1/scale);
-    const tileImg = this.imgs.tiles[0];
+    const tileImg = this.imgs.tiles[wall ? 1 : 0];
     this.ctx.drawImage(tileImg, i*scale, j*scale, scale, scale);
     this.ctx.strokeStyle = 'gray';
     this.ctx.globalAlpha = 1;
@@ -167,6 +167,7 @@ export default class MapRenderer {
     let img: HTMLImageElement;
 
     const teamID = body.teamID || 0;
+    debugger
     img = this.imgs.robots[cst.bodyTypeToString(body.type)][teamID];
     this.drawImage(img, x, y, radius);
   }
