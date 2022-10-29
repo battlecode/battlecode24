@@ -720,22 +720,6 @@ public strictfp interface RobotController {
     // ***** CARRIER METHODS *****
     // ***************************
 
-    boolean canCollectResource(MapLocation loc);
-
-    void collectResource(MapLocation loc) throws GameActionException;
-
-    boolean canTransferAdamantium(MapLocation loc);
-
-    void transferAdamantium(MapLocation loc);
-
-    boolean canTransferMana(MapLocation loc);
-
-    void transferMana(MapLocation loc);
-
-    boolean canTransferElixir(MapLocation loc);
-
-    void transferElixir(MapLocation loc);
-
     /**
      * Tests whether the robot can transfer adamantium to a given location.
      * 
