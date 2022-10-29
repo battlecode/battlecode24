@@ -268,7 +268,7 @@ export default class Renderer {
     }
 
     const renderBot = (i: number) => {
-      let img = this.imgs.robots[cst.bodyTypeToString(types[i])][teams[i]]
+      let img = this.imgs.robots[types[i]][teams[i]]
       let max_hp = this.metadata.types[types[i]].health
       this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]))
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
