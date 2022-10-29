@@ -3,6 +3,7 @@ package battlecode.world.robots;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
+import battlecode.schema.Action;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
 
@@ -32,9 +33,9 @@ public class InternalCarrier extends InternalRobot {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.type.getDamage(bot.getAd()+bot.getElixir()+bot.getMn());
+            int dmg = this.getType().getDamage(bot.getAd()+bot.getElixir()+bot.getMn());
             bot.addHealth(-dmg);
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
         bot.addAd(-bot.getAd());
         bot.addElixir(-bot.getElixir());

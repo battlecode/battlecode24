@@ -399,10 +399,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             bot.addHealth(-dmg);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
-        bot.getAd()+bot.getElixir()+bot.getMn()
-        bot.addAd(-bot.getAd());
-        bot.addElixir(-bot.getElixir());
-        bot.addMn(-bot.getMn());
     }
 
     /**
