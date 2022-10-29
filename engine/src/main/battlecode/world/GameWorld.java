@@ -31,6 +31,7 @@ public strictfp class GameWorld {
     private int[] rubble;
     private int[] lead;
     private int[] gold;
+    private HashMap[] boosts;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -54,6 +55,8 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
+
+        HashMap[] boosts = gm.getBoostsArray(); //NEED TO CREATE THIS
 
         this.profilerCollections = new HashMap<>();
 
@@ -231,6 +234,62 @@ public strictfp class GameWorld {
         return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
                                idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
     }
+
+    // ***********************************
+    // ****** BOOST METHODS **************
+    // ***********************************
+    //create boosts array 
+    public void createBoostsArray(){
+        for (int i = 0; i < boosts.length; i++){
+            boosts[i] = new HashMap<Integer, ArrayList>();
+            boosts[i].put(1, new ArrayList()); //team 1 boosts
+            boosts[i].put(0, new ArrayList()); //team 0 boosts
+            boosts[i].put(-1, new ArrayList()); //destabilizers
+            boosts[i].put(-2, new ArrayList()); //clouds if putting clouds here too
+        } 
+        for (MapLocation loc : getAllLocations()){
+            
+        }
+    }
+    public void addBoostFromRobot(MapLocation loc, InternalRobot booster, int lastRound){
+        if (booster.getType() == RobotType.BOOSTER){ //need to update RobotType
+            ((ArrayList)(this.boosts[locationToIndex(loc)].get(booster.getTeam().ordinal()))).add(booster.getID()); 
+        }//also put round ending here?`
+        else{
+            ((ArrayList)this.boosts[locationToIndex(loc)].get(-1)).add(booster.getID());
+        }
+    }
+    public void removeBoost(MapLocation loc, int sourceID){
+        return;
+    } 
+    /**
+     * 
+     * @param loc the location where the boost is applied to (the circle)
+     * @param radiusSquared the square of the radius of the boost size
+     * @param duration the duration of the boost in turns
+     * @param multiplier the amount by which the boost multiplies (per team??)
+     * @param sourceID an ID identifying what created the boost
+     * @param teamID the ID of the team to which this boost applies to, -1 if applies to both teams
+     */
+    public void createBoost(MapLocation loc, InternalRobot booster){
+        int radiusSquared, lastRound;
+        if (booster.getType() == RobotType.BOOSTER){
+            radiusSquared = 40; 
+            lastRound = getCurrentRound()+10;
+        }
+        else{
+            radiusSquared = 20;
+            lastRound = getCurrentRound()+5;
+        }
+        for (MapLocation boostedSquare : getAllLocationsWithinRadiusSquared(loc, radiusSquared)){
+            addBoostFromRobot(boostedSquare, booster, lastRound);
+        }
+        //in duration amount of turns:
+        for (MapLocation boostedSquare : getAllLocationsWithinRadiusSquared(loc, radiusSquared)){
+            removeBoost(boostedSquare, booster.getID());
+        }
+    } //how to make sourceID (unique for each object or for each type of object?)
+    //have to change MapLocation (?)
 
     // ***********************************
     // ****** ROBOT METHODS **************
