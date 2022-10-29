@@ -51,6 +51,15 @@ public class Inventory {
     }
 
     /**
+     * Convenience method that returns the amount of the given resource type.
+     */
+    public int getResource(ResourceType type) {
+        if(type == ResourceType.ADAMANTIUM) return adamantium;
+        else if(type == ResourceType.ELIXIR) return elixir;
+        return mana;
+    }
+
+    /**
      * Checks if the given weight of resources can be added to the inventory without going over the maximum capacity.
      */
     public boolean canAdd(int amount) {
