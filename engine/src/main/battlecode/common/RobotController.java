@@ -1,5 +1,4 @@
 package battlecode.common;
-import java.util.ArrayList;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -722,54 +721,183 @@ public strictfp interface RobotController {
     // ***************************
 
     /**
-     * Tests whether the robot can mine lead at a given location.
+     * Tests whether the robot can transfer adamantium to a given location.
      * 
-     * Checks that the robot is a Miner, and the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive lead amounts. Also checks that no cooldown turns remain.
+     * Checks that the robot is a Carrier, the given location is a valid HQ
+     * or well location, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can transfer the amount (donor has sufficient 
+     * resource). Wells can only be transferred to. 
      *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
+     * @param loc target location to transfer to
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineLead(MapLocation loc);
+    boolean canTransferAd(MapLocation loc, int amount);
 
     /** 
-     * Mine lead at a given location.
-     *
-     * @param loc target location to mine
-     * @throws GameActionException if conditions for mining are not satisfied
+     * Transfers adamantium to/from given location. Transferred material is 
+     * limited by carrier capacity. 
+     * 
+     * @param loc target location to transfer to/from
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for transferring are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void mineLead(MapLocation loc) throws GameActionException;
+    void transferAd(MapLocation loc, int amount) throws GameActionException;
 
     /**
-     * Tests whether the robot can mine gold at a given location.
+     * Tests whether the robot can transfer mana to a given location.
      * 
-     * Checks that the robot is a Miner, that the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive gold amounts. Also checks that no cooldown turns remain.
+     * Checks that the robot is a Carrier, the given location is a valid HQ
+     * or well location, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can transfer the amount (donor has sufficient 
+     * resource). Wells can only be transferred to. 
      *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
+     * @param loc target location to transfer to
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMineGold(MapLocation loc);
+    boolean canTransferMn(MapLocation loc, int amount);
 
     /** 
-     * Mine a gold at given location.
-     *
-     * @param loc target location to mine
-     * @throws GameActionException if conditions for mining are not satisfied
+     * Transfers mana to/from given location. Transferred material is 
+     * limited by carrier capacity. 
+     * 
+     * @param loc target location to transfer to/from
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for transferring are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void mineGold(MapLocation loc) throws GameActionException;
+    void transferMn(MapLocation loc, int amount) throws GameActionException;
+
+
+    /**
+     * Tests whether the robot can transfer elixir to a given location.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ
+     * or well location, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can transfer the amount (donor has sufficient 
+     * resource). Wells can only be transferred to. 
+     *
+     * @param loc target location to transfer to
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransferEx(MapLocation loc, int amount);
+
+    /** 
+     * Transfers elixir to/from given location. Transferred material is 
+     * limited by carrier capacity. 
+     * 
+     * @param loc target location to transfer to/from
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for transferring are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void transferEx(MapLocation loc, int amount) throws GameActionException;
+
+    /**
+     * Tests whether the robot can take an anchor from an HQ.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ, 
+     * and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier has sufficient capacity for the anchor. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @return whether it is possible to take anchor from given location
+     */
+    boolean canTakeAnchor(MapLocation loc, int anchorType);
+
+    /** 
+     * Take an anchor from the given location. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @throws GameActionException if conditions for taking are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void takeAnchor(MapLocation loc, int anchorType) throws GameActionException;
+
+    /**
+     * Tests whether the robot can collect resource from a given location.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid well location, 
+     * and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can collect the amount (amount does not exceed
+     * current well rate, carrier has sufficient capacity).
+     *
+     * @param loc target location to collect 
+     * @param amount amount to be collected
+     * @return whether it is possible to collect amount to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canCollectResource(MapLocation loc, int amount);
+
+    /** 
+     * Collect resource from the given location. 
+     *
+     * @param loc target well location
+     * @param amount amount to collect
+     * @throws GameActionException if conditions for collecting are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void collectResource(MapLocation loc, int amount) throws GameActionException;
+
+    /**
+     * Tests whether the robot can place an anchor at its current location.
+     * 
+     * Checks that the robot is a Carrier, the robot is holding an anchor,
+     * the given location is a valid sky island, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be a sky island not already controlled by the opposing team. 
+     *
+     * @return whether it is possible to place an anchor
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canPlaceAnchor();
+
+    /** 
+     * Places an anchor at the current location. 
+     * 
+     * @throws GameActionException if conditions for placing anchors are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void placeAnchor() throws GameActionException;
 
     // ***************************
     // **** AMPLIFIER METHODS **** 
