@@ -780,27 +780,35 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
     }
 
-    private void assertCanCollect(MapLocation loc){
+    private void assertCanCollect(MapLocation loc, int amount){
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
-        if (!getType() == RobotType.CARRIER)
+        if (getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot collect.");
         if (!isWell(loc))
             throw new GameActionException(CANT_DO_THAT, 
                     "Location is not a well");
-    }
+        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
+        if (amount != rate)
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Invalid amount");
+        if (!this.robot.getInventory().canAdd(amount))
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Exceeded robot's carrying capacity");
 
-    private boolean canCollectResource(MapLocation loc){
+    }   
+
+    private boolean canCollectResource(MapLocation loc, int amount){
         try {
-            assertCanCollect(loc);
+            assertCanCollect(loc, amount);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
-    private void collectResource(MapLocation loc){
-        assertCanCollectResource(loc);
+    private void collectResource(MapLocation loc, int amount){
+        assertCanCollectResource(loc, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
     
         // For methods below, Inventory class would have to first be implemented
@@ -809,17 +817,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // --> Would check to see what resources a well holds
 
         Inventory robotInv = this.robot.getInventory();
-        int amount = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
 
-        if (robotInv.canAdd()) {
-            if (gameWorld.getWell().getType(loc) == ResourceType.ELIXIR)
-                robotInv.addElixir(amount);
-            else if (gameWorld.getWell().getType(loc) == ResourceType.MANA)
-                robotInv.addMana(amount);
-            else
-                robotInv.addAdamantium(amount);
-            }
-
+        if (gameWorld.getWell().getType(loc) == ResourceType.ELIXIR)
+            robotInv.addElixir(amount);
+        else if (gameWorld.getWell().getType(loc) == ResourceType.MANA)
+            robotInv.addMana(amount);
+        else
+            robotInv.addAdamantium(amount);
+    
         // Will need to update this last line
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
     }
