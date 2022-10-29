@@ -1,4 +1,5 @@
 package battlecode.common;
+import java.lang.Math;
 
 /**
  * Enumerates the possible types of robots. More information about the
@@ -254,15 +255,13 @@ public enum RobotType {
      *
      * @battlecode.doc.costlymethod
      */
-    public int getDamage(int level) {
-        if (!this.isBuilding() || level == 1) {
-            return this.damage;
-        } else if (this == RobotType.ARCHON) {
-            return level == 2 ? -4 : -6;
-        } else if (this == RobotType.LABORATORY) {
-            return 0;
+    public int getDamage(int inventory) {
+        if (this == RobotType.CARRIER) {
+            return inventory/5;
+        } else if (this == RobotType.LAUNCHER) {
+            return 6;
         } else {
-            return level == 2 ? 8 : 12;
+            return 0;
         }
     }
 
