@@ -13,7 +13,22 @@ export const bodyTypeList: number[] = [HEADQUARTERS, CARRIER, LAUNCHER, AMPLIFIE
 export const buildingTypeList: number[] = [HEADQUARTERS]
 export const initialBodyTypeList: number[] = [HEADQUARTERS]
 
-export const RESOURCENAMES = { 0: "none", 1: "adamantium", 2: "elixir", 3: "mana" }
+export const RESOURCENAMES = { 0: "none", 1: "adamantium", 3: "elixir", 2: "mana" }
+export const ADAMANTIUM = 1
+export const ELIXIR = 3
+export const MANA = 2
+
+export const DIRECTIONS = {
+  0: [0,0],
+  1: [-1, 0],
+  2: [-1, -1],
+  3: [0, -1],
+  4: [1, -1],
+  5: [1, 0],
+  6: [1, 1],
+  7: [0, 1],
+  8: [-1, 1]
+}
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots
 
@@ -29,15 +44,15 @@ export const bodyTypePriority: number[] = [] // for guns, drones, etc. that shou
 
 export const TILE_COLORS: Array<number>[] = [
   [204, 191, 173],
-  [191, 179, 163],
-  [184, 169, 151],
-  [171, 157, 138],
-  [161, 146, 127],
-  [156, 143, 126],
-  [145, 130, 110],
-  [130, 117, 100],
-  [122, 109, 91],
-  [115, 102, 85],
+  // [191, 179, 163],
+  // [184, 169, 151],
+  // [171, 157, 138],
+  // [161, 146, 127],
+  // [156, 143, 126],
+  // [145, 130, 110],
+  // [130, 117, 100],
+  // [122, 109, 91],
+  // [115, 102, 85],
   [102, 92, 75]
 ]
 // flashy colors

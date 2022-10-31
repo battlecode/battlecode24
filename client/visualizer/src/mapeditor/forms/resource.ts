@@ -69,6 +69,7 @@ export default class ResourceForm {
 
     resources.appendChild(document.createTextNode("Adamantium: "));
     resources.appendChild(this.adamantium);
+    resources.appendChild(document.createElement("br"))
     resources.appendChild(document.createTextNode("Mana: "));
     resources.appendChild(this.mana);
 

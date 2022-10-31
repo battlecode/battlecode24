@@ -199,91 +199,91 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
       loadImageInArrayMap(result.robots, bodytype, team, `robots/${team_str}_${cst.bodyTypeToString(bodytype)}`)
     }
   }
-// resources
-/*
-loadImage(result.resources, 'lead', 'resources/lead');
-loadImage(result.resources, 'gold', 'resources/gold');
-*/
+  // resources
 
-// effects
-// loadImage(result.effects, 'death', 'effects/death/death_empty');
-// loadImage(result.effects.embezzle, 0, 'effects/embezzle/slanderer_embezzle_empty_1');
-// loadImage(result.effects.embezzle, 1, 'effects/embezzle/slanderer_embezzle_empty_2');
+  loadImageInMap(result.resources, cst.ADAMANTIUM, 'resources/lead')
+  loadImageInMap(result.resources, cst.MANA, 'resources/gold')
 
-{
-  const makeTransparent = (data: ImageData): ImageData => {
-    const arr = new Uint8ClampedArray(data.data.length)
-    for (let i = 0; i < arr.length; i += 4) {
-      arr[i + 0] = data.data[i + 0]
-      arr[i + 1] = data.data[i + 1]
-      arr[i + 2] = data.data[i + 2]
-      arr[i + 3] = data.data[i + 3] / 1.4
+
+  // effects
+  // loadImage(result.effects, 'death', 'effects/death/death_empty');
+  // loadImage(result.effects.embezzle, 0, 'effects/embezzle/slanderer_embezzle_empty_1');
+  // loadImage(result.effects.embezzle, 1, 'effects/embezzle/slanderer_embezzle_empty_2');
+
+  {
+    const makeTransparent = (data: ImageData): ImageData => {
+      const arr = new Uint8ClampedArray(data.data.length)
+      for (let i = 0; i < arr.length; i += 4) {
+        arr[i + 0] = data.data[i + 0]
+        arr[i + 1] = data.data[i + 1]
+        arr[i + 2] = data.data[i + 2]
+        arr[i + 3] = data.data[i + 3] / 1.4
+      }
+      const result = new ImageData(arr, data.width)
+      return result
     }
-    const result = new ImageData(arr, data.width)
-    return result
+
+    const makeRed = (data: ImageData): ImageData => {
+      const arr = new Uint8ClampedArray(data.data.length)
+      for (let i = 0; i < arr.length; i += 4) {
+        arr[i + 0] = 255
+        arr[i + 1] = 0
+        arr[i + 2] = 0
+        arr[i + 3] = data.data[i + 3]
+      }
+      const result = new ImageData(arr, data.width)
+      return result
+    }
+
+    const makeBlue = (data: ImageData): ImageData => {
+      const arr = new Uint8ClampedArray(data.data.length)
+      for (let i = 0; i < arr.length; i += 4) {
+        arr[i + 0] = 0
+        arr[i + 1] = 0
+        arr[i + 2] = 255
+        arr[i + 3] = data.data[i + 3]
+      }
+      const result = new ImageData(arr, data.width)
+      return result
+    }
+
+    for (let i = 0; i < 2; i++) {
+      const base: Image = new Image()
+      base.src = require(dirname + `effects/empower/polit_empower_empty_${i + 1}.png`).default
+
+      base.onload = () => {
+        const data: ImageData = htmlToData(base)
+        const trans: ImageData = makeTransparent(data)
+        const red: ImageData = makeRed(trans)
+        const blue: ImageData = makeBlue(trans)
+        const path_red: String = dataToSrc(red)
+        const path_blue: String = dataToSrc(blue)
+        // loadImage(result.effects.empower_red, i, "", path_red.slice(0, path_red.length - 4))
+        // loadImage(result.effects.empower_blue, i, "", path_blue.slice(0, path_blue.length - 4))
+      }
+    }
   }
 
-  const makeRed = (data: ImageData): ImageData => {
-    const arr = new Uint8ClampedArray(data.data.length)
-    for (let i = 0; i < arr.length; i += 4) {
-      arr[i + 0] = 255
-      arr[i + 1] = 0
-      arr[i + 2] = 0
-      arr[i + 3] = data.data[i + 3]
-    }
-    const result = new ImageData(arr, data.width)
-    return result
-  }
+  /*
+  loadImage(result.effects.expose, 0, 'effects/expose/expose_empty')
+  loadImage(result.effects.camouflage_red, 0, 'effects/camouflage/camo_red')
+  loadImage(result.effects.camouflage_blue, 0, 'effects/camouflage/camo_blue')
+  */
 
-  const makeBlue = (data: ImageData): ImageData => {
-    const arr = new Uint8ClampedArray(data.data.length)
-    for (let i = 0; i < arr.length; i += 4) {
-      arr[i + 0] = 0
-      arr[i + 1] = 0
-      arr[i + 2] = 255
-      arr[i + 3] = data.data[i + 3]
-    }
-    const result = new ImageData(arr, data.width)
-    return result
-  }
+  // load controls
+  // buttons are from https://material.io/resources/icons
+  loadImageInMap(result.controls, ControlType.GO_NEXT, 'controls/go-next')
+  loadImageInMap(result.controls, ControlType.GO_PREVIOUS, 'controls/go-previous')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_PAUSE, 'controls/playback-pause')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_START, 'controls/playback-start')
+  loadImageInMap(result.controls, ControlType.PLAYBACK_STOP, 'controls/playback-stop')
+  loadImageInMap(result.controls, ControlType.REVERSE_UPS, 'controls/reverse')
+  loadImageInMap(result.controls, ControlType.DOUBLE_UPS, 'controls/skip-forward')
+  loadImageInMap(result.controls, ControlType.HALVE_UPS, 'controls/skip-backward')
+  loadImageInMap(result.controls, ControlType.GO_END, 'controls/go-end')
+  loadImageInMap(result.controls, ControlType.MATCH_BACKWARD, 'controls/green-previous')
+  loadImageInMap(result.controls, ControlType.MATCH_FORWARD, 'controls/green-next')
 
-  for (let i = 0; i < 2; i++) {
-    const base: Image = new Image()
-    base.src = require(dirname + `effects/empower/polit_empower_empty_${i + 1}.png`).default
-
-    base.onload = () => {
-      const data: ImageData = htmlToData(base)
-      const trans: ImageData = makeTransparent(data)
-      const red: ImageData = makeRed(trans)
-      const blue: ImageData = makeBlue(trans)
-      const path_red: String = dataToSrc(red)
-      const path_blue: String = dataToSrc(blue)
-      // loadImage(result.effects.empower_red, i, "", path_red.slice(0, path_red.length - 4))
-      // loadImage(result.effects.empower_blue, i, "", path_blue.slice(0, path_blue.length - 4))
-    }
-  }
-}
-
-/*
-loadImage(result.effects.expose, 0, 'effects/expose/expose_empty')
-loadImage(result.effects.camouflage_red, 0, 'effects/camouflage/camo_red')
-loadImage(result.effects.camouflage_blue, 0, 'effects/camouflage/camo_blue')
-*/
-
-// load controls
-// buttons are from https://material.io/resources/icons
-loadImageInMap(result.controls, ControlType.GO_NEXT, 'controls/go-next')
-loadImageInMap(result.controls, ControlType.GO_PREVIOUS, 'controls/go-previous')
-loadImageInMap(result.controls, ControlType.PLAYBACK_PAUSE, 'controls/playback-pause')
-loadImageInMap(result.controls, ControlType.PLAYBACK_START, 'controls/playback-start')
-loadImageInMap(result.controls, ControlType.PLAYBACK_STOP, 'controls/playback-stop')
-loadImageInMap(result.controls, ControlType.REVERSE_UPS, 'controls/reverse')
-loadImageInMap(result.controls, ControlType.DOUBLE_UPS, 'controls/skip-forward')
-loadImageInMap(result.controls, ControlType.HALVE_UPS, 'controls/skip-backward')
-loadImageInMap(result.controls, ControlType.GO_END, 'controls/go-end')
-loadImageInMap(result.controls, ControlType.MATCH_BACKWARD, 'controls/green-previous')
-loadImageInMap(result.controls, ControlType.MATCH_FORWARD, 'controls/green-next')
-
-// mark as finished
-loadImage.requestedAll = true
+  // mark as finished
+  loadImage.requestedAll = true
 }

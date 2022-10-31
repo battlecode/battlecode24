@@ -10,8 +10,8 @@ export default class IslandForm {
   readonly div: HTMLDivElement
 
   readonly island_add: HTMLInputElement
-  readonly x: HTMLInputElement
-  readonly y: HTMLInputElement
+  // readonly x: HTMLInputElement
+  // readonly y: HTMLInputElement
 
   // Callbacks on input change
   readonly width: () => number
@@ -28,13 +28,12 @@ export default class IslandForm {
     this.island_add = document.createElement("input")
     this.island_add.type = "checkbox"
     this.island_add.checked = true
-    this.x = document.createElement("input")
-    this.y = document.createElement("input")
-    this.x.type = "text";
-    this.y.type = "text";
-
+    // this.x = document.createElement("input")
+    // this.y = document.createElement("input")
+    // this.x.type = "text";
+    // this.y.type = "text";
     this.div.appendChild(this.createForm())
-    this.loadCallbacks()
+    // this.loadCallbacks()
   }
 
   // /**
@@ -56,75 +55,63 @@ export default class IslandForm {
     const y: HTMLDivElement = document.createElement("div");
     // const influence: HTMLDivElement = document.createElement("div");
     //form.appendChild(id);
-    form.appendChild(x);
-    form.appendChild(y);
+    // form.appendChild(x);
+    // form.appendChild(y);
     // form.appendChild(influence);
-    form.appendChild(document.createElement("br"));
-
-    form.appendChild(document.createTextNode("Add Island: "));
+    form.appendChild(document.createTextNode("Island: "))
     form.appendChild(this.island_add);
-
     // X coordinate
-    x.appendChild(document.createTextNode("X: "));
-    x.appendChild(this.x);
+    // x.appendChild(document.createTextNode("X: "));
+    // x.appendChild(this.x);
 
-    // Y coordinate
-    y.appendChild(document.createTextNode("Y: "));
-    y.appendChild(this.y);
+    // // Y coordinate
+    // y.appendChild(document.createTextNode("Y: "));
+    // y.appendChild(this.y);
     
     return form;
   }
 
   /**
    * Add callbacks to the form elements.
-   */
-  private loadCallbacks(): void {
+  //  */
+  // private loadCallbacks(): void {
 
-    // X must be in the range [0, this.width]
-    this.x.onchange = () => {
-      let value: number = this.getX();
-      value = Math.max(value, 0);
-      value = Math.min(value, this.width());
-      this.x.value = isNaN(value) ? "" : String(value);
-    };
+  //   // X must be in the range [0, this.width]
+  //   this.x.onchange = () => {
+  //     let value: number = this.getX();
+  //     value = Math.max(value, 0);
+  //     value = Math.min(value, this.width());
+  //     this.x.value = isNaN(value) ? "" : String(value);
+  //   };
 
-    // Y must be in the range [0, this.height]
-    this.y.onchange = () => {
-      let value: number = this.getY();
-      value = Math.max(value, 0);
-      value = Math.min(value, this.height());
-      this.y.value = isNaN(value) ? "" : String(value);
-    };
+  //   // Y must be in the range [0, this.height]
+  //   this.y.onchange = () => {
+  //     let value: number = this.getY();
+  //     value = Math.max(value, 0);
+  //     value = Math.min(value, this.height());
+  //     this.y.value = isNaN(value) ? "" : String(value);
+  //   };
 
-  }
-
-  // getResource(): number {
-  //   return this.adamantium.checked ? 1 : (this.mana.checked ? 2 : 0);
   // }
 
-  getX(): number {
-    return parseInt(this.x.value);
-  }
-
-  getY(): number {
-    return parseInt(this.y.value);
+  addIsland(): boolean {
+    return this.island_add.checked;
   }
 
   resetForm(): void {
-    this.x.value = "";
-    this.y.value = "";
+    // this.x.value = "";
+    // this.y.value = "";
     this.island_add.checked = true;
   }
 
   setForm(x, y): void {
-    this.x.value = String(x);
-    this.y.value = String(y);
+
   }
 
-  isValid(): boolean {
-    const x = this.getX();
-    const y = this.getY();
-    //const I = this.getInfluence();
-    return !(isNaN(x) || isNaN(y)); // || isNaN(I));
-  }
+  // isValid(): boolean {
+  //   const x = this.getX();
+  //   const y = this.getY();
+  //   //const I = this.getInfluence();
+  //   return !(isNaN(x) || isNaN(y)); // || isNaN(I));
+  // }
 }
