@@ -28,6 +28,8 @@ public strictfp class GameWorld {
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
 
+    private Headquarter[] headquarters;
+
     private int[] rubble;
     private int[] lead;
     private int[] gold;
@@ -737,5 +739,22 @@ public strictfp class GameWorld {
                 break;
         }
         this.matchMaker.addAction(-1, Action.VORTEX, changeIdx);
+    }
+
+    /*
+     * Checks if the given MapLocation contains a headquarters
+     */
+    public boolean isHeadquarters(MapLocation loc) {
+        return getHeadquarters(loc) != null;
+    }
+
+    /*
+     * Returns the Headquarters at the given location, or null if there is no headquarters
+     */
+    public Headquarter getHeadquarters(MapLocation loc) {
+        for(Headquarter headquarter : headquarters) {
+            if(headquarter.getLocation() == loc) return headquarter;
+        }
+        return null;
     }
 }
