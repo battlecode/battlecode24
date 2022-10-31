@@ -794,9 +794,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         Inventory robotInv = this.robot.getInventory();
 
-        if (gameWorld.getWell().getType(loc) == ResourceType.ELIXIR)
+        if (gameWorld.getWell(loc).getResourceType() == ResourceType.ELIXIR)
             robotInv.addElixir(amount);
-        else if (gameWorld.getWell().getType(loc) == ResourceType.MANA)
+        else if (gameWorld.getWell(loc).getResourceType() == ResourceType.MANA)
             robotInv.addMana(amount);
         else
             robotInv.addAdamantium(amount);

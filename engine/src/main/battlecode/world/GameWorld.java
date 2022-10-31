@@ -10,6 +10,8 @@ import battlecode.world.control.RobotControlProvider;
 
 import java.util.*;
 
+import javax.lang.model.util.ElementScanner6;
+
 /**
  * The primary implementation of the GameWorld interface for containing and
  * modifying the game map and the objects on it.
@@ -35,6 +37,8 @@ public strictfp class GameWorld {
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+
+    private Well[] wells;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -737,5 +741,23 @@ public strictfp class GameWorld {
                 break;
         }
         this.matchMaker.addAction(-1, Action.VORTEX, changeIdx);
+    }
+
+
+    
+    public boolean isWell(MapLocation loc){
+        if (getWell(loc) != null)
+            return true;
+        else 
+            return false;
+    }
+    
+    
+    public Well getWell(MapLocation loc){
+        for (Well well : wells){
+           if (well.getMapLocation() == loc)
+                return well;
+        }
+        return null;
     }
 }
