@@ -137,6 +137,9 @@ export default class MapGenerator {
 
     const walls = schema.GameMap.createWallsVector(builder, map.walls);
     const resources = schema.GameMap.createResourcesVector(builder, map.resource_wells);
+    const clouds = schema.GameMap.createCloudsVector(builder, map.clouds);
+    const currents = schema.GameMap.createCurrentsVector(builder, map.currents);
+    const islands = schema.GameMap.createIslandsVector(builder, map.islands);
 
     // Create the game map
     let nameP = builder.createString(name);
@@ -149,6 +152,9 @@ export default class MapGenerator {
     schema.GameMap.addRandomSeed(builder, randomSeed);
     schema.GameMap.addWalls(builder, walls);
     schema.GameMap.addResources(builder, resources);
+    schema.GameMap.addClouds(builder, clouds);
+    schema.GameMap.addIslands(builder, islands);
+    schema.GameMap.addCurrents(builder, currents);
 
 
     const gameMap = schema.GameMap.endGameMap(builder);
@@ -211,6 +217,7 @@ export default class MapGenerator {
         radius: 0.5
       });
     }
+    console.log(map.cloudsArray())
     return {
       name: map.name()!,
       width: maxCorner.x() - minCorner.x(),

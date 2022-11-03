@@ -94,7 +94,6 @@ export default class MapRenderer {
       for (let j = 0; j < this.height; j++) {
         const wall = map.walls[(map.height - j - 1) * this.width + i]
         this.renderTile(i, j, wall)
-
       }
     }
   }
@@ -148,19 +147,19 @@ export default class MapRenderer {
     this.ctx.save()
     const scale = 20
     this.ctx.scale(1 / scale, 1 / scale)
-    this.ctx.globalAlpha = 1
+    this.ctx.globalAlpha = .1
     this.ctx.fillStyle = "black"
     this.ctx.beginPath()
 
     let dir = cst.DIRECTIONS[direction]
-    let len = scale / Math.sqrt(dir[0]*dir[0] + dir[1] * dir[1])
+    let len = scale / Math.sqrt(dir[0]*dir[0] + dir[1] * dir[1]) * .4
     let x = (i+.5) * scale
     let y = (j+.5) * scale
 
-    this.ctx.moveTo(x + dir[0] * len, y + dir[0] * len)
-    let right = [-dir[1]/2, dir[0]/2]
-    this.ctx.lineTo(x - dir[0] * len / 2 + right[0], y - dir[1] * len / 2 + right[1])
-    this.ctx.lineTo(x - dir[0] * len / 2 - right[0], y - dir[1] * len / 2 - right[1])
+    this.ctx.moveTo(x + dir[0] * len, y + dir[1] * len)
+    let right = [-dir[1] * len / 2, dir[0] * len / 2]
+    this.ctx.lineTo(x - dir[0] * len * .7 + right[0], y - dir[1] * len * .7 + right[1])
+    this.ctx.lineTo(x - dir[0] * len * .7 - right[0], y - dir[1] * len * .7 - right[1])
     this.ctx.closePath()
     this.ctx.fill()
     this.ctx.restore()

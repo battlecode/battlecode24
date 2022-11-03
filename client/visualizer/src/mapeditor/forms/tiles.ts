@@ -33,7 +33,7 @@ export default class TileForm {
     this.walls.checked = true
 
     this.brush = document.createElement("input")
-    this.brush.value = "3"
+    this.brush.value = "1"
 
     this.style = document.createElement("select")
     for (var styleString of ["Circle", "Square", "Cow"]) {
@@ -101,7 +101,7 @@ export default class TileForm {
 
   resetForm(): void {
     this.walls.checked = true
-    this.brush.value = "3"
+    this.brush.value = "1"
   }
 
   setForm(): void {

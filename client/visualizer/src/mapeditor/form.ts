@@ -590,8 +590,17 @@ export default class MapEditorForm {
     if (obstacle) {
       if (obstacle.cloud)
         this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = obstacle.cloud
-      if (obstacle.current)
-        this.currents[y * this.headerForm.getWidth() + x] = this.currents[translated_y * this.headerForm.getWidth() + translated_x] = obstacle.current
+      if (obstacle.current) {
+        this.currents[y * this.headerForm.getWidth() + x] = obstacle.current
+        let inverse_current = 0
+        if(obstacle.current > 0){
+          inverse_current = obstacle.current + 4
+          if(inverse_current > 8){
+            inverse_current -= 8
+          }
+        }
+        this.currents[translated_y * this.headerForm.getWidth() + translated_x] = inverse_current
+      }
     } else {
       this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = false
       this.currents[y * this.headerForm.getWidth() + x] = this.currents[translated_y * this.headerForm.getWidth() + translated_x] = 0
