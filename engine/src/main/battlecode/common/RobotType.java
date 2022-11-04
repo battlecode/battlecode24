@@ -171,8 +171,14 @@ public enum RobotType {
      *
      * @battlecode.doc.costlymethod
      */
-    public int getDamage() {
-        return this.damage;
+    public int getDamage(int inventory) {
+        if (this == RobotType.CARRIER) {
+            return inventory/5;
+        } else if (this == RobotType.LAUNCHER) {
+            return 6;
+        } else {
+            return 0;
+        }
     }
 
     RobotType(int buildCostAdamantium, int buildCostMana, int buildCostElixir, int actionCooldown, int movementCooldown,

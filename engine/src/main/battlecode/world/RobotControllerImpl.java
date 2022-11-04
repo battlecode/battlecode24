@@ -553,12 +553,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null)
-            throw new GameActionException(NO_ROBOT_THERE,
-                    "There is no robot to attack at the target location.");
-        if (bot.getTeam() == getTeam())
+        if (!(bot == null) && bot.getTeam() == getTeam())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
+        
     }
 
     @Override
@@ -575,7 +573,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
         this.robot.attack(bot);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
     }
 
     // *****************************
