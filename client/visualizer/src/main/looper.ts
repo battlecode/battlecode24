@@ -93,7 +93,7 @@ export default class Looper {
 
         // Configure renderer for this match
         // (radii, etc. may change between matches)
-        this.renderer = new Renderer(this.gamearea.canvas, this.imgs,
+        this.renderer = new Renderer(this.gamearea.canvases, this.imgs,
             this.conf, meta as Metadata, onRobotSelected, onMouseover);
 
         // How fast the simulation should progress

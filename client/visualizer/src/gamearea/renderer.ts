@@ -6,6 +6,7 @@ import { GameWorld, Metadata, schema, Game } from 'battlecode-playback'
 import { AllImages } from '../imageloader'
 import Victor = require('victor')
 import { constants } from 'buffer'
+import { CanvasType } from './gamearea'
 
 /**
  * Renders the world.
@@ -14,7 +15,7 @@ import { constants } from 'buffer'
  */
 export default class Renderer {
 
-  readonly ctx: CanvasRenderingContext2D
+  readonly ctx: Record<CanvasType, CanvasRenderingContext2D>
 
   // For rendering robot information on click
   private lastSelectedID: number
@@ -24,18 +25,23 @@ export default class Renderer {
   private lastTime: number = 0;
   private lastAnomaly: number = 0;
 
-  constructor(readonly canvas: HTMLCanvasElement, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
+  constructor(
+    readonly canvases: Record<CanvasType, HTMLCanvasElement>, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void) {
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
+  ) {
+    for (let key in canvases) {
+      const canvas = canvases[key];
       let ctx = canvas.getContext("2d")
+      ctx['imageSmoothingEnabled'] = false
+      //ctx.imageSmoothingQuality = "high"
       if (ctx === null) {
         throw new Error("Couldn't load canvas2d context")
       } else {
-        this.ctx = ctx
+        this.ctx[key] = ctx;
       }
-      this.ctx['imageSmoothingEnabled'] = false
-      //this.ctx.imageSmoothingQuality = "high"
     }
+  }
 
   /**
    * world: world to render

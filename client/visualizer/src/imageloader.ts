@@ -169,7 +169,6 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
       }
       const result = new ImageData(arr, dim)
       return result
-
     }
 
     // const baseTile: Image = new Image()
