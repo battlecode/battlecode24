@@ -678,8 +678,7 @@ export default class Stats {
     let td: HTMLTableCellElement = this.robotTds[teamID]["hp"][robotType];
     td.innerHTML = String(HP);
 
-    const robotName: string = cst.bodyTypeToString(robotType);
-    let img = this.robotImages[robotName][teamID];
+    let img = this.robotImages[robotType][teamID];
 
     const size = (55 + 45 * HP / totalHP);
     img.style.width = size + "%";
@@ -804,7 +803,7 @@ export default class Stats {
     div.style.position = 'releative';
     div.style.top = '50%';
     div.style.transform  = `translateY(-${50*size - 35}%)`;
-    const img = /* img */this.images.robots.headquarter[teamID].cloneNode() as HTMLImageElement;
+    const img = /* img */this.images.robots[cst.HEADQUARTERS][teamID].cloneNode() as HTMLImageElement;
     img.style.width = `${56 * size}px`;
     img.style.height = `${56 * size}px`; // update dynamically later
     // img.style.marginTop = `${28*size}px`;
