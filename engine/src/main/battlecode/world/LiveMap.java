@@ -330,10 +330,17 @@ public strictfp class LiveMap {
      * 
      * @return
      */
-
-     public Well[] getWellArray(){
+    public Well[] getWellArray(){
         return wellArray;
-     }
+    }
+    /**
+     * @return the islandId array of the map
+     */
+    public int[] getIslandArray() {
+        //TODO: Add islandArray to everywhere in the constructor just like leadArray currently exists
+        return islandArray;
+    } 
+
     /**
      * @return a copy of the next Anomaly that hasn't happened yet.
      */
