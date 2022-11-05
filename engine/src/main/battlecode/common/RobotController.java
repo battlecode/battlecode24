@@ -610,8 +610,8 @@ public strictfp interface RobotController {
     /**
      * Checks whether this robot can move one step in the given direction.
      * Returns false if the robot is not in a mode that can move, if the target
-     * location is not on the map, if the target location is occupied, or if
-     * there are cooldown turns remaining.
+     * location is not on the map, if the target location is occupied, if the target
+     * location is impassible, or if there are cooldown turns remaining.
      *
      * @param dir the direction to move in
      * @return true if it is possible to call <code>move</code> without an exception
@@ -626,7 +626,8 @@ public strictfp interface RobotController {
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one step in this
      * direction, such as cooldown being too high, the target location being
-     * off the map, or the target destination being occupied by another robot
+     * off the map, or the target destination being occupied by another robot,
+     * or the target destination being impassible.
      *
      * @battlecode.doc.costlymethod
      */
