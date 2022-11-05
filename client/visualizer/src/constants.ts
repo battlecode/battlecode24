@@ -18,8 +18,8 @@ export const ADAMANTIUM = 1
 export const ELIXIR = 3
 export const MANA = 2
 
-export const DIRECTIONS = {
-  0: [0,0],
+export const DIRECTIONS: Record<number, Array<number>> = {
+  0: [0, 0],
   1: [-1, 0],
   2: [-1, -1],
   3: [0, -1],
@@ -28,6 +28,14 @@ export const DIRECTIONS = {
   6: [1, 1],
   7: [0, 1],
   8: [-1, 1]
+}
+export function INVDIRECTIONS(dir: { x: number, y: number }): number{
+  for (let k in DIRECTIONS) {
+    if (DIRECTIONS[k][0] == dir.x && DIRECTIONS[k][1] == dir.y) {
+      return parseInt(k)
+    }
+  }
+  return 0;
 }
 
 export const bodyTypePriority: number[] = [] // for guns, drones, etc. that should be drawn over other robots

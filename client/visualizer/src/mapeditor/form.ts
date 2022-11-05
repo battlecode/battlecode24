@@ -590,21 +590,14 @@ export default class MapEditorForm {
     if (obstacle) {
       if (obstacle.cloud)
         this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = obstacle.cloud
-      if (obstacle.current) {
+      if (obstacle.current && obstacle.current != 0) {
         this.currents[y * this.headerForm.getWidth() + x] = obstacle.current
-        let inverse_current = 0
-        if(obstacle.current > 0){
-          inverse_current = obstacle.current + 4
-          if(inverse_current > 8){
-            inverse_current -= 8
-          }
-        }
+        let inverse_current = this.symmetryForm.transferDirection(obstacle.current)
         this.currents[translated_y * this.headerForm.getWidth() + translated_x] = inverse_current
       }
     } else {
       this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = false
       this.currents[y * this.headerForm.getWidth() + x] = this.currents[translated_y * this.headerForm.getWidth() + translated_x] = 0
-
     }
   }
 
@@ -663,8 +656,8 @@ export default class MapEditorForm {
    * @return the active form based on which radio button is selected
    */
   private getActiveForm(): RobotForm | TileForm | ResourceForm | ObstacleForm | IslandForm {
-    if (this.tilesRadio.checked) {
-      return this.tilesForm
+    if (this.islandsRadio.checked) {
+      return this.islandsForm
     }
     if (this.robotsRadio.checked) {
       return this.robotsForm
@@ -675,7 +668,7 @@ export default class MapEditorForm {
     if (this.obstaclesRadio.checked) {
       return this.obstaclesForm
     }
-    return this.islandsForm
+    return this.tilesForm
   }
 
   /**
