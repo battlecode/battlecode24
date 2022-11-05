@@ -98,11 +98,11 @@ export function bodyTypeToSize(bodyType: schema.BodyType) {
     case HEADQUARTERS:
       return 50
     case CARRIER:
-      return 50
+      return 2048
     case LAUNCHER:
-      return 25
+      return 2048
     case AMPLIFIER:
-      return 35
+      return 2048
     case DESTABILIZER:
       return 35
     case BOOSTER:
