@@ -682,18 +682,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(amount < 0 && this.robot.getInventory.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
         if(!isWell(loc) && !isHeadquarter(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that
-            is not a well or a headquarter");
+            throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");
     }
 
-    private boolean canTransferAd(MapLocation loc, int amount){
+    @Override
+    public boolean canTransferAd(MapLocation loc, int amount){
         try {
-            assertCanTrarnsferResource(loc, ResourceType.ADAMANTIUM, amount);
+            assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
             return true;
         } catch(GameActionException e) {return false;}
     }
 
-    private void transferAd(MapLocation loc, int amount){
+    @Override
+    public void transferAd(MapLocation loc, int amount) throws GameActionException {
         assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
@@ -710,14 +711,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         //TODO update addAction once we have new action types!
     }
 
-    private boolean canTransferMn(MapLocation loc, int amount){
+    @Override
+    public boolean canTransferMn(MapLocation loc, int amount){
         try {
-            assertCanTrarnsferResource(loc, ResourceType.MANA, amount);
+            assertCanTransferResource(loc, ResourceType.MANA, amount);
             return true;
         } catch(GameActionException e) {return false;}
     }
 
-    private void transferMn(MapLocation loc, int amount){
+    @Override
+    public void transferMn(MapLocation loc, int amount) throws GameActionException {
         assertCanTransferResource(loc, ResourceType.MANA, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
@@ -734,14 +737,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         //TODO update addAction once we have new action types!
     }
 
-    private boolean canTransferEx(MapLocation loc, int amount){
+    @Override
+    public boolean canTransferEx(MapLocation loc, int amount){
         try {
-            assertCanTrarnsferResource(loc, ResourceType.ELIXIR, amount);
+            assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
             return true;
         } catch(GameActionException e) {return false;}
     }
 
-    private void transferElixir(MapLocation loc){
+    @Override
+    public void transferEx(MapLocation loc, int amount) throws GameActionException {
         assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
@@ -758,7 +763,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         //TODO update addAction once we have new action types!
     }
 
-    private void assertCanCollect(MapLocation loc, int amount){
+    private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
@@ -778,14 +783,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     }   
 
-    private boolean canCollectResource(MapLocation loc, int amount){
+    @Override
+    public boolean canCollectResource(MapLocation loc, int amount){
         try {
-            assertCanCollect(loc, amount);
+            assertCanCollectResource(loc, amount);
             return true;
         } catch (GameActionException e) { return false; }  
     }
 
-    private void collectResource(MapLocation loc, int amount){
+    @Override
+    public void collectResource(MapLocation loc, int amount) throws GameActionException {
         assertCanCollectResource(loc, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
     
