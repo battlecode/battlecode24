@@ -59,45 +59,50 @@ export enum Action{
   DESTABILIZE= 5,
 
   /**
+   * Target: location destabilization damage is centralized at, x + y * width
+   */
+  DESTABILIZE_DAMAGE= 6,
+
+  /**
    * Target: location boost is centralized at, x + y * width
    */
-  BOOST= 6,
+  BOOST= 7,
 
   /**
    * Target: none
    */
-  PICK_UP_ANCHOR= 7,
+  PICK_UP_ANCHOR= 8,
 
   /**
    * Target: location to place anchor, x + y * width
    */
-  PLACE_ANCHOR= 8,
+  PLACE_ANCHOR= 9,
 
   /**
    * Target: change in health (can be negative)
    */
-  CHANGE_HEALTH= 9,
+  CHANGE_HEALTH= 10,
 
   /**
    * Target: change in adamantium (can be negative)
    */
-  CHANGE_ADAMANTIUM= 10,
+  CHANGE_ADAMANTIUM= 11,
 
   /**
    * Target: change in mana (can be negative)
    */
-  CHANGE_MANA= 11,
+  CHANGE_MANA= 12,
 
   /**
    * Target: change in elixir (can be negative)
    */
-  CHANGE_ELIXIR= 12,
+  CHANGE_ELIXIR= 13,
 
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  DIE_EXCEPTION= 13
+  DIE_EXCEPTION= 14
 }};
 
 /**

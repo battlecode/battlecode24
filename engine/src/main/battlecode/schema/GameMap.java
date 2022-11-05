@@ -47,53 +47,63 @@ public final class GameMap extends Table {
    */
   public int randomSeed() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The rubble on the map.
+   * The walls on the map.
    */
-  public int rubble(int j) { int o = __offset(16); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int rubbleLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer rubbleAsByteBuffer() { return __vector_as_bytebuffer(16, 4); }
-  public ByteBuffer rubbleInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 4); }
+  public boolean walls(int j) { int o = __offset(16); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
+  public int wallsLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer wallsAsByteBuffer() { return __vector_as_bytebuffer(16, 1); }
+  public ByteBuffer wallsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 1); }
   /**
-   * The lead on the map.
+   * The clouds on the map.
    */
-  public int lead(int j) { int o = __offset(18); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int leadLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer leadAsByteBuffer() { return __vector_as_bytebuffer(18, 4); }
-  public ByteBuffer leadInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 4); }
+  public boolean clouds(int j) { int o = __offset(18); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
+  public int cloudsLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer cloudsAsByteBuffer() { return __vector_as_bytebuffer(18, 1); }
+  public ByteBuffer cloudsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 1); }
   /**
-   * The anomalies scheduled: 0/1/2/3 abyss/charge/fury/vortex.
+   * The currents on the map.
    */
-  public int anomalies(int j) { int o = __offset(20); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int anomaliesLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer anomaliesAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
-  public ByteBuffer anomaliesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
+  public int currents(int j) { int o = __offset(20); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int currentsLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer currentsAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
+  public ByteBuffer currentsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
   /**
-   * The rounds the anomalies are scheduled for.
+   * The island each square on the map belongs to.
    */
-  public int anomalyRounds(int j) { int o = __offset(22); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int anomalyRoundsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer anomalyRoundsAsByteBuffer() { return __vector_as_bytebuffer(22, 4); }
-  public ByteBuffer anomalyRoundsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 4); }
+  public int islands(int j) { int o = __offset(22); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int islandsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer islandsAsByteBuffer() { return __vector_as_bytebuffer(22, 4); }
+  public ByteBuffer islandsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 4); }
+  /**
+   * The resource type each square is.
+   */
+  public int resources(int j) { int o = __offset(24); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int resourcesLength() { int o = __offset(24); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer resourcesAsByteBuffer() { return __vector_as_bytebuffer(24, 4); }
+  public ByteBuffer resourcesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 24, 4); }
 
-  public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(10); }
+  public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(11); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
   public static void addMinCorner(FlatBufferBuilder builder, int minCornerOffset) { builder.addStruct(1, minCornerOffset, 0); }
   public static void addMaxCorner(FlatBufferBuilder builder, int maxCornerOffset) { builder.addStruct(2, maxCornerOffset, 0); }
   public static void addSymmetry(FlatBufferBuilder builder, int symmetry) { builder.addInt(3, symmetry, 0); }
   public static void addBodies(FlatBufferBuilder builder, int bodiesOffset) { builder.addOffset(4, bodiesOffset, 0); }
   public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(5, randomSeed, 0); }
-  public static void addRubble(FlatBufferBuilder builder, int rubbleOffset) { builder.addOffset(6, rubbleOffset, 0); }
-  public static int createRubbleVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startRubbleVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addLead(FlatBufferBuilder builder, int leadOffset) { builder.addOffset(7, leadOffset, 0); }
-  public static int createLeadVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startLeadVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addAnomalies(FlatBufferBuilder builder, int anomaliesOffset) { builder.addOffset(8, anomaliesOffset, 0); }
-  public static int createAnomaliesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startAnomaliesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addAnomalyRounds(FlatBufferBuilder builder, int anomalyRoundsOffset) { builder.addOffset(9, anomalyRoundsOffset, 0); }
-  public static int createAnomalyRoundsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startAnomalyRoundsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWalls(FlatBufferBuilder builder, int wallsOffset) { builder.addOffset(6, wallsOffset, 0); }
+  public static int createWallsVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
+  public static void startWallsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addClouds(FlatBufferBuilder builder, int cloudsOffset) { builder.addOffset(7, cloudsOffset, 0); }
+  public static int createCloudsVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
+  public static void startCloudsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addCurrents(FlatBufferBuilder builder, int currentsOffset) { builder.addOffset(8, currentsOffset, 0); }
+  public static int createCurrentsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startCurrentsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addIslands(FlatBufferBuilder builder, int islandsOffset) { builder.addOffset(9, islandsOffset, 0); }
+  public static int createIslandsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startIslandsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addResources(FlatBufferBuilder builder, int resourcesOffset) { builder.addOffset(10, resourcesOffset, 0); }
+  public static int createResourcesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startResourcesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endGameMap(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
