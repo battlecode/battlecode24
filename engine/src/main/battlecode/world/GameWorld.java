@@ -39,6 +39,7 @@ public strictfp class GameWorld {
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    //list of currents, null if there is no current in the tile
     private Direction[][] currents;
 
     private Map<Team, ProfilerCollection> profilerCollections;
@@ -465,7 +466,7 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
         this.teamInfo.processEndOfRound();
 
-        //Apply currents
+        //Apply currents after CURRENT_STRENGTH rounds
         if(currentRound % GameConstants.CURRENT_STRENGTH == 0){
             objectInfo.eachRobot((robot) -> {
                 MapLocation loc = robot.getLocation();
