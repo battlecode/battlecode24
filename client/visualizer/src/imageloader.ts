@@ -19,14 +19,9 @@ export type AllImages = {
 export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   const dirname = "./static/img/"
 
-  const NEUTRAL: number = 0;
-  const RED: number = 1;
-  const BLU: number = 2;
-  
-  //To index additional states for buildings
-  const DEFAULT: number = 0;
-  const PORTABLE: number = 1;
-  const PROTOTYPE: number = 2;
+  const NEUTRAL: number = 0
+  const RED: number = 1
+  const BLU: number = 2
 
   function loadImage(
     image: Image,
@@ -35,7 +30,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   ): void {
     const f = loadImage
     f.expected++
-    
+
     function onFinish() {
       if (f.requestedAll && f.expected == f.success + f.failure) {
         console.log(`Total ${f.expected} images loaded: ${f.success} successful, ${f.failure} failed.`)
@@ -71,12 +66,12 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     src?: string
   ): void {
     const image = new Image()
-    loadImage(image, path, src);
-    
+    loadImage(image, path, src)
+
     while (array.length <= index)
-      array.push(new Image());
-    
-    array[index] = image;
+      array.push(new Image())
+
+    array[index] = image
   }
 
   function loadImageInMap(
@@ -85,13 +80,13 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     path: string,
     src?: string
   ): void {
-    const image = new Image();
+    const image = new Image()
 
     // Ensure record entry exists
     if (!(key in Map))
-      Map[key] = image;
+      Map[key] = image
 
-    loadImage(image, path, src);
+    loadImage(image, path, src)
   }
 
   function loadImageInArrayMap(
@@ -103,9 +98,9 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   ): void {
     // Ensure record entry exists
     if (!(key in Map))
-      Map[key] = [];
+      Map[key] = []
 
-    loadImageInArray(Map[key], arrayIndex, path, src);
+    loadImageInArray(Map[key], arrayIndex, path, src)
   }
 
   const result = {
@@ -115,7 +110,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
     effects: {},
     controls: {}
   }
-  
+
   // helper function to manipulate images
   const htmlToData = (ele: HTMLImageElement): ImageData => {
     const canvas = document.createElement('canvas')
@@ -166,7 +161,7 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
       const arr = new Uint8ClampedArray(dim ** 2 * 4)
       for (let i = 0; i < arr.length; i += 4) {
         var scale = 8 * (2 + level) / 255
-        var shade = srand() * scale + 1 - scale;
+        var shade = srand() * scale + 1 - scale
         arr[i + 0] = colors[level][0] * shade
         arr[i + 1] = colors[level][1] * shade
         arr[i + 2] = colors[level][2] * shade
@@ -199,35 +194,16 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
 
   // robot sprites
   for (let team of [RED, BLU]) {
-    let team_str = team == RED ? 'red' : 'blue';
-    for (let level = 1; level <= 3; level++) { 
-      loadImageInArrayMap(result.robots, cst.HEADQUARTERS, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_archon_level${level}`);
-      loadImageInArrayMap(result.robots, cst.CARRIER, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_watchtower_level${level}`);
-      loadImageInArrayMap(result.robots, cst.LAUNCHER, level * 6 + DEFAULT * 2 + team, `robots/${team_str}_lab_level${level}`);
-      loadImageInArrayMap(result.robots, cst.AMPLIFIER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_archon_portable_level${level}`);
-      loadImageInArrayMap(result.robots, cst.DESTABILIZER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_watchtower_portable_level${level}`);
-      loadImageInArrayMap(result.robots, cst.BOOSTER, level * 6 + PORTABLE * 2 + team, `robots/${team_str}_lab_portable_level${level}`);
+    let team_str = team == RED ? 'red' : 'blue'
+    for (let bodytype of cst.bodyTypeList) {
+      loadImageInArrayMap(result.robots, bodytype, team, `robots/${team_str}_${cst.bodyTypeToString(bodytype)}`)
     }
-    
-    /*
-    loadImage(result.robots.soldier, DEFAULT * 2 + team, `robots/${team_str}_soldier`);
-    loadImage(result.robots.sage, DEFAULT * 2 + team, `robots/${team_str}_sage`);
-    loadImage(result.robots.miner, DEFAULT * 2 + team, `robots/${team_str}_miner`);
-    loadImage(result.robots.builder, DEFAULT * 2 + team, `robots/${team_str}_builder`);
-    loadImage(result.robots.archon, DEFAULT * 2 + team, `robots/${team_str}_archon`);
-    loadImage(result.robots.watchtower, DEFAULT * 2 + team, `robots/${team_str}_watchtower`);
-    loadImage(result.robots.laboratory, DEFAULT * 2 + team, `robots/${team_str}_lab`);
-    loadImage(result.robots.archon, PROTOTYPE * 2 + team, `robots/${team_str}_archon_prototype`);
-    loadImage(result.robots.watchtower, PROTOTYPE * 2 + team, `robots/${team_str}_watchtower_prototype`);
-    loadImage(result.robots.laboratory, PROTOTYPE * 2 + team, `robots/${team_str}_lab_prototype`);
-    */
   }
-
   // resources
-  /*
-  loadImage(result.resources, 'lead', 'resources/lead');
-  loadImage(result.resources, 'gold', 'resources/gold');
-  */
+
+  loadImageInMap(result.resources, cst.ADAMANTIUM, 'resources/lead')
+  loadImageInMap(result.resources, cst.MANA, 'resources/gold')
+
 
   // effects
   // loadImage(result.effects, 'death', 'effects/death/death_empty');
