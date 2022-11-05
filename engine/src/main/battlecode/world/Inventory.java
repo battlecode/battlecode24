@@ -1,3 +1,7 @@
+package battlecode.world;
+
+import battlecode.common.*;
+
 public class Inventory {
 
     /**
@@ -50,6 +54,15 @@ public class Inventory {
         return elixir;
     }
 
+    /*
+     * Convenience method that adds a certain amount of the given resource
+     */
+    public void addResource(ResourceType type, int amount){
+        if(type == ResourceType.ADAMANTIUM) adamantium += amount;
+        else if(type == ResourceType.ELIXIR) elixir += amount;
+        else mana += amount;
+    }
+
     /**
      * Convenience method that returns the amount of the given resource type.
      */
@@ -63,8 +76,8 @@ public class Inventory {
      * Checks if the given weight of resources can be added to the inventory without going over the maximum capacity.
      */
     public boolean canAdd(int amount) {
-        if(capacity == -1) return true;
+        if(maxCapacity == -1) return true;
         int total = adamantium + mana + elixir;
-        return total + amount <= capacity;
+        return total + amount <= maxCapacity;
     }
 }
