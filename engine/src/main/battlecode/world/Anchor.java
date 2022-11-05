@@ -1,12 +1,16 @@
 package battlecode.world;
 
-    /**
-     * Anchor represents the types of anchors that exist in the world. 
-     * Anchor provides information about what is needed to build an anchor
-     * of that type and what that anchor does when it is planted on an island.
-     */
-public enum Anchor {
 /**
+ * Anchor represents the types of anchors that exist in the world. 
+ * Anchor provides information about what is needed to build an anchor
+ * of that type and what that anchor does when it is planted on an island.
+ */
+public enum Anchor {
+    
+    // Turns Needed to Remove Anchor, Radius of Range of Units Affected, Acceleration Factor Change on Affected Units,
+    // Cost in Mana, Cost in Adamantium, Cost in Elixir
+
+    /**
      * Standard anchors are built out of standard type anchors and only take 15 turns
      * to remove. They also do not have any other affects.
      */
