@@ -639,10 +639,10 @@ public strictfp interface RobotController {
     /**
      * Tests whether this robot can attack the given location.
      * 
-     * Checks that the robot is an attacking type unit (Launcher or Carrier) and that the given location
-     * is within the robot's reach (based on attack type). If robot is a Carrier, also checks that they 
-     * are carrying resources. Also checks that an enemy unit exists in the given square,
-     * and there are no cooldown turns remaining.
+     * Checks that the robot is an attacking type unit and that the given location
+     * is within the robot's reach (based on attack type). Also checks that 
+     * there are no cooldown turns remaining and that a robot of the same team
+     * is not at the given location.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
@@ -963,19 +963,6 @@ public strictfp interface RobotController {
      * @param value the value to set that index to
      * @throws GameActionException if the index is invalid, the value
      *         is out of bounds, or the robot cannot write to the array.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void writeSharedArray(int index, int value) throws GameActionException;
-
-    /** 
-     * Sets a team's array value at a specified index.
-     * No change occurs if the index or value is invalid.
-     *
-     * @param index the index in the team's shared array, 0-indexed
-     * @param value the value to set that index to
-     * @throws GameActionException if the index is invalid, or the value
-     *         is out of bounds
      *
      * @battlecode.doc.costlymethod
      */
