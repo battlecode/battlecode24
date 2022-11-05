@@ -32,6 +32,7 @@ public strictfp class GameWorld {
     private int[] lead;
     private int[] gold;
     private HashMap[] boosts;
+    private float[][] cooldownMultipliers;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -56,8 +57,28 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
-        HashMap[] boosts = gm.getBoostsArray(); //NEED TO CREATE THIS
-
+        HashMap[] boosts = new HashMap[gm.getWidth()*gm.getHeight()];//queue of temporary boosts
+        for (int i = 0; i < boosts.length; i++){
+            boosts[i] = new HashMap<Integer, ArrayList>();
+            boosts[i].put(1, new ArrayList()); //team 1 boosts
+            boosts[i].put(0, new ArrayList()); //team 0 boosts
+            boosts[i].put(-1, new ArrayList()); //destabilizers
+        } 
+        float[][] cooldownMultipliers = new float[gm.getWidth()*gm.getHeight()][2];
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            cooldownMultipliers[i][0] = 1;
+            cooldownMultipliers[i][1] = 1;
+        }
+        for (MapLocation loc : getAllLocations()){
+                if hasCurrent(loc){ //create this method depending on how clouds implemented
+                   cooldownMultipliers[locationToIndex(loc)][0] += .1; //adjust if needed
+                   cooldownMultipliers[locationToIndex(loc)][1] += .1;
+                }
+                if hasCloud(loc){
+                   cooldownMultipliers[locationToIndex(loc)][0] -= .2; 
+                   cooldownMultipliers[locationToIndex(loc)][1] -= .2; 
+                }
+            }
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -238,42 +259,37 @@ public strictfp class GameWorld {
     // ***********************************
     // ****** BOOST METHODS **************
     // ***********************************
-    //create boosts array 
-    public void createBoostsArray(){
-        for (int i = 0; i < boosts.length; i++){
-            boosts[i] = new HashMap<Integer, ArrayList>();
-            boosts[i].put(1, new ArrayList()); //team 1 boosts
-            boosts[i].put(0, new ArrayList()); //team 0 boosts
-            boosts[i].put(-1, new ArrayList()); //destabilizers
-            boosts[i].put(-2, new ArrayList()); //clouds if putting clouds here too
-        } 
-        for (MapLocation loc : getAllLocations()){
-            
+    public void addBoostFromRobot(MapLocation loc, boolean isBooster, Team team, int lastRound){
+        if (isBooster){ 
+            ArrayList curBoostsList = ((ArrayList)(this.boosts[locationToIndex(loc)].get(team.ordinal())));
+            if (curBoostsList.size() == 0)//no other boosts at this location
+                cooldownMultipliers[locationToIndex(loc)][team.ordinal()] += .1;
+            curBoostsList.add(lastRound);
         }
-    }
-    public void addBoostFromRobot(MapLocation loc, InternalRobot booster, int lastRound){
-        if (booster.getType() == RobotType.BOOSTER){ //need to update RobotType
-            ((ArrayList)(this.boosts[locationToIndex(loc)].get(booster.getTeam().ordinal()))).add(booster.getID()); 
-        }//also put round ending here?`
         else{
-            ((ArrayList)this.boosts[locationToIndex(loc)].get(-1)).add(booster.getID());
+            ArrayList curDestabilizers = ((ArrayList)this.boosts[locationToIndex(loc)].get(-1));
+            if (curDestabilizers.size() == 0){
+                cooldownMultipliers[locationToIndex(loc)][0] -= .1;
+                cooldownMultipliers[locationToIndex(loc)][1] -= .1; //assuming affects both
+            }
+            curDestabilizers.add(lastRound);
         }
     }
-    public void removeBoost(MapLocation loc, int sourceID){
+    public void addBoostFromAnchor(MapLocation center, Team team){//will it be possible for boosts from
+        //2 anchors to overlap?
+    }
+    public void removeBoostFromAnchor(MapLocation center, Team team){
+
+    }
+    public void createBoostGeneral(MapLocation center, int radiusSquared,Team team, float effect){
         return;
-    } 
-    /**
-     * 
-     * @param loc the location where the boost is applied to (the circle)
-     * @param radiusSquared the square of the radius of the boost size
-     * @param duration the duration of the boost in turns
-     * @param multiplier the amount by which the boost multiplies (per team??)
-     * @param sourceID an ID identifying what created the boost
-     * @param teamID the ID of the team to which this boost applies to, -1 if applies to both teams
-     */
-    public void createBoost(MapLocation loc, InternalRobot booster){
+    } //boosters should call createBoostGeneral(location, 40, 10, getTeam(), .1)
+    //destabilizers call createBoostGeneral(target, 20, 5, 1-getTeam(), -.1)
+//the most generalized way to create a boost, applies for boosters/destabilizers/anchors
+    public void createBoost(MapLocation loc, InternalRobot booster){//also create functionality for anchors (add start boosts and end boosts in Island class?)
         int radiusSquared, lastRound;
-        if (booster.getType() == RobotType.BOOSTER){
+        boolean isBooster = booster.getType() == RobotType.BOOSTER;
+        if (isBooster){
             radiusSquared = 40; 
             lastRound = getCurrentRound()+10;
         }
@@ -282,14 +298,9 @@ public strictfp class GameWorld {
             lastRound = getCurrentRound()+5;
         }
         for (MapLocation boostedSquare : getAllLocationsWithinRadiusSquared(loc, radiusSquared)){
-            addBoostFromRobot(boostedSquare, booster, lastRound);
+            addBoostFromRobot(boostedSquare, isBooster, booster.getTeam(), lastRound);
         }
-        //in duration amount of turns:
-        for (MapLocation boostedSquare : getAllLocationsWithinRadiusSquared(loc, radiusSquared)){
-            removeBoost(boostedSquare, booster.getID());
-        }
-    } //how to make sourceID (unique for each object or for each type of object?)
-    //have to change MapLocation (?)
+    }
 
     // ***********************************
     // ****** ROBOT METHODS **************
@@ -470,6 +481,17 @@ public strictfp class GameWorld {
             robot.processEndOfRound();
             return true;
         });
+        
+        //end any boosts that have finished their duration
+        for (MapLocation loc : getAllLocations()){
+            for (int i = -1; i <= 1; i++){ //only need to check boosters + destabilizers 
+                ArrayList<Integer> curBoosts = (ArrayList) boosts[locationToIndex(loc)].get(i);
+                for (int j = curBoosts.size()-1; j >=0; j--){
+                    if (curBoosts.get(j) == getCurrentRound()+1) //check for off by one/two error here
+                        curBoosts.remove(j);
+                }
+            }
+        }
 
         // Trigger any anomalies
         // note: singularity is handled below in the "check for end of match"
