@@ -356,6 +356,34 @@ public strictfp interface RobotController {
     Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
+     * Return the team controlling the island with index islandIdx.
+     * 
+     * @param islandIdx
+     * @return team controlling the island.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
+     */
+    Team senseTeamOccupyingIsland(int islandIdx) throws GameActionException;
+
+    /**
+     * Return the number of turns left to remove the anchor on the island with index idlandIdx, -1 if there is no anchor.
+     * 
+     * @param islandIdx
+     * @return number of turns left to remove the anchor on the island, -1 if there is no anchor.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
+     */
+    int senseTurnsLeftToTurn(int islandIdx) throws GameActionException;
+
+    /**
+     * Return type of anchor on this island, null if there is no anchor.
+     * 
+     * @param islandIdx
+     * @return type of anchor on this island, null if there is no anchor.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
+     */
+    Anchor senseAnchor(int islandIdx) throws GameActionException;
+
+
+    /**
      * Given a location, returns whether this location is an adamantium reserve.
      * 
      * @param loc the given location
