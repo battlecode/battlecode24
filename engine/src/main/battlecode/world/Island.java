@@ -49,7 +49,7 @@ public class Island {
     }
 
     public void advanceTurn() { 
-        if (teamOwning == null) {
+        if (teamOwning == Team.NEUTRAL) {
             return;
         }       
         int[] numOccupied = new int[2];
