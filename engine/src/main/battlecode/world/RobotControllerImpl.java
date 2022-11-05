@@ -696,8 +696,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
         if(isWell(loc)){
-            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            wellInv.addAdamantium(amount);
+            Well well = this.gameWorld.getWell(loc);
+            well.addAdamantium(amount);
             robotInv.addAdamantium(-amount);
         }
         else if(isHeadquarter(loc)){
@@ -720,8 +720,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
         if(isWell(loc)){
-            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            wellInv.addMana(amount);
+            Well well = this.gameWorld.getWell(loc);
+            well.addMana(amount);
             robotInv.addMana(-amount);
         }
         else if(isHeadquarter(loc)){
@@ -744,8 +744,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Inventory robotInv = this.robot.getInventory();
         if(isWell(loc)){
-            Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-            wellInv.addElixir(amount);
+            Well well = this.gameWorld.getWell(loc);
+            well.addElixir(amount);
             robotInv.addElixir(-amount);
         }
         else if(isHeadquarter(loc)){

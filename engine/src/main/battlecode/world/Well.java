@@ -5,7 +5,7 @@ import javax.lang.model.util.ElementScanner6;
 import battlecode.common.ResourceType;
 
 public class Well {
-    private Inventory Inv;
+    private Inventory inv;
 
     private MapLocation loc;
 
@@ -17,27 +17,39 @@ public class Well {
     }
 
     public Inventory getInventory(){
-        return Inv;
+        return inv;
     }
 
     public MapLocation getMapLocation(){
         return loc;
     }
 
+    public void addAdamantium(int amount){
+        inv.addAdamantium(amount);
+        if (type == ResourceType.MANA && inv.getAdAmount() >= 15000)
+            type = ResourceType.ELIXIR;
+    }
+
+    public void addMana(int amount){
+        inv.addMana(amount);
+        if (type == ResourceType.ADAMANTIUM && inv.getMnAmount() >= 15000)
+            type = ResourceType.ELIXIR;
+    }
+
+    public void addElixir(int amount){
+        inv.addElixir(amount);
+    }
+        
     public ResourceType getResourceType(){
-        if (type == ResourceType.ADAMANTIUM && Inv.getMnAmount >= 15000)
-            type = ResourceType.ELIXIR;
-        else if (type == ResourceType.MANA && Inv.getAdAmount >= 15000)
-            type = ResourceType.ELIXIR;
         return type;
     }
   
     public boolean isUpgraded(){
-        if (type == ResourceType.ADAMANTIUM && Inv.getAdAmount >= 10000)
+        if (type == ResourceType.ADAMANTIUM && inv.getAdAmount() >= 10000)
             return true;
-        else if (type == ResourceType.MANA && Inv.getMnAmount >= 10000)
+        else if (type == ResourceType.MANA && inv.getMnAmount() >= 10000)
             return true;
-        else if (type == ResourceType.ELIXIR && Inv.getExAmount >= 10000)
+        else if (type == ResourceType.ELIXIR && inv.getExAmount() >= 10000)
             return true;
         else 
             return false;

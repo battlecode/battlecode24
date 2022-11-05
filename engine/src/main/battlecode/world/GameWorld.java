@@ -55,6 +55,7 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
+        this.wells = gm.getWellArray();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
@@ -752,12 +753,8 @@ public strictfp class GameWorld {
             return false;
     }
     
-    
-    public Well getWell(MapLocation loc){
-        for (Well well : wells){
-           if (well.getMapLocation() == loc)
-                return well;
-        }
-        return null;
+
+    public Well getWell(MapLocation loc) {
+        return this.wells[locationToIndex(loc)];
     }
 }

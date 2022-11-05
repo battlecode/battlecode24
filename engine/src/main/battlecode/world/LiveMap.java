@@ -66,12 +66,21 @@ public strictfp class LiveMap {
      */
     private int nextAnomalyIndex;
 
+
+    /**
+     * Array of wells, null if there is no well at that location on the map
+     */
+    private Well[] wellArray;
+
+
     /**
      * The bodies to spawn on the map; MapLocations are in world space -
      * i.e. in game correct MapLocations that need to have the origin
      * subtracted from them to be used to index into the map arrays.
      */
     private final RobotInfo[] initialBodies; // only contains Archons
+
+    
 
     public LiveMap(int width,
                    int height,
@@ -109,6 +118,7 @@ public strictfp class LiveMap {
                    RobotInfo[] initialBodies,
                    int[] rubbleArray,
                    int[] leadArray,
+                   Well[] wellArray,
                    AnomalyScheduleEntry[] anomalySchedule) {
         this.width = width;
         this.height = height;
@@ -125,6 +135,10 @@ public strictfp class LiveMap {
         this.leadArray = new int[leadArray.length];
         for (int i = 0; i < leadArray.length; i++) {
             this.leadArray[i] = leadArray[i];
+        }
+
+        for (int i = 0; i < wellArray.length; i++) {
+            this.wellArray[i] = wellArray[i];
         }
 
         this.anomalySchedule = new AnomalyScheduleEntry[anomalySchedule.length];
@@ -144,7 +158,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.rubbleArray, gm.leadArray, gm.anomalySchedule);
+             gm.initialBodies, gm.rubbleArray, gm.leadArray,gm.wellArray, gm.anomalySchedule);
     }
 
     @Override
@@ -312,6 +326,14 @@ public strictfp class LiveMap {
         return leadArray;
     }
 
+    /**
+     * 
+     * @return
+     */
+
+     public Well[] getWellArray(){
+        return wellArray;
+     }
     /**
      * @return a copy of the next Anomaly that hasn't happened yet.
      */
