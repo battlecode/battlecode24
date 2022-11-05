@@ -30,6 +30,7 @@ export default class Renderer {
     readonly onRobotSelected: (id: number) => void,
     readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
   ) {
+    this.ctx = {} as typeof this.ctx;
     for (let key in canvases) {
       const canvas = canvases[key];
       let ctx = canvas.getContext("2d")
@@ -53,26 +54,45 @@ export default class Renderer {
    */
   render(world: GameWorld, viewMin: Victor, viewMax: Victor, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
     // setup correct rendering
-    const viewWidth = viewMax.x - viewMin.x
-    const viewHeight = viewMax.y - viewMin.y
-    const scale = this.canvas.width / (!this.conf.doingRotate ? viewWidth : viewHeight)
+    for (let key in this.ctx) {
+      const canvas = this.canvases[key];
+      const ctx = this.ctx[key];
 
-    this.ctx.save()
-    this.ctx.scale(scale, scale)
-    if (!this.conf.doingRotate) this.ctx.translate(-viewMin.x, -viewMin.y)
-    else this.ctx.translate(-viewMin.y, -viewMin.x)
+      const viewWidth = viewMax.x - viewMin.x
+      const viewHeight = viewMax.y - viewMin.y
+      const scale = canvas.width / (!this.conf.doingRotate ? viewWidth : viewHeight)
 
-    this.renderBackground(world)
-    this.renderResources(world)
+      ctx.save()
+      ctx.scale(scale, scale)
+      if (!this.conf.doingRotate) ctx.translate(-viewMin.x, -viewMin.y)
+      else ctx.translate(-viewMin.y, -viewMin.x)
+    }
 
-    this.renderBodies(world, curTime, nextStep, lerpAmount)
-    this.renderHoverBox(world)
+    const updateBackground = true;
+    if (updateBackground) {
+      this.clearCanvas(CanvasType.BACKGROUND);
+      this.renderBackground(world)
+    }
 
-    this.renderIndicatorDotsLines(world)
+    const updateDynamic = true;
+    if (updateDynamic) {
+      this.clearCanvas(CanvasType.DYNAMIC);
+      this.renderResources(world)
+      this.renderBodies(world, curTime, nextStep, lerpAmount)
+      this.renderHoverBox(world)
+      this.renderIndicatorDotsLines(world)
+    }
+
+    const updateOverlay = true;
+    if (updateOverlay) {
+      this.clearCanvas(CanvasType.OVERLAY);
+    }
+
     this.setMouseoverEvent(world)
 
     // restore default rendering
-    this.ctx.restore()
+    for (let key in this.ctx)
+      this.ctx[key].restore()
   }
 
   /**
@@ -81,11 +101,18 @@ export default class Renderer {
   release() {
     // nothing to do yet?
   }
+  
+  private clearCanvas(canvasType: CanvasType) {
+    const canvas = this.canvases[canvasType];
+    this.ctx[canvasType].clearRect(0, 0, canvas.width, canvas.height);
+  }
 
   private renderBackground(world: GameWorld) {
-    this.ctx.save()
-    this.ctx.fillStyle = "white"
-    this.ctx.globalAlpha = 1
+    const ctx = this.ctx[CanvasType.BACKGROUND];
+
+    ctx.save()
+    ctx.fillStyle = "white"
+    ctx.globalAlpha = 1
 
     let minX = world.minCorner.x
     let minY = world.minCorner.y
@@ -94,11 +121,11 @@ export default class Renderer {
 
     const scale = 20
 
-    this.ctx.scale(1 / scale, 1 / scale)
+    ctx.scale(1 / scale, 1 / scale)
 
     // scale the background pattern
-    if (!this.conf.doingRotate) this.ctx.fillRect(minX * scale, minY * scale, width * scale, height * scale)
-    else this.ctx.fillRect(minY * scale, minX * scale, height * scale, width * scale)
+    if (!this.conf.doingRotate) ctx.fillRect(minX * scale, minY * scale, width * scale, height * scale)
+    else ctx.fillRect(minY * scale, minX * scale, height * scale, width * scale)
 
     const map = world.mapStats
 
@@ -108,26 +135,22 @@ export default class Renderer {
 
       const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
 
-      this.ctx.globalAlpha = 1
+      ctx.globalAlpha = 1
 
       // Fetch and draw tile image
       // const walls = cst.getLevel(map.walls[idxVal])
       const tileImg = this.imgs.tiles[map.walls[idxVal]]
 
-      //since tiles arent completely opaque
-      if (!this.conf.doingRotate) this.ctx.clearRect(cx, cy, scale + .5, scale + .5)
-      else this.ctx.clearRect(cx, cy, scale + .5, scale + .5)
-
       //+1 is so that there arent gaps in the map
-      if (!this.conf.doingRotate) this.ctx.drawImage(tileImg, cx, cy, scale + .5, scale + .5)
-      else this.ctx.drawImage(tileImg, cy, cx, scale + .5, scale + .5)
+      if (!this.conf.doingRotate) ctx.drawImage(tileImg, cx, cy, scale + .5, scale + .5)
+      else ctx.drawImage(tileImg, cy, cx, scale + .5, scale + .5)
 
       // Draw grid
       if (this.conf.showGrid) {
-        this.ctx.strokeStyle = 'gray'
-        this.ctx.globalAlpha = 1
-        if (!this.conf.doingRotate) this.ctx.strokeRect(cx, cy, scale, scale)
-        else this.ctx.strokeRect(cy, cx, scale, scale)
+        ctx.strokeStyle = 'gray'
+        ctx.globalAlpha = 1
+        if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
+        else ctx.strokeRect(cy, cx, scale, scale)
       }
     }
 
@@ -157,14 +180,16 @@ export default class Renderer {
     //   }
     // }
 
-    this.ctx.restore()
+    ctx.restore()
   }
 
   private renderHoverBox(world: GameWorld) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
+
     if (this.hoverPos != null) {
-      this.ctx.save()
-      this.ctx.fillStyle = "white"
-      this.ctx.globalAlpha = 1
+      ctx.save()
+      ctx.fillStyle = "white"
+      ctx.globalAlpha = 1
 
       let minX = world.minCorner.x
       let minY = world.minCorner.y
@@ -173,21 +198,23 @@ export default class Renderer {
 
       const scale = 20
 
-      this.ctx.scale(1 / scale, 1 / scale)
+      ctx.scale(1 / scale, 1 / scale)
       const { xrel: x, yrel: y } = this.hoverPos
       const cx = (minX + x) * scale, cy = (minY + (height - y - 1)) * scale
-      this.ctx.strokeStyle = 'purple'
-      this.ctx.lineWidth = 2
-      this.ctx.globalAlpha = 1
-      if (!this.conf.doingRotate) this.ctx.strokeRect(cx, cy, scale, scale)
-      else this.ctx.strokeRect(cy, cx, scale, scale)
-      this.ctx.restore()
+      ctx.strokeStyle = 'purple'
+      ctx.lineWidth = 2
+      ctx.globalAlpha = 1
+      if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
+      else ctx.strokeRect(cy, cx, scale, scale)
+      ctx.restore()
     }
   }
 
   private renderResources(world: GameWorld) {
-    this.ctx.save()
-    this.ctx.globalAlpha = 1
+    const ctx = this.ctx[CanvasType.BACKGROUND];
+
+    ctx.save()
+    ctx.globalAlpha = 1
 
     let minX = world.minCorner.x
     let minY = world.minCorner.y
@@ -205,8 +232,8 @@ export default class Renderer {
       let idxVal = map.getIdx(i, j)
       let plotJ = height - j - 1
 
-      this.ctx.lineWidth = 1 / 20
-      this.ctx.globalAlpha = 1
+      ctx.lineWidth = 1 / 20
+      ctx.globalAlpha = 1
 
       const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
 
@@ -214,12 +241,12 @@ export default class Renderer {
         // let size = sigmoid(map.goldVals[idxVal] / 50) * .94
         let size = map.resource_well_stats.get(idxVal)!.upgraded ? 1 : .75
         let img = this.imgs.resources[map.resources[idxVal]]
-        if (!this.conf.doingRotate) this.ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
-        else this.ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
+        if (!this.conf.doingRotate) ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
+        else ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
       }
     }
 
-    this.ctx.restore()
+    ctx.restore()
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
@@ -238,6 +265,7 @@ export default class Renderer {
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
+    const ctx = this.ctx[CanvasType.DYNAMIC];
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
 
     if (nextStep && lerpAmount) {
@@ -285,14 +313,14 @@ export default class Renderer {
         const target = targets[i];
         let yshift = (teams[i] - 1.5) * .15 + 0.5
         let xshift = (teams[i] - 1.5) * .15 + 0.5
-        this.ctx.save()
-        this.ctx.beginPath()
-        this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-        this.ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
-        this.ctx.lineWidth = 0.05
-        this.ctx.stroke()
-        this.ctx.restore()
+        ctx.save()
+        ctx.beginPath()
+        ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
+        ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
+        ctx.lineWidth = 0.05
+        ctx.stroke()
+        ctx.restore()
       }
       
       if (actions[i] == schema.Action.DESTABILIZE || actions[i] == schema.Action.BOOST) {
@@ -348,23 +376,25 @@ export default class Renderer {
    * Draws a cirlce centered at (x,y) with given squared radius and color.
    */
   private drawBotRadius(x: number, y: number, radiusSquared: number, color: string) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
     if (this.conf.doingRotate) [x, y] = [y, x]
-    this.ctx.beginPath()
-    this.ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
-    this.ctx.strokeStyle = color
-    this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
-    this.ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
+    ctx.strokeStyle = color
+    ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
+    ctx.stroke()
   }
 
   private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
     if (this.conf.doingRotate) [x, y] = [y, x]
-    this.ctx.beginPath()
-    this.ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
-    this.ctx.strokeStyle = borderColor
-    this.ctx.lineWidth = 0.10;
-    this.ctx.stroke()
-    this.ctx.fillStyle = color;
-    this.ctx.fill()
+    ctx.beginPath()
+    ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
+    ctx.strokeStyle = borderColor
+    ctx.lineWidth = 0.10;
+    ctx.stroke()
+    ctx.fillStyle = color;
+    ctx.fill()
   }
 
   /**
@@ -384,15 +414,18 @@ export default class Renderer {
   /**
    * Draws an image centered at (x, y) with the given radius
    */
+   /*
   private drawImage(img: HTMLImageElement, x: number, y: number, radius: number) {
     if (this.conf.doingRotate) [x, y] = [y, x]
     this.ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2)
   }
+  */
 
   /**
    * Draws an image centered at (x, y), such that an image with default size covers a 1x1 cell
    */
   private drawBot(img: HTMLImageElement, x: number, y: number, c: number, ratio: number, img_size: number) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
     if (this.conf.doingRotate) [x, y] = [y, x]
     let realWidth = img.naturalWidth / img_size
     let realHeight = img.naturalHeight / img_size
@@ -401,13 +434,13 @@ export default class Renderer {
     }
     //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
     let size = ratio * 0.5 + 0.5
-    this.ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
-    this.ctx.beginPath()
-    this.ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1)
-    this.ctx.lineTo(x + realWidth * size / 2 + realWidth * ratio / 2, y + 1)
-    this.ctx.strokeStyle = "green"
-    this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
-    this.ctx.stroke()
+    ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
+    ctx.beginPath()
+    ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1)
+    ctx.lineTo(x + realWidth * size / 2 + realWidth * ratio / 2, y + 1)
+    ctx.strokeStyle = "green"
+    ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
+    ctx.stroke()
   }
 
   private setInfoStringEvent(world: GameWorld,
@@ -422,7 +455,9 @@ export default class Renderer {
     // const radii: Float32Array = world.bodies.arrays.radius;
     const onRobotSelected = this.onRobotSelected
 
-    this.canvas.onmousedown = (event: MouseEvent) => {
+    // Overlay is on top so we will use it for mouse events
+    const canvas = this.canvases[CanvasType.OVERLAY];
+    canvas.onmousedown = (event: MouseEvent) => {
       const { x, y } = this.getIntegerLocation(event, world)
 
       // Get the ID of the selected robot
@@ -460,7 +495,9 @@ export default class Renderer {
       onMouseover(x, y, xrel, yrel, world.mapStats.walls[idx], world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
     }
 
-    this.canvas.onmousemove = (event) => {
+    // Overlay is on top so we will use it for mouse events
+    const canvas = this.canvases[CanvasType.OVERLAY];
+    canvas.onmousemove = (event) => {
       // const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
       // const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
       // const y = this.flip(_y, minY, maxY)
@@ -474,7 +511,7 @@ export default class Renderer {
       this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 
-    this.canvas.onmouseout = (event) => {
+    canvas.onmouseout = (event) => {
       this.hoverPos = null
     }
   }
@@ -486,19 +523,21 @@ export default class Renderer {
     const maxY = world.maxCorner.y - 1
     var _x: number
     var _y: number
+    const canvas = this.canvases[CanvasType.BACKGROUND];
     if (!this.conf.doingRotate) {
-      _x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x
-      _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y
+      _x = width * event.offsetX / canvas.offsetWidth + world.minCorner.x
+      _y = height * event.offsetY / canvas.offsetHeight + world.minCorner.y
       _y = this.flip(_y, minY, maxY)
     }
     else {
-      _y = (world.maxCorner.y - world.minCorner.y - 1) - height * event.offsetX / this.canvas.offsetWidth + world.minCorner.y
-      _x = width * event.offsetY / this.canvas.offsetHeight + world.minCorner.x
+      _y = (world.maxCorner.y - world.minCorner.y - 1) - height * event.offsetX / canvas.offsetWidth + world.minCorner.y
+      _x = width * event.offsetY / canvas.offsetHeight + world.minCorner.x
     }
     return { x: Math.floor(_x), y: Math.floor(_y + 1) }
   }
 
   private renderIndicatorDotsLines(world: GameWorld) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
     if (!this.conf.indicators && !this.conf.allIndicators) {
       return
     }
@@ -526,10 +565,10 @@ export default class Renderer {
         const x = dotsX[i]
         const y = this.flip(dotsY[i], minY, maxY)
 
-        this.ctx.beginPath()
-        this.ctx.arc(x + 0.5, y + 0.5, cst.INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
-        this.ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`
-        this.ctx.fill()
+        ctx.beginPath()
+        ctx.arc(x + 0.5, y + 0.5, cst.INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
+        ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`
+        ctx.fill()
       }
     }
 
@@ -542,7 +581,7 @@ export default class Renderer {
     const linesRed = lines.arrays.red
     const linesGreen = lines.arrays.green
     const linesBlue = lines.arrays.blue
-    this.ctx.lineWidth = cst.INDICATOR_LINE_WIDTH
+    ctx.lineWidth = cst.INDICATOR_LINE_WIDTH
 
     for (let i = 0; i < lines.length; i++) {
       if (linesID[i] === this.lastSelectedID || this.conf.allIndicators) {
@@ -554,11 +593,11 @@ export default class Renderer {
         const endX = linesEndX[i] + 0.5
         const endY = this.flip(linesEndY[i], minY, maxY) + 0.5
 
-        this.ctx.beginPath()
-        this.ctx.moveTo(startX, startY)
-        this.ctx.lineTo(endX, endY)
-        this.ctx.strokeStyle = `rgb(${red}, ${green}, ${blue})`
-        this.ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
+        ctx.strokeStyle = `rgb(${red}, ${green}, ${blue})`
+        ctx.stroke()
       }
     }
   }

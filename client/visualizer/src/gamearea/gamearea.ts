@@ -33,6 +33,7 @@ export default class GameArea {
     this.conf = conf;
     this.images = images;
     this.mapEditorCanvas = mapEditorCanvas;
+    this.canvases = {} as typeof this.canvases;
     this.profilerIFrame = profilerIFrame;
 
     // Create the canvas
@@ -40,9 +41,11 @@ export default class GameArea {
     wrapper.id = "canvas-wrapper";
     this.wrapper = wrapper;
 
-    this.canvases[CanvasType.BACKGROUND] = document.createElement("canvas");
-    this.canvases[CanvasType.DYNAMIC] = document.createElement("canvas");
-    this.canvases[CanvasType.OVERLAY] = document.createElement("canvas");
+    for (const type in [CanvasType.BACKGROUND, CanvasType.DYNAMIC, CanvasType.OVERLAY]) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "game-canvas";
+      this.canvases[type] = canvas;
+    }
     
     this.splashDiv = document.createElement("div");
     this.splashDiv.id = "battlecode-splash";
