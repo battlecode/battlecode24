@@ -536,6 +536,45 @@ public strictfp interface RobotController {
      */
     MapLocation[] senseNearbyLocationsWithElixir(MapLocation center, int radiusSquared) throws GameActionException;
 
+
+    /**
+     * Return all wells.
+     *
+     * @return all locations within vision radius that contain wells
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells();
+
+    /**
+     * Return all wells within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all wells within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations with vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
+
     /**
      * Returns the location adjacent to current location in the given direction.
      *
