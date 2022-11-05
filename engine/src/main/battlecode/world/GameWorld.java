@@ -39,6 +39,7 @@ public strictfp class GameWorld {
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    private Direction[][] currents;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -267,6 +268,10 @@ public strictfp class GameWorld {
         return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
     }
 
+    public Direction getCurrent(MapLocation loc) {
+        return this.currents[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+    }
+
     public void moveRobot(MapLocation start, MapLocation end) {
         addRobot(end, getRobot(start));
         removeRobot(start);
@@ -459,6 +464,17 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundLeadChange(Team.A), this.teamInfo.getRoundGoldChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
         this.teamInfo.processEndOfRound();
+
+        //Apply currents
+        if(currentRound % GameConstants.CURRENT_STRENGTH == 0){
+            objectInfo.eachRobot((robot) -> {
+                MapLocation loc = robot.getLocation();
+                Direction current = getCurrent(loc);
+                if(current != null) {
+                    robot.setLocation(loc.add(current));
+                }
+            });
+        }
 
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null)

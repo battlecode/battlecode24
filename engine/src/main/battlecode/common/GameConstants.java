@@ -107,6 +107,9 @@ public class GameConstants {
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
+    /** The number of game rounds between applying movement due to currents */
+    public static final int CURRNET_STRENGTH = 1;
+
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 18;
