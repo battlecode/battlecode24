@@ -1,5 +1,7 @@
 package battlecode.common;
 
+import java.util.Map;
+
 /**
  * A RobotController allows contestants to make their robot sense and interact
  * with the game world. When a contestant's <code>RobotPlayer</code> is
@@ -314,44 +316,44 @@ public strictfp interface RobotController {
     int senseIsland(MapLocation loc) throws GameActionException;
 
     /**
-     * Return all locations that are filled by the island with index idx.
+     * Return map of island idx to all locations that are filled by that island.
      *
-     * @return all locations within vision radius that are filled by the island with index idx
+     * @return map of idx to all locations in this island within vision radius
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyIslandLocations(int idx);
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations();
 
     /**
-     * Return all locations that are filled by the island with the index idx, within a
-     * specified radius of your robot location.
+     * Return map of idx to all locations that are filled by the island with the index idx, 
+     * within a specified radius of your robot location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
      * are returned.
      *
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that are filled by the island with the index idx
+     * @return map of idx to all locations that are filled by the island with the index idx
      * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyIslandLocations(int idx, int radiusSquared) throws GameActionException;
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations(int radiusSquared) throws GameActionException;
 
     /**
-     * Return all locations that are filled by the island with the index idx, within a
-     * specified radius of a center location.
+     * Return map of idx to all locations that are filled by the island with the index idx, 
+     * within a specified radius of a center location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations with vision radius
      * are returned.
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that are filled by the island with the index idx
+     * @return map of idx to all locations that are filled by the island with the index idx
      * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] senseNearbyIslandLocations(int idx, MapLocation center, int radiusSquared) throws GameActionException;
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
      * Given a location, returns whether this location is an adamantium reserve.
