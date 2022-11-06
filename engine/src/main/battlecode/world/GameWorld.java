@@ -468,13 +468,7 @@ public strictfp class GameWorld {
 
         //Apply currents after CURRENT_STRENGTH rounds
         if(currentRound % GameConstants.CURRENT_STRENGTH == 0){
-            objectInfo.eachRobot((robot) -> {
-                MapLocation loc = robot.getLocation();
-                Direction current = getCurrent(loc);
-                if(current != null) {
-                    robot.setLocation(loc.add(current));
-                }
-            });
+            applyCurrents();
         }
 
         // Check for end of match
@@ -486,6 +480,17 @@ public strictfp class GameWorld {
 
         if (gameStats.getWinner() != null)
             running = false;
+    }
+
+    private void applyCurrents() {
+        objectInfo.eachRobot((robot) -> {
+            MapLocation loc = robot.getLocation();
+            Direction current = getCurrent(loc);
+            if(current != null) {
+                robot.setLocation(loc.add(current));
+            }
+            return true;
+        });
     }
 
     // *********************************
