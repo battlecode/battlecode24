@@ -800,4 +800,32 @@ public strictfp class GameWorld {
         return null;
 
     }
+
+    /*
+     * Checks to see if a robot is within range of certain objects and is thus able
+     * to write to the shared array
+     */
+    public boolean isInRange(MapLocation loc){
+     
+        for(Robot amplifier: signalAmplifiers){
+            int distance = amplifier.distanceSquaredTo(loc);
+            if(distance <= 36)
+                return true;
+        }
+        for(Anchor anchor: realityAnchors){
+            int distance = anchor.distanceSquaredTo(loc);
+            if(distance <= 45)
+                return true;
+        }
+        for(Headquarter headquarter: headquarters){
+            int distance = headquarter.distanceSquaredTo(loc);
+            if(distance <= 50)
+                return true;
+        }
+        return false;
+
+    }
+
+
+    
 }

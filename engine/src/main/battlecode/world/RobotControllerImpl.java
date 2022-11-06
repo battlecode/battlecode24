@@ -966,11 +966,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public boolean canWriteSharedArray(){
+        return this.gameWorld.isInRange(this.robot.getLocation());
+    }
+
+    @Override
     public void writeSharedArray(int index, int value) throws GameActionException {
         assertValidIndex(index);
         assertValidValue(value);
-        this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
+        if(canWriteSharedArray())
+            this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
+
+
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
