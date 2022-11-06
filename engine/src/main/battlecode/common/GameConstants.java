@@ -69,6 +69,12 @@ public class GameConstants {
 
     /** The amount of lead to add each round that lead is added. */
     public static final int ADD_LEAD = 5;
+
+    /** The amount of adamantium or mana needed to upgrade a well to elixir */
+    public static final int UPGRADE_TO_ELIXIR = 15000;
+
+    /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
+    public static final int UPGRADE_WELL_RATE = 10000;
     
     // *********************************
     // ****** COOLDOWNS ****************
