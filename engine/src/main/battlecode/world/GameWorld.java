@@ -356,9 +356,13 @@ public strictfp class GameWorld {
      * @return whether a team has more sky islands captured
      */
     public boolean setWinnerIfMoreSkyIslands() {
-        // TODO do the calculation
         int skyIslandCountA = 0;
         int skyIslandCountB = 0;
+        for(int id : islandIds) {
+            Island island = islandIdToIsland.get(id);
+            if(island.teamOwning == Team.A) skyIslandCountA++;
+            else if(island.teamOwning == Team.B) skyIslandCountB++;
+        }
 
         if (skyIslandCountA > skyIslandCountB) {
             setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
@@ -374,9 +378,8 @@ public strictfp class GameWorld {
      * @return whether a team has more reality anchors placed
      */
     public boolean setWinnerIfMoreRealityAnchors() {
-        // TODO do the calculation
-        int realityAnchorCountA = 0;
-        int realityAnchorCountB = 0;
+        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
+        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
         
         if (realityAnchorCountA > realityAnchorCountB) {
             setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
