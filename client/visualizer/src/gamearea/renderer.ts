@@ -78,6 +78,7 @@ export default class Renderer {
     if (updateDynamic) {
       this.clearCanvas(CanvasType.DYNAMIC);
       this.renderResources(world)
+      this.renderIslands(world);
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -86,6 +87,7 @@ export default class Renderer {
     const updateOverlay = true;
     if (updateOverlay) {
       this.clearCanvas(CanvasType.OVERLAY);
+      this.renderObstacles(world);
     }
 
     this.setMouseoverEvent(world)
@@ -247,6 +249,121 @@ export default class Renderer {
     }
 
     ctx.restore()
+  }
+
+  private renderArrow(i: number, j: number, direction: number) {
+    const ctx = this.ctx[CanvasType.OVERLAY];
+    const scale = 20
+    ctx.scale(1 / scale, 1 / scale)
+    ctx.globalAlpha = .1
+    ctx.fillStyle = "black"
+    ctx.beginPath()
+
+    let dir = cst.DIRECTIONS[direction]
+    let len = scale / Math.sqrt(dir[0]*dir[0] + dir[1] * dir[1]) * .4
+    let x = (i+.5) * scale
+    let y = (j+.5) * scale
+
+    ctx.moveTo(x + dir[0] * len, y + dir[1] * len)
+    let right = [-dir[1] * len / 2, dir[0] * len / 2]
+    ctx.lineTo(x - dir[0] * len * .7 + right[0], y - dir[1] * len * .7 + right[1])
+    ctx.lineTo(x - dir[0] * len * .7 - right[0], y - dir[1] * len * .7 - right[1])
+    ctx.closePath()
+    ctx.fill()
+  }
+
+  private renderIsland(i: number, j: number, island: number) {
+    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const scale = 20
+    ctx.scale(1 / scale, 1 / scale)
+    ctx.fillStyle = "black"
+    ctx.globalAlpha = .3
+    // this.ctx.fillRect(i * scale, j * scale, scale, scale)
+    let x = i * scale
+    let y = j * scale
+    let d = scale / 8
+
+    ctx.beginPath()
+    ctx.moveTo(x, y)
+    ctx.lineTo(x + d, y)
+    ctx.lineTo(x, y + d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(x + 3 * d, y)
+    ctx.lineTo(x + 5 * d, y)
+    ctx.lineTo(x, y + 5 * d)
+    ctx.lineTo(x, y + 3 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(x + 7 * d, y)
+    ctx.lineTo(x + 8 * d, y)
+    ctx.lineTo(x + 8 * d, y + d)
+    ctx.lineTo(x + d, y + 8 * d)
+    ctx.lineTo(x, y + 8 * d)
+    ctx.lineTo(x, y + 7 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(x + 5 * d, y + 8 * d)
+    ctx.lineTo(x + 3 * d, y + 8 * d)
+    ctx.lineTo(x + 8 * d, y + 3 * d)
+    ctx.lineTo(x + 8 * d, y + 5 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(x + 8 * d, y + 8 * d)
+    ctx.lineTo(x + 7 * d, y + 8 * d)
+    ctx.lineTo(x + 8 * d, y + 7 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.globalAlpha = 1
+    ctx.fillText(island + "", i * scale, (j + .5) * scale, scale * 1.7)
+  }
+
+
+  private renderOverlay(i: number, j: number, color: string, opacity: number) {
+    const ctx = this.ctx[CanvasType.OVERLAY];
+    const scale = 20
+    ctx.scale(1 / scale, 1 / scale)
+    ctx.globalAlpha = opacity
+    ctx.fillStyle = color
+    ctx.fillRect(i * scale, j * scale, scale, scale)
+  }
+
+  private renderObstacles(world: GameWorld): void {
+    let width = world.maxCorner.x - world.minCorner.x
+    let height = world.maxCorner.y - world.minCorner.y
+    const map = world.mapStats;
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        if (map.clouds[(height - j - 1) * width + i])
+          this.renderOverlay(i, j, "white", .3)
+        if (map.currents[(height - j - 1) * width + i]){
+          this.renderOverlay(i, j, "purple", .2)
+          this.renderArrow(i,j,map.currents[(height - j - 1) * width + i])
+        }
+      }
+    }
+  }
+
+  private renderIslands(world: GameWorld): void {
+    let width = world.maxCorner.x - world.minCorner.x
+    let height = world.maxCorner.y - world.minCorner.y
+    const map = world.mapStats;
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        if (map.islands[(height - j - 1) * width + i] != 0) {
+          this.renderIsland(i, j, map.islands[(height - j - 1) * width + i])
+        }
+      }
+    }
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
