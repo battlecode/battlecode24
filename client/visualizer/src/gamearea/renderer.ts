@@ -22,8 +22,7 @@ export default class Renderer {
   // position of mouse cursor hovering
   private hoverPos: { xrel: number, yrel: number } | null = null;
 
-  private lastTime: number = 0;
-  private lastAnomaly: number = 0;
+  private staticRendered = false;
 
   constructor(
     readonly canvases: Record<CanvasType, HTMLCanvasElement>, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
@@ -68,10 +67,14 @@ export default class Renderer {
       else ctx.translate(-viewMin.y, -viewMin.x)
     }
 
-    const updateBackground = true;
-    if (updateBackground) {
+    if (!this.staticRendered) {
+      this.staticRendered = true;
+
       this.clearCanvas(CanvasType.BACKGROUND);
-      this.renderBackground(world)
+      this.renderBackground(world);
+
+      this.clearCanvas(CanvasType.OVERLAY);
+      this.renderObstacles(world);
     }
 
     const updateDynamic = true;
@@ -84,11 +87,6 @@ export default class Renderer {
       this.renderIndicatorDotsLines(world)
     }
 
-    const updateOverlay = true;
-    if (updateOverlay) {
-      this.clearCanvas(CanvasType.OVERLAY);
-      this.renderObstacles(world);
-    }
 
     this.setMouseoverEvent(world)
 
