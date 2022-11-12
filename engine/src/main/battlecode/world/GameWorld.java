@@ -51,6 +51,7 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.rubble = gm.getRubbleArray();
         this.lead = gm.getLeadArray();
+        this.passable = gm.getPassableArray();
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.islandIds = new int[this.lead.length];
