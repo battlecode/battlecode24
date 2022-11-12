@@ -55,23 +55,20 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of lead each team starts with. */
-    public static final int INITIAL_LEAD_AMOUNT = 200;
+    /** The initial amount of mana each team starts with. */
+    public static final int INITIAL_MN_AMOUNT = 200;
 
-    /** The initial amount of gold each team starts with. */
-    public static final int INITIAL_GOLD_AMOUNT = 0;
+    /** The initial amount of adamantium each team starts with. */
+    public static final int INITIAL_AD_AMOUNT = 0;
 
-    /** The amount of lead each team gains per turn. */
-    public static final int PASSIVE_LEAD_INCREASE = 2;
+    /** The amount of adamantium each team gains per turn. */
+    public static final int PASSIVE_AD_INCREASE = 2;
+
+    /** The amount of mana each team gains per turn. */
+    public static final int PASSIVE_MN_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
     public static final int ADD_LEAD_EVERY_ROUNDS = 20;
-
-    /** The amount of mana to add each round that mana is added. */
-    public static final int ADD_MN = 5;
-
-    /** The amount of adamantium to add each round that adamantium is added. */
-    public static final int ADD_AD = 5;
     
     // *********************************
     // ****** COOLDOWNS ****************
