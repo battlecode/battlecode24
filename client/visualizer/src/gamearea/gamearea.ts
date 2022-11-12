@@ -33,7 +33,7 @@ export default class GameArea {
     this.conf = conf;
     this.images = images;
     this.mapEditorCanvas = mapEditorCanvas;
-    this.canvases = {} as typeof this.canvases;
+    this.canvases = {} as Record<CanvasType, HTMLCanvasElement>;
     this.profilerIFrame = profilerIFrame;
 
     // Create the canvas

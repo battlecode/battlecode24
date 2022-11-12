@@ -812,12 +812,8 @@ export default class GameWorld {
       target: new Int32Array(bodies.robotIDsLength()),
       targetx: new Int32Array(bodies.robotIDsLength()),
       targety: new Int32Array(bodies.robotIDsLength()),
-      bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
-      level: levels,
-      portable: new Int8Array(bodies.robotIDsLength()),
-      prototype: prototypes,
     })
   }
 

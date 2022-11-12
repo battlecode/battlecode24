@@ -29,16 +29,16 @@ export default class Renderer {
     readonly onRobotSelected: (id: number) => void,
     readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
   ) {
-    this.ctx = {} as typeof this.ctx;
+    this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
-      const canvas = canvases[key];
+      const canvas = canvases[key]
       let ctx = canvas.getContext("2d")
       ctx['imageSmoothingEnabled'] = false
       //ctx.imageSmoothingQuality = "high"
       if (ctx === null) {
         throw new Error("Couldn't load canvas2d context")
       } else {
-        this.ctx[key] = ctx;
+        this.ctx[key] = ctx
       }
     }
   }
@@ -54,8 +54,8 @@ export default class Renderer {
   render(world: GameWorld, viewMin: Victor, viewMax: Victor, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
     // setup correct rendering
     for (let key in this.ctx) {
-      const canvas = this.canvases[key];
-      const ctx = this.ctx[key];
+      const canvas = this.canvases[key]
+      const ctx = this.ctx[key]
 
       const viewWidth = viewMax.x - viewMin.x
       const viewHeight = viewMax.y - viewMin.y
@@ -68,20 +68,20 @@ export default class Renderer {
     }
 
     if (!this.staticRendered) {
-      this.staticRendered = true;
+      this.staticRendered = true
 
-      this.clearCanvas(CanvasType.BACKGROUND);
-      this.renderBackground(world);
+      this.clearCanvas(CanvasType.BACKGROUND)
+      this.renderBackground(world)
 
-      this.clearCanvas(CanvasType.OVERLAY);
-      this.renderObstacles(world);
+      this.clearCanvas(CanvasType.OVERLAY)
+      this.renderObstacles(world)
     }
 
-    const updateDynamic = true;
+    const updateDynamic = true
     if (updateDynamic) {
-      this.clearCanvas(CanvasType.DYNAMIC);
+      this.clearCanvas(CanvasType.DYNAMIC)
       this.renderResources(world)
-      this.renderIslands(world);
+      this.renderIslands(world)
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -101,14 +101,14 @@ export default class Renderer {
   release() {
     // nothing to do yet?
   }
-  
+
   private clearCanvas(canvasType: CanvasType) {
-    const canvas = this.canvases[canvasType];
-    this.ctx[canvasType].clearRect(0, 0, canvas.width, canvas.height);
+    const canvas = this.canvases[canvasType]
+    this.ctx[canvasType].clearRect(0, 0, canvas.width, canvas.height)
   }
 
   private renderBackground(world: GameWorld) {
-    const ctx = this.ctx[CanvasType.BACKGROUND];
+    const ctx = this.ctx[CanvasType.BACKGROUND]
 
     ctx.save()
     ctx.fillStyle = "white"
@@ -184,7 +184,7 @@ export default class Renderer {
   }
 
   private renderHoverBox(world: GameWorld) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
 
     if (this.hoverPos != null) {
       ctx.save()
@@ -211,7 +211,7 @@ export default class Renderer {
   }
 
   private renderResources(world: GameWorld) {
-    const ctx = this.ctx[CanvasType.BACKGROUND];
+    const ctx = this.ctx[CanvasType.BACKGROUND]
 
     ctx.save()
     ctx.globalAlpha = 1
@@ -250,7 +250,7 @@ export default class Renderer {
   }
 
   private renderArrow(i: number, j: number, direction: number) {
-    const ctx = this.ctx[CanvasType.OVERLAY];
+    const ctx = this.ctx[CanvasType.OVERLAY]
     const scale = 20
     ctx.scale(1 / scale, 1 / scale)
     ctx.globalAlpha = .1
@@ -258,9 +258,9 @@ export default class Renderer {
     ctx.beginPath()
 
     let dir = cst.DIRECTIONS[direction]
-    let len = scale / Math.sqrt(dir[0]*dir[0] + dir[1] * dir[1]) * .4
-    let x = (i+.5) * scale
-    let y = (j+.5) * scale
+    let len = scale / Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1]) * .4
+    let x = (i + .5) * scale
+    let y = (j + .5) * scale
 
     ctx.moveTo(x + dir[0] * len, y + dir[1] * len)
     let right = [-dir[1] * len / 2, dir[0] * len / 2]
@@ -271,7 +271,7 @@ export default class Renderer {
   }
 
   private renderIsland(i: number, j: number, island: number) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     const scale = 20
     ctx.scale(1 / scale, 1 / scale)
     ctx.fillStyle = "black"
@@ -327,7 +327,7 @@ export default class Renderer {
 
 
   private renderOverlay(i: number, j: number, color: string, opacity: number) {
-    const ctx = this.ctx[CanvasType.OVERLAY];
+    const ctx = this.ctx[CanvasType.OVERLAY]
     const scale = 20
     ctx.scale(1 / scale, 1 / scale)
     ctx.globalAlpha = opacity
@@ -338,14 +338,14 @@ export default class Renderer {
   private renderObstacles(world: GameWorld): void {
     let width = world.maxCorner.x - world.minCorner.x
     let height = world.maxCorner.y - world.minCorner.y
-    const map = world.mapStats;
+    const map = world.mapStats
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         if (map.clouds[(height - j - 1) * width + i])
           this.renderOverlay(i, j, "white", .3)
-        if (map.currents[(height - j - 1) * width + i]){
+        if (map.currents[(height - j - 1) * width + i]) {
           this.renderOverlay(i, j, "purple", .2)
-          this.renderArrow(i,j,map.currents[(height - j - 1) * width + i])
+          this.renderArrow(i, j, map.currents[(height - j - 1) * width + i])
         }
       }
     }
@@ -354,7 +354,7 @@ export default class Renderer {
   private renderIslands(world: GameWorld): void {
     let width = world.maxCorner.x - world.minCorner.x
     let height = world.maxCorner.y - world.minCorner.y
-    const map = world.mapStats;
+    const map = world.mapStats
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         if (map.islands[(height - j - 1) * width + i] != 0) {
@@ -377,13 +377,14 @@ export default class Renderer {
     const targets = bodies.arrays.target
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
-    const adamantiums = bodies.arrays.adamantium;
-    const manas = bodies.arrays.mana;
-    const elixirs = bodies.arrays.elixir;
+    const adamantiums = bodies.arrays.adamantium
+    const anchors = bodies.arrays.anchor
+    const manas = bodies.arrays.mana
+    const elixirs = bodies.arrays.elixir
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
 
     if (nextStep && lerpAmount) {
@@ -426,17 +427,23 @@ export default class Renderer {
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       //draw rescoures
-      let adamantiumColor = "#15f00a" +  (adamantiums[i]>0?"ff":"00");
-      let manaColor = "#d90af0" +  (manas[i]>0?"ff":"00");
-      let elixirColor = "#0abaf0" + (elixirs[i]>0?"ff":"00");
-      this.drawCircle(realXs[i], realYs[i]-0.5, 0.001, adamantiumColor,adamantiumColor);
-      this.drawCircle(realXs[i]+0.2, realYs[i]-0.5, 0.001, manaColor,manaColor);
-      this.drawCircle(realXs[i]+0.4, realYs[i]-0.5, 0.001, elixirColor,elixirColor);
+      if (anchors[i] > 0) {
+        let anchorColor = adamantiums[i] == 1 ? "#6C6C6C" : "#EEAC09"
+        this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.002, anchorColor, anchorColor)
+      } else {
+        let adamantiumColor = "#838D63" + (adamantiums[i] > 0 ? "ff" : "00")
+        let manaColor = "#D79DA2" + (manas[i] > 0 ? "ff" : "00")
+        let elixirColor = "#FBCC3F" + (elixirs[i] > 0 ? "ff" : "00")
+        this.drawCircle(realXs[i], realYs[i] - 0.5, 0.001, adamantiumColor, adamantiumColor)
+        this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.001, manaColor, manaColor)
+        this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.001, elixirColor, elixirColor)
+      }
+
 
       // draw effect
       if (actions[i] == schema.Action.THROW_ATTACK) {
         // Direction
-        const target = targets[i];
+        const target = targets[i]
         let yshift = (teams[i] - 1.5) * .15 + 0.5
         let xshift = (teams[i] - 1.5) * .15 + 0.5
         ctx.save()
@@ -448,12 +455,12 @@ export default class Renderer {
         ctx.stroke()
         ctx.restore()
       }
-      
+
       if (actions[i] == schema.Action.DESTABILIZE || actions[i] == schema.Action.BOOST) {
         const color = actions[i] == schema.Action.DESTABILIZE ? "#573f5e3F" : "#00F0003F"
-        this.drawCircle(realXs[i], realYs[i], 25, color, teams[i] == 1 ? "red" : "blue");
+        this.drawCircle(realXs[i], realYs[i], 25, color, teams[i] == 1 ? "red" : "blue")
       }
-      
+
       // if (actions[i] == schema.Action.REPAIR) {
       //   let yshift = 0.5
       //   let xshift = 0.5
@@ -502,7 +509,7 @@ export default class Renderer {
    * Draws a cirlce centered at (x,y) with given squared radius and color.
    */
   private drawBotRadius(x: number, y: number, radiusSquared: number, color: string) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
@@ -512,14 +519,14 @@ export default class Renderer {
   }
 
   private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
     ctx.strokeStyle = borderColor
-    ctx.lineWidth = 0.10;
+    ctx.lineWidth = 0.10
     ctx.stroke()
-    ctx.fillStyle = color;
+    ctx.fillStyle = color
     ctx.fill()
   }
 
@@ -540,18 +547,18 @@ export default class Renderer {
   /**
    * Draws an image centered at (x, y) with the given radius
    */
-   /*
-  private drawImage(img: HTMLImageElement, x: number, y: number, radius: number) {
-    if (this.conf.doingRotate) [x, y] = [y, x]
-    this.ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2)
-  }
-  */
+  /*
+ private drawImage(img: HTMLImageElement, x: number, y: number, radius: number) {
+   if (this.conf.doingRotate) [x, y] = [y, x]
+   this.ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2)
+ }
+ */
 
   /**
    * Draws an image centered at (x, y), such that an image with default size covers a 1x1 cell
    */
   private drawBot(img: HTMLImageElement, x: number, y: number, c: number, ratio: number, img_size: number) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
     let realWidth = img.naturalWidth / img_size
     let realHeight = img.naturalHeight / img_size
@@ -582,7 +589,7 @@ export default class Renderer {
     const onRobotSelected = this.onRobotSelected
 
     // Overlay is on top so we will use it for mouse events
-    const canvas = this.canvases[CanvasType.OVERLAY];
+    const canvas = this.canvases[CanvasType.OVERLAY]
     canvas.onmousedown = (event: MouseEvent) => {
       const { x, y } = this.getIntegerLocation(event, world)
 
@@ -622,7 +629,7 @@ export default class Renderer {
     }
 
     // Overlay is on top so we will use it for mouse events
-    const canvas = this.canvases[CanvasType.OVERLAY];
+    const canvas = this.canvases[CanvasType.OVERLAY]
     canvas.onmousemove = (event) => {
       // const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
       // const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
@@ -649,7 +656,7 @@ export default class Renderer {
     const maxY = world.maxCorner.y - 1
     var _x: number
     var _y: number
-    const canvas = this.canvases[CanvasType.BACKGROUND];
+    const canvas = this.canvases[CanvasType.BACKGROUND]
     if (!this.conf.doingRotate) {
       _x = width * event.offsetX / canvas.offsetWidth + world.minCorner.x
       _y = height * event.offsetY / canvas.offsetHeight + world.minCorner.y
@@ -663,7 +670,7 @@ export default class Renderer {
   }
 
   private renderIndicatorDotsLines(world: GameWorld) {
-    const ctx = this.ctx[CanvasType.DYNAMIC];
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     if (!this.conf.indicators && !this.conf.allIndicators) {
       return
     }
