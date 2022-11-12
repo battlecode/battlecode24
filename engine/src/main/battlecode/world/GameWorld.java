@@ -30,7 +30,7 @@ public strictfp class GameWorld {
 
     private Headquarter[] headquarters;
 
-    private boolean[][] passable;
+    private boolean[] passable;
     private int[] rubble;
     private int[] lead;
     private int[] gold;
@@ -265,7 +265,7 @@ public strictfp class GameWorld {
     }
 
     public boolean isPassable(MapLocation loc) {
-        return this.passable[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+        return this.passable[locationToIndex(loc)];
     }
 
     public Island getIsland(MapLocation loc) {
