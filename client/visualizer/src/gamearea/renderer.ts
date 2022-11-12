@@ -377,6 +377,9 @@ export default class Renderer {
     const targets = bodies.arrays.target
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
+    const adamantiums = bodies.arrays.adamantium;
+    const manas = bodies.arrays.mana;
+    const elixirs = bodies.arrays.elixir;
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
@@ -421,6 +424,14 @@ export default class Renderer {
       let max_hp = this.metadata.types[types[i]].health
       this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]))
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
+
+      //draw rescoures
+      let adamantiumColor = "#15f00a" +  (adamantiums[i]>0?"ff":"00");
+      let manaColor = "#d90af0" +  (manas[i]>0?"ff":"00");
+      let elixirColor = "#0abaf0" + (elixirs[i]>0?"ff":"00");
+      this.drawCircle(realXs[i], realYs[i]-0.5, 0.001, adamantiumColor,adamantiumColor);
+      this.drawCircle(realXs[i]+0.2, realYs[i]-0.5, 0.001, manaColor,manaColor);
+      this.drawCircle(realXs[i]+0.4, realYs[i]-0.5, 0.001, elixirColor,elixirColor);
 
       // draw effect
       if (actions[i] == schema.Action.THROW_ATTACK) {
