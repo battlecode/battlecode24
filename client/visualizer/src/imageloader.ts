@@ -11,7 +11,9 @@ export type AllImages = {
   star: Image,
   tiles: ImageArray,
   robots: ImageArrayMap,
+  robots_high_quality: ImageArrayMap,
   resources: ImageMap,
+  resource_wells: ImageArrayMap,
   effects: ImageArrayMap,
   controls: ImageMap
 }
@@ -106,7 +108,9 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   const result = {
     tiles: [],
     robots: {},
+    robots_high_quality: {},
     resources: {},
+    resource_wells: {},
     effects: {},
     controls: {}
   }
@@ -196,14 +200,22 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   for (let team of [RED, BLU]) {
     let team_str = team == RED ? 'red' : 'blue'
     for (let bodytype of cst.bodyTypeList) {
-      loadImageInArrayMap(result.robots, bodytype, team, `robots/${team_str}_${cst.bodyTypeToString(bodytype)}`)
+      loadImageInArrayMap(result.robots, bodytype, team, `robots/${team_str}_${cst.bodyTypeToString(bodytype)}_smaller`)
+      loadImageInArrayMap(result.robots_high_quality, bodytype, team, `robots/${team_str}_${cst.bodyTypeToString(bodytype)}`)
     }
   }
   // resources
 
-  loadImageInMap(result.resources, cst.ADAMANTIUM, 'resources/lead')
-  loadImageInMap(result.resources, cst.MANA, 'resources/gold')
+  loadImageInMap(result.resources, cst.ADAMANTIUM, 'resources/adamantium')
+  loadImageInMap(result.resources, cst.MANA, 'resources/mana')
+  loadImageInMap(result.resources, cst.ELIXIR, 'resources/elixir')
+  for(let upgraded of [0,1]){
+    loadImageInArrayMap(result.resource_wells, cst.ADAMANTIUM, upgraded, `resources/adamantium_well_${upgraded?"upgraded_":""}smaller`)
+    loadImageInArrayMap(result.resource_wells, cst.MANA, upgraded, `resources/mana_well_${upgraded?"upgraded_":""}smaller`)
+    loadImageInArrayMap(result.resource_wells, cst.ELIXIR, upgraded, `resources/elixir_well_${upgraded?"upgraded_":""}smaller`)
+  }
 
+  
 
   // effects
   // loadImage(result.effects, 'death', 'effects/death/death_empty');

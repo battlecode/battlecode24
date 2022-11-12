@@ -86,8 +86,8 @@ export default class Stats {
     this.conf = conf;
     this.images = images;
 
-    for (const robot in this.images.robots) {
-      let robotImages: Array<HTMLImageElement> = this.images.robots[robot];
+    for (const robot in this.images.robots_high_quality) {
+      let robotImages: Array<HTMLImageElement> = this.images.robots_high_quality[robot];
       this.robotImages[robot] = robotImages.map((image) => image.cloneNode() as HTMLImageElement);
     }
     
@@ -141,8 +141,8 @@ export default class Stats {
     for (let robot of this.robots) {
       let tdRobot: HTMLTableCellElement = document.createElement("td");
       tdRobot.className = "robotSpriteStats";
-      tdRobot.style.height = "45px";
-      tdRobot.style.width = "60px";
+      tdRobot.style.height = "50px";
+      tdRobot.style.width = "50px";
 
       const img: HTMLImageElement = this.robotImages[robot][inGameID];
       img.style.width = "100%";
@@ -803,7 +803,7 @@ export default class Stats {
     div.style.position = 'releative';
     div.style.top = '50%';
     div.style.transform  = `translateY(-${50*size - 35}%)`;
-    const img = /* img */this.images.robots[cst.HEADQUARTERS][teamID].cloneNode() as HTMLImageElement;
+    const img = /* img */this.images.robots_high_quality[cst.HEADQUARTERS][teamID].cloneNode() as HTMLImageElement;
     img.style.width = `${56 * size}px`;
     img.style.height = `${56 * size}px`; // update dynamically later
     // img.style.marginTop = `${28*size}px`;

@@ -12,7 +12,8 @@
     "electron": "webpack --mode=development --env.electron --env.dev && electron .",
     "prod-electron": "webpack --mode=production --env.electron && electron-builder -mwl --dir --ia32 --x64",
     "prod-electron-no-sign": "webpack --mode=production --env.electron && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -mwl --dir --ia32 --x64",
-    "prod-test": "webpack --mode=production --env.electron && electron-builder"
+    "prod-test": "webpack --mode=production --env.electron && electron-builder",
+    "shrink-images": "ts-node src/image_processor.ts"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
+    "sharp": "^0.31.2",
     "speedscope": "1.5.2",
     "victor": "^1.1.0"
   },

@@ -553,6 +553,10 @@ export default class GameWorld {
             setAction(false, false, true)
             break
 
+          case schema.Action.DESTABILIZE_DAMAGE:
+            setAction(false, false, true)
+            break
+
           case schema.Action.BOOST:
             setAction(false, false, true)
             break
@@ -571,28 +575,24 @@ export default class GameWorld {
             break
 
           case schema.Action.CHANGE_ADAMANTIUM:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.adamantiumMined += target
             this.bodies.alter({ id: robotID, adamantium: body.adamantium + target })
             break
 
           case schema.Action.CHANGE_ELIXIR:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.elixirMined += target
             this.bodies.alter({ id: robotID, elixir: body.elixir + target })
             break
 
           case schema.Action.CHANGE_MANA:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.manaMined += target
             this.bodies.alter({ id: robotID, mana: body.mana + target })
             break
 
           case schema.Action.SPAWN_UNIT:
-            // setAction()
             break
 
           case schema.Action.CHANGE_HEALTH:
