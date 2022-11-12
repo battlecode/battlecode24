@@ -57,11 +57,11 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
-        ArrayList[][] boosts = new ArrayList[gm.getWidth()*gm.getHeight()][3];
+        ArrayList[][] boosts = new ArrayList[gm.getWidth()*gm.getHeight()][4];
         for (int i = 0; i < boosts.length; i++){
             for (int j = 0; j < boosts[0].length; j++)
                 boosts[i][j] = new ArrayList();
-        }//index of 2 for destabilizers, 0/1 for team 0/1 boosts
+        }//index of 2/3 for destabilizers for team 0/1, 0/1 for team 0/1 boosts
         float[][] cooldownMultipliers = new float[gm.getWidth()*gm.getHeight()][2];
         for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
             cooldownMultipliers[i][0] = 1;
@@ -267,15 +267,13 @@ public strictfp class GameWorld {
             curBoostsList.add(lastRound);
         }
     }
-    public void addDestabilize(MapLocation center){
+    public void addDestabilize(MapLocation center, Team team){ //team of the destabilizer robot
         int lastRound = getCurrentRound() + 5;
         int radiusSquared = 20;
         for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
-            ArrayList curDestabilizers = ((ArrayList)this.boosts[locationToIndex(loc)][2]);
-            if (curDestabilizers.size() == 0){
-                cooldownMultipliers[locationToIndex(loc)][0] -= .1;
-                cooldownMultipliers[locationToIndex(loc)][1] -= .1; //assuming affects both
-            }
+            ArrayList curDestabilizers = ((ArrayList)this.boosts[locationToIndex(loc)][2+1-team.ordinal()]);
+            if (curDestabilizers.size() == 0)
+                cooldownMultipliers[locationToIndex(loc)][1-team.ordinal()] -= .1;
             curDestabilizers.add(lastRound);
         }
     }
@@ -497,17 +495,16 @@ public strictfp class GameWorld {
         
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){
-            for (int i = 0; i <= 2; i++){ //only need to check boosters + destabilizers 
+            for (int i = 0; i <= 3; i++){ //only need to check boosters + destabilizers 
                 ArrayList<Integer> curBoosts = (ArrayList) boosts[locationToIndex(loc)][i];
                 for (int j = curBoosts.size()-1; j >=0; j--){
                     if (curBoosts.get(j) == getCurrentRound()+1){
                         curBoosts.remove(j);
                         if (curBoosts.size() == 0){
-                            if (i == 2){
-                                cooldownMultipliers[locationToIndex(loc)][0] += .1;//removing dest.
-                                cooldownMultipliers[locationToIndex(loc)][1] += .1;
+                            if (i >= 2){//destabilizers
+                                cooldownMultipliers[locationToIndex(loc)][i-2] += .1;//removing dest.
                             }
-                            else{
+                            else{//boosts
                                 cooldownMultipliers[locationToIndex(loc)][i] -= .1; //removing boost
                             }
                         }
