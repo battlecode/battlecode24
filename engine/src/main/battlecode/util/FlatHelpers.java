@@ -23,20 +23,16 @@ import java.util.function.ObjIntConsumer;
 public class FlatHelpers {
     public static RobotType getRobotTypeFromBodyType(byte bodyType) {
         switch (bodyType) {
-            case BodyType.ARCHON:
-                return RobotType.ARCHON;
-            case BodyType.LABORATORY:
-                return RobotType.LABORATORY;
-            case BodyType.WATCHTOWER:
-                return RobotType.WATCHTOWER;
-            case BodyType.MINER:
-                return RobotType.MINER;
-            case BodyType.BUILDER:
-                return RobotType.BUILDER;
-            case BodyType.SOLDIER:
-                return RobotType.SOLDIER;
-            case BodyType.SAGE:
-                return RobotType.SAGE;
+            case BodyType.AMPLIFIER:
+                return RobotType.AMPLIFIER;
+            case BodyType.BOOSTER:
+                return RobotType.BOOSTER;
+            case BodyType.CARRIER:
+                return RobotType.CARRIER;
+            case BodyType.DESTABILIZER:
+                return RobotType.DESTABILIZER;
+            case BodyType.LAUNCHER:
+                return RobotType.LAUNCHER;
             default:
                 throw new RuntimeException("No robot type for: " + bodyType);
         }
@@ -44,20 +40,16 @@ public class FlatHelpers {
 
     public static byte getBodyTypeFromRobotType(RobotType type) {
         switch (type) {
-            case ARCHON:
-                return BodyType.ARCHON;
-            case LABORATORY:
-                return BodyType.LABORATORY;
-            case WATCHTOWER:
-                return BodyType.WATCHTOWER;
-            case MINER:
-                return BodyType.MINER;
-            case BUILDER:
-                return BodyType.BUILDER;
-            case SOLDIER:
-                return BodyType.SOLDIER;
-            case SAGE:
-                return BodyType.SAGE;
+            case AMPLIFIER:
+                return BodyType.AMPLIFIER;
+            case BOOSTER:
+                return BodyType.BOOSTER;
+            case CARRIER:
+                return BodyType.CARRIER;
+            case DESTABILIZER:
+                return BodyType.DESTABILIZER;
+            case LAUNCHER:
+                return BodyType.LAUNCHER;
             default:
                 throw new RuntimeException("No body type for: " + type);
         }

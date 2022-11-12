@@ -17,8 +17,12 @@ public class MapBuilder {
     public MapLocation origin;
     public int seed;
     private MapSymmetry symmetry;
-    private int[] rubbleArray;
-    private int[] leadArray;
+    private boolean[] wallArray;
+    private boolean[] cloudArray;
+    private int[] currentArray;
+    private int[] islandArray;
+    private int[] resourceArray;
+
     private ArrayList<AnomalyScheduleEntry> anomalySchedule;
     private int idCounter;
 
@@ -35,9 +39,11 @@ public class MapBuilder {
         // default values
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.idCounter = 0;
-        this.rubbleArray = new int[width * height];
-        Arrays.fill(this.rubbleArray, 1); // default cooldown factor is 1
-        this.leadArray = new int[width * height];
+        this.wallArray = new boolean[width * height];
+        this.cloudArray = new boolean[width * height];
+        this.currentArray = new int[width * height];
+        this.islandArray = new int[width * height];
+        this.resourceArray = new int[width * height];
         this.anomalySchedule = new ArrayList<>();
     }
 
@@ -55,39 +61,26 @@ public class MapBuilder {
         return x + y * width;
     }
 
-    public void addArchon(int id, Team team, MapLocation loc) {
-        // check if something already exists here, if so shout
-        for (RobotInfo r : bodies) {
-            if (r.location.equals(loc)) {
-                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
-            }
-        }
-        bodies.add(new RobotInfo(
-                id,
-                team,
-                RobotType.ARCHON,
-                RobotMode.TURRET,
-                1,
-                RobotType.ARCHON.health,
-                loc
-        ));
+    public void setWall(int x, int y, boolean value) {
+        this.wallArray[locationToIndex(x, y)] = value;
     }
 
-    public void addArchon(int x, int y, Team team) {
-        addArchon(
-                idCounter++,
-                team,
-                new MapLocation(x, y)
-        );
+    public void setCloud(int x, int y, boolean value) {
+        this.cloudArray[locationToIndex(x, y)] = value;
     }
 
-    public void setRubble(int x, int y, int value) {
-        this.rubbleArray[locationToIndex(x, y)] = value;
+    public void setCurrent(int x, int y, int value) {
+        this.currentArray[locationToIndex(x, y)] = value;
     }
 
-    public void setLead(int x, int y, int value) {
-        this.leadArray[locationToIndex(x, y)] = value;
+    public void setIsland(int x, int y, int value) {
+        this.islandArray[locationToIndex(x, y)] = value;
     }
+
+    public void setResource(int x, int y, int value) {
+        this.resourceArray[locationToIndex(x, y)] = value;
+    }
+
 
     public void addAnomalyScheduleEntry(int round, AnomalyType anomaly) {
         this.anomalySchedule.add(new AnomalyScheduleEntry(round, anomaly));
@@ -135,24 +128,39 @@ public class MapBuilder {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
     }
 
-    /**
-     * Add team A Archon to (x,y) and team B Archon to symmetric position.
-     * @param x x position
-     * @param y y position
-     */
-    public void addSymmetricArchon(int x, int y) {
-        addArchon(x, y, Team.A);
-        addArchon(symmetricX(x), symmetricY(y), Team.B);
+    public void setSymmetricWalls(int x, int y, boolean value) {
+        this.wallArray[locationToIndex(x, y)] = value;
+        this.wallArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
-    public void setSymmetricRubble(int x, int y, int value) {
-        this.rubbleArray[locationToIndex(x, y)] = value;
-        this.rubbleArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
+    public void setSymmetricCloud(int x, int y, boolean value) {
+        this.cloudArray[locationToIndex(x, y)] = value;
+        this.cloudArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
-    public void setSymmetricLead(int x, int y, int value) {
-        this.leadArray[locationToIndex(x, y)] = value;
-        this.leadArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
+    private int getSymmetricCurrent(int value) {
+        // TODO: reverse the direction of the current
+        return value;
+    }
+
+    public void setSymmetricCurrent(int x, int y, int value) {
+        this.currentArray[locationToIndex(x, y)] = value;
+        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricCurrent(value);
+    }
+
+    private int getSymmetricIsland(int id) {
+        // TODO: ID needs to be different, maybe do max_num - id
+        return 100 - id;
+    }
+
+    public void setSymmetricIsland(int x, int y, int id) {
+        this.currentArray[locationToIndex(x, y)] = id;
+        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricIsland(id);
+    }
+
+    public void setSymmetricResource(int x, int y, int id) {
+        this.currentArray[locationToIndex(x, y)] = id;
+        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = id;
     }
 
     // ********************
@@ -161,8 +169,7 @@ public class MapBuilder {
 
     public LiveMap build() {
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
-                symmetry, bodies.toArray(new RobotInfo[bodies.size()]), rubbleArray, leadArray,
-                anomalySchedule.toArray(new AnomalyScheduleEntry[anomalySchedule.size()]));
+                symmetry, bodies.toArray(new RobotInfo[bodies.size()]), wallArray, cloudArray, currentArray, islandArray, resourceArray);
     }
 
     /**
@@ -211,44 +218,40 @@ public class MapBuilder {
                                        "and " + GameConstants.MAX_STARTING_ARCHONS + " starting Archons of each team");
         }
 
-        for (int i = 0; i < rubbleArray.length; i++) {
-            if (rubbleArray[i] < GameConstants.MIN_RUBBLE || rubbleArray[i] > GameConstants.MAX_RUBBLE) {
-                throw new RuntimeException("Map rubble must be between " + GameConstants.MIN_RUBBLE +
-                                           " and " + GameConstants.MAX_RUBBLE);
-            }
-        }
+        // TODO: probably we need to add some asserts on state
 
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
         if (!allMapSymmetries.contains(this.symmetry)) {
-            throw new RuntimeException("Rubble, lead, and Archons must be symmetric");
+            throw new RuntimeException("Walls, clouds, currents, isalnds and resources must be symmetric");
         }
 
-        // assert that at least one lead deposit inside vision range of at least one Archon
+        // assert that at least one lead deposit inside vision range of at least one headquarter
+        // TODO: fix this check
 
-        boolean[] hasVisibleLead = new boolean[2];
+        // boolean[] hasVisibleLead = new boolean[2];
 
-        for (RobotInfo r : bodies) {
-            if (r.getType() != RobotType.ARCHON) continue;
-            if (hasVisibleLead[r.getTeam().ordinal()]) continue;
+        // for (RobotInfo r : bodies) {
+        //     if (r.getType() != RobotType.ARCHON) continue;
+        //     if (hasVisibleLead[r.getTeam().ordinal()]) continue;
 
-            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
-                this.origin,
-                this.width,
-                this.height,
-                r.getLocation(),
-                r.getType().visionRadiusSquared
-            );
+        //     MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
+        //         this.origin,
+        //         this.width,
+        //         this.height,
+        //         r.getLocation(),
+        //         r.getType().visionRadiusSquared
+        //     );
 
-            for (MapLocation location : visibleLocations)
-                if (this.leadArray[locationToIndex(location.x, location.y)] > 0)
-                    hasVisibleLead[r.getTeam().ordinal()] = true;
-        }
+        //     for (MapLocation location : visibleLocations)
+        //         if (this.leadArray[locationToIndex(location.x, location.y)] > 0)
+        //             hasVisibleLead[r.getTeam().ordinal()] = true;
+        // }
 
-        if (!(hasVisibleLead[0] && hasVisibleLead[1])) {
-            throw new RuntimeException("Teams must have at least one lead deposit visible to an Archon.");
-        }
+        // if (!(hasVisibleLead[0] && hasVisibleLead[1])) {
+        //     throw new RuntimeException("Teams must have at least one lead deposit visible to an Archon.");
+        // }
     }
 
     public boolean onTheMap(MapLocation loc) {
@@ -278,9 +281,15 @@ public class MapBuilder {
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
                     int symIdx = locationToIndex(symm.x, symm.y);
-                    if (rubbleArray[curIdx] != rubbleArray[symIdx])
+                    if (wallArray[curIdx] != wallArray[symIdx])
                         possible.remove(symmetry);
-                    else if (leadArray[curIdx] != leadArray[symIdx])
+                    else if (cloudArray[curIdx] != cloudArray[symIdx])
+                        possible.remove(symmetry);
+                    else if (getSymmetricCurrent(currentArray[curIdx]) != currentArray[symIdx])
+                        possible.remove(symmetry);
+                    else if (getSymmetricIsland(islandArray[curIdx]) != islandArray[symIdx])
+                        possible.remove(symmetry);
+                    else if (resourceArray[curIdx] != resourceArray[symIdx])
                         possible.remove(symmetry);
                     else {
                         RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];

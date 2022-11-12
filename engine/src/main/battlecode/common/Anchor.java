@@ -1,4 +1,4 @@
-package battlecode.world;
+package battlecode.common;
 
 /**
  * Anchor represents the types of anchors that exist in the world. 

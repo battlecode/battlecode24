@@ -1,3 +1,6 @@
+import battlecode.common.MapLocation;
+import battlecode.common.Team;
+
 public class Headquarter {
     
     private Inventory inv;

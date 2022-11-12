@@ -67,8 +67,11 @@ public class GameConstants {
     /** The number of rounds between adding lead resources to the map. */
     public static final int ADD_LEAD_EVERY_ROUNDS = 20;
 
-    /** The amount of lead to add each round that lead is added. */
-    public static final int ADD_LEAD = 5;
+    /** The amount of mana to add each round that mana is added. */
+    public static final int ADD_MN = 5;
+
+    /** The amount of adamantium to add each round that adamantium is added. */
+    public static final int ADD_AD = 5;
     
     // *********************************
     // ****** COOLDOWNS ****************
