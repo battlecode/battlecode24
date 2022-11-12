@@ -40,7 +40,7 @@ public strictfp class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
     //list of currents, null if there is no current in the tile
-    private Direction[][] currents;
+    private Direction[] currents;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -270,7 +270,7 @@ public strictfp class GameWorld {
     }
 
     public Direction getCurrent(MapLocation loc) {
-        return this.currents[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+        return this.currents[locationToIndex(loc)];
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
@@ -486,7 +486,7 @@ public strictfp class GameWorld {
         objectInfo.eachRobot((robot) -> {
             MapLocation loc = robot.getLocation();
             Direction current = getCurrent(loc);
-            if(current != null) {
+            if(current == Direction.CENTER) {
                 robot.setLocation(loc.add(current));
             }
             return true;
