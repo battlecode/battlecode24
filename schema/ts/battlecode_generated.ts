@@ -826,6 +826,135 @@ static createSpawnedBodyTable(builder:flatbuffers.Builder, robotIDsOffset:flatbu
 }
 }
 /**
+ * A list of headquarter to be placed on the map.
+ *
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class HeadquarterTable {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns HeadquarterTable
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):HeadquarterTable {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param HeadquarterTable= obj
+ * @returns HeadquarterTable
+ */
+static getRootAsHeadquarterTable(bb:flatbuffers.ByteBuffer, obj?:HeadquarterTable):HeadquarterTable {
+  return (obj || new HeadquarterTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * The teams of the new bodies.
+ *
+ * @param number index
+ * @returns number
+ */
+teamIDs(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+};
+
+/**
+ * @returns number
+ */
+teamIDsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int8Array
+ */
+teamIDsArray():Int8Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The locations of the bodies.
+ *
+ * @param battlecode.schema.VecTable= obj
+ * @returns battlecode.schema.VecTable|null
+ */
+locs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startHeadquarterTable(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset teamIDsOffset
+ */
+static addTeamIDs(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, teamIDsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createTeamIDsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startTeamIDsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset locsOffset
+ */
+static addLocs(builder:flatbuffers.Builder, locsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, locsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endHeadquarterTable(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createHeadquarterTable(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, locsOffset:flatbuffers.Offset):flatbuffers.Offset {
+  HeadquarterTable.startHeadquarterTable(builder);
+  HeadquarterTable.addTeamIDs(builder, teamIDsOffset);
+  HeadquarterTable.addLocs(builder, locsOffset);
+  return HeadquarterTable.endHeadquarterTable(builder);
+}
+}
+}
+/**
  * The map a round is played on.
  *
  * @constructor
@@ -912,12 +1041,23 @@ bodies(obj?:battlecode.schema.SpawnedBodyTable):battlecode.schema.SpawnedBodyTab
 };
 
 /**
+ * The headquarters on the map.
+ *
+ * @param battlecode.schema.HeadquarterTable= obj
+ * @returns battlecode.schema.HeadquarterTable|null
+ */
+headquarters(obj?:battlecode.schema.HeadquarterTable):battlecode.schema.HeadquarterTable|null {
+  var offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new battlecode.schema.HeadquarterTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+};
+
+/**
  * The random seed of the map.
  *
  * @returns number
  */
 randomSeed():number {
-  var offset = this.bb!.__offset(this.bb_pos, 14);
+  var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -928,7 +1068,7 @@ randomSeed():number {
  * @returns boolean
  */
 walls(index: number):boolean|null {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? !!this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : false;
 };
 
@@ -936,7 +1076,7 @@ walls(index: number):boolean|null {
  * @returns number
  */
 wallsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -944,7 +1084,7 @@ wallsLength():number {
  * @returns Int8Array
  */
 wallsArray():Int8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -955,7 +1095,7 @@ wallsArray():Int8Array|null {
  * @returns boolean
  */
 clouds(index: number):boolean|null {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? !!this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : false;
 };
 
@@ -963,7 +1103,7 @@ clouds(index: number):boolean|null {
  * @returns number
  */
 cloudsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -971,7 +1111,7 @@ cloudsLength():number {
  * @returns Int8Array
  */
 cloudsArray():Int8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 18);
+  var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -982,7 +1122,7 @@ cloudsArray():Int8Array|null {
  * @returns number
  */
 currents(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 20);
+  var offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -990,7 +1130,7 @@ currents(index: number):number|null {
  * @returns number
  */
 currentsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 20);
+  var offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -998,7 +1138,7 @@ currentsLength():number {
  * @returns Int32Array
  */
 currentsArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 20);
+  var offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -1009,7 +1149,7 @@ currentsArray():Int32Array|null {
  * @returns number
  */
 islands(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -1017,7 +1157,7 @@ islands(index: number):number|null {
  * @returns number
  */
 islandsLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -1025,7 +1165,7 @@ islandsLength():number {
  * @returns Int32Array
  */
 islandsArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -1036,7 +1176,7 @@ islandsArray():Int32Array|null {
  * @returns number
  */
 resources(index: number):number|null {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -1044,7 +1184,7 @@ resources(index: number):number|null {
  * @returns number
  */
 resourcesLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -1052,7 +1192,7 @@ resourcesLength():number {
  * @returns Int32Array
  */
 resourcesArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -1060,7 +1200,7 @@ resourcesArray():Int32Array|null {
  * @param flatbuffers.Builder builder
  */
 static startGameMap(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 };
 
 /**
@@ -1105,10 +1245,18 @@ static addBodies(builder:flatbuffers.Builder, bodiesOffset:flatbuffers.Offset) {
 
 /**
  * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset headquartersOffset
+ */
+static addHeadquarters(builder:flatbuffers.Builder, headquartersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, headquartersOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @param number randomSeed
  */
 static addRandomSeed(builder:flatbuffers.Builder, randomSeed:number) {
-  builder.addFieldInt32(5, randomSeed, 0);
+  builder.addFieldInt32(6, randomSeed, 0);
 };
 
 /**
@@ -1116,7 +1264,7 @@ static addRandomSeed(builder:flatbuffers.Builder, randomSeed:number) {
  * @param flatbuffers.Offset wallsOffset
  */
 static addWalls(builder:flatbuffers.Builder, wallsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, wallsOffset, 0);
+  builder.addFieldOffset(7, wallsOffset, 0);
 };
 
 /**
@@ -1145,7 +1293,7 @@ static startWallsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset cloudsOffset
  */
 static addClouds(builder:flatbuffers.Builder, cloudsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, cloudsOffset, 0);
+  builder.addFieldOffset(8, cloudsOffset, 0);
 };
 
 /**
@@ -1174,7 +1322,7 @@ static startCloudsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset currentsOffset
  */
 static addCurrents(builder:flatbuffers.Builder, currentsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, currentsOffset, 0);
+  builder.addFieldOffset(9, currentsOffset, 0);
 };
 
 /**
@@ -1203,7 +1351,7 @@ static startCurrentsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset islandsOffset
  */
 static addIslands(builder:flatbuffers.Builder, islandsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, islandsOffset, 0);
+  builder.addFieldOffset(10, islandsOffset, 0);
 };
 
 /**
@@ -1232,7 +1380,7 @@ static startIslandsVector(builder:flatbuffers.Builder, numElems:number) {
  * @param flatbuffers.Offset resourcesOffset
  */
 static addResources(builder:flatbuffers.Builder, resourcesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, resourcesOffset, 0);
+  builder.addFieldOffset(11, resourcesOffset, 0);
 };
 
 /**
@@ -1265,13 +1413,14 @@ static endGameMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, minCornerOffset:flatbuffers.Offset, maxCornerOffset:flatbuffers.Offset, symmetry:number, bodiesOffset:flatbuffers.Offset, randomSeed:number, wallsOffset:flatbuffers.Offset, cloudsOffset:flatbuffers.Offset, currentsOffset:flatbuffers.Offset, islandsOffset:flatbuffers.Offset, resourcesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, minCornerOffset:flatbuffers.Offset, maxCornerOffset:flatbuffers.Offset, symmetry:number, bodiesOffset:flatbuffers.Offset, headquartersOffset:flatbuffers.Offset, randomSeed:number, wallsOffset:flatbuffers.Offset, cloudsOffset:flatbuffers.Offset, currentsOffset:flatbuffers.Offset, islandsOffset:flatbuffers.Offset, resourcesOffset:flatbuffers.Offset):flatbuffers.Offset {
   GameMap.startGameMap(builder);
   GameMap.addName(builder, nameOffset);
   GameMap.addMinCorner(builder, minCornerOffset);
   GameMap.addMaxCorner(builder, maxCornerOffset);
   GameMap.addSymmetry(builder, symmetry);
   GameMap.addBodies(builder, bodiesOffset);
+  GameMap.addHeadquarters(builder, headquartersOffset);
   GameMap.addRandomSeed(builder, randomSeed);
   GameMap.addWalls(builder, wallsOffset);
   GameMap.addClouds(builder, cloudsOffset);
@@ -2050,7 +2199,7 @@ increasePeriod():number {
 /**
  * @returns number
  */
-AdAdditiveIncease():number {
+AdAdditiveIncrease():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -2058,7 +2207,7 @@ AdAdditiveIncease():number {
 /**
  * @returns number
  */
-MnAdditiveIncease():number {
+MnAdditiveIncrease():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -2080,18 +2229,18 @@ static addIncreasePeriod(builder:flatbuffers.Builder, increasePeriod:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number AdAdditiveIncease
+ * @param number AdAdditiveIncrease
  */
-static addAdAdditiveIncease(builder:flatbuffers.Builder, AdAdditiveIncease:number) {
-  builder.addFieldInt32(1, AdAdditiveIncease, 0);
+static addAdAdditiveIncrease(builder:flatbuffers.Builder, AdAdditiveIncrease:number) {
+  builder.addFieldInt32(1, AdAdditiveIncrease, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number MnAdditiveIncease
+ * @param number MnAdditiveIncrease
  */
-static addMnAdditiveIncease(builder:flatbuffers.Builder, MnAdditiveIncease:number) {
-  builder.addFieldInt32(2, MnAdditiveIncease, 0);
+static addMnAdditiveIncrease(builder:flatbuffers.Builder, MnAdditiveIncrease:number) {
+  builder.addFieldInt32(2, MnAdditiveIncrease, 0);
 };
 
 /**
@@ -2103,11 +2252,11 @@ static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createConstants(builder:flatbuffers.Builder, increasePeriod:number, AdAdditiveIncease:number, MnAdditiveIncease:number):flatbuffers.Offset {
+static createConstants(builder:flatbuffers.Builder, increasePeriod:number, AdAdditiveIncrease:number, MnAdditiveIncrease:number):flatbuffers.Offset {
   Constants.startConstants(builder);
   Constants.addIncreasePeriod(builder, increasePeriod);
-  Constants.addAdAdditiveIncease(builder, AdAdditiveIncease);
-  Constants.addMnAdditiveIncease(builder, MnAdditiveIncease);
+  Constants.addAdAdditiveIncrease(builder, AdAdditiveIncrease);
+  Constants.addMnAdditiveIncrease(builder, MnAdditiveIncrease);
   return Constants.endConstants(builder);
 }
 }

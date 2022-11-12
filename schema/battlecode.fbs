@@ -46,6 +46,14 @@ table SpawnedBodyTable {
     locs: VecTable;
 }
 
+/// A list of headquarter to be placed on the map.
+table HeadquarterTable {
+    /// The teams of the new bodies.
+    teamIDs: [byte];
+    /// The locations of the bodies.
+    locs: VecTable;
+}
+
 /// The map a round is played on.
 table GameMap {
     /// The name of a map.
@@ -58,6 +66,8 @@ table GameMap {
     symmetry: int;
     /// The bodies on the map.
     bodies: SpawnedBodyTable;
+    /// The headquarters on the map.
+    headquarters: HeadquarterTable;
     /// The random seed of the map.
     randomSeed: int;
     /// The walls on the map.
@@ -70,7 +80,6 @@ table GameMap {
     islands: [int];
     /// The resource type each square is.
     resources: [int];
-
 }
 
 /// Actions that can be performed.
@@ -201,9 +210,9 @@ table Constants {
     // number of rounds for passive resource increase
     increasePeriod: int;
     // amounts of Ad added every increasePeriod rounds
-    AdAdditiveIncease: int;
+    AdAdditiveIncrease: int;
     // amounts of Mn added every increasePeriod rounds
-    MnAdditiveIncease: int;
+    MnAdditiveIncrease: int;
 }
 
 
@@ -215,7 +224,6 @@ table GameHeader {
     teams: [TeamData];
     /// Information about all body types in the game.
     bodyTypeMetadata: [BodyTypeMetadata];
-    
     //game constants
     constants: Constants;
 }
