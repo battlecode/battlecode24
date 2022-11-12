@@ -76,7 +76,7 @@ public strictfp class LiveMap {
      * i.e. in game correct MapLocations that need to have the origin
      * subtracted from them to be used to index into the map arrays.
      */
-    private final RobotInfo[] initialBodies; // only contains Archons
+    private final RobotInfo[] initialBodies; // contains nothing
 
     public LiveMap(int width,
                    int height,

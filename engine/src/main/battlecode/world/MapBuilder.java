@@ -23,7 +23,6 @@ public class MapBuilder {
     private int[] islandArray;
     private int[] resourceArray;
 
-    private ArrayList<AnomalyScheduleEntry> anomalySchedule;
     private int idCounter;
 
     private List<RobotInfo> bodies;
@@ -44,7 +43,6 @@ public class MapBuilder {
         this.currentArray = new int[width * height];
         this.islandArray = new int[width * height];
         this.resourceArray = new int[width * height];
-        this.anomalySchedule = new ArrayList<>();
     }
 
     // ********************
@@ -79,11 +77,6 @@ public class MapBuilder {
 
     public void setResource(int x, int y, int value) {
         this.resourceArray[locationToIndex(x, y)] = value;
-    }
-
-
-    public void addAnomalyScheduleEntry(int round, AnomalyType anomaly) {
-        this.anomalySchedule.add(new AnomalyScheduleEntry(round, anomaly));
     }
 
     public void setSymmetry(MapSymmetry symmetry) {

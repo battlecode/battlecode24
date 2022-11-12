@@ -245,6 +245,10 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
 
+            ArrayList<Headquarter> headquarters = new ArrayList<>();
+            HeadquarterTable headquarterTable = raw.headquarters();
+            initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
+
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(

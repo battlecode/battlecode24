@@ -266,8 +266,8 @@ public strictfp class GameMaker {
 
             Constants.startConstants(builder);
             Constants.addIncreasePeriod(builder, GameConstants.ADD_LEAD_EVERY_ROUNDS);
-            Constants.addMnAdditiveIncease(builder, GameConstants.ADD_MN);
-            Constants.addAdAdditiveIncease(builder, GameConstants.ADD_AD);
+            Constants.addMnAdditiveIncrease(builder, GameConstants.PASSIVE_AD_INCREASE);
+            Constants.addAdAdditiveIncrease(builder, GameConstants.PASSIVE_MN_INCREASE);
             int constantsOffset = Constants.endConstants(builder);
 
             GameHeader.startGameHeader(builder);
