@@ -55,6 +55,7 @@ public strictfp class GameWorld {
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.islandIds = new int[this.lead.length];
+        this.currents = new Direction[gm.getWidth() * gm.getHeight()];
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -95,6 +96,12 @@ public strictfp class GameWorld {
         for (int key : islandIdToLocations.keySet()) {
             Island newIsland = new Island(this, key, islandIdToLocations.get(key));
             this.islandIdToIsland.put(key, newIsland);            
+        }
+
+        //Initialize currents
+        int[] gmCurrents = gm.getCurrentArray();
+        for(int i = 0; i < currents.length; i++) {
+            currents[i] = Direction.DIRECTION_ORDER[i];
         }
 
         // Add initial amounts of resource
