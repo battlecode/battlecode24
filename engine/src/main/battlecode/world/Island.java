@@ -46,6 +46,7 @@ public class Island {
         this.anchorPlanted = toPlace;
         this.teamOwning = placingTeam;
         this.turnsLeftToRemoveAnchor = toPlace.turnsToRemove;
+        this.gw.getTeamInfo().placeAnchor(placingTeam);
     }
 
     public void advanceTurn() { 
