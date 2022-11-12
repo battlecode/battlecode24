@@ -40,7 +40,8 @@ public strictfp class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
 
-    private Well[] wells;
+    private int[] wellResources;
+    private Well[] wellResourcesToWells;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -57,7 +58,7 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-        this.wells = gm.getWellArray();
+        this.wellResources = gm.getWellArray();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
@@ -87,6 +88,16 @@ public strictfp class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
+
+
+        this.wellResourcesToWells = Well[];
+        for(int i = 0; i < this.wellResources.length; i++){
+            inv = new Inventory();
+            loc = new MapLocation();
+            wellResourcesToWells[i] = Well(inv, loc, this.wellResources[i]);
+        }
+
+
     }
 
     /**
