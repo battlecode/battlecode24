@@ -7,12 +7,18 @@ import {GameWorld} from 'battlecode-playback';
 import {http} from '../main/electron-modules';
 import { SSL_OP_NO_QUERY_MTU } from 'constants';
 
+export enum CanvasType {
+  BACKGROUND = 0,
+  DYNAMIC = 1,
+  OVERLAY = 2
+}
+
 export default class GameArea {
 
   // HTML elements
   private readonly images: AllImages;
   readonly div: HTMLDivElement;
-  readonly canvas: HTMLCanvasElement;
+  readonly canvases: Record<CanvasType, HTMLCanvasElement>;
   readonly splashDiv: HTMLDivElement;
   private readonly wrapper: HTMLDivElement;
   private readonly mapEditorCanvas: HTMLCanvasElement;
@@ -27,6 +33,7 @@ export default class GameArea {
     this.conf = conf;
     this.images = images;
     this.mapEditorCanvas = mapEditorCanvas;
+    this.canvases = {} as typeof this.canvases;
     this.profilerIFrame = profilerIFrame;
 
     // Create the canvas
@@ -34,9 +41,11 @@ export default class GameArea {
     wrapper.id = "canvas-wrapper";
     this.wrapper = wrapper;
 
-    const canvas: HTMLCanvasElement = document.createElement('canvas');
-    canvas.id = "battlecode-canvas";
-    this.canvas = canvas;
+    for (const type in [CanvasType.BACKGROUND, CanvasType.DYNAMIC, CanvasType.OVERLAY]) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "game-canvas";
+      this.canvases[type] = canvas;
+    }
     
     this.splashDiv = document.createElement("div");
     this.splashDiv.id = "battlecode-splash";
@@ -53,13 +62,16 @@ export default class GameArea {
     const width = world.minCorner.absDistanceX(world.maxCorner);
     const height = world.minCorner.absDistanceY(world.maxCorner);
     const scale = this.conf.upscale / Math.sqrt(width * height);
-    if (!this.conf.doingRotate) {
-      this.canvas.width = width * scale;
-      this.canvas.height = height * scale;
-    }
-    else {
-      this.canvas.width = height * scale;
-      this.canvas.height = width * scale;
+    for (let key in this.canvases) {
+      const canvas = this.canvases[key];
+      if (!this.conf.doingRotate) {
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+      }
+      else {
+        canvas.width = height * scale;
+        canvas.height = width * scale;
+      }
     }
   }
   
@@ -148,7 +160,8 @@ export default class GameArea {
           if (this.profilerIFrame) this.wrapper.appendChild(this.profilerIFrame);
           break;
         default:
-          this.wrapper.appendChild(this.canvas); // TODO: Only append if a game is available in client.games
+          for (let key in this.canvases)
+            this.wrapper.appendChild(this.canvases[key]); // TODO: Only append if a game is available in client.games
           console.log("Running a game");
       }
     }
