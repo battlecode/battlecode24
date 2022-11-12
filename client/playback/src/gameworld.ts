@@ -773,7 +773,6 @@ export default class GameWorld {
     var teams = bodies.teamIDsArray()
     var types = bodies.typesArray()
     var hps = new Int32Array(bodies.robotIDsLength())
-    var prototypes = new Int8Array(bodies.robotIDsLength())
 
     // Update spawn stats
     for (let i = 0; i < bodies.robotIDsLength(); i++) {
@@ -793,12 +792,7 @@ export default class GameWorld {
     // You can't reuse TypedArrays easily, so I'm inclined to
     // let this slide for now.
 
-    // Initialize convictions
-
     // Insert bodies
-
-    const levels = new Int8Array(bodies.robotIDsLength())
-    levels.fill(1)
 
     this.bodies.insertBulk({
       id: bodies.robotIDsArray(),
@@ -806,7 +800,6 @@ export default class GameWorld {
       type: types,
       x: locs.xsArray(),
       y: locs.ysArray(),
-      flag: new Int32Array(bodies.robotIDsLength()),
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
       action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
       target: new Int32Array(bodies.robotIDsLength()),
@@ -814,6 +807,10 @@ export default class GameWorld {
       targety: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
+      adamantium: new Int32Array(bodies.robotIDsLength()),
+      elixir: new Int32Array(bodies.robotIDsLength()),
+      mana: new Int32Array(bodies.robotIDsLength()),
+      anchor: new Int8Array(bodies.robotIDsLength()),
     })
   }
 

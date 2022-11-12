@@ -428,15 +428,18 @@ export default class Renderer {
 
       //draw rescoures
       if (anchors[i] > 0) {
-        let anchorColor = adamantiums[i] == 1 ? "#6C6C6C" : "#EEAC09"
-        this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.002, anchorColor, anchorColor)
+        let anchorColor = anchors[i] == 2 ? "#6C6C6C" : "#EEAC09"
+        this.drawCircle(realXs[i], realYs[i] - 0.6, 0.005, anchorColor, "#00000088")
       } else {
-        let adamantiumColor = "#838D63" + (adamantiums[i] > 0 ? "ff" : "00")
-        let manaColor = "#D79DA2" + (manas[i] > 0 ? "ff" : "00")
-        let elixirColor = "#FBCC3F" + (elixirs[i] > 0 ? "ff" : "00")
-        this.drawCircle(realXs[i], realYs[i] - 0.5, 0.001, adamantiumColor, adamantiumColor)
-        this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.001, manaColor, manaColor)
-        this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.001, elixirColor, elixirColor)
+        let adamantiumColor = "#838D63"
+        let manaColor = "#D79DA2"
+        let elixirColor = "#FBCC3F"
+        if (adamantiums[i])
+          this.drawCircle(realXs[i], realYs[i] - 0.57, 0.002, adamantiumColor, "#00000088")
+        if (manas[i])
+          this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.57, 0.002, manaColor, "#00000088")
+        if (elixirs[i])
+          this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.57, 0.002, elixirColor, "#00000088")
       }
 
 
@@ -524,7 +527,7 @@ export default class Renderer {
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
     ctx.strokeStyle = borderColor
-    ctx.lineWidth = 0.10
+    ctx.lineWidth = radiusSquared < .005 ? 0.05 : 0.10
     ctx.stroke()
     ctx.fillStyle = color
     ctx.fill()
