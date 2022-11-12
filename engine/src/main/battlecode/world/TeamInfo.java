@@ -75,8 +75,8 @@ public class TeamInfo {
     }
 
     /**
-     * Get the total number of anchors placed by the team in this round
-     * @param team teh team to query
+     * Get the total number of anchors placed by the team over the game
+     * @param team the team to query
      * @return the total anchors placed
      */
     public int getAnchorsPlaced(Team team) {
@@ -141,10 +141,10 @@ public class TeamInfo {
     }
 
     /**
-     * Incremenets the anchors placed counter for the team
+     * Increments the anchors placed counter for the team
      * @param team the team to query
      */
-    public void anchorPlaced(Team team) {
+    public void placeAnchor(Team team) {
         this.anchorsPlaced[team.ordinal()]++;
     }
 
