@@ -15,20 +15,24 @@ public final class Constants extends Table {
   public Constants __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int increasePeriod() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int leadAdditiveIncease() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int AdAdditiveIncease() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int MnAdditiveIncease() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createConstants(FlatBufferBuilder builder,
       int increasePeriod,
-      int leadAdditiveIncease) {
-    builder.startObject(2);
-    Constants.addLeadAdditiveIncease(builder, leadAdditiveIncease);
+      int AdAdditiveIncease,
+      int MnAdditiveIncease) {
+    builder.startObject(3);
+    Constants.addMnAdditiveIncease(builder, MnAdditiveIncease);
+    Constants.addAdAdditiveIncease(builder, AdAdditiveIncease);
     Constants.addIncreasePeriod(builder, increasePeriod);
     return Constants.endConstants(builder);
   }
 
-  public static void startConstants(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startConstants(FlatBufferBuilder builder) { builder.startObject(3); }
   public static void addIncreasePeriod(FlatBufferBuilder builder, int increasePeriod) { builder.addInt(0, increasePeriod, 0); }
-  public static void addLeadAdditiveIncease(FlatBufferBuilder builder, int leadAdditiveIncease) { builder.addInt(1, leadAdditiveIncease, 0); }
+  public static void addAdAdditiveIncease(FlatBufferBuilder builder, int AdAdditiveIncease) { builder.addInt(1, AdAdditiveIncease, 0); }
+  public static void addMnAdditiveIncease(FlatBufferBuilder builder, int MnAdditiveIncease) { builder.addInt(2, MnAdditiveIncease, 0); }
   public static int endConstants(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

@@ -225,8 +225,8 @@ export default class MapRenderer {
     this.ctx.save()
     this.ctx.globalAlpha = 1
 
-    const adamantiumImg = this.imgs.resources[cst.ADAMANTIUM]
-    const manaImg = this.imgs.resources[cst.MANA]
+    const adamantiumImg = this.imgs.resource_wells[cst.ADAMANTIUM][0]
+    const manaImg = this.imgs.resource_wells[cst.MANA][0]
     const scale = 1
 
     for (let i = 0; i < this.width; i++) for (let j = 0; j < this.height; j++) {
@@ -239,17 +239,17 @@ export default class MapRenderer {
         let size = 1
         this.ctx.drawImage(adamantiumImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
 
-        this.ctx.strokeStyle = '#59727d'
-        this.ctx.lineWidth = 1 / 30
-        this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+        // this.ctx.strokeStyle = '#59727d'
+        // this.ctx.lineWidth = 1 / 30
+        // this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
       }
       if (resource == 2) {
         let size = 1
         this.ctx.drawImage(manaImg, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
 
-        this.ctx.strokeStyle = '#59727d'
-        this.ctx.lineWidth = 1 / 30
-        this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
+        // this.ctx.strokeStyle = '#59727d'
+        // this.ctx.lineWidth = 1 / 30
+        // this.ctx.strokeRect(cx + .05, cy + .05, scale * .9, scale * .9)
       }
     }
 

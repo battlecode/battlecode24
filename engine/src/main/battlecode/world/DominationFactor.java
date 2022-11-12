@@ -5,23 +5,31 @@ package battlecode.world;
  */
 public enum DominationFactor {
     /**
-     * Win by all enemy archons being destroyed (early end).
+     * Win by capturing 75+% of sky islands (early end).
      */
-    ANNIHILATION,
+    CONQUEST,
     /**
-     * Win by having more Archons.
+     * Win by having more sky islands captured.
      */
-    MORE_ARCHONS,
+    MORE_SKY_ISLANDS,
     /**
-     * Win by more gold net worth (tiebreak 1).
+     * Win by having placed more reality anchors in total (tiebreak 1).
      */
-    MORE_GOLD_NET_WORTH,
+    MORE_REALITY_ANCHORS, 
     /**
-     * Win by more lead net worth (tiebreak 2).
+     * Win by more elixir net worth (tiebreak 2).
      */
-    MORE_LEAD_NET_WORTH,
+    MORE_ELIXIR_NET_WORTH,
     /**
-     * Win by coinflip (tiebreak 3).
+     * Win by more mana net worth (tiebreak 3).
+     */
+    MORE_MANA_NET_WORTH,
+    /**
+     * Win by more adamantium net worth (tiebreak 4).
+     */
+    MORE_ADAMANTIUM_NET_WORTH, 
+    /**
+     * Win by coinflip (tiebreak 5).
      */
     WON_BY_DUBIOUS_REASONS,
 }

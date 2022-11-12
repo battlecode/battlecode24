@@ -37,40 +37,44 @@ public final class Action {
    */
   public static final byte DESTABILIZE = 5;
   /**
+   * Target: location destabilization damage is centralized at, x + y * width
+   */
+  public static final byte DESTABILIZE_DAMAGE = 6;
+  /**
    * Target: location boost is centralized at, x + y * width
    */
-  public static final byte BOOST = 6;
+  public static final byte BOOST = 7;
   /**
    * Target: none
    */
-  public static final byte PICK_UP_ANCHOR = 7;
+  public static final byte PICK_UP_ANCHOR = 8;
   /**
    * Target: location to place anchor, x + y * width
    */
-  public static final byte PLACE_ANCHOR = 8;
+  public static final byte PLACE_ANCHOR = 9;
   /**
    * Target: change in health (can be negative)
    */
-  public static final byte CHANGE_HEALTH = 9;
+  public static final byte CHANGE_HEALTH = 10;
   /**
    * Target: change in adamantium (can be negative)
    */
-  public static final byte CHANGE_ADAMANTIUM = 10;
+  public static final byte CHANGE_ADAMANTIUM = 11;
   /**
    * Target: change in mana (can be negative)
    */
-  public static final byte CHANGE_MANA = 11;
+  public static final byte CHANGE_MANA = 12;
   /**
    * Target: change in elixir (can be negative)
    */
-  public static final byte CHANGE_ELIXIR = 12;
+  public static final byte CHANGE_ELIXIR = 13;
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  public static final byte DIE_EXCEPTION = 13;
+  public static final byte DIE_EXCEPTION = 14;
 
-  public static final String[] names = { "LAUNCH_ATTACK", "THROW_ATTACK", "SPAWN_UNIT", "PICK_UP_RESOURCE", "PLACE_RESOURCE", "DESTABILIZE", "BOOST", "PICK_UP_ANCHOR", "PLACE_ANCHOR", "CHANGE_HEALTH", "CHANGE_ADAMANTIUM", "CHANGE_MANA", "CHANGE_ELIXIR", "DIE_EXCEPTION", };
+  public static final String[] names = { "LAUNCH_ATTACK", "THROW_ATTACK", "SPAWN_UNIT", "PICK_UP_RESOURCE", "PLACE_RESOURCE", "DESTABILIZE", "DESTABILIZE_DAMAGE", "BOOST", "PICK_UP_ANCHOR", "PLACE_ANCHOR", "CHANGE_HEALTH", "CHANGE_ADAMANTIUM", "CHANGE_MANA", "CHANGE_ELIXIR", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }

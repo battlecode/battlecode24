@@ -96,17 +96,17 @@ export const VISION_RADIUS_COLOR = "#0000ff"
 export function bodyTypeToSize(bodyType: schema.BodyType) {
   switch (bodyType) {
     case HEADQUARTERS:
-      return 50
+      return 64
     case CARRIER:
-      return 50
+      return 64
     case LAUNCHER:
-      return 25
+      return 64
     case AMPLIFIER:
-      return 35
+      return 64
     case DESTABILIZER:
-      return 35
+      return 64
     case BOOSTER:
-      return 25
+      return 64
     default: throw new Error("invalid body type")
   }
 }

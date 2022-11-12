@@ -93,6 +93,8 @@ enum Action : byte {
     PLACE_RESOURCE,
     /// Target: location destabilization is centralized at, x + y * width
     DESTABILIZE,
+    /// Target: location destabilization damage is centralized at, x + y * width
+    DESTABILIZE_DAMAGE,
     /// Target: location boost is centralized at, x + y * width
     BOOST,
     // TODO: If client is interested in visualizing changes in movement speed, should probably add it as an action or to Round
