@@ -1,7 +1,8 @@
 package battlecode.world;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
-import javax.sound.sampled.SourceDataLine;
+import java.util.Set;
 
 import battlecode.common.*;
 
@@ -24,6 +25,13 @@ public class Island {
         for (int i = 0; i < locations.size(); i ++) {
             this.locations[i] = locations.get(i);
         }
+        this.teamOwning = Team.NEUTRAL;
+        this.anchorPlanted = null;
+        this.turnsLeftToRemoveAnchor = 0;
+    }
+
+    public Team getTeam() {
+        return this.teamOwning;
     }
 
     private void assertCanPlaceAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
@@ -64,13 +72,24 @@ public class Island {
             // If the opposing team controls enough of the island decrease the count
             this.turnsLeftToRemoveAnchor -= 1;
             if (this.turnsLeftToRemoveAnchor <= 0) {
-                this.teamOwning = null;
+                this.teamOwning = Team.NEUTRAL;
                 this.anchorPlanted = null;
                 this.turnsLeftToRemoveAnchor = 0;
             }
 
         }
+    }
 
+    public Set<MapLocation> getLocsAffected(){
+        Set<MapLocation> locsWithinRange = new HashSet<>();
+        if (this.anchorPlanted != null) {
+            if (this.anchorPlanted == Anchor.ACCELERATING) {
+                for (MapLocation loc : this.locations) {
+                    locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
+                }
+            }
+        }
+        return locsWithinRange;
     }
 
 }

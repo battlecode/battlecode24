@@ -309,7 +309,7 @@ public strictfp class GameWorld {
     }
     public void addBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal(); //create this function + getModifications
-        for (MapLocation loc : island.getModifications()){
+        for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][teamOrdinal];
             if (curBoostsList.size() == 0){
                 cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += .15;  //or some other way of identifying where the boost comes from
@@ -323,7 +323,7 @@ public strictfp class GameWorld {
     public void removeBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal();
         int boostIdentifier = -1*island.getIdx();
-        for (MapLocation loc : island.getModifications()){
+        for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][teamOrdinal];
             curBoostsList.remove(boostIdentifier);
             if (curBoostsList.size() == 0){
