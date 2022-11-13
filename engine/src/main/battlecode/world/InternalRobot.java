@@ -389,13 +389,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Attacks another robot. Assumes bot is in range.
+     * Attacks another robot (launcher). Assumes bot is in range.
      * 
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        int dmg = this.type.getDamage(this.level);
-        bot.addHealth(-dmg);
+        if (!(bot == null)) {
+            int dmg = this.type.getDamage(0);
+            bot.addHealth(-dmg);
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
+        }
     }
 
     /**
