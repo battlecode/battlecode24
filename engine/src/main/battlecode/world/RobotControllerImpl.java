@@ -472,6 +472,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot move to an impassable location; " + loc + " is impassable.");
     }
 
     @Override

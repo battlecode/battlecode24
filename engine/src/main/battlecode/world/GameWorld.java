@@ -251,6 +251,10 @@ public strictfp class GameWorld {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
     }
 
+    public boolean isPassable(MapLocation loc) {
+        return !this.walls[locationToIndex(loc)];
+    }
+
     public Island getIsland(MapLocation loc) {
         return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
     }
@@ -342,65 +346,114 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return whether a team has more archons
+     * @return whether a team has more sky islands captured
      */
-    public boolean setWinnerIfMoreArchons() {
-        int archonCountA = this.objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
-        int archonCountB = this.objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
+    public boolean setWinnerIfMoreSkyIslands() {
+        int skyIslandCountA = 0;
+        int skyIslandCountB = 0;
+        for(int id : islandIds) {
+            Island island = islandIdToIsland.get(id);
+            if(island.teamOwning == Team.A) skyIslandCountA++;
+            else if(island.teamOwning == Team.B) skyIslandCountB++;
+        }
 
-        if (archonCountA > archonCountB) {
-            setWinner(Team.A, DominationFactor.MORE_ARCHONS);
+        if (skyIslandCountA > skyIslandCountB) {
+            setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
             return true;
-        } else if (archonCountA < archonCountB) {
-            setWinner(Team.B, DominationFactor.MORE_ARCHONS);
+        } else if (skyIslandCountA < skyIslandCountB) {
+            setWinner(Team.B, DominationFactor.MORE_SKY_ISLANDS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Au value
+     * @return whether a team has more reality anchors placed
      */
-    public boolean setWinnerIfMoreGoldValue() {
-        int[] totalGoldValues = new int[2];
-
-        // consider team reserves
-        totalGoldValues[Team.A.ordinal()] += this.teamInfo.getGold(Team.A);
-        totalGoldValues[Team.B.ordinal()] += this.teamInfo.getGold(Team.B);
+    public boolean setWinnerIfMoreRealityAnchors() {
+        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
+        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
         
-        // sum live robots worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
-        }
-        if (totalGoldValues[0] > totalGoldValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
+        if (realityAnchorCountA > realityAnchorCountB) {
+            setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
-        } else if (totalGoldValues[1] > totalGoldValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_GOLD_NET_WORTH);
+        } else if (realityAnchorCountA < realityAnchorCountB) {
+            setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Pb value
+     * @return whether a team has a greater net elixir value
      */
-    public boolean setWinnerIfMoreLeadValue() {
-        int[] totalLeadValues = new int[2];
+    public boolean setWinnerIfMoreElixirValue() {
+        int[] totalElixirValues = new int[2];
 
         // consider team reserves
-        totalLeadValues[Team.A.ordinal()] += this.teamInfo.getLead(Team.A);
-        totalLeadValues[Team.B.ordinal()] += this.teamInfo.getLead(Team.B);
+        totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
+        totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
+            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getExAmount();
         }
-        if (totalLeadValues[0] > totalLeadValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
+        
+        if (totalElixirValues[0] > totalElixirValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
             return true;
-        } else if (totalLeadValues[1] > totalLeadValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_LEAD_NET_WORTH);
+        } else if (totalElixirValues[1] > totalElixirValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net mana value
+     */
+    public boolean setWinnerIfMoreManaValue() {
+        int[] totalManaValues = new int[2];
+
+        // consider team reserves
+        totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
+        totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getMnAmount();
+        }
+        
+        if (totalManaValues[0] > totalManaValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        } else if (totalManaValues[1] > totalManaValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net adamantium value
+     */
+    public boolean setWinnerIfMoreAdamantiumValue() {
+        int[] totalAdamantiumValues = new int[2];
+
+        // consider team reserves
+        totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
+        totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getAdAmount();
+        }
+        
+        if (totalAdamantiumValues[0] > totalAdamantiumValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            return true;
+        } else if (totalAdamantiumValues[1] > totalAdamantiumValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
             return true;
         }
         return false;
@@ -415,6 +468,21 @@ public strictfp class GameWorld {
 
     public boolean timeLimitReached() {
         return currentRound >= this.gameMap.getRounds();
+    }
+
+    /**
+     * Checks end of match and then decides winner based on tiebreak conditions
+     */
+    public void checkEndOfMatch() {
+        if (timeLimitReached() && gameStats.getWinner() == null) {
+            if (setWinnerIfMoreSkyIslands())      return;
+            if (setWinnerIfMoreRealityAnchors())  return;
+            if (setWinnerIfMoreElixirValue())     return;
+            if (setWinnerIfMoreManaValue())       return;
+            if (setWinnerIfMoreAdamantiumValue()) return;
+
+            setWinnerArbitrary();
+        }
     }
 
     public void processEndOfRound() {
@@ -437,12 +505,7 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
         this.teamInfo.processEndOfRound();
 
-        // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null)
-            if (!setWinnerIfMoreArchons())
-                if (!setWinnerIfMoreGoldValue())
-                    if (!setWinnerIfMoreLeadValue())
-                        setWinnerArbitrary();
+        checkEndOfMatch();
 
         if (gameStats.getWinner() != null)
             running = false;
