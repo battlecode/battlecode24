@@ -108,7 +108,7 @@ public class GameConstants {
     public static final int MAX_LEVEL = 3;
 
     /** The number of game rounds between applying movement due to currents */
-    public static final int CURRNET_STRENGTH = 1;
+    public static final int CURRENT_STRENGTH = 1;
 
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
