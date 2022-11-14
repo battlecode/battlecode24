@@ -247,6 +247,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         try {
             return senseNearbyRobots(-1);
         } catch (GameActionException e) {
+            // TODO: why do we need to do this?
             return new RobotInfo[0];
         }
     }
@@ -389,7 +390,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public Well[] senseNearbyWells(ResourceType resourceType) {
         try {
-            return senseNearbyWells(-1);
+            return senseNearbyWells(-1, resourceType);
         } catch (GameActionException e) {
             return new Well[0];
         }
