@@ -245,10 +245,6 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
 
-            ArrayList<Headquarter> headquarters = new ArrayList<>();
-            HeadquarterTable headquarterTable = raw.headquarters();
-            initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
-
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
@@ -340,21 +336,18 @@ public final strictfp class GameMapIO {
         // ****************************
 
         private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
-            return;
-            // TODO: this is very wrong
-        //     VecTable locs = bodyTable.locs();
-        //     for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
-        //         // all initial bodies should be archons
-        //         RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
-        //         int bodyID = bodyTable.robotIDs(i);
-        //         int bodyX = locs.xs(i);
-        //         int bodyY = locs.ys(i);
-        //         Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-        //         if (bodyType == RobotType.ARCHON)
-        //             initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, RobotMode.TURRET, 1, RobotType.ARCHON.health, new MapLocation(bodyX, bodyY)));
-        //         // ignore robots that are not archons, TODO throw error?
-        //     }
-        // }
+            VecTable locs = bodyTable.locs();
+            for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
+                // all initial bodies should be headquarters
+                RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
+                int bodyID = bodyTable.robotIDs(i);
+                int bodyX = locs.xs(i);
+                int bodyY = locs.ys(i);
+                Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
+                if (bodyType == RobotType.HEADQUARTERS)
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, RobotMode.TURRET, 1, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
+                // ignore robots that are not archons, TODO throw error?
+            }
         }
     }
 }

@@ -23,6 +23,8 @@ import java.util.function.ObjIntConsumer;
 public class FlatHelpers {
     public static RobotType getRobotTypeFromBodyType(byte bodyType) {
         switch (bodyType) {
+            case BodyType.HEADQUARTERS:
+                return RobotType.HEADQUARTERS;
             case BodyType.AMPLIFIER:
                 return RobotType.AMPLIFIER;
             case BodyType.BOOSTER:
@@ -40,6 +42,8 @@ public class FlatHelpers {
 
     public static byte getBodyTypeFromRobotType(RobotType type) {
         switch (type) {
+            case HEADQUARTERS:
+                return BodyType.HEADQUARTERS;
             case AMPLIFIER:
                 return BodyType.AMPLIFIER;
             case BOOSTER:
