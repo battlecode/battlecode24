@@ -80,4 +80,24 @@ public class Inventory {
         int total = adamantium + mana + elixir;
         return total + amount <= maxCapacity;
     }
+
+    public boolean equals(Object o) {
+        if (o instanceof Inventory) {
+            Inventory other = (Inventory) o;
+            return other.maxCapacity == this.maxCapacity && other.adamantium == this.adamantium && other.mana == this.mana && other.elixir == this.elixir;
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return this.maxCapacity*47 + this.adamantium*37 + this.mana*41 + this.elixir*43;
+    }
+
+    public Inventory copy() {
+        Inventory newInventory = new Inventory(this.maxCapacity);
+        newInventory.addAdamantium(this.adamantium);
+        newInventory.addMana(this.mana);
+        newInventory.addElixir(this.elixir);
+        return newInventory;
+    }
 }

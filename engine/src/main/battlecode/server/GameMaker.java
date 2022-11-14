@@ -305,6 +305,7 @@ public strictfp class GameMaker {
     }
 
     private byte robotTypeToBodyType(RobotType type) {
+        if (type == RobotType.HEADQUARTERS) return BodyType.HEADQUARTERS;
         if (type == RobotType.AMPLIFIER) return BodyType.AMPLIFIER;
         if (type == RobotType.BOOSTER) return BodyType.BOOSTER;
         if (type == RobotType.CARRIER) return BodyType.CARRIER;

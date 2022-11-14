@@ -127,11 +127,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotMode getMode() {
-        return this.robot.getMode();
-    }
-
-    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
@@ -142,8 +137,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getLevel() {
-        return this.robot.getLevel();  
+    public Inventory getInventory() {
+        return this.robot.getInventory();  
     }
 
     private InternalRobot getRobotByID(int id) {
@@ -677,9 +672,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         if(getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
-        if(amount > 0 && this.robot.getInventory.getResource(type) < amount) // Carrier is transfering to another location
+        if(amount > 0 && this.robot.getInventory().getResource(type) < amount) // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
-        if(amount < 0 && this.robot.getInventory.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
+        if(amount < 0 && this.robot.getInventory().canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
         if(!isWell(loc) && !isHeadquarter(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");

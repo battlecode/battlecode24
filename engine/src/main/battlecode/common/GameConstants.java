@@ -27,11 +27,11 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 60;
 
-    /** The minimum number of starting Archons per team. */
-    public static final int MIN_STARTING_ARCHONS = 1;
+    /** The minimum number of starting Headquarters per team. */
+    public static final int MIN_STARTING_HEADQUARTERS = 1;
 
-    /** The maximum number of starting Archons per team. */
-    public static final int MAX_STARTING_ARCHONS = 4;
+    /** The maximum number of starting Headquarters per team. */
+    public static final int MAX_STARTING_HEADQUARTERS = 4;
 
     /** The minimum amount of rubble per square. */
     public static final int MIN_RUBBLE = 0;
@@ -106,6 +106,9 @@ public class GameConstants {
 
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
+
+    /** The maximum capacity a carrier can carry */
+    public static final int CARRIER_CAPACITY = 40;
 
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;

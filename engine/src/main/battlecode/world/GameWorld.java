@@ -486,7 +486,8 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-        // Add lead resources to the team
+        // Add resources to team
+        // TODO: this is not enough, it needs to go to a headquarter
         this.teamInfo.addAdamantium(Team.A, GameConstants.PASSIVE_AD_INCREASE);
         this.teamInfo.addAdamantium(Team.B, GameConstants.PASSIVE_AD_INCREASE);
 

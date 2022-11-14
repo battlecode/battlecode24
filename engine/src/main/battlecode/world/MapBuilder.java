@@ -59,6 +59,36 @@ public class MapBuilder {
         return x + y * width;
     }
 
+    public void addHeadquarter(int id, Team team, MapLocation loc) {
+        // check if something already exists here, if so shout
+        for (RobotInfo r : bodies) {
+            if (r.location.equals(loc)) {
+                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
+            }
+        }
+        // TODO: currently assuming initial amount is added to each headquarter, this may be wrong
+        Inventory initialHeadquarterInventory = new Inventory();
+        initialHeadquarterInventory.addAdamantium(GameConstants.INITIAL_AD_AMOUNT);
+        initialHeadquarterInventory.addMana(GameConstants.INITIAL_MN_AMOUNT);
+
+        bodies.add(new RobotInfo(
+                id,
+                team,
+                RobotType.HEADQUARTERS,
+                initialHeadquarterInventory,
+                RobotType.HEADQUARTERS.health,
+                loc
+        ));
+    }
+
+    public void addHeadquarter(int x, int y, Team team) {
+        addHeadquarter(
+                idCounter++,
+                team,
+                new MapLocation(x, y)
+        );
+    }
+
     public void setWall(int x, int y, boolean value) {
         this.wallArray[locationToIndex(x, y)] = value;
     }
@@ -119,6 +149,16 @@ public class MapBuilder {
 
     public MapLocation symmetryLocation(MapLocation p) {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
+    }
+
+    /**
+     * Add team A Headquarters to (x,y) and team B Headquarters to symmetric position.
+     * @param x x position
+     * @param y y position
+     */
+    public void addSymmetricHeadquarter(int x, int y) {
+        addHeadquarter(x, y, Team.A);
+        addHeadquarter(symmetricX(x), symmetricY(y), Team.B);
     }
 
     public void setSymmetricWalls(int x, int y, boolean value) {
@@ -197,18 +237,18 @@ public class MapBuilder {
                                        GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
                                        GameConstants.MAP_MAX_HEIGHT + ", inclusive");
 
-        // checks between 1 and 4 Archons (inclusive) of each team
-        // only needs to check the Archons of Team A, because symmetry is checked
+        // checks between 1 and 4 Headquarters (inclusive) of each team
+        // only needs to check the Headquarters of Team A, because symmetry is checked
         int numTeamARobots = 0;
         for (RobotInfo r : bodies) {
             if (r.getTeam() == Team.A) {
                 numTeamARobots++;
             }
         }
-        if (numTeamARobots < GameConstants.MIN_STARTING_ARCHONS ||
-            numTeamARobots > GameConstants.MAX_STARTING_ARCHONS) {
-            throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_ARCHONS +
-                                       "and " + GameConstants.MAX_STARTING_ARCHONS + " starting Archons of each team");
+        if (numTeamARobots < GameConstants.MIN_STARTING_HEADQUARTERS ||
+            numTeamARobots > GameConstants.MAX_STARTING_HEADQUARTERS) {
+            throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_HEADQUARTERS +
+                                       "and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
         }
 
         // TODO: probably we need to add some asserts on state
@@ -217,7 +257,7 @@ public class MapBuilder {
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         System.out.println("This map has the following symmetries: " + allMapSymmetries);
         if (!allMapSymmetries.contains(this.symmetry)) {
-            throw new RuntimeException("Walls, clouds, currents, isalnds and resources must be symmetric");
+            throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
         }
 
         // assert that at least one lead deposit inside vision range of at least one headquarter

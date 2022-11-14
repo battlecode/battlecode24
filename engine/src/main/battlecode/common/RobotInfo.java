@@ -1,5 +1,7 @@
 package battlecode.common;
 
+import battlecode.world.Inventory;
+
 /**
  * RobotInfo stores basic information that was 'sensed' of another Robot. This
  * info is ephemeral and there is no guarantee any of it will remain the same
@@ -23,32 +25,26 @@ public class RobotInfo {
     public final RobotType type;
 
     /**
-     * The mode of the robot.
-     */
-    public final RobotMode mode;
-
-    /**
-     * The level of the robot.
-     */
-    public final int level;
-
-    /**
      * The health of the robot.
      */
     public final int health;
+
+    /**
+     * The inventory of the robot.
+     */
+    public final Inventory inventory;
 
     /**
      * The current location of the robot.
      */
     public final MapLocation location;
 
-    public RobotInfo(int ID, Team team, RobotType type, RobotMode mode, int level, int health, MapLocation location) {
+    public RobotInfo(int ID, Team team, RobotType type, Inventory inventory, int health, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
-        this.mode = mode;
-        this.level = level;
+        this.inventory = inventory.copy();
         this.health = health;
         this.location = location;
     }
@@ -81,30 +77,21 @@ public class RobotInfo {
     }
 
     /**
-     * Returns the mode of this robot.
-     *
-     * @return the mode of this robot
-     */
-    public RobotMode getMode() {
-        return mode;
-    }
-
-    /**
-     * Returns the level of this robot.
-     *
-     * @return the level of this robot
-     */
-    public int getLevel() {
-        return level;
-    }
-
-    /**
      * Returns the health of this robot.
      *
      * @return the health of this robot
      */
     public int getHealth() {
         return health;
+    }
+
+    /**
+     * Returns the inventory of this robot.
+     *
+     * @return the inventory of this robot
+     */
+    public Inventory getInventory() {
+        return inventory;
     }
 
     /**
@@ -126,8 +113,7 @@ public class RobotInfo {
         if (ID != robotInfo.ID) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
-        if (mode != robotInfo.mode) return false;
-        if (level != robotInfo.level) return false;
+        if (inventory.equals(robotInfo.inventory)) return false;
         if (health != robotInfo.health) return false;
         return location.equals(robotInfo.location);
     }
@@ -138,8 +124,7 @@ public class RobotInfo {
         result = ID;
         result = 31 * result + team.hashCode();
         result = 31 * result + type.ordinal();
-        result = 31 * result + mode.ordinal();
-        result = 31 * result + level;
+        result = 31 * result + inventory.hashCode();
         result = 31 * result + health;
         result = 31 * result + location.hashCode();
         return result;
@@ -151,8 +136,7 @@ public class RobotInfo {
                 "ID=" + ID +
                 ", team=" + team +
                 ", type=" + type +
-                ", mode=" + mode +
-                ", level=" + level +
+                ", inventory=" + inventory + 
                 ", health=" + health +
                 ", location=" + location +
                 '}';
