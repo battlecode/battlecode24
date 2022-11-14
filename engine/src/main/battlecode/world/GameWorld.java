@@ -259,6 +259,10 @@ public strictfp class GameWorld {
         return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
     }
 
+    public Island getIsland(int islandIdx) {
+        return islandIdToIsland.get(islandIdx);
+    }
+
     public void moveRobot(MapLocation start, MapLocation end) {
         addRobot(end, getRobot(start));
         removeRobot(start);
@@ -278,6 +282,14 @@ public strictfp class GameWorld {
             if (getRobot(newLocation) != null)
                 returnRobots.add(getRobot(newLocation));
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
+    public Island[] getAllIslandsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Island> returnIslands = new ArrayList<Island>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getIsland(newLocation) != null)
+                returnIslands.add(getIsland(newLocation));
+        return returnIslands.toArray(new Island[returnIslands.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
