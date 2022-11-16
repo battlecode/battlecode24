@@ -201,9 +201,9 @@ table Constants {
     // number of rounds for passive resource increase
     increasePeriod: int;
     // amounts of Ad added every increasePeriod rounds
-    AdAdditiveIncease: int;
+    AdAdditiveIncrease: int;
     // amounts of Mn added every increasePeriod rounds
-    MnAdditiveIncease: int;
+    MnAdditiveIncrease: int;
 }
 
 

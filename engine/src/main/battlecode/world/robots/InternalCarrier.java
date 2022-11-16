@@ -1,11 +1,13 @@
 package battlecode.world.robots;
 
 import battlecode.common.MapLocation;
+import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.schema.Action;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
+import battlecode.world.Inventory;
 
 public class InternalCarrier extends InternalRobot {
 
@@ -33,13 +35,13 @@ public class InternalCarrier extends InternalRobot {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.getType().getDamage(bot.getAd()+bot.getElixir()+bot.getMn());
+            int dmg = this.getType().getDamage(bot.getResource(ResourceType.ADAMANTIUM)+bot.getResource(ResourceType.MANA)+bot.getResource(ResourceType.ELIXIR));
             bot.addHealth(-dmg);
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
         }
-        bot.addAd(-bot.getAd());
-        bot.addElixir(-bot.getElixir());
-        bot.addMn(-bot.getMn());
+        bot.addResource(ResourceType.ADAMANTIUM, -bot.getResource(ResourceType.ADAMANTIUM));
+        bot.addResource(ResourceType.MANA, -bot.getResource(ResourceType.MANA));
+        bot.addResource(ResourceType.ELIXIR, -bot.getResource(ResourceType.ELIXIR));
     }
 
 }

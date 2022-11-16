@@ -13,6 +13,13 @@ public enum RobotType {
     // Health, Damage, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
+     * Headquarters (TODO: description)
+     * @battlecode.doc.robottype
+     */
+    HEADQUARTERS    ( 0,   0,   0,   5,   0, 1,   0,  9, 20, 10000),
+    //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
+
+    /**
      * Carrier (TODO: description)
      * @battlecode.doc.robottype
      */

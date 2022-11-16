@@ -2049,7 +2049,7 @@ increasePeriod():number {
 /**
  * @returns number
  */
-AdAdditiveIncease():number {
+AdAdditiveIncrease():number {
   var offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -2057,7 +2057,7 @@ AdAdditiveIncease():number {
 /**
  * @returns number
  */
-MnAdditiveIncease():number {
+MnAdditiveIncrease():number {
   var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
@@ -2079,18 +2079,18 @@ static addIncreasePeriod(builder:flatbuffers.Builder, increasePeriod:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number AdAdditiveIncease
+ * @param number AdAdditiveIncrease
  */
-static addAdAdditiveIncease(builder:flatbuffers.Builder, AdAdditiveIncease:number) {
-  builder.addFieldInt32(1, AdAdditiveIncease, 0);
+static addAdAdditiveIncrease(builder:flatbuffers.Builder, AdAdditiveIncrease:number) {
+  builder.addFieldInt32(1, AdAdditiveIncrease, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number MnAdditiveIncease
+ * @param number MnAdditiveIncrease
  */
-static addMnAdditiveIncease(builder:flatbuffers.Builder, MnAdditiveIncease:number) {
-  builder.addFieldInt32(2, MnAdditiveIncease, 0);
+static addMnAdditiveIncrease(builder:flatbuffers.Builder, MnAdditiveIncrease:number) {
+  builder.addFieldInt32(2, MnAdditiveIncrease, 0);
 };
 
 /**
@@ -2102,11 +2102,11 @@ static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createConstants(builder:flatbuffers.Builder, increasePeriod:number, AdAdditiveIncease:number, MnAdditiveIncease:number):flatbuffers.Offset {
+static createConstants(builder:flatbuffers.Builder, increasePeriod:number, AdAdditiveIncrease:number, MnAdditiveIncrease:number):flatbuffers.Offset {
   Constants.startConstants(builder);
   Constants.addIncreasePeriod(builder, increasePeriod);
-  Constants.addAdAdditiveIncease(builder, AdAdditiveIncease);
-  Constants.addMnAdditiveIncease(builder, MnAdditiveIncease);
+  Constants.addAdAdditiveIncrease(builder, AdAdditiveIncrease);
+  Constants.addMnAdditiveIncrease(builder, MnAdditiveIncrease);
   return Constants.endConstants(builder);
 }
 }

@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.GameConstants;
+import battlecode.common.MapLocation;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -12,10 +13,12 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
+    private MapLocation[] headquarters;
     private int[] elixirCounts;
     private int[] manaCounts;
     private int[] adamantiumCounts; 
     private int[][] sharedArrays; 
+    private int[] anchorsPlaced;
 
     // for reporting round statistics to client
     private int[] oldElixirCounts;
@@ -33,6 +36,7 @@ public class TeamInfo {
         this.manaCounts = new int[2];
         this.adamantiumCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
+        this.anchorsPlaced = new int[2];
         this.oldElixirCounts = new int[2];
         this.oldManaCounts = new int[2];
         this.oldAdamantiumCounts = new int[2];
@@ -70,6 +74,15 @@ public class TeamInfo {
      */
     public int getAdamantium(Team team) {
     	return this.adamantiumCounts[team.ordinal()];
+    }
+
+    /**
+     * Get the total number of anchors placed by the team over the game
+     * @param team the team to query
+     * @return the total anchors placed
+     */
+    public int getAnchorsPlaced(Team team) {
+        return this.anchorsPlaced[team.ordinal()];
     }
     
     /**
@@ -127,6 +140,14 @@ public class TeamInfo {
     		throw new IllegalArgumentException("Invalid adamantium change");
     	}
     	this.adamantiumCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Increments the anchors placed counter for the team
+     * @param team the team to query
+     */
+    public void placeAnchor(Team team) {
+        this.anchorsPlaced[team.ordinal()]++;
     }
 
     /**
