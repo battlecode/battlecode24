@@ -198,14 +198,14 @@ export default class Runner {
   }
 
   onGameLoaded(data: ArrayBuffer) {
-    try {
+    // try {
       const newGame = new Game(this.conf);
       newGame.loadFullGameRaw(data);
       this.games.push(newGame);
       this.startGame();
-    } catch {
-      throw new Error("game load failed.");
-    }
+    // } catch {
+    //   throw new Error("game load failed.");
+    // }
   };
 
   startGame() {

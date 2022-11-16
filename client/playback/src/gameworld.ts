@@ -536,6 +536,7 @@ export default class GameWorld {
 
         switch (action) {
           case schema.Action.THROW_ATTACK:
+            this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
             setAction(true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
