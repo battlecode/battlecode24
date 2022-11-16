@@ -36,7 +36,7 @@ To watch using a standalone app (Electron):
 $ npm run electron
 ```
 
-When you `npm run electron`, you can set the default file to run when it is launched, by placing `default.bc22` in `/client` folder. So, it's loading `/client/default.bc22` file when it is launched.
+When you `npm run electron`, you can set the default file to run when it is launched, by placing `default.bc23` in `/client` folder. So, it's loading `/client/default.bc23` file when it is launched.
 
 To run the tests:
 ```sh
@@ -48,7 +48,7 @@ All code and assets go in `src`, which is written in Typescript. Note that we're
 
 If you want to add a dependency, run `npm install --save package-name` and then `npm install --save @types/package-name` (for the typescript declarations). If `@types/package-name` doesn't exist, sacrifice a goat, or possibly a grad student.
 
-Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc22` match files. This repo has everything else; video, sound, controls, etc.
+Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc23` match files. This repo has everything else; video, sound, controls, etc.
 
 If you've made a change in `../playback` and want to integrate it here, you need to do `npm install` again. It's a bit of a pain; and should probably be integrated in this folder at some point.
 

@@ -294,8 +294,8 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   
   schema.Constants.startConstants(builder);
   schema.Constants.addIncreasePeriod(builder, 20);
-  schema.Constants.addAdAdditiveIncease(builder, 5);
-  schema.Constants.addMnAdditiveIncease(builder, 20);
+  schema.Constants.addAdAdditiveIncrease(builder, 5);
+  schema.Constants.addMnAdditiveIncrease(builder, 20);
   const constants = schema.Constants.endConstants(builder);
 
   schema.GameHeader.startGameHeader(builder);
@@ -812,7 +812,7 @@ function main(){
   const prefix = "../examples/";
 
   games.forEach(pair => {
-    const filename = `${prefix}${pair.name}.bc22`
+    const filename = `${prefix}${pair.name}.bc23`
     const stream = createWriteStream(filename);
     const game = pair.game;
 

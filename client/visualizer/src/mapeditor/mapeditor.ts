@@ -11,7 +11,7 @@ import {MapUnit, MapValidator, MapGenerator, MapEditorForm, GameMap, UploadedMap
 import { env } from 'process';
 
 /**
- * Allows the user to download a .map22 file representing the map generated
+ * Allows the user to download a .${this.conf.map_extension} file representing the map generated
  * in the map editor.
  */
 export default class MapEditor {
@@ -90,10 +90,10 @@ export default class MapEditor {
       When you are happy with your map, click "Export".
       If you are directed to save your map, save it in the
       <code>/battlecode-scaffold-2021/maps</code> directory of your scaffold.
-      (Note: the name of your <code>.map22</code> file must be the same as the name of your
+      (Note: the name of your <code>.${this.conf.map_extension}</code> file must be the same as the name of your
       map.) <br>
       <br>
-      Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
+      Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.${this.conf.game_extension}</code>.`;
 
     return div;
   }
@@ -214,14 +214,14 @@ export default class MapEditor {
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
     uploadLabel.setAttribute("class", "custom-button");
-    uploadLabel.innerText = 'Upload a .map22 file';
+    uploadLabel.innerText = 'Upload a .${this.conf.map_extension} file';
     uploadLabel.style.backgroundColor = "mediumslateblue"; // TODO: move to CSS
     // create the functional button
     let upload = document.createElement('input');
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.map22';
+    upload.accept = '.${this.conf.map_extension}';
     upload.onchange = () => {
       if (upload.files) {
         const reader = new FileReader();
@@ -263,7 +263,7 @@ export default class MapEditor {
             }
           });
         } else {
-          MapGenerator.exportFile(data, `${name}.map22`);
+          MapGenerator.exportFile(data, `${name}.${this.conf.map_extension}`);
         }
       }
     }

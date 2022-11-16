@@ -8,6 +8,20 @@ export interface Config {
   readonly gameVersion: string;
 
   /**
+   * The year game is occuring in
+   */
+  readonly year: string;
+
+  /**
+   * The extension of game files
+   */
+  readonly game_extension: string;
+  /**
+   * The extension of map files
+   */
+  readonly map_extension: string;
+
+  /**
    * Whether to try to run the game in full-screen
    */
   readonly fullscreen: boolean;
@@ -124,8 +138,6 @@ export interface Config {
    * Whether the map is currently rotated. TODO: don't make this a global variable.
    */
   doingRotate: boolean;
-
-  showAnomalies: boolean;
 }
 
 /**
@@ -145,8 +157,12 @@ export enum Mode {
  * Handle setting up any values that the user doesn't set.
  */
 export function defaults(supplied?: any): Config {
+  let year = "2023"
   let conf: Config = {
-    gameVersion: "2022.2.2.0", //TODO: Change this on each release!
+    gameVersion: year+".0.0.0", //TODO: Change this on each release!
+    year: year,
+    map_extension: 'map'+year.substring(2),
+    game_extension: 'bc'+year.substring(2),
     fullscreen: false,
     width: 600,
     height: 600,
@@ -170,8 +186,7 @@ export function defaults(supplied?: any): Config {
     useProfiler: true,
     doProfiling: true,
     doRotate: false,
-    doingRotate: false,
-    showAnomalies: true
+    doingRotate: false
   };
   return Object.assign(conf, supplied);
 }

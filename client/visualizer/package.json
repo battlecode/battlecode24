@@ -1,6 +1,6 @@
 {
   "name": "battlecode-visualizer",
-  "version": "2022.0.0",
+  "version": "2023.0.0",
   "description": "Visualizing the game using playback",
   "private": true,
   "scripts": {
@@ -72,9 +72,9 @@
     },
     "fileAssociations": [
       {
-        "ext": "bc22",
-        "name": "BC22",
-        "description": "Battlecode Match 2022",
+        "ext": "bc23",
+        "name": "BC23",
+        "description": "Battlecode Match 2023",
         "role": "Viewer"
       }
     ],

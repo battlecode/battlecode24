@@ -26,7 +26,7 @@ export type UploadedMap = {
 }
 
 /**
- * Generates a .map22 file from a GameMap. Assumes the given GameMap represents
+ * Generates a .mapXX file from a GameMap. Assumes the given GameMap represents
  * a valid game map.
  */
 export default class MapGenerator {
@@ -190,7 +190,7 @@ export default class MapGenerator {
   }
 
   /**
-   * Reads a .map22 file.
+   * Reads a .mapXX file.
    */
   static readMap(file: ArrayBuffer): UploadedMap {
     const data = new Uint8Array(file);
