@@ -297,7 +297,7 @@ table Round {
     /// The ID for the new resource this well now contains
     resourceID: [int];
     /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
-    resourceAccelerationID: [int];
+    wellAccelerationID: [int];
 
     /// The IDs of the robots who changed their indicator strings
     indicatorStringIDs: [int];

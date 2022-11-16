@@ -3126,7 +3126,7 @@ resourceIDArray():Int32Array|null {
  * @param number index
  * @returns number
  */
-resourceAccelerationID(index: number):number|null {
+wellAccelerationID(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -3134,7 +3134,7 @@ resourceAccelerationID(index: number):number|null {
 /**
  * @returns number
  */
-resourceAccelerationIDLength():number {
+wellAccelerationIDLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -3142,7 +3142,7 @@ resourceAccelerationIDLength():number {
 /**
  * @returns Int32Array
  */
-resourceAccelerationIDArray():Int32Array|null {
+wellAccelerationIDArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -3889,10 +3889,10 @@ static startResourceIDVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset resourceAccelerationIDOffset
+ * @param flatbuffers.Offset wellAccelerationIDOffset
  */
-static addResourceAccelerationID(builder:flatbuffers.Builder, resourceAccelerationIDOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, resourceAccelerationIDOffset, 0);
+static addWellAccelerationID(builder:flatbuffers.Builder, wellAccelerationIDOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(19, wellAccelerationIDOffset, 0);
 };
 
 /**
@@ -3900,7 +3900,7 @@ static addResourceAccelerationID(builder:flatbuffers.Builder, resourceAccelerati
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createResourceAccelerationIDVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createWellAccelerationIDVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3912,7 +3912,7 @@ static createResourceAccelerationIDVector(builder:flatbuffers.Builder, data:numb
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startResourceAccelerationIDVector(builder:flatbuffers.Builder, numElems:number) {
+static startWellAccelerationIDVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -4147,7 +4147,7 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamAdChangesOffset:flatbuffers.Offset, teamMnChangesOffset:flatbuffers.Offset, teamExChangesOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, islandIDsOffset:flatbuffers.Offset, islandTurnoverTurnsOffset:flatbuffers.Offset, islandOwnershipOffset:flatbuffers.Offset, resourceWellLocsOffset:flatbuffers.Offset, wellAdamantiumChangeOffset:flatbuffers.Offset, wellManaChangeOffset:flatbuffers.Offset, wellElixirChangeOffset:flatbuffers.Offset, resourceIDOffset:flatbuffers.Offset, resourceAccelerationIDOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamAdChangesOffset:flatbuffers.Offset, teamMnChangesOffset:flatbuffers.Offset, teamExChangesOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, islandIDsOffset:flatbuffers.Offset, islandTurnoverTurnsOffset:flatbuffers.Offset, islandOwnershipOffset:flatbuffers.Offset, resourceWellLocsOffset:flatbuffers.Offset, wellAdamantiumChangeOffset:flatbuffers.Offset, wellManaChangeOffset:flatbuffers.Offset, wellElixirChangeOffset:flatbuffers.Offset, resourceIDOffset:flatbuffers.Offset, wellAccelerationIDOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
   Round.addTeamAdChanges(builder, teamAdChangesOffset);
@@ -4168,7 +4168,7 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addWellManaChange(builder, wellManaChangeOffset);
   Round.addWellElixirChange(builder, wellElixirChangeOffset);
   Round.addResourceID(builder, resourceIDOffset);
-  Round.addResourceAccelerationID(builder, resourceAccelerationIDOffset);
+  Round.addWellAccelerationID(builder, wellAccelerationIDOffset);
   Round.addIndicatorStringIDs(builder, indicatorStringIDsOffset);
   Round.addIndicatorStrings(builder, indicatorStringsOffset);
   Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
