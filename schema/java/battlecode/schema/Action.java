@@ -45,11 +45,11 @@ public final class Action {
    */
   public static final byte BOOST = 7;
   /**
-   * Target: none
+   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
    */
   public static final byte PICK_UP_ANCHOR = 8;
   /**
-   * Target: location to place anchor, x + y * width
+   * Target: island id for the island the anchor is being placed on
    */
   public static final byte PLACE_ANCHOR = 9;
   /**
