@@ -153,10 +153,10 @@ public final class Round extends Table {
   /**
    * The acceleration ID for this resource well: 1 is accelerated, 0 is not
    */
-  public int resourceAccelerationID(int j) { int o = __offset(42); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int resourceAccelerationIDLength() { int o = __offset(42); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer resourceAccelerationIDAsByteBuffer() { return __vector_as_bytebuffer(42, 4); }
-  public ByteBuffer resourceAccelerationIDInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 42, 4); }
+  public int wellAccelerationID(int j) { int o = __offset(42); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int wellAccelerationIDLength() { int o = __offset(42); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer wellAccelerationIDAsByteBuffer() { return __vector_as_bytebuffer(42, 4); }
+  public ByteBuffer wellAccelerationIDInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 42, 4); }
   /**
    * The IDs of the robots who changed their indicator strings
    */
@@ -249,7 +249,7 @@ public final class Round extends Table {
       int wellManaChangeOffset,
       int wellElixirChangeOffset,
       int resourceIDOffset,
-      int resourceAccelerationIDOffset,
+      int wellAccelerationIDOffset,
       int indicatorStringIDsOffset,
       int indicatorStringsOffset,
       int indicatorDotIDsOffset,
@@ -275,7 +275,7 @@ public final class Round extends Table {
     Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
     Round.addIndicatorStrings(builder, indicatorStringsOffset);
     Round.addIndicatorStringIDs(builder, indicatorStringIDsOffset);
-    Round.addResourceAccelerationID(builder, resourceAccelerationIDOffset);
+    Round.addWellAccelerationID(builder, wellAccelerationIDOffset);
     Round.addResourceID(builder, resourceIDOffset);
     Round.addWellElixirChange(builder, wellElixirChangeOffset);
     Round.addWellManaChange(builder, wellManaChangeOffset);
@@ -352,9 +352,9 @@ public final class Round extends Table {
   public static void addResourceID(FlatBufferBuilder builder, int resourceIDOffset) { builder.addOffset(18, resourceIDOffset, 0); }
   public static int createResourceIDVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startResourceIDVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addResourceAccelerationID(FlatBufferBuilder builder, int resourceAccelerationIDOffset) { builder.addOffset(19, resourceAccelerationIDOffset, 0); }
-  public static int createResourceAccelerationIDVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startResourceAccelerationIDVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWellAccelerationID(FlatBufferBuilder builder, int wellAccelerationIDOffset) { builder.addOffset(19, wellAccelerationIDOffset, 0); }
+  public static int createWellAccelerationIDVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startWellAccelerationIDVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addIndicatorStringIDs(FlatBufferBuilder builder, int indicatorStringIDsOffset) { builder.addOffset(20, indicatorStringIDsOffset, 0); }
   public static int createIndicatorStringIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startIndicatorStringIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
