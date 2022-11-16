@@ -27,9 +27,6 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-
-    private Headquarter[] headquarters;
-
     private boolean[] walls;
     private boolean[] clouds;
     private int[] currents;
@@ -129,6 +126,7 @@ public strictfp class GameWorld {
         try {
             this.processBeginningOfRound();
             this.controlProvider.roundStarted();
+            System.out.println("Round: " + this.currentRound);
 
             updateDynamicBodies();
 
@@ -365,6 +363,10 @@ public strictfp class GameWorld {
         int skyIslandCountB = 0;
         for(int id : islandIds) {
             Island island = islandIdToIsland.get(id);
+            if (island == null) {
+                assert(id == 0);
+                continue;
+            }
             if(island.teamOwning == Team.A) skyIslandCountA++;
             else if(island.teamOwning == Team.B) skyIslandCountB++;
         }
@@ -408,7 +410,7 @@ public strictfp class GameWorld {
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getExAmount();
+            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ELIXIR);
         }
         
         if (totalElixirValues[0] > totalElixirValues[1]) {
@@ -433,7 +435,7 @@ public strictfp class GameWorld {
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getMnAmount();
+            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.MANA);
         }
         
         if (totalManaValues[0] > totalManaValues[1]) {
@@ -458,7 +460,7 @@ public strictfp class GameWorld {
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getAdAmount();
+            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ADAMANTIUM);
         }
         
         if (totalAdamantiumValues[0] > totalAdamantiumValues[1]) {
@@ -487,6 +489,7 @@ public strictfp class GameWorld {
      */
     public void checkEndOfMatch() {
         if (timeLimitReached() && gameStats.getWinner() == null) {
+
             if (setWinnerIfMoreSkyIslands())      return;
             if (setWinnerIfMoreRealityAnchors())  return;
             if (setWinnerIfMoreElixirValue())     return;
@@ -580,20 +583,12 @@ public strictfp class GameWorld {
         profilerCollections.put(team, profilerCollection);
     }
 
+
+    // TODO: move this somewhere better
     /*
      * Checks if the given MapLocation contains a headquarters
      */
     public boolean isHeadquarters(MapLocation loc) {
-        return getHeadquarters(loc) != null;
-    }
-
-    /*
-     * Returns the Headquarters at the given location, or null if there is no headquarters
-     */
-    public Headquarter getHeadquarters(MapLocation loc) {
-        for(Headquarter headquarter : headquarters) {
-            if(headquarter.getLocation() == loc) return headquarter;
-        }
-        return null;
+        return getRobot(loc).getType() == RobotType.HEADQUARTERS;
     }
 }

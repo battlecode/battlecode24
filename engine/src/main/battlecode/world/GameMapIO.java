@@ -29,9 +29,9 @@ public final strictfp class GameMapIO {
     private static final ClassLoader BACKUP_LOADER = GameMapIO.class.getClassLoader();
 
     /**
-     * The file extension for battlecode 2022 match files.
+     * The file extension for battlecode 2023 match files.
      */
-    public static final String MAP_EXTENSION = ".map22";
+    public static final String MAP_EXTENSION = ".map23";
 
     /**
      * The package we check for maps in if they can't be found in the file system.

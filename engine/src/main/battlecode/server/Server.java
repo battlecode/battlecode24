@@ -217,11 +217,12 @@ public strictfp class Server implements Runnable {
         for (RobotInfo robotInfo : liveMap.getInitialBodies()) {
             if (robotInfo.type == RobotType.HEADQUARTERS) headquarterCount++;
         }
+
         if (headquarterCount < GameConstants.MIN_STARTING_HEADQUARTERS * 2) {
-            throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_STARTING_ARCHONS");
+            throw new RuntimeException("HEADQUARTERS BENEATH GameConstants.MIN_STARTING_ARCHONS");
         }
-        if (headquarterCount > GameConstants.MAX_STARTING_HEADQUARTERS * 2) {
-            throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
+        if (headquarterCount > GameConstants.MAX_STARTING_HEADQUARTERS * 8) {
+            throw new RuntimeException("HEADQUARTERS EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
         }
     }
 

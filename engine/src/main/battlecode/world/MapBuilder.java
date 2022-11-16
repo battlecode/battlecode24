@@ -183,7 +183,7 @@ public class MapBuilder {
 
     private int getSymmetricIsland(int id) {
         // TODO: ID needs to be different, maybe do max_num - id
-        return 100 - id;
+        return id;
     }
 
     public void setSymmetricIsland(int x, int y, int id) {
@@ -255,7 +255,6 @@ public class MapBuilder {
 
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
-        System.out.println("This map has the following symmetries: " + allMapSymmetries);
         if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
         }
@@ -314,16 +313,21 @@ public class MapBuilder {
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
                     int symIdx = locationToIndex(symm.x, symm.y);
-                    if (wallArray[curIdx] != wallArray[symIdx])
+                    if (wallArray[curIdx] != wallArray[symIdx]) {
                         possible.remove(symmetry);
-                    else if (cloudArray[curIdx] != cloudArray[symIdx])
+                    }
+                    else if (cloudArray[curIdx] != cloudArray[symIdx]) {
                         possible.remove(symmetry);
-                    else if (getSymmetricCurrent(currentArray[curIdx]) != currentArray[symIdx])
+                    }
+                    else if (getSymmetricCurrent(currentArray[curIdx]) != currentArray[symIdx]) {
                         possible.remove(symmetry);
-                    else if (getSymmetricIsland(islandArray[curIdx]) != islandArray[symIdx])
+                    }
+                    else if (getSymmetricIsland(islandArray[curIdx]) != islandArray[symIdx]) {
                         possible.remove(symmetry);
-                    else if (resourceArray[curIdx] != resourceArray[symIdx])
+                    }
+                    else if (resourceArray[curIdx] != resourceArray[symIdx]) {
                         possible.remove(symmetry);
+                    }
                     else {
                         RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
                         if (cri != null || sri != null) {

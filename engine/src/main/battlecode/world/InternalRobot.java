@@ -124,6 +124,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.inventory.getResource(r);
     }
 
+    public Anchor getAnchor() {
+        return this.inventory.getAnchor();
+    }
+
+    public boolean holdingAnchor() {
+        return getAnchor() != null;
+    }
+
     public long getControlBits() {
         return controlBits;
     }

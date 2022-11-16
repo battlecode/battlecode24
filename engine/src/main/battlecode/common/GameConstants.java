@@ -110,6 +110,9 @@ public class GameConstants {
     /** The maximum capacity a carrier can carry */
     public static final int CARRIER_CAPACITY = 40;
 
+    /** The weight of an anchor */
+    public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 18;
@@ -125,7 +128,7 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 100;
     
 }
 

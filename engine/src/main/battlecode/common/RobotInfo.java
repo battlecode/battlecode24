@@ -91,7 +91,7 @@ public class RobotInfo {
      * @return the inventory of this robot
      */
     public Inventory getInventory() {
-        return inventory;
+        return inventory.copy();
     }
 
     /**
@@ -132,6 +132,7 @@ public class RobotInfo {
 
     @Override
     public String toString() {
+        System.out.println("Got here");
         return "RobotInfo{" +
                 "ID=" + ID +
                 ", team=" + team +

@@ -69,13 +69,12 @@ public strictfp class RobotPlayer {
                 // use different strategies on different robots. If you wish, you are free to rewrite
                 // this into a different control structure!
                 switch (rc.getType()) {
-                    case ARCHON:     runArchon(rc);  break;
-                    case MINER:      runMiner(rc);   break;
-                    case SOLDIER:    runSoldier(rc); break;
-                    case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
-                    case WATCHTOWER: // You might want to give them a try!
-                    case BUILDER:
-                    case SAGE:       break;
+                    case HEADQUARTERS:     runHeadquarters(rc);  break;
+                    case CARRIER:      runCarrier(rc);   break;
+                    case LAUNCHER: runLauncher(rc); break;
+                    case BOOSTER: // Examplefuncsplayer doesn't use any of these robot types below.
+                    case DESTABILIZER: // You might want to give them a try!
+                    case AMPLIFIER:       break;
                 }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
@@ -105,20 +104,21 @@ public strictfp class RobotPlayer {
      * Run a single turn for an Archon.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
-    static void runArchon(RobotController rc) throws GameActionException {
+    static void runHeadquarters(RobotController rc) throws GameActionException {
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
+        MapLocation newLoc = rc.getLocation().add(dir);
         if (rng.nextBoolean()) {
-            // Let's try to build a miner.
-            rc.setIndicatorString("Trying to build a miner");
-            if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.buildRobot(RobotType.MINER, dir);
+            // Let's try to build a carrier.
+            rc.setIndicatorString("Trying to build a carrier");
+            if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
+                rc.buildRobot(RobotType.CARRIER, newLoc);
             }
         } else {
-            // Let's try to build a soldier.
-            rc.setIndicatorString("Trying to build a soldier");
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
+            // Let's try to build a launcher.
+            rc.setIndicatorString("Trying to build a launcher");
+            if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
+                rc.buildRobot(RobotType.LAUNCHER, newLoc);
             }
         }
     }
@@ -127,20 +127,20 @@ public strictfp class RobotPlayer {
      * Run a single turn for a Miner.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
-    static void runMiner(RobotController rc) throws GameActionException {
+    static void runCarrier(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         MapLocation me = rc.getLocation();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // Notice that the Miner's action cooldown is very low.
-                // You can mine multiple times per turn!
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
-                }
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
-                }
+                // MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+                // // Notice that the Miner's action cooldown is very low.
+                // // You can mine multiple times per turn!
+                // while (rc.can(mineLocation)) {
+                //     rc.mineGold(mineLocation);
+                // }
+                // while (rc.canMineLead(mineLocation)) {
+                //     rc.mineLead(mineLocation);
+                // }
             }
         }
 
@@ -156,7 +156,7 @@ public strictfp class RobotPlayer {
      * Run a single turn for a Soldier.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
-    static void runSoldier(RobotController rc) throws GameActionException {
+    static void runLauncher(RobotController rc) throws GameActionException {
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
