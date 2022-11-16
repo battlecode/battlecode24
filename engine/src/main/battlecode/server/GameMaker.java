@@ -366,7 +366,8 @@ public strictfp class GameMaker {
         private TIntArrayList resourceWellAdChange;
         private TIntArrayList resourceWellMnChange;
         private TIntArrayList resourceWellExChange;
-        private TIntArrayList resourceWellId;
+        private TIntArrayList resourceWellID;
+        private TIntArrayList wellAccelerationID;
 
         private TIntArrayList indicatorStringIDs;
         private ArrayList<String> indicatorStrings;
@@ -421,7 +422,8 @@ public strictfp class GameMaker {
             this.resourceWellAdChange = new TIntArrayList();
             this.resourceWellMnChange = new TIntArrayList();
             this.resourceWellExChange = new TIntArrayList();
-            this.resourceWellId = new TIntArrayList();
+            this.resourceWellID = new TIntArrayList();
+            this.wellAccelerationID = new TIntArrayList();
             this.indicatorStringIDs = new TIntArrayList();
             this.indicatorStrings = new ArrayList<>();
             this.indicatorDotIDs = new TIntArrayList();
@@ -560,7 +562,8 @@ public strictfp class GameMaker {
                 int resourceWellAdChangeP = Round.createWellAdamantiumChangeVector(builder, resourceWellAdChange.toArray());
                 int resourceWellMnChangeP = Round.createWellManaChangeVector(builder, resourceWellMnChange.toArray());
                 int resourceWellExChangeP = Round.createWellElixirChangeVector(builder, resourceWellExChange.toArray());
-                int resourceWellIDP = Round.createResourceIDVector(builder, resourceWellId.toArray());
+                int resourceWellIDsP = Round.createResourceIDVector(builder, resourceWellID.toArray());
+                int wellAccelerationIDsP = Round.createWellAccelerationIDVector(builder, wellAccelerationID.toArray());
 
 
                 // The indicator strings that were set
@@ -605,7 +608,8 @@ public strictfp class GameMaker {
                 Round.addWellAdamantiumChange(builder, resourceWellAdChangeP);
                 Round.addWellManaChange(builder, resourceWellMnChangeP);
                 Round.addWellElixirChange(builder, resourceWellExChangeP);
-                Round.addResourceID(builder, resourceWellIDP);
+                Round.addResourceID(builder, resourceWellIDsP);
+                Round.addWellAccelerationID(builder, wellAccelerationIDsP);
                 Round.addIndicatorStringIDs(builder, indicatorStringIDsP);
                 Round.addIndicatorStrings(builder, indicatorStringsP);
                 Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
@@ -648,13 +652,14 @@ public strictfp class GameMaker {
             actionTargets.add(targetID);
         }
 
-        public void addToWell(MapLocation location, int adChange, int mnChange, int exChange, int resourceID) {
+        public void addToWell(MapLocation location, int adChange, int mnChange, int exChange, int resourceID, int accelerationID) {
             resourceWellLocsX.add(location.x);
             resourceWellLocsY.add(location.y);
             resourceWellAdChange.add(adChange);
             resourceWellMnChange.add(mnChange);
             resourceWellExChange.add(exChange);
-            resourceWellId.add(resourceID);
+            resourceWellID.add(resourceID);
+            wellAccelerationID.add(accelerationID);
         }
 
         public void addIslandInfo(int islandID, int turnoverTurns, int ownership) {
@@ -742,7 +747,8 @@ public strictfp class GameMaker {
             resourceWellAdChange.clear();
             resourceWellMnChange.clear();
             resourceWellExChange.clear();
-            resourceWellId.clear();
+            resourceWellID.clear();
+            wellAccelerationID.clear();
             indicatorStringIDs.clear();
             indicatorStrings.clear();
             indicatorDotIDs.clear();
