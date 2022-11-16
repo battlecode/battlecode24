@@ -68,6 +68,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 break;
         }
         this.inventory = new Inventory();
+        //TODO: fix
+        this.inventory.addAdamantium(1000);
+        this.inventory.addMana(1000);
 
         this.health = this.type.health;
 
@@ -76,8 +79,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
-        this.actionCooldownTurns = 0;
-        this.movementCooldownTurns = 0;
+        this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
 
         this.indicatorString = "";
 

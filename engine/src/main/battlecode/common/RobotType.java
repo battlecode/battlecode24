@@ -188,6 +188,19 @@ public enum RobotType {
         }
     }
 
+    public int getBuildCost(ResourceType rType) {
+        switch (rType) {
+            case ADAMANTIUM:
+                return this.buildCostAdamantium;
+            case MANA:
+                return this.buildCostMana;
+            case ELIXIR:
+                return this.buildCostElixir;
+            default:
+                return 0;
+        }
+    }
+
     RobotType(int buildCostAdamantium, int buildCostMana, int buildCostElixir, int actionCooldown, int movementCooldown,
         int health, int damage, int actionRadiusSquared, int visionRadiusSquared, int bytecodeLimit) {
         this.buildCostAdamantium            = buildCostAdamantium;

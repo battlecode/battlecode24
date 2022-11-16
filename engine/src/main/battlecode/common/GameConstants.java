@@ -56,10 +56,10 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** The initial amount of mana each team starts with. */
-    public static final int INITIAL_MN_AMOUNT = 200;
+    public static final int INITIAL_MN_AMOUNT = 1000;
 
     /** The initial amount of adamantium each team starts with. */
-    public static final int INITIAL_AD_AMOUNT = 0;
+    public static final int INITIAL_AD_AMOUNT = 1000;
 
     /** The amount of adamantium each team gains per turn. */
     public static final int PASSIVE_AD_INCREASE = 2;
@@ -128,7 +128,7 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 100;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 10;
     
 }
 

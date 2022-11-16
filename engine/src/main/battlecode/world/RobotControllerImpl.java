@@ -504,23 +504,30 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(type);
         assertCanActLocation(loc);
         assertIsActionReady();
+
         if (getType() != RobotType.HEADQUARTERS)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
         for (ResourceType rType : ResourceType.values()) {
-            if (this.robot.getResource(ResourceType.ADAMANTIUM) < type.buildCostAdamantium)
+            //TODO: fix this
+            if (this.robot.getResource(rType) < type.getBuildCost(rType)) {
+                System.out.println("Not enough of rtype " + rType);
                 throw new GameActionException(NOT_ENOUGH_RESOURCE,
                         "Insufficient amount of " + rType);
+            }
         }
-        if (isLocationOccupied(loc))
+        if (isLocationOccupied(loc)) {
+            System.out.println("Location is occupied");
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
+        }
     }
 
     @Override
     public boolean canBuildRobot(RobotType type, MapLocation loc) {
         try {
             assertCanBuildRobot(type, loc);
+            System.out.println("Can build robot");
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -534,6 +541,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // this.gameWorld.getTeamInfo().addLead(team, -type.buildCostLead);
         // this.gameWorld.getTeamInfo().addGold(team, -type.buildCostGold);
         int newId = this.gameWorld.spawnRobot(type, loc, team);
+        System.out.println("Spawning robot");
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
     }
 
