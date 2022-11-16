@@ -511,13 +511,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         for (ResourceType rType : ResourceType.values()) {
             //TODO: fix this
             if (this.robot.getResource(rType) < type.getBuildCost(rType)) {
-                System.out.println("Not enough of rtype " + rType);
                 throw new GameActionException(NOT_ENOUGH_RESOURCE,
                         "Insufficient amount of " + rType);
             }
         }
         if (isLocationOccupied(loc)) {
-            System.out.println("Location is occupied");
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
         }
@@ -527,7 +525,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canBuildRobot(RobotType type, MapLocation loc) {
         try {
             assertCanBuildRobot(type, loc);
-            System.out.println("Can build robot");
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -541,7 +538,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // this.gameWorld.getTeamInfo().addLead(team, -type.buildCostLead);
         // this.gameWorld.getTeamInfo().addGold(team, -type.buildCostGold);
         int newId = this.gameWorld.spawnRobot(type, loc, team);
-        System.out.println("Spawning robot");
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
     }
 
@@ -557,10 +553,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (!(bot == null) && bot.getTeam() == getTeam())
+        if (getType() == RobotType.CARRIER){
+            int totalResources = getResourceAmount(ResourceType.ADAMANTIUM)+getResourceAmount(ResourceType.MANA)+getResourceAmount(ResourceType.ELIXIR);
+            if (totalResources == 0)
+                throw new GameActionException(CANT_DO_THAT,
+                    "Robot is a carrier but has no inventory to attack with");
+        }
+        if (!(bot == null) && bot.getTeam() == getTeam()) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
-        
+        }
     }
 
     @Override

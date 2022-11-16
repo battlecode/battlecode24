@@ -23,7 +23,7 @@ public enum RobotType {
      * Carrier (TODO: description)
      * @battlecode.doc.robottype
      */
-    CARRIER         ( 50,   0,   0,   5,   0, 40,   0,  9, 20, 10000),
+    CARRIER         ( 50,   0,   0,   10,   0, 40,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**

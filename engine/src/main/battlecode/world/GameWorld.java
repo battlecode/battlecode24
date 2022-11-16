@@ -7,6 +7,7 @@ import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
 import battlecode.world.control.RobotControlProvider;
+import battlecode.world.robots.InternalCarrier;
 
 import java.util.*;
 
@@ -532,7 +533,15 @@ public strictfp class GameWorld {
     // *********************************
 
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team) {
-        InternalRobot robot = new InternalRobot(this, ID, type, location, team);
+        InternalRobot robot;
+        switch (type) {
+            case CARRIER:
+                robot = new InternalCarrier(this, ID, type, location, team);
+                break;
+            default:
+                robot = new InternalRobot(this, ID, type, location, team);
+                break;
+        }
         objectInfo.spawnRobot(robot);
         addRobot(location, robot);
 

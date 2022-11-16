@@ -134,6 +134,18 @@ public strictfp class RobotPlayer {
         MapLocation me = rc.getLocation();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
+                int radius = rc.getType().actionRadiusSquared;
+                Team opponent = rc.getTeam().opponent();
+                RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+                if (enemies.length >= 0) {
+                    // MapLocation toAttack = enemies[0].location;
+                    MapLocation toAttack = rc.getLocation().add(Direction.EAST);
+        
+                    if (rc.canAttack(toAttack)) {
+                        rc.setIndicatorString("Attacking");        
+                        rc.attack(toAttack);
+                    }
+                }
                 // MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                 // // Notice that the Miner's action cooldown is very low.
                 // // You can mine multiple times per turn!
@@ -155,7 +167,7 @@ public strictfp class RobotPlayer {
     }
 
     /**
-     * Run a single turn for a Soldier.
+     * Run a single turn for a Launcher.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     static void runLauncher(RobotController rc) throws GameActionException {
@@ -163,9 +175,12 @@ public strictfp class RobotPlayer {
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
+        if (enemies.length >= 0) {
+            // MapLocation toAttack = enemies[0].location;
+            MapLocation toAttack = rc.getLocation().add(Direction.EAST);
+
             if (rc.canAttack(toAttack)) {
+                rc.setIndicatorString("Attacking");        
                 rc.attack(toAttack);
             }
         }

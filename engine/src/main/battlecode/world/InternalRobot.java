@@ -22,7 +22,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private Team team;
     private RobotType type;
     private MapLocation location;
-    private Inventory inventory;
+    protected Inventory inventory;
     private int health;
 
     private long controlBits;
@@ -312,20 +312,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-    /**
-     * Adds resource to a robot. Input can be negative to subtract health.
-     * 
-     * @param t the resource type to add
-     * @param amount the amount of resource to add (can be negative)
-     */
-    public void addResource(ResourceType t, int amount) {
-        // TODO: this is dangerous, we should probably move it or combine it
-        assert(amount > 0 || getResource(t) >= -1*amount);
-        this.inventory.addResource(t, amount);
-    }
-
-
-
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
@@ -336,13 +322,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param bot the robot to be attacked
      */
     public void attack(InternalRobot bot) {
-        //TODO: Currently there is no attacking!
-        return;
-        // if (!(bot == null)) {
-        //     int dmg = this.type.getDamage(0);
-        //     bot.addHealth(-dmg);
-        //     this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
-        // }
+        if (!(bot == null)) {
+            int dmg = this.type.getDamage(0);
+            bot.addHealth(-dmg);
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
+        }
     }
 
     // *********************************
