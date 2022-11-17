@@ -44,13 +44,14 @@ public strictfp class GameWorld {
     private final ObjectInfo objectInfo;
 
     private int[] wellResources;
-    private Well[] wellResourcesToWells;
+    private Well[] wells;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
     private final RobotControlProvider controlProvider;
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
+
 
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
@@ -63,7 +64,7 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-        this.wellResources = gm.getWellArray();
+        this.wellResources = gm.getWellResourcesArray();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
@@ -113,11 +114,13 @@ public strictfp class GameWorld {
         this.matchMaker.makeMatchHeader(this.gameMap);
 
 
-        this.wellResourcesToWells = Well[];
+        
+        this.wells = new Well[this.lead.length];
         for(int i = 0; i < this.wellResources.length; i++){
-            inv = new Inventory();
-            loc = new MapLocation();
-            wellResourcesToWells[i] = Well(inv, loc, this.wellResources[i]);
+            Inventory inv = new Inventory();
+            MapLocation loc = indexToLocation(i);
+            // TODO: check second parameter
+            this.wells[i] = new Well(loc, ResourceType.values()[this.wellResources[i]]);
         }
 
 
@@ -866,16 +869,12 @@ public strictfp class GameWorld {
             return false;
     }
     
-<<<<<<< HEAD
 
     public Well getWell(MapLocation loc) {
         return this.wells[locationToIndex(loc)];
-=======
-    
-    public Well getWell(MapLocation loc){
-        for (Well well : wells){
-           if (well.getMapLocation() == loc)
-                return well;
+    }
+
+
                 
     /*
      * Checks if the given MapLocation contains a headquarters
@@ -892,6 +891,5 @@ public strictfp class GameWorld {
             if(headquarter.getLocation() == loc) return headquarter;
         }
         return null;
->>>>>>> a27eb15cf7f31dcc519199c545b2f493eec547cd
     }
 }

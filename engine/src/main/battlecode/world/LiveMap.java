@@ -73,9 +73,9 @@ public strictfp class LiveMap {
     private int[] islandArray;
 
     /**
-     * Array of wells, null if there is no well at that location on the map
+     * Array of well resources, null if there is no well at that location on the map
      */
-    private Well[] wellArray;
+    private int[] wellResourcesArray;
 
 
     /**
@@ -123,7 +123,7 @@ public strictfp class LiveMap {
                    RobotInfo[] initialBodies,
                    int[] rubbleArray,
                    int[] leadArray,
-                   Well[] wellArray,
+                   int[] wellResourcesArray,
                    AnomalyScheduleEntry[] anomalySchedule) {
         this.width = width;
         this.height = height;
@@ -142,8 +142,8 @@ public strictfp class LiveMap {
             this.leadArray[i] = leadArray[i];
         }
 
-        for (int i = 0; i < wellArray.length; i++) {
-            this.wellArray[i] = wellArray[i];
+        for (int i = 0; i < wellResourcesArray.length; i++) {
+            this.wellResourcesArray[i] = wellResourcesArray[i];
         }
 
         this.anomalySchedule = new AnomalyScheduleEntry[anomalySchedule.length];
@@ -163,7 +163,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.rubbleArray, gm.leadArray,gm.wellArray, gm.anomalySchedule);
+             gm.initialBodies, gm.rubbleArray, gm.leadArray,gm.wellResourcesArray, gm.anomalySchedule);
     }
 
     @Override
@@ -336,8 +336,8 @@ public strictfp class LiveMap {
      * @return
      */
 
-     public Well[] getWellArray(){
-        return wellArray;
+     public int[] getWellResourcesArray(){
+        return this.wellResourcesArray.clone();
      }
 
      /**
