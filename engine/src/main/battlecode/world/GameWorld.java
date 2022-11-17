@@ -79,13 +79,13 @@ public strictfp class GameWorld {
             cooldownMultipliers[i][1] = 1.0;
         }
         for (MapLocation loc : getAllLocations()){
-                if (getCurrent(loc) != null){ //create this method depending on how clouds implemented
-                   cooldownMultipliers[locationToIndex(loc)][0] += .1; //adjust if needed
-                   cooldownMultipliers[locationToIndex(loc)][1] += .1;
+                if (getCurrent(loc) != null){ 
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CURRENT_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CURRENT_MULTIPLIER;
                 }
                 else if (hasCloud(loc)){
-                   cooldownMultipliers[locationToIndex(loc)][0] -= .2; 
-                   cooldownMultipliers[locationToIndex(loc)][1] -= .2; 
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
                 }
             }
         this.profilerCollections = new HashMap<>();
