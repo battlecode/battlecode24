@@ -68,6 +68,11 @@ public strictfp class LiveMap {
 
 
     /**
+     * Array of islands, 0 if there is no island at that location on the map
+     */
+    private int[] islandArray;
+
+    /**
      * Array of wells, null if there is no well at that location on the map
      */
     private Well[] wellArray;
@@ -334,6 +339,15 @@ public strictfp class LiveMap {
      public Well[] getWellArray(){
         return wellArray;
      }
+
+     /**
+     * @return the islandId array of the map
+     */
+    public int[] getIslandArray() {
+        //TODO: Add islandArray to everywhere in the constructor just like leadArray currently exists
+        return islandArray;
+    } 
+
     /**
      * @return a copy of the next Anomaly that hasn't happened yet.
      */

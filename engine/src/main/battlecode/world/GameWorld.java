@@ -32,10 +32,13 @@ public strictfp class GameWorld {
 
     private Headquarter[] headquarters;
 
+    private boolean[] passable;
     private int[] rubble;
     private int[] lead;
     private int[] gold;
     private InternalRobot[][] robots;
+    private int[] islandIds;
+    private HashMap<Integer, Island> islandIdToIsland;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -53,8 +56,10 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.rubble = gm.getRubbleArray();
         this.lead = gm.getLeadArray();
+        this.passable = gm.getPassableArray();
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
+        this.islandIds = new int[this.lead.length];
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -79,6 +84,24 @@ public strictfp class GameWorld {
             spawnRobot(robot.ID, robot.type, newLocation, robot.team);
         }
         this.teamInfo = new TeamInfo(this);
+
+        this.islandIdToIsland = new HashMap<>();
+        HashMap<Integer, List<MapLocation>> islandIdToLocations = new HashMap<>();
+        // Populate idToIsland map
+        for (int idx = 0; idx < islandIds.length; idx++) {
+            int islandId = islandIds[idx];
+            // Assume islandId 0 is not a real island and all other islands are actual islands
+            if (islandId != 0) {
+                List<MapLocation> prevLocations = islandIdToLocations.getOrDefault(islandId, new ArrayList<MapLocation>());
+                prevLocations.add(this.indexToLocation(idx));
+                islandIdToLocations.put(islandId, prevLocations);
+            }
+        }
+        this.islandIdToIsland.put(0, null);
+        for (int key : islandIdToLocations.keySet()) {
+            Island newIsland = new Island(this, key, islandIdToLocations.get(key));
+            this.islandIdToIsland.put(key, newIsland);            
+        }
 
         // Add initial amounts of resource
         this.teamInfo.addLead(Team.A, GameConstants.INITIAL_LEAD_AMOUNT);
@@ -258,6 +281,18 @@ public strictfp class GameWorld {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
     }
 
+    public boolean isPassable(MapLocation loc) {
+        return this.passable[locationToIndex(loc)];
+    }
+
+    public Island getIsland(MapLocation loc) {
+        return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
+    }
+
+    public Island getIsland(int islandIdx) {
+        return islandIdToIsland.get(islandIdx);
+    }
+
     public void moveRobot(MapLocation start, MapLocation end) {
         addRobot(end, getRobot(start));
         removeRobot(start);
@@ -277,6 +312,14 @@ public strictfp class GameWorld {
             if (getRobot(newLocation) != null)
                 returnRobots.add(getRobot(newLocation));
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
+    public Island[] getAllIslandsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Island> returnIslands = new ArrayList<Island>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getIsland(newLocation) != null)
+                returnIslands.add(getIsland(newLocation));
+        return returnIslands.toArray(new Island[returnIslands.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
@@ -344,65 +387,114 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return whether a team has more archons
+     * @return whether a team has more sky islands captured
      */
-    public boolean setWinnerIfMoreArchons() {
-        int archonCountA = this.objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
-        int archonCountB = this.objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
+    public boolean setWinnerIfMoreSkyIslands() {
+        int skyIslandCountA = 0;
+        int skyIslandCountB = 0;
+        for(int id : islandIds) {
+            Island island = islandIdToIsland.get(id);
+            if(island.teamOwning == Team.A) skyIslandCountA++;
+            else if(island.teamOwning == Team.B) skyIslandCountB++;
+        }
 
-        if (archonCountA > archonCountB) {
-            setWinner(Team.A, DominationFactor.MORE_ARCHONS);
+        if (skyIslandCountA > skyIslandCountB) {
+            setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
             return true;
-        } else if (archonCountA < archonCountB) {
-            setWinner(Team.B, DominationFactor.MORE_ARCHONS);
+        } else if (skyIslandCountA < skyIslandCountB) {
+            setWinner(Team.B, DominationFactor.MORE_SKY_ISLANDS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Au value
+     * @return whether a team has more reality anchors placed
      */
-    public boolean setWinnerIfMoreGoldValue() {
-        int[] totalGoldValues = new int[2];
-
-        // consider team reserves
-        totalGoldValues[Team.A.ordinal()] += this.teamInfo.getGold(Team.A);
-        totalGoldValues[Team.B.ordinal()] += this.teamInfo.getGold(Team.B);
+    public boolean setWinnerIfMoreRealityAnchors() {
+        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
+        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
         
-        // sum live robots worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
-        }
-        if (totalGoldValues[0] > totalGoldValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
+        if (realityAnchorCountA > realityAnchorCountB) {
+            setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
-        } else if (totalGoldValues[1] > totalGoldValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_GOLD_NET_WORTH);
+        } else if (realityAnchorCountA < realityAnchorCountB) {
+            setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Pb value
+     * @return whether a team has a greater net elixir value
      */
-    public boolean setWinnerIfMoreLeadValue() {
-        int[] totalLeadValues = new int[2];
+    public boolean setWinnerIfMoreElixirValue() {
+        int[] totalElixirValues = new int[2];
 
         // consider team reserves
-        totalLeadValues[Team.A.ordinal()] += this.teamInfo.getLead(Team.A);
-        totalLeadValues[Team.B.ordinal()] += this.teamInfo.getLead(Team.B);
+        totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
+        totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
+            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getExAmount();
         }
-        if (totalLeadValues[0] > totalLeadValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
+        
+        if (totalElixirValues[0] > totalElixirValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
             return true;
-        } else if (totalLeadValues[1] > totalLeadValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_LEAD_NET_WORTH);
+        } else if (totalElixirValues[1] > totalElixirValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net mana value
+     */
+    public boolean setWinnerIfMoreManaValue() {
+        int[] totalManaValues = new int[2];
+
+        // consider team reserves
+        totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
+        totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getMnAmount();
+        }
+        
+        if (totalManaValues[0] > totalManaValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        } else if (totalManaValues[1] > totalManaValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net adamantium value
+     */
+    public boolean setWinnerIfMoreAdamantiumValue() {
+        int[] totalAdamantiumValues = new int[2];
+
+        // consider team reserves
+        totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
+        totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getAdAmount();
+        }
+        
+        if (totalAdamantiumValues[0] > totalAdamantiumValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            return true;
+        } else if (totalAdamantiumValues[1] > totalAdamantiumValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
             return true;
         }
         return false;
@@ -417,6 +509,21 @@ public strictfp class GameWorld {
 
     public boolean timeLimitReached() {
         return currentRound >= this.gameMap.getRounds();
+    }
+
+    /**
+     * Checks end of match and then decides winner based on tiebreak conditions
+     */
+    public void checkEndOfMatch() {
+        if (timeLimitReached() && gameStats.getWinner() == null) {
+            if (setWinnerIfMoreSkyIslands())      return;
+            if (setWinnerIfMoreRealityAnchors())  return;
+            if (setWinnerIfMoreElixirValue())     return;
+            if (setWinnerIfMoreManaValue())       return;
+            if (setWinnerIfMoreAdamantiumValue()) return;
+
+            setWinnerArbitrary();
+        }
     }
 
     public void processEndOfRound() {
@@ -451,12 +558,7 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
         this.teamInfo.processEndOfRound();
 
-        // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null)
-            if (!setWinnerIfMoreArchons())
-                if (!setWinnerIfMoreGoldValue())
-                    if (!setWinnerIfMoreLeadValue())
-                        setWinnerArbitrary();
+        checkEndOfMatch();
 
         if (gameStats.getWinner() != null)
             running = false;
