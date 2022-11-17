@@ -114,7 +114,7 @@ export function bodyTypeToSize(bodyType: schema.BodyType) {
 // Game canvas rendering sizes
 export const INDICATOR_DOT_SIZE = .3
 export const INDICATOR_LINE_WIDTH = .3
-export const SIGHT_RADIUS_LINE_WIDTH = .15
+export const SIGHT_RADIUS_LINE_WIDTH = .1
 
 // Game canvas rendering parameters
 export const EFFECT_STEP = 200 //time change between effect animations
