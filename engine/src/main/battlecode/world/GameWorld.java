@@ -43,7 +43,6 @@ public strictfp class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
 
-    private int[] wellResources;
     private Well[] wells;
 
     private Map<Team, ProfilerCollection> profilerCollections;
@@ -64,7 +63,6 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-        this.wellResources = gm.getWellResourcesArray();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
@@ -116,11 +114,11 @@ public strictfp class GameWorld {
 
         
         this.wells = new Well[this.lead.length];
-        for(int i = 0; i < this.wellResources.length; i++){
+        for(int i = 0; i < gm.getWellResourcesArray().length; i++){
             Inventory inv = new Inventory();
             MapLocation loc = indexToLocation(i);
             // TODO: check second parameter
-            this.wells[i] = new Well(loc, ResourceType.values()[this.wellResources[i]]);
+            this.wells[i] = new Well(loc, ResourceType.values()[gm.getWellResourcesArray()[i]]);
         }
 
 
