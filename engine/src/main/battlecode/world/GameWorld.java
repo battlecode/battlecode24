@@ -489,15 +489,48 @@ public strictfp class GameWorld {
             running = false;
     }
 
-    private void applyCurrents() {
-        objectInfo.eachRobot((robot) -> {
-            MapLocation loc = robot.getLocation();
-            Direction current = getCurrent(loc);
-            if(current == Direction.CENTER) {
-                robot.setLocation(loc.add(current));
-            }
+    private boolean attemptApplyCurrent(InternalRobot robot, HashMap<InternalRobot, Boolean> moved){
+        //If we already attempted to move the robot, it cannot be moved again
+        if(moved.get(robot)) return false;
+
+        moved.put(robot, true);
+        MapLocation loc = robot.getLocation();
+        Direction current = getCurrent(loc);
+        MapLocation moveTo = loc.add(current);
+
+        if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
+        InternalRobot inMoveTo = getRobot(moveTo);
+        if(inMoveTo == null) {
+            robot.setLocation(moveTo);
             return true;
-        });
+        }
+        if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
+            if(attemptApplyCurrent(inMoveTo, moved)) {
+                robot.setLocation(moveTo);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private void applyCurrents() {
+        //Map of all robots that are on a space with a current
+        //The value is true if an attempt has been made to move the robot
+        HashMap<InternalRobot, Boolean> moved = new HashMap<>();
+        for(int i = 0; i < robots.length; i++){
+            for(int j = 0; j < robots[i].length; j++) {
+                InternalRobot robot = robots[i][j];
+                MapLocation loc = robot.getLocation();
+                if(getCurrent(loc) != Direction.CENTER) {
+                    moved.put(robot, false);
+                }
+            }
+        }
+
+        for(InternalRobot robot : moved.keySet()){
+            attemptApplyCurrent(robot, moved);
+        }
     }
 
     // *********************************
