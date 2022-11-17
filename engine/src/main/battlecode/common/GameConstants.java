@@ -90,14 +90,6 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    // TODO: this is currently based on the percentage of total number of squares in the island
-    // rather than the number of occupied square. It is unclear which we want it to be.
-    /** The percentage of an island that needs to be owned by the team which owns the island to reset the anchor strength. */
-    public static final float PERCENT_OWNING_TEAM_ISLAND = 0.85f;
-
-    /** The percentage of an island that needs to be owned by the opposing team to reduce the anchor strength. */
-    public static final float PERCENT_OPPOSING_TEAM_ISLAND = 0.4f;
-
     /** A blueprint building's health, as a multiplier of max health. */
     public static final float PROTOTYPE_HP_PERCENTAGE = 0.8f;
 
@@ -114,6 +106,20 @@ public class GameConstants {
     public static final double ALCHEMIST_LONELINESS_K_L2 = 0.01;
     public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
 
+    /** Constants for cooldown multipliers. */
+    public static final double BOOSTER_MULTIPLIER = .1;
+    public static final double DESTABILIZER_MULTIPLIER = -.1;
+    public static final double ANCHOR_MULTIPLIER = .15;
+    public static final double CLOUD_MULTIPLIER = -.2;
+    public static final double CURRENT_MULTIPLIER = .1;
+
+    /** Constants for boost radii squared. */
+    public static final int DESTABILIZER_RADIUS_SQUARED = 20;
+    public static final int BOOSTER_RADIUS_SQUARED = 40;
+
+    /** Constants for boost durations. */
+    public static final int BOOSTER_DURATION = 10;
+    public static final int DESTABILIZER_DURATION = 5;
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************
@@ -123,6 +129,4 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
-    
 }
-
