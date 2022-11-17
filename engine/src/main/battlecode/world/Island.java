@@ -34,6 +34,14 @@ public class Island {
         return this.teamOwning;
     }
 
+    public int getIdx() {
+        return idx;
+    }
+
+    public Anchor getAnchor() {
+        return this.anchorPlanted;
+    }
+
     private void assertCanPlaceAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
         if (this.anchorPlanted != null) {
             if (this.teamOwning != placingTeam) {
@@ -52,6 +60,9 @@ public class Island {
     public void placeAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
         assertCanPlaceAnchor(placingTeam, toPlace);
         this.anchorPlanted = toPlace;
+        if (toPlace == Anchor.ACCELERATING) {
+            this.gw.addBoostFromAnchor(this);
+        }
         this.teamOwning = placingTeam;
         this.turnsLeftToRemoveAnchor = toPlace.turnsToRemove;
         this.gw.getTeamInfo().placeAnchor(placingTeam);
@@ -74,6 +85,9 @@ public class Island {
             this.turnsLeftToRemoveAnchor -= 1;
             if (this.turnsLeftToRemoveAnchor <= 0) {
                 this.teamOwning = Team.NEUTRAL;
+                if (this.anchorPlanted == Anchor.ACCELERATING) {
+                    this.gw.removeBoostFromAnchor(this);
+                }
                 this.anchorPlanted = null;
                 this.turnsLeftToRemoveAnchor = 0;
             }

@@ -43,9 +43,9 @@ public strictfp class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
     
-    private static int boostIndex = 0;
-    private static int destabilizeIndex = 1;
-    private static int anchorIndex = 2;
+    private static final int BOOST_INDEX = 0;
+    private static final int DESTABILIZE_INDEX = 1;
+    private static final int ANCHOR_INDEX = 2;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -293,7 +293,7 @@ public strictfp class GameWorld {
         int lastRound = getCurrentRound() + GameConstants.BOOSTER_DURATION;
         int radiusSquared = GameConstants.BOOSTER_RADIUS_SQUARED;
         for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
-            ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][team.ordinal()][boostIndex];
+            ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][team.ordinal()][BOOST_INDEX];
             //no other boosts at this location
             if (curBoostsList.size() == 0)
                 cooldownMultipliers[locationToIndex(loc)][team.ordinal()] += GameConstants.BOOSTER_MULTIPLIER;
@@ -304,19 +304,20 @@ public strictfp class GameWorld {
         int lastRound = getCurrentRound() + GameConstants.DESTABILIZER_DURATION;
         int radiusSquared = GameConstants.DESTABILIZER_RADIUS_SQUARED;
         for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
-            ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.opponent().ordinal()][destabilizeIndex];
+            ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.opponent().ordinal()][DESTABILIZE_INDEX];
             if (curDestabilizers.size() == 0)
-                cooldownMultipliers[locationToIndex(loc)][1-team.ordinal()] += GameConstants.DESTABILIZER_MULTIPLIER;
+                cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] += GameConstants.DESTABILIZER_MULTIPLIER;
             curDestabilizers.add(lastRound);
         }
     }
     public void addBoostFromAnchor(Island island){
+        assert(island.getAnchor() == Anchor.ACCELERATING);
         int teamOrdinal = island.getTeam().ordinal(); 
         for (MapLocation loc : island.getLocsAffected()){
-            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][anchorIndex];
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             if (curAnchorList.size() == 0){
                 //if current location is already being boosted
-                if (this.boosts[locationToIndex(loc)][teamOrdinal][boostIndex].size() != 0)
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER-GameConstants.BOOSTER_MULTIPLIER;
                 else
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
@@ -328,10 +329,10 @@ public strictfp class GameWorld {
         int teamOrdinal = island.getTeam().ordinal();
         int boostIdentifier = island.getIdx();
         for (MapLocation loc : island.getLocsAffected()){
-            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][anchorIndex];
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             curAnchorList.remove(boostIdentifier);
             if (curAnchorList.size() == 0){
-                if (this.boosts[locationToIndex(loc)][teamOrdinal][boostIndex].size() != 0)
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER;
                 else
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER - GameConstants.BOOSTER_MULTIPLIER;    
@@ -607,22 +608,22 @@ public strictfp class GameWorld {
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){
             for (int teamIndex = 0; teamIndex <= 1; teamIndex++){ 
-                ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][teamIndex][boostIndex];
+                ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][teamIndex][BOOST_INDEX];
                 for (int j = curBoosts.size()-1; j >= 0; j--){
                     if (curBoosts.get(j) >= getCurrentRound()+1){
                         curBoosts.remove(j);
                         //update multiplier if no longer being boosted by a booster/anchor
-                        if (curBoosts.size() == 0 && this.boosts[locationToIndex(loc)][teamIndex][anchorIndex].size() == 0)
+                        if (curBoosts.size() == 0 && this.boosts[locationToIndex(loc)][teamIndex][ANCHOR_INDEX].size() == 0)
                             cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.BOOSTER_MULTIPLIER;
                     }
                 }
-                ArrayList<Integer> curDestabilize = this.boosts[locationToIndex(loc)][teamIndex][destabilizeIndex];
+                ArrayList<Integer> curDestabilize = this.boosts[locationToIndex(loc)][teamIndex][DESTABILIZE_INDEX];
                 for (int j = curDestabilize.size()-1; j >=0; j--){
                     if (curDestabilize.get(j) >= getCurrentRound()+1){
                         curDestabilize.remove(j);
                         //update multiplier if no longer being destabilized
                         if (curDestabilize.size() == 0)
-                                cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
                     }
                 }
             }
