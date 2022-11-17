@@ -478,6 +478,11 @@ public strictfp class GameWorld {
             applyCurrents();
         }
 
+        objectInfo.eachRobot((robot) -> {
+            matchMaker.addMoved(robot.getID(), robot.getLocation());
+            return true;
+        });
+
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null)
             if (!setWinnerIfMoreArchons())
