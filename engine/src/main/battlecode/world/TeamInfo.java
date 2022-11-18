@@ -160,4 +160,21 @@ public class TeamInfo {
         this.oldAdamantiumCounts[0] = this.adamantiumCounts[0];
         this.oldAdamantiumCounts[1] = this.adamantiumCounts[1];
     }
+
+    public int numIslandsOccupied(Team team){
+        int islandsOwned = 0;
+        for(Island island: gameWorld.getAllIslands()){
+            if(island.getTeamOwning() == team)
+                islandsOwned++;
+        }
+        return islandsOwned;
+    }
+
+    public boolean hasWon(Team team){ 
+        int islandsOwned = numIslandsOccupied(team);
+        if(islandsOwned/gameWorld.getAllIslands().length >= 0.75)
+            return true;
+        else
+            return false;
+    }
 }

@@ -26,6 +26,10 @@ public class Island {
         }
     }
 
+    public Team getTeamOwning(){
+        return this.teamOwning;
+    }
+
     private void assertCanPlaceAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
         if (this.anchorPlanted != null) {
             if (this.teamOwning != placingTeam) {
