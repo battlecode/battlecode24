@@ -214,14 +214,14 @@ export default class MapEditor {
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
     uploadLabel.setAttribute("class", "custom-button");
-    uploadLabel.innerText = 'Upload a .${this.conf.map_extension} file';
+    uploadLabel.innerText = `Upload a .${this.conf.map_extension} file`;
     uploadLabel.style.backgroundColor = "mediumslateblue"; // TODO: move to CSS
     // create the functional button
     let upload = document.createElement('input');
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.${this.conf.map_extension}';
+    upload.accept = `.${this.conf.map_extension}`;
     upload.onchange = () => {
       if (upload.files) {
         const reader = new FileReader();

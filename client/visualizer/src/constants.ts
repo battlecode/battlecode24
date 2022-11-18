@@ -87,9 +87,6 @@ export const buffFactor = (numBuffs: number): number => {
   return 1 + 0.001 * numBuffs
 }
 
-export const ACTION_RADIUS_COLOR = "#46ff00"
-export const VISION_RADIUS_COLOR = "#0000ff"
-
 // Expected bot image size
 //export const IMAGE_SIZE = 25
 
@@ -115,6 +112,14 @@ export function bodyTypeToSize(bodyType: schema.BodyType) {
 export const INDICATOR_DOT_SIZE = .3
 export const INDICATOR_LINE_WIDTH = .3
 export const SIGHT_RADIUS_LINE_WIDTH = .1
+
+export const TEAM_BLUE = "#407496"
+export const TEAM_RED = "#D53E43"
+export const UI_BLUE = "#3C5EBB"
+export const UI_GREEN = "#58BA4F"
+export const UI_GREY = "#253B49"
+export const ACTION_RADIUS_COLOR = UI_GREEN
+export const VISION_RADIUS_COLOR = UI_BLUE
 
 // Game canvas rendering parameters
 export const EFFECT_STEP = 200 //time change between effect animations

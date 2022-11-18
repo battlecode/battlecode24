@@ -195,15 +195,15 @@ export default class MapEditorForm {
             inBrush = (dx, dy) => (Math.abs(dx) < r && Math.abs(dy) < r && cow[Math.floor(20 * (1 + dx / r))][Math.floor(20 * (1 - dy / r))])
         }
         this.setAreaWalls(x, y, this.tilesForm.getWalls(), inBrush)
-        this.render()
+        // this.render()
       }
       if (this.getActiveForm() === this.obstaclesForm) {
         this.setObstacles(x, y, this.obstaclesForm.getObstacles())
-        this.render()
+        // this.render()
       }
       if (this.getActiveForm() === this.islandsForm) {
         this.setIslandMirrored(x, y, this.islandsForm.addIsland())
-        this.render()
+        // this.render()
       }
     }
 
@@ -433,7 +433,7 @@ export default class MapEditorForm {
             this.setWalls(x, y, Math.random() > this.randomCutoff)
           }
         }
-        this.render()
+        // this.render()
       }
     }
 
@@ -510,7 +510,14 @@ export default class MapEditorForm {
       this.lastID += 1
     }
     this.originalBodies.set(id, body)
-    this.render()
+
+
+    this.symmetricBodies = this.symmetryForm.getSymmetricBodies(this.originalBodies, this.headerForm.getWidth(), this.headerForm.getHeight())
+    let x = this.originalBodies.get(id)?.x
+    let y = this.originalBodies.get(id)?.y
+    this.renderIndividual(x, y)
+    let inv = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight())
+    this.renderIndividual(inv.x, inv.y)
   }
 
   /**
@@ -519,8 +526,13 @@ export default class MapEditorForm {
    */
   private deleteUnit(id: number): void {
     if (this.originalBodies.has(id)) {
+      let x = this.originalBodies.get(id)?.x
+      let y = this.originalBodies.get(id)?.y
       this.originalBodies.delete(id)
-      this.render()
+      this.symmetricBodies = this.symmetryForm.getSymmetricBodies(this.originalBodies, this.headerForm.getWidth(), this.headerForm.getHeight())
+      this.renderIndividual(x, y)
+      let inv = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight())
+      this.renderIndividual(inv.x, inv.y)
     }
   }
 
@@ -539,7 +551,11 @@ export default class MapEditorForm {
   private setWalls(x: number, y: number, walls: boolean) {
     if (this.randomMode) walls = Math.random() > this.randomCutoff
     const { x: translated_x, y: translated_y } = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight())
+    let changed = this.walls[y * this.headerForm.getWidth() + x] != walls
     this.walls[y * this.headerForm.getWidth() + x] = this.walls[translated_y * this.headerForm.getWidth() + translated_x] = walls
+
+    this.renderIndividual(x, y, changed)
+    this.renderIndividual(translated_x, translated_y, changed)
   }
 
   private setAreaWalls(x0: number, y0: number, pass: boolean, inBrush: (dx, dy) => boolean) {
@@ -582,7 +598,10 @@ export default class MapEditorForm {
   private setResources(x: number, y: number, resources: number) {
     const { x: translated_x, y: translated_y } = this.symmetryForm.transformLoc(x, y, this.headerForm.getWidth(), this.headerForm.getHeight())
     this.resource_wells[y * this.headerForm.getWidth() + x] = this.resource_wells[translated_y * this.headerForm.getWidth() + translated_x] = resources
-    this.render()
+    // this.render()
+
+    this.renderIndividual(x, y)
+    this.renderIndividual(translated_x, translated_y)
   }
 
   private setObstacles(x: number, y: number, obstacle: { cloud: boolean, current: number } | null) {
@@ -599,6 +618,10 @@ export default class MapEditorForm {
       this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = false
       this.currents[y * this.headerForm.getWidth() + x] = this.currents[translated_y * this.headerForm.getWidth() + translated_x] = 0
     }
+
+    this.renderIndividual(x, y)
+    this.renderIndividual(translated_x, translated_y)
+
   }
 
   private next_island_id = 1
@@ -649,7 +672,8 @@ export default class MapEditorForm {
         }
       }
     }
-    this.render()
+
+    this.renderIndividual(x, y, true)
   }
 
   /**
@@ -682,6 +706,13 @@ export default class MapEditorForm {
     this.canvas.height = height * scale
     this.symmetricBodies = this.symmetryForm.getSymmetricBodies(this.originalBodies, width, height)
     this.renderer.render(this.getMap())
+  }
+
+  /**
+ * Re-renders one square in the canvas.
+ */
+  renderIndividual(x, y, updateNeighbors = false) {
+    this.renderer.renderIndividual(x, y, this.getMap(), updateNeighbors)
   }
 
   /**
@@ -746,7 +777,6 @@ export default class MapEditorForm {
   setUploadedMap(map: UploadedMap) {
 
     const symmetryAndBodies = this.symmetryForm.discoverSymmetryAndBodies(map.bodies, map.walls, map.width, map.height)
-    console.log(symmetryAndBodies)
     if (symmetryAndBodies === null) return
 
     this.reset()
