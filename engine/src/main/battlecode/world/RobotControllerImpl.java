@@ -724,7 +724,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         if(getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
-        if(amount > 0 && this.robot.getInventory.getResource(type) < amount) // Carrier is transfering to another location
+        if(amount > 0 && this.robot.getResource(type) < amount) // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         if(amount < 0 && this.robot.getInventory.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");

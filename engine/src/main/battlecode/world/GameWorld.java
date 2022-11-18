@@ -138,14 +138,11 @@ public strictfp class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
-
-
         
-        this.wells = new Well[this.lead.length];
+        this.wells = new Well[gm.getWidth()*gm.getHeight()];
         for(int i = 0; i < gm.getWellResourcesArray().length; i++){
             Inventory inv = new Inventory();
             MapLocation loc = indexToLocation(i);
-            // TODO: check second parameter
             this.wells[i] = new Well(loc, ResourceType.values()[gm.getWellResourcesArray()[i]]);
         }
 
