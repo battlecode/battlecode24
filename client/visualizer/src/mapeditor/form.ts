@@ -356,13 +356,13 @@ export default class MapEditorForm {
     // Delete and Add/Update buttons
     this.buttonDelete.type = "button"
     this.buttonDelete.className = "form-button custom-button"
-    this.buttonDelete.appendChild(document.createTextNode("Delete"))
+    this.buttonDelete.appendChild(document.createTextNode("Delete (D)"))
     this.buttonAdd.type = "button"
     this.buttonAdd.className = "form-button custom-button"
-    this.buttonAdd.appendChild(document.createTextNode("Add/Update"))
+    this.buttonAdd.appendChild(document.createTextNode("Add/Update (S)"))
     this.buttonReverse.type = "button"
     this.buttonReverse.className = "form-button custom-button"
-    this.buttonReverse.appendChild(document.createTextNode("Switch Team"))
+    this.buttonReverse.appendChild(document.createTextNode("Switch Team (R)"))
     this.buttonRandomize.type = "button"
     this.buttonRandomize.className = "form-button custom-button"
     this.buttonRandomize.appendChild(document.createTextNode("Randomize Tiles"))
@@ -619,8 +619,8 @@ export default class MapEditorForm {
       this.currents[y * this.headerForm.getWidth() + x] = this.currents[translated_y * this.headerForm.getWidth() + translated_x] = 0
     }
 
-    this.renderIndividual(x, y)
-    this.renderIndividual(translated_x, translated_y)
+    this.renderIndividual(x, y, true)
+    this.renderIndividual(translated_x, translated_y, true)
 
   }
 

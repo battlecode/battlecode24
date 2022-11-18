@@ -100,7 +100,7 @@ export default class MapRenderer {
     })
 
     this.renderResource(x, render_y, map.resource_wells[x + this.width * y])
-    this.renderObstacle(x, render_y, map)
+    this.renderObstacle(x, render_y, map, updateNeighbors)
     this.renderIsland(x, render_y, map, updateNeighbors)
   }
 
@@ -129,19 +129,40 @@ export default class MapRenderer {
   private renderObstacles(map: GameMap): void {
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
-        this.renderObstacle(i, j, map)
+        this.renderObstacle(i, j, map, false)
       }
     }
   }
 
-  private renderObstacle(i: number, j: number, map: GameMap) {
-    if (map.clouds[(map.height - j - 1) * this.width + i]){
-      this.renderOverlay(i, j, "white", .3)
+  private renderObstacle(i: number, j: number, map: GameMap, updateNeighbors = true) {
+    if (map.clouds[(map.height - j - 1) * this.width + i]) {
+      // this.renderOverlay(i, j, "white", .3)
+      this.ctx.save()
+      const scale = 20
+      this.ctx.scale(1 / scale, 1 / scale)
+      this.ctx.globalAlpha = .3
+      this.ctx.fillStyle = "white"
+      let path = this.get9SliceClipPath(i, (map.height - j - 1), map.clouds, map)
+      this.applyClipScaled(i, j, scale, path)
+      this.ctx.fillRect(i * scale, j * scale, scale, scale)
+      this.ctx.restore()
     }
     if (map.currents[(map.height - j - 1) * this.width + i]) {
-      this.renderOverlay(i, j, "purple", .2)
+      // this.renderOverlay(i, j, "purple", .2)
+      this.ctx.save()
+      const scale = 20
+      this.ctx.scale(1 / scale, 1 / scale)
+      this.ctx.globalAlpha = .2
+      this.ctx.fillStyle = "purple"
+      let path = this.get9SliceClipPath(i, (map.height - j - 1), map.currents, map, (c) => c == map.currents[(map.height - j - 1) * this.width + i])
+      this.applyClipScaled(i, j, scale, path)
+      this.ctx.fillRect(i * scale, j * scale, scale, scale)
+      this.ctx.restore()
       this.renderArrow(i, j, map.currents[(map.height - j - 1) * this.width + i])
     }
+
+    if (updateNeighbors)
+      this.updateAllNeighbors(i, j, map)
   }
 
   private renderIslands(map: GameMap): void {
@@ -156,13 +177,18 @@ export default class MapRenderer {
     this.ctx.save()
     const scale = 20
     this.ctx.scale(1 / scale, 1 / scale)
-    this.ctx.drawImage(this.imgs.tiles[0], i * scale, j * scale, scale, scale)
+    // this.ctx.drawImage(this.imgs.tiles[0], i * scale, j * scale, scale, scale)
+    this.ctx.fillStyle = "#faedcd"
+    this.ctx.fillStyle = "#BAAD99"
+    this.ctx.fillRect(i * scale, j * scale, scale, scale)
 
     if (wall) {
       this.ctx.save()
       let path = this.get9SliceClipPath(i, (map.height - j - 1), map.walls, map)
       this.applyClipScaled(i, j, scale, path)
-      this.ctx.drawImage(this.imgs.tiles[1], i * scale, j * scale, scale, scale)
+      // this.ctx.drawImage(this.imgs.tiles[1], i * scale, j * scale, scale, scale)
+      this.ctx.fillStyle = cst.UI_GREY
+      this.ctx.fillRect(i * scale, j * scale, scale, scale)
       this.ctx.restore()
     }
 
@@ -175,15 +201,8 @@ export default class MapRenderer {
     this.ctx.restore()
 
     //redraw all neighbors (not recursive though)
-    if (updateNeighbors) {
-      for (let v = 1; v < 9; v++) {
-        let x = cst.DIRECTIONS[v][0] + i
-        let y = cst.DIRECTIONS[v][1] + (map.height - j - 1)
-        if (x < 0 || y < 0 || x == map.width || y == map.height)
-          continue
-        this.renderIndividual(x, y, map, false)
-      }
-    }
+    if (updateNeighbors)
+      this.updateAllNeighbors(i, j, map)
   }
 
   //      [1]   [2]   [3]
@@ -192,14 +211,14 @@ export default class MapRenderer {
   //
   //      [7]   [6]   [5]
   // magic code
-  private get9SliceClipPath(i: number, j: number, vals: boolean[] | number[], map: GameMap): number[][] {
+  private get9SliceClipPath(i: number, j: number, vals: boolean[] | number[], map: GameMap, valFunc: (v: number | boolean) => boolean = (v) => v ? true : false): number[][] {
     let edge = .07
     let bevel = .13
     let neighbors: boolean[] = []
     for (let v = 1; v < 9; v++) {
       let x = (cst.DIRECTIONS[v][0] + i)
       let y = (cst.DIRECTIONS[v][1] + j)
-      neighbors.push((x < 0 || y < 0 || x == map.width || y == map.height) ? false : (vals[x + y * map.width] ? true : false))
+      neighbors.push((x < 0 || y < 0 || x == map.width || y == map.height) ? false : (valFunc(vals[x + y * map.width])))
     }
     let points: number[][] = []
     let corners: Record<number, { cx: number, cy: number, sx: number, sy: number }> = {
@@ -253,6 +272,16 @@ export default class MapRenderer {
     }
     this.ctx.closePath()
     this.ctx.clip()
+  }
+
+  private updateAllNeighbors(i: number, j: number, map: GameMap) {
+    for (let v = 1; v < 9; v++) {
+      let x = cst.DIRECTIONS[v][0] + i
+      let y = cst.DIRECTIONS[v][1] + (map.height - j - 1)
+      if (x < 0 || y < 0 || x == map.width || y == map.height)
+        continue
+      this.renderIndividual(x, y, map, false)
+    }
   }
 
   private renderOverlay(i: number, j: number, color: string, opacity: number) {
@@ -350,15 +379,8 @@ export default class MapRenderer {
     // this.ctx.fillText(island + "", i * scale, (j + .5) * scale, scale * 1.7)
     this.ctx.restore()
 
-    if (updateNeighbors) {
-      for (let v = 1; v < 9; v++) {
-        let x = cst.DIRECTIONS[v][0] + i
-        let y = cst.DIRECTIONS[v][1] + (map.height - j - 1)
-        if (x < 0 || y < 0 || x == map.width || y == map.height)
-          continue
-        this.renderIndividual(x, y, map, false)
-      }
-    }
+    if (updateNeighbors)
+      this.updateAllNeighbors(i, j, map)
   }
 
   private renderResources(map: GameMap) {
