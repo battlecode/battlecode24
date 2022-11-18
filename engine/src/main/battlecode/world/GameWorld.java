@@ -10,6 +10,8 @@ import battlecode.world.control.RobotControlProvider;
 
 import java.util.*;
 
+import javax.lang.model.util.ElementScanner6;
+
 /**
  * The primary implementation of the GameWorld interface for containing and
  * modifying the game map and the objects on it.
@@ -47,11 +49,14 @@ public strictfp class GameWorld {
     private static final int DESTABILIZE_INDEX = 1;
     private static final int ANCHOR_INDEX = 2;
 
+    private Well[] wells;
+
     private Map<Team, ProfilerCollection> profilerCollections;
 
     private final RobotControlProvider controlProvider;
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
+
 
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
@@ -133,6 +138,18 @@ public strictfp class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
+
+
+        
+        this.wells = new Well[this.lead.length];
+        for(int i = 0; i < gm.getWellResourcesArray().length; i++){
+            Inventory inv = new Inventory();
+            MapLocation loc = indexToLocation(i);
+            // TODO: check second parameter
+            this.wells[i] = new Well(loc, ResourceType.values()[gm.getWellResourcesArray()[i]]);
+        }
+
+
     }
 
     /**
@@ -950,7 +967,21 @@ public strictfp class GameWorld {
         }
         this.matchMaker.addAction(-1, Action.VORTEX, changeIdx);
     }
+    
+    public boolean isWell(MapLocation loc){
+        if (getWell(loc) != null)
+            return true;
+        else 
+            return false;
+    }
+    
 
+    public Well getWell(MapLocation loc) {
+        return this.wells[locationToIndex(loc)];
+    }
+
+
+                
     /*
      * Checks if the given MapLocation contains a headquarters
      */
