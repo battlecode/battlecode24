@@ -2,7 +2,6 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.instrumenter.profiler.ProfilerCollection;
-import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
@@ -10,7 +9,6 @@ import battlecode.world.control.RobotControlProvider;
 import battlecode.world.robots.InternalCarrier;
 
 import java.util.*;
-
 /**
  * The primary implementation of the GameWorld interface for containing and
  * modifying the game map and the objects on it.
@@ -30,15 +28,21 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private boolean[] walls;
     private boolean[] clouds;
-    private int[] currents;
-    private int[] islands;
-    private int[] resources;
+    private Direction[] currents;
+    private ArrayList<Integer>[][][] boosts;
+    private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
     private int[] islandIds;
     private HashMap<Integer, Island> islandIdToIsland;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    
+    private static final int BOOST_INDEX = 0;
+    private static final int DESTABILIZE_INDEX = 1;
+    private static final int ANCHOR_INDEX = 2;
+
+    private Well[] wells;
 
     private Map<Team, ProfilerCollection> profilerCollections;
 
@@ -46,13 +50,12 @@ public strictfp class GameWorld {
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
+
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.walls = gm.getWallArray();
         this.clouds = gm.getCloudArray();
-        this.currents = gm.getCurrentArray();
         this.islandIds = gm.getIslandArray();
-        this.resources = gm.getResourceArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -61,6 +64,34 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
+        this.currents = new Direction[gm.getWidth()*gm.getHeight()];
+        for (int i = 0; i < gm.getWidth()*gm.getHeight(); i++) {
+            // TODO: This is very wrong but compile pls
+            this.currents[i] = Direction.CENTER;
+        }
+
+        //indices are: map position, team, boost/destabilize/anchor lists
+        this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
+        for (int i = 0; i < boosts.length; i++){ 
+            for (int j = 0; j < boosts[0].length; j++)
+                for (int k = 0; k < boosts[0][0].length; k++)
+                    this.boosts[i][j][k] = new ArrayList<Integer>();
+        }
+        double[][] cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            cooldownMultipliers[i][0] = 1.0;
+            cooldownMultipliers[i][1] = 1.0;
+        }
+        for (MapLocation loc : getAllLocations()){
+                if (getCurrent(loc) != Direction.CENTER){ 
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CURRENT_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CURRENT_MULTIPLIER;
+                }
+                else if (getCloud(loc)){
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
+                }
+            }
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -104,6 +135,15 @@ public strictfp class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
+        
+        this.wells = new Well[gm.getWidth()*gm.getHeight()];
+        for(int i = 0; i < gm.getResourceArray().length; i++){
+            Inventory inv = new Inventory();
+            MapLocation loc = indexToLocation(i);
+            this.wells[i] = new Well(loc, ResourceType.values()[gm.getResourceArray()[i]]);
+        }
+
+
     }
 
     /**
@@ -219,7 +259,7 @@ public strictfp class GameWorld {
         return this.clouds[locationToIndex(loc)];
     }
 
-    public int getCurrent(MapLocation loc) {
+    public Direction getCurrent(MapLocation loc) {
         return this.currents[locationToIndex(loc)];
     }
 
@@ -243,6 +283,62 @@ public strictfp class GameWorld {
     }
 
     // ***********************************
+    // ****** BOOST METHODS **************
+    // ***********************************
+    
+    public void addBoost(MapLocation center, Team team){
+        int lastRound = getCurrentRound() + GameConstants.BOOSTER_DURATION;
+        int radiusSquared = GameConstants.BOOSTER_RADIUS_SQUARED;
+        for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
+            ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][team.ordinal()][BOOST_INDEX];
+            //no other boosts at this location
+            if (curBoostsList.size() == 0)
+                cooldownMultipliers[locationToIndex(loc)][team.ordinal()] += GameConstants.BOOSTER_MULTIPLIER;
+            curBoostsList.add(lastRound);
+        }
+    }
+    public void addDestabilize(MapLocation center, Team team){ //team of the destabilizer robot
+        int lastRound = getCurrentRound() + GameConstants.DESTABILIZER_DURATION;
+        int radiusSquared = GameConstants.DESTABILIZER_RADIUS_SQUARED;
+        for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
+            ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.opponent().ordinal()][DESTABILIZE_INDEX];
+            if (curDestabilizers.size() == 0)
+                cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] += GameConstants.DESTABILIZER_MULTIPLIER;
+            curDestabilizers.add(lastRound);
+        }
+    }
+    public void addBoostFromAnchor(Island island){
+        assert(island.getAnchor() == Anchor.ACCELERATING);
+        int teamOrdinal = island.getTeam().ordinal(); 
+        for (MapLocation loc : island.getLocsAffected()){
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
+            if (curAnchorList.size() == 0){
+                //if current location is already being boosted
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER-GameConstants.BOOSTER_MULTIPLIER;
+                else
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
+            }
+            curAnchorList.add(island.getIdx());
+        }
+    }
+    public void removeBoostFromAnchor(Island island){
+        int teamOrdinal = island.getTeam().ordinal();
+        int boostIdentifier = island.getIdx();
+        for (MapLocation loc : island.getLocsAffected()){
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
+            curAnchorList.remove(boostIdentifier);
+            if (curAnchorList.size() == 0){
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER;
+                else
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER - GameConstants.BOOSTER_MULTIPLIER;    
+            }
+    
+        }
+    }
+
+    // ***********************************
     // ****** ROBOT METHODS **************
     // ***********************************
 
@@ -252,6 +348,10 @@ public strictfp class GameWorld {
 
     public boolean isPassable(MapLocation loc) {
         return !this.walls[locationToIndex(loc)];
+    }
+
+    public Well getWell(MapLocation loc) {
+        return wells[locationToIndex(loc)];
     }
 
     public Island getIsland(MapLocation loc) {
@@ -517,6 +617,30 @@ public strictfp class GameWorld {
             robot.processEndOfRound();
             return true;
         });
+        
+        //end any boosts that have finished their duration
+        for (MapLocation loc : getAllLocations()){
+            for (int teamIndex = 0; teamIndex <= 1; teamIndex++){ 
+                ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][teamIndex][BOOST_INDEX];
+                for (int j = curBoosts.size()-1; j >= 0; j--){
+                    if (curBoosts.get(j) >= getCurrentRound()+1){
+                        curBoosts.remove(j);
+                        //update multiplier if no longer being boosted by a booster/anchor
+                        if (curBoosts.size() == 0 && this.boosts[locationToIndex(loc)][teamIndex][ANCHOR_INDEX].size() == 0)
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.BOOSTER_MULTIPLIER;
+                    }
+                }
+                ArrayList<Integer> curDestabilize = this.boosts[locationToIndex(loc)][teamIndex][DESTABILIZE_INDEX];
+                for (int j = curDestabilize.size()-1; j >=0; j--){
+                    if (curDestabilize.get(j) >= getCurrentRound()+1){
+                        curDestabilize.remove(j);
+                        //update multiplier if no longer being destabilized
+                        if (curDestabilize.size() == 0)
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
+                    }
+                }
+            }
+        }
 
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundAdamantiumChange(Team.A), this.teamInfo.getRoundManaChange(Team.A), this.teamInfo.getRoundElixirChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
@@ -599,5 +723,9 @@ public strictfp class GameWorld {
      */
     public boolean isHeadquarters(MapLocation loc) {
         return getRobot(loc).getType() == RobotType.HEADQUARTERS;
+    }
+
+    public boolean isWell(MapLocation loc) {
+        return this.wells[locationToIndex(loc)] != null;
     }
 }

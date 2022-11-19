@@ -78,6 +78,8 @@ public strictfp class LiveMap {
      */
     private final RobotInfo[] initialBodies; // contains nothing
 
+    
+
     public LiveMap(int width,
                    int height,
                    MapLocation origin,

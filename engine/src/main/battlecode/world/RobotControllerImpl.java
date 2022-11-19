@@ -510,7 +510,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
         for (ResourceType rType : ResourceType.values()) {
             //TODO: fix this
-            if (this.robot.getResource(rType) < type.getBuildCost(rType)) {
+            if (getResourceAmount(rType) < type.getBuildCost(rType)) {
                 throw new GameActionException(NOT_ENOUGH_RESOURCE,
                         "Insufficient amount of " + rType);
             }
@@ -587,160 +587,134 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     // TODO: still working on wells
 
-    // private boolean isWell(MapLocation loc) {
-    //     //TODO checks if the location is a well
-    //     return this.gameWorld.isWell(loc);
-    // }
+    private boolean isWell(MapLocation loc) {
+        //TODO checks if the location is a well
+        return this.gameWorld.isWell(loc);
+    }
 
-    // private boolean isHeadquarter(MapLocation loc){
-    //     //TODO checks if the location is a headquarter
-    //     return this.gameWorld.isHeadquarters(loc);
+    private boolean isHeadquarter(MapLocation loc){
+        //TODO checks if the location is a headquarter
+        return this.gameWorld.isHeadquarters(loc);
 
-    // }
+    }
 
-    // private void assertCanTransferResource(MapLocation loc, ResourceType type, int amount) throws GameActionException {
-    //     assertNotNull(loc);
-    //     assertCanActLocation(loc);
-    //     assertIsActionReady();
+    private void assertCanTransferResource(MapLocation loc, ResourceType type, int amount) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
 
-    //     if(getType() != RobotType.CARRIER)
-    //         throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
-    //     if(amount > 0 && this.robot.getInventory().getResource(type) < amount) // Carrier is transfering to another location
-    //         throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
-    //     if(amount < 0 && this.robot.getInventory().canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
-    //         throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
-    //     if(!isWell(loc) && !isHeadquarter(loc))
-    //         throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");
-    // }
+        if(getType() != RobotType.CARRIER)
+            throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
+        if(amount > 0 && getResourceAmount(type) < amount) // Carrier is transfering to another location
+            throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
+        if(amount < 0 && this.robot.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
+            throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
+        if(!isWell(loc) && !isHeadquarter(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");
+    }
 
-    // @Override
-    // public boolean canTransferAd(MapLocation loc, int amount){
-    //     try {
-    //         assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
-    //         return true;
-    //     } catch(GameActionException e) {return false;}
-    // }
+    @Override
+    public boolean canTransferAd(MapLocation loc, int amount){
+        try {
+            assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
+            return true;
+        } catch(GameActionException e) {return false;}
+    }
 
-    // @Override
-    // public void transferAd(MapLocation loc, int amount) throws GameActionException {
-    //     assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
-    //     this.robot.addActionCooldownTurns(getType().actionCooldown);
-    //     Inventory robotInv = this.robot.getInventory();
-    //     if(isWell(loc)){
-    //         Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-    //         wellInv.addAdamantium(amount);
-    //         robotInv.addAdamantium(-amount);
-    //     }
-    //     else if(isHeadquarter(loc)){
-    //         Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
-    //         headquarterInv.addAdamantium(amount);
-    //     }
-    //     this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
-    //     //TODO update addAction once we have new action types!
-    // }
+    @Override
+    public boolean canTransferMn(MapLocation loc, int amount){
+        try {
+            assertCanTransferResource(loc, ResourceType.MANA, amount);
+            return true;
+        } catch(GameActionException e) {return false;}
+    }
 
-    // @Override
-    // public boolean canTransferMn(MapLocation loc, int amount){
-    //     try {
-    //         assertCanTransferResource(loc, ResourceType.MANA, amount);
-    //         return true;
-    //     } catch(GameActionException e) {return false;}
-    // }
+    @Override
+    public boolean canTransferEx(MapLocation loc, int amount){
+        try {
+            assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
+            return true;
+        } catch(GameActionException e) {return false;}
+    }
 
-    // @Override
-    // public void transferMn(MapLocation loc, int amount) throws GameActionException {
-    //     assertCanTransferResource(loc, ResourceType.MANA, amount);
-    //     this.robot.addActionCooldownTurns(getType().actionCooldown);
-    //     Inventory robotInv = this.robot.getInventory();
-    //     if(isWell(loc)){
-    //         Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-    //         wellInv.addMana(amount);
-    //         robotInv.addMana(-amount);
-    //     }
-    //     else if(isHeadquarter(loc)){
-    //         Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
-    //         headquarterInv.addMana(amount);
-    //     }
-    //     this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
-    //     //TODO update addAction once we have new action types!
-    // }
+    public void transferResource(ResourceType rType, MapLocation loc, int amount) throws GameActionException {
+        assertCanTransferResource(loc, rType, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        if(isWell(loc)){
+            this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
+            this.robot.addResourceAmount(rType, -amount);
+        }
+        else if(isHeadquarter(loc)){
+            this.gameWorld.getRobot(loc).addResourceAmount(rType, amount);
+        }
+        //TODO update addAction once we have new action types!
+    }
 
-    // @Override
-    // public boolean canTransferEx(MapLocation loc, int amount){
-    //     try {
-    //         assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
-    //         return true;
-    //     } catch(GameActionException e) {return false;}
-    // }
+    @Override
+    public void transferAd(MapLocation loc, int amount) throws GameActionException {
+        transferResource(ResourceType.ADAMANTIUM, loc, amount);
+    }
 
-    // @Override
-    // public void transferEx(MapLocation loc, int amount) throws GameActionException {
-    //     assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
-    //     this.robot.addActionCooldownTurns(getType().actionCooldown);
-    //     Inventory robotInv = this.robot.getInventory();
-    //     if(isWell(loc)){
-    //         Inventory wellInv = this.gameWorld.getWell(loc).getInventory();
-    //         wellInv.addElixir(amount);
-    //         robotInv.addElixir(-amount);
-    //     }
-    //     else if(isHeadquarter(loc)){
-    //         Inventory headquarterInv = this.gameWorld.getHeadquarter(loc).getInventory();
-    //         headquarterInv.addElixir(amount);
-    //     }
-    //     this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_LEAD, locationToInt(loc));
-    //     //TODO update addAction once we have new action types!
-    // }
+    @Override
+    public void transferMn(MapLocation loc, int amount) throws GameActionException {
+        transferResource(ResourceType.MANA, loc, amount);
+    }
 
-    // private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
-    //     assertNotNull(loc);
-    //     assertCanActLocation(loc);
-    //     assertIsActionReady();
-    //     if (getType() != RobotType.CARRIER)
-    //         throw new GameActionException(CANT_DO_THAT,
-    //                 "Robot is of type " + getType() + " which cannot collect.");
-    //     if (!isWell(loc))
-    //         throw new GameActionException(CANT_DO_THAT, 
-    //                 "Location is not a well");
-    //     int rate = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
-    //     if (amount > rate)
-    //         throw new GameActionException(CANT_DO_THAT, 
-    //                 "Amount is higher than rate");
-    //     if (!this.robot.getInventory().canAdd(amount))
-    //         throw new GameActionException(CANT_DO_THAT, 
-    //                 "Exceeded robot's carrying capacity");
+    @Override
+    public void transferEx(MapLocation loc, int amount) throws GameActionException {
+        transferResource(ResourceType.ELIXIR, loc, amount);
+    }
 
-    // }   
+    private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getType() != RobotType.CARRIER)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot collect.");
+        if (!isWell(loc))
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Location is not a well");
+        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
+        if (amount > rate)
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Amount is higher than rate");
+        if (!this.robot.getInventory().canAdd(amount))
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Exceeded robot's carrying capacity");
 
-    // @Override
-    // public boolean canCollectResource(MapLocation loc, int amount){
-    //     try {
-    //         assertCanCollectResource(loc, amount);
-    //         return true;
-    //     } catch (GameActionException e) { return false; }  
-    // }
+    }     
 
-    // @Override
-    // public void collectResource(MapLocation loc, int amount) throws GameActionException {
-    //     assertCanCollectResource(loc, amount);
-    //     this.robot.addActionCooldownTurns(getType().actionCooldown);
+    @Override
+    public boolean canCollectResource(MapLocation loc, int amount){
+        try {
+            assertCanCollectResource(loc, amount);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void collectResource(MapLocation loc, int amount) throws GameActionException {
+        assertCanCollectResource(loc, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
     
-    //     // For methods below, Inventory class would have to first be implemented
-    //     // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
-    //     // Also assuming that ResourceType is a class tht returns an enum
-    //     // --> Would check to see what resources a well holds
+        // For methods below, Inventory class would have to first be implemented
+        // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
+        // Also assuming that ResourceType is a class tht returns an enum
+        // --> Would check to see what resources a well holds
 
-    //     Inventory robotInv = this.robot.getInventory();
+        Inventory robotInv = this.robot.getInventory();
 
-    //     if (gameWorld.getWell().getType(loc) == ResourceType.ELIXIR)
-    //         robotInv.addElixir(amount);
-    //     else if (gameWorld.getWell().getType(loc) == ResourceType.MANA)
-    //         robotInv.addMana(amount);
-    //     else
-    //         robotInv.addAdamantium(amount);
+        if (gameWorld.getWell(loc).getResourceType() == ResourceType.ELIXIR)
+            robotInv.addElixir(amount);
+        else if (gameWorld.getWell(loc).getResourceType() == ResourceType.MANA)
+            robotInv.addMana(amount);
+        else
+            robotInv.addAdamantium(amount);
     
     //     // Will need to update this last line
     //     this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
-    // }
+    }
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 

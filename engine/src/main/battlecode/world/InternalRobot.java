@@ -127,6 +127,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.inventory.getResource(r);
     }
 
+    public boolean canAdd(int amount) {
+        return this.inventory.canAdd(amount);
+    }
+
+    public void addResourceAmount(ResourceType rType, int amount) {
+        this.inventory.addResource(rType, amount);
+    }
+
     public Anchor getAnchor() {
         return this.inventory.getAnchor();
     }
