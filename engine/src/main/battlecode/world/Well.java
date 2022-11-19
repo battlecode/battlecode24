@@ -86,9 +86,9 @@ public class Well {
             return false;
     }
 
-    public Well copy() {
-        newInv = this.inv.copy();
-        Well newWell = new Well(MapLocation this.loc, ResourceType this.type, Inventory newInv);
+    public Well copy(){
+        Inventory newInv = this.inv.copy();
+        Well newWell = new Well(this.loc, this.type, newInv);
         return newWell;
     }
 
