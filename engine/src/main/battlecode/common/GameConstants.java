@@ -76,6 +76,15 @@ public class GameConstants {
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
     public static final int UPGRADE_WELL_RATE = 10000;
     
+    /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
+    public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
+
+    /** The distance a robot must be from a planted reality anchor to be able to write to the shared array */
+    public static final int DISTANCE_FROM_REALITY_ANCHOR = 45;
+
+    /** The distance a robot must be from a headquarter to be able to write to the shared array */
+    public static final int DISTANCE_FROM_HEADQUARTER = 50;
+
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
