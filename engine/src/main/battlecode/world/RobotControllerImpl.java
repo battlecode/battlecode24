@@ -357,20 +357,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return island.anchorPlanted;
     }
 
-    // @Override
-    // public Well[] senseNearbyWells() {
-    //     return senseNearbyWells(null);
-    // }
+    @Override
+    public Well[] senseNearbyWells() {
+        return senseNearbyWells(null);
+    }
 
-    // @Override
-    // public Well[] senseNearbyWells(int radiusSquared) throws GameActionException {
-    //     return senseNearbyWells(radiusSquared, null);
-    // }
+    @Override
+    public Well[] senseNearbyWells(int radiusSquared) throws GameActionException {
+        return senseNearbyWells(radiusSquared, null);
+    }
 
-    // @Override
-    // public Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException {
-    //     return senseNearbyWells(center, radiusSquared, null);
-    // }
+    @Override
+    public Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyWells(center, radiusSquared, null);
+    }
 
     // @Override
     // public Well[] senseNearbyWells(ResourceType resourceType) {
@@ -381,26 +381,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     //     }
     // }
 
-    // @Override
-    // public Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
-    //     assertRadiusNonNegative(radiusSquared);
-    //     return senseNearbyWells(getLocation(), radiusSquared, resourceType);
-    // }
+    @Override
+    public Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyWells(getLocation(), radiusSquared, resourceType);
+    }
 
-    // @Override
-    // public Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException {
-    //     assertNotNull(center);
-    //     assertRadiusNonNegative(radiusSquared);
-    //     int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+    @Override
+    public Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
 
-    //     // TODO update based on well implementation
-    //     Well[] allSensedWells = gameWorld.getAllWellsWithinRadiusSquared(center, actualRadiusSquared);
-    //     List<Well> validSensedWells = Arrays.asList(allSensedWells);
-    //     validSensedWells.removeIf(well -> !canSenseLocation(well.getMapLocation()) ||
-    //         (resourceType != null && well.getResourceType() != resourceType));
-
-    //     return validSensedWells.toArray(new Well[validSensedWells.size()]);
-    // }
+        // TODO update based on well implementation
+        Well[] allSensedWells = gameWorld.getAllWellsWithinRadiusSquared(center, actualRadiusSquared);
+        List<Well> validSensedWells = Arrays.asList(allSensedWells);
+        validSensedWells.removeIf(well -> !canSenseLocation(well.getMapLocation()) ||
+            (resourceType != null && well.getResourceType() != resourceType));
+        List<Well> validSensedWellsCopy = new ArrayList<Well>();
+        validSensedWells.forEach( (well) -> validSensedWellsCopy.add(well.copy()) );
+        return validSensedWellsCopy.toArray(new Well[validSensedWellsCopy.size()]);
+    }
 
     @Override
     public MapLocation adjacentLocation(Direction dir) {

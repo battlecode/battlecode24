@@ -18,6 +18,12 @@ public class Well {
         this.type = type;
     }
 
+    public Well(MapLocation loc, ResourceType type, Inventory inv){
+        this.inv = inv;
+        this.loc = loc;
+        this.type = type;
+    }
+
     public Inventory getInventory(){
         return inv;
     }
@@ -80,5 +86,10 @@ public class Well {
             return false;
     }
 
+    public Well copy() {
+        newInv = this.inv.copy();
+        Well newWell = new Well(MapLocation this.loc, ResourceType this.type, Inventory newInv);
+        return newWell;
+    }
+
 }
-    
