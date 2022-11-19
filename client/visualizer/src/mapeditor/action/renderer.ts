@@ -71,8 +71,8 @@ export default class MapRenderer {
     this.renderBackground(map)
     this.renderBodies(map)
     this.renderResources(map)
-    this.renderObstacles(map)
     this.renderIslands(map)
+    this.renderObstacles(map)
     // restore default rendering
   }
 
@@ -100,8 +100,8 @@ export default class MapRenderer {
     })
 
     this.renderResource(x, render_y, map.resource_wells[x + this.width * y])
-    this.renderObstacle(x, render_y, map, updateNeighbors)
     this.renderIsland(x, render_y, map, updateNeighbors)
+    this.renderObstacle(x, render_y, map, updateNeighbors)
   }
 
   /**
