@@ -172,8 +172,11 @@ public class MapBuilder {
     }
 
     private int getSymmetricCurrent(int value) {
-        // TODO: reverse the direction of the current
-        return value;
+        if (value == 0)
+            return 0;
+        else if (value <= 4)
+            return value + 4;
+        return value - 4;
     }
 
     public void setSymmetricCurrent(int x, int y, int value) {
@@ -182,8 +185,7 @@ public class MapBuilder {
     }
 
     private int getSymmetricIsland(int id) {
-        // TODO: ID needs to be different, maybe do max_num - id
-        return id;
+        return this.islandArray.length-id;
     }
 
     public void setSymmetricIsland(int x, int y, int id) {
@@ -251,39 +253,74 @@ public class MapBuilder {
                                        "and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
         }
 
-        // TODO: probably we need to add some asserts on state
-
+        //assert that walls are not on same location as resources/islands/currents/clouds
+        for (int i = 0; i < this.wallArray.length; i++){
+            if (this.wallArray[i]){
+                if (this.cloudArray[i])
+                    throw new RuntimeException("Walls cannot be on the same square as clouds");
+                if (this.resourceArray[i] != 0)
+                    throw new RuntimeException("Walls cannot be on the same square as resources");
+                if (this.islandArray[i] != 0)
+                    throw new RuntimeException("Walls cannot be on an island");
+                if (this.currentArray[i] != 0)
+                    throw new RuntimeException("Walls cannot be on the same square as currents");
+            }
+            //assert that clouds and currents cannot be on the same square
+            if (this.cloudArray[i] && this.currentArray[i] != 0)
+                throw new RuntimeException("Clouds and currents cannot be on the same square");
+        }
+        
         // assert rubble, lead, and Archon symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
         }
 
-        // assert that at least one lead deposit inside vision range of at least one headquarter
-        // TODO: fix this check
+       //assert that at least one resource well of each type is visible to each team
+        boolean[] hasVisibleAdamantium = new boolean[2];
+        boolean[] hasVisibleMana = new boolean[2];
+        for (RobotInfo r : bodies){
+            if (r.getType() != RobotType.HEADQUARTERS) continue;
+            int teamOrdinal = r.getTeam().ordinal();
+            if (hasVisibleAdamantium[teamOrdinal] && hasVisibleMana[teamOrdinal]) continue;
 
-        // boolean[] hasVisibleLead = new boolean[2];
+            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
+                this.origin, 
+                this.width, 
+                this.height, 
+                r.getLocation(),
+                r.getType().visionRadiusSquared);
+            for (MapLocation loc : visibleLocations){
+                if (this.resourceArray[locationToIndex(loc.x, loc.y)] == ResourceType.ADAMANTIUM.resourceID){
+                    hasVisibleAdamantium[teamOrdinal] = true;
+                }
+                else if (this.resourceArray[locationToIndex(loc.x, loc.y)] == ResourceType.MANA.resourceID){
+                    hasVisibleMana[teamOrdinal] = true;
+                }
+            }
+        } 
+        if (!(hasVisibleMana[0] && hasVisibleMana[1])){
+            throw new RuntimeException("Teams must have at least one mana well visible.");
+        }
+        if (!(hasVisibleAdamantium[0] && hasVisibleAdamantium[1])){
+            throw new RuntimeException("Teams must have at least one adamantium well visible.");
+        }
+        
+        //assert that no two currents end on the same square (avoid robot collisions)
+        HashSet<MapLocation> endingLocations = new HashSet<MapLocation>();
+        for (int i = 0; i < currentArray.length; i++){
+            if (currentArray[i] != 0){
+                MapLocation startLocation = indexToLocation(i);
+                Direction currentDir = Direction.DIRECTION_ORDER(currentArray[i]);
+                MapLocation finalLocation = startLocation.add(currentDir);
+                if (!onTheMap(finalLocation))
+                    throw new RuntimeException("Current directs robots outside of the bounds of the map");
+                boolean unique = endingLocations.add(finalLocation);
+                if (!unique)
+                    throw new RuntimeException("Two different currents direct robots to the same location.");
 
-        // for (RobotInfo r : bodies) {
-        //     if (r.getType() != RobotType.ARCHON) continue;
-        //     if (hasVisibleLead[r.getTeam().ordinal()]) continue;
-
-        //     MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
-        //         this.origin,
-        //         this.width,
-        //         this.height,
-        //         r.getLocation(),
-        //         r.getType().visionRadiusSquared
-        //     );
-
-        //     for (MapLocation location : visibleLocations)
-        //         if (this.leadArray[locationToIndex(location.x, location.y)] > 0)
-        //             hasVisibleLead[r.getTeam().ordinal()] = true;
-        // }
-
-        // if (!(hasVisibleLead[0] && hasVisibleLead[1])) {
-        //     throw new RuntimeException("Teams must have at least one lead deposit visible to an Archon.");
-        // }
+            }
+        }
     }
 
     public boolean onTheMap(MapLocation loc) {
