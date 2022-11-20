@@ -700,6 +700,9 @@ public strictfp class GameWorld {
         moved.put(robot, true);
         MapLocation loc = robot.getLocation();
         Direction current = getCurrent(loc);
+        if (current == Direction.CENTER) {
+            return false;
+        }
         MapLocation moveTo = loc.add(current);
 
         if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
@@ -709,10 +712,12 @@ public strictfp class GameWorld {
             return true;
         }
         if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
+            // Set the location earlier so loops work
+            robot.setLocation(moveTo);
             if(attemptApplyCurrent(inMoveTo, moved)) {
-                robot.setLocation(moveTo);
                 return true;
             }
+            robot.setLocation(loc);
             return false;
         }
         return false;
