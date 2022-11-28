@@ -201,8 +201,8 @@ export default class Renderer {
       ctx.scale(1 / scale, 1 / scale)
       const { xrel: x, yrel: y } = this.hoverPos
       const cx = (minX + x) * scale, cy = (minY + (height - y - 1)) * scale
-      ctx.strokeStyle = 'purple'
-      ctx.lineWidth = 2
+      ctx.strokeStyle = cst.UI_GREY
+      ctx.lineWidth = 1
       ctx.globalAlpha = 1
       if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
       else ctx.strokeRect(cy, cx, scale, scale)
@@ -571,12 +571,14 @@ export default class Renderer {
     //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
     let size = ratio * 0.5 + 0.5
     ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
-    ctx.beginPath()
-    ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1)
-    ctx.lineTo(x + realWidth * size / 2 + realWidth * ratio / 2, y + 1)
-    ctx.strokeStyle = "green"
-    ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
-    ctx.stroke()
+    if (ratio < 1) {
+      ctx.beginPath()
+      ctx.moveTo(x + realWidth * size / 2 - realWidth * ratio / 2, y + 1)
+      ctx.lineTo(x + realWidth * size / 2 + realWidth * ratio / 2, y + 1)
+      ctx.strokeStyle = cst.UI_GREEN
+      ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH
+      ctx.stroke()
+    }
   }
 
   private setInfoStringEvent(world: GameWorld,

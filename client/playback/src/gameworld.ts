@@ -627,11 +627,11 @@ export default class GameWorld {
 
       this.mapStats.resources[well_index] = well_resource
 
-      //WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
+      //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
       current_resource_stats.elixir += well_elixir_change
-      current_resource_stats.upgraded = delta.resourceAccelerationID(i) > 0
+      current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {

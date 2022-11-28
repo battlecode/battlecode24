@@ -253,18 +253,17 @@ export default class Looper {
                 // let conviction = bodies.conviction[index];
                 let hp = bodies.hp[index]; 
                 let bytecodes = bodies.bytecodesUsed[index];
-                let level = bodies.level[index];
                 let max_hp = this.meta.types[type].health
                 // let dp = this.meta.types[type].damage
-                let parent = bodies.parent[index];
-                let prototype = bodies.prototype[index];
-                let portable = bodies.portable[index];
-                let indicatorString = this.match.current.indicatorStrings[id]
-                // let bid = bodies.bid[index];
-                let is_building = cst.buildingTypeList.includes(type);
 
-                this.controls.setInfoString(id, x, y, hp, max_hp, /*dp,*/ cst.bodyTypeToString(type), bytecodes, level, indicatorString,
-                    parent !== 0 ? parent : undefined, is_building ? portable == 1 : undefined, is_building ? prototype == 1 : undefined);
+                let indicatorString = this.match.current.indicatorStrings[id]
+                
+                let ad = bodies.adamantium[index];
+                let mn = bodies.mana[index];
+                let ex = bodies.elixir[index];
+                let anchor = bodies.anchor[index];
+
+                this.controls.setInfoString(id, x, y, hp, max_hp, /*dp,*/ type, bytecodes, indicatorString, ad, mn, ex, anchor);
             }
         }
 

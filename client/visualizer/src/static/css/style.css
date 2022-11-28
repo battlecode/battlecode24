@@ -1,4 +1,8 @@
 /* Global stylings here */
+:root {
+    --blue: #407496;
+    --red: #D53E43;
+}
 
 /* Scrollbar styling */
 
@@ -106,7 +110,7 @@ p {
 }
 
 .blue {
-    color: #4f7ee6;
+    color: var(--blue);
 }
 
 /* .graph {
@@ -114,7 +118,7 @@ p {
 } */
 
 .red {
-    color: #db3627;
+    color: var(--red);
 }
 
 #matchQueue {
@@ -406,7 +410,7 @@ h4 {
     background-color: rgba(0,0,0,0.04);
 }
 #sidebar button.selectedmodebutton {
-    border-bottom-color: blue !important;
+    border-bottom-color: var(--blue) !important;
 }
 
 #logo {

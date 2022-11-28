@@ -7,8 +7,8 @@ import Chart = require('chart.js');
 import { HEADQUARTERS } from '../constants';
 
 const hex: Object = {
-  1: "#db3627",
-  2: "#4f7ee6"
+  1: "var(--red)",
+  2: "var(--blue)"
 };
 
 type HeadQuarterBar = {
@@ -177,7 +177,7 @@ export default class Stats {
     teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
       // bar.style.backgroundColor = colors[id];
-      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "#C00040" : "#4000C0");
+      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "var(--red)" : "var(--blue)");
       bar.style.width = `90%`;
       bar.className = "influence-bar";
       bar.innerText = "0%";
