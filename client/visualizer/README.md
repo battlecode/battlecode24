@@ -1,6 +1,6 @@
-# Battlecode Visualizer 2020 📺
+# Battlecode Visualizer 2023 📺
 
-This is the game client for Battlecode 2020, which can run in your web browser or as a standalone application.
+This is the game client for Battlecode 2023, which can run in your web browser or as a standalone application.
 
 If you're a competitor and not interested in *developing* the client, you shouldn't do any of the things this document tells you to do. Proceed at your own risk.
 

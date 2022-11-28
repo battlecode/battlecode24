@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/battlecode/battlecode21.git"
+    "url": "git+https://github.com/battlecode/battlecode23.git"
   },
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/battlecode/battlecode21/issues"
+    "url": "https://github.com/battlecode/battlecode23/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode21#readme",
+  "homepage": "https://github.com/battlecode/battlecode23#readme",
   "dependencies": {
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
@@ -75,7 +75,15 @@
         "ext": "bc23",
         "name": "BC23",
         "description": "Battlecode Match 2023",
-        "role": "Viewer"
+        "role": "Viewer",
+        "icon": "build/icon"
+      },
+      {
+        "ext": "map23",
+        "name": "MAP23",
+        "description": "Battlecode Map 2023",
+        "role": "Viewer",
+        "icon": "build/icon"
       }
     ],
     "mac": {
