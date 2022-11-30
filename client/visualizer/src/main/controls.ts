@@ -234,7 +234,7 @@ export default class Controls {
 
   setDefaultText() {
     this.timeReadout.innerHTML = 'No match loaded'
-    this.tileInfo.innerHTML = 'X | Y | Rubble | Lead | Gold'
+    this.tileInfo.innerHTML = 'X | Y | Well'
     this.speedReadout.textContent = 'UPS:  FPS: '
   }
 
@@ -434,17 +434,19 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
     let content: string = ""
     content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3)
     content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3)
-    content += ' | Wall: ' + `<b>${walls}</b>`
 
-    content += ' | Resource: ' + `<b>${cst.RESOURCENAMES[resource]}</b>`
-    if (resource > 0) {
-      content += ' < Well: '
-      content += JSON.stringify(well_stats)
-      content += '>'
+    content += ' | Well: ' + `<b>${cst.RESOURCENAMES[resource]}${resource > 0 && well_stats.upgraded ? "*" : ""}</b>`
+    if (resource > 0 && (well_stats.adamantium > 0 || well_stats.elixir > 0 || well_stats.mana > 0)) {
+      content += ' < ('
+      if (well_stats.adamantium > 0) content += `Ad: ${well_stats.adamantium}, `;
+      if (well_stats.mana > 0) content += `Mn: ${well_stats.mana}, `;
+      if (well_stats.elixir > 0) content += `Ex: ${well_stats.elixir}, `;
+      content = content.substring(0, content.length - 2);
+      content += ")";
     }
 
     this.tileInfo.innerHTML = content
