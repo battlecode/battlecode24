@@ -146,13 +146,15 @@ function makeRandomMap(): MapType {
     currents: new Array(SIZE*SIZE),
   };
 
-  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
-    const idxVal = i*SIZE + j;
-    map.walls[idxVal] = (Math.random() > .9);
-    map.resources[idxVal] = Math.floor(3 * Math.random());
-    map.clouds[idxVal] = (Math.random() > .5);
-    map.islands[idxVal] = 0; //TODO make islands
-    map.currents[idxVal] =  Math.floor(9 * Math.random()); //TODO: 8 directions and nothing?
+  for(let i=0; i<SIZE; i++) {
+    for(let j=0; j<SIZE; j++){
+      const idxVal = i*SIZE + j;
+      map.walls[idxVal] = (Math.random() > .9);
+      map.resources[idxVal] = Math.floor(3 * Math.random());
+      map.clouds[idxVal] = (Math.random() > .5);
+      map.islands[idxVal] = 0; //TODO make islands
+      map.currents[idxVal] = Math.floor(9 * Math.random()); //TODO: 8 directions and nothing?
+    }
   }
   return map;
 }
