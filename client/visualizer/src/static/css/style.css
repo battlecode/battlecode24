@@ -184,7 +184,7 @@ form {
 }
 
 #gamearea canvas {
-    max-height: calc(100vh - 79px);
+    max-height: calc(100vh - 85px);
     max-width: 99.5%;
     margin-top:auto;
     margin-bottom:auto;
