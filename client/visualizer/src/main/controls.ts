@@ -436,8 +436,8 @@ export default class Controls {
    */
   setTileInfo(x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
     let content: string = ""
-    content += 'X: ' + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3)
-    content += ' | Y: ' + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3)
+    content += `X: <b>${xrel}</b>`  // + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3)
+    content += ` | Y: <b>${yrel}</b>` // + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3)
 
     content += ' | Well: ' + `<b>${cst.RESOURCENAMES[resource]}${resource > 0 && well_stats.upgraded ? "*" : ""}</b>`
     if (resource > 0 && (well_stats.adamantium > 0 || well_stats.elixir > 0 || well_stats.mana > 0)) {
