@@ -266,7 +266,8 @@ public strictfp class GameMaker {
 
             Constants.startConstants(builder);
             Constants.addIncreasePeriod(builder, GameConstants.ADD_LEAD_EVERY_ROUNDS);
-            Constants.addLeadAdditiveIncease(builder, GameConstants.ADD_LEAD);
+            Constants.addMnAdditiveIncrease(builder, GameConstants.PASSIVE_AD_INCREASE);
+            Constants.addAdAdditiveIncrease(builder, GameConstants.PASSIVE_MN_INCREASE);
             int constantsOffset = Constants.endConstants(builder);
 
             GameHeader.startGameHeader(builder);
@@ -287,20 +288,12 @@ public strictfp class GameMaker {
         for (RobotType type : RobotType.values()) {
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
-            BodyTypeMetadata.addBuildCostLead(builder, type.buildCostLead);
-            BodyTypeMetadata.addBuildCostGold(builder, type.buildCostGold);
-            BodyTypeMetadata.addLevel2CostLead(builder, type.getLeadMutateCost(2));
-            BodyTypeMetadata.addLevel2CostGold(builder, type.getGoldMutateCost(2));
-            BodyTypeMetadata.addLevel3CostLead(builder, type.getLeadMutateCost(3));
-            BodyTypeMetadata.addLevel3CostGold(builder, type.getGoldMutateCost(3));
+            BodyTypeMetadata.addBuildCostAd(builder, type.buildCostAdamantium);
+            BodyTypeMetadata.addBuildCostMn(builder, type.buildCostMana);
+            BodyTypeMetadata.addBuildCostEx(builder, type.buildCostElixir);
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
             BodyTypeMetadata.addMovementCooldown(builder, type.movementCooldown);
             BodyTypeMetadata.addHealth(builder, type.health);
-            BodyTypeMetadata.addLevel2Health(builder, type.getMaxHealth(2));
-            BodyTypeMetadata.addLevel3Health(builder, type.getMaxHealth(3));
-            BodyTypeMetadata.addDamage(builder, type.damage);
-            BodyTypeMetadata.addLevel2Damage(builder, type.getDamage(2));
-            BodyTypeMetadata.addLevel3Damage(builder, type.getDamage(3));
             BodyTypeMetadata.addActionRadiusSquared(builder, type.actionRadiusSquared);
             BodyTypeMetadata.addVisionRadiusSquared(builder, type.visionRadiusSquared);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
@@ -312,13 +305,12 @@ public strictfp class GameMaker {
     }
 
     private byte robotTypeToBodyType(RobotType type) {
-        if (type == RobotType.ARCHON) return BodyType.ARCHON;
-        if (type == RobotType.LABORATORY) return BodyType.LABORATORY;
-        if (type == RobotType.WATCHTOWER) return BodyType.WATCHTOWER;
-        if (type == RobotType.MINER) return BodyType.MINER;
-        if (type == RobotType.BUILDER) return BodyType.BUILDER;
-        if (type == RobotType.SOLDIER) return BodyType.SOLDIER;
-        if (type == RobotType.SAGE) return BodyType.SAGE;
+        if (type == RobotType.HEADQUARTERS) return BodyType.HEADQUARTERS;
+        if (type == RobotType.AMPLIFIER) return BodyType.AMPLIFIER;
+        if (type == RobotType.BOOSTER) return BodyType.BOOSTER;
+        if (type == RobotType.CARRIER) return BodyType.CARRIER;
+        if (type == RobotType.DESTABILIZER) return BodyType.DESTABILIZER;
+        if (type == RobotType.LAUNCHER) return BodyType.LAUNCHER;
         return Byte.MIN_VALUE;
     }
 
@@ -356,18 +348,22 @@ public strictfp class GameMaker {
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
 
-        private TIntArrayList leadDropLocsX;
-        private TIntArrayList leadDropLocsY;
-        private TIntArrayList leadDropValues;
-
-        private TIntArrayList goldDropLocsX;
-        private TIntArrayList goldDropLocsY;
-        private TIntArrayList goldDropValues;
-
         // Round statistics
         private TIntArrayList teamIDs;
-        private TIntArrayList teamLeadChanges;
-        private TIntArrayList teamGoldChanges;
+        private TIntArrayList teamMnChanges;
+        private TIntArrayList teamAdChanges;
+        private TIntArrayList teamExChanges;
+
+        private TIntArrayList islandIDs;
+        private TIntArrayList islandTurnoverTurns;
+        private TIntArrayList islandOwnership;
+
+        private TIntArrayList resourceWellLocsX;
+        private TIntArrayList resourceWellLocsY;
+        private TIntArrayList resourceWellAdChange;
+        private TIntArrayList resourceWellMnChange;
+        private TIntArrayList resourceWellExChange;
+        private TIntArrayList resourceWellId;
 
         private TIntArrayList indicatorStringIDs;
         private ArrayList<String> indicatorStrings;
@@ -410,15 +406,19 @@ public strictfp class GameMaker {
             this.actionIDs = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
-            this.leadDropLocsX = new TIntArrayList();
-            this.leadDropLocsY = new TIntArrayList();
-            this.leadDropValues = new TIntArrayList();
-            this.goldDropLocsX = new TIntArrayList();
-            this.goldDropLocsY = new TIntArrayList();
-            this.goldDropValues = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
-            this.teamLeadChanges = new TIntArrayList();
-            this.teamGoldChanges = new TIntArrayList();
+            this.teamMnChanges = new TIntArrayList();
+            this.teamAdChanges = new TIntArrayList();
+            this.teamExChanges = new TIntArrayList();
+            this.islandIDs = new TIntArrayList();
+            this.islandTurnoverTurns = new TIntArrayList();
+            this.islandOwnership = new TIntArrayList();
+            this.resourceWellLocsX = new TIntArrayList();
+            this.resourceWellLocsY = new TIntArrayList();
+            this.resourceWellAdChange = new TIntArrayList();
+            this.resourceWellMnChange = new TIntArrayList();
+            this.resourceWellExChange = new TIntArrayList();
+            this.resourceWellId = new TIntArrayList();
             this.indicatorStringIDs = new TIntArrayList();
             this.indicatorStrings = new ArrayList<>();
             this.indicatorDotIDs = new TIntArrayList();
@@ -530,8 +530,10 @@ public strictfp class GameMaker {
 
                 // Round statistics
                 int teamIDsP = Round.createTeamIDsVector(builder, teamIDs.toArray());
-                int teamLeadChangesP = Round.createTeamLeadChangesVector(builder, teamLeadChanges.toArray());
-                int teamGoldChangesP = Round.createTeamGoldChangesVector(builder, teamGoldChanges.toArray());
+                int teamAdChangesP = Round.createTeamAdChangesVector(builder, teamAdChanges.toArray());
+                int teamMnChangesP = Round.createTeamMnChangesVector(builder, teamMnChanges.toArray());
+                int teamExChangesP = Round.createTeamExChangesVector(builder, teamExChanges.toArray());
+
 
                 // The bodies that moved
                 int movedIDsP = Round.createMovedIDsVector(builder, movedIDs.toArray());
@@ -545,11 +547,18 @@ public strictfp class GameMaker {
                 int actionsP = Round.createActionsVector(builder, actions.toArray());
                 int actionTargetsP = Round.createActionTargetsVector(builder, actionTargets.toArray());
 
-                // The lead and gold dropped
-                int leadDropLocsP = createVecTable(builder, leadDropLocsX, leadDropLocsY);
-                int leadDropValuesP = Round.createLeadDropValuesVector(builder, leadDropValues.toArray());
-                int goldDropLocsP = createVecTable(builder, goldDropLocsX, goldDropLocsY);
-                int goldDropValuesP = Round.createGoldDropValuesVector(builder, goldDropValues.toArray());
+                // The information about islands
+                int islandIDsP = Round.createIslandIDsVector(builder, islandIDs.toArray());
+                int islandTurnoverTurnsP = Round.createIslandTurnoverTurnsVector(builder, islandTurnoverTurns.toArray());
+                int islandOwnershipP = Round.createIslandOwnershipVector(builder, islandOwnership.toArray());     
+
+                // The information about wells
+                int resourceWellLocsP = createVecTable(builder, resourceWellLocsX, resourceWellLocsY);
+                int resourceWellAdChangeP = Round.createWellAdamantiumChangeVector(builder, resourceWellAdChange.toArray());
+                int resourceWellMnChangeP = Round.createWellManaChangeVector(builder, resourceWellMnChange.toArray());
+                int resourceWellExChangeP = Round.createWellElixirChangeVector(builder, resourceWellExChange.toArray());
+                int resourceWellIDP = Round.createResourceIDVector(builder, resourceWellId.toArray());
+
 
                 // The indicator strings that were set
                 int indicatorStringIDsP = Round.createIndicatorStringIDsVector(builder, indicatorStringIDs.toArray());
@@ -576,8 +585,9 @@ public strictfp class GameMaker {
 
                 Round.startRound(builder);
                 Round.addTeamIDs(builder, teamIDsP);
-                Round.addTeamLeadChanges(builder, teamLeadChangesP);
-                Round.addTeamGoldChanges(builder, teamGoldChangesP);
+                Round.addTeamAdChanges(builder, teamAdChangesP);
+                Round.addTeamMnChanges(builder, teamMnChangesP);
+                Round.addTeamExChanges(builder, teamExChangesP);
                 Round.addMovedIDs(builder, movedIDsP);
                 Round.addMovedLocs(builder, movedLocsP);
                 Round.addSpawnedBodies(builder, spawnedBodiesP);
@@ -585,10 +595,14 @@ public strictfp class GameMaker {
                 Round.addActionIDs(builder, actionIDsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
-                Round.addLeadDropLocations(builder, leadDropLocsP);
-                Round.addLeadDropValues(builder, leadDropValuesP);
-                Round.addGoldDropLocations(builder, goldDropLocsP);
-                Round.addGoldDropValues(builder, goldDropValuesP);
+                Round.addIslandIDs(builder, islandIDsP);
+                Round.addIslandTurnoverTurns(builder, islandTurnoverTurnsP);
+                Round.addIslandOwnership(builder, islandOwnershipP);
+                Round.addResourceWellLocs(builder, resourceWellLocsP);
+                Round.addWellAdamantiumChange(builder, resourceWellAdChangeP);
+                Round.addWellManaChange(builder, resourceWellMnChangeP);
+                Round.addWellElixirChange(builder, resourceWellExChangeP);
+                Round.addResourceID(builder, resourceWellIDP);
                 Round.addIndicatorStringIDs(builder, indicatorStringIDsP);
                 Round.addIndicatorStrings(builder, indicatorStringsP);
                 Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
@@ -631,22 +645,26 @@ public strictfp class GameMaker {
             actionTargets.add(targetID);
         }
 
-        public void addLeadDrop(MapLocation location, int value) {
-            leadDropLocsX.add(location.x);
-            leadDropLocsY.add(location.y);
-            leadDropValues.add(value);
+        public void addToWell(MapLocation location, int adChange, int mnChange, int exChange, int resourceID) {
+            resourceWellLocsX.add(location.x);
+            resourceWellLocsY.add(location.y);
+            resourceWellAdChange.add(adChange);
+            resourceWellMnChange.add(mnChange);
+            resourceWellExChange.add(exChange);
+            resourceWellId.add(resourceID);
         }
 
-        public void addGoldDrop(MapLocation location, int value) {
-            goldDropLocsX.add(location.x);
-            goldDropLocsY.add(location.y);
-            goldDropValues.add(value);
+        public void addIslandInfo(int islandID, int turnoverTurns, int ownership) {
+            islandIDs.add(islandID);
+            islandTurnoverTurns.add(turnoverTurns);
+            islandOwnership.add(ownership);
         }
 
-        public void addTeamInfo(Team team, int leadChange, int goldChange) {
+        public void addTeamInfo(Team team, int adChange, int mnChange, int exChange) {
             teamIDs.add(TeamMapping.id(team));
-            teamLeadChanges.add(leadChange);
-            teamGoldChanges.add(goldChange);
+            teamAdChanges.add(adChange);
+            teamMnChanges.add(mnChange);
+            teamExChanges.add(exChange);
         }
 
         public void addIndicatorString(int id, String string) {
@@ -709,15 +727,19 @@ public strictfp class GameMaker {
             actionIDs.clear();
             actions.clear();
             actionTargets.clear();
-            leadDropLocsX.clear();
-            leadDropLocsY.clear();
-            leadDropValues.clear();
-            goldDropLocsX.clear();
-            goldDropLocsY.clear();
-            goldDropValues.clear();
             teamIDs.clear();
-            teamLeadChanges.clear();
-            teamGoldChanges.clear();
+            teamAdChanges.clear();
+            teamMnChanges.clear();
+            teamExChanges.clear();
+            islandIDs.clear();
+            islandTurnoverTurns.clear();
+            islandOwnership.clear();
+            resourceWellLocsX.clear();
+            resourceWellLocsY.clear();
+            resourceWellAdChange.clear();
+            resourceWellMnChange.clear();
+            resourceWellExChange.clear();
+            resourceWellId.clear();
             indicatorStringIDs.clear();
             indicatorStrings.clear();
             indicatorDotIDs.clear();

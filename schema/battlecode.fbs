@@ -93,6 +93,8 @@ enum Action : byte {
     PLACE_RESOURCE,
     /// Target: location destabilization is centralized at, x + y * width
     DESTABILIZE,
+    /// Target: location destabilization damage is centralized at, x + y * width
+    DESTABILIZE_DAMAGE,
     /// Target: location boost is centralized at, x + y * width
     BOOST,
     // TODO: If client is interested in visualizing changes in movement speed, should probably add it as an action or to Round
@@ -199,9 +201,9 @@ table Constants {
     // number of rounds for passive resource increase
     increasePeriod: int;
     // amounts of Ad added every increasePeriod rounds
-    AdAdditiveIncease: int;
+    AdAdditiveIncrease: int;
     // amounts of Mn added every increasePeriod rounds
-    MnAdditiveIncease: int;
+    MnAdditiveIncrease: int;
 }
 
 
@@ -295,7 +297,7 @@ table Round {
     /// The ID for the new resource this well now contains
     resourceID: [int];
     /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
-    resourceAccelerationID: [int];
+    wellAccelerationID: [int];
 
     /// The IDs of the robots who changed their indicator strings
     indicatorStringIDs: [int];

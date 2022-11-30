@@ -1,5 +1,6 @@
 package battlecode.common;
-import java.util.ArrayList;
+
+import java.util.Map;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -55,36 +56,6 @@ public strictfp interface RobotController {
      */
     int getRobotCount();
 
-    /**
-     * Returns the number of Archons on your team.
-     * If this number ever reaches zero, you immediately lose.
-     *
-     * @return the number of Archons on your team
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getArchonCount();
-
-    /**
-     * Returns the amount of lead a team has in its reserves.
-     *
-     * @param team the team being queried.
-     * @return the amount of lead a team has in its reserves.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTeamLeadAmount(Team team);
-
-    /**
-     * Returns the amount of gold a team has in its reserves.
-     *
-     * @param team the team being queried.
-     * @return the amount of gold a team has in its reserves.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTeamGoldAmount(Team team);
-
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -108,22 +79,13 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (MINER, ARCHON, BUILDER, etc.).
+     * Returns this robot's type (TODO).
      *
      * @return this robot's type
      *
      * @battlecode.doc.costlymethod
      */
     RobotType getType();
-
-    /**
-     * Returns this robot's mode (DROID, PROTOTYPE, TURRET, PORTABLE).
-     *
-     * @return this robot's mode
-     *
-     * @battlecode.doc.costlymethod
-     */
-    RobotMode getMode();
 
     /**
      * Returns this robot's current location.
@@ -144,13 +106,23 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns this robot's current level.
+     * Returns the amount of the specified resource that this robot is holding
      *
-     * @return this robot's current level
+     * @param rType the resource type the query is about
+     * @return the amount of rType resource this robot is holding
      *
      * @battlecode.doc.costlymethod
      */
-    int getLevel();
+    int getResourceAmount(ResourceType rType);
+
+    /**
+     * Returns whether a robot is holding a reality anchor
+     *
+     * @return whether a robot is holding a reality anchor
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean checkHasAnchor();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -265,10 +237,11 @@ public strictfp interface RobotController {
      * if radiusSquared is larger than the robot's vision radius, the vision
      * radius is used
      * @return array of RobotInfo objects of all the robots you saw
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radiusSquared);
+    RobotInfo[] senseNearbyRobots(int radiusSquared) throws GameActionException;
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
@@ -281,10 +254,11 @@ public strictfp interface RobotController {
      * @param team filter game objects by the given team; if null is passed,
      * robots from any team are returned
      * @return array of RobotInfo objects of all the robots you saw
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radiusSquared, Team team);
+    RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) throws GameActionException;
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
@@ -299,192 +273,179 @@ public strictfp interface RobotController {
      * @param team filter game objects by the given team; if null is passed,
      * objects from all teams are returned
      * @return sorted array of RobotInfo objects of the robots you saw
+     * @throws GameActionException if the radius is negative (and not -1) or the center given is null
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
-     * Given a location, returns the rubble of that location.
-     *
-     * Higher rubble means that robots on this location may be penalized
-     * greater cooldowns for making actions.
+     * Given a location, returns whether that location is passable.
      * 
      * @param loc the given location
-     * @return the rubble of that location
+     * @return whether that location is passable
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseRubble(MapLocation loc) throws GameActionException;
+    boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Given a location, returns the lead count of that location.
+     * Given a location, returns the index of the island located at that location.
      * 
      * @param loc the given location
-     * @return the amount of lead at that location
+     * @return the index of the island at that location or -1 if there is no island
      * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
-    int senseLead(MapLocation loc) throws GameActionException;
+    int senseIsland(MapLocation loc) throws GameActionException;
 
     /**
-     * Given a location, returns the gold count of that location.
+     * Return map of island idx to all locations that are filled by that island.
+     *
+     * @return map of idx to all locations in this island within vision radius and are within vision
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations();
+
+    /**
+     * Return map of idx to all locations that are filled by the island with the index idx, 
+     * within a specified radius of your robot location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return map of idx to all locations that are filled by the island with the index idx and are within vision
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return map of idx to all locations that are filled by the island with the index idx, 
+     * within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return map of idx to all locations that are filled by the island with the index idx and are within vision
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException;
+
+    /**
+     * Return the team controlling the island with index islandIdx.
      * 
-     * @param loc the given location
-     * @return the amount of gold at that location
-     * @throws GameActionException if the robot cannot sense the given location
-     *
-     * @battlecode.doc.costlymethod
+     * @param islandIdx
+     * @return team controlling the island.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
      */
-    int senseGold(MapLocation loc) throws GameActionException;
+    Team senseTeamOccupyingIsland(int islandIdx) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of lead.
-     *
-     * @return all locations within vision radius that contain a nonzero amount of lead
-     *
-     * @battlecode.doc.costlymethod
+     * Return the number of turns left to remove the anchor on the island with index idlandIdx, -1 if there is no anchor.
+     * 
+     * @param islandIdx
+     * @return number of turns left to remove the anchor on the island, -1 if there is no anchor.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
      */
-    MapLocation[] senseNearbyLocationsWithLead();
+    int senseTurnsLeftToTurn(int islandIdx) throws GameActionException;
 
     /**
-     * Return all locations that contain a nonzero amount of lead, within a
-     * specified radius of your robot location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of lead within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
+     * Return type of anchor on this island, null if there is no anchor.
+     * 
+     * @param islandIdx
+     * @return type of anchor on this island, null if there is no anchor.
+     * @throws GameActionException if islandIdx does not correspond to a visible island
      */
-    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException;
+    Anchor senseAnchor(int islandIdx) throws GameActionException;
 
-    /**
-     * Return all locations that contain a nonzero amount of lead, within a
-     * specified radius of a center location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param center the center of the search area
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of lead within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException;
+    // /**
+    //  * Return all wells.
+    //  *
+    //  * @return all locations within vision radius that contain wells
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells();
 
-    /**
-     * Return all locations that contain at least a certain amount of lead, within a
-     * specified radius of your robot location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minLead the minimum amount of lead
-     * @return all locations that contain at least minLead lead within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException;
+    // /**
+    //  * Return all wells within a specified radius of a center location.
+    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
+    //  * vision radius instead. If -1 is passed, all locations within vision radius
+    //  * are returned.
+    //  *
+    //  * @param radiusSquared the squared radius of all locations to be returned
+    //  * @return all locations that contain wells within the radius
+    //  * @throws GameActionException if the radius is negative (and not -1)
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells(int radiusSquared) throws GameActionException;
 
-    /**
-     * Return all locations that contain at least a certain amount of lead, within a
-     * specified radius of a center location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param center the center of the search area
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minLead the minimum amount of lead
-     * @return all locations that contain at least minLead lead within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException;
+    // /**
+    //  * Return all wells within a specified radius of a center location.
+    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
+    //  * vision radius instead. If -1 is passed, all locations within vision radius
+    //  * are returned.
+    //  *
+    //  * @param center the center of the search area
+    //  * @param radiusSquared the squared radius of all locations to be returned
+    //  * @return all locations that contain wells within the radius
+    //  * @throws GameActionException if the radius is negative (and not -1)
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
 
-    /**
-     * Return all locations that contain a nonzero amount of gold.
-     *
-     * @return all locations within vision radius that contain a nonzero amount of gold
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold();
+    // /**
+    //  * Return all wells of the given resource type
+    //  *
+    //  * @param resourceType the resource type to filter on
+    //  * @return all locations within vision radius that contain wells of the given resource type
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells(ResourceType resourceType);
 
-    /**
-     * Return all locations that contain a nonzero amount of gold, within a
-     * specified radius of your robot location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException;
+    // /**
+    //  * Return all wells within a specified radius of a center location of the given resource type
+    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
+    //  * vision radius instead. If -1 is passed, all locations within vision radius
+    //  * are returned.
+    //  *
+    //  * @param radiusSquared the squared radius of all locations to be returned
+    //  * @param resourceType the resource type to filter on
+    //  * @return all locations that contain wells within the radius
+    //  * @throws GameActionException if the radius is negative (and not -1)
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException;
 
-    /**
-     * Return all locations that contain a nonzero amount of gold, within a
-     * specified radius of a center location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param center the center of the search area
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @return all locations that contain a nonzero amount of gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException;
-
-    /**
-     * Return all locations that contain at least a certain amount of gold, within a
-     * specified radius of your robot location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minGold the minimum amount of gold
-     * @return all locations that contain at least minGold gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException;
-
-    /**
-     * Return all locations that contain at least a certain amount of gold, within a
-     * specified radius of a center location.
-     * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead. If -1 is passed, all locations with vision radius
-     * are returned.
-     *
-     * @param center the center of the search area
-     * @param radiusSquared the squared radius of all locations to be returned
-     * @param minGold the minimum amount of gold
-     * @return all locations that contain at least minGold gold within the radius
-     * @throws GameActionException if the radius is negative
-     *
-     * @battlecode.doc.costlymethod
-     */
-    MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException;
+    // /**
+    //  * Return all wells within a specified radius of a center location of the given resource type
+    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
+    //  * vision radius instead. If -1 is passed, all locations within vision radius
+    //  * are returned.
+    //  *
+    //  * @param center the center of the search area
+    //  * @param radiusSquared the squared radius of all locations to be returned
+    //  * @param resourceType the resource type to filter on
+    //  * @return all locations that contain wells within the radius
+    //  * @throws GameActionException if the radius is negative (and not -1)
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -506,7 +467,7 @@ public strictfp interface RobotController {
      * @param center the given location
      * @param radiusSquared return locations within this distance away from center
      * @return list of locations on the map and within radiusSquared of center
-     * @throws GameActionException if the radius is negative
+     * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
@@ -558,31 +519,6 @@ public strictfp interface RobotController {
      */
     int getMovementCooldownTurns();
 
-    /**
-     * Tests whether the robot can transform.
-     *
-     * Checks if the robot's mode is TURRET or PORTABLE. Also checks action
-     * or movement cooldown turns, depending on the robot's current mode.
-     * 
-     * @return true if the robot can transform
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isTransformReady();
-
-    /**
-     * Returns the number of cooldown turns remaining before this unit can transform again.
-     * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT}, isTransformReady()
-     * is true and the robot can transform again. This number decreases by
-     * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
-     *
-     * @return the number of cooldown turns remaining before this unit can transform again
-     * @throws GameActionException if the robot's mode is not TURRET or PORTABLE
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTransformCooldownTurns() throws GameActionException;
-
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
@@ -590,8 +526,8 @@ public strictfp interface RobotController {
     /**
      * Checks whether this robot can move one step in the given direction.
      * Returns false if the robot is not in a mode that can move, if the target
-     * location is not on the map, if the target location is occupied, or if
-     * there are cooldown turns remaining.
+     * location is not on the map, if the target location is occupied, if the target
+     * location is impassible, or if there are cooldown turns remaining.
      *
      * @param dir the direction to move in
      * @return true if it is possible to call <code>move</code> without an exception
@@ -606,7 +542,8 @@ public strictfp interface RobotController {
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one step in this
      * direction, such as cooldown being too high, the target location being
-     * off the map, or the target destination being occupied by another robot
+     * off the map, or the target destination being occupied by another robot,
+     * or the target destination being impassible.
      *
      * @battlecode.doc.costlymethod
      */
@@ -616,6 +553,8 @@ public strictfp interface RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
+
+    //TODO: fix these descriptions
     /**
      * Tests whether the robot can build a robot of the given type in the
      * given direction. Checks that the robot is of a type that can build,
@@ -631,7 +570,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canBuildRobot(RobotType type, Direction dir);
+    boolean canBuildRobot(RobotType type, MapLocation loc);
 
     /**
      * Builds a robot of the given type in the given direction.
@@ -643,18 +582,19 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void buildRobot(RobotType type, Direction dir) throws GameActionException;
+    void buildRobot(RobotType type, MapLocation loc) throws GameActionException;
 
-    // *****************************
-    // **** COMBAT UNIT METHODS **** 
-    // *****************************
+    // ****************************
+    // ***** ATTACK METHODS ***** 
+    // ****************************
 
     /**
      * Tests whether this robot can attack the given location.
      * 
      * Checks that the robot is an attacking type unit and that the given location
-     * is within the robot's reach (based on attack type). Also checks that an 
-     * enemy unit exists in the given square, and there are no cooldown turns remaining.
+     * is within the robot's reach (based on attack type). Also checks that 
+     * there are no cooldown turns remaining and that a robot of the same team
+     * is not at the given location.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
@@ -673,209 +613,222 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-    // *****************************
-    // ******** SAGE METHODS ******* 
-    // *****************************
+   // ***********************************
+    // ******** BOOSTERS METHODS *********
+    // ***********************************
 
-    /**
-     * Tests whether this robot can envision an anomaly centered at the robot's location.
-     * 
-     * Checks that the robot is a sage, and there are no cooldown turns remaining.
-     *
-     * @param anomaly the type of anomaly being queried
-     * @return whether it is possible to envision an anomaly centered at the robots location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canEnvision(AnomalyType anomaly);
+    // /**
+    //  * Tests whether this robot is able to boost
+    //  * 
+    //  * Checks that the robot can boost other units. Also checks that there are no 
+    //  * cooldown turns remaining.
+    //  *
+    //  * @param  none
+    //  * @return whether it is possible for this robot to boost
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canBoost();
 
-    /** 
-     * Envision an anomaly centered at the robot's location.
-     *
-     * @param anomaly the type of anomaly to envision
-     * @throws GameActionException if conditions for envisioning are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void envision(AnomalyType anomaly) throws GameActionException;
 
-    // *****************************
-    // ****** REPAIR METHODS ****** 
-    // *****************************
+    // /** 
+    //  * Boosts at a given location.
+    //  *
+    //  * @param none
+    //  * @throws GameActionException if conditions for boosting are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void boost() throws GameActionException;
 
-    /**
-     * Tests whether this robot can repair a robot at the given location.
-     * 
-     * Checks that the robot can repair other units and that the given location
-     * is within the robot's action radius. Also checks that a friendly unit
-     * of a repairable type exists in the given square, and there are no
-     * cooldown turns remaining.
-     *
-     * @param loc target location to repair at
-     * @return whether it is possible to repair a robot at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canRepair(MapLocation loc);
-
-    /** 
-     * Repairs at a given location.
-     *
-     * @param loc target location to repair at
-     * @throws GameActionException if conditions for repairing are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void repair(MapLocation loc) throws GameActionException;
-
-    // ***********************
-    // **** MINER METHODS **** 
-    // ***********************
-
-    /**
-     * Tests whether the robot can mine lead at a given location.
-     * 
-     * Checks that the robot is a Miner, and the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive lead amounts. Also checks that no cooldown turns remain.
-     *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMineLead(MapLocation loc);
-
-    /** 
-     * Mine lead at a given location.
-     *
-     * @param loc target location to mine
-     * @throws GameActionException if conditions for mining are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void mineLead(MapLocation loc) throws GameActionException;
-
-    /**
-     * Tests whether the robot can mine gold at a given location.
-     * 
-     * Checks that the robot is a Miner, that the given location is a valid 
-     * mining location. Valid mining locations must be the current location 
-     * or adjacent to the current location. Valid mining locations must also
-     * have positive gold amounts. Also checks that no cooldown turns remain.
-     *
-     * @param loc target location to mine 
-     * @return whether it is possible to mine at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMineGold(MapLocation loc);
-
-    /** 
-     * Mine a gold at given location.
-     *
-     * @param loc target location to mine
-     * @throws GameActionException if conditions for mining are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void mineGold(MapLocation loc) throws GameActionException;
-
-    // *************************
-    // **** MUTATE METHODS **** 
-    // *************************
-
-    /**
-     * Tests whether this robot can mutate the building at the given location.
-     * 
-     * Checks that the robot is a Builder, that the given location is a valid 
-     * mutate location. Valid mutate locations must be adjacent to the current 
-     * location and contain a mutable building. The mutation must also be
-     * affordable, and there must be no cooldown turns remaining.
-     *
-     * @param loc target location to mutate 
-     * @return whether it is possible to mutate at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMutate(MapLocation loc);
-
-    /** 
-     * Mutate a building at a given location.
-     *
-     * @param loc target location of the building to mutate
-     * @throws GameActionException if conditions for mutating are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void mutate(MapLocation loc) throws GameActionException;
 
     // ***************************
-    // **** TRANSMUTE METHODS ****
-    // ***************************
-
-    /** 
-     * Get lead to gold transmutation rate.
-     *
-     * @return the lead to gold transmutation rate, 0 if the robot is not a lab
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getTransmutationRate();
-
-    /** 
-     * Get lead to gold transmutation rate for a laboratory of specified level.
-     *
-     * @param laboratory_level the level of the laboratory
-     * @return the lead to gold transmutation rate, 0 if the level is invalid
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getTransmutationRate(int laboratory_level);
-
-    /**
-     * Tests whether this robot can transmute lead into gold.
-     * 
-     * Checks that the robot is a lab and the player has sufficient lead to
-     * perform a conversion. Also checks that no cooldown turns remain.
-     *
-     * @return whether it is possible to transmute lead into gold
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransmute();
-
-    /** 
-     * Transmute lead into gold.
-     *
-     * @throws GameActionException if conditions for transmuting are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transmute() throws GameActionException;
-
-    // ***************************
-    // **** TRANSFORM METHODS **** 
+    // ***** CARRIER METHODS *****
     // ***************************
 
     /**
-     * Tests whether this robot can transform. Same effect as isTransformReady().
-     *
-     * @return whether it is possible to transform
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransform();
+    //  * Tests whether the robot can transfer adamantium to a given location.
+    //  * 
+    //  * Checks that the robot is a Carrier, the given location is a valid HQ
+    //  * or well location, and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be the current location or adjacent to the current 
+    //  * location. 
+    //  * 
+    //  * Checks that carrier can transfer the amount (donor has sufficient 
+    //  * resource). Wells can only be transferred to. 
+    //  *
+    //  * @param loc target location to transfer to
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @return whether it is possible to transfer amount to the given location
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canTransferAd(MapLocation loc, int amount);
 
-    /** 
-     * Transform from turret into portable or vice versa.
-     *
-     * @throws GameActionException if conditions for transforming are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transform() throws GameActionException;
+    // /** 
+    //  * Transfers adamantium to/from given location. Transferred material is 
+    //  * limited by carrier capacity. 
+    //  * 
+    //  * @param loc target location to transfer to/from
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @throws GameActionException if conditions for transferring are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void transferAd(MapLocation loc, int amount) throws GameActionException;
+
+    // /**
+    //  * Tests whether the robot can transfer mana to a given location.
+    //  * 
+    //  * Checks that the robot is a Carrier, the given location is a valid HQ
+    //  * or well location, and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be the current location or adjacent to the current 
+    //  * location. 
+    //  * 
+    //  * Checks that carrier can transfer the amount (donor has sufficient 
+    //  * resource). Wells can only be transferred to. 
+    //  *
+    //  * @param loc target location to transfer to
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @return whether it is possible to transfer amount to the given location
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canTransferMn(MapLocation loc, int amount);
+
+    // /** 
+    //  * Transfers mana to/from given location. Transferred material is 
+    //  * limited by carrier capacity. 
+    //  * 
+    //  * @param loc target location to transfer to/from
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @throws GameActionException if conditions for transferring are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void transferMn(MapLocation loc, int amount) throws GameActionException;
+
+
+    // /**
+    //  * Tests whether the robot can transfer elixir to a given location.
+    //  * 
+    //  * Checks that the robot is a Carrier, the given location is a valid HQ
+    //  * or well location, and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be the current location or adjacent to the current 
+    //  * location. 
+    //  * 
+    //  * Checks that carrier can transfer the amount (donor has sufficient 
+    //  * resource). Wells can only be transferred to. 
+    //  *
+    //  * @param loc target location to transfer to
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @return whether it is possible to transfer amount to the given location
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canTransferEx(MapLocation loc, int amount);
+
+    // /** 
+    //  * Transfers elixir to/from given location. Transferred material is 
+    //  * limited by carrier capacity. 
+    //  * 
+    //  * @param loc target location to transfer to/from
+    //  * @param amount amount to be transferred (negative = from loc, positive = to)
+    //  * @throws GameActionException if conditions for transferring are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void transferEx(MapLocation loc, int amount) throws GameActionException;
+
+    // /**
+    //  * Tests whether the robot can take an anchor from an HQ.
+    //  * 
+    //  * Checks that the robot is a Carrier, the given location is a valid HQ, 
+    //  * and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be the current location or adjacent to the current 
+    //  * location. 
+    //  * 
+    //  * Checks that carrier has sufficient capacity for the anchor. 
+    //  *
+    //  * @param loc target HQ location
+    //  * @param anchorType type of anchor to take
+    //  * @return whether it is possible to take anchor from given location
+    //  */
+    // boolean canTakeAnchor(MapLocation loc, int anchorType);
+
+    // /** 
+    //  * Take an anchor from the given location. 
+    //  *
+    //  * @param loc target HQ location
+    //  * @param anchorType type of anchor to take
+    //  * @throws GameActionException if conditions for taking are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void takeAnchor(MapLocation loc, int anchorType) throws GameActionException;
+
+    // /**
+    //  * Tests whether the robot can collect resource from a given location.
+    //  * 
+    //  * Checks that the robot is a Carrier, the given location is a valid well location, 
+    //  * and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be the current location or adjacent to the current 
+    //  * location. 
+    //  * 
+    //  * Checks that carrier can collect the amount (amount does not exceed
+    //  * current well rate, carrier has sufficient capacity).
+    //  *
+    //  * @param loc target location to collect 
+    //  * @param amount amount to be collected
+    //  * @return whether it is possible to collect amount to the given location
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canCollectResource(MapLocation loc, int amount);
+
+    // /** 
+    //  * Collect resource from the given location. 
+    //  *
+    //  * @param loc target well location
+    //  * @param amount amount to collect
+    //  * @throws GameActionException if conditions for collecting are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void collectResource(MapLocation loc, int amount) throws GameActionException;
+
+    // /**
+    //  * Tests whether the robot can place an anchor at its current location.
+    //  * 
+    //  * Checks that the robot is a Carrier, the robot is holding an anchor,
+    //  * the given location is a valid sky island, and there are no cooldown turns remaining. 
+    //  * 
+    //  * Valid locations must be a sky island not already controlled by the opposing team. 
+    //  *
+    //  * @return whether it is possible to place an anchor
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // boolean canPlaceAnchor();
+
+    // /** 
+    //  * Places an anchor at the current location. 
+    //  * 
+    //  * @throws GameActionException if conditions for placing anchors are not satisfied
+    //  *
+    //  * @battlecode.doc.costlymethod
+    //  */
+    // void placeAnchor() throws GameActionException;
+
+    // ***************************
+    // **** AMPLIFIER METHODS **** 
+    // ***************************
+
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
@@ -892,14 +845,26 @@ public strictfp interface RobotController {
      */
     int readSharedArray(int index) throws GameActionException;
 
+    /**
+     * Test whether this robot can write to the shared array.
+     * 
+     * A robot can write to the shared array when it is within 36 units
+     * of a signal amplifier, 45 units from a planted reality anchor, or 50
+     * units from a headquarter.
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean canWriteSharedArray();
+
     /** 
-     * Sets a team's array value at a specified index.
-     * No change occurs if the index or value is invalid.
+     * Sets the team's array value at a specified index if the robot is allowed
+     * to write to the array. No change occurs if the index or value is invalid
+     * or if the robot is not able to write to the array (see canWriteSharedArray).
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
-     * @throws GameActionException if the index is invalid, or the value
-     *         is out of bounds
+     * @throws GameActionException if the index is invalid, the value
+     *         is out of bounds, or the robot cannot write to the array.
      *
      * @battlecode.doc.costlymethod
      */
@@ -908,13 +873,6 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    /**
-     * @return the anomaly schedule
-     *
-     * @battlecode.doc.costlymethod
-     */
-    AnomalyScheduleEntry[] getAnomalySchedule();
 
     /**
      * Destroys the robot. 

@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.GameConstants;
+import battlecode.common.MapLocation;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -12,13 +13,17 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int[] leadCounts;
-    private int[] goldCounts;
-    private int[][] sharedArrays;
+    private MapLocation[] headquarters;
+    private int[] elixirCounts;
+    private int[] manaCounts;
+    private int[] adamantiumCounts; 
+    private int[][] sharedArrays; 
+    private int[] anchorsPlaced;
 
     // for reporting round statistics to client
-    private int[] oldLeadCounts;
-    private int[] oldGoldCounts;
+    private int[] oldElixirCounts;
+    private int[] oldManaCounts;
+    private int[] oldAdamantiumCounts;
 
     /**
      * Create a new representation of TeamInfo
@@ -27,11 +32,14 @@ public class TeamInfo {
      */
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.leadCounts = new int[2];
-        this.goldCounts = new int[2];
+        this.elixirCounts = new int[2];
+        this.manaCounts = new int[2];
+        this.adamantiumCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
-        this.oldLeadCounts = new int[2];
-        this.oldGoldCounts = new int[2];
+        this.anchorsPlaced = new int[2];
+        this.oldElixirCounts = new int[2];
+        this.oldManaCounts = new int[2];
+        this.oldAdamantiumCounts = new int[2];
     }
     
     // *********************************
@@ -39,25 +47,44 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Get the amount of lead.
+     * Get the amount of elixir.
      *
      * @param team the team to query
-     * @return the team's lead count
+     * @return the team's elixir count
      */
-    public int getLead(Team team) {
-        return this.leadCounts[team.ordinal()];
+    public int getElixir(Team team) {
+        return this.elixirCounts[team.ordinal()];
     }
 
     /**
-     * Get the amount of gold.
+     * Get the amount of mana.
      *
      * @param team the team to query
-     * @return the team's gold count
+     * @return the team's mana count
      */
-    public int getGold(Team team) {
-        return this.goldCounts[team.ordinal()];
+    public int getMana(Team team) {
+        return this.manaCounts[team.ordinal()];
     }
 
+    /**
+     * Get the amount of adamantium.
+     * 
+     * @param team the team to query
+     * @return the team's adamantium count
+     */
+    public int getAdamantium(Team team) {
+    	return this.adamantiumCounts[team.ordinal()];
+    }
+
+    /**
+     * Get the total number of anchors placed by the team over the game
+     * @param team the team to query
+     * @return the total anchors placed
+     */
+    public int getAnchorsPlaced(Team team) {
+        return this.anchorsPlaced[team.ordinal()];
+    }
+    
     /**
      * Reads the shared array value.
      *
@@ -74,31 +101,53 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Add to the amount of lead. If amount is negative, subtract from lead instead. 
+     * Add to the amount of elixir. If amount is negative, subtract from elixir instead. 
      * 
      * @param team the team to query
-     * @param amount the change in the lead count
-     * @throws IllegalArgumentException if the resulting amount of lead is negative
+     * @param amount the change in the elixir count
+     * @throws IllegalArgumentException if the resulting amount of elixir is negative
      */
-    public void addLead(Team team, int amount) throws IllegalArgumentException {
-        if (this.leadCounts[team.ordinal()] + amount < 0) {
-            throw new IllegalArgumentException("Invalid lead change");
+    public void addElixir(Team team, int amount) throws IllegalArgumentException {
+        if (this.elixirCounts[team.ordinal()] + amount < 0) {
+            throw new IllegalArgumentException("Invalid elixir change");
         }
-        this.leadCounts[team.ordinal()] += amount;
+        this.elixirCounts[team.ordinal()] += amount;
     }
 
     /**
-     * Add to the amount of gold. If amount is negative, subtract from gold instead. 
+     * Add to the amount of mana. If amount is negative, subtract from mana instead. 
      * 
      * @param team the team to query
-     * @param amount the change in the gold count
-     * @throws IllegalArgumentException if the resulting amount of gold is negative
+     * @param amount the change in the mana count
+     * @throws IllegalArgumentException if the resulting amount of mana is negative
      */
-    public void addGold(Team team, int amount) throws IllegalArgumentException {
-        if (this.goldCounts[team.ordinal()] + amount < 0) {
-            throw new IllegalArgumentException("Invalid gold change");
+    public void addMana(Team team, int amount) throws IllegalArgumentException {
+        if (this.manaCounts[team.ordinal()] + amount < 0) {
+            throw new IllegalArgumentException("Invalid mana change");
         }
-        this.goldCounts[team.ordinal()] += amount;
+        this.manaCounts[team.ordinal()] += amount;
+    }
+    
+    /**
+     * Add to the amount of adamantium. If amount is negative, subtract from adamantium instead.
+     * 
+     * @param team the team to query
+     * @param amount the change in the mana count
+     * @throws IllegalArgumentException if the resulting amount of adamantium is negative
+     */
+    public void addAdamantium(Team team, int amount) throws IllegalArgumentException {
+    	if (this.adamantiumCounts[team.ordinal()] + amount < 0) {
+    		throw new IllegalArgumentException("Invalid adamantium change");
+    	}
+    	this.adamantiumCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Increments the anchors placed counter for the team
+     * @param team the team to query
+     */
+    public void placeAnchor(Team team) {
+        this.anchorsPlaced[team.ordinal()]++;
     }
 
     /**
@@ -112,18 +161,24 @@ public class TeamInfo {
         this.sharedArrays[team.ordinal()][index] = value;
     }
 
-    public int getRoundLeadChange(Team team) {
-        return this.leadCounts[team.ordinal()] - this.oldLeadCounts[team.ordinal()];
+    public int getRoundElixirChange(Team team) {
+        return this.elixirCounts[team.ordinal()] - this.oldElixirCounts[team.ordinal()];
     }
 
-    public int getRoundGoldChange(Team team) {
-        return this.goldCounts[team.ordinal()] - this.oldGoldCounts[team.ordinal()];
+    public int getRoundManaChange(Team team) {
+        return this.manaCounts[team.ordinal()] - this.oldManaCounts[team.ordinal()];
+    }
+    
+    public int getRoundAdamantiumChange(Team team) {
+    	return this.adamantiumCounts[team.ordinal()] - this.oldAdamantiumCounts[team.ordinal()];
     }
 
     public void processEndOfRound() {
-        this.oldLeadCounts[0] = this.leadCounts[0];
-        this.oldLeadCounts[1] = this.leadCounts[1];
-        this.oldGoldCounts[0] = this.goldCounts[0];
-        this.oldGoldCounts[1] = this.goldCounts[1];
+        this.oldElixirCounts[0] = this.elixirCounts[0];
+        this.oldElixirCounts[1] = this.elixirCounts[1];
+        this.oldManaCounts[0] = this.manaCounts[0];
+        this.oldManaCounts[1] = this.manaCounts[1];
+        this.oldAdamantiumCounts[0] = this.adamantiumCounts[0];
+        this.oldAdamantiumCounts[1] = this.adamantiumCounts[1];
     }
 }

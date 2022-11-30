@@ -536,6 +536,7 @@ export default class GameWorld {
 
         switch (action) {
           case schema.Action.THROW_ATTACK:
+            this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
             setAction(true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
@@ -550,6 +551,10 @@ export default class GameWorld {
             break
 
           case schema.Action.DESTABILIZE:
+            setAction(false, false, true)
+            break
+
+          case schema.Action.DESTABILIZE_DAMAGE:
             setAction(false, false, true)
             break
 
@@ -571,28 +576,24 @@ export default class GameWorld {
             break
 
           case schema.Action.CHANGE_ADAMANTIUM:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.adamantiumMined += target
             this.bodies.alter({ id: robotID, adamantium: body.adamantium + target })
             break
 
           case schema.Action.CHANGE_ELIXIR:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.elixirMined += target
             this.bodies.alter({ id: robotID, elixir: body.elixir + target })
             break
 
           case schema.Action.CHANGE_MANA:
-            // setAction()
             if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
               teamStatsObj.manaMined += target
             this.bodies.alter({ id: robotID, mana: body.mana + target })
             break
 
           case schema.Action.SPAWN_UNIT:
-            // setAction()
             break
 
           case schema.Action.CHANGE_HEALTH:
@@ -626,11 +627,11 @@ export default class GameWorld {
 
       this.mapStats.resources[well_index] = well_resource
 
-      //WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
+      //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
       current_resource_stats.adamantium += well_adamantium_change
       current_resource_stats.mana += well_mana_change
       current_resource_stats.elixir += well_elixir_change
-      current_resource_stats.upgraded = delta.resourceAccelerationID(i) > 0
+      current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
     for (let i = 0; i < delta.islandIDsLength(); i++) {
@@ -773,7 +774,6 @@ export default class GameWorld {
     var teams = bodies.teamIDsArray()
     var types = bodies.typesArray()
     var hps = new Int32Array(bodies.robotIDsLength())
-    var prototypes = new Int8Array(bodies.robotIDsLength())
 
     // Update spawn stats
     for (let i = 0; i < bodies.robotIDsLength(); i++) {
@@ -793,12 +793,7 @@ export default class GameWorld {
     // You can't reuse TypedArrays easily, so I'm inclined to
     // let this slide for now.
 
-    // Initialize convictions
-
     // Insert bodies
-
-    const levels = new Int8Array(bodies.robotIDsLength())
-    levels.fill(1)
 
     this.bodies.insertBulk({
       id: bodies.robotIDsArray(),
@@ -806,18 +801,17 @@ export default class GameWorld {
       type: types,
       x: locs.xsArray(),
       y: locs.ysArray(),
-      flag: new Int32Array(bodies.robotIDsLength()),
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
       action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
       target: new Int32Array(bodies.robotIDsLength()),
       targetx: new Int32Array(bodies.robotIDsLength()),
       targety: new Int32Array(bodies.robotIDsLength()),
-      bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
-      level: levels,
-      portable: new Int8Array(bodies.robotIDsLength()),
-      prototype: prototypes,
+      adamantium: new Int32Array(bodies.robotIDsLength()),
+      elixir: new Int32Array(bodies.robotIDsLength()),
+      mana: new Int32Array(bodies.robotIDsLength()),
+      anchor: new Int8Array(bodies.robotIDsLength()),
     })
   }
 
