@@ -229,6 +229,7 @@ public class MapBuilder {
         // get robots
         RobotInfo[] robots = new RobotInfo[width * height];
         for (RobotInfo r : bodies) {
+            assert(r.getType() == RobotType.HEADQUARTERS);
             if (robots[locationToIndex(r.location.x, r.location.y)] != null)
                 throw new RuntimeException("Two robots on the same square");
             robots[locationToIndex(r.location.x, r.location.y)] = r;
@@ -269,6 +270,11 @@ public class MapBuilder {
             //assert that clouds and currents cannot be on the same square
             if (this.cloudArray[i] && this.currentArray[i] != 0)
                 throw new RuntimeException("Clouds and currents cannot be on the same square");
+
+            //assert that wells are not on same square as headquarters
+            if (this.resourceArray[i] != 0 && robots[i] != null)
+                throw new RuntimeException("Wells can't be on same square as headquarters");
+
         }
         
         // assert rubble, lead, and Archon symmetry

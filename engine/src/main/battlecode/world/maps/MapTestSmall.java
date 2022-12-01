@@ -44,6 +44,8 @@ public class MapTestSmall {
 
         for (int i = 0; i < mapBuilder.width / 2; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
+                if (i == 5 && j == 5) 
+                    continue;
                 mapBuilder.setSymmetricResource(i, j, random.nextInt(3) + 1);
             }
         }
