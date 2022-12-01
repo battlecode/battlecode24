@@ -364,6 +364,9 @@ export default class GameWorld {
       }
     }
 
+    this.mapStats.clouds = Int8Array.from(map.cloudsArray())
+    this.mapStats.currents = Int8Array.from(map.currentsArray())
+
     this.mapStats.islands = map.islandsArray()
     for (let i = 0; i < this.mapStats.islands.length; i++) {
       if (this.mapStats.islands[i] != 0) {
@@ -672,10 +675,8 @@ export default class GameWorld {
         let type = this.bodies.arrays.type[index]
         let statObj = this.teamStats.get(team)
         if (!statObj) { continue } // In case this is a neutral bot
-        statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1
-        let hp = this.bodies.arrays.hp[index]
-        let level = this.bodies.arrays.level[index]
-        statObj.total_hp[type][level - 1] -= hp
+        statObj.robots[type] -= 1
+        statObj.total_hp[type] -= this.bodies.arrays.hp[index]
         this.teamStats.set(team, statObj)
       }
 
@@ -777,9 +778,8 @@ export default class GameWorld {
 
     // Update spawn stats
     for (let i = 0; i < bodies.robotIDsLength(); i++) {
-      // if(teams[i] == 0) continue;
       var statObj = this.teamStats.get(teams[i])
-      statObj.robots[types[i]] += 1 // TODO: handle level
+      statObj.robots[types[i]] += 1
       statObj.total_hp[types[i]] += this.meta.types[types[i]].health // TODO: extract meta info
       this.teamStats.set(teams[i], statObj)
       hps[i] = this.meta.types[types[i]].health

@@ -80,8 +80,8 @@ export default class Renderer {
     const updateDynamic = true
     if (updateDynamic) {
       this.clearCanvas(CanvasType.DYNAMIC)
-      this.renderResources(world)
       this.renderIslands(world)
+      this.renderResources(world)
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -109,78 +109,39 @@ export default class Renderer {
 
   private renderBackground(world: GameWorld) {
     const ctx = this.ctx[CanvasType.BACKGROUND]
-
-    ctx.save()
-    ctx.fillStyle = "white"
     ctx.globalAlpha = 1
+    let minX = world.minCorner.x, minY = world.minCorner.y
+    let width = world.maxCorner.x - world.minCorner.x, height = world.maxCorner.y - world.minCorner.y
 
-    let minX = world.minCorner.x
-    let minY = world.minCorner.y
-    let width = world.maxCorner.x - world.minCorner.x
-    let height = world.maxCorner.y - world.minCorner.y
-
-    const scale = 20
-
-    ctx.scale(1 / scale, 1 / scale)
-
-    // scale the background pattern
-    if (!this.conf.doingRotate) ctx.fillRect(minX * scale, minY * scale, width * scale, height * scale)
-    else ctx.fillRect(minY * scale, minX * scale, height * scale, width * scale)
+    ctx.fillStyle = "#BAAD99"
+    if (!this.conf.doingRotate) ctx.fillRect(minX, minY, width, height)
+    else ctx.fillRect(minY, minX, height, width)
 
     const map = world.mapStats
-
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
       let idxVal = map.getIdx(i, j)
       let plotJ = height - j - 1
-
-      const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
-
+      const cx = (minX + i), cy = (minY + plotJ)
       ctx.globalAlpha = 1
 
-      // Fetch and draw tile image
-      // const walls = cst.getLevel(map.walls[idxVal])
-      const tileImg = this.imgs.tiles[map.walls[idxVal]]
-
-      //+1 is so that there arent gaps in the map
-      if (!this.conf.doingRotate) ctx.drawImage(tileImg, cx, cy, scale + .5, scale + .5)
-      else ctx.drawImage(tileImg, cy, cx, scale + .5, scale + .5)
+      if (map.walls[idxVal]) {
+        ctx.save()
+        let path = this.get9SliceClipPath(i, j, map.walls, height, width)
+        this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
+        ctx.fillStyle = cst.UI_GREY
+        if (!this.conf.doingRotate) ctx.fillRect(cx, cy, 1.01, 1.01)
+        else ctx.fillRect(cy, cx, 1.01, 1.01)
+        ctx.restore()
+      }
 
       // Draw grid
       if (this.conf.showGrid) {
         ctx.strokeStyle = 'gray'
         ctx.globalAlpha = 1
-        if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
-        else ctx.strokeRect(cy, cx, scale, scale)
+        if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, 1.01, 1.01)
+        else ctx.strokeRect(cy, cx, 1.01, 1.01)
       }
     }
-
-    // let i = world.mapStats.anomalyRounds.indexOf(world.turn);
-    // const d = new Date();
-    // let time = d.getTime();
-    // if (this.conf.showAnomalies) {
-    //   if (i != -1) {
-    //     let anom = world.mapStats.anomalies[i] + schema.Action.ABYSS;
-    //     let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-    //     this.ctx.strokeStyle = color;
-    //     this.ctx.lineWidth = 15;
-    //     this.ctx.globalAlpha = 0.5;
-    //     this.ctx.strokeRect(0, 0, width*scale, height*scale);
-    //     this.ctx.stroke();
-    //     this.lastTime = time;
-    //     this.lastAnomaly = anom;
-    //   } else if (time - this.lastTime < 1000) {
-    //     let anom = this.lastAnomaly;
-    //     let color = (anom === schema.Action.ABYSS) ? "Blue" : (anom === schema.Action.CHARGE) ? "Yellow" : (anom === schema.Action.FURY) ? "Red" : (anom === schema.Action.VORTEX) ? "Purple" : "White";
-    //     this.ctx.strokeStyle = color;
-    //     this.ctx.lineWidth = 15;
-    //     this.ctx.globalAlpha = 0.5;
-    //     this.ctx.strokeRect(0, 0, width*scale, height*scale);
-    //     this.ctx.stroke();
-    //     //this.ctx.globalAlpha = 1;
-    //   }
-    // }
-
-    ctx.restore()
   }
 
   private renderHoverBox(world: GameWorld) {
@@ -201,9 +162,9 @@ export default class Renderer {
       ctx.scale(1 / scale, 1 / scale)
       const { xrel: x, yrel: y } = this.hoverPos
       const cx = (minX + x) * scale, cy = (minY + (height - y - 1)) * scale
-      ctx.strokeStyle = cst.UI_GREY
+      ctx.strokeStyle = "black"
       ctx.lineWidth = 1
-      ctx.globalAlpha = 1
+      ctx.globalAlpha = .2
       if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
       else ctx.strokeRect(cy, cx, scale, scale)
       ctx.restore()
@@ -212,22 +173,12 @@ export default class Renderer {
 
   private renderResources(world: GameWorld) {
     const ctx = this.ctx[CanvasType.BACKGROUND]
-
-    ctx.save()
     ctx.globalAlpha = 1
-
     let minX = world.minCorner.x
     let minY = world.minCorner.y
     let width = world.maxCorner.x - world.minCorner.x
     let height = world.maxCorner.y - world.minCorner.y
-
     const map = world.mapStats
-    const scale = 1
-
-    const sigmoid = (x) => {
-      return 1 / (1 + Math.exp(-x))
-    }
-
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
       let idxVal = map.getIdx(i, j)
       let plotJ = height - j - 1
@@ -235,32 +186,27 @@ export default class Renderer {
       ctx.lineWidth = 1 / 20
       ctx.globalAlpha = 1
 
-      const cx = (minX + i) * scale, cy = (minY + plotJ) * scale
+      const cx = (minX + i), cy = (minY + plotJ)
 
       if (map.resources[idxVal] > 0) {
-        // let size = sigmoid(map.goldVals[idxVal] / 50) * .94
-        let size = map.resource_well_stats.get(idxVal)!.upgraded ? 1 : .75
-        let img = this.imgs.resources[map.resources[idxVal]]
-        if (!this.conf.doingRotate) ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, scale * size, scale * size)
-        else ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, scale * size, scale * size)
+        let upgraded = map.resource_well_stats.get(idxVal)!.upgraded
+        let size = upgraded ? 1 : .75
+        let img = this.imgs.resource_wells[map.resources[idxVal]][upgraded ? 1 : 0]
+        if (!this.conf.doingRotate) ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, size, size)
+        else ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, size, size)
       }
     }
-
-    ctx.restore()
   }
 
-  private renderArrow(i: number, j: number, direction: number) {
-    const ctx = this.ctx[CanvasType.OVERLAY]
-    const scale = 20
-    ctx.scale(1 / scale, 1 / scale)
+  private renderArrow(i: number, j: number, direction: number, ctx: CanvasRenderingContext2D) {
     ctx.globalAlpha = .1
     ctx.fillStyle = "black"
     ctx.beginPath()
 
     let dir = cst.DIRECTIONS[direction]
-    let len = scale / Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1]) * .4
-    let x = (i + .5) * scale
-    let y = (j + .5) * scale
+    let len = 1 / Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1]) * .4
+    let x = (i + .5)
+    let y = (j + .5)
 
     ctx.moveTo(x + dir[0] * len, y + dir[1] * len)
     let right = [-dir[1] * len / 2, dir[0] * len / 2]
@@ -270,13 +216,62 @@ export default class Renderer {
     ctx.fill()
   }
 
-  private renderIsland(i: number, j: number, island: number) {
+  private renderObstacles(world: GameWorld): void {
+    const ctx = this.ctx[CanvasType.OVERLAY]
+    ctx.globalAlpha = 1
+    let minX = world.minCorner.x, minY = world.minCorner.y
+    let width = world.maxCorner.x - world.minCorner.x, height = world.maxCorner.y - world.minCorner.y
+    const map = world.mapStats
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
+      let idxVal = map.getIdx(i, j)
+      const cx = (minX + i), cy = (minY + height - j - 1)
+
+      if (map.clouds[idxVal]) {
+        ctx.save()
+        ctx.globalAlpha = .3
+        ctx.fillStyle = "white"
+        let path = this.get9SliceClipPath(i, j, map.clouds, height, width)
+        this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
+        ctx.fillRect(cx, cy, 1.01, 1.01)
+        ctx.restore()
+      }
+      if (map.currents[idxVal]) {
+        ctx.save()
+        ctx.globalAlpha = .2
+        ctx.fillStyle = "purple"
+        let path = this.get9SliceClipPath(i, j, map.currents, height, width, (c) => c == map.currents[idxVal])
+        this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
+        ctx.fillRect(cx, cy, 1.01, 1.01)
+        ctx.restore()
+        this.renderArrow(cx, cy, map.currents[idxVal], ctx)
+      }
+    }
+  }
+
+  private renderIslands(world: GameWorld): void {
     const ctx = this.ctx[CanvasType.DYNAMIC]
-    const scale = 20
-    ctx.scale(1 / scale, 1 / scale)
+    ctx.globalAlpha = 1
+    let minX = world.minCorner.x, minY = world.minCorner.y
+    let width = world.maxCorner.x - world.minCorner.x, height = world.maxCorner.y - world.minCorner.y
+    const map = world.mapStats
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++) {
+      let idxVal = map.getIdx(i, j)
+      const cx = (minX + i), cy = (minY + height - j - 1)
+
+      if (map.islands[idxVal]) {
+        ctx.save()
+        let path = this.get9SliceClipPath(i, j, map.islands, height, width)
+        this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
+        if (!this.conf.doingRotate) this.drawIsland(cx / 1.01, cy / 1.01, 1.01, ctx)
+        else this.drawIsland(cy / 1.01, cx / 1.01, 1.01, ctx)
+        ctx.restore()
+      }
+    }
+  }
+
+  private drawIsland(i, j, scale, ctx) {
     ctx.fillStyle = "black"
     ctx.globalAlpha = .3
-    // this.ctx.fillRect(i * scale, j * scale, scale, scale)
     let x = i * scale
     let y = j * scale
     let d = scale / 8
@@ -320,48 +315,6 @@ export default class Renderer {
     ctx.lineTo(x + 8 * d, y + 7 * d)
     ctx.closePath()
     ctx.fill()
-
-    ctx.globalAlpha = 1
-    ctx.fillText(island + "", i * scale, (j + .5) * scale, scale * 1.7)
-  }
-
-
-  private renderOverlay(i: number, j: number, color: string, opacity: number) {
-    const ctx = this.ctx[CanvasType.OVERLAY]
-    const scale = 20
-    ctx.scale(1 / scale, 1 / scale)
-    ctx.globalAlpha = opacity
-    ctx.fillStyle = color
-    ctx.fillRect(i * scale, j * scale, scale, scale)
-  }
-
-  private renderObstacles(world: GameWorld): void {
-    let width = world.maxCorner.x - world.minCorner.x
-    let height = world.maxCorner.y - world.minCorner.y
-    const map = world.mapStats
-    for (let i = 0; i < width; i++) {
-      for (let j = 0; j < height; j++) {
-        if (map.clouds[(height - j - 1) * width + i])
-          this.renderOverlay(i, j, "white", .3)
-        if (map.currents[(height - j - 1) * width + i]) {
-          this.renderOverlay(i, j, "purple", .2)
-          this.renderArrow(i, j, map.currents[(height - j - 1) * width + i])
-        }
-      }
-    }
-  }
-
-  private renderIslands(world: GameWorld): void {
-    let width = world.maxCorner.x - world.minCorner.x
-    let height = world.maxCorner.y - world.minCorner.y
-    const map = world.mapStats
-    for (let i = 0; i < width; i++) {
-      for (let j = 0; j < height; j++) {
-        if (map.islands[(height - j - 1) * width + i] != 0) {
-          this.renderIsland(i, j, map.islands[(height - j - 1) * width + i])
-        }
-      }
-    }
   }
 
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
@@ -738,5 +691,68 @@ export default class Renderer {
         ctx.stroke()
       }
     }
+  }
+
+  private get9SliceClipPath(i: number, j: number, vals, height: number, width: number, valFunc: (v: number | boolean) => boolean = (v) => v ? true : false): number[][] {
+    let edge = .07
+    let bevel = .13
+    let neighbors: boolean[] = []
+    for (let v = 1; v < 9; v++) {
+      let x = (cst.DIRECTIONS[v][0] + i)
+      let y = (cst.DIRECTIONS[v][1] + j)
+      neighbors.push((x < 0 || y < 0 || x == width || y == height) ? false : (valFunc(vals[x + y * width])))
+    }
+    let points: number[][] = []
+    let corners: Record<number, { cx: number, cy: number, sx: number, sy: number }> = {
+      0: { cx: 0, cy: 1, sx: 1, sy: -1 },
+      1: { cx: 1, cy: 1, sx: -1, sy: -1 },
+      2: { cx: 1, cy: 0, sx: -1, sy: 1 },
+      3: { cx: 0, cy: 0, sx: 1, sy: 1 }
+    }
+    for (let corner = 0; corner < 4; corner++) {
+      let cl = corner * 2
+      let cc = corner * 2 + 1
+      let cr = (corner * 2 + 2) % 8
+
+      let { cx, cy, sx, sy } = corners[corner]
+
+      if (neighbors[cl] || neighbors[cr]) {
+        if (neighbors[cl] && neighbors[cr]) {
+          if (neighbors[cc]) {
+            points.push([cx, cy])
+          } else {
+            if (corner % 2 == 1)
+              points.push([cx + sx * edge, cy])
+            points.push([cx, cy + sy * edge])
+            if (corner % 2 == 0)
+              points.push([cx + sx * edge, cy])
+          }
+        } else if (neighbors[cr])
+          points.push(corner % 2 == 0 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
+        else if (neighbors[cl])
+          points.push(corner % 2 == 1 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
+      } else {
+        if (corner % 2 == 0)
+          points.push([cx + sx * edge, cy + sy * bevel])
+        points.push([cx + sx * bevel, cy + sy * edge])
+        if (corner % 2 == 1)
+          points.push([cx + sx * edge, cy + sy * bevel])
+      }
+    }
+    return points
+  }
+
+  private applyClipScaled(ctx, i: number, j: number, scale: number, path: number[][]) {
+    ctx.beginPath()
+    let started = false
+    for (let point of path) {
+      if (!started)
+        ctx.moveTo((point[0] + i) * scale, (point[1] + j) * scale)
+      else
+        ctx.lineTo((point[0] + i) * scale, (point[1] + j) * scale)
+      started = true
+    }
+    ctx.closePath()
+    ctx.clip()
   }
 }
