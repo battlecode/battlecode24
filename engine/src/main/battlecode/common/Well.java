@@ -21,8 +21,8 @@ public class Well {
         this.type = type;
     }
 
-    public Inventory getInventory(){
-        return inv;
+    public int getResource(ResourceType rType){
+        return inv.getResource(rType);
     }
 
     public MapLocation getMapLocation(){
@@ -31,20 +31,22 @@ public class Well {
 
     public void addAdamantium(int amount){
         inv.addAdamantium(amount);
-        if (type == ResourceType.MANA && inv.getAdamantium() >= 15000)
+        if (type == ResourceType.MANA && inv.getAdamantium() >= 15000) {
             type = ResourceType.ELIXIR;
             //TODO: should inventory be set to zero after an upgrade
             inv.addAdamantium(-inv.getAdamantium());
             inv.addMana(-inv.getMana());
+        }
     }
 
     public void addMana(int amount){
         inv.addMana(amount);
-        if (type == ResourceType.ADAMANTIUM && inv.getMana() >= 15000)
+        if (type == ResourceType.ADAMANTIUM && inv.getMana() >= 15000) {
             type = ResourceType.ELIXIR;
             //TODO: should inventory be set to zero after an upgrade
             inv.addAdamantium(-inv.getAdamantium());
             inv.addMana(-inv.getMana());
+        }
 
     }
 
