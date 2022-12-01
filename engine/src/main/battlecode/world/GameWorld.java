@@ -1019,9 +1019,11 @@ public strictfp class GameWorld {
         }
         for(int islandIdx: this.islandIds) {
             Island island = this.islandIdToIsland.get(islandIdx);
-            int distance = island.minDistTo(loc);
-            if (distance <= GameConstants.DISTANCE_FROM_REALITY_ANCHOR)
-                return true;
+            if (island.getTeam() == bot.getTeam()) {
+                int distance = island.minDistTo(loc);
+                if (distance <= GameConstants.DISTANCE_FROM_REALITY_ANCHOR)
+                    return true;
+            }
         }
         return false;
     }
