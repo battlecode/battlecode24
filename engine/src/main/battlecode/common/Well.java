@@ -1,9 +1,6 @@
-package battlecode.world;
+package battlecode.common;
 
-import javax.lang.model.util.ElementScanner6;
-
-import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
+import battlecode.world.Inventory;
 
 public class Well {
     private Inventory inv;
