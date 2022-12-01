@@ -288,13 +288,13 @@ table Round {
 
     /// The locations of the resources wells being given resources
     resourceWellLocs: [int];
-    /// The change in adamantium stored in the well
-    wellAdamantiumChange: [int];
-    /// The change in mana stored in the well
-    wellManaChange: [int];
-    /// The change in elixir stored in the well
-    wellElixirChange: [int];
-    /// The ID for the new resource this well now contains
+    /// The adamantium stored in the well
+    wellAdamantiumValues: [int];
+    /// The mana stored in the well
+    wellManaValues: [int];
+    /// The elixir stored in the well
+    wellElixirValues: [int];
+    /// The ID for the resource this well contains
     resourceID: [int];
     /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
     wellAccelerationID: [int];
