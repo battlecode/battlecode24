@@ -59,6 +59,10 @@ public class MapBuilder {
         return x + y * width;
     }
 
+    private int locationToIndex(MapLocation loc) {
+        return loc.x + loc.y * width;
+    }
+
     public void addHeadquarter(int id, Team team, MapLocation loc) {
         // check if something already exists here, if so shout
         for (RobotInfo r : bodies) {
@@ -172,11 +176,8 @@ public class MapBuilder {
     }
 
     private int getSymmetricCurrent(int value) {
-        if (value == 0)
-            return 0;
-        else if (value <= 4)
-            return value + 4;
-        return value - 4;
+        Direction currentDirection = Direction.DIRECTION_ORDER[value];
+        return currentDirection.opposite().getDirectionOrderNum();
     }
 
     public void setSymmetricCurrent(int x, int y, int value) {
@@ -311,10 +312,12 @@ public class MapBuilder {
         for (int i = 0; i < currentArray.length; i++){
             if (currentArray[i] != 0){
                 MapLocation startLocation = indexToLocation(i);
-                Direction currentDir = Direction.DIRECTION_ORDER(currentArray[i]);
+                Direction currentDir = Direction.DIRECTION_ORDER[currentArray[i]];
                 MapLocation finalLocation = startLocation.add(currentDir);
                 if (!onTheMap(finalLocation))
                     throw new RuntimeException("Current directs robots outside of the bounds of the map");
+                if (this.wallArray[locationToIndex(finalLocation)])
+                    throw new RuntimeException("Current directs robots into wall");
                 boolean unique = endingLocations.add(finalLocation);
                 if (!unique)
                     throw new RuntimeException("Two different currents direct robots to the same location.");
