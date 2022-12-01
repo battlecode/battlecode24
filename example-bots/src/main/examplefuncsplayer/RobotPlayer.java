@@ -60,7 +60,6 @@ public strictfp class RobotPlayer {
             // loop, we call Clock.yield(), signifying that we've done everything we want to do.
 
             turnCount += 1;  // We have now been alive for one more turn!
-            System.out.println("Age: " + turnCount + "; Location: " + rc.getLocation());
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode.
             try {
@@ -111,14 +110,12 @@ public strictfp class RobotPlayer {
         if (rng.nextBoolean()) {
             // Let's try to build a carrier.
             rc.setIndicatorString("Trying to build a carrier");
-            System.out.println("Trying to build a carrier");
             if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
                 rc.buildRobot(RobotType.CARRIER, newLoc);
             }
         } else {
             // Let's try to build a launcher.
             rc.setIndicatorString("Trying to build a launcher");
-            System.out.println("Trying to build a launcher");
             if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
                 rc.buildRobot(RobotType.LAUNCHER, newLoc);
             }
@@ -126,7 +123,7 @@ public strictfp class RobotPlayer {
     }
 
     /**
-     * Run a single turn for a Miner.
+     * Run a single turn for a Carrier.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     static void runCarrier(RobotController rc) throws GameActionException {
@@ -146,23 +143,29 @@ public strictfp class RobotPlayer {
                         rc.attack(toAttack);
                     }
                 }
-                // MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // // Notice that the Miner's action cooldown is very low.
-                // // You can mine multiple times per turn!
-                // while (rc.can(mineLocation)) {
-                //     rc.mineGold(mineLocation);
-                // }
-                // while (rc.canMineLead(mineLocation)) {
-                //     rc.mineLead(mineLocation);
-                // }
+                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+                // Notice that the Miner's action cooldown is very low.
+                // You can mine multiple times per turn!
+                while (rc.canCollectResource(mineLocation, -1)) {
+                    rc.collectResource(mineLocation, -1);
+                    rc.setIndicatorString("Collecting, now have, AD:" + 
+                        rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                        " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                }
             }
         }
-
+        Well[] wells = rc.senseNearbyWells();
+        if (wells.length > 0) {
+            Well well_one = wells[0];
+            Direction dir = me.directionTo(well_one.getMapLocation());
+            if (rc.canMove(dir)) 
+                rc.move(dir);
+        }
         // Also try to move randomly.
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
-            System.out.println("I moved!");
         }
     }
 
@@ -189,7 +192,6 @@ public strictfp class RobotPlayer {
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
-            System.out.println("I moved!");
         }
     }
 }
