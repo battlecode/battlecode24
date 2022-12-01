@@ -51,8 +51,6 @@ public strictfp class GameWorld {
 
     private Well[] wells;
 
-    private Island[] allIslands;
-
     private Map<Team, ProfilerCollection> profilerCollections;
 
     private final RobotControlProvider controlProvider;
