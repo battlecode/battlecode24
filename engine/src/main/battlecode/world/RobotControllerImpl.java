@@ -1,11 +1,14 @@
 package battlecode.world;
 
 import battlecode.common.*;
+
 import static battlecode.common.GameActionExceptionType.*;
 import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 
 import java.util.*;
+
+import org.apache.commons.lang3.NotImplementedException;
 
 
 /**
@@ -372,14 +375,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return senseNearbyWells(center, radiusSquared, null);
     }
 
-    // @Override
-    // public Well[] senseNearbyWells(ResourceType resourceType) {
-    //     try {
-    //         return senseNearbyWells(-1, resourceType);
-    //     } catch (GameActionException e) {
-    //         return new Well[0];
-    //     }
-    // }
+    @Override
+    public Well[] senseNearbyWells(ResourceType resourceType) {
+        try {
+            return senseNearbyWells(-1, resourceType);
+        } catch (GameActionException e) {
+            return new Well[0];
+        }
+    }
 
     @Override
     public Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
@@ -510,7 +513,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
         for (ResourceType rType : ResourceType.values()) {
-            //TODO: fix this
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
             if (getResourceAmount(rType) < type.getBuildCost(rType)) {
                 throw new GameActionException(NOT_ENOUGH_RESOURCE,
                         "Insufficient amount of " + rType);
@@ -535,11 +539,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuildRobot(type, loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         Team team = getTeam();
-        // TODO: update teamInfo counts if we need to do that
-        // this.gameWorld.getTeamInfo().addLead(team, -type.buildCostLead);
-        // this.gameWorld.getTeamInfo().addGold(team, -type.buildCostGold);
+        for (ResourceType rType : ResourceType.values()) {
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
+            this.robot.addResourceAmount(rType, -1*type.getBuildCost(rType));
+            this.gameWorld.getTeamInfo().addResource(rType, team, -1*type.getBuildCost(rType));
+        }
         int newId = this.gameWorld.spawnRobot(type, loc, team);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
+    }
+
+    @Override
+    public boolean canBuildAnchor(Anchor anchor) {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public void buildAnchor(Anchor anchor) {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
     }
 
     // *****************************
@@ -582,19 +601,47 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.attack(bot);
     }
 
-    // ***********************
-    // **** MINER METHODS **** 
-    // ***********************
+    // ***********************************
+    // ******** BOOSTERS METHODS *********
+    // ***********************************
 
-    // TODO: still working on wells
+    @Override
+    public boolean canBoost() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public void boost() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    // ***********************************
+    // ****** DESTABILIZER METHODS *******
+    // ***********************************
+
+    @Override
+    public boolean canDestabilize() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public void destabilize() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    // *************************
+    // **** CARRIER METHODS **** 
+    // *************************
 
     private boolean isWell(MapLocation loc) {
-        //TODO checks if the location is a well
         return this.gameWorld.isWell(loc);
     }
 
     private boolean isHeadquarter(MapLocation loc){
-        //TODO checks if the location is a headquarter
         return this.gameWorld.isHeadquarters(loc);
 
     }
@@ -644,11 +691,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(isWell(loc)){
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
             this.robot.addResourceAmount(rType, -amount);
+            this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         }
         else if(isHeadquarter(loc)){
             this.gameWorld.getRobot(loc).addResourceAmount(rType, amount);
         }
-        //TODO update addAction once we have new action types!
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));
     }
 
     @Override
@@ -676,11 +724,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isWell(loc))
             throw new GameActionException(CANT_DO_THAT, 
                     "Location is not a well");
-        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 2:4;
+        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
+        amount = amount == -1 ? rate : amount;
         if (amount > rate)
             throw new GameActionException(CANT_DO_THAT, 
                     "Amount is higher than rate");
-        if (!this.robot.getInventory().canAdd(amount))
+        if (!this.robot.canAdd(amount))
             throw new GameActionException(CANT_DO_THAT, 
                     "Exceeded robot's carrying capacity");
 
@@ -704,17 +753,39 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // Also assuming that ResourceType is a class tht returns an enum
         // --> Would check to see what resources a well holds
 
-        Inventory robotInv = this.robot.getInventory();
+        ResourceType rType = gameWorld.getWell(loc).getResourceType();
+        if (rType == ResourceType.NO_RESOURCE) {
+            throw new IllegalArgumentException("Should not be a well with no resource");
+        }
+        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
+        amount = amount == -1 ? rate : amount;
+        this.robot.addResourceAmount(rType, amount);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_RESOURCE, locationToInt(loc));
+        this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), amount);
+    }
 
-        if (gameWorld.getWell(loc).getResourceType() == ResourceType.ELIXIR)
-            robotInv.addElixir(amount);
-        else if (gameWorld.getWell(loc).getResourceType() == ResourceType.MANA)
-            robotInv.addMana(amount);
-        else
-            robotInv.addAdamantium(amount);
-    
-    //     // Will need to update this last line
-    //     this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_GOLD, locationToInt(loc));
+    @Override
+    public boolean canPlaceAnchor() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public void placeAnchor() {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public boolean canTakeAnchor(MapLocation loc, Anchor anchor) {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
+    }
+
+    @Override
+    public void takeAnchor(MapLocation loc, Anchor anchor) {
+        throw new NotImplementedException("Needs to be implemented");
+        // TODO
     }
 
     // ***********************************
