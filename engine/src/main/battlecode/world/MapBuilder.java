@@ -186,17 +186,17 @@ public class MapBuilder {
     }
 
     private int getSymmetricIsland(int id) {
-        return this.islandArray.length-id;
+        return id == 0 ? 0 : this.islandArray.length-id;
     }
 
     public void setSymmetricIsland(int x, int y, int id) {
-        this.currentArray[locationToIndex(x, y)] = id;
-        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricIsland(id);
+        this.islandArray[locationToIndex(x, y)] = id;
+        this.islandArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricIsland(id);
     }
 
     public void setSymmetricResource(int x, int y, int id) {
-        this.currentArray[locationToIndex(x, y)] = id;
-        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = id;
+        this.resourceArray[locationToIndex(x, y)] = id;
+        this.resourceArray[locationToIndex(symmetricX(x), symmetricY(y))] = id;
     }
 
     // ********************
@@ -343,7 +343,6 @@ public class MapBuilder {
         possible.add(MapSymmetry.ROTATIONAL);
         possible.add(MapSymmetry.HORIZONTAL);
         possible.add(MapSymmetry.VERTICAL);
-
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 MapLocation current = new MapLocation(x, y);

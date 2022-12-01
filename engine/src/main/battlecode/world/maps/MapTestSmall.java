@@ -44,7 +44,7 @@ public class MapTestSmall {
 
         for (int i = 0; i < mapBuilder.width / 2; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricResource(i, j, random.nextInt(3));
+                mapBuilder.setSymmetricResource(i, j, random.nextInt(3) + 1);
             }
         }
 
