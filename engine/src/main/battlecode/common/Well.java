@@ -74,6 +74,7 @@ public class Well {
         return type;
     }
   
+    // TODO: I'm not sure this is correct, we should probably change it
     public boolean isUpgraded(){
         if (type == ResourceType.ADAMANTIUM && inv.getAdamantium() >= 10000)
             return true;
@@ -83,6 +84,10 @@ public class Well {
             return true;
         else 
             return false;
+    }
+
+    public int accelerationId() {
+        return this.isUpgraded() ? 1 : 0;
     }
 
     public Well copy(){

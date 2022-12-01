@@ -660,6 +660,11 @@ public strictfp class GameWorld {
             }
         }
 
+        for (Well well : this.wells) {
+            if (well == null)
+                continue;
+            this.matchMaker.addWell(well);
+        }
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundAdamantiumChange(Team.A), this.teamInfo.getRoundManaChange(Team.A), this.teamInfo.getRoundElixirChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
         this.teamInfo.processEndOfRound();

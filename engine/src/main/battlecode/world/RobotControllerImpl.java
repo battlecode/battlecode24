@@ -643,7 +643,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private boolean isHeadquarter(MapLocation loc){
         return this.gameWorld.isHeadquarters(loc);
-
     }
 
     private void assertCanTransferResource(MapLocation loc, ResourceType type, int amount) throws GameActionException {
