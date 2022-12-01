@@ -755,7 +755,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public void writeSharedArray(int index, int value) throws GameActionException {
-        assertCanWriteSharedArray();
+        assertCanWriteSharedArray(index, value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
 
