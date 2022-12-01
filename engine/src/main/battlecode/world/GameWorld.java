@@ -389,10 +389,16 @@ public strictfp class GameWorld {
     }
 
     public InternalRobot[] getAllRobotsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        return getAllRobotsWithinRadiusSquared(center, radiusSquared, null);
+    }
+
+    public InternalRobot[] getAllRobotsWithinRadiusSquared(MapLocation center, int radiusSquared, Team team) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
         for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
-            if (getRobot(newLocation) != null)
-                returnRobots.add(getRobot(newLocation));
+            if (getRobot(newLocation) != null) {
+                if (getRobot(newLocation).getTeam() == null || getRobot(newLocation).getTeam() == team)
+                    returnRobots.add(getRobot(newLocation));
+            }
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
@@ -974,6 +980,7 @@ public strictfp class GameWorld {
 
     public Well getWell(MapLocation loc) {
         return this.wells[locationToIndex(loc)];
+    }
 
     /*
      * Checks if the given MapLocation contains a headquarters
@@ -990,35 +997,33 @@ public strictfp class GameWorld {
             if(headquarter.getLocation() == loc) return headquarter;
         }
         return null;
-
     }
 
     /*
      * Checks to see if a robot is within range of certain objects and is thus able
      * to write to the shared array
      */
-    public boolean isInRange(MapLocation loc){
-     
-        for(Robot amplifier: signalAmplifiers){
-            int distance = amplifier.distanceSquaredTo(loc);
-            if(distance <= 36)
+    private boolean inRangeForAmplification(InternalRobot bot) {
+        MapLocation loc = bot.getLocation();
+        int maxInterestRadius = Math.max(GameConstants.DISTANCE_FROM_HEADQUARTER, GameConstants.DISTANCE_FROM_SIGNAL_AMPLIFIER);
+        for(InternalRobot otherRobot: this.getAllRobotsWithinRadiusSquared(bot.getLocation(), maxInterestRadius, bot.getTeam())){
+            int maxDistance = 0;
+            if (otherRobot.getType() == RobotType.AMPLIFIER) {
+                maxDistance = GameConstants.DISTANCE_FROM_SIGNAL_AMPLIFIER;
+            } else if (otherRobot.getType() == RobotType.HEADQUARTERS) {
+                maxDistance = GameConstants.DISTANCE_FROM_HEADQUARTER;
+            }
+            int distance = otherRobot.getLocation().distanceSquaredTo(loc);
+            if (distance <= maxDistance)
                 return true;
         }
-        for(Anchor anchor: realityAnchors){
-            int distance = anchor.distanceSquaredTo(loc);
-            if(distance <= 45)
-                return true;
-        }
-        for(Headquarter headquarter: headquarters){
-            int distance = headquarter.distanceSquaredTo(loc);
-            if(distance <= 50)
+        for(int islandIdx: this.islandIds) {
+            Island island = this.islandIdToIsland.get(islandIdx);
+            int distance = island.minDistTo(loc);
+            if (distance <= GameConstants.DISTANCE_FROM_REALITY_ANCHOR)
                 return true;
         }
         return false;
-        
-
     }
 
-
-    
 }

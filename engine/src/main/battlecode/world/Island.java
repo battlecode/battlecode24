@@ -95,13 +95,21 @@ public class Island {
         }
     }
 
-    public Set<MapLocation> getLocsAffected(){
+    public int minDistTo(MapLocation compareLoc) {
+        int minDist = Integer.MAX_VALUE;
+        for (MapLocation loc : this.locations) {
+            minDist = Math.min(minDist, loc.distanceSquaredTo(compareLoc));
+        }
+        return minDist;
+    }
+
+    public Set<MapLocation> getLocsAffected() {
         Set<MapLocation> locsWithinRange = new HashSet<>();
         if (this.anchorPlanted != null) {
             if (this.anchorPlanted == Anchor.ACCELERATING) {
                 for (MapLocation loc : this.locations) {
                     locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
-                }
+                }            
             }
         }
         return locsWithinRange;
