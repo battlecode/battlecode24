@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.GameConstants;
+import battlecode.common.MapLocation;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -12,6 +13,7 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
+    private MapLocation[] headquarters;
     private int[] elixirCounts;
     private int[] manaCounts;
     private int[] adamantiumCounts; 

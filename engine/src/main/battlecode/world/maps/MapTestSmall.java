@@ -39,12 +39,12 @@ public class MapTestSmall {
 
     public static void makeSimple() throws IOException {
         MapBuilder mapBuilder = new MapBuilder(mapName, 32, 32, 0, 0, 30);
-        mapBuilder.addSymmetricArchon(5, 5);
+        mapBuilder.addSymmetricHeadquarter(5, 5);
         Random random = new Random(6147);
 
         for (int i = 0; i < mapBuilder.width / 2; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricLead(i, j, random.nextInt(100));
+                mapBuilder.setSymmetricResource(i, j, random.nextInt(3));
             }
         }
 

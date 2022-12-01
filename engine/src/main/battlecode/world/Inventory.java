@@ -15,6 +15,8 @@ public class Inventory {
     private int mana;
 
     private int elixir;
+
+    private Anchor anchor;
     
     /**
      * Creates a new Inventory object with no maximum capacity
@@ -42,6 +44,16 @@ public class Inventory {
         elixir += amount;
     }
 
+    public void pickUpAnchor(Anchor anchor) {
+        this.anchor = anchor;
+    }
+
+    public void releaseAnchor() {
+        assert(this.anchor != null);
+        this.anchor = null;
+    }
+    
+
     public int getAdamantium() {
         return adamantium;
     }
@@ -52,6 +64,10 @@ public class Inventory {
 
     public int getElixir() {
         return elixir;
+    }
+
+    public Anchor getAnchor() {
+        return anchor;
     }
 
     /*
@@ -77,7 +93,40 @@ public class Inventory {
      */
     public boolean canAdd(int amount) {
         if(maxCapacity == -1) return true;
-        int total = adamantium + mana + elixir;
+        int total = (anchor == null ? 0 : GameConstants.ANCHOR_WEIGHT) + adamantium + mana + elixir;
         return total + amount <= maxCapacity;
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof Inventory) {
+            Inventory other = (Inventory) o;
+            return other.maxCapacity == this.maxCapacity && other.adamantium == this.adamantium && other.mana == this.mana && other.elixir == this.elixir && other.anchor == this.anchor;
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return this.maxCapacity*47 + this.adamantium*37 + this.mana*41 + this.elixir*43 + this.anchor.hashCode();
+    }
+
+    public String toString() {
+        return "Inventory{" +
+                "maxCapacity=" + maxCapacity +
+                ", adamantium=" + adamantium +
+                ", mana=" + mana +
+                ", elixir=" + elixir + 
+                ", anchor=" + anchor +
+                '}';
+    }
+
+    public Inventory copy() {
+        Inventory newInventory = new Inventory(this.maxCapacity);
+        newInventory.addAdamantium(this.adamantium);
+        newInventory.addMana(this.mana);
+        newInventory.addElixir(this.elixir);
+        if (this.anchor != null) {
+            newInventory.pickUpAnchor(this.anchor);
+        }
+        return newInventory;
     }
 }

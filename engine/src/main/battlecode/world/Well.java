@@ -48,6 +48,22 @@ public class Well {
     public void addElixir(int amount){
         inv.addElixir(amount);
     }
+
+    public void addResourceAmount(ResourceType rType, int amount) {
+        switch (rType) {
+            case ADAMANTIUM:
+                addAdamantium(amount);
+                break;
+            case MANA:
+                addMana(amount);
+                break;
+            case ELIXIR:
+                addElixir(amount);
+                break;
+            default:
+                break;
+        }
+    }
         
     public ResourceType getResourceType(){
         return type;

@@ -27,11 +27,11 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 60;
 
-    /** The minimum number of starting Archons per team. */
-    public static final int MIN_STARTING_ARCHONS = 1;
+    /** The minimum number of starting Headquarters per team. */
+    public static final int MIN_STARTING_HEADQUARTERS = 1;
 
-    /** The maximum number of starting Archons per team. */
-    public static final int MAX_STARTING_ARCHONS = 4;
+    /** The maximum number of starting Headquarters per team. */
+    public static final int MAX_STARTING_HEADQUARTERS = 4;
 
     /** The minimum amount of rubble per square. */
     public static final int MIN_RUBBLE = 0;
@@ -55,14 +55,17 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of lead each team starts with. */
-    public static final int INITIAL_LEAD_AMOUNT = 200;
+    /** The initial amount of mana each team starts with. */
+    public static final int INITIAL_MN_AMOUNT = 1000;
 
-    /** The initial amount of gold each team starts with. */
-    public static final int INITIAL_GOLD_AMOUNT = 0;
+    /** The initial amount of adamantium each team starts with. */
+    public static final int INITIAL_AD_AMOUNT = 1000;
 
-    /** The amount of lead each team gains per turn. */
-    public static final int PASSIVE_LEAD_INCREASE = 2;
+    /** The amount of adamantium each team gains per turn. */
+    public static final int PASSIVE_AD_INCREASE = 2;
+
+    /** The amount of mana each team gains per turn. */
+    public static final int PASSIVE_MN_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
     public static final int ADD_LEAD_EVERY_ROUNDS = 20;
@@ -122,6 +125,12 @@ public class GameConstants {
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
+    /** The maximum capacity a carrier can carry */
+    public static final int CARRIER_CAPACITY = 40;
+
+    /** The weight of an anchor */
+    public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 18;
@@ -152,5 +161,6 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+    //TOOD: change pls
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 200;
 }
