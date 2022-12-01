@@ -739,7 +739,6 @@ public strictfp class GameWorld {
      * Checks to see if a robot is within range of certain objects and is thus able
      * to write to the shared array
      */
-
     public boolean inRangeForAmplification(InternalRobot bot) {
         MapLocation loc = bot.getLocation();
         int maxInterestRadius = Math.max(GameConstants.DISTANCE_FROM_HEADQUARTER, GameConstants.DISTANCE_FROM_SIGNAL_AMPLIFIER);
