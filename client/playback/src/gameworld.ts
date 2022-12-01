@@ -540,10 +540,10 @@ export default class GameWorld {
         switch (action) {
           case schema.Action.THROW_ATTACK:
             this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            setAction(true, false)
+            setAction(false, true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
-            setAction(true, false)
+            setAction(false, true, false)
             break
           case schema.Action.PICK_UP_RESOURCE:
             setAction(false, false, true)
@@ -622,18 +622,18 @@ export default class GameWorld {
     for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
       let well_index = delta.resourceWellLocs(i)
       let well_resource = delta.resourceID(i)
-      let well_adamantium_change = delta.wellAdamantiumChange(i)
-      let well_elixir_change = delta.wellElixirChange(i)
-      let well_mana_change = delta.wellManaChange(i)
+      let well_adamantium = delta.wellAdamantiumValues(i)
+      let well_elixir = delta.wellElixirValues(i)
+      let well_mana = delta.wellManaValues(i)
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
 
       this.mapStats.resources[well_index] = well_resource
 
       //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
-      current_resource_stats.adamantium += well_adamantium_change
-      current_resource_stats.mana += well_mana_change
-      current_resource_stats.elixir += well_elixir_change
+      current_resource_stats.adamantium = well_adamantium
+      current_resource_stats.mana = well_mana
+      current_resource_stats.elixir = well_elixir
       current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
