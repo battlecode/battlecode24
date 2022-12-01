@@ -32,6 +32,14 @@ public class Inventory {
         this.maxCapacity = maxCapacity;
     }
 
+    public Inventory(int maxCapacity, int adamantium, int mana, int elixir, Anchor anchor) {
+        this.maxCapacity = maxCapacity;
+        this.adamantium = adamantium;
+        this.mana = mana;
+        this.elixir = elixir;
+        this.anchor = anchor;
+    }
+
     public void addAdamantium(int amount) {
         adamantium += amount;
     }
@@ -120,13 +128,7 @@ public class Inventory {
     }
 
     public Inventory copy() {
-        Inventory newInventory = new Inventory(this.maxCapacity);
-        newInventory.addAdamantium(this.adamantium);
-        newInventory.addMana(this.mana);
-        newInventory.addElixir(this.elixir);
-        if (this.anchor != null) {
-            newInventory.pickUpAnchor(this.anchor);
-        }
+        Inventory newInventory = new Inventory(this.maxCapacity, this.adamantium, this.mana, this.elixir, this.anchor);
         return newInventory;
     }
 }

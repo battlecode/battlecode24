@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
+import battlecode.common.ResourceType;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -140,6 +141,25 @@ public class TeamInfo {
     		throw new IllegalArgumentException("Invalid adamantium change");
     	}
     	this.adamantiumCounts[team.ordinal()] += amount;
+    }
+
+    //TODO: Make sure all switches have breaks after them
+    public void addResource(ResourceType rType, Team team, int amount) throws IllegalArgumentException {
+        switch (rType) {
+            case ADAMANTIUM:
+                addAdamantium(team, amount);
+                break;
+            case MANA:
+                addMana(team, amount);
+                break;
+            case ELIXIR:
+                addElixir(team, amount);
+                break;
+            case NO_RESOURCE:
+                if (amount != 0)
+                    throw new IllegalArgumentException("Can't add no resource");
+                break;
+        }
     }
 
     /**
