@@ -32,15 +32,22 @@ public strictfp class GameWorld {
 
     private Headquarter[] headquarters;
 
+    private boolean[] passable;
     private int[] rubble;
     private int[] lead;
     private int[] gold;
+    private ArrayList<Integer>[][][] boosts;
+    private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
     private int[] islandIds;
     private HashMap<Integer, Island> islandIdToIsland;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    
+    private static final int BOOST_INDEX = 0;
+    private static final int DESTABILIZE_INDEX = 1;
+    private static final int ANCHOR_INDEX = 2;
 
     private Well[] wells;
 
@@ -50,21 +57,44 @@ public strictfp class GameWorld {
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
+
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.rubble = gm.getRubbleArray();
         this.lead = gm.getLeadArray();
+        this.passable = gm.getPassableArray();
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.islandIds = new int[this.lead.length];
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-        this.wells = gm.getWellArray();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
+        //indices are: map position, team, boost/destabilize/anchor lists
+        ArrayList<Integer>[][][] boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
+        for (int i = 0; i < boosts.length; i++){ 
+            for (int j = 0; j < boosts[0].length; j++)
+                for (int k = 0; k < boosts[0][0].length; k++)
+                    boosts[i][j][k] = new ArrayList<Integer>();
+        }
+        double[][] cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            cooldownMultipliers[i][0] = 1.0;
+            cooldownMultipliers[i][1] = 1.0;
+        }
+        for (MapLocation loc : getAllLocations()){
+                if (getCurrent(loc) != null){ 
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CURRENT_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CURRENT_MULTIPLIER;
+                }
+                else if (hasCloud(loc)){
+                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
+                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
+                }
+            }
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -108,6 +138,15 @@ public strictfp class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
+        
+        this.wells = new Well[gm.getWidth()*gm.getHeight()];
+        for(int i = 0; i < gm.getWellResourcesArray().length; i++){
+            Inventory inv = new Inventory();
+            MapLocation loc = indexToLocation(i);
+            this.wells[i] = new Well(loc, ResourceType.values()[gm.getWellResourcesArray()[i]]);
+        }
+
+
     }
 
     /**
@@ -261,6 +300,62 @@ public strictfp class GameWorld {
     }
 
     // ***********************************
+    // ****** BOOST METHODS **************
+    // ***********************************
+    
+    public void addBoost(MapLocation center, Team team){
+        int lastRound = getCurrentRound() + GameConstants.BOOSTER_DURATION;
+        int radiusSquared = GameConstants.BOOSTER_RADIUS_SQUARED;
+        for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
+            ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][team.ordinal()][BOOST_INDEX];
+            //no other boosts at this location
+            if (curBoostsList.size() == 0)
+                cooldownMultipliers[locationToIndex(loc)][team.ordinal()] += GameConstants.BOOSTER_MULTIPLIER;
+            curBoostsList.add(lastRound);
+        }
+    }
+    public void addDestabilize(MapLocation center, Team team){ //team of the destabilizer robot
+        int lastRound = getCurrentRound() + GameConstants.DESTABILIZER_DURATION;
+        int radiusSquared = GameConstants.DESTABILIZER_RADIUS_SQUARED;
+        for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
+            ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.opponent().ordinal()][DESTABILIZE_INDEX];
+            if (curDestabilizers.size() == 0)
+                cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] += GameConstants.DESTABILIZER_MULTIPLIER;
+            curDestabilizers.add(lastRound);
+        }
+    }
+    public void addBoostFromAnchor(Island island){
+        assert(island.getAnchor() == Anchor.ACCELERATING);
+        int teamOrdinal = island.getTeam().ordinal(); 
+        for (MapLocation loc : island.getLocsAffected()){
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
+            if (curAnchorList.size() == 0){
+                //if current location is already being boosted
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER-GameConstants.BOOSTER_MULTIPLIER;
+                else
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
+            }
+            curAnchorList.add(island.getIdx());
+        }
+    }
+    public void removeBoostFromAnchor(Island island){
+        int teamOrdinal = island.getTeam().ordinal();
+        int boostIdentifier = island.getIdx();
+        for (MapLocation loc : island.getLocsAffected()){
+            ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
+            curAnchorList.remove(boostIdentifier);
+            if (curAnchorList.size() == 0){
+                if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER;
+                else
+                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER - GameConstants.BOOSTER_MULTIPLIER;    
+            }
+    
+        }
+    }
+
+    // ***********************************
     // ****** ROBOT METHODS **************
     // ***********************************
 
@@ -268,8 +363,16 @@ public strictfp class GameWorld {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
     }
 
+    public boolean isPassable(MapLocation loc) {
+        return this.passable[locationToIndex(loc)];
+    }
+
     public Island getIsland(MapLocation loc) {
         return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
+    }
+
+    public Island getIsland(int islandIdx) {
+        return islandIdToIsland.get(islandIdx);
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
@@ -291,6 +394,14 @@ public strictfp class GameWorld {
             if (getRobot(newLocation) != null)
                 returnRobots.add(getRobot(newLocation));
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
+    public Island[] getAllIslandsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Island> returnIslands = new ArrayList<Island>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getIsland(newLocation) != null)
+                returnIslands.add(getIsland(newLocation));
+        return returnIslands.toArray(new Island[returnIslands.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
@@ -358,65 +469,114 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return whether a team has more archons
+     * @return whether a team has more sky islands captured
      */
-    public boolean setWinnerIfMoreArchons() {
-        int archonCountA = this.objectInfo.getRobotTypeCount(Team.A, RobotType.ARCHON);
-        int archonCountB = this.objectInfo.getRobotTypeCount(Team.B, RobotType.ARCHON);
+    public boolean setWinnerIfMoreSkyIslands() {
+        int skyIslandCountA = 0;
+        int skyIslandCountB = 0;
+        for(int id : islandIds) {
+            Island island = islandIdToIsland.get(id);
+            if(island.teamOwning == Team.A) skyIslandCountA++;
+            else if(island.teamOwning == Team.B) skyIslandCountB++;
+        }
 
-        if (archonCountA > archonCountB) {
-            setWinner(Team.A, DominationFactor.MORE_ARCHONS);
+        if (skyIslandCountA > skyIslandCountB) {
+            setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
             return true;
-        } else if (archonCountA < archonCountB) {
-            setWinner(Team.B, DominationFactor.MORE_ARCHONS);
+        } else if (skyIslandCountA < skyIslandCountB) {
+            setWinner(Team.B, DominationFactor.MORE_SKY_ISLANDS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Au value
+     * @return whether a team has more reality anchors placed
      */
-    public boolean setWinnerIfMoreGoldValue() {
-        int[] totalGoldValues = new int[2];
-
-        // consider team reserves
-        totalGoldValues[Team.A.ordinal()] += this.teamInfo.getGold(Team.A);
-        totalGoldValues[Team.B.ordinal()] += this.teamInfo.getGold(Team.B);
+    public boolean setWinnerIfMoreRealityAnchors() {
+        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
+        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
         
-        // sum live robots worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalGoldValues[robot.getTeam().ordinal()] += robot.getType().getGoldWorth(robot.getLevel());
-        }
-        if (totalGoldValues[0] > totalGoldValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_GOLD_NET_WORTH);
+        if (realityAnchorCountA > realityAnchorCountB) {
+            setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
-        } else if (totalGoldValues[1] > totalGoldValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_GOLD_NET_WORTH);
+        } else if (realityAnchorCountA < realityAnchorCountB) {
+            setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has a greater net Pb value
+     * @return whether a team has a greater net elixir value
      */
-    public boolean setWinnerIfMoreLeadValue() {
-        int[] totalLeadValues = new int[2];
+    public boolean setWinnerIfMoreElixirValue() {
+        int[] totalElixirValues = new int[2];
 
         // consider team reserves
-        totalLeadValues[Team.A.ordinal()] += this.teamInfo.getLead(Team.A);
-        totalLeadValues[Team.B.ordinal()] += this.teamInfo.getLead(Team.B);
+        totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
+        totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
 
         // sum live robot worth
         for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalLeadValues[robot.getTeam().ordinal()] += robot.getType().getLeadWorth(robot.getLevel());
+            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getExAmount();
         }
-        if (totalLeadValues[0] > totalLeadValues[1]) {
-            setWinner(Team.A, DominationFactor.MORE_LEAD_NET_WORTH);
+        
+        if (totalElixirValues[0] > totalElixirValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
             return true;
-        } else if (totalLeadValues[1] > totalLeadValues[0]) {
-            setWinner(Team.B, DominationFactor.MORE_LEAD_NET_WORTH);
+        } else if (totalElixirValues[1] > totalElixirValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net mana value
+     */
+    public boolean setWinnerIfMoreManaValue() {
+        int[] totalManaValues = new int[2];
+
+        // consider team reserves
+        totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
+        totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getMnAmount();
+        }
+        
+        if (totalManaValues[0] > totalManaValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        } else if (totalManaValues[1] > totalManaValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net adamantium value
+     */
+    public boolean setWinnerIfMoreAdamantiumValue() {
+        int[] totalAdamantiumValues = new int[2];
+
+        // consider team reserves
+        totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
+        totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
+
+        // sum live robot worth
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getAdAmount();
+        }
+        
+        if (totalAdamantiumValues[0] > totalAdamantiumValues[1]) {
+            setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            return true;
+        } else if (totalAdamantiumValues[1] > totalAdamantiumValues[0]) {
+            setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
             return true;
         }
         return false;
@@ -433,6 +593,21 @@ public strictfp class GameWorld {
         return currentRound >= this.gameMap.getRounds();
     }
 
+    /**
+     * Checks end of match and then decides winner based on tiebreak conditions
+     */
+    public void checkEndOfMatch() {
+        if (timeLimitReached() && gameStats.getWinner() == null) {
+            if (setWinnerIfMoreSkyIslands())      return;
+            if (setWinnerIfMoreRealityAnchors())  return;
+            if (setWinnerIfMoreElixirValue())     return;
+            if (setWinnerIfMoreManaValue())       return;
+            if (setWinnerIfMoreAdamantiumValue()) return;
+
+            setWinnerArbitrary();
+        }
+    }
+
     public void processEndOfRound() {
         // Add lead resources to the team
         this.teamInfo.addLead(Team.A, GameConstants.PASSIVE_LEAD_INCREASE);
@@ -443,6 +618,30 @@ public strictfp class GameWorld {
             robot.processEndOfRound();
             return true;
         });
+        
+        //end any boosts that have finished their duration
+        for (MapLocation loc : getAllLocations()){
+            for (int teamIndex = 0; teamIndex <= 1; teamIndex++){ 
+                ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][teamIndex][BOOST_INDEX];
+                for (int j = curBoosts.size()-1; j >= 0; j--){
+                    if (curBoosts.get(j) >= getCurrentRound()+1){
+                        curBoosts.remove(j);
+                        //update multiplier if no longer being boosted by a booster/anchor
+                        if (curBoosts.size() == 0 && this.boosts[locationToIndex(loc)][teamIndex][ANCHOR_INDEX].size() == 0)
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.BOOSTER_MULTIPLIER;
+                    }
+                }
+                ArrayList<Integer> curDestabilize = this.boosts[locationToIndex(loc)][teamIndex][DESTABILIZE_INDEX];
+                for (int j = curDestabilize.size()-1; j >=0; j--){
+                    if (curDestabilize.get(j) >= getCurrentRound()+1){
+                        curDestabilize.remove(j);
+                        //update multiplier if no longer being destabilized
+                        if (curDestabilize.size() == 0)
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
+                    }
+                }
+            }
+        }
 
         // Trigger any anomalies
         // note: singularity is handled below in the "check for end of match"
@@ -465,12 +664,7 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
         this.teamInfo.processEndOfRound();
 
-        // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null)
-            if (!setWinnerIfMoreArchons())
-                if (!setWinnerIfMoreGoldValue())
-                    if (!setWinnerIfMoreLeadValue())
-                        setWinnerArbitrary();
+        checkEndOfMatch();
 
         if (gameStats.getWinner() != null)
             running = false;
@@ -777,8 +971,6 @@ public strictfp class GameWorld {
         else 
             return false;
     }
-    
-
 
     public Well getWell(MapLocation loc) {
         return this.wells[locationToIndex(loc)];
@@ -824,6 +1016,7 @@ public strictfp class GameWorld {
         }
         return false;
         
+
     }
 
 
