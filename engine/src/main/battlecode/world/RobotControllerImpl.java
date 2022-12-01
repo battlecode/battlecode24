@@ -257,7 +257,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
             // check if this robot
@@ -266,7 +266,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             // check if can sense
             if (!canSenseLocation(sensedRobot.getLocation()))
                 continue; 
-            // check if right team
+            // check if right team TODO probably don't need
             if (team != null && sensedRobot.getTeam() != team)
                 continue;
             validSensedRobots.add(sensedRobot.getRobotInfo());
@@ -689,16 +689,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransferResource(loc, rType, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         if(isWell(loc)){
+            System.out.println("After transfering to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
-            this.robot.addResourceAmount(rType, -amount);
+            System.out.println("After transfering to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         }
         else if(isHeadquarter(loc)){
+            System.out.println("Before transfering to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
             this.gameWorld.getRobot(loc).addResourceAmount(rType, amount);
+            System.out.println("After transfering to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
+        this.robot.addResourceAmount(rType, -amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));
     }
 
+    // TODO: Let's change these
     @Override
     public void transferAd(MapLocation loc, int amount) throws GameActionException {
         transferResource(ResourceType.ADAMANTIUM, loc, amount);

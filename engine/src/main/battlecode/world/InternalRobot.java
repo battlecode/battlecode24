@@ -125,8 +125,28 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.inventory.canAdd(amount);
     }
 
+    
+    private void addResourceChangeAction(ResourceType rType, int amount) {
+        switch (rType) {
+            case ADAMANTIUM:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
+                break;
+            case MANA:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_MANA, amount);
+                break;
+            case ELIXIR:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ELIXIR, amount);
+                break;
+            case NO_RESOURCE:
+                if (amount != 0) 
+                    throw new IllegalArgumentException("No resource should have value of 0");
+                break;
+        }
+    }
+
     public void addResourceAmount(ResourceType rType, int amount) {
         this.inventory.addResource(rType, amount);
+        addResourceChangeAction(rType, amount);
     }
 
     public Anchor getAnchor() {
@@ -318,6 +338,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ****** ACTION METHODS *********
     // *********************************
 
+    private int locationToInt(MapLocation loc) {
+        return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
+    }
+    
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
@@ -327,7 +351,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (!(bot == null)) {
             int dmg = this.type.getDamage(0);
             bot.addHealth(-dmg);
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, locationToInt(bot.getLocation()));
         }
     }
 

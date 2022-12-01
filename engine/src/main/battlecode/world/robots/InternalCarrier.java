@@ -37,6 +37,10 @@ public class InternalCarrier extends InternalRobot {
         }
     }
 
+    private int locationToInt(MapLocation loc) {
+        return loc.x + loc.y * this.getGameWorld().getGameMap().getWidth();
+    }
+
     /**
      * Attacks another robot (carrier). Assumes bot is in range.
      * Empties inventory accordingly.
@@ -47,7 +51,7 @@ public class InternalCarrier extends InternalRobot {
         if (!(bot == null)) {
             int dmg = this.getType().getDamage(this.getResource(ResourceType.ADAMANTIUM)+this.getResource(ResourceType.MANA)+this.getResource(ResourceType.ELIXIR));
             bot.addHealth(-dmg);
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, locationToInt(bot.getLocation()));
         }
         this.emptyResources();
     }
