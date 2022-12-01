@@ -2,6 +2,7 @@ package battlecode.world;
 
 import javax.lang.model.util.ElementScanner6;
 
+import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 
 public class Well {
@@ -11,9 +12,10 @@ public class Well {
 
     private ResourceType type;
 
-    public Well(MapLocation loc){
+    public Well(MapLocation loc, ResourceType type){
         inv = new Inventory();
         this.loc = loc;
+        this.type = type;
     }
 
     public Inventory getInventory(){
@@ -26,14 +28,21 @@ public class Well {
 
     public void addAdamantium(int amount){
         inv.addAdamantium(amount);
-        if (type == ResourceType.MANA && inv.getAdAmount() >= 15000)
+        if (type == ResourceType.MANA && inv.getAdamantium() >= 15000)
             type = ResourceType.ELIXIR;
+            //TODO: should inventory be set to zero after an upgrade
+            inv.addAdamantium(-inv.getAdamantium());
+            inv.addMana(-inv.getMana());
     }
 
     public void addMana(int amount){
         inv.addMana(amount);
-        if (type == ResourceType.ADAMANTIUM && inv.getMnAmount() >= 15000)
+        if (type == ResourceType.ADAMANTIUM && inv.getMana() >= 15000)
             type = ResourceType.ELIXIR;
+            //TODO: should inventory be set to zero after an upgrade
+            inv.addAdamantium(-inv.getAdamantium());
+            inv.addMana(-inv.getMana());
+
     }
 
     public void addElixir(int amount){
@@ -45,11 +54,11 @@ public class Well {
     }
   
     public boolean isUpgraded(){
-        if (type == ResourceType.ADAMANTIUM && inv.getAdAmount() >= 10000)
+        if (type == ResourceType.ADAMANTIUM && inv.getAdamantium() >= 10000)
             return true;
-        else if (type == ResourceType.MANA && inv.getMnAmount() >= 10000)
+        else if (type == ResourceType.MANA && inv.getMana() >= 10000)
             return true;
-        else if (type == ResourceType.ELIXIR && inv.getExAmount() >= 10000)
+        else if (type == ResourceType.ELIXIR && inv.getElixir() >= 10000)
             return true;
         else 
             return false;

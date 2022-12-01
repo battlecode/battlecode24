@@ -1,7 +1,8 @@
 package battlecode.world;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
-import javax.sound.sampled.SourceDataLine;
+import java.util.Set;
 
 import battlecode.common.*;
 
@@ -24,6 +25,21 @@ public class Island {
         for (int i = 0; i < locations.size(); i ++) {
             this.locations[i] = locations.get(i);
         }
+        this.teamOwning = Team.NEUTRAL;
+        this.anchorPlanted = null;
+        this.turnsLeftToRemoveAnchor = 0;
+    }
+
+    public Team getTeam() {
+        return this.teamOwning;
+    }
+
+    public int getIdx() {
+        return idx;
+    }
+
+    public Anchor getAnchor() {
+        return this.anchorPlanted;
     }
 
     public Team getTeamOwning(){
@@ -48,8 +64,12 @@ public class Island {
     public void placeAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
         assertCanPlaceAnchor(placingTeam, toPlace);
         this.anchorPlanted = toPlace;
+        if (toPlace == Anchor.ACCELERATING) {
+            this.gw.addBoostFromAnchor(this);
+        }
         this.teamOwning = placingTeam;
         this.turnsLeftToRemoveAnchor = toPlace.turnsToRemove;
+        this.gw.getTeamInfo().placeAnchor(placingTeam);
     }
 
     public void advanceTurn() { 
@@ -68,13 +88,35 @@ public class Island {
             // If the opposing team controls enough of the island decrease the count
             this.turnsLeftToRemoveAnchor -= 1;
             if (this.turnsLeftToRemoveAnchor <= 0) {
-                this.teamOwning = null;
+                this.teamOwning = Team.NEUTRAL;
+                if (this.anchorPlanted == Anchor.ACCELERATING) {
+                    this.gw.removeBoostFromAnchor(this);
+                }
                 this.anchorPlanted = null;
                 this.turnsLeftToRemoveAnchor = 0;
             }
 
         }
+    }
 
+    public int minDistTo(MapLocation compareLoc) {
+        int minDist = Integer.MAX_VALUE;
+        for (MapLocation loc : this.locations) {
+            minDist = Math.min(minDist, loc.distanceSquaredTo(compareLoc));
+        }
+        return minDist;
+    }
+
+    public Set<MapLocation> getLocsAffected() {
+        Set<MapLocation> locsWithinRange = new HashSet<>();
+        if (this.anchorPlanted != null) {
+            if (this.anchorPlanted == Anchor.ACCELERATING) {
+                for (MapLocation loc : this.locations) {
+                    locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
+                }            
+            }
+        }
+        return locsWithinRange;
     }
 
 }

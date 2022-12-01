@@ -236,24 +236,38 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getRobotByID(id).getRobotInfo();
     }
 
-    @Override
-    public RobotInfo[] senseNearbyRobots() {
-        return senseNearbyRobots(-1);
+    private void assertRadiusNonNegative(int radiusSquared) throws GameActionException {
+        if (radiusSquared < -1) {
+            throw new GameActionException(CANT_DO_THAT, "The radius for a sense command can't be negative and not -1");
+        }
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared) {
+    public RobotInfo[] senseNearbyRobots() {
+        try {
+            return senseNearbyRobots(-1);
+        } catch (GameActionException e) {
+            // TODO: why do we need to do this?
+            return new RobotInfo[0];
+        }
+    }
+
+    @Override
+    public RobotInfo[] senseNearbyRobots(int radiusSquared) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
         return senseNearbyRobots(radiusSquared, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) {
+    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
         return senseNearbyRobots(getLocation(), radiusSquared, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException {
         assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
@@ -272,102 +286,135 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
 
-    @Override 
-    public int senseRubble(MapLocation loc) throws GameActionException {
+    @Override
+    public boolean sensePassability(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
-        return this.gameWorld.getRubble(loc);
-    }
-
-    @Override 
-    public int senseLead(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
-        return this.gameWorld.getLead(loc);
-    }
-
-    @Override 
-    public int senseGold(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
-        return this.gameWorld.getGold(loc);
+        return this.gameWorld.isPassable(loc);
     }
 
     @Override
-    public MapLocation[] senseNearbyLocationsWithLead() {
+    public int senseIsland(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        Island island = this.gameWorld.getIsland(loc);
+        return island == null ? -1 : island.idx;
+    }
+
+    @Override
+    public Map<Integer, MapLocation[]> senseNearbyIslandLocations() {
         try {
-            return senseNearbyLocationsWithLead(getLocation(), -1, 1);
-        } catch (GameActionException willNeverHappen) {
-            throw new RuntimeException("impossible", willNeverHappen);
+            return senseNearbyIslandLocations(-1);
+        } catch (GameActionException e) {
+            return new HashMap<Integer, MapLocation[]>();
         }
     }
-
+    
     @Override
-    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared) throws GameActionException {
-        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, 1);
+    public Map<Integer, MapLocation[]> senseNearbyIslandLocations(int radiusSquared) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyIslandLocations(getLocation(), radiusSquared);
     }
 
     @Override
-    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared) throws GameActionException {
-        return senseNearbyLocationsWithLead(center, radiusSquared, 1);
-    }
+    public Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
 
-    @Override
-    public MapLocation[] senseNearbyLocationsWithLead(int radiusSquared, int minLead) throws GameActionException {
-        return senseNearbyLocationsWithLead(getLocation(), radiusSquared, minLead);
-    }
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
 
-    @Override
-    public MapLocation[] senseNearbyLocationsWithLead(MapLocation center, int radiusSquared, int minLead) throws GameActionException {
-        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-        if (radiusSquared < 0)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Radius squared must be non-negative.");
-        ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
-            if (this.gameWorld.getLead(loc) >= minLead && canSenseLocation(loc)) {
-                locations.add(loc);
+        Island[] allSensedIslands = gameWorld.getAllIslandsWithinRadiusSquared(center, actualRadiusSquared);
+
+        Map<Integer, MapLocation[]> islandLocations = new HashMap<Integer, MapLocation[]>();
+        for (Island island : allSensedIslands) {
+            List<MapLocation> validLocations = Arrays.asList(island.locations);
+            validLocations.removeIf(loc -> !canSenseLocation(loc));
+
+            if (validLocations.isEmpty()) {
+                continue;
             }
+
+            islandLocations.put(island.idx, validLocations.toArray(new MapLocation[validLocations.size()]));
         }
-        MapLocation[] result = new MapLocation[locations.size()];
-        return locations.toArray(result);
+
+        return islandLocations;
+    }
+
+    private boolean canSenseIsland(Island island) {
+        return Arrays.stream(island.locations).anyMatch(loc -> canSenseLocation(loc));
     }
 
     @Override
-    public MapLocation[] senseNearbyLocationsWithGold() {
+    public Team senseTeamOccupyingIsland(int islandIdx) throws GameActionException {
+        Island island = gameWorld.getIsland(islandIdx);
+        if (island == null || !canSenseIsland(island)) {
+            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
+        }
+
+        return island.teamOwning;
+    }
+
+    @Override
+    public int senseTurnsLeftToTurn(int islandIdx) throws GameActionException {
+        Island island = gameWorld.getIsland(islandIdx);
+        if (island == null || !canSenseIsland(island)) {
+            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
+        }
+
+        return island.turnsLeftToRemoveAnchor;
+    }
+
+    @Override
+    public Anchor senseAnchor(int islandIdx) throws GameActionException {
+        Island island = gameWorld.getIsland(islandIdx);
+        if (island == null || !canSenseIsland(island)) {
+            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
+        }
+
+        return island.anchorPlanted;
+    }
+
+    @Override
+    public Well[] senseNearbyWells() {
+        return senseNearbyWells(null);
+    }
+
+    @Override
+    public Well[] senseNearbyWells(int radiusSquared) throws GameActionException {
+        return senseNearbyWells(radiusSquared, null);
+    }
+
+    @Override
+    public Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException {
+        return senseNearbyWells(center, radiusSquared, null);
+    }
+
+    @Override
+    public Well[] senseNearbyWells(ResourceType resourceType) {
         try {
-            return senseNearbyLocationsWithGold(getLocation(), -1, 1);
-        } catch (GameActionException willNeverHappen) {
-            throw new RuntimeException("impossible", willNeverHappen);
+            return senseNearbyWells(-1, resourceType);
+        } catch (GameActionException e) {
+            return new Well[0];
         }
     }
 
     @Override
-    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared) throws GameActionException {
-        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, 1);
+    public Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyWells(getLocation(), radiusSquared, resourceType);
     }
 
     @Override
-    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared) throws GameActionException {
-        return senseNearbyLocationsWithGold(center, radiusSquared, 1);
-    }
+    public Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
 
-    @Override
-    public MapLocation[] senseNearbyLocationsWithGold(int radiusSquared, int minGold) throws GameActionException {
-        return senseNearbyLocationsWithGold(getLocation(), radiusSquared, minGold);
-    }
+        // TODO update based on well implementation
+        Well[] allSensedWells = gameWorld.getAllWellsWithinRadiusSquared(center, actualRadiusSquared);
+        List<Well> validSensedWells = Arrays.asList(allSensedWells);
+        validSensedWells.removeIf(well -> !canSenseLocation(well.getMapLocation()) ||
+            (resourceType != null && well.getResourceType() != resourceType));
 
-    @Override
-    public MapLocation[] senseNearbyLocationsWithGold(MapLocation center, int radiusSquared, int minGold) throws GameActionException {
-        radiusSquared = (radiusSquared == -1) ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-        if (radiusSquared < 0)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Radius squared must be non-negative.");
-        ArrayList<MapLocation> locations = new ArrayList<>();
-        for (MapLocation loc : this.gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared)) {
-            if (this.gameWorld.getGold(loc) >= minGold && canSenseLocation(loc)) {
-                locations.add(loc);
-            }
-        }
-        MapLocation[] result = new MapLocation[locations.size()];
-        return locations.toArray(result);
+        return validSensedWells.toArray(new Well[validSensedWells.size()]);
     }
 
     @Override
@@ -472,6 +519,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot move to an impassable location; " + loc + " is impassable.");
     }
 
     @Override
@@ -674,7 +724,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         if(getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
-        if(amount > 0 && this.robot.getInventory.getResource(type) < amount) // Carrier is transfering to another location
+        if(amount > 0 && this.robot.getResource(type) < amount) // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         if(amount < 0 && this.robot.getInventory.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
@@ -965,17 +1015,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.gameWorld.getTeamInfo().readSharedArray(getTeam(), index);
     }
 
+    private void assertCanWriteSharedArray(int index, int value) throws GameActionException{
+        assertValidIndex(index);
+        assertValidValue(value);
+        if (!this.gameWorld.inRangeForAmplification(this.robot)) {
+            throw new GameActionException(CANT_DO_THAT, "You cannot write to the shared array");
+        }
+    }
+
     @Override
-    public boolean canWriteSharedArray(){
-        return this.gameWorld.isInRange(this.robot.getLocation());
+    public boolean canWriteSharedArray(int index, int value){
+        try {
+            assertCanWriteSharedArray(index, value);
+            return true;
+        } catch (GameActionException e) { return false; }  
     }
 
     @Override
     public void writeSharedArray(int index, int value) throws GameActionException {
-        assertValidIndex(index);
-        assertValidValue(value);
-        if(canWriteSharedArray())
-            this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
+        assertCanWriteSharedArray();
+        this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
 
 
