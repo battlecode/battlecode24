@@ -153,10 +153,46 @@ public strictfp class RobotPlayer {
                         " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
                         " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
                 }
+                if (rng.nextInt(5) == 1) {
+                    while (rc.canTransferMn(mineLocation, 1)) {
+                        rc.transferMn(mineLocation, 1);
+                        rc.setIndicatorString("Transfering, now have, AD:" + 
+                            rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                            " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                            " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                        System.out.println("Transfering, now have, AD:" + 
+                            rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                            " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                            " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                    }
+                }
             }
         }
+        RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam());
+        System.out.println("Sensed: " + robots.length);
+        for (RobotInfo robot : robots) {
+            if (robot.getType() == RobotType.HEADQUARTERS) {
+                Direction dir = me.directionTo(robot.getLocation());
+                if (rc.canMove(dir))
+                    rc.move(dir);
+                if (!rc.canTransferAd(robot.getLocation(), 1))
+                    System.out.println("Current Location : " + rc.getLocation() + " HQ location: " + robot.getLocation());
+                while (rc.canTransferAd(robot.getLocation(), 1)) {
+                    rc.transferAd(robot.getLocation(), 1);
+                    rc.setIndicatorString("Transfering, now have, AD:" + 
+                        rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                        " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                    System.out.println("Transfering, now have, AD:" + 
+                        rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                        " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                }
+            }
+        }
+        
         Well[] wells = rc.senseNearbyWells();
-        if (wells.length > 0) {
+        if (wells.length > 0 && rng.nextBoolean()) {
             Well well_one = wells[0];
             Direction dir = me.directionTo(well_one.getMapLocation());
             if (rc.canMove(dir)) 
