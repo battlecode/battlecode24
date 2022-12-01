@@ -61,10 +61,11 @@ public class GameConstants {
     /** The initial amount of adamantium each team starts with. */
     public static final int INITIAL_AD_AMOUNT = 1000;
 
-    /** The amount of adamantium each team gains per turn. */
+    //TODO: We may want to reduce this since it is added to each hq
+    /** The amount of adamantium each headquarter on a team gains per turn. */
     public static final int PASSIVE_AD_INCREASE = 2;
 
-    /** The amount of mana each team gains per turn. */
+    /** The amount of mana each headquarter on a team gains per turn. */
     public static final int PASSIVE_MN_INCREASE = 2;
 
     /** The number of rounds between adding lead resources to the map. */
@@ -162,5 +163,5 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     //TOOD: change pls
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 200;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 }

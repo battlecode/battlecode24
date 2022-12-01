@@ -59,6 +59,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
+                //TODO: fix
+                this.inventory.addAdamantium(1000);
+                this.inventory.addMana(1000);
                 break;
             case CARRIER:
                 this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
@@ -67,11 +70,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 this.inventory = new Inventory(0);
                 break;
         }
-        this.inventory = new Inventory();
-        //TODO: fix
-        this.inventory.addAdamantium(1000);
-        this.inventory.addMana(1000);
-
         this.health = this.type.health;
 
         this.controlBits = 0;
@@ -117,10 +115,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public int getHealth() {
         return health;
-    }
-
-    public Inventory getInventory() {
-        return this.inventory.copy();
     }
 
     public int getResource(ResourceType r) {
@@ -362,6 +356,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void processEndOfRound() {
         // anything
+        if (this.getType() == RobotType.HEADQUARTERS) {
+            // Add resources to team
+            this.gameWorld.getTeamInfo().addAdamantium(this.getTeam(), GameConstants.PASSIVE_AD_INCREASE);
+            this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
+
+            this.gameWorld.getTeamInfo().addMana(this.getTeam(), GameConstants.PASSIVE_MN_INCREASE);
+            this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+        }
     }
 
     // *********************************
