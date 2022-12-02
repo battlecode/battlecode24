@@ -470,6 +470,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertIsMovementReady();
         MapLocation loc = adjacentLocation(dir);
+        if (this.getType() == RobotType.HEADQUARTERS)
+            throw new GameActionException(CANT_DO_THAT, "Headquarters can't move");
         if (!onTheMap(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only move to locations on the map; " + loc + " is not on the map.");
@@ -656,7 +658,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
-        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (probably headquarters)
+        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
+            if (!isHeadquarter(loc)) {
+                throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from headquarters");
+            }
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
         }
         if (!isWell(loc) && !isHeadquarter(loc)) {
@@ -683,7 +688,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
             this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         } else if(isHeadquarter(loc)){
             System.out.println("Before transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
-            this.gameWorld.getRobot(loc).addResourceAmount(rType, amount);
+            InternalRobot headquarter = this.gameWorld.getRobot(loc);
+            if (headquarter.getType() != RobotType.HEADQUARTERS) {
+                throw new IllegalArgumentException("Headquarter must be the robot at this location");
+            }
+            headquarter.addResourceAmount(rType, amount);
             System.out.println("After transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
         this.robot.addResourceAmount(rType, -amount);
