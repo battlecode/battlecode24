@@ -540,7 +540,8 @@ export default class GameWorld {
         switch (action) {
           case schema.Action.THROW_ATTACK:
             this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            setAction(false, true, false)
+            if(target != -1) //missed attack
+              setAction(false, true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
             setAction(false, true, false)
@@ -625,6 +626,13 @@ export default class GameWorld {
       let well_adamantium = delta.wellAdamantiumValues(i)
       let well_elixir = delta.wellElixirValues(i)
       let well_mana = delta.wellManaValues(i)
+
+      if(well_adamantium != 0 || well_elixir != 0 || well_mana != 0){
+        console.log("Well received resources:")
+        console.log(well_adamantium)
+        console.log(well_elixir)
+        console.log(well_mana)
+      }
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
 

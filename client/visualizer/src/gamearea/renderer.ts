@@ -136,10 +136,12 @@ export default class Renderer {
 
       // Draw grid
       if (this.conf.showGrid) {
-        ctx.strokeStyle = 'gray'
-        ctx.globalAlpha = 1
-        if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, 1.01, 1.01)
-        else ctx.strokeRect(cy, cx, 1.01, 1.01)
+        ctx.strokeStyle = 'black'
+        ctx.globalAlpha = .05
+        let thickness = .02
+        ctx.lineWidth = thickness
+        if (!this.conf.doingRotate) ctx.strokeRect(cx + thickness / 2, cy + thickness / 2, 1 - thickness, 1 - thickness)
+        else ctx.strokeRect(cy + thickness / 2, cx + thickness / 2, 1 - thickness, 1 - thickness)
       }
     }
   }
@@ -382,17 +384,17 @@ export default class Renderer {
       //draw rescoures
       if (anchors[i] > 0) {
         let anchorColor = anchors[i] == 2 ? "#6C6C6C" : "#EEAC09"
-        this.drawCircle(realXs[i], realYs[i] - 0.6, 0.005, anchorColor, "#00000088")
+        this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
       } else {
         let adamantiumColor = "#838D63"
         let manaColor = "#D79DA2"
         let elixirColor = "#FBCC3F"
         if (adamantiums[i])
-          this.drawCircle(realXs[i], realYs[i] - 0.57, 0.002, adamantiumColor, "#00000088")
+          this.drawCircle(realXs[i], realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
         if (manas[i])
-          this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.57, 0.002, manaColor, "#00000088")
+          this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.004, manaColor, "#00000088")
         if (elixirs[i])
-          this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.57, 0.002, elixirColor, "#00000088")
+          this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
       }
 
 
