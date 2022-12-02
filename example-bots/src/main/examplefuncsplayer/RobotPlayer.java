@@ -169,14 +169,11 @@ public strictfp class RobotPlayer {
             }
         }
         RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam());
-        System.out.println("Sensed: " + robots.length);
         for (RobotInfo robot : robots) {
             if (robot.getType() == RobotType.HEADQUARTERS) {
                 Direction dir = me.directionTo(robot.getLocation());
                 if (rc.canMove(dir))
                     rc.move(dir);
-                if (!rc.canTransferAd(robot.getLocation(), 1))
-                    System.out.println("Current Location : " + rc.getLocation() + " HQ location: " + robot.getLocation());
                 while (rc.canTransferAd(robot.getLocation(), 1)) {
                     rc.transferAd(robot.getLocation(), 1);
                     rc.setIndicatorString("Transfering, now have, AD:" + 

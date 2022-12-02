@@ -745,7 +745,7 @@ public strictfp class GameWorld {
      * Checks if the given MapLocation contains a headquarters
      */
     public boolean isHeadquarters(MapLocation loc) {
-        return getRobot(loc).getType() == RobotType.HEADQUARTERS;
+        return getRobot(loc) != null && getRobot(loc).getType() == RobotType.HEADQUARTERS;
     }
 
     public boolean isWell(MapLocation loc) {
