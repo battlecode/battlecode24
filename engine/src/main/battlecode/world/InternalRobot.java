@@ -59,8 +59,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
-                this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
-                this.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
+                // Add resources at start of game
                 break;
             case CARRIER:
                 this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
@@ -126,6 +125,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     
     private void addResourceChangeAction(ResourceType rType, int amount) {
+        System.out.println("Adding action of increasing resource " + rType + " to robot with id " + getID() + " with amount " + amount);
         switch (rType) {
             case ADAMANTIUM:
                 this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);

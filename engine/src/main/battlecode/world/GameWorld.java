@@ -127,18 +127,11 @@ public strictfp class GameWorld {
             this.islandIdToIsland.put(key, newIsland);            
         }
 
-        // Add initial amounts of resource
-        this.teamInfo.addMana(Team.A, GameConstants.INITIAL_MN_AMOUNT);
-        this.teamInfo.addMana(Team.B, GameConstants.INITIAL_MN_AMOUNT);
-        this.teamInfo.addAdamantium(Team.A, GameConstants.INITIAL_AD_AMOUNT);
-        this.teamInfo.addAdamantium(Team.B, GameConstants.INITIAL_AD_AMOUNT);
-
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
         
         this.wells = new Well[gm.getWidth()*gm.getHeight()];
         for(int i = 0; i < gm.getResourceArray().length; i++){
-            Inventory inv = new Inventory();
             MapLocation loc = indexToLocation(i);
             ResourceType rType = ResourceType.values()[gm.getResourceArray()[i]];
             if (rType == ResourceType.NO_RESOURCE)
@@ -173,6 +166,25 @@ public strictfp class GameWorld {
             this.processBeginningOfRound();
             this.controlProvider.roundStarted();
             System.out.println("Round: " + this.currentRound);
+            // On the first round we want to add the initial amounts to the headquarters
+            if (this.currentRound == 1) {
+                objectInfo.eachDynamicBodyByExecOrder((body) -> {
+                    if (body instanceof InternalRobot) {
+                        InternalRobot hq = (InternalRobot) body;
+                        if (hq.getType() != RobotType.HEADQUARTERS) {
+                            throw new RuntimeException("Robots must be headquarters in round 1");
+                        }
+                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
+                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
+                        // Add initial amounts of resource
+                        this.teamInfo.addAdamantium(hq.getTeam(), GameConstants.INITIAL_AD_AMOUNT);                        
+                        this.teamInfo.addMana(hq.getTeam(), GameConstants.INITIAL_MN_AMOUNT);
+                        return true;
+                    } else {
+                        throw new RuntimeException("non-robot body registered as dynamic");
+                    }
+                });
+            }
 
             updateDynamicBodies();
 
