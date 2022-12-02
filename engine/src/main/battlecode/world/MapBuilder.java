@@ -70,16 +70,13 @@ public class MapBuilder {
                 throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
             }
         }
-        // TODO: currently assuming initial amount is added to each headquarter, this may be wrong
-        Inventory initialHeadquarterInventory = new Inventory();
-        initialHeadquarterInventory.addAdamantium(GameConstants.INITIAL_AD_AMOUNT);
-        initialHeadquarterInventory.addMana(GameConstants.INITIAL_MN_AMOUNT);
+        // TODO: You shouldn't need to add until you actually create the internal robot
 
         bodies.add(new RobotInfo(
                 id,
                 team,
                 RobotType.HEADQUARTERS,
-                initialHeadquarterInventory,
+                new Inventory(),
                 RobotType.HEADQUARTERS.health,
                 loc
         ));

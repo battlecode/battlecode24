@@ -178,9 +178,9 @@ public enum RobotType {
      *
      * @battlecode.doc.costlymethod
      */
-    public int getDamage(int inventory) {
+    public int getDamage(int amountCarrying) {
         if (this == RobotType.CARRIER) {
-            return inventory/5;
+            return amountCarrying/5;
         } else if (this == RobotType.LAUNCHER) {
             return 6;
         } else {

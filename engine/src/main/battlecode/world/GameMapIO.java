@@ -347,8 +347,6 @@ public final strictfp class GameMapIO {
                 if (bodyType == RobotType.HEADQUARTERS) {
                     // TODO: currently assuming initial amount is added to each headquarter, this may be wrong
                     Inventory headquarterInventory = new Inventory();
-                    headquarterInventory.addAdamantium(GameConstants.INITIAL_AD_AMOUNT);
-                    headquarterInventory.addMana(GameConstants.INITIAL_MN_AMOUNT);
                     initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, headquarterInventory, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
                 }
                 // ignore robots that are not archons, TODO throw error?

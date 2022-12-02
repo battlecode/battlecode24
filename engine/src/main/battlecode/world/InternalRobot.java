@@ -59,9 +59,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
-                //TODO: fix
-                this.addResourceAmount(ResourceType.ADAMANTIUM, 1000);
-                this.addResourceAmount(ResourceType.MANA, 1000);
+                this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
+                this.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
                 break;
             case CARRIER:
                 this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);

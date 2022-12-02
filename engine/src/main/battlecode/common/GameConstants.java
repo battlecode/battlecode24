@@ -55,6 +55,7 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
+    //TODO: fix
     /** The initial amount of mana each team starts with. */
     public static final int INITIAL_MN_AMOUNT = 1000;
 
