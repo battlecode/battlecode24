@@ -1,6 +1,6 @@
 {
   "name": "battlecode-visualizer",
-  "version": "2022.0.0",
+  "version": "2023.0.0",
   "description": "Visualizing the game using playback",
   "private": true,
   "scripts": {
@@ -12,22 +12,24 @@
     "electron": "webpack --mode=development --env.electron --env.dev && electron .",
     "prod-electron": "webpack --mode=production --env.electron && electron-builder -mwl --dir --ia32 --x64",
     "prod-electron-no-sign": "webpack --mode=production --env.electron && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -mwl --dir --ia32 --x64",
-    "prod-test": "webpack --mode=production --env.electron && electron-builder"
+    "prod-test": "webpack --mode=production --env.electron && electron-builder",
+    "shrink-images": "ts-node src/image_processor.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/battlecode/battlecode21.git"
+    "url": "git+https://github.com/battlecode/battlecode23.git"
   },
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/battlecode/battlecode21/issues"
+    "url": "https://github.com/battlecode/battlecode23/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode21#readme",
+  "homepage": "https://github.com/battlecode/battlecode23#readme",
   "dependencies": {
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
+    "sharp": "^0.31.2",
     "speedscope": "1.5.2",
     "victor": "^1.1.0"
   },
@@ -70,10 +72,18 @@
     },
     "fileAssociations": [
       {
-        "ext": "bc22",
-        "name": "BC22",
-        "description": "Battlecode Match 2022",
-        "role": "Viewer"
+        "ext": "bc23",
+        "name": "BC23",
+        "description": "Battlecode Match 2023",
+        "role": "Viewer",
+        "icon": "build/icon"
+      },
+      {
+        "ext": "map23",
+        "name": "MAP23",
+        "description": "Battlecode Map 2023",
+        "role": "Viewer",
+        "icon": "build/icon"
       }
     ],
     "mac": {

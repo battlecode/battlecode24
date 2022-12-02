@@ -4,16 +4,16 @@ import { AllImages } from '../imageloader';
 import { schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
-import { ARCHON } from '../constants';
+import { HEADQUARTERS } from '../constants';
 
 const hex: Object = {
-  1: "#db3627",
-  2: "#4f7ee6"
+  1: "var(--red)",
+  2: "var(--blue)"
 };
 
-type ArchonBar = {
+type HeadQuarterBar = {
   bar: HTMLDivElement,
-  archon: HTMLSpanElement,
+  headQuarter: HTMLSpanElement,
   //bid: HTMLSpanElement
 };
 
@@ -23,8 +23,9 @@ type BuffDisplay = {
 }
 
 type IncomeDisplay = {
-  leadIncome: HTMLSpanElement
-  goldIncome: HTMLSpanElement
+  adamantiumIncome: HTMLSpanElement
+  elixirIncome: HTMLSpanElement
+  manaIncome: HTMLSpanElement
 }
 
 /**
@@ -48,7 +49,7 @@ export default class Stats {
   private robotImages: Map<string, Array<HTMLImageElement>> = new Map(); // the robot image elements in the unit statistics display 
   private robotTds: Map<number, Map<string, Map<number, HTMLTableCellElement>>> = new Map();
 
-  private archonBars: ArchonBar[];
+  private headQuarterBars: HeadQuarterBar[];
   private maxVotes: number;
 
   private incomeDisplays: IncomeDisplay[];
@@ -67,8 +68,9 @@ export default class Stats {
 
   private tourneyUpload: HTMLDivElement;
 
-  private incomeChartLead: Chart;
-  private incomeChartGold: Chart;
+  private incomeChartAdamantium: Chart;
+  private incomeChartMana: Chart;
+  private incomeChartElixir: Chart;
 
   private ECs: HTMLDivElement;
   
@@ -84,8 +86,8 @@ export default class Stats {
     this.conf = conf;
     this.images = images;
 
-    for (const robot in this.images.robots) {
-      let robotImages: Array<HTMLImageElement> = this.images.robots[robot];
+    for (const robot in this.images.robots_high_quality) {
+      let robotImages: Array<HTMLImageElement> = this.images.robots_high_quality[robot];
       this.robotImages[robot] = robotImages.map((image) => image.cloneNode() as HTMLImageElement);
     }
     
@@ -137,13 +139,12 @@ export default class Stats {
     }
 
     for (let robot of this.robots) {
-      let robotName: string = cst.bodyTypeToString(robot);
       let tdRobot: HTMLTableCellElement = document.createElement("td");
       tdRobot.className = "robotSpriteStats";
-      tdRobot.style.height = "45px";
-      tdRobot.style.width = "60px";
+      tdRobot.style.height = "50px";
+      tdRobot.style.width = "50px";
 
-      const img: HTMLImageElement = this.robotImages[robotName][inGameID];
+      const img: HTMLImageElement = this.robotImages[robot][inGameID];
       img.style.width = "100%";
       img.style.height = "100%";
       // TODO: images
@@ -170,13 +171,13 @@ export default class Stats {
   }
 
   private initRelativeBars(teamIDs: Array<number>) {
-    let metalIDs = [0, 1];
-    let colors = ["#AA9700", "#696969"];
+    let metalIDs = [0, 1, 2];
+    let colors = ["#963749", "#25b5bc", "#f413b1"];
     const relativeBars: HTMLDivElement[] = [];
     teamIDs.forEach((teamID: number) => metalIDs.forEach((id: number) => {
       const bar = document.createElement("div");
-      bar.style.backgroundColor = colors[id];
-      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "#C00040" : "#4000C0");
+      // bar.style.backgroundColor = colors[id];
+      bar.style.border = "5px solid " + ((teamID === teamIDs[0]) ? "var(--red)" : "var(--blue)");
       bar.style.width = `90%`;
       bar.className = "influence-bar";
       bar.innerText = "0%";
@@ -186,69 +187,62 @@ export default class Stats {
     return relativeBars;
   }
 
-  private getRelativeBarsElement(){
-    let metalIDs = [0, 1];
-    const divleft = document.createElement("div");
-    divleft.setAttribute("align", "center");
-    divleft.id = "relative-bars-left";
+  private createRelativeBarsRow(statName: string, rowIndex: number){
+    const tr = document.createElement("tr");
+    tr.style.width = "100%";
 
-    const labelleft = document.createElement('div');
-    labelleft.className = "stats-header";
-    labelleft.innerText = 'Gold';
+    const label = document.createElement('td');
+    label.className = "stats-header";
+    label.innerText = statName;
 
-    const frameleft = document.createElement("div");
-    frameleft.style.width = "100%";
+    const cell1 = document.createElement("td");
+    cell1.style.width = "50%";
+    cell1.appendChild(this.relativeBars[rowIndex * 2]);
+    
+    const cell2 = document.createElement("td");
+    cell2.style.width = "50%";
+    cell2.appendChild(this.relativeBars[rowIndex * 2 + 1]);
 
-    frameleft.appendChild(this.relativeBars[0]);
-    frameleft.appendChild(this.relativeBars[1]);
+    tr.appendChild(label);
+    tr.appendChild(cell1);
+    tr.appendChild(cell2);
 
-    divleft.appendChild(labelleft);
-    divleft.appendChild(frameleft);
-
-    const divright = document.createElement("div");
-    divright.setAttribute("align", "center");
-    divright.id = "relative-bars-right";
-
-    const labelright = document.createElement('div');
-    labelright.className = "stats-header";
-    labelright.innerText = 'Lead';
-
-    const frameright = document.createElement("div");
-    frameright.style.width = "100%";
-
-    frameright.appendChild(this.relativeBars[2]);
-    frameright.appendChild(this.relativeBars[3]);
-
-    divright.appendChild(labelright);
-    divright.appendChild(frameright);
-    return [divleft, divright];
+    return tr;
   }
-
-  private updateRelBars(teamLead: Array<number>, teamGold: Array<number>){
-    for(var a = 0; a < teamGold.length; a++){
-      this.relativeBars[a].innerHTML = teamGold[a].toString();
-      this.relativeBars[a].style.width = (Math.max(teamGold[0], teamGold[1]) === 0 ? 90:(90.0*teamGold[a]/Math.max(teamGold[0], teamGold[1]))).toString() + "%";
+  private updateRelBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
+    for(var a = 0; a < teamAdamantium.length; a++){
+      this.relativeBars[a].innerHTML = teamAdamantium[a].toString();
+      this.relativeBars[a].style.width = (Math.max(teamAdamantium[0], teamAdamantium[1]) === 0 ? 90:(90.0*teamAdamantium[a]/Math.max(teamAdamantium[0], teamAdamantium[1]))).toString() + "%";
     }
-    for(var a = 0; a < teamLead.length; a++){
-      this.relativeBars[a+2].innerHTML = teamLead[a].toString();
-      this.relativeBars[a+2].style.width = (Math.max(teamLead[0], teamLead[1]) === 0 ? 90:(90.0*teamLead[a]/Math.max(teamLead[0], teamLead[1]))).toString() + "%";
+    for(var a = 0; a < teamMana.length; a++){
+      this.relativeBars[a+2].innerHTML = teamMana[a].toString();
+      this.relativeBars[a+2].style.width = (Math.max(teamMana[0], teamMana[1]) === 0 ? 90:(90.0*teamMana[a]/Math.max(teamMana[0], teamMana[1]))).toString() + "%";
+    }
+    for(var a = 0; a < teamElixir.length; a++){
+      this.relativeBars[a+4].innerHTML = teamElixir[a].toString();
+      this.relativeBars[a+4].style.width = (Math.max(teamElixir[0], teamElixir[1]) === 0 ? 90:(90.0*teamElixir[a]/Math.max(teamElixir[0], teamElixir[1]))).toString() + "%";
     }
   }
 
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
-      const leadIncome = document.createElement("span");
-      const goldIncome = document.createElement("span");
-      leadIncome.style.color = hex[id];
-      leadIncome.style.fontWeight = "bold";
-      leadIncome.textContent = "L: 0";
-      leadIncome.style.padding = "10px";
-      goldIncome.style.color = hex[id];
-      goldIncome.style.fontWeight = "bold";
-      goldIncome.textContent = "G: 0";
-      goldIncome.style.padding = "10px";
-      incomeDisplays[id] = {leadIncome: leadIncome, goldIncome: goldIncome};
+      const adamantiumIncome = document.createElement("span");
+      const manaIncome = document.createElement("span");
+      const elixirIncome = document.createElement("span");
+      adamantiumIncome.style.color = hex[id];
+      adamantiumIncome.style.fontWeight = "bold";
+      adamantiumIncome.textContent = "L: 0";
+      adamantiumIncome.style.padding = "10px";
+      manaIncome.style.color = hex[id];
+      manaIncome.style.fontWeight = "bold";
+      manaIncome.textContent = "G: 0";
+      manaIncome.style.padding = "10px";
+      elixirIncome.style.color = hex[id];
+      elixirIncome.style.fontWeight = "bold";
+      elixirIncome.textContent = "G: 0";
+      elixirIncome.style.padding = "10px";
+      incomeDisplays[id] = {adamantiumIncome: adamantiumIncome, elixirIncome: elixirIncome, manaIncome: manaIncome};
     });
     return incomeDisplays;
   }
@@ -262,28 +256,38 @@ export default class Stats {
     title.colSpan = 4;
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Total Lead & Gold Income Per Turn';
+    label.innerText = 'Total Resource Income Per Turn';
 
     const row = document.createElement("tr");
 
-    const cellLead = document.createElement("td");
+    const cellAdamantium = document.createElement("td");
     teamIDs.forEach((id: number) => {
       
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cellLead.appendChild(this.incomeDisplays[id].leadIncome);
-      row.appendChild(cellLead);
+      cellAdamantium.appendChild(this.incomeDisplays[id].adamantiumIncome);
+      row.appendChild(cellAdamantium);
     });
 
-    const cellGold = document.createElement("td");
+    const cellElixir = document.createElement("td");
     teamIDs.forEach((id: number) => {
       
       // cell.appendChild(document.createTextNode("1.001"));
       // cell.appendChild(this.buffDisplays[id].numBuffs);
       // cell.appendChild(document.createTextNode(" = "));
-      cellGold.appendChild(this.incomeDisplays[id].goldIncome);
-      row.appendChild(cellGold);
+      cellElixir.appendChild(this.incomeDisplays[id].elixirIncome);
+      row.appendChild(cellElixir);
+    });
+    
+    const cellMana = document.createElement("td");
+    teamIDs.forEach((id: number) => {
+      
+      // cell.appendChild(document.createTextNode("1.001"));
+      // cell.appendChild(this.buffDisplays[id].numBuffs);
+      // cell.appendChild(document.createTextNode(" = "));
+      cellMana.appendChild(this.incomeDisplays[id].manaIncome);
+      row.appendChild(cellMana);
     });
 
     title.appendChild(label);
@@ -293,16 +297,23 @@ export default class Stats {
     return table;
   }
 
-  private getIncomeLeadGraph() {
+  private getIncomeManaGraph() {
     const canvas = document.createElement("canvas");
-    canvas.id = "leadGraph";
+    canvas.id = "manaGraph";
     canvas.className = "graph";
     return canvas;
   }
 
-  private getIncomeGoldGraph() {
+  private getIncomeAdamantiumGraph() {
     const canvas = document.createElement("canvas");
-    canvas.id = "goldGraph";
+    canvas.id = "adamantiumGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getIncomeElixirGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "elixirGraph";
     canvas.className = "graph";
     return canvas;
   }
@@ -311,7 +322,7 @@ export default class Stats {
     const div = document.createElement('div');
     const label = document.createElement('div');
     label.className = "stats-header";
-    label.innerText = 'Archon Status';
+    label.innerText = 'HeadQuarter Status';
     div.appendChild(label);
     div.appendChild(this.ECs);
     return div;
@@ -438,9 +449,38 @@ export default class Stats {
       archonnums[id] = (this.robotTds[id]["count"][ARCHON].inner == undefined) ? 0 : this.robotTds[id]["count"][ARCHON].inner;
       console.log(archonnums[id]);
     });*/
+    // Create table structure
+    const relativeBarsTable = document.createElement("table");
+    relativeBarsTable.style.margin = "1rem 0 1rem 0";
+    const relativeBarsHeader = document.createElement("thead");
+    relativeBarsTable.appendChild(relativeBarsHeader);
+    const relativeBarsHeaderRow = document.createElement("tr");
+    relativeBarsHeader.appendChild(relativeBarsHeaderRow);
+
+    // Create blue/red team header
+    relativeBarsHeaderRow.appendChild(document.createElement("td")); // Empty cell
+    const redTeamHeader = document.createElement("td");
+    redTeamHeader.className = "stats-header";
+    redTeamHeader.innerText = "Red";
+    const blueTeamHeader = document.createElement("td");
+    blueTeamHeader.className = "stats-header";
+    blueTeamHeader.innerText = "Blue";
+    relativeBarsHeaderRow.appendChild(redTeamHeader);
+    relativeBarsHeaderRow.appendChild(blueTeamHeader);
+
+    // Create resource rows
+    const relativeBarsParent = document.createElement("tbody");
+    relativeBarsParent.style.width = "100%";
+    relativeBarsTable.appendChild(relativeBarsParent);
+    this.div.appendChild(relativeBarsTable);
+
     this.relativeBars = this.initRelativeBars(teamIDs);
-    const relativeBarsElement = this.getRelativeBarsElement();
-    relativeBarsElement.forEach((relBar: HTMLDivElement) => { this.div.appendChild(relBar);});
+    const relativeBarsElements = [
+      this.createRelativeBarsRow("Adamantium", 0),
+      this.createRelativeBarsRow("Mana", 1),
+      this.createRelativeBarsRow("Elixir", 2)
+    ];
+    relativeBarsElements.forEach((relBar: HTMLDivElement) => { relativeBarsParent.appendChild(relBar);});
 
     this.incomeDisplays = this.initIncomeDisplays(teamIDs);
     const incomeElement = this.getIncomeDisplaysElement(teamIDs);
@@ -448,32 +488,56 @@ export default class Stats {
 
     const graphs = document.createElement("div");
     graphs.style.display = 'flex';
-    const leadWrapper = document.createElement("div");
-    leadWrapper.style.width = "50%";
-    leadWrapper.style.float = "left";
-    const canvasElementLead = this.getIncomeLeadGraph();
-    leadWrapper.appendChild(canvasElementLead);    
-    graphs.appendChild(leadWrapper);
-    const goldWrapper = document.createElement("div");
-    goldWrapper.style.width = "50%";
-    goldWrapper.style.float = "right";
-    const canvasElementGold = this.getIncomeGoldGraph();
-    goldWrapper.appendChild(canvasElementGold);    
-    graphs.appendChild(goldWrapper);
-    this.div.appendChild(graphs);
+    graphs.style.flexDirection = "column";
+    
+    const row1=  document.createElement("div");
+    row1.style.display = 'flex';
+    row1.style.flexDirection = "row";
+    // Adamantium
+    const adamantiumWrapper = document.createElement("div");
+    adamantiumWrapper.style.width = "50%";
+    const canvasElementAdamantium = this.getIncomeAdamantiumGraph();
+    adamantiumWrapper.appendChild(canvasElementAdamantium);    
+    row1.appendChild(adamantiumWrapper);
 
-    this.incomeChartLead = new Chart(canvasElementLead, {
+    // Mana
+    const manaWrapper = document.createElement("div");
+    manaWrapper.style.width = "50%";
+    const canvasElementMana = this.getIncomeManaGraph();
+    manaWrapper.appendChild(canvasElementMana);    
+    row1.appendChild(manaWrapper);
+
+    graphs.append(row1);
+
+    const row2=  document.createElement("div")
+    row2.style.display = 'flex';
+    row2.style.flexDirection = "row";
+    row2.style.justifyContent = "center";
+
+    // Elixir
+    const elixirWrapper = document.createElement("div");
+    elixirWrapper.style.width = "50%";
+    const canvasElementElixir = this.getIncomeElixirGraph();
+    elixirWrapper.appendChild(canvasElementElixir);    
+    row2.append(elixirWrapper)
+    graphs.append(row2);
+
+    this.div.appendChild(graphs);
+    
+    this.incomeChartAdamantium = new Chart(canvasElementAdamantium, {
       type: 'line',
       data: {
           datasets: [{
-            label: 'Red Lead',
+            label: 'Red Adamantium',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
             borderColor: 'rgb(131,24,27)',
             pointRadius: 0,
           },
           {
-            label: 'Blue Lead',
+            label: 'Blue Adamantium',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
             borderColor: 'rgb(108, 140, 188)',
@@ -482,6 +546,9 @@ export default class Stats {
       },
       options: {
           aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -503,19 +570,21 @@ export default class Stats {
       }
     });
 
-    this.incomeChartGold = new Chart(canvasElementGold, {
+    this.incomeChartMana = new Chart(canvasElementMana, {
       type: 'line',
       data: {
           datasets: [
           {
-            label: 'Red Gold',
+            label: 'Red Mana',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(162, 162, 235, 0)',
             borderColor: 'rgb(205,162,163)',
             pointRadius: 0,
           },
           {
-            label: 'Blue Gold',
+            label: 'Blue Mana',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(54, 0, 235, 0)',
             borderColor: 'rgb(68, 176, 191)',
@@ -524,6 +593,55 @@ export default class Stats {
       },
       options: {
           aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
+          scales: {
+            xAxes: [{
+              type: 'linear',
+              ticks: {
+                beginAtZero: true
+            },
+              scaleLabel: {
+                display: true,
+                labelString: "Turn"
+              }
+            }],
+              yAxes: [{
+                type: 'linear',
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+    });
+
+    this.incomeChartElixir = new Chart(canvasElementElixir, {
+      type: 'line',
+      data: {
+          datasets: [{
+            label: 'Red Elixir',
+            lineTension: 0,
+            data: [],
+            backgroundColor: 'rgba(255, 99, 132, 0)',
+            borderColor: 'rgb(131,24,27)',
+            pointRadius: 0,
+          },
+          {
+            label: 'Blue Elixir',
+            lineTension: 0,
+            data: [],
+            backgroundColor: 'rgba(54, 162, 235, 0)',
+            borderColor: 'rgb(108, 140, 188)',
+            pointRadius: 0,
+          }]
+      },
+      options: {
+          aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -575,8 +693,7 @@ export default class Stats {
     let td: HTMLTableCellElement = this.robotTds[teamID]["hp"][robotType];
     td.innerHTML = String(HP);
 
-    const robotName: string = cst.bodyTypeToString(robotType);
-    let img = this.robotImages[robotName][teamID];
+    let img = this.robotImages[robotType][teamID];
 
     const size = (55 + 45 * HP / totalHP);
     img.style.width = size + "%";
@@ -596,8 +713,8 @@ export default class Stats {
    */
   setVotes(teamID: number, count: number) {
     // TODO: figure out if statbars.get(id) can actually be null??
-    const statBar: ArchonBar = this.archonBars[teamID];
-    statBar.archon.innerText = String(count);
+    const statBar: HeadQuarterBar = this.headQuarterBars[teamID];
+    statBar.headQuarter.innerText = String(count);
     this.maxVotes = Math.max(this.maxVotes, count);
     statBar.bar.style.width = `${Math.min(100 * count / this.maxVotes, 100)}%`;
 
@@ -618,36 +735,46 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, leadIncome: number, goldIncome: number, turn: number) { // incomes
-    this.incomeDisplays[teamID].leadIncome.textContent = "L: " + String(leadIncome.toFixed(2)); // change incomeDisplays later
-    this.incomeDisplays[teamID].goldIncome.textContent = "G: " + String(goldIncome.toFixed(2));
+  setIncome(teamID: number, adamantiumIncome: number, elixirIncome: number, manaIncome:number, turn: number) { // incomes
+    this.incomeDisplays[teamID].adamantiumIncome.textContent = "Ad: " + String(adamantiumIncome.toFixed(2)); // change incomeDisplays later
+    this.incomeDisplays[teamID].elixirIncome.textContent = "El: " + String(elixirIncome.toFixed(2));
+    this.incomeDisplays[teamID].manaIncome.textContent = "Mn: " + String(manaIncome.toFixed(2));
     if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
       this.teamMapToTurnsIncomeSet.set(teamID, new Set());
     }
     let teamTurnsIncomeSet = this.teamMapToTurnsIncomeSet.get(teamID);
     
-    if (!teamTurnsIncomeSet!.has(turn)) {
+    if (!teamTurnsIncomeSet!.has(turn) && turn % 10 == 0) {
       //@ts-ignore
-      this.incomeChartLead.data.datasets![teamID - 1].data?.push({y: leadIncome, x: turn});
+      this.incomeChartAdamantium.data.datasets![teamID - 1].data?.push({y: adamantiumIncome, x: turn});
       //@ts-ignore
-      this.incomeChartGold.data.datasets![teamID - 1].data?.push({y: goldIncome, x: turn});
-      this.incomeChartLead.data.datasets?.forEach((d) => {
+      this.incomeChartMana.data.datasets![teamID - 1].data?.push({y: manaIncome, x: turn});
+      //@ts-ignore
+      this.incomeChartElixir.data.datasets![teamID - 1].data?.push({y: elixirIncome, x: turn});
+
+      this.incomeChartAdamantium.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
-      this.incomeChartGold.data.datasets?.forEach((d) => {
+      this.incomeChartMana.data.datasets?.forEach((d) => {
         d.data?.sort((a, b) => a.x - b.x);
       });
+      this.incomeChartElixir.data.datasets?.forEach((d) => {
+        d.data?.sort((a, b) => a.x - b.x);
+      });
+
       teamTurnsIncomeSet?.add(turn);
-      this.incomeChartLead.update();
-      this.incomeChartGold.update();
+      
+      this.incomeChartAdamantium.update();
+      this.incomeChartMana.update();
+      this.incomeChartElixir.update();
     }
     // update bars here
     //console.log(teamID, count, "fsdfsdf");
     //if(robotType === ARCHON) this.updateRelBars(teamID, count);
   }
   
-  updateBars(teamLead: Array<number>, teamGold: Array<number>){
-    this.updateRelBars(teamLead, teamGold);
+  updateBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){
+    this.updateRelBars(teamAdamantium, teamMana, teamElixir);
   }
 
   setWinner(teamID: number, teamNames: Array<string>, teamIDs: Array<number>) {
@@ -684,7 +811,7 @@ export default class Stats {
     this.ECs.innerHTML = "";
   }
 
-  addEC(teamID: number, health: number, body_status: number, level: number/*, img: HTMLImageElement */) {
+  addEC(teamID: number, health: number) {
     const div = document.createElement("div");
     let size = 1.0/(1 + Math.exp(-(health/100))) + 0.3;
     div.style.width = (28*size).toString() + "px";
@@ -692,7 +819,7 @@ export default class Stats {
     div.style.position = 'releative';
     div.style.top = '50%';
     div.style.transform  = `translateY(-${50*size - 35}%)`;
-    const img = /* img */this.images.robots.archon[level * 6 + body_status * 2 + teamID].cloneNode() as HTMLImageElement;
+    const img = /* img */this.images.robots_high_quality[cst.HEADQUARTERS][teamID].cloneNode() as HTMLImageElement;
     img.style.width = `${56 * size}px`;
     img.style.height = `${56 * size}px`; // update dynamically later
     // img.style.marginTop = `${28*size}px`;
