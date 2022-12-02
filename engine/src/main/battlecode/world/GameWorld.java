@@ -731,7 +731,7 @@ public strictfp class GameWorld {
             for(int j = 0; j < robots[i].length; j++) {
                 InternalRobot robot = robots[i][j];
                 MapLocation loc = robot.getLocation();
-                if(getCurrent(loc) != Direction.CENTER) {
+                if(getCurrent(loc) != Direction.CENTER && robot.getType != RobotType.HEADQUARTERS) {
                     moved.put(robot, false);
                 }
             }
