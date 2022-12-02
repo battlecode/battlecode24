@@ -650,72 +650,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanActLocation(loc);
         assertIsActionReady();
 
-        if(getType() != RobotType.CARRIER)
+        if (getType() != RobotType.CARRIER) {
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
-        if(amount > 0 && getResourceAmount(type) < amount) // Carrier is transfering to another location
+        }
+        if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
-        if(amount < 0 && this.robot.canAdd(-1*amount)) // Carrier is picking up the resource from another location (probably headquarters)
+        }
+        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (probably headquarters)
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
-        if(!isWell(loc) && !isHeadquarter(loc))
+        }
+        if (!isWell(loc) && !isHeadquarter(loc)) {
             throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");
+        }
     }
 
     @Override
-    public boolean canTransferAd(MapLocation loc, int amount){
+    public boolean canTransferResource(MapLocation loc, ResourceType rType, int amount){
         try {
-            assertCanTransferResource(loc, ResourceType.ADAMANTIUM, amount);
+            assertCanTransferResource(loc, rType, amount);
             return true;
-        } catch(GameActionException e) {return false;}
+        } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public boolean canTransferMn(MapLocation loc, int amount){
-        try {
-            assertCanTransferResource(loc, ResourceType.MANA, amount);
-            return true;
-        } catch(GameActionException e) {return false;}
-    }
-
-    @Override
-    public boolean canTransferEx(MapLocation loc, int amount){
-        try {
-            assertCanTransferResource(loc, ResourceType.ELIXIR, amount);
-            return true;
-        } catch(GameActionException e) {return false;}
-    }
-
-    public void transferResource(ResourceType rType, MapLocation loc, int amount) throws GameActionException {
+    public void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException {
         assertCanTransferResource(loc, rType, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
-        if(isWell(loc)){
-            System.out.println("After transfering to well: " + this.gameWorld.getWell(loc).getResource(rType));
+        if (isWell(loc)) {
+            System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
-            System.out.println("After transfering to well: " + this.gameWorld.getWell(loc).getResource(rType));
+            System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
-        }
-        else if(isHeadquarter(loc)){
-            System.out.println("Before transfering to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
+        } else if(isHeadquarter(loc)){
+            System.out.println("Before transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
             this.gameWorld.getRobot(loc).addResourceAmount(rType, amount);
-            System.out.println("After transfering to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
+            System.out.println("After transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
         this.robot.addResourceAmount(rType, -amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));
-    }
-
-    // TODO: Let's change these
-    @Override
-    public void transferAd(MapLocation loc, int amount) throws GameActionException {
-        transferResource(ResourceType.ADAMANTIUM, loc, amount);
-    }
-
-    @Override
-    public void transferMn(MapLocation loc, int amount) throws GameActionException {
-        transferResource(ResourceType.MANA, loc, amount);
-    }
-
-    @Override
-    public void transferEx(MapLocation loc, int amount) throws GameActionException {
-        transferResource(ResourceType.ELIXIR, loc, amount);
     }
 
     private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {

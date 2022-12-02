@@ -146,24 +146,36 @@ public strictfp class RobotPlayer {
                 MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                 // Notice that the Miner's action cooldown is very low.
                 // You can mine multiple times per turn!
-                while (rc.canCollectResource(mineLocation, -1)) {
-                    rc.collectResource(mineLocation, -1);
-                    rc.setIndicatorString("Collecting, now have, AD:" + 
-                        rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
-                        " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
-                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
-                }
-                if (rng.nextInt(5) == 1) {
-                    while (rc.canTransferMn(mineLocation, 1)) {
-                        rc.transferMn(mineLocation, 1);
-                        rc.setIndicatorString("Transfering, now have, AD:" + 
+                if (rc.canCollectResource(mineLocation, -1)) {
+                    if (rng.nextBoolean()) {
+                        rc.collectResource(mineLocation, -1);
+                        System.out.println("Collecting resource from " + mineLocation);
+                        rc.setIndicatorString("Collecting, now have, AD:" + 
                             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
                             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
                             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
-                        System.out.println("Transfering, now have, AD:" + 
-                            rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
-                            " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
-                            " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                    }
+                    if (rng.nextBoolean()) {
+
+                        System.out.println("Trying to transfer");
+                        ResourceType rType = rc.senseNearbyWells(mineLocation, 0)[0].getResourceType();
+                        if (rc.canTransferResource(mineLocation, rType, 1)) {
+                            rc.transferResource(mineLocation, rType, 1);
+                        }
+                        // rc.transferResource(mineLocation, , 1);
+                        // for (ResourceType rType : ResourceType.values()) {
+                        //     if (rc.canTransferResource(mineLocation, rType, 1)) {
+                        //         rc.transferResource(mineLocation, rType, 1);
+                        //         rc.setIndicatorString("Transferring, now have, AD:" + 
+                        //             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                        //             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                        //             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                        //         System.out.println("Transferring, now have, AD:" + 
+                        //             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
+                        //             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
+                        //             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                        //     }
+                        // }
                     }
                 }
             }
@@ -172,10 +184,10 @@ public strictfp class RobotPlayer {
         for (RobotInfo robot : robots) {
             if (robot.getType() == RobotType.HEADQUARTERS) {
                 Direction dir = me.directionTo(robot.getLocation());
-                if (rc.canMove(dir))
+                if (rc.canMove(dir) && rng.nextBoolean())
                     rc.move(dir);
-                while (rc.canTransferAd(robot.getLocation(), 1)) {
-                    rc.transferAd(robot.getLocation(), 1);
+                if (rc.canTransferResource(robot.getLocation(), ResourceType.ADAMANTIUM, 1)) {
+                    rc.transferResource(robot.getLocation(), ResourceType.ADAMANTIUM, 1);
                     rc.setIndicatorString("Transfering, now have, AD:" + 
                         rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
                         " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
