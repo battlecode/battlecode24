@@ -253,7 +253,7 @@ public class MapBuilder {
         }
 
         //assert that walls are not on same location as resources/islands/currents/clouds
-        for (int i = 0; i < this.wallArray.length; i++){
+        for (int i = 0; i < this.width*this.height; i++){
             if (this.wallArray[i]){
                 if (this.cloudArray[i])
                     throw new RuntimeException("Walls cannot be on the same square as clouds");
@@ -263,6 +263,8 @@ public class MapBuilder {
                     throw new RuntimeException("Walls cannot be on an island");
                 if (this.currentArray[i] != 0)
                     throw new RuntimeException("Walls cannot be on the same square as currents");
+                if (robots[i] != null)
+                    throw new RuntimeException("Walls cannot be on the same square as headquarters");
             }
             //assert that clouds and currents cannot be on the same square
             if (this.cloudArray[i] && this.currentArray[i] != 0)
@@ -271,6 +273,10 @@ public class MapBuilder {
             //assert that wells are not on same square as headquarters
             if (this.resourceArray[i] != 0 && robots[i] != null)
                 throw new RuntimeException("Wells can't be on same square as headquarters");
+
+            //assert that currents are not on same square as headquarters
+            if (this.currentArray[i] != 0 && robots[i] != null)
+                throw new RuntimeException("Currents can't be on same square as headquarters");
 
         }
         

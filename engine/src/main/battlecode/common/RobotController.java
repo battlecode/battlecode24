@@ -674,39 +674,38 @@ public strictfp interface RobotController {
     // ***************************
 
     /**
-     * Tests whether the robot can transfer adamantium to a given location.
+     * Tests whether the robot can collect resource from a given location.
      * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
+     * Checks that the robot is a Carrier, the given location is a valid well location, 
+     * and there are no cooldown turns remaining. 
      * 
      * Valid locations must be the current location or adjacent to the current 
      * location. 
      * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
+     * Checks that carrier can collect the amount (amount does not exceed
+     * current well rate, carrier has sufficient capacity).
      *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
+     * @param loc target location to collect 
+     * @param amount amount to be collected, -1 to collect max possible
+     * @return whether it is possible to collect amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canTransferAd(MapLocation loc, int amount);
+    boolean canCollectResource(MapLocation loc, int amount);
 
     /** 
-     * Transfers adamantium to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
+     * Collect resource from the given location. 
+     *
+     * @param loc target well location
+     * @param amount amount to collect, -1 to collect max possible
+     * @throws GameActionException if conditions for collecting are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void transferAd(MapLocation loc, int amount) throws GameActionException;
+    void collectResource(MapLocation loc, int amount) throws GameActionException;
 
     /**
-     * Tests whether the robot can transfer mana to a given location.
+     * Tests whether the robot can transfer resource to a given location.
      * 
      * Checks that the robot is a Carrier, the given location is a valid HQ
      * or well location, and there are no cooldown turns remaining. 
@@ -718,57 +717,26 @@ public strictfp interface RobotController {
      * resource). Wells can only be transferred to. 
      *
      * @param loc target location to transfer to
+     * @param rType type of resource to transfer
      * @param amount amount to be transferred (negative = from loc, positive = to)
      * @return whether it is possible to transfer amount to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canTransferMn(MapLocation loc, int amount);
+    boolean canTransferResource(MapLocation loc, ResourceType rType, int amount);
 
     /** 
-     * Transfers mana to/from given location. Transferred material is 
+     * Transfers resource to given location. Transferred material is 
      * limited by carrier capacity. 
      * 
      * @param loc target location to transfer to/from
+     * @param rType type of resource to transfer
      * @param amount amount to be transferred (negative = from loc, positive = to)
      * @throws GameActionException if conditions for transferring are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void transferMn(MapLocation loc, int amount) throws GameActionException;
-
-
-    /**
-     * Tests whether the robot can transfer elixir to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferEx(MapLocation loc, int amount);
-
-    /** 
-     * Transfers elixir to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferEx(MapLocation loc, int amount) throws GameActionException;
+    void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
 
     boolean canBuildAnchor(Anchor anchor);
 
@@ -801,37 +769,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void takeAnchor(MapLocation loc, Anchor anchorType) throws GameActionException;
-
-    /**
-     * Tests whether the robot can collect resource from a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid well location, 
-     * and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can collect the amount (amount does not exceed
-     * current well rate, carrier has sufficient capacity).
-     *
-     * @param loc target location to collect 
-     * @param amount amount to be collected, -1 to collect max possible
-     * @return whether it is possible to collect amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canCollectResource(MapLocation loc, int amount);
-
-    /** 
-     * Collect resource from the given location. 
-     *
-     * @param loc target well location
-     * @param amount amount to collect, -1 to collect max possible
-     * @throws GameActionException if conditions for collecting are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void collectResource(MapLocation loc, int amount) throws GameActionException;
 
     /**
      * Tests whether the robot can place an anchor at its current location.
