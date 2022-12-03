@@ -1,5 +1,8 @@
 package battlecode.world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import battlecode.common.*;
 
 public class Inventory {
@@ -15,6 +18,11 @@ public class Inventory {
     private int mana;
 
     private int elixir;
+
+    private int numStandardAnchors = 0;
+
+    private int numAcceleratingAnchors = 0;
+
     
     /**
      * Creates a new Inventory object with no maximum capacity
@@ -30,6 +38,15 @@ public class Inventory {
         this.maxCapacity = maxCapacity;
     }
 
+    public Inventory(int maxCapacity, int adamantium, int mana, int elixir, int numStandardAnchors, int numAcceleratingAnchors) {
+        this.maxCapacity = maxCapacity;
+        this.adamantium = adamantium;
+        this.mana = mana;
+        this.elixir = elixir;
+        this.numStandardAnchors = numStandardAnchors;
+        this.numAcceleratingAnchors = numAcceleratingAnchors;
+    }
+
     public void addAdamantium(int amount) {
         adamantium += amount;
     }
@@ -42,6 +59,27 @@ public class Inventory {
         elixir += amount;
     }
 
+    public void addAnchor(Anchor anchor) {
+        switch (anchor) {
+            case STANDARD:
+                numStandardAnchors ++;
+            case ACCELERATING:
+                numAcceleratingAnchors ++;
+                break;
+        }
+    }
+
+    public void releaseAnchor(Anchor anchor) {
+        switch (anchor) {
+            case STANDARD:
+                numStandardAnchors --;
+            case ACCELERATING:
+                numAcceleratingAnchors --;
+                break;
+        }
+    }
+    
+
     public int getAdamantium() {
         return adamantium;
     }
@@ -52,6 +90,21 @@ public class Inventory {
 
     public int getElixir() {
         return elixir;
+    }
+
+    public int getNumAnchors(Anchor anchor) {
+        switch (anchor) {
+            case STANDARD:
+                return numStandardAnchors;
+            case ACCELERATING:
+                return numAcceleratingAnchors;
+            default:
+                throw new IllegalArgumentException("No other types of anchors");
+        }
+    }
+
+    public int getTotalAnchors() {
+        return getNumAnchors(Anchor.STANDARD) + getNumAnchors(Anchor.ACCELERATING);
     }
 
     /*
@@ -77,7 +130,40 @@ public class Inventory {
      */
     public boolean canAdd(int amount) {
         if(maxCapacity == -1) return true;
-        int total = adamantium + mana + elixir;
+        int total = (getTotalAnchors() * GameConstants.ANCHOR_WEIGHT) + adamantium + mana + elixir;
         return total + amount <= maxCapacity;
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof Inventory) {
+            Inventory other = (Inventory) o;
+            return other.maxCapacity == this.maxCapacity 
+                && other.adamantium == this.adamantium 
+                && other.mana == this.mana 
+                && other.elixir == this.elixir 
+                && other.numStandardAnchors == this.numStandardAnchors
+                && other.numAcceleratingAnchors == this.numAcceleratingAnchors;
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return this.maxCapacity*47 + this.adamantium*37 + this.mana*41 + this.elixir*43 + this.numStandardAnchors*47 + this.numAcceleratingAnchors*51;
+    }
+
+    public String toString() {
+        return "Inventory{" +
+                "maxCapacity=" + maxCapacity +
+                ", adamantium=" + adamantium +
+                ", mana=" + mana +
+                ", elixir=" + elixir + 
+                ", standard anchors=" + numStandardAnchors +
+                ", accelerating anchors=" + numAcceleratingAnchors +
+                '}';
+    }
+
+    public Inventory copy() {
+        Inventory newInventory = new Inventory(this.maxCapacity, this.adamantium, this.mana, this.elixir, this.numStandardAnchors, this.numAcceleratingAnchors);
+        return newInventory;
     }
 }

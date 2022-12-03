@@ -79,7 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (TODO).
      *
      * @return this robot's type
      *
@@ -106,31 +105,14 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns the amount of adamantium this robot is holding
+     * Returns the amount of the specified resource that this robot is holding
      *
-     * @return the amount of adamantium this robot is holding
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getAdAmount();
-
-    /**
-     * Returns the amount of mana this robot is holding
-     *
-     * @return the amount of mana this robot is holding
+     * @param rType the resource type the query is about
+     * @return the amount of rType resource this robot is holding
      *
      * @battlecode.doc.costlymethod
      */
-    int getMnAmount();
-
-    /**
-     * Returns the amount of elixir this robot is holding
-     *
-     * @return the amount of elixir this robot is holding
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getExAmount();
+    int getResourceAmount(ResourceType rType);
 
     /**
      * Returns whether a robot is holding a reality anchor
@@ -536,31 +518,6 @@ public strictfp interface RobotController {
      */
     int getMovementCooldownTurns();
 
-    /**
-     * Tests whether the robot can transform.
-     *
-     * Checks if the robot's mode is TURRET or PORTABLE. Also checks action
-     * or movement cooldown turns, depending on the robot's current mode.
-     * 
-     * @return true if the robot can transform
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isTransformReady();
-
-    /**
-     * Returns the number of cooldown turns remaining before this unit can transform again.
-     * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT}, isTransformReady()
-     * is true and the robot can transform again. This number decreases by
-     * {@link GameConstants#COOLDOWNS_PER_TURN} every turn.
-     *
-     * @return the number of cooldown turns remaining before this unit can transform again
-     * @throws GameActionException if the robot's mode is not TURRET or PORTABLE
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getTransformCooldownTurns() throws GameActionException;
-
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
@@ -595,6 +552,8 @@ public strictfp interface RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
+
+    //TODO: fix these descriptions
     /**
      * Tests whether the robot can build a robot of the given type in the
      * given direction. Checks that the robot is of a type that can build,
@@ -610,7 +569,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canBuildRobot(RobotType type, Direction dir);
+    boolean canBuildRobot(RobotType type, MapLocation loc);
 
     /**
      * Builds a robot of the given type in the given direction.
@@ -622,7 +581,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void buildRobot(RobotType type, Direction dir) throws GameActionException;
+    void buildRobot(RobotType type, MapLocation loc) throws GameActionException;
 
     // ****************************
     // ***** ATTACK METHODS ***** 
@@ -653,33 +612,7 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-    // **************************************
-    // ******** DESTABILIZER METHODS ********
-    // **************************************
-
-    /**
-     * Tests whether this robot can envision an anomaly centered at the robot's location.
-     * 
-     * Checks that the robot is a sage, and there are no cooldown turns remaining.
-     *
-     * @param anomaly the type of anomaly being queried
-     * @return whether it is possible to envision an anomaly centered at the robots location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canEnvision(AnomalyType anomaly);
-
-    /** 
-     * Envision an anomaly centered at the robot's location.
-     *
-     * @param anomaly the type of anomaly to envision
-     * @throws GameActionException if conditions for envisioning are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void envision(AnomalyType anomaly) throws GameActionException;
-
-   // ***********************************
+    // ***********************************
     // ******** BOOSTERS METHODS *********
     // ***********************************
 
@@ -707,135 +640,39 @@ public strictfp interface RobotController {
      */
     void boost() throws GameActionException;
 
+    // ***********************************
+    // ****** DESTABILIZER METHODS *******
+    // ***********************************
+
+    // TODO: fix spec to have loc
+    /**
+     * Tests whether this robot is able to destabilize
+     * 
+     * Checks that the robot can destabilize other units. Also checks that there are no 
+     * cooldown turns remaining.
+     *
+     * @param  none
+     * @return whether it is possible for this robot to destabilize
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDestabilize(MapLocation loc);
+
+
+    /** 
+     * Destabilizes at a given location.
+     *
+     * @param none
+     * @throws GameActionException if conditions for destabilizing are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void destabilize(MapLocation loc) throws GameActionException;
+
 
     // ***************************
     // ***** CARRIER METHODS *****
     // ***************************
-
-    /**
-     * Tests whether the robot can transfer adamantium to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferAd(MapLocation loc, int amount);
-
-    /** 
-     * Transfers adamantium to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferAd(MapLocation loc, int amount) throws GameActionException;
-
-    /**
-     * Tests whether the robot can transfer mana to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferMn(MapLocation loc, int amount);
-
-    /** 
-     * Transfers mana to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferMn(MapLocation loc, int amount) throws GameActionException;
-
-
-    /**
-     * Tests whether the robot can transfer elixir to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferEx(MapLocation loc, int amount);
-
-    /** 
-     * Transfers elixir to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferEx(MapLocation loc, int amount) throws GameActionException;
-
-    /**
-     * Tests whether the robot can take an anchor from an HQ.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ, 
-     * and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier has sufficient capacity for the anchor. 
-     *
-     * @param loc target HQ location
-     * @param anchorType type of anchor to take
-     * @return whether it is possible to take anchor from given location
-     */
-    boolean canTakeAnchor(MapLocation loc, int anchorType);
-
-    /** 
-     * Take an anchor from the given location. 
-     *
-     * @param loc target HQ location
-     * @param anchorType type of anchor to take
-     * @throws GameActionException if conditions for taking are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void takeAnchor(MapLocation loc, int anchorType) throws GameActionException;
 
     /**
      * Tests whether the robot can collect resource from a given location.
@@ -850,7 +687,7 @@ public strictfp interface RobotController {
      * current well rate, carrier has sufficient capacity).
      *
      * @param loc target location to collect 
-     * @param amount amount to be collected
+     * @param amount amount to be collected, -1 to collect max possible
      * @return whether it is possible to collect amount to the given location
      *
      * @battlecode.doc.costlymethod
@@ -861,12 +698,80 @@ public strictfp interface RobotController {
      * Collect resource from the given location. 
      *
      * @param loc target well location
-     * @param amount amount to collect
+     * @param amount amount to collect, -1 to collect max possible
      * @throws GameActionException if conditions for collecting are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
     void collectResource(MapLocation loc, int amount) throws GameActionException;
+
+    /**
+     * Tests whether the robot can transfer resource to a given location.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ
+     * or well location, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can transfer the amount (donor has sufficient 
+     * resource). Wells can only be transferred to. 
+     *
+     * @param loc target location to transfer to
+     * @param rType type of resource to transfer
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransferResource(MapLocation loc, ResourceType rType, int amount);
+
+    /** 
+     * Transfers resource to given location. Transferred material is 
+     * limited by carrier capacity. 
+     * 
+     * @param loc target location to transfer to/from
+     * @param rType type of resource to transfer
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for transferring are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
+
+    //TODO: spec
+    boolean canBuildAnchor(Anchor anchor);
+
+    void buildAnchor(Anchor anchor) throws GameActionException;
+
+    /**
+     * Tests whether the robot can take an anchor from a HQ.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ,
+     * with the desired anchor and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * TODO: is the above true then my code is wrong, let's check
+     * 
+     * Checks that carrier has sufficient capacity for the anchor. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @return whether it is possible to take anchor from given location
+     */
+    boolean canTakeAnchor(MapLocation loc, Anchor anchorType);
+
+    /** 
+     * Take an anchor from the given location. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @throws GameActionException if conditions for taking are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void takeAnchor(MapLocation loc, Anchor anchorType) throws GameActionException;
 
     /**
      * Tests whether the robot can place an anchor at its current location.
@@ -895,30 +800,6 @@ public strictfp interface RobotController {
     // **** AMPLIFIER METHODS **** 
     // ***************************
 
-    /**
-     * Tests whether this robot can mutate the building at the given location.
-     * 
-     * Checks that the robot is a Builder, that the given location is a valid 
-     * mutate location. Valid mutate locations must be adjacent to the current 
-     * location and contain a mutable building. The mutation must also be
-     * affordable, and there must be no cooldown turns remaining.
-     *
-     * @param loc target location to mutate 
-     * @return whether it is possible to mutate at the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMutate(MapLocation loc);
-
-    /** 
-     * Mutate a building at a given location.
-     *
-     * @param loc target location of the building to mutate
-     * @throws GameActionException if conditions for mutating are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void mutate(MapLocation loc) throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
@@ -938,13 +819,15 @@ public strictfp interface RobotController {
     /**
      * Test whether this robot can write to the shared array.
      * 
-     * A robot can write to the shared array when it is within 36 units
-     * of a signal amplifier, 45 units from a planted reality anchor, or 50
-     * units from a headquarter.
+     * A robot can write to the shared array when it is within range
+     * of a signal amplifier, a planted reality anchor, or a headquarter.
+     * 
+     * @param index the index in the team's shared array, 0-indexed
+     * @param value the value to set that index to
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean canWriteSharedArray();
+    boolean canWriteSharedArray(int index, int value);
 
     /** 
      * Sets the team's array value at a specified index if the robot is allowed
@@ -963,13 +846,6 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    /**
-     * @return the anomaly schedule
-     *
-     * @battlecode.doc.costlymethod
-     */
-    AnomalyScheduleEntry[] getAnomalySchedule();
 
     /**
      * Destroys the robot. 

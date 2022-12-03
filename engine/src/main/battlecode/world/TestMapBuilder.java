@@ -14,23 +14,23 @@ public class TestMapBuilder {
         this.mapBuilder = new MapBuilder(name, width, height, oX, oY, seed);
     }
 
-    public TestMapBuilder addArchon(int id, Team team, MapLocation loc) {
-        this.mapBuilder.addArchon(id, team, loc);
+    public TestMapBuilder addHeadquarters(int id, Team team, MapLocation loc) {
+        this.mapBuilder.addHeadquarter(id, team, loc);
         return this;
     }
     
-    public TestMapBuilder setRubble(int x, int y, int value) {
-        this.mapBuilder.setRubble(x, y, value);
+    public TestMapBuilder setWall(int x, int y, boolean value) {
+        this.mapBuilder.setWall(x, y, value);
         return this;
     }
 
-    public TestMapBuilder setLead(int x, int y, int value) {
-        this.mapBuilder.setLead(x, y, value);
+    public TestMapBuilder setResource(int x, int y, int value) {
+        this.mapBuilder.setResource(x, y, value);
         return this;
     }
 
-    public TestMapBuilder addAnomalyScheduleEntry(int round, AnomalyType anomaly) {
-        this.mapBuilder.addAnomalyScheduleEntry(round, anomaly);
+    public TestMapBuilder setIsland(int x, int y, int value) {
+        this.mapBuilder.setIsland(x, y, value);
         return this;
     }
 

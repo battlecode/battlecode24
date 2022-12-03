@@ -6,6 +6,7 @@ package battlecode.common;
 @SuppressWarnings("unused")
 public class GameConstants {
 
+    //TODO: Let's organize this better but I'm lazy :)
     /**
      * The current spec version the server compiles with.
      */
@@ -27,11 +28,11 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 60;
 
-    /** The minimum number of starting Archons per team. */
-    public static final int MIN_STARTING_ARCHONS = 1;
+    /** The minimum number of starting Headquarters per team. */
+    public static final int MIN_STARTING_HEADQUARTERS = 1;
 
-    /** The maximum number of starting Archons per team. */
-    public static final int MAX_STARTING_ARCHONS = 4;
+    /** The maximum number of starting Headquarters per team. */
+    public static final int MAX_STARTING_HEADQUARTERS = 4;
 
     /** The minimum amount of rubble per square. */
     public static final int MIN_RUBBLE = 0;
@@ -55,17 +56,22 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of lead each team starts with. */
-    public static final int INITIAL_LEAD_AMOUNT = 200;
+    //TODO: fix
+    /** The initial amount of mana each team starts with. */
+    public static final int INITIAL_MN_AMOUNT = 100;
 
-    /** The initial amount of gold each team starts with. */
-    public static final int INITIAL_GOLD_AMOUNT = 0;
+    /** The initial amount of adamantium each team starts with. */
+    public static final int INITIAL_AD_AMOUNT = 100;
 
-    /** The amount of lead each team gains per turn. */
-    public static final int PASSIVE_LEAD_INCREASE = 2;
+    //TODO: We may want to reduce this since it is added to each hq
+    /** The amount of adamantium each headquarter on a team gains per turn. */
+    public static final int PASSIVE_AD_INCREASE = 2;
 
-    /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+    /** The amount of mana each headquarter on a team gains per turn. */
+    public static final int PASSIVE_MN_INCREASE = 2;
+
+    /** The number of rounds between adding resources to headquarters. */
+    public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of lead to add each round that lead is added. */
     public static final int ADD_LEAD = 5;
@@ -75,15 +81,25 @@ public class GameConstants {
 
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
     public static final int UPGRADE_WELL_RATE = 10000;
+
+    /** The percentage of islands that need to be occupied for a team to win */
+    public static final double PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75;
     
     /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
     public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
 
-    /** The distance a robot must be from a planted reality anchor to be able to write to the shared array */
-    public static final int DISTANCE_FROM_REALITY_ANCHOR = 45;
+    /** The distance a robot must be from an island to be able to write to the shared array */
+    public static final int DISTANCE_FROM_ISLAND = 45;
 
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
     public static final int DISTANCE_FROM_HEADQUARTER = 50;
+
+    /** The amount of damage a launcher can do */
+    public static final int LAUNCHER_ATTACK_DAMAGE = 6;
+    // TODO: this doesn't make sense, max capacity is like 50
+
+    /** The discout factor on the amount of damage a carrier can do based on their capacity */
+    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -125,6 +141,12 @@ public class GameConstants {
     /** The number of game rounds between applying movement due to currents */
     public static final int CURRENT_STRENGTH = 1;
 
+    /** The maximum capacity a carrier can carry */
+    public static final int CARRIER_CAPACITY = 40;
+
+    /** The weight of an anchor */
+    public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = 20;
     public static final double ALCHEMIST_LONELINESS_B = 18;
@@ -139,6 +161,9 @@ public class GameConstants {
     public static final double CLOUD_MULTIPLIER = -.2;
     public static final double CURRENT_MULTIPLIER = .1;
 
+    /** Constant for damage dealt by destabilizer */
+    public static final int DESTABILIZER_DAMAGE = 10;
+
     /** Constants for boost radii squared. */
     public static final int DESTABILIZER_RADIUS_SQUARED = 20;
     public static final int BOOSTER_RADIUS_SQUARED = 40;
@@ -146,6 +171,10 @@ public class GameConstants {
     /** Constants for boost durations. */
     public static final int BOOSTER_DURATION = 10;
     public static final int DESTABILIZER_DURATION = 5;
+
+    /** Constants for well rates. */
+    public static final int WELL_STANDARD_RATE = 2;
+    public static final int WELL_ACCELERATED_RATE = 4;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -155,5 +184,6 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+    //TOOD: change pls
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 20;
 }

@@ -13,10 +13,17 @@ public enum RobotType {
     // Health, Damage, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
+     * Headquarters (TODO: description)
+     * @battlecode.doc.robottype
+     */
+    HEADQUARTERS    ( 0,   0,   0,   5,   0, 1,   0,  9, 20, 10000),
+    //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
+
+    /**
      * Carrier (TODO: description)
      * @battlecode.doc.robottype
      */
-    CARRIER         ( 50,   0,   0,   5,   0, 40,   0,  9, 20, 10000),
+    CARRIER         ( 50,   0,   0,   10,   0, 40,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -164,20 +171,16 @@ public enum RobotType {
         return this.health;
     }
 
-    /**
-     * Determine the damage power of a robot
-     *
-     * @return the damage for a robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getDamage(int inventory) {
-        if (this == RobotType.CARRIER) {
-            return inventory/5;
-        } else if (this == RobotType.LAUNCHER) {
-            return 6;
-        } else {
-            return 0;
+    public int getBuildCost(ResourceType rType) {
+        switch (rType) {
+            case ADAMANTIUM:
+                return this.buildCostAdamantium;
+            case MANA:
+                return this.buildCostMana;
+            case ELIXIR:
+                return this.buildCostElixir;
+            default:
+                return 0;
         }
     }
 
