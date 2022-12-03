@@ -134,9 +134,11 @@ public strictfp class GameWorld {
         for(int i = 0; i < gm.getResourceArray().length; i++){
             MapLocation loc = indexToLocation(i);
             ResourceType rType = ResourceType.values()[gm.getResourceArray()[i]];
-            if (rType == ResourceType.NO_RESOURCE)
-                continue;
-            this.wells[i] = new Well(loc, rType);
+            if (rType == ResourceType.NO_RESOURCE) {
+                this.wells[i] = null;
+            } else {
+                this.wells[i] = new Well(loc, rType);
+            }
         }
 
 
