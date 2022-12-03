@@ -158,6 +158,9 @@ public class GameConstants {
     public static final double CLOUD_MULTIPLIER = -.2;
     public static final double CURRENT_MULTIPLIER = .1;
 
+    /** Constant for damage dealt by destabilizer */
+    public static final int DESTABILIZER_DAMAGE = 10;
+
     /** Constants for boost radii squared. */
     public static final int DESTABILIZER_RADIUS_SQUARED = 20;
     public static final int BOOSTER_RADIUS_SQUARED = 40;

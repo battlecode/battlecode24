@@ -347,6 +347,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void addHealth(int healthAmount) {
         assert(healthAmount < 0); // No healing!
+        if (this.getType() == RobotType.HEADQUARTERS) {
+            return; // Can't damage headquarters
+        }
         int oldHealth = this.health;
         this.health += healthAmount;
         if (this.health <= 0) {

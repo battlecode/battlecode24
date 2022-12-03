@@ -666,6 +666,12 @@ public strictfp class GameWorld {
                 for (int j = curDestabilize.size()-1; j >=0; j--){
                     if (curDestabilize.get(j) >= getCurrentRound()+1){
                         curDestabilize.remove(j);
+                        //deal damage
+                        InternalRobot robot = getRobot(loc);
+                        if (robot != null) {
+                            // TODO: Send correct action info to client, this may be hard
+                            robot.addHealth(-1*GameConstants.DESTABILIZER_DAMAGE);
+                        }
                         //update multiplier if no longer being destabilized
                         if (curDestabilize.size() == 0)
                             cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
