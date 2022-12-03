@@ -136,7 +136,7 @@ public strictfp class GameWorld {
         //Initialize currents
         int[] gmCurrents = gm.getCurrentArray();
         for(int i = 0; i < currents.length; i++) {
-            currents[i] = Direction.DIRECTION_ORDER[i];
+            currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
         }
 
         // Add initial amounts of resource
