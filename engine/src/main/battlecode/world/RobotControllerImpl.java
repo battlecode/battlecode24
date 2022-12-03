@@ -851,7 +851,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         headquarters.releaseAnchor(anchor);
         this.robot.addAnchor(anchor);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, anchor.getAccelerationIndex());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, headquarters.getID()*2 + anchor.getAccelerationIndex());
     }
 
     // ***********************************

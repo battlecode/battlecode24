@@ -49,7 +49,7 @@ public final class Action {
    */
   public static final byte BUILD_ANCHOR = 8;
   /**
-   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+   * Target: (robot id from where anchor is being picked up) * 2 + (ANCHOR type, 0 or non-accelerating, 1 for accelerating)
    */
   public static final byte PICK_UP_ANCHOR = 9;
   /**
