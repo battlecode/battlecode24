@@ -264,20 +264,23 @@ export default class Renderer {
         ctx.save()
         let path = this.get9SliceClipPath(i, j, map.islands, height, width)
         this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
-        if (!this.conf.doingRotate) this.drawIsland(cx / 1.01, cy / 1.01, 1.01, ctx)
-        else this.drawIsland(cy / 1.01, cx / 1.01, 1.01, ctx)
+        let island_stat = map.island_stats[map.islands[idxVal]]
+        if (!this.conf.doingRotate) this.drawIsland(cx / 1.01, cy / 1.01, 1.01, ctx, island_stat)
+        else this.drawIsland(cy / 1.01, cx / 1.01, 1.01, ctx, island_stat)
         ctx.restore()
       }
     }
   }
 
-  private drawIsland(i, j, scale, ctx) {
-    ctx.fillStyle = "black"
-    ctx.globalAlpha = .3
+  private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
+    let first_color = island_stat.owner == 0 ? '#0000004d' : cst.TEAM_COLORS[island_stat.owner]
+    let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
+    
     let x = i * scale
     let y = j * scale
     let d = scale / 8
 
+    ctx.fillStyle = first_color
     ctx.beginPath()
     ctx.moveTo(x, y)
     ctx.lineTo(x + d, y)
@@ -285,6 +288,7 @@ export default class Renderer {
     ctx.closePath()
     ctx.fill()
 
+    ctx.fillStyle = second_color
     ctx.beginPath()
     ctx.moveTo(x + 3 * d, y)
     ctx.lineTo(x + 5 * d, y)
@@ -293,6 +297,7 @@ export default class Renderer {
     ctx.closePath()
     ctx.fill()
 
+    ctx.fillStyle = first_color
     ctx.beginPath()
     ctx.moveTo(x + 7 * d, y)
     ctx.lineTo(x + 8 * d, y)
@@ -303,6 +308,7 @@ export default class Renderer {
     ctx.closePath()
     ctx.fill()
 
+    ctx.fillStyle = second_color
     ctx.beginPath()
     ctx.moveTo(x + 5 * d, y + 8 * d)
     ctx.lineTo(x + 3 * d, y + 8 * d)
@@ -311,6 +317,7 @@ export default class Renderer {
     ctx.closePath()
     ctx.fill()
 
+    ctx.fillStyle = first_color
     ctx.beginPath()
     ctx.moveTo(x + 8 * d, y + 8 * d)
     ctx.lineTo(x + 7 * d, y + 8 * d)
@@ -378,7 +385,7 @@ export default class Renderer {
     const renderBot = (i: number) => {
       let img = this.imgs.robots[types[i]][teams[i]]
       let max_hp = this.metadata.types[types[i]].health
-      this.drawBot(img, realXs[i], realYs[i], hps[i], hps[i] / max_hp, cst.bodyTypeToSize(types[i]))
+      this.drawBot(img, realXs[i], realYs[i], hps[i], Math.min(1, hps[i] / max_hp), cst.bodyTypeToSize(types[i]))
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       //draw rescoures

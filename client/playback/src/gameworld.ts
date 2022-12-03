@@ -566,6 +566,9 @@ export default class GameWorld {
             setAction(false, false, true)
             break
 
+          case schema.Action.BUILD_ANCHOR:
+            break
+
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
             this.bodies.alter({ id: robotID, anchor: target + 1 })
