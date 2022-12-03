@@ -12,6 +12,7 @@ package battlecode.common;
  * equality tests.
  */
 public enum Direction {
+
     /**
      * Direction that represents pointing north (up on screen).
      */
@@ -48,6 +49,8 @@ public enum Direction {
      * Direction that represents pointing nowhere.
      */
     CENTER(0, 0);
+
+    public static Direction[] DIRECTION_ORDER = {CENTER, WEST, SOUTHWEST, SOUTH, SOUTHEAST, EAST, NORTHEAST, NORTH, NORTHWEST};
 
     /**
      * Change in x.

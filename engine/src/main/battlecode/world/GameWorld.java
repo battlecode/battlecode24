@@ -44,6 +44,8 @@ public strictfp class GameWorld {
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    //list of currents, center direction if there is no current in the tile
+    private Direction[] currents;
     
     private static final int BOOST_INDEX = 0;
     private static final int DESTABILIZE_INDEX = 1;
@@ -66,6 +68,7 @@ public strictfp class GameWorld {
         this.gold = new int[this.lead.length];
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.islandIds = new int[this.lead.length];
+        this.currents = new Direction[gm.getWidth() * gm.getHeight()];
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -128,6 +131,12 @@ public strictfp class GameWorld {
         for (int key : islandIdToLocations.keySet()) {
             Island newIsland = new Island(this, key, islandIdToLocations.get(key));
             this.islandIdToIsland.put(key, newIsland);            
+        }
+
+        //Initialize currents
+        int[] gmCurrents = gm.getCurrentArray();
+        for(int i = 0; i < currents.length; i++) {
+            this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
         }
 
         // Add initial amounts of resource
@@ -369,6 +378,10 @@ public strictfp class GameWorld {
 
     public Island getIsland(MapLocation loc) {
         return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
+    }
+
+    public Direction getCurrent(MapLocation loc) {
+        return this.currents[locationToIndex(loc)];
     }
 
     public Island getIsland(int islandIdx) {
@@ -670,10 +683,71 @@ public strictfp class GameWorld {
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundLeadChange(Team.B), this.teamInfo.getRoundGoldChange(Team.B));
         this.teamInfo.processEndOfRound();
 
+        //Apply currents after CURRENT_STRENGTH rounds
+        if(currentRound % GameConstants.CURRENT_STRENGTH == 0){
+            applyCurrents();
+        }
+
+        objectInfo.eachRobot((robot) -> {
+            matchMaker.addMoved(robot.getID(), robot.getLocation());
+            return true;
+        });
+
         checkEndOfMatch();
 
         if (gameStats.getWinner() != null)
             running = false;
+    }
+
+    private boolean attemptApplyCurrent(InternalRobot robot, HashMap<InternalRobot, Boolean> moved){
+        //If we already attempted to move the robot, it cannot be moved again
+        if(moved.get(robot)) return false;
+
+        moved.put(robot, true);
+        MapLocation loc = robot.getLocation();
+        Direction current = getCurrent(loc);
+        if (current == Direction.CENTER) {
+            return false;
+        }
+        MapLocation moveTo = loc.add(current);
+
+        if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
+        InternalRobot inMoveTo = getRobot(moveTo);
+        if(inMoveTo == null) {
+            robot.setLocation(moveTo);
+            return true;
+        }
+        if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
+            // Set the location earlier so loops work
+            robot.setLocation(moveTo);
+            if(attemptApplyCurrent(inMoveTo, moved)) {
+                return true;
+            }
+            robot.setLocation(loc);
+            return false;
+        }
+        return false;
+    }
+
+    private void applyCurrents() {
+        //Map of all robots that are on a space with a current
+        //The value is true if an attempt has been made to move the robot
+        HashMap<InternalRobot, Boolean> moved = new HashMap<>();
+        for(int i = 0; i < robots.length; i++){
+            for(int j = 0; j < robots[i].length; j++) {
+                InternalRobot robot = robots[i][j];
+                if (robot == null)
+                    continue;
+                MapLocation loc = robot.getLocation();
+                if (getCurrent(loc) != Direction.CENTER && robot.getType != RobotType.HEADQUARTERS) {
+                    moved.put(robot, false);
+                }
+            }
+        }
+
+        for(InternalRobot robot : moved.keySet()){
+            attemptApplyCurrent(robot, moved);
+        }
     }
 
     // *********************************
