@@ -84,6 +84,7 @@ public class Island {
             // If the opposing team controls enough of the island decrease the count
             this.turnsLeftToRemoveAnchor -= 1;
             if (this.turnsLeftToRemoveAnchor <= 0) {
+                this.gw.getTeamInfo().removeAnchor(this.teamOwning);
                 this.teamOwning = Team.NEUTRAL;
                 if (this.anchorPlanted == Anchor.ACCELERATING) {
                     this.gw.removeBoostFromAnchor(this);
@@ -91,7 +92,6 @@ public class Island {
                 this.anchorPlanted = null;
                 this.turnsLeftToRemoveAnchor = 0;
             }
-
         }
     }
 
