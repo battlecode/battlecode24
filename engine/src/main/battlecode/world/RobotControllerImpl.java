@@ -148,6 +148,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** GENERAL VISION METHODS *****
     // ***********************************
 
+    //TODO: Make sure all parameter have assertNotNull on them
+
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
@@ -284,7 +286,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public int senseIsland(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         Island island = this.gameWorld.getIsland(loc);
-        return island == null ? -1 : island.idx;
+        return island == null ? -1 : island.ID;
     }
 
     @Override
@@ -320,7 +322,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
 
-            islandLocations.put(island.idx, validLocations.toArray(new MapLocation[validLocations.size()]));
+            islandLocations.put(island.ID, validLocations.toArray(new MapLocation[validLocations.size()]));
         }
 
         return islandLocations;
@@ -551,16 +553,42 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
     }
 
-    @Override
-    public boolean canBuildAnchor(Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    private void assertCanBuildAnchor(Anchor anchor) throws GameActionException {
+        assertNotNull(anchor);
+        assertIsActionReady();
+        if (getType() != RobotType.HEADQUARTERS)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
+        for (ResourceType rType : ResourceType.values()) {
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
+            if (getResourceAmount(rType) < anchor.getBuildCost(rType)) {
+                throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                        "Insufficient amount of " + rType);
+            }
+        }
     }
 
     @Override
-    public void buildAnchor(Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public boolean canBuildAnchor(Anchor anchor) {
+        try {
+            assertCanBuildAnchor(anchor);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void buildAnchor(Anchor anchor) throws GameActionException {
+        assertCanBuildAnchor(anchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Team team = getTeam();
+        for (ResourceType rType : ResourceType.values()) {
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
+            this.robot.addResourceAmount(rType, -1*anchor.getBuildCost(rType));
+            this.gameWorld.getTeamInfo().addResource(rType, team, -1*anchor.getBuildCost(rType));
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
     }
 
     // *****************************
@@ -658,7 +686,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
-        if (amount < 0 && !this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
+        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
             if (!isHeadquarter(loc)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from headquarters");
             }
@@ -680,6 +708,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException {
         assertCanTransferResource(loc, rType, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         if (isWell(loc)) {
             System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
@@ -694,7 +723,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             headquarter.addResourceAmount(rType, amount);
             System.out.println("After transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.robot.addResourceAmount(rType, -amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));
     }
@@ -717,7 +745,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canAdd(amount))
             throw new GameActionException(CANT_DO_THAT, 
                     "Exceeded robot's carrying capacity");
-
     }     
 
     @Override
@@ -731,6 +758,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void collectResource(MapLocation loc, int amount) throws GameActionException {
         assertCanCollectResource(loc, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
     
         // For methods below, Inventory class would have to first be implemented
         // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
@@ -741,7 +769,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (rType == ResourceType.NO_RESOURCE) {
             throw new IllegalArgumentException("Should not be a well with no resource");
         }
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
         int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
         amount = amount == -1 ? rate : amount;
         this.robot.addResourceAmount(rType, amount);
@@ -749,28 +776,82 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), amount);
     }
 
+    private void assertCanPlaceAnchor() throws GameActionException {
+        assertIsActionReady();
+        if (getType() != RobotType.CARRIER)
+        throw new GameActionException(CANT_DO_THAT,
+                "Robot is of type " + getType() + " which cannot have anchors.");
+        MapLocation location = this.getLocation();
+        Island island = this.gameWorld.getIsland(location);
+        if (island == null)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not on an island.");
+        if (!this.robot.holdingAnchor())
+            throw new GameActionException(CANT_DO_THAT,"Robot is not holding anchor.");
+        Anchor heldAnchor = this.robot.getTypeAnchor();
+        if (!island.canPlaceAnchor(getTeam(), heldAnchor)) {
+            throw new GameActionException(CANT_DO_THAT,"Can't place anchor on occupied island.");
+        }
+    }     
+
     @Override
     public boolean canPlaceAnchor() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+        try {
+            assertCanPlaceAnchor();
+            return true;
+        } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void placeAnchor() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public void placeAnchor() throws GameActionException {
+        assertCanPlaceAnchor();
+        MapLocation location = this.getLocation();
+        Island island = this.gameWorld.getIsland(location);
+        Anchor heldAnchor = this.robot.getTypeAnchor();
+        island.placeAnchor(getTeam(), heldAnchor);
+        this.robot.releaseAnchor(heldAnchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_ANCHOR, island.getID());
     }
+
+    private void assertCanTakeAnchor(MapLocation loc, Anchor anchor) throws GameActionException {
+        assertNotNull(loc);
+        assertNotNull(anchor);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getType() != RobotType.CARRIER)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot collect anchors.");
+        if (!isHeadquarter(loc))
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only take anchors from headquarters.");
+        InternalRobot hq = this.gameWorld.getRobot(loc);
+        if (hq.getNumAnchors(anchor) < 1) {
+            throw new GameActionException(CANT_DO_THAT, 
+            "Not enough anchors");
+        }
+        if (!this.robot.canAddAnchor()) {
+            throw new GameActionException(CANT_DO_THAT, 
+            "Not enough capacity to pick up an anchor.");
+        }
+    } 
 
     @Override
     public boolean canTakeAnchor(MapLocation loc, Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+        try {
+            assertCanTakeAnchor(loc, anchor);
+            return true;
+        } catch (GameActionException e) { return false; }  
     }
 
     @Override
-    public void takeAnchor(MapLocation loc, Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public void takeAnchor(MapLocation loc, Anchor anchor) throws GameActionException {
+        assertCanTakeAnchor(loc, anchor);
+        InternalRobot headquarters = this.gameWorld.getRobot(loc);
+        headquarters.releaseAnchor(anchor);
+        this.robot.addAnchor(anchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, anchor.getAccelerationIndex());
     }
 
     // ***********************************

@@ -336,12 +336,12 @@ public strictfp class GameWorld {
                 else
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
             }
-            curAnchorList.add(island.getIdx());
+            curAnchorList.add(island.getID());
         }
     }
     public void removeBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal();
-        int boostIdentifier = island.getIdx();
+        int boostIdentifier = island.getID();
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             curAnchorList.remove(boostIdentifier);
@@ -644,7 +644,7 @@ public strictfp class GameWorld {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             // Add resources to team for each headquarter
-            robot.processEndOfRound();
+            robot.processEndOfRound(currentRound);
             return true;
         });
         
