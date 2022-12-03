@@ -738,18 +738,20 @@ public strictfp interface RobotController {
      */
     void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
 
+    //TODO: spec
     boolean canBuildAnchor(Anchor anchor);
 
     void buildAnchor(Anchor anchor) throws GameActionException;
 
     /**
-     * Tests whether the robot can take an anchor from an HQ.
+     * Tests whether the robot can take an anchor from a HQ.
      * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ, 
-     * and there are no cooldown turns remaining. 
+     * Checks that the robot is a Carrier, the given location is a valid HQ,
+     * with the desired anchor and there are no cooldown turns remaining. 
      * 
      * Valid locations must be the current location or adjacent to the current 
      * location. 
+     * TODO: is the above true then my code is wrong, let's check
      * 
      * Checks that carrier has sufficient capacity for the anchor. 
      *

@@ -1,5 +1,6 @@
 package battlecode.world.robots;
 
+import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
@@ -37,8 +38,11 @@ public class InternalCarrier extends InternalRobot {
         }
     }
 
-    private int locationToInt(MapLocation loc) {
-        return loc.x + loc.y * this.getGameWorld().getGameMap().getWidth();
+    private int getDamage() {
+        int resourceSum = this.getResource(ResourceType.ADAMANTIUM) 
+            + this.getResource(ResourceType.MANA) 
+            + this.getResource(ResourceType.ELIXIR);
+        return (int) GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum);
     }
 
     /**
@@ -49,9 +53,11 @@ public class InternalCarrier extends InternalRobot {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.getType().getDamage(this.getResource(ResourceType.ADAMANTIUM)+this.getResource(ResourceType.MANA)+this.getResource(ResourceType.ELIXIR));
+            int dmg = getDamage();
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
+        } else {
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -1);
         }
         this.emptyResources();
     }

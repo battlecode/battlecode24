@@ -120,9 +120,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public boolean canAdd(int amount) {
+        assert(this.getType() == RobotType.CARRIER);
         return this.inventory.canAdd(amount);
     }
-
     
     private void addResourceChangeAction(ResourceType rType, int amount) {
         System.out.println("Adding action of increasing resource " + rType + " to robot with id " + getID() + " with amount " + amount);
@@ -148,12 +148,35 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         addResourceChangeAction(rType, amount);
     }
 
-    public Anchor getAnchor() {
-        return this.inventory.getAnchor();
+    public int getNumAnchors(Anchor anchor) {
+        return this.inventory.getNumAnchors(anchor);
     }
 
     public boolean holdingAnchor() {
-        return getAnchor() != null;
+        return this.inventory.getTotalAnchors() > 0;
+    }
+
+    public Anchor getTypeAnchor() {
+        assert(this.type == RobotType.CARRIER); // Don't ever call this with a headquarter, TODO: Maybe make this check better
+        if (getNumAnchors(Anchor.STANDARD) > 0) {
+            return Anchor.STANDARD;
+        } else if (getNumAnchors(Anchor.ACCELERATING) > 0) {
+            return Anchor.ACCELERATING;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean canAddAnchor() {
+        return this.inventory.canAdd(GameConstants.ANCHOR_WEIGHT);
+    }
+
+    public void addAnchor(Anchor anchor) {
+        this.inventory.addAnchor(anchor);
+    }
+
+    public void releaseAnchor(Anchor anchor) {
+        this.inventory.releaseAnchor(anchor);
     }
 
     public long getControlBits() {
@@ -341,6 +364,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
     }
     
+    private int getDamage() {
+        assert(this.type == RobotType.LAUNCHER);
+        return GameConstants.LAUNCHER_ATTACK_DAMAGE;
+    }
+
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
@@ -348,7 +376,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.type.getDamage(0);
+            int dmg = getDamage();
             bot.addHealth(-dmg);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
         }

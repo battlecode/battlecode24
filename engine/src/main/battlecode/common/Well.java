@@ -3,6 +3,7 @@ package battlecode.common;
 import battlecode.world.Inventory;
 
 public class Well {
+
     private Inventory inv;
 
     private MapLocation loc;
@@ -34,6 +35,7 @@ public class Well {
         if (type == ResourceType.MANA && inv.getAdamantium() >= 15000) {
             type = ResourceType.ELIXIR;
             //TODO: should inventory be set to zero after an upgrade
+            //TODO: Let's come back to this code
             inv.addAdamantium(-inv.getAdamantium());
             inv.addMana(-inv.getMana());
         }
@@ -74,7 +76,7 @@ public class Well {
         return type;
     }
   
-    // TODO: I'm not sure this is correct, we should probably change it
+    // TODO: Rather than doing this we should have an upgrade part of the state, this can become weird as we empty it
     public boolean isUpgraded(){
         if (type == ResourceType.ADAMANTIUM && inv.getAdamantium() >= 10000)
             return true;
@@ -84,6 +86,10 @@ public class Well {
             return true;
         else 
             return false;
+    }
+
+    public int getRate() {
+        return isUpgraded() ? GameConstants.WELL_ACCELERATED_RATE : GameConstants.WELL_STANDARD_RATE;
     }
 
     public int accelerationId() {

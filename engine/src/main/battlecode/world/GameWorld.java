@@ -134,9 +134,11 @@ public strictfp class GameWorld {
         for(int i = 0; i < gm.getResourceArray().length; i++){
             MapLocation loc = indexToLocation(i);
             ResourceType rType = ResourceType.values()[gm.getResourceArray()[i]];
-            if (rType == ResourceType.NO_RESOURCE)
-                continue;
-            this.wells[i] = new Well(loc, rType);
+            if (rType == ResourceType.NO_RESOURCE) {
+                this.wells[i] = null;
+            } else {
+                this.wells[i] = new Well(loc, rType);
+            }
         }
 
 
@@ -336,12 +338,12 @@ public strictfp class GameWorld {
                 else
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
             }
-            curAnchorList.add(island.getIdx());
+            curAnchorList.add(island.getID());
         }
     }
     public void removeBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal();
-        int boostIdentifier = island.getIdx();
+        int boostIdentifier = island.getID();
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             curAnchorList.remove(boostIdentifier);
@@ -782,8 +784,7 @@ public strictfp class GameWorld {
             if (distance <= maxDistance)
                 return true;
         }
-        for(int islandIdx: this.islandIds) {
-            Island island = this.islandIdToIsland.get(islandIdx);
+        for(Island island: getAllIslands()) {
             if (island.getTeam() == bot.getTeam()) {
                 int distance = island.minDistTo(loc);
                 if (distance <= GameConstants.DISTANCE_FROM_REALITY_ANCHOR)
@@ -793,4 +794,10 @@ public strictfp class GameWorld {
         return false;
     }
 
+
+    public Island[] getAllIslands(){
+        return (Island[]) islandIdToIsland.values().toArray();
+    }
+
+    
 }

@@ -70,38 +70,43 @@ export enum Action{
   /**
    * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
    */
-  PICK_UP_ANCHOR= 8,
+  BUILD_ANCHOR= 8,
+
+  /**
+   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+   */
+  PICK_UP_ANCHOR= 9,
 
   /**
    * Target: island id for the island the anchor is being placed on
    */
-  PLACE_ANCHOR= 9,
+  PLACE_ANCHOR= 10,
 
   /**
    * Target: change in health (can be negative)
    */
-  CHANGE_HEALTH= 10,
+  CHANGE_HEALTH= 11,
 
   /**
    * Target: change in adamantium (can be negative)
    */
-  CHANGE_ADAMANTIUM= 11,
+  CHANGE_ADAMANTIUM= 12,
 
   /**
    * Target: change in mana (can be negative)
    */
-  CHANGE_MANA= 12,
+  CHANGE_MANA= 13,
 
   /**
    * Target: change in elixir (can be negative)
    */
-  CHANGE_ELIXIR= 13,
+  CHANGE_ELIXIR= 14,
 
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  DIE_EXCEPTION= 14
+  DIE_EXCEPTION= 15
 }};
 
 /**

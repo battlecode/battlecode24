@@ -52,6 +52,23 @@ public enum Anchor {
      */
     public final int elixirCost;
 
+    public int getBuildCost(ResourceType rType) {
+        switch (rType) {
+            case ADAMANTIUM:
+                return this.adamantiumCost;
+            case MANA:
+                return this.manaCost;
+            case ELIXIR:
+                return this.elixirCost;
+            default:
+                return 0;
+        }
+    }
+
+    public int getAccelerationIndex() {
+        return (this == STANDARD) ? 0 : 1;
+    }
+
     Anchor(int turnsToRemove, int unitsAffected, float accelerationFactor, int manaCost, int adamantiumCost, int elixirCost) {
         this.turnsToRemove     = turnsToRemove;
         this.unitsAffected       = unitsAffected;

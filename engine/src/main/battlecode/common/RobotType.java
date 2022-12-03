@@ -171,23 +171,6 @@ public enum RobotType {
         return this.health;
     }
 
-    /**
-     * Determine the damage power of a robot
-     *
-     * @return the damage for a robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getDamage(int amountCarrying) {
-        if (this == RobotType.CARRIER) {
-            return amountCarrying/5;
-        } else if (this == RobotType.LAUNCHER) {
-            return 6;
-        } else {
-            return 0;
-        }
-    }
-
     public int getBuildCost(ResourceType rType) {
         switch (rType) {
             case ADAMANTIUM:
