@@ -96,4 +96,13 @@ public class Well {
         return newWell;
     }
 
+    public String toString(){
+        return "Well{" +
+                "loc=" + loc +
+                ", type=" + type +
+                ", inventory=" + inv +
+                '}';
+
+    }
+
 }

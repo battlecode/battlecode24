@@ -148,12 +148,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         addResourceChangeAction(rType, amount);
     }
 
-    public Anchor getAnchor() {
-        return this.inventory.getAnchor();
+    public int getNumAnchors(Anchor anchor) {
+        return this.inventory.getNumAnchors(anchor);
     }
 
     public boolean holdingAnchor() {
-        return getAnchor() != null;
+        return this.inventory.getTotalAnchors() > 0;
     }
 
     public long getControlBits() {
@@ -377,9 +377,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive++;
     }
 
-    public void processEndOfRound() {
+    public void processEndOfRound(int roundNum) {
         // anything
-        if (this.getType() == RobotType.HEADQUARTERS) {
+        if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0 && this.getType() == RobotType.HEADQUARTERS) {
             // Add resources to team
             this.gameWorld.getTeamInfo().addAdamantium(this.getTeam(), GameConstants.PASSIVE_AD_INCREASE);
             this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);

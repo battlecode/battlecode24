@@ -270,7 +270,7 @@ public strictfp class GameMaker {
             int bodyTypeMetadataOffset = makeBodyTypeMetadata(builder);
 
             Constants.startConstants(builder);
-            Constants.addIncreasePeriod(builder, GameConstants.ADD_LEAD_EVERY_ROUNDS);
+            Constants.addIncreasePeriod(builder, GameConstants.PASSIVE_INCREASE_ROUNDS);
             Constants.addMnAdditiveIncrease(builder, GameConstants.PASSIVE_AD_INCREASE);
             Constants.addAdAdditiveIncrease(builder, GameConstants.PASSIVE_MN_INCREASE);
             int constantsOffset = Constants.endConstants(builder);
@@ -566,7 +566,6 @@ public strictfp class GameMaker {
                 int resourceWellExValueP = Round.createWellElixirValuesVector(builder, resourceWellExValue.toArray());
                 int resourceWellIDsP = Round.createResourceIDVector(builder, resourceWellID.toArray());
                 int wellAccelerationIDsP = Round.createWellAccelerationIDVector(builder, wellAccelerationID.toArray());
-
 
                 // The indicator strings that were set
                 int indicatorStringIDsP = Round.createIndicatorStringIDsVector(builder, indicatorStringIDs.toArray());

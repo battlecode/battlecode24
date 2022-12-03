@@ -551,16 +551,42 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
     }
 
-    @Override
-    public boolean canBuildAnchor(Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    private void assertCanBuildAnchor(Anchor anchor) throws GameActionException {
+        assertNotNull(anchor);
+        assertIsActionReady();
+        if (getType() != RobotType.HEADQUARTERS)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
+        for (ResourceType rType : ResourceType.values()) {
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
+            if (getResourceAmount(rType) < anchor.getBuildCost(rType)) {
+                throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                        "Insufficient amount of " + rType);
+            }
+        }
     }
 
     @Override
-    public void buildAnchor(Anchor anchor) {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public boolean canBuildAnchor(Anchor anchor) {
+        try {
+            assertCanBuildAnchor(anchor);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void buildAnchor(Anchor anchor) throws GameActionException {
+        assertCanBuildAnchor(anchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        Team team = getTeam();
+        for (ResourceType rType : ResourceType.values()) {
+            if (rType == ResourceType.NO_RESOURCE)
+                continue;
+            this.robot.addResourceAmount(rType, -1*anchor.getBuildCost(rType));
+            this.gameWorld.getTeamInfo().addResource(rType, team, -1*anchor.getBuildCost(rType));
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, anchor.getAccelerationIndex());
     }
 
     // *****************************
@@ -658,7 +684,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
-        if (amount < 0 && !this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
+        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
             if (!isHeadquarter(loc)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from headquarters");
             }
@@ -680,6 +706,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException {
         assertCanTransferResource(loc, rType, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
         if (isWell(loc)) {
             System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
@@ -694,7 +721,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             headquarter.addResourceAmount(rType, amount);
             System.out.println("After transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.robot.addResourceAmount(rType, -amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));
     }
@@ -731,6 +757,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void collectResource(MapLocation loc, int amount) throws GameActionException {
         assertCanCollectResource(loc, amount);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
     
         // For methods below, Inventory class would have to first be implemented
         // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
@@ -741,7 +768,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (rType == ResourceType.NO_RESOURCE) {
             throw new IllegalArgumentException("Should not be a well with no resource");
         }
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
         int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
         amount = amount == -1 ? rate : amount;
         this.robot.addResourceAmount(rType, amount);
