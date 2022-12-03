@@ -848,8 +848,8 @@ public strictfp interface RobotController {
     /**
      * Test whether this robot can write to the shared array.
      * 
-     * A robot can write to the shared array when it is within range of a signal amplifier, 
-     * a planted reality anchor, or a headquarter.
+     * A robot can write to the shared array when it is within range
+     * of a signal amplifier, a planted reality anchor, or a headquarter.
      * 
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
