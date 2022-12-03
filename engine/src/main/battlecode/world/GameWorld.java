@@ -791,7 +791,7 @@ public strictfp class GameWorld {
         for(Island island: getAllIslands()) {
             if (island.getTeam() == bot.getTeam()) {
                 int distance = island.minDistTo(loc);
-                if (distance <= GameConstants.DISTANCE_FROM_REALITY_ANCHOR)
+                if (distance <= GameConstants.DISTANCE_FROM_ISLAND)
                     return true;
             }
         }
