@@ -70,38 +70,43 @@ export enum Action{
   /**
    * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
    */
-  PICK_UP_ANCHOR= 8,
+  BUILD_ANCHOR= 8,
+
+  /**
+   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+   */
+  PICK_UP_ANCHOR= 9,
 
   /**
    * Target: island id for the island the anchor is being placed on
    */
-  PLACE_ANCHOR= 9,
+  PLACE_ANCHOR= 10,
 
   /**
    * Target: change in health (can be negative)
    */
-  CHANGE_HEALTH= 10,
+  CHANGE_HEALTH= 11,
 
   /**
    * Target: change in adamantium (can be negative)
    */
-  CHANGE_ADAMANTIUM= 11,
+  CHANGE_ADAMANTIUM= 12,
 
   /**
    * Target: change in mana (can be negative)
    */
-  CHANGE_MANA= 12,
+  CHANGE_MANA= 13,
 
   /**
    * Target: change in elixir (can be negative)
    */
-  CHANGE_ELIXIR= 13,
+  CHANGE_ELIXIR= 14,
 
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  DIE_EXCEPTION= 14
+  DIE_EXCEPTION= 15
 }};
 
 /**
@@ -3013,12 +3018,12 @@ resourceWellLocsArray():Int32Array|null {
 };
 
 /**
- * The change in adamantium stored in the well
+ * The adamantium stored in the well
  *
  * @param number index
  * @returns number
  */
-wellAdamantiumChange(index: number):number|null {
+wellAdamantiumValues(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -3026,7 +3031,7 @@ wellAdamantiumChange(index: number):number|null {
 /**
  * @returns number
  */
-wellAdamantiumChangeLength():number {
+wellAdamantiumValuesLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -3034,18 +3039,18 @@ wellAdamantiumChangeLength():number {
 /**
  * @returns Int32Array
  */
-wellAdamantiumChangeArray():Int32Array|null {
+wellAdamantiumValuesArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The change in mana stored in the well
+ * The mana stored in the well
  *
  * @param number index
  * @returns number
  */
-wellManaChange(index: number):number|null {
+wellManaValues(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -3053,7 +3058,7 @@ wellManaChange(index: number):number|null {
 /**
  * @returns number
  */
-wellManaChangeLength():number {
+wellManaValuesLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -3061,18 +3066,18 @@ wellManaChangeLength():number {
 /**
  * @returns Int32Array
  */
-wellManaChangeArray():Int32Array|null {
+wellManaValuesArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The change in elixir stored in the well
+ * The elixir stored in the well
  *
  * @param number index
  * @returns number
  */
-wellElixirChange(index: number):number|null {
+wellElixirValues(index: number):number|null {
   var offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -3080,7 +3085,7 @@ wellElixirChange(index: number):number|null {
 /**
  * @returns number
  */
-wellElixirChangeLength():number {
+wellElixirValuesLength():number {
   var offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -3088,13 +3093,13 @@ wellElixirChangeLength():number {
 /**
  * @returns Int32Array
  */
-wellElixirChangeArray():Int32Array|null {
+wellElixirValuesArray():Int32Array|null {
   var offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The ID for the new resource this well now contains
+ * The ID for the resource this well contains
  *
  * @param number index
  * @returns number
@@ -3773,10 +3778,10 @@ static startResourceWellLocsVector(builder:flatbuffers.Builder, numElems:number)
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset wellAdamantiumChangeOffset
+ * @param flatbuffers.Offset wellAdamantiumValuesOffset
  */
-static addWellAdamantiumChange(builder:flatbuffers.Builder, wellAdamantiumChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(15, wellAdamantiumChangeOffset, 0);
+static addWellAdamantiumValues(builder:flatbuffers.Builder, wellAdamantiumValuesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(15, wellAdamantiumValuesOffset, 0);
 };
 
 /**
@@ -3784,7 +3789,7 @@ static addWellAdamantiumChange(builder:flatbuffers.Builder, wellAdamantiumChange
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createWellAdamantiumChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createWellAdamantiumValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3796,16 +3801,16 @@ static createWellAdamantiumChangeVector(builder:flatbuffers.Builder, data:number
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startWellAdamantiumChangeVector(builder:flatbuffers.Builder, numElems:number) {
+static startWellAdamantiumValuesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset wellManaChangeOffset
+ * @param flatbuffers.Offset wellManaValuesOffset
  */
-static addWellManaChange(builder:flatbuffers.Builder, wellManaChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(16, wellManaChangeOffset, 0);
+static addWellManaValues(builder:flatbuffers.Builder, wellManaValuesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(16, wellManaValuesOffset, 0);
 };
 
 /**
@@ -3813,7 +3818,7 @@ static addWellManaChange(builder:flatbuffers.Builder, wellManaChangeOffset:flatb
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createWellManaChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createWellManaValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3825,16 +3830,16 @@ static createWellManaChangeVector(builder:flatbuffers.Builder, data:number[] | U
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startWellManaChangeVector(builder:flatbuffers.Builder, numElems:number) {
+static startWellManaValuesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset wellElixirChangeOffset
+ * @param flatbuffers.Offset wellElixirValuesOffset
  */
-static addWellElixirChange(builder:flatbuffers.Builder, wellElixirChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, wellElixirChangeOffset, 0);
+static addWellElixirValues(builder:flatbuffers.Builder, wellElixirValuesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(17, wellElixirValuesOffset, 0);
 };
 
 /**
@@ -3842,7 +3847,7 @@ static addWellElixirChange(builder:flatbuffers.Builder, wellElixirChangeOffset:f
  * @param Array.<number> data
  * @returns flatbuffers.Offset
  */
-static createWellElixirChangeVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+static createWellElixirValuesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3854,7 +3859,7 @@ static createWellElixirChangeVector(builder:flatbuffers.Builder, data:number[] |
  * @param flatbuffers.Builder builder
  * @param number numElems
  */
-static startWellElixirChangeVector(builder:flatbuffers.Builder, numElems:number) {
+static startWellElixirValuesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -4147,7 +4152,7 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamAdChangesOffset:flatbuffers.Offset, teamMnChangesOffset:flatbuffers.Offset, teamExChangesOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, islandIDsOffset:flatbuffers.Offset, islandTurnoverTurnsOffset:flatbuffers.Offset, islandOwnershipOffset:flatbuffers.Offset, resourceWellLocsOffset:flatbuffers.Offset, wellAdamantiumChangeOffset:flatbuffers.Offset, wellManaChangeOffset:flatbuffers.Offset, wellElixirChangeOffset:flatbuffers.Offset, resourceIDOffset:flatbuffers.Offset, wellAccelerationIDOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamAdChangesOffset:flatbuffers.Offset, teamMnChangesOffset:flatbuffers.Offset, teamExChangesOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, islandIDsOffset:flatbuffers.Offset, islandTurnoverTurnsOffset:flatbuffers.Offset, islandOwnershipOffset:flatbuffers.Offset, resourceWellLocsOffset:flatbuffers.Offset, wellAdamantiumValuesOffset:flatbuffers.Offset, wellManaValuesOffset:flatbuffers.Offset, wellElixirValuesOffset:flatbuffers.Offset, resourceIDOffset:flatbuffers.Offset, wellAccelerationIDOffset:flatbuffers.Offset, indicatorStringIDsOffset:flatbuffers.Offset, indicatorStringsOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
   Round.addTeamAdChanges(builder, teamAdChangesOffset);
@@ -4164,9 +4169,9 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addIslandTurnoverTurns(builder, islandTurnoverTurnsOffset);
   Round.addIslandOwnership(builder, islandOwnershipOffset);
   Round.addResourceWellLocs(builder, resourceWellLocsOffset);
-  Round.addWellAdamantiumChange(builder, wellAdamantiumChangeOffset);
-  Round.addWellManaChange(builder, wellManaChangeOffset);
-  Round.addWellElixirChange(builder, wellElixirChangeOffset);
+  Round.addWellAdamantiumValues(builder, wellAdamantiumValuesOffset);
+  Round.addWellManaValues(builder, wellManaValuesOffset);
+  Round.addWellElixirValues(builder, wellElixirValuesOffset);
   Round.addResourceID(builder, resourceIDOffset);
   Round.addWellAccelerationID(builder, wellAccelerationIDOffset);
   Round.addIndicatorStringIDs(builder, indicatorStringIDsOffset);

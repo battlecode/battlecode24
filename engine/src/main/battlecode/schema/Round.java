@@ -123,28 +123,28 @@ public final class Round extends Table {
   public ByteBuffer resourceWellLocsAsByteBuffer() { return __vector_as_bytebuffer(32, 4); }
   public ByteBuffer resourceWellLocsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 32, 4); }
   /**
-   * The change in adamantium stored in the well
+   * The adamantium stored in the well
    */
-  public int wellAdamantiumChange(int j) { int o = __offset(34); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int wellAdamantiumChangeLength() { int o = __offset(34); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer wellAdamantiumChangeAsByteBuffer() { return __vector_as_bytebuffer(34, 4); }
-  public ByteBuffer wellAdamantiumChangeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 34, 4); }
+  public int wellAdamantiumValues(int j) { int o = __offset(34); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int wellAdamantiumValuesLength() { int o = __offset(34); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer wellAdamantiumValuesAsByteBuffer() { return __vector_as_bytebuffer(34, 4); }
+  public ByteBuffer wellAdamantiumValuesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 34, 4); }
   /**
-   * The change in mana stored in the well
+   * The mana stored in the well
    */
-  public int wellManaChange(int j) { int o = __offset(36); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int wellManaChangeLength() { int o = __offset(36); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer wellManaChangeAsByteBuffer() { return __vector_as_bytebuffer(36, 4); }
-  public ByteBuffer wellManaChangeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 36, 4); }
+  public int wellManaValues(int j) { int o = __offset(36); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int wellManaValuesLength() { int o = __offset(36); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer wellManaValuesAsByteBuffer() { return __vector_as_bytebuffer(36, 4); }
+  public ByteBuffer wellManaValuesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 36, 4); }
   /**
-   * The change in elixir stored in the well
+   * The elixir stored in the well
    */
-  public int wellElixirChange(int j) { int o = __offset(38); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int wellElixirChangeLength() { int o = __offset(38); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer wellElixirChangeAsByteBuffer() { return __vector_as_bytebuffer(38, 4); }
-  public ByteBuffer wellElixirChangeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 38, 4); }
+  public int wellElixirValues(int j) { int o = __offset(38); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int wellElixirValuesLength() { int o = __offset(38); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer wellElixirValuesAsByteBuffer() { return __vector_as_bytebuffer(38, 4); }
+  public ByteBuffer wellElixirValuesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 38, 4); }
   /**
-   * The ID for the new resource this well now contains
+   * The ID for the resource this well contains
    */
   public int resourceID(int j) { int o = __offset(40); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int resourceIDLength() { int o = __offset(40); return o != 0 ? __vector_len(o) : 0; }
@@ -245,9 +245,9 @@ public final class Round extends Table {
       int islandTurnoverTurnsOffset,
       int islandOwnershipOffset,
       int resourceWellLocsOffset,
-      int wellAdamantiumChangeOffset,
-      int wellManaChangeOffset,
-      int wellElixirChangeOffset,
+      int wellAdamantiumValuesOffset,
+      int wellManaValuesOffset,
+      int wellElixirValuesOffset,
       int resourceIDOffset,
       int wellAccelerationIDOffset,
       int indicatorStringIDsOffset,
@@ -277,9 +277,9 @@ public final class Round extends Table {
     Round.addIndicatorStringIDs(builder, indicatorStringIDsOffset);
     Round.addWellAccelerationID(builder, wellAccelerationIDOffset);
     Round.addResourceID(builder, resourceIDOffset);
-    Round.addWellElixirChange(builder, wellElixirChangeOffset);
-    Round.addWellManaChange(builder, wellManaChangeOffset);
-    Round.addWellAdamantiumChange(builder, wellAdamantiumChangeOffset);
+    Round.addWellElixirValues(builder, wellElixirValuesOffset);
+    Round.addWellManaValues(builder, wellManaValuesOffset);
+    Round.addWellAdamantiumValues(builder, wellAdamantiumValuesOffset);
     Round.addResourceWellLocs(builder, resourceWellLocsOffset);
     Round.addIslandOwnership(builder, islandOwnershipOffset);
     Round.addIslandTurnoverTurns(builder, islandTurnoverTurnsOffset);
@@ -340,15 +340,15 @@ public final class Round extends Table {
   public static void addResourceWellLocs(FlatBufferBuilder builder, int resourceWellLocsOffset) { builder.addOffset(14, resourceWellLocsOffset, 0); }
   public static int createResourceWellLocsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startResourceWellLocsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addWellAdamantiumChange(FlatBufferBuilder builder, int wellAdamantiumChangeOffset) { builder.addOffset(15, wellAdamantiumChangeOffset, 0); }
-  public static int createWellAdamantiumChangeVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startWellAdamantiumChangeVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addWellManaChange(FlatBufferBuilder builder, int wellManaChangeOffset) { builder.addOffset(16, wellManaChangeOffset, 0); }
-  public static int createWellManaChangeVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startWellManaChangeVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addWellElixirChange(FlatBufferBuilder builder, int wellElixirChangeOffset) { builder.addOffset(17, wellElixirChangeOffset, 0); }
-  public static int createWellElixirChangeVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startWellElixirChangeVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWellAdamantiumValues(FlatBufferBuilder builder, int wellAdamantiumValuesOffset) { builder.addOffset(15, wellAdamantiumValuesOffset, 0); }
+  public static int createWellAdamantiumValuesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startWellAdamantiumValuesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWellManaValues(FlatBufferBuilder builder, int wellManaValuesOffset) { builder.addOffset(16, wellManaValuesOffset, 0); }
+  public static int createWellManaValuesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startWellManaValuesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWellElixirValues(FlatBufferBuilder builder, int wellElixirValuesOffset) { builder.addOffset(17, wellElixirValuesOffset, 0); }
+  public static int createWellElixirValuesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startWellElixirValuesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addResourceID(FlatBufferBuilder builder, int resourceIDOffset) { builder.addOffset(18, resourceIDOffset, 0); }
   public static int createResourceIDVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startResourceIDVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
