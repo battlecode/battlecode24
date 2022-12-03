@@ -127,20 +127,18 @@ public strictfp class GameWorld {
             this.islandIdToIsland.put(key, newIsland);            
         }
 
-        // Add initial amounts of resource
-        this.teamInfo.addMana(Team.A, GameConstants.INITIAL_MN_AMOUNT);
-        this.teamInfo.addMana(Team.B, GameConstants.INITIAL_MN_AMOUNT);
-        this.teamInfo.addAdamantium(Team.A, GameConstants.INITIAL_AD_AMOUNT);
-        this.teamInfo.addAdamantium(Team.B, GameConstants.INITIAL_AD_AMOUNT);
-
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
         
         this.wells = new Well[gm.getWidth()*gm.getHeight()];
         for(int i = 0; i < gm.getResourceArray().length; i++){
-            Inventory inv = new Inventory();
             MapLocation loc = indexToLocation(i);
-            this.wells[i] = new Well(loc, ResourceType.values()[gm.getResourceArray()[i]]);
+            ResourceType rType = ResourceType.values()[gm.getResourceArray()[i]];
+            if (rType == ResourceType.NO_RESOURCE) {
+                this.wells[i] = null;
+            } else {
+                this.wells[i] = new Well(loc, rType);
+            }
         }
 
 
@@ -164,10 +162,31 @@ public strictfp class GameWorld {
             return GameState.DONE;
         }
 
+        // TODO: eliminate debugging prints eventually
+
         try {
             this.processBeginningOfRound();
             this.controlProvider.roundStarted();
             System.out.println("Round: " + this.currentRound);
+            // On the first round we want to add the initial amounts to the headquarters
+            if (this.currentRound == 1) {
+                objectInfo.eachDynamicBodyByExecOrder((body) -> {
+                    if (body instanceof InternalRobot) {
+                        InternalRobot hq = (InternalRobot) body;
+                        if (hq.getType() != RobotType.HEADQUARTERS) {
+                            throw new RuntimeException("Robots must be headquarters in round 1");
+                        }
+                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
+                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
+                        // Add initial amounts of resource
+                        this.teamInfo.addAdamantium(hq.getTeam(), GameConstants.INITIAL_AD_AMOUNT);                        
+                        this.teamInfo.addMana(hq.getTeam(), GameConstants.INITIAL_MN_AMOUNT);
+                        return true;
+                    } else {
+                        throw new RuntimeException("non-robot body registered as dynamic");
+                    }
+                });
+            }
 
             updateDynamicBodies();
 
@@ -319,12 +338,12 @@ public strictfp class GameWorld {
                 else
                     cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
             }
-            curAnchorList.add(island.getIdx());
+            curAnchorList.add(island.getID());
         }
     }
     public void removeBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal();
-        int boostIdentifier = island.getIdx();
+        int boostIdentifier = island.getID();
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             curAnchorList.remove(boostIdentifier);
@@ -383,7 +402,7 @@ public strictfp class GameWorld {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
         for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
             if (getRobot(newLocation) != null) {
-                if (getRobot(newLocation).getTeam() == null || getRobot(newLocation).getTeam() == team)
+                if (team == null || getRobot(newLocation).getTeam() == team)
                     returnRobots.add(getRobot(newLocation));
             }
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
@@ -395,6 +414,14 @@ public strictfp class GameWorld {
             if (getIsland(newLocation) != null)
                 returnIslands.add(getIsland(newLocation));
         return returnIslands.toArray(new Island[returnIslands.size()]);
+    }
+
+    public Well[] getAllWellsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Well> returnWells = new ArrayList<Well>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getWell(newLocation) != null)
+                returnWells.add(getWell(newLocation));
+        return returnWells.toArray(new Well[returnWells.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
@@ -500,6 +527,7 @@ public strictfp class GameWorld {
             return true;
         } else if (realityAnchorCountA < realityAnchorCountB) {
             setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
+            System.out.println("A: " + realityAnchorCountA + " B: " + realityAnchorCountB);
             return true;
         }
         return false;
@@ -520,11 +548,13 @@ public strictfp class GameWorld {
             totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ELIXIR);
         }
         
-        if (totalElixirValues[0] > totalElixirValues[1]) {
+        if (totalElixirValues[Team.A.ordinal()] > totalElixirValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            System.out.println("Elixir: A: " + totalElixirValues[0] + " B: " + totalElixirValues[1]);
             return true;
-        } else if (totalElixirValues[1] > totalElixirValues[0]) {
+        } else if (totalElixirValues[Team.B.ordinal()] > totalElixirValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            System.out.println("Elixir: A: " + totalElixirValues[0] + " B: " + totalElixirValues[1]);
             return true;
         }
         return false;
@@ -545,11 +575,13 @@ public strictfp class GameWorld {
             totalManaValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.MANA);
         }
         
-        if (totalManaValues[0] > totalManaValues[1]) {
+        if (totalManaValues[Team.A.ordinal()] > totalManaValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
+            System.out.println("Mana: A: " + totalManaValues[Team.A.ordinal()] + " B: " + totalManaValues[Team.B.ordinal()]);
             return true;
-        } else if (totalManaValues[1] > totalManaValues[0]) {
+        } else if (totalManaValues[Team.B.ordinal()] > totalManaValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
+            System.out.println("Mana: A: " + totalManaValues[Team.A.ordinal()] + " B: " + totalManaValues[Team.B.ordinal()]);
             return true;
         }
         return false;
@@ -570,11 +602,13 @@ public strictfp class GameWorld {
             totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ADAMANTIUM);
         }
         
-        if (totalAdamantiumValues[0] > totalAdamantiumValues[1]) {
+        if (totalAdamantiumValues[Team.A.ordinal()] > totalAdamantiumValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            System.out.println("Adamanitum: A: " + totalAdamantiumValues[Team.A.ordinal()] + " B: " + totalAdamantiumValues[Team.B.ordinal()]);
             return true;
-        } else if (totalAdamantiumValues[1] > totalAdamantiumValues[0]) {
+        } else if (totalAdamantiumValues[Team.B.ordinal()] > totalAdamantiumValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            System.out.println("Adamantium: A: " + totalAdamantiumValues[Team.A.ordinal()] + " B: " + totalAdamantiumValues[Team.B.ordinal()]);
             return true;
         }
         return false;
@@ -608,19 +642,11 @@ public strictfp class GameWorld {
     }
 
     public void processEndOfRound() {
-        // Add resources to team
-        // TODO: this is not enough, it needs to go to a headquarter
-        this.teamInfo.addAdamantium(Team.A, GameConstants.PASSIVE_AD_INCREASE);
-        this.teamInfo.addAdamantium(Team.B, GameConstants.PASSIVE_AD_INCREASE);
-
-        this.teamInfo.addMana(Team.A, GameConstants.PASSIVE_MN_INCREASE);
-        this.teamInfo.addMana(Team.B, GameConstants.PASSIVE_MN_INCREASE);
-
-
 
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
-            robot.processEndOfRound();
+            // Add resources to team for each headquarter
+            robot.processEndOfRound(currentRound);
             return true;
         });
         
@@ -648,6 +674,11 @@ public strictfp class GameWorld {
             }
         }
 
+        for (Well well : this.wells) {
+            if (well == null)
+                continue;
+            this.matchMaker.addWell(well);
+        }
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundAdamantiumChange(Team.A), this.teamInfo.getRoundManaChange(Team.A), this.teamInfo.getRoundElixirChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
         this.teamInfo.processEndOfRound();
@@ -728,7 +759,7 @@ public strictfp class GameWorld {
      * Checks if the given MapLocation contains a headquarters
      */
     public boolean isHeadquarters(MapLocation loc) {
-        return getRobot(loc).getType() == RobotType.HEADQUARTERS;
+        return getRobot(loc) != null && getRobot(loc).getType() == RobotType.HEADQUARTERS;
     }
 
     public boolean isWell(MapLocation loc) {

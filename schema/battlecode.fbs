@@ -99,6 +99,8 @@ enum Action : byte {
     BOOST,
     // TODO: If client is interested in visualizing changes in movement speed, should probably add it as an action or to Round
     /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+    BUILD_ANCHOR,
+    /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
     PICK_UP_ANCHOR,
     /// Target: island id for the island the anchor is being placed on
     PLACE_ANCHOR,
@@ -288,13 +290,13 @@ table Round {
 
     /// The locations of the resources wells being given resources
     resourceWellLocs: [int];
-    /// The change in adamantium stored in the well
-    wellAdamantiumChange: [int];
-    /// The change in mana stored in the well
-    wellManaChange: [int];
-    /// The change in elixir stored in the well
-    wellElixirChange: [int];
-    /// The ID for the new resource this well now contains
+    /// The adamantium stored in the well
+    wellAdamantiumValues: [int];
+    /// The mana stored in the well
+    wellManaValues: [int];
+    /// The elixir stored in the well
+    wellElixirValues: [int];
+    /// The ID for the resource this well contains
     resourceID: [int];
     /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
     wellAccelerationID: [int];

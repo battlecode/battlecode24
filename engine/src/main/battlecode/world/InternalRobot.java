@@ -59,6 +59,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
+                // Add resources at start of game
                 break;
             case CARRIER:
                 this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
@@ -67,11 +68,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 this.inventory = new Inventory(0);
                 break;
         }
-        this.inventory = new Inventory();
-        //TODO: fix
-        this.inventory.addAdamantium(1000);
-        this.inventory.addMana(1000);
-
         this.health = this.type.health;
 
         this.controlBits = 0;
@@ -119,28 +115,68 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return health;
     }
 
-    public Inventory getInventory() {
-        return this.inventory.copy();
-    }
-
     public int getResource(ResourceType r) {
         return this.inventory.getResource(r);
     }
 
     public boolean canAdd(int amount) {
+        assert(this.getType() == RobotType.CARRIER);
         return this.inventory.canAdd(amount);
+    }
+    
+    private void addResourceChangeAction(ResourceType rType, int amount) {
+        System.out.println("Adding action of increasing resource " + rType + " to robot with id " + getID() + " with amount " + amount);
+        switch (rType) {
+            case ADAMANTIUM:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
+                break;
+            case MANA:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_MANA, amount);
+                break;
+            case ELIXIR:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ELIXIR, amount);
+                break;
+            case NO_RESOURCE:
+                if (amount != 0) 
+                    throw new IllegalArgumentException("No resource should have value of 0");
+                break;
+        }
     }
 
     public void addResourceAmount(ResourceType rType, int amount) {
         this.inventory.addResource(rType, amount);
+        addResourceChangeAction(rType, amount);
     }
 
-    public Anchor getAnchor() {
-        return this.inventory.getAnchor();
+    public int getNumAnchors(Anchor anchor) {
+        return this.inventory.getNumAnchors(anchor);
     }
 
     public boolean holdingAnchor() {
-        return getAnchor() != null;
+        return this.inventory.getTotalAnchors() > 0;
+    }
+
+    public Anchor getTypeAnchor() {
+        assert(this.type == RobotType.CARRIER); // Don't ever call this with a headquarter, TODO: Maybe make this check better
+        if (getNumAnchors(Anchor.STANDARD) > 0) {
+            return Anchor.STANDARD;
+        } else if (getNumAnchors(Anchor.ACCELERATING) > 0) {
+            return Anchor.ACCELERATING;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean canAddAnchor() {
+        return this.inventory.canAdd(GameConstants.ANCHOR_WEIGHT);
+    }
+
+    public void addAnchor(Anchor anchor) {
+        this.inventory.addAnchor(anchor);
+    }
+
+    public void releaseAnchor(Anchor anchor) {
+        this.inventory.releaseAnchor(anchor);
     }
 
     public long getControlBits() {
@@ -324,6 +360,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ****** ACTION METHODS *********
     // *********************************
 
+    private int locationToInt(MapLocation loc) {
+        return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
+    }
+    
+    private int getDamage() {
+        assert(this.type == RobotType.LAUNCHER);
+        return GameConstants.LAUNCHER_ATTACK_DAMAGE;
+    }
+
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
@@ -331,7 +376,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.type.getDamage(0);
+            int dmg = getDamage();
             bot.addHealth(-dmg);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
         }
@@ -360,8 +405,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive++;
     }
 
-    public void processEndOfRound() {
+    public void processEndOfRound(int roundNum) {
         // anything
+        if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0 && this.getType() == RobotType.HEADQUARTERS) {
+            // Add resources to team
+            this.gameWorld.getTeamInfo().addAdamantium(this.getTeam(), GameConstants.PASSIVE_AD_INCREASE);
+            this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
+
+            this.gameWorld.getTeamInfo().addMana(this.getTeam(), GameConstants.PASSIVE_MN_INCREASE);
+            this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+        }
     }
 
     // *********************************

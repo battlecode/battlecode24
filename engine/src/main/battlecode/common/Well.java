@@ -1,11 +1,9 @@
-package battlecode.world;
+package battlecode.common;
 
-import javax.lang.model.util.ElementScanner6;
-
-import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
+import battlecode.world.Inventory;
 
 public class Well {
+
     private Inventory inv;
 
     private MapLocation loc;
@@ -18,8 +16,14 @@ public class Well {
         this.type = type;
     }
 
-    public Inventory getInventory(){
-        return inv;
+    public Well(MapLocation loc, ResourceType type, Inventory inv){
+        this.inv = inv;
+        this.loc = loc;
+        this.type = type;
+    }
+
+    public int getResource(ResourceType rType){
+        return inv.getResource(rType);
     }
 
     public MapLocation getMapLocation(){
@@ -28,20 +32,23 @@ public class Well {
 
     public void addAdamantium(int amount){
         inv.addAdamantium(amount);
-        if (type == ResourceType.MANA && inv.getAdamantium() >= 15000)
+        if (type == ResourceType.MANA && inv.getAdamantium() >= 15000) {
             type = ResourceType.ELIXIR;
             //TODO: should inventory be set to zero after an upgrade
+            //TODO: Let's come back to this code
             inv.addAdamantium(-inv.getAdamantium());
             inv.addMana(-inv.getMana());
+        }
     }
 
     public void addMana(int amount){
         inv.addMana(amount);
-        if (type == ResourceType.ADAMANTIUM && inv.getMana() >= 15000)
+        if (type == ResourceType.ADAMANTIUM && inv.getMana() >= 15000) {
             type = ResourceType.ELIXIR;
             //TODO: should inventory be set to zero after an upgrade
             inv.addAdamantium(-inv.getAdamantium());
             inv.addMana(-inv.getMana());
+        }
 
     }
 
@@ -69,6 +76,7 @@ public class Well {
         return type;
     }
   
+    // TODO: Rather than doing this we should have an upgrade part of the state, this can become weird as we empty it
     public boolean isUpgraded(){
         if (type == ResourceType.ADAMANTIUM && inv.getAdamantium() >= 10000)
             return true;
@@ -80,5 +88,27 @@ public class Well {
             return false;
     }
 
+    public int getRate() {
+        return isUpgraded() ? GameConstants.WELL_ACCELERATED_RATE : GameConstants.WELL_STANDARD_RATE;
+    }
+
+    public int accelerationId() {
+        return this.isUpgraded() ? 1 : 0;
+    }
+
+    public Well copy(){
+        Inventory newInv = this.inv.copy();
+        Well newWell = new Well(this.loc, this.type, newInv);
+        return newWell;
+    }
+
+    public String toString(){
+        return "Well{" +
+                "loc=" + loc +
+                ", type=" + type +
+                ", inventory=" + inv +
+                '}';
+
+    }
+
 }
-    

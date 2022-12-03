@@ -6,6 +6,7 @@ package battlecode.common;
 @SuppressWarnings("unused")
 public class GameConstants {
 
+    //TODO: Let's organize this better but I'm lazy :)
     /**
      * The current spec version the server compiles with.
      */
@@ -55,20 +56,22 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
+    //TODO: fix
     /** The initial amount of mana each team starts with. */
-    public static final int INITIAL_MN_AMOUNT = 1000;
+    public static final int INITIAL_MN_AMOUNT = 100;
 
     /** The initial amount of adamantium each team starts with. */
-    public static final int INITIAL_AD_AMOUNT = 1000;
+    public static final int INITIAL_AD_AMOUNT = 100;
 
-    /** The amount of adamantium each team gains per turn. */
+    //TODO: We may want to reduce this since it is added to each hq
+    /** The amount of adamantium each headquarter on a team gains per turn. */
     public static final int PASSIVE_AD_INCREASE = 2;
 
-    /** The amount of mana each team gains per turn. */
+    /** The amount of mana each headquarter on a team gains per turn. */
     public static final int PASSIVE_MN_INCREASE = 2;
 
-    /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+    /** The number of rounds between adding resources to headquarters. */
+    public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of lead to add each round that lead is added. */
     public static final int ADD_LEAD = 5;
@@ -90,6 +93,13 @@ public class GameConstants {
 
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
     public static final int DISTANCE_FROM_HEADQUARTER = 50;
+
+    /** The amount of damage a launcher can do */
+    public static final int LAUNCHER_ATTACK_DAMAGE = 6;
+    // TODO: this doesn't make sense, max capacity is like 50
+
+    /** The discout factor on the amount of damage a carrier can do based on their capacity */
+    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -155,6 +165,10 @@ public class GameConstants {
     /** Constants for boost durations. */
     public static final int BOOSTER_DURATION = 10;
     public static final int DESTABILIZER_DURATION = 5;
+
+    /** Constants for well rates. */
+    public static final int WELL_STANDARD_RATE = 2;
+    public static final int WELL_ACCELERATED_RATE = 4;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -165,5 +179,5 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     //TOOD: change pls
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 200;
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 20;
 }

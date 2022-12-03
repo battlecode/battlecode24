@@ -9,18 +9,18 @@ import battlecode.common.*;
 
 
 public class Island {
-    final int idx;
+    final int ID;
     final MapLocation[] locations; // TODO: do we want to make this immutable or change it to a copy to be extra safe?
     final GameWorld gw;
     Team teamOwning;
     Anchor anchorPlanted;
     int turnsLeftToRemoveAnchor;
 
-    public Island(GameWorld gw, int idx, List<MapLocation> locations) {
+    public Island(GameWorld gw, int ID, List<MapLocation> locations) {
         // TODO: this may not be the right place for this assertion but as we rebalance this needs to be true
         assert(GameConstants.PERCENT_OPPOSING_TEAM_ISLAND + GameConstants.PERCENT_OWNING_TEAM_ISLAND > 1.0f);
         this.gw = gw;
-        this.idx = idx;
+        this.ID = ID;
         this.locations = new MapLocation[locations.size()];
         for (int i = 0; i < locations.size(); i ++) {
             this.locations[i] = locations.get(i);
@@ -34,8 +34,8 @@ public class Island {
         return this.teamOwning;
     }
 
-    public int getIdx() {
-        return idx;
+    public int getID() {
+        return ID;
     }
 
     public Anchor getAnchor() {

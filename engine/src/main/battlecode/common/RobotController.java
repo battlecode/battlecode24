@@ -79,7 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (TODO).
      *
      * @return this robot's type
      *
@@ -368,84 +367,84 @@ public strictfp interface RobotController {
      */
     Anchor senseAnchor(int islandIdx) throws GameActionException;
 
-    // /**
-    //  * Return all wells.
-    //  *
-    //  * @return all locations within vision radius that contain wells
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells();
+    /**
+     * Return all wells.
+     *
+     * @return all locations within vision radius that contain wells
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells();
 
-    // /**
-    //  * Return all wells within a specified radius of a center location.
-    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
-    //  * vision radius instead. If -1 is passed, all locations within vision radius
-    //  * are returned.
-    //  *
-    //  * @param radiusSquared the squared radius of all locations to be returned
-    //  * @return all locations that contain wells within the radius
-    //  * @throws GameActionException if the radius is negative (and not -1)
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells(int radiusSquared) throws GameActionException;
+    /**
+     * Return all wells within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(int radiusSquared) throws GameActionException;
 
-    // /**
-    //  * Return all wells within a specified radius of a center location.
-    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
-    //  * vision radius instead. If -1 is passed, all locations within vision radius
-    //  * are returned.
-    //  *
-    //  * @param center the center of the search area
-    //  * @param radiusSquared the squared radius of all locations to be returned
-    //  * @return all locations that contain wells within the radius
-    //  * @throws GameActionException if the radius is negative (and not -1)
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
+    /**
+     * Return all wells within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
 
-    // /**
-    //  * Return all wells of the given resource type
-    //  *
-    //  * @param resourceType the resource type to filter on
-    //  * @return all locations within vision radius that contain wells of the given resource type
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells(ResourceType resourceType);
+    /**
+     * Return all wells of the given resource type
+     *
+     * @param resourceType the resource type to filter on
+     * @return all locations within vision radius that contain wells of the given resource type
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(ResourceType resourceType);
 
-    // /**
-    //  * Return all wells within a specified radius of a center location of the given resource type
-    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
-    //  * vision radius instead. If -1 is passed, all locations within vision radius
-    //  * are returned.
-    //  *
-    //  * @param radiusSquared the squared radius of all locations to be returned
-    //  * @param resourceType the resource type to filter on
-    //  * @return all locations that contain wells within the radius
-    //  * @throws GameActionException if the radius is negative (and not -1)
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException;
+    /**
+     * Return all wells within a specified radius of a center location of the given resource type
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param resourceType the resource type to filter on
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException;
 
-    // /**
-    //  * Return all wells within a specified radius of a center location of the given resource type
-    //  * If radiusSquared is larger than the robot's vision radius, uses the robot's
-    //  * vision radius instead. If -1 is passed, all locations within vision radius
-    //  * are returned.
-    //  *
-    //  * @param center the center of the search area
-    //  * @param radiusSquared the squared radius of all locations to be returned
-    //  * @param resourceType the resource type to filter on
-    //  * @return all locations that contain wells within the radius
-    //  * @throws GameActionException if the radius is negative (and not -1)
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
+    /**
+     * Return all wells within a specified radius of a center location of the given resource type
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @param resourceType the resource type to filter on
+     * @return all locations that contain wells within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -613,163 +612,66 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-   // ***********************************
+    // ***********************************
     // ******** BOOSTERS METHODS *********
     // ***********************************
 
-    // /**
-    //  * Tests whether this robot is able to boost
-    //  * 
-    //  * Checks that the robot can boost other units. Also checks that there are no 
-    //  * cooldown turns remaining.
-    //  *
-    //  * @param  none
-    //  * @return whether it is possible for this robot to boost
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // boolean canBoost();
+    /**
+     * Tests whether this robot is able to boost
+     * 
+     * Checks that the robot can boost other units. Also checks that there are no 
+     * cooldown turns remaining.
+     *
+     * @param  none
+     * @return whether it is possible for this robot to boost
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBoost();
 
 
-    // /** 
-    //  * Boosts at a given location.
-    //  *
-    //  * @param none
-    //  * @throws GameActionException if conditions for boosting are not satisfied
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // void boost() throws GameActionException;
+    /** 
+     * Boosts at a given location.
+     *
+     * @param none
+     * @throws GameActionException if conditions for boosting are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void boost() throws GameActionException;
+
+    // ***********************************
+    // ****** DESTABILIZER METHODS *******
+    // ***********************************
+
+    /**
+     * Tests whether this robot is able to destabilize
+     * 
+     * Checks that the robot can destabilize other units. Also checks that there are no 
+     * cooldown turns remaining.
+     *
+     * @param  none
+     * @return whether it is possible for this robot to destabilize
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDestabilize();
+
+
+    /** 
+     * Destabilizes at a given location.
+     *
+     * @param none
+     * @throws GameActionException if conditions for destabilizing are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void destabilize() throws GameActionException;
 
 
     // ***************************
     // ***** CARRIER METHODS *****
     // ***************************
-
-    /**
-     * Tests whether the robot can transfer adamantium to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferAd(MapLocation loc, int amount);
-
-    /** 
-     * Transfers adamantium to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferAd(MapLocation loc, int amount) throws GameActionException;
-
-    /**
-     * Tests whether the robot can transfer mana to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferMn(MapLocation loc, int amount);
-
-    /** 
-     * Transfers mana to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferMn(MapLocation loc, int amount) throws GameActionException;
-
-
-    /**
-     * Tests whether the robot can transfer elixir to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferEx(MapLocation loc, int amount);
-
-    /** 
-     * Transfers elixir to/from given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferEx(MapLocation loc, int amount) throws GameActionException;
-
-    // /**
-    //  * Tests whether the robot can take an anchor from an HQ.
-    //  * 
-    //  * Checks that the robot is a Carrier, the given location is a valid HQ, 
-    //  * and there are no cooldown turns remaining. 
-    //  * 
-    //  * Valid locations must be the current location or adjacent to the current 
-    //  * location. 
-    //  * 
-    //  * Checks that carrier has sufficient capacity for the anchor. 
-    //  *
-    //  * @param loc target HQ location
-    //  * @param anchorType type of anchor to take
-    //  * @return whether it is possible to take anchor from given location
-    //  */
-    // boolean canTakeAnchor(MapLocation loc, int anchorType);
-
-    // /** 
-    //  * Take an anchor from the given location. 
-    //  *
-    //  * @param loc target HQ location
-    //  * @param anchorType type of anchor to take
-    //  * @throws GameActionException if conditions for taking are not satisfied
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // void takeAnchor(MapLocation loc, int anchorType) throws GameActionException;
 
     /**
      * Tests whether the robot can collect resource from a given location.
@@ -784,7 +686,7 @@ public strictfp interface RobotController {
      * current well rate, carrier has sufficient capacity).
      *
      * @param loc target location to collect 
-     * @param amount amount to be collected
+     * @param amount amount to be collected, -1 to collect max possible
      * @return whether it is possible to collect amount to the given location
      *
      * @battlecode.doc.costlymethod
@@ -795,35 +697,103 @@ public strictfp interface RobotController {
      * Collect resource from the given location. 
      *
      * @param loc target well location
-     * @param amount amount to collect
+     * @param amount amount to collect, -1 to collect max possible
      * @throws GameActionException if conditions for collecting are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
     void collectResource(MapLocation loc, int amount) throws GameActionException;
 
-    // /**
-    //  * Tests whether the robot can place an anchor at its current location.
-    //  * 
-    //  * Checks that the robot is a Carrier, the robot is holding an anchor,
-    //  * the given location is a valid sky island, and there are no cooldown turns remaining. 
-    //  * 
-    //  * Valid locations must be a sky island not already controlled by the opposing team. 
-    //  *
-    //  * @return whether it is possible to place an anchor
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // boolean canPlaceAnchor();
+    /**
+     * Tests whether the robot can transfer resource to a given location.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ
+     * or well location, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * 
+     * Checks that carrier can transfer the amount (donor has sufficient 
+     * resource). Wells can only be transferred to. 
+     *
+     * @param loc target location to transfer to
+     * @param rType type of resource to transfer
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @return whether it is possible to transfer amount to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canTransferResource(MapLocation loc, ResourceType rType, int amount);
 
-    // /** 
-    //  * Places an anchor at the current location. 
-    //  * 
-    //  * @throws GameActionException if conditions for placing anchors are not satisfied
-    //  *
-    //  * @battlecode.doc.costlymethod
-    //  */
-    // void placeAnchor() throws GameActionException;
+    /** 
+     * Transfers resource to given location. Transferred material is 
+     * limited by carrier capacity. 
+     * 
+     * @param loc target location to transfer to/from
+     * @param rType type of resource to transfer
+     * @param amount amount to be transferred (negative = from loc, positive = to)
+     * @throws GameActionException if conditions for transferring are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
+
+    //TODO: spec
+    boolean canBuildAnchor(Anchor anchor);
+
+    void buildAnchor(Anchor anchor) throws GameActionException;
+
+    /**
+     * Tests whether the robot can take an anchor from a HQ.
+     * 
+     * Checks that the robot is a Carrier, the given location is a valid HQ,
+     * with the desired anchor and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be the current location or adjacent to the current 
+     * location. 
+     * TODO: is the above true then my code is wrong, let's check
+     * 
+     * Checks that carrier has sufficient capacity for the anchor. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @return whether it is possible to take anchor from given location
+     */
+    boolean canTakeAnchor(MapLocation loc, Anchor anchorType);
+
+    /** 
+     * Take an anchor from the given location. 
+     *
+     * @param loc target HQ location
+     * @param anchorType type of anchor to take
+     * @throws GameActionException if conditions for taking are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void takeAnchor(MapLocation loc, Anchor anchorType) throws GameActionException;
+
+    /**
+     * Tests whether the robot can place an anchor at its current location.
+     * 
+     * Checks that the robot is a Carrier, the robot is holding an anchor,
+     * the given location is a valid sky island, and there are no cooldown turns remaining. 
+     * 
+     * Valid locations must be a sky island not already controlled by the opposing team. 
+     *
+     * @return whether it is possible to place an anchor
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canPlaceAnchor();
+
+    /** 
+     * Places an anchor at the current location. 
+     * 
+     * @throws GameActionException if conditions for placing anchors are not satisfied
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void placeAnchor() throws GameActionException;
 
     // ***************************
     // **** AMPLIFIER METHODS **** 

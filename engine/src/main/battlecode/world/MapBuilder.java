@@ -70,16 +70,13 @@ public class MapBuilder {
                 throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
             }
         }
-        // TODO: currently assuming initial amount is added to each headquarter, this may be wrong
-        Inventory initialHeadquarterInventory = new Inventory();
-        initialHeadquarterInventory.addAdamantium(GameConstants.INITIAL_AD_AMOUNT);
-        initialHeadquarterInventory.addMana(GameConstants.INITIAL_MN_AMOUNT);
+        // TODO: You shouldn't need to add until you actually create the internal robot
 
         bodies.add(new RobotInfo(
                 id,
                 team,
                 RobotType.HEADQUARTERS,
-                initialHeadquarterInventory,
+                new Inventory(),
                 RobotType.HEADQUARTERS.health,
                 loc
         ));
@@ -186,17 +183,17 @@ public class MapBuilder {
     }
 
     private int getSymmetricIsland(int id) {
-        return this.islandArray.length-id;
+        return id == 0 ? 0 : this.islandArray.length-id;
     }
 
     public void setSymmetricIsland(int x, int y, int id) {
-        this.currentArray[locationToIndex(x, y)] = id;
-        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricIsland(id);
+        this.islandArray[locationToIndex(x, y)] = id;
+        this.islandArray[locationToIndex(symmetricX(x), symmetricY(y))] = getSymmetricIsland(id);
     }
 
     public void setSymmetricResource(int x, int y, int id) {
-        this.currentArray[locationToIndex(x, y)] = id;
-        this.currentArray[locationToIndex(symmetricX(x), symmetricY(y))] = id;
+        this.resourceArray[locationToIndex(x, y)] = id;
+        this.resourceArray[locationToIndex(symmetricX(x), symmetricY(y))] = id;
     }
 
     // ********************
@@ -229,6 +226,7 @@ public class MapBuilder {
         // get robots
         RobotInfo[] robots = new RobotInfo[width * height];
         for (RobotInfo r : bodies) {
+            assert(r.getType() == RobotType.HEADQUARTERS);
             if (robots[locationToIndex(r.location.x, r.location.y)] != null)
                 throw new RuntimeException("Two robots on the same square");
             robots[locationToIndex(r.location.x, r.location.y)] = r;
@@ -255,7 +253,7 @@ public class MapBuilder {
         }
 
         //assert that walls are not on same location as resources/islands/currents/clouds
-        for (int i = 0; i < this.wallArray.length; i++){
+        for (int i = 0; i < this.width*this.height; i++){
             if (this.wallArray[i]){
                 if (this.cloudArray[i])
                     throw new RuntimeException("Walls cannot be on the same square as clouds");
@@ -265,10 +263,21 @@ public class MapBuilder {
                     throw new RuntimeException("Walls cannot be on an island");
                 if (this.currentArray[i] != 0)
                     throw new RuntimeException("Walls cannot be on the same square as currents");
+                if (robots[i] != null)
+                    throw new RuntimeException("Walls cannot be on the same square as headquarters");
             }
             //assert that clouds and currents cannot be on the same square
             if (this.cloudArray[i] && this.currentArray[i] != 0)
                 throw new RuntimeException("Clouds and currents cannot be on the same square");
+
+            //assert that wells are not on same square as headquarters
+            if (this.resourceArray[i] != 0 && robots[i] != null)
+                throw new RuntimeException("Wells can't be on same square as headquarters");
+
+            //assert that currents are not on same square as headquarters
+            if (this.currentArray[i] != 0 && robots[i] != null)
+                throw new RuntimeException("Currents can't be on same square as headquarters");
+
         }
         
         // assert rubble, lead, and Archon symmetry
@@ -343,7 +352,6 @@ public class MapBuilder {
         possible.add(MapSymmetry.ROTATIONAL);
         possible.add(MapSymmetry.HORIZONTAL);
         possible.add(MapSymmetry.VERTICAL);
-
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 MapLocation current = new MapLocation(x, y);
