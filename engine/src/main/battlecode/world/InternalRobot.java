@@ -341,6 +341,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
     }
     
+    private int getDamage() {
+        assert(this.type == RobotType.LAUNCHER);
+        return GameConstants.LAUNCHER_ATTACK_DAMAGE;
+    }
+
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
@@ -348,7 +353,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void attack(InternalRobot bot) {
         if (!(bot == null)) {
-            int dmg = this.type.getDamage(0);
+            int dmg = getDamage();
             bot.addHealth(-dmg);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
         }

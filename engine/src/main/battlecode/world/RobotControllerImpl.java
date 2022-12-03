@@ -709,7 +709,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isWell(loc))
             throw new GameActionException(CANT_DO_THAT, 
                     "Location is not a well");
-        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
+        int rate = this.gameWorld.getWell(loc).getRate();
         amount = amount == -1 ? rate : amount;
         if (amount > rate)
             throw new GameActionException(CANT_DO_THAT, 
