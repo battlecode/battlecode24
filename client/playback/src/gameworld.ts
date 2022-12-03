@@ -624,18 +624,18 @@ export default class GameWorld {
     for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
       let well_index = delta.resourceWellLocs(i)
       let well_resource = delta.resourceID(i)
-      let well_adamantium_change = delta.wellAdamantiumChange(i)
-      let well_elixir_change = delta.wellElixirChange(i)
-      let well_mana_change = delta.wellManaChange(i)
+      let well_adamantium_change = delta.wellAdamantiumValues(i)
+      let well_elixir_change = delta.wellElixirValues(i)
+      let well_mana_change = delta.wellManaValues(i)
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
 
       this.mapStats.resources[well_index] = well_resource
 
       //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
-      current_resource_stats.adamantium += well_adamantium_change
-      current_resource_stats.mana += well_mana_change
-      current_resource_stats.elixir += well_elixir_change
+      current_resource_stats.adamantium = well_adamantium_change
+      current_resource_stats.mana = well_mana_change
+      current_resource_stats.elixir = well_elixir_change
       current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
