@@ -118,10 +118,8 @@ public final class Round extends Table {
   /**
    * The locations of the resources wells being given resources
    */
-  public int resourceWellLocs(int j) { int o = __offset(32); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int resourceWellLocsLength() { int o = __offset(32); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer resourceWellLocsAsByteBuffer() { return __vector_as_bytebuffer(32, 4); }
-  public ByteBuffer resourceWellLocsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 32, 4); }
+  public VecTable resourceWellLocs() { return resourceWellLocs(new VecTable()); }
+  public VecTable resourceWellLocs(VecTable obj) { int o = __offset(32); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The adamantium stored in the well
    */
@@ -338,8 +336,6 @@ public final class Round extends Table {
   public static int createIslandOwnershipVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startIslandOwnershipVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addResourceWellLocs(FlatBufferBuilder builder, int resourceWellLocsOffset) { builder.addOffset(14, resourceWellLocsOffset, 0); }
-  public static int createResourceWellLocsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startResourceWellLocsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addWellAdamantiumValues(FlatBufferBuilder builder, int wellAdamantiumValuesOffset) { builder.addOffset(15, wellAdamantiumValuesOffset, 0); }
   public static int createWellAdamantiumValuesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startWellAdamantiumValuesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }

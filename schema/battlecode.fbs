@@ -289,7 +289,7 @@ table Round {
     islandOwnership: [int];
 
     /// The locations of the resources wells being given resources
-    resourceWellLocs: [int];
+    resourceWellLocs: VecTable;
     /// The adamantium stored in the well
     wellAdamantiumValues: [int];
     /// The mana stored in the well
