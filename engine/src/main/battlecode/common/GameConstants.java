@@ -82,8 +82,8 @@ public class GameConstants {
     /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
     public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
 
-    /** The distance a robot must be from a planted reality anchor to be able to write to the shared array */
-    public static final int DISTANCE_FROM_REALITY_ANCHOR = 45;
+    /** The distance a robot must be from an island to be able to write to the shared array */
+    public static final int DISTANCE_FROM_ISLAND = 45;
 
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
     public static final int DISTANCE_FROM_HEADQUARTER = 50;
