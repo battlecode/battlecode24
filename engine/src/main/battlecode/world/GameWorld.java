@@ -383,7 +383,7 @@ public strictfp class GameWorld {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
         for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
             if (getRobot(newLocation) != null) {
-                if (getRobot(newLocation).getTeam() == null || getRobot(newLocation).getTeam() == team)
+                if (team == null || getRobot(newLocation).getTeam() == team)
                     returnRobots.add(getRobot(newLocation));
             }
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
