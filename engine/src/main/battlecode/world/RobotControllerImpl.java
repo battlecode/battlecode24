@@ -501,7 +501,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.setLocation(center);
         // this has to happen after robot's location changed because rubble
         this.robot.addMovementCooldownTurns(getType().movementCooldown);
-        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
     }
 
     // ***********************************

@@ -138,6 +138,9 @@ public class GameConstants {
     /** The maximum level a building can be. */
     public static final int MAX_LEVEL = 3;
 
+    /** The number of game rounds between applying movement due to currents */
+    public static final int CURRENT_STRENGTH = 1;
+
     /** The maximum capacity a carrier can carry */
     public static final int CARRIER_CAPACITY = 40;
 
