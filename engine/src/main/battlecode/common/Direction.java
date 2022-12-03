@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
  * equality tests.
  */
 public enum Direction {
+
     /**
      * Direction that represents pointing north (up on screen).
      */
