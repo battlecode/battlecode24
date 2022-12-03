@@ -52,6 +52,8 @@ public class InternalCarrier extends InternalRobot {
             int dmg = this.getType().getDamage(this.getResource(ResourceType.ADAMANTIUM)+this.getResource(ResourceType.MANA)+this.getResource(ResourceType.ELIXIR));
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
+        } else {
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -1);
         }
         this.emptyResources();
     }
