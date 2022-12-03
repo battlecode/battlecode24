@@ -644,7 +644,7 @@ public strictfp class GameWorld {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             // Add resources to team for each headquarter
-            robot.processEndOfRound();
+            robot.processEndOfRound(currentRound);
             return true;
         });
         
