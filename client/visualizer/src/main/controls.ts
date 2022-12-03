@@ -465,13 +465,14 @@ export default class Controls {
     let infoString = `<span class="info-name"><span class="info-string">${cst.bodyTypeToString(bodyType)}</span> ID:</span> <span class="info-num">${id}</span> | `
     infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span>`
     infoString += `<br>`
-    infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `
+    if(bodyType != cst.HEADQUARTERS)
+      infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `
     // infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`
     // if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
     infoString += `<br><span class="info-name">Indicator String:</span> <span class="info-string"><span class="info-string">${indicatorString}</span></span>`
 
-    if (bodyType == cst.CARRIER) {
+    if (bodyType == cst.CARRIER || bodyType == cst.HEADQUARTERS) {
       infoString += `<br>`
       infoString += `Adamantium: <span class="info-num">${adamantium}</span>`
       infoString += `Mana: <span class="info-num">${mana}</span>`

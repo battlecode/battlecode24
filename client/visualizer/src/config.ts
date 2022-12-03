@@ -105,11 +105,6 @@ export interface Config {
   showGrid: boolean;
 
   /**
-   * Viewoption for Swamp
-   */
-  viewSwamp: boolean;
-
-  /**
    * Whether logs should show shorter header
    */
   shorterLogHeader: boolean;
@@ -179,8 +174,7 @@ export function defaults(supplied?: any): Config {
     splash: true,
     seeActionRadius: false,
     seeVisionRadius: false,
-    showGrid: false,
-    viewSwamp: true,
+    showGrid: true,
     shorterLogHeader: false,
     processLogs: true,
     useProfiler: true,
