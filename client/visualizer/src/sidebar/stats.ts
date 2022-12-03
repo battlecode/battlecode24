@@ -529,6 +529,7 @@ export default class Stats {
       data: {
           datasets: [{
             label: 'Red Adamantium',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
             borderColor: 'rgb(131,24,27)',
@@ -536,6 +537,7 @@ export default class Stats {
           },
           {
             label: 'Blue Adamantium',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
             borderColor: 'rgb(108, 140, 188)',
@@ -544,6 +546,9 @@ export default class Stats {
       },
       options: {
           aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -571,6 +576,7 @@ export default class Stats {
           datasets: [
           {
             label: 'Red Mana',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(162, 162, 235, 0)',
             borderColor: 'rgb(205,162,163)',
@@ -578,6 +584,7 @@ export default class Stats {
           },
           {
             label: 'Blue Mana',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(54, 0, 235, 0)',
             borderColor: 'rgb(68, 176, 191)',
@@ -586,6 +593,9 @@ export default class Stats {
       },
       options: {
           aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -612,6 +622,7 @@ export default class Stats {
       data: {
           datasets: [{
             label: 'Red Elixir',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(255, 99, 132, 0)',
             borderColor: 'rgb(131,24,27)',
@@ -619,6 +630,7 @@ export default class Stats {
           },
           {
             label: 'Blue Elixir',
+            lineTension: 0,
             data: [],
             backgroundColor: 'rgba(54, 162, 235, 0)',
             borderColor: 'rgb(108, 140, 188)',
@@ -627,6 +639,9 @@ export default class Stats {
       },
       options: {
           aspectRatio: 0.75,
+          animation: {
+            duration: 0
+          },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -729,7 +744,7 @@ export default class Stats {
     }
     let teamTurnsIncomeSet = this.teamMapToTurnsIncomeSet.get(teamID);
     
-    if (!teamTurnsIncomeSet!.has(turn)) {
+    if (!teamTurnsIncomeSet!.has(turn) && turn % 10 == 0) {
       //@ts-ignore
       this.incomeChartAdamantium.data.datasets![teamID - 1].data?.push({y: adamantiumIncome, x: turn});
       //@ts-ignore
@@ -748,6 +763,7 @@ export default class Stats {
       });
 
       teamTurnsIncomeSet?.add(turn);
+      
       this.incomeChartAdamantium.update();
       this.incomeChartMana.update();
       this.incomeChartElixir.update();
