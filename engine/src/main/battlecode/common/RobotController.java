@@ -644,6 +644,7 @@ public strictfp interface RobotController {
     // ****** DESTABILIZER METHODS *******
     // ***********************************
 
+    // TODO: fix spec to have loc
     /**
      * Tests whether this robot is able to destabilize
      * 
@@ -655,7 +656,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDestabilize();
+    boolean canDestabilize(MapLocation loc);
 
 
     /** 
@@ -666,7 +667,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void destabilize() throws GameActionException;
+    void destabilize(MapLocation loc) throws GameActionException;
 
 
     // ***************************

@@ -635,32 +635,57 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ******** BOOSTERS METHODS *********
     // ***********************************
 
-    @Override
-    public boolean canBoost() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    private void assertCanBoost() throws GameActionException {
+        assertIsActionReady();
+        if (getType() != RobotType.BOOSTER)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot boost.");
     }
 
     @Override
-    public void boost() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public boolean canBoost() {
+        try {
+            assertCanBoost();
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void boost() throws GameActionException {
+        assertCanBoost();
+        MapLocation boostLoc = this.getLocation();
+        this.gameWorld.addBoost(boostLoc, getTeam());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.BOOST, locationToInt(boostLoc));
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
     }
 
     // ***********************************
     // ****** DESTABILIZER METHODS *******
     // ***********************************
 
-    @Override
-    public boolean canDestabilize() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    private void assertCanDestabilize(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getType() != RobotType.DESTABILIZER)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot destabilize.");
     }
 
     @Override
-    public void destabilize() {
-        throw new NotImplementedException("Needs to be implemented");
-        // TODO
+    public boolean canDestabilize(MapLocation loc) {
+        try {
+            assertCanDestabilize(loc);
+            return true;
+        } catch (GameActionException e) { return false; }  
+    }
+
+    @Override
+    public void destabilize(MapLocation loc) throws GameActionException {
+        assertCanDestabilize(loc);
+        this.gameWorld.addDestabilize(loc, getTeam());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DESTABILIZE, locationToInt(loc));
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
     }
 
     // *************************
@@ -896,6 +921,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanWriteSharedArray(index, value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
+
+
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

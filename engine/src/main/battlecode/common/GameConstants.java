@@ -88,8 +88,8 @@ public class GameConstants {
     /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
     public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
 
-    /** The distance a robot must be from a planted reality anchor to be able to write to the shared array */
-    public static final int DISTANCE_FROM_REALITY_ANCHOR = 45;
+    /** The distance a robot must be from an island to be able to write to the shared array */
+    public static final int DISTANCE_FROM_ISLAND = 45;
 
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
     public static final int DISTANCE_FROM_HEADQUARTER = 50;
@@ -157,6 +157,9 @@ public class GameConstants {
     public static final double ANCHOR_MULTIPLIER = .15;
     public static final double CLOUD_MULTIPLIER = -.2;
     public static final double CURRENT_MULTIPLIER = .1;
+
+    /** Constant for damage dealt by destabilizer */
+    public static final int DESTABILIZER_DAMAGE = 10;
 
     /** Constants for boost radii squared. */
     public static final int DESTABILIZER_RADIUS_SQUARED = 20;
