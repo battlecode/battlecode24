@@ -752,9 +752,7 @@ public strictfp class GameWorld {
         }
         profilerCollections.put(team, profilerCollection);
     }
-
-
-    // TODO: move this somewhere better
+    
     /*
      * Checks if the given MapLocation contains a headquarters
      */

@@ -897,6 +897,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
 
+
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
