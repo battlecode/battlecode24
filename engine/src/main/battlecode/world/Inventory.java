@@ -59,7 +59,7 @@ public class Inventory {
         elixir += amount;
     }
 
-    public void pickUpAnchor(Anchor anchor) {
+    public void addAnchor(Anchor anchor) {
         switch (anchor) {
             case STANDARD:
                 numStandardAnchors ++;
