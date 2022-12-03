@@ -18,7 +18,8 @@ public class TeamInfo {
     private int[] manaCounts;
     private int[] adamantiumCounts; 
     private int[][] sharedArrays; 
-    private int[] anchorsPlaced;
+    private int[] totalAnchorsPlaced;
+    private int[] currentAnchorsPlaced;
 
     // for reporting round statistics to client
     private int[] oldElixirCounts;
@@ -36,7 +37,8 @@ public class TeamInfo {
         this.manaCounts = new int[2];
         this.adamantiumCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
-        this.anchorsPlaced = new int[2];
+        this.totalAnchorsPlaced = new int[2];
+        this.currentAnchorsPlaced = new int[2];
         this.oldElixirCounts = new int[2];
         this.oldManaCounts = new int[2];
         this.oldAdamantiumCounts = new int[2];
@@ -82,7 +84,7 @@ public class TeamInfo {
      * @return the total anchors placed
      */
     public int getAnchorsPlaced(Team team) {
-        return this.anchorsPlaced[team.ordinal()];
+        return this.totalAnchorsPlaced[team.ordinal()];
     }
     
     /**
@@ -142,12 +144,39 @@ public class TeamInfo {
     	this.adamantiumCounts[team.ordinal()] += amount;
     }
 
+    private int numIslandsOccupied(Team team){
+        int islandsOwned = 0;
+        for(Island island: gameWorld.getAllIslands()){
+            if(island.getTeam() == team)
+                islandsOwned++;
+        }
+        return islandsOwned;
+    }
+
+    private void checkWin (Team team){ 
+        int islandsOwned = numIslandsOccupied(team);
+        assert(islandsOwned/gameWorld.getAllIslands().length >= 0.75);
+        this.gameWorld.gameStats.setWinner(team);
+    }
+
     /**
-     * Increments the anchors placed counter for the team
+     * Increments both anchors placed counter for the team
      * @param team the team to query
      */
     public void placeAnchor(Team team) {
-        this.anchorsPlaced[team.ordinal()]++;
+        this.totalAnchorsPlaced[team.ordinal()]++;
+        this.currentAnchorsPlaced[team.ordinal()]++;
+        if (this.currentAnchorsPlaced[team.ordinal()]/gameWorld.getAllIslands().length >= 0.75) {
+            checkWin(team); // Do an extra check to make sure the win is correct
+        }
+    }
+
+    /**
+     * Decrements the current anchors placed counter for the team
+     * @param team the team to query
+     */
+    public void removeAnchor(Team team) {
+        this.currentAnchorsPlaced[team.ordinal()]--;
     }
 
     /**
@@ -181,4 +210,6 @@ public class TeamInfo {
         this.oldAdamantiumCounts[0] = this.adamantiumCounts[0];
         this.oldAdamantiumCounts[1] = this.adamantiumCounts[1];
     }
+
+
 }
