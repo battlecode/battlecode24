@@ -362,10 +362,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
-
-    private int locationToInt(MapLocation loc) {
-        return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
-    }
     
     private int getDamage() {
         assert(this.type == RobotType.LAUNCHER);

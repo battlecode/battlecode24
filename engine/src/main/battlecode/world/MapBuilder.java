@@ -27,7 +27,10 @@ public class MapBuilder {
 
     private List<RobotInfo> bodies;
 
+    // TODO: get rid of origin
     public MapBuilder(String name, int width, int height, int originX, int originY, int seed) {
+        assert(originX == 0);
+        assert(originY == 0);
         this.name = name;
         this.width = width;
         this.height = height;

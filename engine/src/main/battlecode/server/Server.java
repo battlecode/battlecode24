@@ -219,10 +219,10 @@ public strictfp class Server implements Runnable {
         }
 
         if (headquarterCount < GameConstants.MIN_STARTING_HEADQUARTERS * 2) {
-            throw new RuntimeException("HEADQUARTERS BENEATH GameConstants.MIN_STARTING_ARCHONS");
+            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " BENEATH GameConstants.MIN_STARTING_ARCHONS");
         }
         if (headquarterCount > GameConstants.MAX_STARTING_HEADQUARTERS * 8) {
-            throw new RuntimeException("HEADQUARTERS EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
+            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
         }
     }
 

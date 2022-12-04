@@ -28,7 +28,6 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private boolean[] walls;
     private boolean[] clouds;
-    private Direction[] currents;
     private ArrayList<Integer>[][][] boosts;
     private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
@@ -134,12 +133,6 @@ public strictfp class GameWorld {
         for(int i = 0; i < currents.length; i++) {
             this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
         }
-
-        // Add initial amounts of resource
-        this.teamInfo.addLead(Team.A, GameConstants.INITIAL_LEAD_AMOUNT);
-        this.teamInfo.addLead(Team.B, GameConstants.INITIAL_LEAD_AMOUNT);
-        this.teamInfo.addGold(Team.A, GameConstants.INITIAL_GOLD_AMOUNT);
-        this.teamInfo.addGold(Team.B, GameConstants.INITIAL_GOLD_AMOUNT);
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
@@ -296,6 +289,23 @@ public strictfp class GameWorld {
         return this.currents[locationToIndex(loc)];
     }
 
+    public boolean isPassable(MapLocation loc) {
+        return !this.walls[locationToIndex(loc)];
+    }
+
+    public Well getWell(MapLocation loc) {
+        return wells[locationToIndex(loc)];
+    }
+
+    public Island getIsland(MapLocation loc) {
+        return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
+    }
+
+    public Island getIsland(int islandIdx) {
+        return islandIdToIsland.get(islandIdx);
+    }
+
+
     /**
      * Helper method that converts a location into an index.
      * 
@@ -377,26 +387,6 @@ public strictfp class GameWorld {
 
     public InternalRobot getRobot(MapLocation loc) {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
-    }
-
-    public boolean isPassable(MapLocation loc) {
-        return !this.walls[locationToIndex(loc)];
-    }
-
-    public Well getWell(MapLocation loc) {
-        return wells[locationToIndex(loc)];
-    }
-
-    public Island getIsland(MapLocation loc) {
-        return islandIdToIsland.get(this.islandIds[locationToIndex(loc)]);
-    }
-
-    public Direction getCurrent(MapLocation loc) {
-        return this.currents[locationToIndex(loc)];
-    }
-
-    public Island getIsland(int islandIdx) {
-        return islandIdToIsland.get(islandIdx);
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
@@ -701,7 +691,7 @@ public strictfp class GameWorld {
         for (Well well : this.wells) {
             if (well == null)
                 continue;
-            this.matchMaker.addWell(well);
+            this.matchMaker.addWell(well, locationToIndex(well.getMapLocation()));
         }
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundAdamantiumChange(Team.A), this.teamInfo.getRoundManaChange(Team.A), this.teamInfo.getRoundElixirChange(Team.A));
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
@@ -763,7 +753,7 @@ public strictfp class GameWorld {
                 if (robot == null)
                     continue;
                 MapLocation loc = robot.getLocation();
-                if (getCurrent(loc) != Direction.CENTER && robot.getType != RobotType.HEADQUARTERS) {
+                if (getCurrent(loc) != Direction.CENTER && robot.getType() != RobotType.HEADQUARTERS) {
                     moved.put(robot, false);
                 }
             }
