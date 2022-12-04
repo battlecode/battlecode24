@@ -78,7 +78,7 @@ public strictfp class GameWorld {
                 for (int k = 0; k < boosts[0][0].length; k++)
                     this.boosts[i][j][k] = new ArrayList<Integer>();
         }
-        double[][] cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
+        this.cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
         for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
             cooldownMultipliers[i][0] = 1.0;
             cooldownMultipliers[i][1] = 1.0;
@@ -467,14 +467,14 @@ public strictfp class GameWorld {
         return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
     }
 
-    /**
+   /**
      * @param cooldown without multiplier applied
-     * @param location with rubble of interest, if any
-     * @return the cooldown due to rubble
+     * @param location of robot calling the command
+     * @param Team of robot calling the command
+     * @return the cooldown due to boosts/destabilizes at that location
      */
-    public int getCooldownWithMultiplier(int cooldown, MapLocation location) {
-        //TODO: implement
-        return cooldown;
+    public int getCooldownWithMultiplier(int cooldown, MapLocation location, Team team) {
+        return (int) Math.round(cooldown*cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
     }
 
     // *********************************
@@ -663,7 +663,7 @@ public strictfp class GameWorld {
             for (int teamIndex = 0; teamIndex <= 1; teamIndex++){ 
                 ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][teamIndex][BOOST_INDEX];
                 for (int j = curBoosts.size()-1; j >= 0; j--){
-                    if (curBoosts.get(j) >= getCurrentRound()+1){
+                    if (curBoosts.get(j) <= getCurrentRound()+1){
                         curBoosts.remove(j);
                         //update multiplier if no longer being boosted by a booster/anchor
                         if (curBoosts.size() == 0 && this.boosts[locationToIndex(loc)][teamIndex][ANCHOR_INDEX].size() == 0)
@@ -672,7 +672,7 @@ public strictfp class GameWorld {
                 }
                 ArrayList<Integer> curDestabilize = this.boosts[locationToIndex(loc)][teamIndex][DESTABILIZE_INDEX];
                 for (int j = curDestabilize.size()-1; j >=0; j--){
-                    if (curDestabilize.get(j) >= getCurrentRound()+1){
+                    if (curDestabilize.get(j) <= getCurrentRound()+1){
                         curDestabilize.remove(j);
                         //deal damage
                         InternalRobot robot = getRobot(loc);
