@@ -81,7 +81,7 @@ public final class Round extends Table {
   public ByteBuffer actionIDsAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
   public ByteBuffer actionIDsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
   /**
-   * The actions performed. These actions allow us to track how much soup or dirt a body carries.
+   * The actions performed. These actions allow us to track many things about the current state.
    */
   public byte actions(int j) { int o = __offset(22); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
   public int actionsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
@@ -116,7 +116,7 @@ public final class Round extends Table {
   public ByteBuffer islandOwnershipAsByteBuffer() { return __vector_as_bytebuffer(30, 4); }
   public ByteBuffer islandOwnershipInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 30, 4); }
   /**
-   * The locations of the resources wells being given resources
+   * The locations of the resources wells being given resources as x + y*width
    */
   public VecTable resourceWellLocs() { return resourceWellLocs(new VecTable()); }
   public VecTable resourceWellLocs(VecTable obj) { int o = __offset(32); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
