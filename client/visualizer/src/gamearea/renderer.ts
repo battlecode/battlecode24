@@ -275,7 +275,7 @@ export default class Renderer {
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
     let first_color = island_stat.owner == 0 ? '#0000004d' : cst.TEAM_COLORS[island_stat.owner]
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
-    
+
     let x = i * scale
     let y = j * scale
     let d = scale / 8
@@ -340,7 +340,8 @@ export default class Renderer {
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
     const adamantiums = bodies.arrays.adamantium
-    const anchors = bodies.arrays.anchor
+    const normal_anchors = bodies.arrays.normal_anchors
+    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const manas = bodies.arrays.mana
     const elixirs = bodies.arrays.elixir
     const minY = world.minCorner.y
@@ -389,8 +390,11 @@ export default class Renderer {
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       //draw rescoures
-      if (anchors[i] > 0) {
-        let anchorColor = anchors[i] == 2 ? "#6C6C6C" : "#EEAC09"
+      if (accelerated_anchors[i] > 0) {
+        let anchorColor = "#6C6C6C"
+        this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
+      } else if (normal_anchors[i] > 0) {
+        let anchorColor = "#EEAC09"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
       } else {
         let adamantiumColor = "#838D63"
