@@ -100,7 +100,7 @@ enum Action : byte {
     // TODO: If client is interested in visualizing changes in movement speed, should probably add it as an action or to Round
     /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
     BUILD_ANCHOR,
-    /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+    /// Target: (Robot id picked up from)*2 + (ANCHOR type, 0 or non-accelerating, 1 for accelerating)
     PICK_UP_ANCHOR,
     /// Target: island id for the island the anchor is being placed on
     PLACE_ANCHOR,
