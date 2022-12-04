@@ -74,7 +74,7 @@ export enum Action{
   BUILD_ANCHOR= 8,
 
   /**
-   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
+   * Target: (Robot id picked up from)*2 + (ANCHOR type, 0 or non-accelerating, 1 for accelerating)
    */
   PICK_UP_ANCHOR= 9,
 
@@ -2857,7 +2857,7 @@ actionIDsArray():Int32Array|null {
 };
 
 /**
- * The actions performed. These actions allow us to track how much soup or dirt a body carries.
+ * The actions performed. These actions allow us to track many things about the current state.
  *
  * @param number index
  * @returns battlecode.schema.Action
@@ -2992,7 +2992,7 @@ islandOwnershipArray():Int32Array|null {
 };
 
 /**
- * The locations of the resources wells being given resources
+ * The locations of the resources wells being given resources as x + y*width
  *
  * @param number index
  * @returns number
