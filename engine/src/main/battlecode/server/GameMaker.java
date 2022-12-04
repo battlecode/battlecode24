@@ -363,8 +363,7 @@ public strictfp class GameMaker {
         private TIntArrayList islandTurnoverTurns;
         private TIntArrayList islandOwnership;
 
-        private TIntArrayList resourceWellLocsX;
-        private TIntArrayList resourceWellLocsY;
+        private TIntArrayList resourceWellLocs;
         private TIntArrayList resourceWellAdValue;
         private TIntArrayList resourceWellMnValue;
         private TIntArrayList resourceWellExValue;
@@ -419,8 +418,7 @@ public strictfp class GameMaker {
             this.islandIDs = new TIntArrayList();
             this.islandTurnoverTurns = new TIntArrayList();
             this.islandOwnership = new TIntArrayList();
-            this.resourceWellLocsX = new TIntArrayList();
-            this.resourceWellLocsY = new TIntArrayList();
+            this.resourceWellLocs = new TIntArrayList();
             this.resourceWellAdValue = new TIntArrayList();
             this.resourceWellMnValue = new TIntArrayList();
             this.resourceWellExValue = new TIntArrayList();
@@ -560,7 +558,7 @@ public strictfp class GameMaker {
                 int islandOwnershipP = Round.createIslandOwnershipVector(builder, islandOwnership.toArray());     
 
                 // The information about wells
-                int resourceWellLocsP = createVecTable(builder, resourceWellLocsX, resourceWellLocsY);
+                int resourceWellLocsP = Round.createResourceWellLocsVector(builder, resourceWellLocs.toArray());
                 int resourceWellAdValueP = Round.createWellAdamantiumValuesVector(builder, resourceWellAdValue.toArray());
                 int resourceWellMnValueP = Round.createWellManaValuesVector(builder, resourceWellMnValue.toArray());
                 int resourceWellExValueP = Round.createWellElixirValuesVector(builder, resourceWellExValue.toArray());
@@ -653,9 +651,8 @@ public strictfp class GameMaker {
             actionTargets.add(targetID);
         }
 
-        public void addWell(Well well) {
-            resourceWellLocsX.add(well.getMapLocation().x);
-            resourceWellLocsY.add(well.getMapLocation().y);
+        public void addWell(Well well, int location) {
+            resourceWellLocs.add(location);
             resourceWellAdValue.add(well.getResource(ResourceType.ADAMANTIUM));
             resourceWellMnValue.add(well.getResource(ResourceType.MANA));
             resourceWellExValue.add(well.getResource(ResourceType.ELIXIR));
@@ -743,8 +740,7 @@ public strictfp class GameMaker {
             islandIDs.clear();
             islandTurnoverTurns.clear();
             islandOwnership.clear();
-            resourceWellLocsX.clear();
-            resourceWellLocsY.clear();
+            resourceWellLocs.clear();
             resourceWellAdValue.clear();
             resourceWellMnValue.clear();
             resourceWellExValue.clear();

@@ -141,7 +141,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private int locationToInt(MapLocation loc) {
-        return loc.x + loc.y * this.gameWorld.getGameMap().getWidth();
+        return this.gameWorld.locationToIndex(loc);
     }
 
     // ***********************************
