@@ -30,7 +30,8 @@ export type BodiesSchema = {
   adamantium: Int32Array,
   elixir: Int32Array,
   mana: Int32Array,
-  anchor: Int8Array,
+  normal_anchors: Int16Array,
+  accelerated_anchors: Int16Array,
 
   hp: Int32Array,
 }
@@ -235,7 +236,8 @@ export default class GameWorld {
       target: new Int32Array(0),
       targetx: new Int32Array(0),
       targety: new Int32Array(0),
-      anchor: new Int8Array(0),
+      normal_anchors: new Int16Array(0),
+      accelerated_anchors: new Int16Array(0),
       adamantium: new Int32Array(0),
       elixir: new Int32Array(0),
       mana: new Int32Array(0),
@@ -540,7 +542,7 @@ export default class GameWorld {
         switch (action) {
           case schema.Action.THROW_ATTACK:
             this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            if(target != -1) //missed attack
+            if (target != -1) //missed attack
               setAction(false, true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
@@ -567,19 +569,32 @@ export default class GameWorld {
             break
 
           case schema.Action.BUILD_ANCHOR:
+            if (target == 0) {
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
             break
 
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
-            this.bodies.alter({ id: robotID, anchor: target + 1 })
+            let anchor_type = target % 2
+            let hq_id = Math.floor(target / 2)
+            let hq = this.bodies.lookup(hq_id)
+            if (anchor_type == 0) {
+              this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
             break
 
           case schema.Action.PLACE_ANCHOR:
             setAction(false, false, true)
-            this.bodies.alter({ id: robotID, anchor: 0 })
             let curr_island = this.mapStats.island_stats.get(target)
-            let curr_robot = this.bodies.lookup(robotID)
-            curr_island.is_accelerated = curr_robot.anchor == 2
+            curr_island.is_accelerated = body.accelerated_anchors > 0
+            this.bodies.alter({ id: robotID, normal_anchors: 0, accelerated_anchors: 0 })
             break
 
           case schema.Action.CHANGE_ADAMANTIUM:
@@ -630,18 +645,17 @@ export default class GameWorld {
       let well_elixir = delta.wellElixirValues(i)
       let well_mana = delta.wellManaValues(i)
 
-      if(well_adamantium != 0 || well_elixir != 0 || well_mana != 0){
-        console.log("Well received resources:")
-        console.log(well_adamantium)
-        console.log(well_elixir)
-        console.log(well_mana)
-      }
+      // if (well_adamantium != 0 || well_elixir != 0 || well_mana != 0) {
+      //   console.log("Well received resources:")
+      //   console.log(well_adamantium)
+      //   console.log(well_elixir)
+      //   console.log(well_mana)
+      // }
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
 
       this.mapStats.resources[well_index] = well_resource
 
-      //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
       current_resource_stats.adamantium = well_adamantium
       current_resource_stats.mana = well_mana
       current_resource_stats.elixir = well_elixir

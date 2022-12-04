@@ -457,7 +457,7 @@ export default class Controls {
    * onDirt, carryDirt
    * Bytecodes Used: bytecodes"
    */
-  setInfoString(id, x: number, y: number, hp: number, max_hp: number, /*dp: number,*/ bodyType: schema.BodyType, bytecodes: number, indicatorString: string, adamantium: number, mana: number, elixir: number, anchor: number): void {
+  setInfoString(id, x: number, y: number, hp: number, max_hp: number, /*dp: number,*/ bodyType: schema.BodyType, bytecodes: number, indicatorString: string, adamantium: number, mana: number, elixir: number, anchor: string | null): void {
     // console.log(carryDirt);
     if (!indicatorString)
       indicatorString = '&nbsp;'
@@ -465,7 +465,7 @@ export default class Controls {
     let infoString = `<span class="info-name"><span class="info-string">${cst.bodyTypeToString(bodyType)}</span> ID:</span> <span class="info-num">${id}</span> | `
     infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span>`
     infoString += `<br>`
-    if(bodyType != cst.HEADQUARTERS)
+    if (bodyType != cst.HEADQUARTERS)
       infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `
     // infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`
@@ -477,7 +477,8 @@ export default class Controls {
       infoString += `Adamantium: <span class="info-num">${adamantium}</span>`
       infoString += `Mana: <span class="info-num">${mana}</span>`
       infoString += `Elixir: <span class="info-num">${elixir}</span>`
-      infoString += `Anchor: <span class="info-num">${anchor == 0 ? "none" : (anchor == 1 ? "standard" : "accelerating")}</span>`
+      if (anchor)
+        infoString += `Anchor: <span class="info-num">${anchor}</span>`
     }
 
     // (${bodyType})<br>
