@@ -83,6 +83,7 @@ export default class Renderer {
       this.renderIslands(world)
       this.renderResources(world)
       this.renderBodies(world, curTime, nextStep, lerpAmount)
+      this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
     }
@@ -170,6 +171,19 @@ export default class Renderer {
       if (!this.conf.doingRotate) ctx.strokeRect(cx, cy, scale, scale)
       else ctx.strokeRect(cy, cx, scale, scale)
       ctx.restore()
+    }
+  }
+
+  private renderEffects(world: GameWorld) {
+    for (var effect of world.mapStats.effects) {
+      let color = 'white'
+      if (effect.type == 'destabilize') {
+        color = effect.turns_remaining == 0 ? "#573f5e5F" : "#573f5e3F"
+      }
+      if (effect.type == 'boost') {
+        color = "#00F0003F"
+      }
+      this.drawCircle(effect.x, effect.y, 25, color, cst.TEAM_COLORS[effect.team])
     }
   }
 
@@ -375,14 +389,6 @@ export default class Renderer {
 
     // Render the robots
     // render images with priority last to have them be on top of other units.
-
-    const drawEffect = (effect: string, x: number, y: number) => {
-      const effectImgs: HTMLImageElement[] = this.imgs.effects[effect]
-      const whichImg = (Math.floor(curTime / cst.EFFECT_STEP) % effectImgs.length)
-      const effectImg = effectImgs[whichImg]
-      //this.drawBot(effectImg, x, y, 0)
-    }
-
     const renderBot = (i: number) => {
       let img = this.imgs.robots[types[i]][teams[i]]
       let max_hp = this.metadata.types[types[i]].health
@@ -423,11 +429,6 @@ export default class Renderer {
         ctx.lineWidth = 0.05
         ctx.stroke()
         ctx.restore()
-      }
-
-      if (actions[i] == schema.Action.DESTABILIZE || actions[i] == schema.Action.BOOST) {
-        const color = actions[i] == schema.Action.DESTABILIZE ? "#573f5e3F" : "#00F0003F"
-        this.drawCircle(realXs[i], realYs[i], 25, color, teams[i] == 1 ? "red" : "blue")
       }
 
       // if (actions[i] == schema.Action.REPAIR) {
