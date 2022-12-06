@@ -634,7 +634,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanAttack(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        System.out.println("Loc: " + loc + " occupied by " + this.gameWorld.getRobot(loc));
         this.robot.attack(bot);
     }
 
@@ -742,18 +741,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanTransferResource(loc, rType, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         if (isWell(loc)) {
-            System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
-            System.out.println("After transferring to well: " + this.gameWorld.getWell(loc).getResource(rType));
             this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         } else if(isHeadquarter(loc)){
-            System.out.println("Before transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
             InternalRobot headquarter = this.gameWorld.getRobot(loc);
             if (headquarter.getType() != RobotType.HEADQUARTERS) {
                 throw new IllegalArgumentException("Headquarter must be the robot at this location");
             }
             headquarter.addResourceAmount(rType, amount);
-            System.out.println("After transferring to hq: " + this.gameWorld.getRobot(loc).getResource(rType));
         }
         this.robot.addResourceAmount(rType, -amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PLACE_RESOURCE, locationToInt(loc));

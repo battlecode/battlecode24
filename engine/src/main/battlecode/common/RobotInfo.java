@@ -132,7 +132,6 @@ public class RobotInfo {
 
     @Override
     public String toString() {
-        System.out.println("Got here");
         return "RobotInfo{" +
                 "ID=" + ID +
                 ", team=" + team +

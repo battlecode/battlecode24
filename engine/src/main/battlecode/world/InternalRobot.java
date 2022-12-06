@@ -125,7 +125,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
     
     private void addResourceChangeAction(ResourceType rType, int amount) {
-        System.out.println("Adding action of increasing resource " + rType + " to robot with id " + getID() + " with amount " + amount);
         switch (rType) {
             case ADAMANTIUM:
                 this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
