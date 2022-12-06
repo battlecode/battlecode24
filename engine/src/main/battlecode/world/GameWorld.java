@@ -9,6 +9,7 @@ import battlecode.world.control.RobotControlProvider;
 import battlecode.world.robots.InternalCarrier;
 
 import java.util.*;
+
 /**
  * The primary implementation of the GameWorld interface for containing and
  * modifying the game map and the objects on it.
@@ -65,11 +66,6 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-
-        for (int i = 0; i < gm.getWidth()*gm.getHeight(); i++) {
-            // TODO: This is very wrong but compile pls
-            this.currents[i] = Direction.CENTER;
-        }
 
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
@@ -713,57 +709,118 @@ public strictfp class GameWorld {
             running = false;
     }
 
-    private boolean attemptApplyCurrent(InternalRobot robot, HashMap<InternalRobot, Boolean> moved){
-        //If we already attempted to move the robot, it cannot be moved again
-        if(moved.get(robot)) return false;
+    // private boolean attemptApplyCurrent(InternalRobot robot, HashMap<InternalRobot, Boolean> moved){
+    //     //If we already attempted to move the robot, it cannot be moved again
+    //     if(moved.get(robot)) return false;
 
-        moved.put(robot, true);
-        MapLocation loc = robot.getLocation();
-        Direction current = getCurrent(loc);
-        if (current == Direction.CENTER) {
-            return false;
-        }
-        MapLocation moveTo = loc.add(current);
+    //     moved.put(robot, true);
+    //     MapLocation loc = robot.getLocation();
+    //     Direction current = getCurrent(loc);
+    //     if (current == Direction.CENTER) {
+    //         return false;
+    //     }
+    //     MapLocation moveTo = loc.add(current);
 
-        if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
-        InternalRobot inMoveTo = getRobot(moveTo);
-        if(inMoveTo == null) {
-            robot.setLocation(moveTo);
-            return true;
+    //     if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
+    //     InternalRobot inMoveTo = getRobot(moveTo);
+    //     if(inMoveTo == null) {
+    //         robot.setLocation(moveTo);
+    //         return true;
+    //     }
+    //     if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
+    //         // Set the location earlier so loops work
+    //         robot.setLocation(moveTo);
+    //         if(attemptApplyCurrent(inMoveTo, moved)) {
+    //             return true;
+    //         }
+    //         robot.setLocation(loc);
+    //         return false;
+    //     }
+    //     return false;
+    // }
+
+    // private void applyCurrents() {
+    //     //Map of all robots that are on a space with a current
+    //     //The value is true if an attempt has been made to move the robot
+    //     HashMap<InternalRobot, Boolean> moved = new HashMap<>();
+    //     for(int i = 0; i < robots.length; i++){
+    //         for(int j = 0; j < robots[i].length; j++) {
+    //             InternalRobot robot = robots[i][j];
+    //             if (robot == null)
+    //                 continue;
+    //             MapLocation loc = robot.getLocation();
+    //             if (getCurrent(loc) != Direction.CENTER && robot.getType() != RobotType.HEADQUARTERS) {
+    //                 moved.put(robot, false);
+    //             }
+    //         }
+    //     }
+
+    //     for(InternalRobot robot : moved.keySet()){
+    //         attemptApplyCurrent(robot, moved);
+    //     }
+    // }
+
+    private void addToNotMoving(InternalRobot robot, HashMap<MapLocation, List<InternalRobot>> forecastedLocToRobot, Set<InternalRobot> notMoving, Set<MapLocation> visited) {
+        MapLocation origLocation = robot.getLocation();
+        if (visited.contains(origLocation)) {
+            return;
+        } else {
+            visited.add(origLocation);
         }
-        if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
-            // Set the location earlier so loops work
-            robot.setLocation(moveTo);
-            if(attemptApplyCurrent(inMoveTo, moved)) {
-                return true;
-            }
-            robot.setLocation(loc);
-            return false;
+        notMoving.add(robot);
+        for (InternalRobot robotBlocked : forecastedLocToRobot.getOrDefault(origLocation, new ArrayList<>())) {
+            addToNotMoving(robotBlocked, forecastedLocToRobot, notMoving, visited);
         }
-        return false;
     }
 
     private void applyCurrents() {
-        //Map of all robots that are on a space with a current
-        //The value is true if an attempt has been made to move the robot
-        HashMap<InternalRobot, Boolean> moved = new HashMap<>();
-        for(int i = 0; i < robots.length; i++){
-            for(int j = 0; j < robots[i].length; j++) {
-                InternalRobot robot = robots[i][j];
-                if (robot == null)
-                    continue;
-                MapLocation loc = robot.getLocation();
-                if (getCurrent(loc) != Direction.CENTER && robot.getType() != RobotType.HEADQUARTERS) {
-                    moved.put(robot, false);
-                }
+        HashMap<MapLocation, List<InternalRobot>> forecastedLocToRobot = new HashMap<>();
+        // Figure out where each robot will go
+        for (InternalRobot robot : this.objectInfo.robots()) {
+            MapLocation origLoc = robot.getLocation();
+            Direction origCurrent = getCurrent(origLoc);
+            List<InternalRobot> robotsOnSquare = forecastedLocToRobot.getOrDefault(origLoc.add(origCurrent), new ArrayList<>());
+            robotsOnSquare.add(robot);
+            forecastedLocToRobot.put(origLoc.add(origCurrent), robotsOnSquare);
+        }
+
+        // Find all the robots that are blocked immediately
+        Set<InternalRobot> immediatelyBlocked = new HashSet<>();
+        for (MapLocation loc : forecastedLocToRobot.keySet()) {
+            if (!isPassable(loc) || !gameMap.onTheMap(loc) || forecastedLocToRobot.get(loc).size() > 1) {
+                immediatelyBlocked.addAll(forecastedLocToRobot.getOrDefault(loc, new ArrayList<>()));
             }
         }
 
-        for(InternalRobot robot : moved.keySet()){
-            attemptApplyCurrent(robot, moved);
+        // Find all the robots that are blocked by other robots which are blocked
+        Set<MapLocation> visited = new HashSet<>();
+        Set<InternalRobot> notMoving = new HashSet<>();
+
+        for (InternalRobot robot : immediatelyBlocked) {
+            addToNotMoving(robot, forecastedLocToRobot, notMoving, visited);
+        }
+
+        Set<InternalRobot> movingRobots = new HashSet<>();
+        // Clear all robots that are going to get moved
+        for (InternalRobot robot : this.objectInfo.robots()) {
+            if (notMoving.contains(robot) || getCurrent(robot.getLocation()) == Direction.CENTER) {
+                continue;
+            } else {
+                this.objectInfo.clearRobotIndex(robot);
+                this.removeRobot(robot.getLocation());
+                movingRobots.add(robot);
+            }
+        }
+
+        // Move all the robots that need to move, we assume this is a small subset
+        for (InternalRobot robot : movingRobots) {
+            MapLocation origLoc = robot.getLocation();
+            Direction current = getCurrent(origLoc);
+            MapLocation newLoc = origLoc.add(current);
+            robot.setLocationForCurrents(newLoc);
         }
     }
-
+    
     // *********************************
     // ****** SPAWNING *****************
     // *********************************

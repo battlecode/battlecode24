@@ -125,7 +125,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
     
     private void addResourceChangeAction(ResourceType rType, int amount) {
-        System.out.println("Adding action of increasing resource " + rType + " to robot with id " + getID() + " with amount " + amount);
         switch (rType) {
             case ADAMANTIUM:
                 this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
@@ -301,9 +300,22 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the new location of the robot
      */
     public void setLocation(MapLocation loc) {
+        this.gameWorld.moveRobot(getLocation(), loc);
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
+
+    /**
+     * Sets the location of the robot (only for internal use through currents)
+     * 
+     * @param loc the new location of the robot
+     */
+    public void setLocationForCurrents(MapLocation loc) {
+        this.gameWorld.addRobot(loc, this);
+        this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
+        this.location = loc;
+    }
+
 
     /**
      * Resets the action cooldown.
