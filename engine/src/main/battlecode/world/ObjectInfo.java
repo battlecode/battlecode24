@@ -139,9 +139,8 @@ public strictfp class ObjectInfo {
         robotIndex.add(fromPoint(newLocation),robot.getID());
     }
 
-    public void clearRobotIndex() {
-        robotIndex = new RTree();
-        robotIndex.init(null);
+    public void clearRobotIndex(InternalRobot robot) {
+        robotIndex.delete(fromPoint(robot.getLocation()), robot.getID());
     }
 
     public void addRobotIndex(InternalRobot robot, MapLocation newLocation) {

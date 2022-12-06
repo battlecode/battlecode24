@@ -68,11 +68,6 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
-        for (int i = 0; i < gm.getWidth()*gm.getHeight(); i++) {
-            // TODO: This is very wrong but compile pls
-            this.currents[i] = Direction.CENTER;
-        }
-
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
@@ -386,10 +381,6 @@ public strictfp class GameWorld {
     // ***********************************
     // ****** ROBOT METHODS **************
     // ***********************************
-
-    private void clearAllRobots() {
-        this.robots = new InternalRobot[this.gameMap.getWidth()][this.gameMap.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
-    }
 
     public InternalRobot getRobot(MapLocation loc) {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
@@ -795,33 +786,39 @@ public strictfp class GameWorld {
         }
 
         // Find all the robots that are blocked immediately
-        Set<InternalRobot> notMoving = new HashSet<>();
+        Set<InternalRobot> immediatelyBlocked = new HashSet<>();
         for (MapLocation loc : forecastedLocToRobot.keySet()) {
             if (!isPassable(loc) || !gameMap.onTheMap(loc) || forecastedLocToRobot.get(loc).size() > 1) {
-                notMoving.addAll(forecastedLocToRobot.getOrDefault(loc, new ArrayList<>()));
+                immediatelyBlocked.addAll(forecastedLocToRobot.getOrDefault(loc, new ArrayList<>()));
             }
         }
 
         // Find all the robots that are blocked by other robots which are blocked
         Set<MapLocation> visited = new HashSet<>();
-        Set<InternalRobot> fullNotMoving = new HashSet<>();
+        Set<InternalRobot> notMoving = new HashSet<>();
 
-        for (InternalRobot robot : notMoving) {
-            addToNotMoving(robot, forecastedLocToRobot, fullNotMoving, visited);
+        for (InternalRobot robot : immediatelyBlocked) {
+            addToNotMoving(robot, forecastedLocToRobot, notMoving, visited);
         }
 
-
-        // Move all the robots that are not in the notMoving set
-        this.clearAllRobots();
-        this.objectInfo.clearRobotIndex();
+        Set<InternalRobot> movingRobots = new HashSet<>();
+        // Clear all robots that are going to get moved
         for (InternalRobot robot : this.objectInfo.robots()) {
-            if (fullNotMoving.contains(robot)) {
-                robot.setLocationForCurrents(robot.getLocation());
+            if (notMoving.contains(robot) || getCurrent(robot.getLocation()) == Direction.CENTER) {
+                continue;
             } else {
-                MapLocation origLoc = robot.getLocation();
-                Direction origCurrent = getCurrent(origLoc);
-                robot.setLocationForCurrents(origLoc.add(origCurrent));
+                this.objectInfo.clearRobotIndex(robot);
+                this.removeRobot(robot.getLocation());
+                movingRobots.add(robot);
             }
+        }
+
+        // Move all the robots that need to move, we assume this is a small subset
+        for (InternalRobot robot : movingRobots) {
+            MapLocation origLoc = robot.getLocation();
+            Direction current = getCurrent(origLoc);
+            MapLocation newLoc = origLoc.add(current);
+            robot.setLocationForCurrents(newLoc);
         }
     }
     
