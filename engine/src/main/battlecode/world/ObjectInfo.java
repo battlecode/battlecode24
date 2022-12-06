@@ -33,7 +33,7 @@ public strictfp class ObjectInfo {
 
     private final TIntObjectHashMap<InternalRobot> gameRobotsByID;
 
-    private final SpatialIndex robotIndex;
+    private SpatialIndex robotIndex;
 
     private final TIntArrayList dynamicBodyExecOrder;
 
@@ -136,6 +136,15 @@ public strictfp class ObjectInfo {
         MapLocation loc = robot.getLocation();
 
         robotIndex.delete(fromPoint(loc),robot.getID());
+        robotIndex.add(fromPoint(newLocation),robot.getID());
+    }
+
+    public void clearRobotIndex() {
+        robotIndex = new RTree();
+        robotIndex.init(null);
+    }
+
+    public void addRobotIndex(InternalRobot robot, MapLocation newLocation) {
         robotIndex.add(fromPoint(newLocation),robot.getID());
     }
 

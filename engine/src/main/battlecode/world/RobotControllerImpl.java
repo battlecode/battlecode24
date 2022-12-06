@@ -496,9 +496,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
-        MapLocation center = adjacentLocation(dir);
-        this.gameWorld.moveRobot(getLocation(), center);
-        this.robot.setLocation(center);
+        MapLocation nextLoc = adjacentLocation(dir);
+        this.robot.setLocation(nextLoc);
         // this has to happen after robot's location changed because rubble
         this.robot.addMovementCooldownTurns(getType().movementCooldown);
     }
@@ -526,6 +525,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
+        }
+        if (!sensePassability(loc)) {
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot spawn to " + loc + "; It has a wall.");
         }
     }
 
@@ -602,13 +605,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
+        if (bot == null) {
+            throw new GameActionException(CANT_DO_THAT,
+            "There is no robot to attack");
+        }
         if (getType() == RobotType.CARRIER){
             int totalResources = getResourceAmount(ResourceType.ADAMANTIUM)+getResourceAmount(ResourceType.MANA)+getResourceAmount(ResourceType.ELIXIR);
             if (totalResources == 0)
                 throw new GameActionException(CANT_DO_THAT,
                     "Robot is a carrier but has no inventory to attack with");
         }
-        if (!(bot == null) && bot.getTeam() == getTeam()) {
+        if (!(bot == null) && bot.getTeam().equals(getTeam())) {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not on the enemy team.");
         }
@@ -627,6 +634,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanAttack(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         InternalRobot bot = this.gameWorld.getRobot(loc);
+        System.out.println("Loc: " + loc + " occupied by " + this.gameWorld.getRobot(loc));
         this.robot.attack(bot);
     }
 
