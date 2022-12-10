@@ -84,6 +84,10 @@ export type TeamStats = {
   elixirMined: number,
 
   //is this efficient? probably fine
+  // x: turn, y: value
+  adamantiumIncomeDataset: { x: number, y: number }[];
+  manaIncomeDataset: { x: number, y: number }[];
+  elixirIncomeDataset: { x: number, y: number }[];
   adamantiumMinedHist: number[],
   manaMinedHist: number[],
   elixirMinedHist: number[],
@@ -260,6 +264,9 @@ export default class GameWorld {
         adamantiumMined: 0,
         manaMined: 0,
         elixirMined: 0,
+        adamantiumIncomeDataset: [],
+        manaIncomeDataset: [],
+        elixirIncomeDataset: [],
         adamantiumMinedHist: [],
         manaMinedHist: [],
         elixirMinedHist: [],
@@ -687,18 +694,25 @@ export default class GameWorld {
 
 
     //mining history 
+    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
     for (let team in this.meta.teams) {
       let teamID = this.meta.teams[team].teamID
       let statsObj = this.teamStats.get(teamID) as TeamStats
 
       statsObj.adamantiumMinedHist.push(statsObj.adamantiumMined)
       if (statsObj.adamantiumMinedHist.length > 100) statsObj.adamantiumMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })        
 
       statsObj.manaMinedHist.push(statsObj.manaMined)
       if (statsObj.manaMinedHist.length > 100) statsObj.manaMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })        
 
       statsObj.elixirMinedHist.push(statsObj.elixirMined)
       if (statsObj.elixirMinedHist.length > 100) statsObj.elixirMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })        
     }
 
     // Died bodies
