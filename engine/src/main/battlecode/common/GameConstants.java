@@ -34,6 +34,12 @@ public class GameConstants {
     /** The maximum number of starting Headquarters per team. */
     public static final int MAX_STARTING_HEADQUARTERS = 4;
 
+    /** The minimum amount of rubble per square. */
+    public static final int MIN_RUBBLE = 0;
+
+    /** The maximum amount of rubble per square. */
+    public static final int MAX_RUBBLE = 100;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
@@ -50,12 +56,12 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    //TODO: fix -> I think I changed these to correct amounts (200)
+    //TODO: fix
     /** The initial amount of mana each team starts with. */
-    public static final int INITIAL_MN_AMOUNT = 200;
+    public static final int INITIAL_MN_AMOUNT = 100;
 
     /** The initial amount of adamantium each team starts with. */
-    public static final int INITIAL_AD_AMOUNT = 200;
+    public static final int INITIAL_AD_AMOUNT = 100;
 
     //TODO: We may want to reduce this since it is added to each hq
     /** The amount of adamantium each headquarter on a team gains per turn. */
@@ -66,6 +72,9 @@ public class GameConstants {
 
     /** The number of rounds between adding resources to headquarters. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
+
+    /** The amount of lead to add each round that lead is added. */
+    public static final int ADD_LEAD = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
     public static final int UPGRADE_TO_ELIXIR = 15000;
@@ -102,6 +111,12 @@ public class GameConstants {
     /** The number of cooldown turns reduced per turn. */
     public static final int COOLDOWNS_PER_TURN = 10;
 
+    /** The number of cooldown turns per transformation. */
+    public static final int TRANSFORM_COOLDOWN = 100;
+
+    /** The number of cooldown turns per mutation. */
+    public static final int MUTATE_COOLDOWN = 100;
+
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
@@ -113,6 +128,15 @@ public class GameConstants {
 
     /** The percentage of an island that needs to be owned by the opposing team to reduce the anchor strength. */
     public static final float PERCENT_OPPOSING_TEAM_ISLAND = 0.4f;
+    
+    /** A blueprint building's health, as a multiplier of max health. */
+    public static final float PROTOTYPE_HP_PERCENTAGE = 0.8f;
+
+    /** The multiplier for reclaiming a building's cost. */
+    public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
+
+    /** The maximum level a building can be. */
+    public static final int MAX_LEVEL = 3;
 
     /** The number of game rounds between applying movement due to currents */
     public static final int CURRENT_STRENGTH = 1;
@@ -122,6 +146,13 @@ public class GameConstants {
 
     /** The weight of an anchor */
     public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+
+    /** Constants for alchemists converting lead to gold. */
+    public static final double ALCHEMIST_LONELINESS_A = 20;
+    public static final double ALCHEMIST_LONELINESS_B = 18;
+    public static final double ALCHEMIST_LONELINESS_K_L1 = 0.02;
+    public static final double ALCHEMIST_LONELINESS_K_L2 = 0.01;
+    public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
 
     /** Constants for cooldown multipliers. */
     public static final double BOOSTER_MULTIPLIER = .1;

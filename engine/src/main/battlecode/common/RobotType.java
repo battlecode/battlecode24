@@ -12,55 +12,42 @@ public enum RobotType {
     // Build Cost Adamantium, Build Cost Mana, Build Cost Elixir, Action Cooldown, Movement Cooldown
     // Health, Damage, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
-     /**
-     * Headquarters are the headquarters of your army. These stationary  
-     * locations can spawn robots, build anchors, and store materials.
-     *
+    /**
+     * Headquarters (TODO: description)
      * @battlecode.doc.robottype
      */
     HEADQUARTERS    ( 0,   0,   0,   5,   0, 1,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Carriers are material-moving robots. They can extract, carry, and
-     * transport resources and anchors. They can also attack other robots
-     * in a range and specified direction by throwing these resources.
-     * 
+     * Carrier (TODO: description)
      * @battlecode.doc.robottype
      */
     CARRIER         ( 50,   0,   0,   10,   0, 40,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Launchers are general-purpose attacking robots. They can attack robots
-     * within a range and specified direction.
-     *
+     * Launcher (TODO: description)
      * @battlecode.doc.robottype
      */
     LAUNCHER        (  0,  60,   0,  10,  20, 20,   6, 16, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Destablizers are offensive temporal manipulators. They decelerate time,
-     * increasing cooldowns and dealing damage to enemies within a certain range.
-     * 
+     * Destablizer (TODO: description)
      * @battlecode.doc.robottype
      */
     DESTABILIZER    (  0,   0, 400,  50,  25, 20,   5, 13, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Booster are supportive temporal manipulators. They accelerate time,
-     * decreasing cooldowns for ally robots within a certain range.
-     * 
+     * Booster (TODO: description)
      * @battlecode.doc.robottype
      */
     BOOSTER         (  0,   0, 250, 100,  25, 30,   0, 25, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     /**
-     * Amplifiers are the key to communication for your army. They enable 
-     * robots within a range to write messages to their faction’s shared array.
-     * 
+     * Amplifier (TODO: description)
      * @battlecode.doc.robottype
      */
     AMPLIFIER       ( 40,  40,   0,   0,  16, 40,   0, 25, 34,  7500)
