@@ -732,7 +732,7 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number) { // incomes
+  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean) { // incomes
     this.incomeDisplays[teamID].adamantiumIncome.textContent =
       "Ad: " + String((teamStats.adamantiumIncomeDataset[teamStats.adamantiumIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2)); // change incomeDisplays later
     this.incomeDisplays[teamID].elixirIncome.textContent =
@@ -740,7 +740,9 @@ export default class Stats {
     this.incomeDisplays[teamID].manaIncome.textContent =
       "Mn: " + String((teamStats.manaIncomeDataset[teamStats.manaIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2));
     
-    if ((turn - 1) % 10 == 0) {
+    // We check (turn - 1) here because the datasets get updated every 10 turns, so they will be visible to the graphs
+    // starting on the 11th turn
+    if (forceUpdate || (turn - 1) % 10 == 0) {
       //@ts-ignore
       this.incomeChartAdamantium.data.datasets![teamID - 1].data = teamStats.adamantiumIncomeDataset;
       //@ts-ignore
@@ -748,18 +750,6 @@ export default class Stats {
       //@ts-ignore
       this.incomeChartElixir.data.datasets![teamID - 1].data = teamStats.elixirIncomeDataset;
 
-      /*
-      this.incomeChartAdamantium.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      this.incomeChartMana.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      this.incomeChartElixir.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      */
-      
       this.incomeChartAdamantium.update();
       this.incomeChartMana.update();
       this.incomeChartElixir.update();
