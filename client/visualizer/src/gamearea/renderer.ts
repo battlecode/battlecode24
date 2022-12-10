@@ -27,7 +27,7 @@ export default class Renderer {
   constructor(
     readonly canvases: Record<CanvasType, HTMLCanvasElement>, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, walls: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
   ) {
     this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
@@ -597,7 +597,7 @@ export default class Renderer {
       const x = xrel + world.minCorner.x
       const y = yrel + world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.walls[idx], world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
     }
 
     // Overlay is on top so we will use it for mouse events
@@ -612,7 +612,7 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.walls[idx], world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
       this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 

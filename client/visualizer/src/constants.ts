@@ -13,7 +13,7 @@ export const bodyTypeList: number[] = [HEADQUARTERS, CARRIER, LAUNCHER, AMPLIFIE
 export const buildingTypeList: number[] = [HEADQUARTERS]
 export const initialBodyTypeList: number[] = [HEADQUARTERS]
 
-export const RESOURCENAMES = { 0: "none", 1: "adamantium", 3: "elixir", 2: "mana" }
+export const RESOURCENAMES = { 0: "None", 1: "Adamantium", 2: "Mana", 3: "Elixir" }
 export const ADAMANTIUM = 1
 export const ELIXIR = 3
 export const MANA = 2

@@ -354,7 +354,9 @@ export default class GameWorld {
 
     this.mapStats.randomSeed = map.randomSeed()
 
-    this.mapStats.walls = map.wallsArray()
+    this.mapStats.walls = map.wallsArray();
+    this.mapStats.clouds = map.cloudsArray();
+    this.mapStats.currents = Int8Array.from(map.currentsArray());
 
     this.mapStats.resources = Int8Array.from(map.resourcesArray())
     for (let i = 0; i < this.mapStats.resources.length; i++) {

@@ -86,9 +86,9 @@ export default class Looper {
             this.lastSelectedID = id;
             this.console.setIDFilter(id);
         };
-        const onMouseover = (x: number, y: number, xrel: number, yrel: number, walls: number, resource_type: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => {
+        const onMouseover = (x: number, y: number, xrel: number, yrel: number, resource_type: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => {
             // Better make tile type and hand that over
-            controls.setTileInfo(x, y, xrel, yrel, walls, resource_type, well_stats);
+            controls.setTileInfo(x, y, xrel, yrel, resource_type, well_stats);
         };
 
         // Configure renderer for this match
