@@ -49,18 +49,18 @@ export default class MatchQueue {
     this.gameNum.className += " gameNum";
 
     // Go to the previous match/round
-    let back = document.createElement("button");
-    back.setAttribute("class", "custom-button");
-    back.setAttribute("type", "button");
-    back.onclick = () => this.runner.goPreviousMatch();
-    back.appendChild(this.images.controls[ControlType.MATCH_BACKWARD]);
+    // let back = document.createElement("button");
+    // back.setAttribute("class", "custom-button");
+    // back.setAttribute("type", "button");
+    // back.onclick = () => this.runner.goPreviousMatch();
+    // back.appendChild(this.images.controls[ControlType.MATCH_BACKWARD]);
 
-    // Go the next match/round
-    let next = document.createElement("button");
-    next.setAttribute("class", "custom-button");
-    next.setAttribute("type", "button");
-    next.onclick = () => this.runner.goNextMatch();
-    next.appendChild(this.images.controls[ControlType.MATCH_FORWARD]);
+    // // Go the next match/round
+    // let next = document.createElement("button");
+    // next.setAttribute("class", "custom-button");
+    // next.setAttribute("type", "button");
+    // next.onclick = () => this.runner.goNextMatch();
+    // next.appendChild(this.images.controls[ControlType.MATCH_FORWARD]);
 
     // Append all the HTML elements
     title.appendChild(this.gameNum);
@@ -102,8 +102,11 @@ export default class MatchQueue {
 
           // Add class if an active game
           if (game === gameList[activeGame]) {
-            gameWrapper.appendChild(document.createTextNode(
+            let label = document.createElement("span")
+            label.appendChild(document.createTextNode(
               `Playing match ${(activeMatch + 1)}/${matchCount}`));
+            label.classList.add('playing-label')
+            gameWrapper.appendChild(label);
           }
           gameWrapper.appendChild(document.createElement("br"));
 

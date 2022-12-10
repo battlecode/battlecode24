@@ -118,6 +118,7 @@ export const TEAM_RED = "#D53E43"
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
 export const UI_BLUE = "#3C5EBB"
 export const UI_GREEN = "#58BA4F"
+export const UI_GREEN_DARK = "#4A8058"
 export const UI_GREY = "#253B49"
 export const ACTION_RADIUS_COLOR = UI_GREEN
 export const VISION_RADIUS_COLOR = UI_BLUE

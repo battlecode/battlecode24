@@ -18,8 +18,8 @@ export enum ControlType {
   PLAYBACK_PAUSE = 2,
   PLAYBACK_START = 3,
   PLAYBACK_STOP = 4,
-  MATCH_FORWARD = 5,
-  MATCH_BACKWARD = 6,
+  // MATCH_FORWARD = 5,
+  // MATCH_BACKWARD = 6,
   REVERSE_UPS = 7,
   DOUBLE_UPS = 8,
   HALVE_UPS = 9,
@@ -414,13 +414,13 @@ export default class Controls {
     const scale = this.canvas.width / loadedTime
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    this.ctx.fillStyle = "rgb(144, 238, 144)"
+    this.ctx.fillStyle = cst.UI_GREEN
     this.ctx.fillRect(0, 0, time * scale, this.canvas.height)
 
-    this.ctx.fillStyle = "#777"
+    this.ctx.fillStyle = cst.UI_GREY
     this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height)
 
-    this.ctx.fillStyle = 'rgb(0, 0, 0)'
+    this.ctx.fillStyle = cst.UI_GREEN_DARK
     this.ctx.fillRect(time * scale, 0, 2, this.canvas.height)
     // }
 
@@ -461,25 +461,23 @@ export default class Controls {
     // console.log(carryDirt);
     if (!indicatorString)
       indicatorString = '&nbsp;'
-
-    let infoString = `<span class="info-name"><span class="info-string">${cst.bodyTypeToString(bodyType)}</span> ID:</span> <span class="info-num">${id}</span> | `
+    // 
+    let infoString = `<span class="info-name"><span class="info-string">${cst.bodyTypeToString(bodyType)}</span> | ID:</span> <span class="info-num">${id}</span> | `
     infoString += `<span class="info-name">Location:</span> <span class="info-num">(${x}, ${y})</span>`
-    infoString += `<br>`
     if (bodyType != cst.HEADQUARTERS)
-      infoString += `<span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span> | `
+      infoString += ` | <span class="info-name">HP:</span> <span class="info-num">${hp}</span> / <span class="info-num">${max_hp}</span>`
+    infoString += `<br>`
     // infoString += `<span class="info-name">DP:</span> <span class="info-num">${dp}</span> | `;    
     infoString += `<span class="info-name">Bytecodes Used:</span> <span class="info-num">${bytecodes}</span>`
+    if (bodyType == cst.CARRIER || bodyType == cst.HEADQUARTERS) {
+      infoString += ` | Adamantium: <span class="info-num">${adamantium}</span>`
+      infoString += ` | Mana: <span class="info-num">${mana}</span>`
+      infoString += ` | Elixir: <span class="info-num">${elixir}</span>`
+      if (anchor)
+        infoString += ` | Anchor: <span class="info-num">${anchor}</span>`
+    }
     // if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
     infoString += `<br><span class="info-name">Indicator String:</span> <span class="info-string"><span class="info-string">${indicatorString}</span></span>`
-
-    if (bodyType == cst.CARRIER || bodyType == cst.HEADQUARTERS) {
-      infoString += `<br>`
-      infoString += `Adamantium: <span class="info-num">${adamantium}</span>`
-      infoString += `Mana: <span class="info-num">${mana}</span>`
-      infoString += `Elixir: <span class="info-num">${elixir}</span>`
-      if (anchor)
-        infoString += `Anchor: <span class="info-num">${anchor}</span>`
-    }
 
     // (${bodyType})<br>
     // Location: (${x}, ${y})<br>
