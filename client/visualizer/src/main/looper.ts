@@ -261,7 +261,7 @@ export default class Looper {
                 let ad = bodies.adamantium[index];
                 let mn = bodies.mana[index];
                 let ex = bodies.elixir[index];
-                let anchor = bodies.anchor[index];
+                let anchor = bodies.normal_anchors[index] > 0 ? "normal" : (bodies.accelerated_anchors[index] > 0 ? "accelerated" : null);
 
                 this.controls.setInfoString(id, x, y, hp, max_hp, /*dp,*/ type, bytecodes, indicatorString, ad, mn, ex, anchor);
             }

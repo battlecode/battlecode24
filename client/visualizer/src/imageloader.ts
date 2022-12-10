@@ -292,8 +292,8 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   loadImageInMap(result.controls, ControlType.DOUBLE_UPS, 'controls/skip-forward')
   loadImageInMap(result.controls, ControlType.HALVE_UPS, 'controls/skip-backward')
   loadImageInMap(result.controls, ControlType.GO_END, 'controls/go-end')
-  loadImageInMap(result.controls, ControlType.MATCH_BACKWARD, 'controls/green-previous')
-  loadImageInMap(result.controls, ControlType.MATCH_FORWARD, 'controls/green-next')
+  // loadImageInMap(result.controls, ControlType.MATCH_BACKWARD, 'controls/go-previous')
+  // loadImageInMap(result.controls, ControlType.MATCH_FORWARD, 'controls/go-next')
 
   // mark as finished
   loadImage.requestedAll = true

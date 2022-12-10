@@ -30,7 +30,8 @@ export type BodiesSchema = {
   adamantium: Int32Array,
   elixir: Int32Array,
   mana: Int32Array,
-  anchor: Int8Array,
+  normal_anchors: Int16Array,
+  accelerated_anchors: Int16Array,
 
   hp: Int32Array,
 }
@@ -53,7 +54,7 @@ export type MapStats = {
   resources: Int8Array,
   resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
 
-
+  effects: { type: string, turns_remaining: number, team: number, x: number, y: number }[],
   //these are unused because there is no way for a resource to be dropped on the ground
   //   adamantiumVals: Int32Array
   //   manaVals: Int32Array
@@ -235,7 +236,8 @@ export default class GameWorld {
       target: new Int32Array(0),
       targetx: new Int32Array(0),
       targety: new Int32Array(0),
-      anchor: new Int8Array(0),
+      normal_anchors: new Int16Array(0),
+      accelerated_anchors: new Int16Array(0),
       adamantium: new Int32Array(0),
       elixir: new Int32Array(0),
       mana: new Int32Array(0),
@@ -279,10 +281,7 @@ export default class GameWorld {
       island_stats: new Map(),
       resources: new Int8Array(0),
       resource_well_stats: new Map(),
-      // adamantiumVals: new Int8Array(0),
-      // manaVals: new Int8Array(0),
-      // elixirVals: new Int8Array(0),
-
+      effects: [],
       symmetry: 0,
 
       getIdx: (x: number, y: number) => 0,
@@ -473,6 +472,9 @@ export default class GameWorld {
       this.insertBodies(bodies)
     }
 
+    this.mapStats.effects.forEach(s => s.turns_remaining--)
+    this.mapStats.effects = this.mapStats.effects.filter(s => s.turns_remaining >= 0)
+
     // Remove abilities from previous round
     this.bodies.alterBulk({
       id: new Int32Array(this.actionRobots), action: (new Int8Array(this.actionRobots.length)).fill(-1),
@@ -518,6 +520,7 @@ export default class GameWorld {
         const target = delta.actionTargets(i)
         const body = robotID != -1 ? this.bodies.lookup(robotID) : null
         const teamStatsObj = body != null ? this.teamStats.get(body.team) : null
+        const width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
 
 
         const setAction = (set_target: Boolean = false, set_target_loc_from_body_id: Boolean = false, set_target_loc_from_location: Boolean = false) => {
@@ -542,10 +545,11 @@ export default class GameWorld {
         switch (action) {
           case schema.Action.THROW_ATTACK:
             this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            setAction(true, false)
+            if (target != -1) //missed attack
+              setAction(false, true, false)
             break
           case schema.Action.LAUNCH_ATTACK:
-            setAction(true, false)
+            setAction(false, true, false)
             break
           case schema.Action.PICK_UP_RESOURCE:
             setAction(false, false, true)
@@ -556,28 +560,52 @@ export default class GameWorld {
             break
 
           case schema.Action.DESTABILIZE:
-            setAction(false, false, true)
+            // setAction(false, false, true)
+            this.mapStats.effects.push({
+              type: 'destabilize', turns_remaining: 5, team: body.team,
+              x: target % width, y: (target - target % width) / width
+            })
             break
 
-          case schema.Action.DESTABILIZE_DAMAGE:
-            setAction(false, false, true)
-            break
+          // case schema.Action.DESTABILIZE_DAMAGE:
+          //   setAction(false, false, true)
+          //   break
 
           case schema.Action.BOOST:
-            setAction(false, false, true)
+            // setAction(false, false, true)
+            this.mapStats.effects.push({
+              type: 'boost', turns_remaining: 10, team: body.team,
+              x: target % width, y: (target - target % width) / width
+            })
+            break
+
+          case schema.Action.BUILD_ANCHOR:
+            if (target == 0) {
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
             break
 
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
-            this.bodies.alter({ id: robotID, anchor: target + 1 })
+            let anchor_type = target % 2
+            let hq_id = Math.floor(target / 2)
+            let hq = this.bodies.lookup(hq_id)
+            if (anchor_type == 0) {
+              this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
             break
 
           case schema.Action.PLACE_ANCHOR:
             setAction(false, false, true)
-            this.bodies.alter({ id: robotID, anchor: 0 })
             let curr_island = this.mapStats.island_stats.get(target)
-            let curr_robot = this.bodies.lookup(robotID)
-            curr_island.is_accelerated = curr_robot.anchor == 2
+            curr_island.is_accelerated = body.accelerated_anchors > 0
+            this.bodies.alter({ id: robotID, normal_anchors: 0, accelerated_anchors: 0 })
             break
 
           case schema.Action.CHANGE_ADAMANTIUM:
@@ -624,18 +652,24 @@ export default class GameWorld {
     for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
       let well_index = delta.resourceWellLocs(i)
       let well_resource = delta.resourceID(i)
-      let well_adamantium_change = delta.wellAdamantiumValues(i)
-      let well_elixir_change = delta.wellElixirValues(i)
-      let well_mana_change = delta.wellManaValues(i)
+      let well_adamantium = delta.wellAdamantiumValues(i)
+      let well_elixir = delta.wellElixirValues(i)
+      let well_mana = delta.wellManaValues(i)
+
+      // if (well_adamantium != 0 || well_elixir != 0 || well_mana != 0) {
+      //   console.log("Well received resources:")
+      //   console.log(well_adamantium)
+      //   console.log(well_elixir)
+      //   console.log(well_mana)
+      // }
 
       let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
 
       this.mapStats.resources[well_index] = well_resource
 
-      //TODO WHAT DO WE DO WHEN THEY ARE FULL AND CONVERT
-      current_resource_stats.adamantium = well_adamantium_change
-      current_resource_stats.mana = well_mana_change
-      current_resource_stats.elixir = well_elixir_change
+      current_resource_stats.adamantium = well_adamantium
+      current_resource_stats.mana = well_mana
+      current_resource_stats.elixir = well_elixir
       current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
