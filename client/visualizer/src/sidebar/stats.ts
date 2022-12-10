@@ -1,7 +1,7 @@
 import { Config } from '../config';
 import * as cst from '../constants';
 import { AllImages } from '../imageloader';
-import { schema } from 'battlecode-playback';
+import { gameworld, schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
 import { HEADQUARTERS } from '../constants';
@@ -74,8 +74,6 @@ export default class Stats {
 
   private ECs: HTMLDivElement;
   
-  private teamMapToTurnsIncomeSet: Map<number, Set<number>>;
-
   // Note: robot types and number of teams are currently fixed regardless of
   // match info. Keep in mind if we ever change these, or implement this less
   // statically.
@@ -385,7 +383,6 @@ export default class Stats {
     }
     this.relativeBars = [];
     this.maxVotes = 750;
-    this.teamMapToTurnsIncomeSet = new Map();
 
     this.div.appendChild(document.createElement("br"));
     if (this.conf.tournamentMode) {
@@ -735,39 +732,29 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, adamantiumIncome: number, elixirIncome: number, manaIncome:number, turn: number) { // incomes
-    this.incomeDisplays[teamID].adamantiumIncome.textContent = "Ad: " + String(adamantiumIncome.toFixed(2)); // change incomeDisplays later
-    this.incomeDisplays[teamID].elixirIncome.textContent = "El: " + String(elixirIncome.toFixed(2));
-    this.incomeDisplays[teamID].manaIncome.textContent = "Mn: " + String(manaIncome.toFixed(2));
-    if (!this.teamMapToTurnsIncomeSet.has(teamID)) {
-      this.teamMapToTurnsIncomeSet.set(teamID, new Set());
-    }
-    let teamTurnsIncomeSet = this.teamMapToTurnsIncomeSet.get(teamID);
+  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean) { // incomes
+    this.incomeDisplays[teamID].adamantiumIncome.textContent =
+      "Ad: " + String((teamStats.adamantiumIncomeDataset[teamStats.adamantiumIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2)); // change incomeDisplays later
+    this.incomeDisplays[teamID].elixirIncome.textContent =
+      "El: " + String((teamStats.elixirIncomeDataset[teamStats.elixirIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2));
+    this.incomeDisplays[teamID].manaIncome.textContent =
+      "Mn: " + String((teamStats.manaIncomeDataset[teamStats.manaIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2));
     
-    if (!teamTurnsIncomeSet!.has(turn) && turn % 10 == 0) {
+    // We check (turn - 1) here because the datasets get updated every 10 turns, so they will be visible to the graphs
+    // starting on the 11th turn
+    if (forceUpdate || (turn - 1) % 10 == 0) {
       //@ts-ignore
-      this.incomeChartAdamantium.data.datasets![teamID - 1].data?.push({y: adamantiumIncome, x: turn});
+      this.incomeChartAdamantium.data.datasets![teamID - 1].data = teamStats.adamantiumIncomeDataset;
       //@ts-ignore
-      this.incomeChartMana.data.datasets![teamID - 1].data?.push({y: manaIncome, x: turn});
+      this.incomeChartMana.data.datasets![teamID - 1].data = teamStats.manaIncomeDataset;
       //@ts-ignore
-      this.incomeChartElixir.data.datasets![teamID - 1].data?.push({y: elixirIncome, x: turn});
+      this.incomeChartElixir.data.datasets![teamID - 1].data = teamStats.elixirIncomeDataset;
 
-      this.incomeChartAdamantium.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      this.incomeChartMana.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-      this.incomeChartElixir.data.datasets?.forEach((d) => {
-        d.data?.sort((a, b) => a.x - b.x);
-      });
-
-      teamTurnsIncomeSet?.add(turn);
-      
       this.incomeChartAdamantium.update();
       this.incomeChartMana.update();
       this.incomeChartElixir.update();
     }
+
     // update bars here
     //console.log(teamID, count, "fsdfsdf");
     //if(robotType === ARCHON) this.updateRelBars(teamID, count);

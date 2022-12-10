@@ -386,8 +386,9 @@ export default class Looper {
             //### this.stats.setTeamInfluence(teamID, teamHP, totalHP);
             // this.stats.setBuffs(teamID, teamStats.numBuffs);
             // this.stats.setBid(teamID, teamStats.bid);
-            const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
-            this.stats.setIncome(teamID, average(teamStats.adamantiumMinedHist), average(teamStats.manaMinedHist), average(teamStats.elixirMinedHist), world.turn);            // this.stats.setIncome(teamID, 3 + teamID, 5 + teamID, world.turn);
+            
+            // Force an update if the game is paused for immediate feedback
+            this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0);
         }
 
         for(var a = 0; a < teamIDs.length; a++){
