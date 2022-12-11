@@ -676,7 +676,7 @@ public strictfp class GameWorld {
                         curDestabilize.remove(j);
                         //deal damage
                         InternalRobot robot = getRobot(loc);
-                        if (robot != null) {
+                        if (robot != null && robot.getTeam().ordinal() == teamIndex) {
                             // TODO: Send correct action info to client, this may be hard
                             robot.addHealth(-1*GameConstants.DESTABILIZER_DAMAGE);
                         }
