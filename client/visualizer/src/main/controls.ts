@@ -441,7 +441,7 @@ export default class Controls {
 
     content += ' | Well: ' + `<b>${cst.RESOURCENAMES[resource]}${resource > 0 && well_stats.upgraded ? "*" : ""}</b>`
     if (resource > 0 && (well_stats.adamantium > 0 || well_stats.elixir > 0 || well_stats.mana > 0)) {
-      content += ' < ('
+      content += ' ('
       if (well_stats.adamantium >0) content += `Ad: ${well_stats.adamantium}, `;
       if (well_stats.mana > 0) content += `Mn: ${well_stats.mana}, `;
       if (well_stats.elixir > 0) content += `Ex: ${well_stats.elixir}, `;

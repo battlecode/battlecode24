@@ -185,6 +185,22 @@ export default class Renderer {
       }
       this.drawCircle(effect.x, effect.y, 25, color, cst.TEAM_COLORS[effect.team])
     }
+
+    //accelerated islands
+    let width = world.maxCorner.x - world.minCorner.x
+    let height = world.maxCorner.y - world.minCorner.y
+    world.mapStats.island_stats.forEach((island_stat, key) => {
+      if (island_stat.is_accelerated) {
+        island_stat.accelerated_tiles.forEach(tile_loc => {
+          let tile_x = tile_loc % width
+          let tile_y = (tile_loc - tile_x) / width
+          const ctx = this.ctx[CanvasType.DYNAMIC]
+          ctx.fillStyle = cst.TEAM_COLORS[island_stat.owner - 1]
+          ctx.globalAlpha = .1
+          ctx.fillRect(tile_x, (height - tile_y - 1), 1, 1)
+        })
+      }
+    })
   }
 
   private renderResources(world: GameWorld) {
@@ -278,7 +294,7 @@ export default class Renderer {
         ctx.save()
         let path = this.get9SliceClipPath(i, j, map.islands, height, width)
         this.applyClipScaled(ctx, cx / 1.01, cy / 1.01, 1.01, path)
-        let island_stat = map.island_stats[map.islands[idxVal]]
+        let island_stat = map.island_stats.get(map.islands[idxVal])!
         if (!this.conf.doingRotate) this.drawIsland(cx / 1.01, cy / 1.01, 1.01, ctx, island_stat)
         else this.drawIsland(cy / 1.01, cx / 1.01, 1.01, ctx, island_stat)
         ctx.restore()
@@ -287,7 +303,8 @@ export default class Renderer {
   }
 
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
-    let first_color = island_stat.owner == 0 ? '#0000004d' : cst.TEAM_COLORS[island_stat.owner]
+    ctx.globalAlpha = .5
+    let first_color = island_stat.owner == 0 ? '#00000099' : cst.TEAM_COLORS[island_stat.owner - 1]
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
 
     let x = i * scale
