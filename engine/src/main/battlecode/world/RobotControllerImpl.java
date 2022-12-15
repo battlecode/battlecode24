@@ -290,12 +290,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Map<Integer, MapLocation[]> senseNearbyIslandLocations() {
-        try {
-            return senseNearbyIslandLocations(-1);
-        } catch (GameActionException e) {
-            return new HashMap<Integer, MapLocation[]>();
-        }
+    public Map<Integer, MapLocation[]> senseNearbyIslandLocations() throws GameActionException{
+        return senseNearbyIslandLocations(-1);
     }
     
     @Override
@@ -590,6 +586,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             this.robot.addResourceAmount(rType, -1*anchor.getBuildCost(rType));
             this.gameWorld.getTeamInfo().addResource(rType, team, -1*anchor.getBuildCost(rType));
         }
+        this.robot.addAnchor(anchor);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
     }
 

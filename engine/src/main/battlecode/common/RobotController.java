@@ -307,7 +307,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Map<Integer, MapLocation[]> senseNearbyIslandLocations();
+    Map<Integer, MapLocation[]> senseNearbyIslandLocations() throws GameActionException;
 
     /**
      * Return map of idx to all locations that are filled by the island with the index idx, 
