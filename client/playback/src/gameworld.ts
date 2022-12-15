@@ -49,7 +49,7 @@ export type MapStats = {
   currents: Int8Array,
 
   islands: Int32Array,
-  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean }>,
+  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> }>,
 
   resources: Int8Array,
   resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
@@ -345,7 +345,8 @@ export default class GameWorld {
     this.mapStats.maxCorner.x = maxCorner.x()
     this.mapStats.maxCorner.y = maxCorner.y()
 
-    // this.mapStats.leadVals = map.leadArray()
+    const width = (maxCorner.x() - minCorner.x())
+    const height = (maxCorner.y() - minCorner.y())
 
     const bodies = map.bodies(this._bodiesSlot)
     if (bodies && bodies.robotIDsLength) {
@@ -354,9 +355,9 @@ export default class GameWorld {
 
     this.mapStats.randomSeed = map.randomSeed()
 
-    this.mapStats.walls = map.wallsArray();
-    this.mapStats.clouds = map.cloudsArray();
-    this.mapStats.currents = Int8Array.from(map.currentsArray());
+    this.mapStats.walls = map.wallsArray()
+    this.mapStats.clouds = map.cloudsArray()
+    this.mapStats.currents = Int8Array.from(map.currentsArray())
 
     this.mapStats.resources = Int8Array.from(map.resourcesArray())
     for (let i = 0; i < this.mapStats.resources.length; i++) {
@@ -375,15 +376,29 @@ export default class GameWorld {
         if (this.mapStats.island_stats.has(island_id)) {
           let existing_island = this.mapStats.island_stats.get(island_id)
           existing_island.locations.push(i)
-          // this.mapStats.island_stats.set(island_id, existing_island)
         } else {
-          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false })
+          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set() })
         }
       }
     }
 
+    // set the acceleration radius for when an island is accelerated
+    let acc_radius = 2
+    this.mapStats.island_stats.forEach((island_stat, key) => {
+      for (let tile_loc of island_stat.locations) {
+        let tile_x = tile_loc % width
+        let tile_y = (tile_loc - tile_x) / width
+        for (let x = tile_x - acc_radius; x <= tile_x + acc_radius; x += 1) {
+          for (let y = tile_y - acc_radius; y <= tile_y + acc_radius; y += 1) {
+            if (x >= 0 && x < width && y >= 0 && y < height && 
+              ((tile_x - x) * (tile_x - x) + (tile_y - y) * (tile_y - y) <= acc_radius * acc_radius))
+              island_stat.accelerated_tiles.add(x + y * width)
+          }
+        }
+      }
+    })
 
-    const width = (maxCorner.x() - minCorner.x())
+
     this.mapStats.getIdx = (x: number, y: number) => (
       Math.floor(y) * width + Math.floor(x)
     )
