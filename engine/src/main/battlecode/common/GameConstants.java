@@ -155,11 +155,11 @@ public class GameConstants {
     public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
 
     /** Constants for cooldown multipliers. */
-    public static final double BOOSTER_MULTIPLIER = .1;
-    public static final double DESTABILIZER_MULTIPLIER = -.1;
-    public static final double ANCHOR_MULTIPLIER = .15;
-    public static final double CLOUD_MULTIPLIER = -.2;
-    public static final double CURRENT_MULTIPLIER = .1;
+    public static final double BOOSTER_MULTIPLIER = -.1;
+    public static final double DESTABILIZER_MULTIPLIER = .1;
+    public static final double ANCHOR_MULTIPLIER = -.15;
+    public static final double CLOUD_MULTIPLIER = .2;
+    public static final double CURRENT_MULTIPLIER = -.1;
 
     /** Constant for damage dealt by destabilizer */
     public static final int DESTABILIZER_DAMAGE = 10;
