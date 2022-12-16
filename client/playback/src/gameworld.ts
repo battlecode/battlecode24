@@ -584,7 +584,7 @@ export default class GameWorld {
           case schema.Action.DESTABILIZE:
             // setAction(false, false, true)
             this.mapStats.effects.push({
-              type: 'destabilize', turns_remaining: 5, team: body.team,
+              type: 'destabilize', turns_remaining: 4, team: body.team,
               x: target % width, y: (target - target % width) / width
             })
             break
@@ -596,7 +596,7 @@ export default class GameWorld {
           case schema.Action.BOOST:
             // setAction(false, false, true)
             this.mapStats.effects.push({
-              type: 'boost', turns_remaining: 10, team: body.team,
+              type: 'boost', turns_remaining: 9, team: body.team,
               x: target % width, y: (target - target % width) / width
             })
             break

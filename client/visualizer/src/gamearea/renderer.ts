@@ -51,7 +51,7 @@ export default class Renderer {
    * nextStep: contains positions of bodies after the next turn
    * lerpAmount: fractional progress between this turn and the next
    */
-  render(world: GameWorld, viewMin: Victor, viewMax: Victor, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
+  render(world: GameWorld, viewMin: Victor, viewMax: Victor, curTime: number, nextStep?: NextStep, lerpAmount?: number, selectedTrail: { x: number, y: number }[] | undefined = undefined) {
     // setup correct rendering
     for (let key in this.ctx) {
       const canvas = this.canvases[key]
@@ -82,10 +82,14 @@ export default class Renderer {
       this.clearCanvas(CanvasType.DYNAMIC)
       this.renderIslands(world)
       this.renderResources(world)
+      if (selectedTrail) {
+        this.renderTrail(world, selectedTrail)
+      }
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
+
     }
 
 
@@ -175,20 +179,21 @@ export default class Renderer {
   }
 
   private renderEffects(world: GameWorld) {
+    let width = world.maxCorner.x - world.minCorner.x
+    let height = world.maxCorner.y - world.minCorner.y
+
     for (var effect of world.mapStats.effects) {
       let color = 'white'
       if (effect.type == 'destabilize') {
-        color = effect.turns_remaining == 0 ? "#573f5e5F" : "#573f5e3F"
+        color = effect.turns_remaining == 0 ? "#D53E433F" : "#573f5e3F"
       }
       if (effect.type == 'boost') {
         color = "#00F0003F"
       }
-      this.drawCircle(effect.x, effect.y, 25, color, cst.TEAM_COLORS[effect.team])
+      this.drawCircle(effect.x, height - effect.y - 1, 25, color, cst.TEAM_COLORS[effect.team])
     }
 
     //accelerated islands
-    let width = world.maxCorner.x - world.minCorner.x
-    let height = world.maxCorner.y - world.minCorner.y
     world.mapStats.island_stats.forEach((island_stat, key) => {
       if (island_stat.is_accelerated) {
         island_stat.accelerated_tiles.forEach(tile_loc => {
@@ -226,6 +231,14 @@ export default class Renderer {
         let img = this.imgs.resource_wells[map.resources[idxVal]][upgraded ? 1 : 0]
         if (!this.conf.doingRotate) ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, size, size)
         else ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, size, size)
+
+        //resource outline
+        ctx.strokeStyle = '#8d6544'
+        ctx.globalAlpha = .1
+        let inset = .03
+        ctx.lineWidth = .02
+        if (!this.conf.doingRotate) ctx.strokeRect(cx + inset, cy + inset, 1 - 2 * inset, 1 - 2 * inset)
+        else ctx.strokeRect(cy + inset, cx + 2 * inset, 1 - 2 * inset, 1 - 2 * inset)
       }
     }
   }
@@ -357,6 +370,40 @@ export default class Renderer {
     ctx.fill()
   }
 
+  private renderTrail(world: GameWorld, selectedTrail: { x: number, y: number }[]) {
+    if (selectedTrail.length < 2) return
+    const ctx = this.ctx[CanvasType.DYNAMIC]
+    const height = world.maxCorner.y - world.minCorner.y
+
+    ctx.save()
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = .3
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+
+    // selectedTrail = selectedTrail.filter((i, index) => {
+    //   if (index != 0)
+    //     return selectedTrail[index - 1].x != i.x || selectedTrail[index - 1].y != i.y
+    //   return i
+    // })
+
+    let i = selectedTrail.length - 1
+
+    let limit = 25
+    let orig_i = i
+    ctx.beginPath()
+    ctx.moveTo(selectedTrail[i].x + .5, (height - selectedTrail[i].y - .5))
+    for (let i = selectedTrail.length - 2; i >= 0; i--) {
+      ctx.globalAlpha = 1 / (Math.sqrt(selectedTrail.length - i) * Math.min(limit, orig_i))
+      ctx.lineTo(selectedTrail[i].x + .5, (height - selectedTrail[i].y - .5))
+      ctx.stroke()
+      // no inifinite trail
+      if (orig_i - i > limit)
+        break
+    }
+    ctx.restore()
+  }
+
   private renderBodies(world: GameWorld, curTime: number, nextStep?: NextStep, lerpAmount?: number) {
     const bodies = world.bodies
     const length = bodies.length
@@ -393,10 +440,8 @@ export default class Renderer {
     for (let i = 0; i < length; i++) {
       if (nextStep && lerpAmount) {
         // Interpolated
-        // @ts-ignore
-        realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount
-        // @ts-ignore
-        realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY)
+        realXs[i] = xs[i] + (nextXs![i] - xs[i]) * lerpAmount
+        realYs[i] = this.flip(ys[i] + (nextYs![i] - ys[i]) * lerpAmount, minY, maxY)
       } else {
         // Not interpolated
         realXs[i] = xs[i]
@@ -410,6 +455,7 @@ export default class Renderer {
       let img = this.imgs.robots[types[i]][teams[i]]
       let max_hp = this.metadata.types[types[i]].health
       this.drawBot(img, realXs[i], realYs[i], hps[i], Math.min(1, hps[i] / max_hp), cst.bodyTypeToSize(types[i]))
+      let selected = ids[i] === this.lastSelectedID
       this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
 
       //draw rescoures
