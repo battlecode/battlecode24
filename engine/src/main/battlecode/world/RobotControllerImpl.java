@@ -290,38 +290,45 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Map<Integer, MapLocation[]> senseNearbyIslandLocations() throws GameActionException{
-        return senseNearbyIslandLocations(-1);
-    }
-    
-    @Override
-    public Map<Integer, MapLocation[]> senseNearbyIslandLocations(int radiusSquared) throws GameActionException {
-        assertRadiusNonNegative(radiusSquared);
-        return senseNearbyIslandLocations(getLocation(), radiusSquared);
+    public int[] senseNearbyIslands() {
+        Island[] allSensedIslands = gameWorld.getAllIslandsWithinRadiusSquared(getLocation(), getType().visionRadiusSquared);
+        int[] idxs = new int[allSensedIslands.length];
+        for(int i = 0; i < idxs.length; i++) idxs[i] = allSensedIslands[i].ID;
+        return idxs;
     }
 
     @Override
-    public Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException {
+    public MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException {
+        return senseNearbyIslandLocations(-1, idx);
+    }
+    
+    @Override
+    public MapLocation[] senseNearbyIslandLocations(int radiusSquared, int idx) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyIslandLocations(getLocation(), radiusSquared, idx);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyIslandLocations(MapLocation center, int radiusSquared, int idx) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
 
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
 
-        Island[] allSensedIslands = gameWorld.getAllIslandsWithinRadiusSquared(center, actualRadiusSquared);
-
-        Map<Integer, MapLocation[]> islandLocations = new HashMap<Integer, MapLocation[]>();
-        for (Island island : allSensedIslands) {
-            List<MapLocation> validLocations = Arrays.asList(island.locations);
-            validLocations.removeIf(loc -> !canSenseLocation(loc));
-
-            if (validLocations.isEmpty()) {
-                continue;
+        Island island = gameWorld.getIsland(idx);
+        //check if the island is within the search area
+        boolean inRadius = false;
+        for(MapLocation loc : island.locations) {
+            if(loc.distanceSquaredTo(center) <= actualRadiusSquared) {
+                inRadius = true;
+                break;
             }
-
-            islandLocations.put(island.ID, validLocations.toArray(new MapLocation[validLocations.size()]));
         }
+        if(!inRadius) return new MapLocation[0];
 
-        return islandLocations;
+        List<MapLocation> validLocations = Arrays.asList(island.locations);
+        validLocations.removeIf(loc -> !canSenseLocation(loc));
+        return validLocations.toArray(new MapLocation[validLocations.size()]);
     }
 
     private boolean canSenseIsland(Island island) {
@@ -843,18 +850,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(anchor);
         assertCanActLocation(loc);
         assertIsActionReady();
-        if (getType() != RobotType.CARRIER)
+        System.out.println("In assertCanTakeAnchor");
+        if (getType() != RobotType.CARRIER){
+            System.out.println("not a carrier");
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot collect anchors.");
-        if (!isHeadquarter(loc))
+        }
+        if (!isHeadquarter(loc)){
+            System.out.println("not a headquarter");
             throw new GameActionException(CANT_DO_THAT, 
                     "Can only take anchors from headquarters.");
+        }
         InternalRobot hq = this.gameWorld.getRobot(loc);
+        System.out.println(hq.inventory.getNumAnchors(Anchor.STANDARD));
         if (hq.getNumAnchors(anchor) < 1) {
+            System.out.println("No anchor to take");
             throw new GameActionException(CANT_DO_THAT, 
             "Not enough anchors");
         }
         if (!this.robot.canAddAnchor()) {
+            System.out.println("Not enough capacity");
             throw new GameActionException(CANT_DO_THAT, 
             "Not enough capacity to pick up an anchor.");
         }
