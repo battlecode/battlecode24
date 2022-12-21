@@ -1,43 +1,11 @@
 # HOW TO RELEASE A JAVA GAME
 
-## Prereqs
-
-a bash-like shell (windows command prompt won't work for this).
-
-npm
-
-a git key: Obtain a git key that has "publish packages" permissions. This key is a string. Keep it around somewhere
-
-## Get updates
-
-Make sure you have all the most recent updates to the repo! (Ideally they're pushed to git. Then do git checkout master, git fetch, git pull.)
-
-## Update some version numbers
-
-`client/visualizer/src/config` -- find ``gameVersion`, and update that.
-
-`gradle.properties` -- update `release_version`.
-
-Make sure these updates are pushed to master!
-
-## Update specs and javadoc
-
-In our game spec (specs folder), make sure changes are up to date.
-
-Pay attention to the version number at the top of specs.md.html, and to the changelog at the bottom.
-
-push to master btw!
-
-## Release packages
-
-Set BC21_GITUSERNAME: `export BC21_GITUSERNAME=n8kim1`, etc
-
-Set BC21_GITKEY similarly. This git key is the string discussed above.
-
-./gradlew publish
-
-Now set version.txt in gcloud (also set cache policy to no-store)
-
-## Deploy frontend
-
-Run the deploy.sh script! For arguments, follow the instructions in the file. For example: `bash ./deploy.sh deploy 2021.3.0.2`
+1. Update version numbers in the following places:
+  - `engine/src/main/battlecode/common/GameConstants.java`
+  - `client/visualizer/src/config.ts`
+  - Specs, both at the top and in the changelog.
+2. Decide whether you want the release to be public.
+  - Check the value of `IS_PUBLIC` in `.github/workflows/release.yml`.
+3. Create a Release on GitHub.
+  - The release tag-name will be the version number. For example: "1.0.3".
+  - You should use the version number as the release title too.
