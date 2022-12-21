@@ -1,10 +1,8 @@
-package examplefuncsplayer;
+package hankplayer;
 import battlecode.common.*;
 import java.util.Random;
-import java.util.Map;
-import java.util.Collection;
 
-public strictfp class HankRobotPlayer {
+public strictfp class RobotPlayer {
     
     static final Random rng = new Random(5844);
 
@@ -145,9 +143,9 @@ public strictfp class HankRobotPlayer {
     }
 
     private static void scanIslands(RobotController rc) throws GameActionException {
-        Map<Integer, MapLocation[]> islandLocs = rc.senseNearbyIslandLocations();
-        if(islandLocs.keySet().size() > 0){
-            islandLoc = islandLocs.get(islandLocs.keySet().toArray()[0])[0];
+        int[] islandIds = rc.senseNearbyIslands();
+        if (islandIds.length > 0) {
+            islandLoc = rc.senseNearbyIslandLocations(islandIds[0])[0];
         }
     }
 
