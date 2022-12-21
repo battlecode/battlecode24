@@ -292,9 +292,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int[] senseNearbyIslands() {
         Island[] allSensedIslands = gameWorld.getAllIslandsWithinRadiusSquared(getLocation(), getType().visionRadiusSquared);
-        int[] idxs = new int[allSensedIslands.length];
-        for(int i = 0; i < idxs.length; i++) idxs[i] = allSensedIslands[i].ID;
-        return idxs;
+        Set<Integer> islandIdsSet = new HashSet<>();
+        for(int i = 0; i < allSensedIslands.length; i++) {
+            islandIdsSet.add(allSensedIslands[i].ID);
+        }
+        int[] islandIds = new int[islandIdsSet.size()];
+        int i = 0;
+        for (Integer id : islandIdsSet) {
+            islandIds[i] = id;
+            i++;
+        }
+        return islandIds;
     }
 
     @Override
@@ -316,19 +324,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
 
         Island island = gameWorld.getIsland(idx);
-        //check if the island is within the search area
-        boolean inRadius = false;
+        if (island == null) {
+            throw new GameActionException(CANT_SENSE_THAT, "Not a valid island id");
+        }
+
+        ArrayList<MapLocation> islandLocs = new ArrayList<>();
         for(MapLocation loc : island.locations) {
-            if(loc.distanceSquaredTo(center) <= actualRadiusSquared) {
-                inRadius = true;
-                break;
+            if (canSenseLocation(loc) && center.distanceSquaredTo(loc) <= actualRadiusSquared) {
+                islandLocs.add(loc);
             }
         }
-        if(!inRadius) return new MapLocation[0];
-
-        List<MapLocation> validLocations = Arrays.asList(island.locations);
-        validLocations.removeIf(loc -> !canSenseLocation(loc));
-        return validLocations.toArray(new MapLocation[validLocations.size()]);
+        return islandLocs.toArray(new MapLocation[islandLocs.size()]);
     }
 
     private boolean canSenseIsland(Island island) {
@@ -838,6 +844,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanPlaceAnchor();
         MapLocation location = this.getLocation();
         Island island = this.gameWorld.getIsland(location);
+        assert(island != null);
         Anchor heldAnchor = this.robot.getTypeAnchor();
         island.placeAnchor(getTeam(), heldAnchor);
         this.robot.releaseAnchor(heldAnchor);
