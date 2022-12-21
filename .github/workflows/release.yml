@@ -74,6 +74,10 @@ jobs:
       - name: Publish to local repository
         run: ./gradlew publishToMavenLocal -Prelease_version=$RELEASE_VERSION
 
+      - name: Build web client
+        run: npm run prod
+        working-directory: ./client/visualizer
+
       - name: Determine access control
         run: |
           [[ "$IS_PUBLIC" = "YES" ]] && acl="public-read" || acl="project-private"
@@ -90,3 +94,9 @@ jobs:
 
       - name: Upload specs
         run: gsutil -m rsync -a $OBJECT_ACL -r ./specs gs://$GCS_BUCKET/specs/$RELEASE_ARTIFACT_ID/$RELEASE_VERSION
+
+      - name: Upload web client
+        run: |
+          gsutil -m rsync -a $OBJECT_ACL out gs://$GCS_BUCKET/client/$RELEASE_ARTIFACT_ID/$RELEASE_VERSION
+          gsutil cp -a $OBJECT_ACL visualizer.html gs://$GCS_BUCKET/client/$RELEASE_ARTIFACT_ID/$RELEASE_VERSION
+        working-directory: ./client/visualizer
