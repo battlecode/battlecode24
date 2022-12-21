@@ -298,7 +298,11 @@ public strictfp class GameWorld {
     }
 
     public Island getIsland(int islandIdx) {
-        return islandIdToIsland.get(islandIdx);
+        if (islandIdToIsland.containsKey(islandIdx)) {
+            return islandIdToIsland.get(islandIdx);
+        } else {
+            return null;
+        }
     }
 
 

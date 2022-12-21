@@ -301,44 +301,55 @@ public strictfp interface RobotController {
     int senseIsland(MapLocation loc) throws GameActionException;
 
     /**
-     * Return map of island idx to all locations that are filled by that island.
+     * Returns an array containing the indexes of all islands that have at least one location within vision radius
      *
-     * @return map of idx to all locations in this island within vision radius and are within vision
+     * @return an array of nearby island indexes
      *
      * @battlecode.doc.costlymethod
      */
-    Map<Integer, MapLocation[]> senseNearbyIslandLocations() throws GameActionException;
+    int[] senseNearbyIslands() throws GameActionException;
 
     /**
-     * Return map of idx to all locations that are filled by the island with the index idx, 
+     * Returns an array of all locations that belong to the island with the given index that are within
+     * vision radius.
+     * 
+     * @param idx the index of the island to search for
+     * @return array of nearby locations on the island
+     */
+    MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException;
+
+    /**
+     * Returns an array of all locations that belong to the island with the given index that are
      * within a specified radius of your robot location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
      *
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return map of idx to all locations that are filled by the island with the index idx and are within vision
+     * @param idx the index of the island to search for
+     * @return array of nearby locations on the island
      * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    Map<Integer, MapLocation[]> senseNearbyIslandLocations(int radiusSquared) throws GameActionException;
+    MapLocation[] senseNearbyIslandLocations(int radiusSquared, int idx) throws GameActionException;
 
     /**
-     * Return map of idx to all locations that are filled by the island with the index idx, 
-     * within a specified radius of a center location.
+     * Returns an array of all locations that belong to the island with the given index that are
+     * within a specified radius of the center location.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
-     * @return map of idx to all locations that are filled by the island with the index idx and are within vision
+     * @param idx the index of the island to search for
+     * @return array of nearby locations on the island
      * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
      */
-    Map<Integer, MapLocation[]> senseNearbyIslandLocations(MapLocation center, int radiusSquared) throws GameActionException;
+    MapLocation[] senseNearbyIslandLocations(MapLocation center, int radiusSquared, int idx) throws GameActionException;
 
     /**
      * Return the team controlling the island with index islandIdx.
