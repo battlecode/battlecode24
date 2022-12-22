@@ -3,7 +3,11 @@ package examplefuncsplayer;
 import battlecode.common.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -38,6 +42,10 @@ public strictfp class RobotPlayer {
         Direction.WEST,
         Direction.NORTHWEST,
     };
+
+    static int numAnchors = 0;
+    static Set<Integer> islandIds = new HashSet<>();
+    static Set<MapLocation> islandLocs = new HashSet<>();
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -77,6 +85,7 @@ public strictfp class RobotPlayer {
                     case DESTABILIZER: // You might want to give them a try!
                     case AMPLIFIER:       break;
                 }
+
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game
@@ -109,6 +118,15 @@ public strictfp class RobotPlayer {
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
         MapLocation newLoc = rc.getLocation().add(dir);
+        int targetNumAnchors = rc.getRoundNum() / 100 + 1;
+        // Build anchors until we reach the targeted amount
+        if (numAnchors < targetNumAnchors) {
+            if (rc.canBuildAnchor(Anchor.STANDARD)) {
+                rc.buildAnchor(Anchor.STANDARD);
+                System.out.println("Building anchor! " + rc.getAnchor());
+                numAnchors ++;
+            }
+        }
         if (rng.nextBoolean()) {
             // Let's try to build a carrier.
             rc.setIndicatorString("Trying to build a carrier");
@@ -129,6 +147,23 @@ public strictfp class RobotPlayer {
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     static void runCarrier(RobotController rc) throws GameActionException {
+        // If I have an anchor singularly focus on getting it to it's location
+        if (rc.getAnchor() != null) {
+            if (islandLocs.size() > 0) {
+                MapLocation islandLocation = islandLocs.iterator().next();
+                System.out.println("Moving my anchor towards " + islandLocation);
+                while (!rc.getLocation().equals(islandLocation)) {
+                    Direction dir = rc.getLocation().directionTo(islandLocation);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                    }
+                }
+                if (rc.canPlaceAnchor()) {
+                    System.out.println("Huzzah, placed anchor!");
+                    rc.placeAnchor();
+                }
+            }
+        }
         // Try to mine on squares around us.
         MapLocation me = rc.getLocation();
         for (int dx = -1; dx <= 1; dx++) {
@@ -164,37 +199,37 @@ public strictfp class RobotPlayer {
                         if (rc.canTransferResource(mineLocation, rType, 1)) {
                             rc.transferResource(mineLocation, rType, 1);
                         }
-                        // rc.transferResource(mineLocation, , 1);
-                        // for (ResourceType rType : ResourceType.values()) {
-                        //     if (rc.canTransferResource(mineLocation, rType, 1)) {
-                        //         rc.transferResource(mineLocation, rType, 1);
-                        //         rc.setIndicatorString("Transferring, now have, AD:" + 
-                        //             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
-                        //             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
-                        //             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
-                        //         System.out.println("Transferring, now have, AD:" + 
-                        //             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
-                        //             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
-                        //             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
-                        //     }
-                        // }
                     }
                 }
             }
         }
-        // int[] islandIds = rc.senseNearbyIslands();
-        // if (islandIds.length > 0) {
-        //     MapLocation[] islandLocs = rc.senseNearbyIslandLocations(islandIds[0]);
-        //     System.out.println("Island Locs: " + Arrays.toString(islandLocs) + " for island with id " + islandIds[0]);
-        // }
-        // System.out.println("Island IDs: " + Arrays.toString(islandIds));
+        int[] islands = rc.senseNearbyIslands();
+        for (int id : islands) {
+            islandIds.add(id);
+            MapLocation[] thisIslandLocs = rc.senseNearbyIslandLocations(id);
+            islandLocs.addAll(Arrays.asList(thisIslandLocs));
+        }
         RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam());
         for (RobotInfo robot : robots) {
             if (robot.getType() == RobotType.HEADQUARTERS) {
                 Direction dir = me.directionTo(robot.getLocation());
                 if (rc.canMove(dir) && rng.nextBoolean())
                     rc.move(dir);
-                if (rc.canTransferResource(robot.getLocation(), ResourceType.ADAMANTIUM, 1)) {
+                if (robot.getTotalAnchors() > 0) {
+                    if (rc.canTransferResource(robot.getLocation(), ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM))) {
+                        System.out.println("Dumping all resources");
+                        for (ResourceType rType : ResourceType.values()) {
+                            if (rc.getResourceAmount(rType) > 0 && rc.canTransferResource(robot.getLocation(), rType, rc.getResourceAmount(rType)))
+                                rc.transferResource(robot.getLocation(), rType, rc.getResourceAmount(rType));
+                        }
+                        System.out.println("Trying to pick up an anchor from headquarter " + robot.getID() + " with initial " + robot.getTotalAnchors() + " anchors.");
+                        if (rc.canTakeAnchor(robot.getLocation(), Anchor.STANDARD)) {
+                            rc.takeAnchor(robot.getLocation(), Anchor.STANDARD);
+                            System.out.println("Picked up anchor, now hq has " + robot.getTotalAnchors() + " and I have " + rc.getAnchor());
+                        }
+                    }
+
+                } else if (rc.canTransferResource(robot.getLocation(), ResourceType.ADAMANTIUM, 1)) {
                     rc.transferResource(robot.getLocation(), ResourceType.ADAMANTIUM, 1);
                     rc.setIndicatorString("Transfering, now have, AD:" + 
                         rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
