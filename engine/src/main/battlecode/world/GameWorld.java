@@ -67,28 +67,13 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
-        //indices are: map position, team, boost/destabilize/anchor lists
-        this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
-        for (int i = 0; i < boosts.length; i++){ 
-            for (int j = 0; j < boosts[0].length; j++)
-                for (int k = 0; k < boosts[0][0].length; k++)
-                    this.boosts[i][j][k] = new ArrayList<Integer>();
+        //Initialize currents
+        int[] gmCurrents = gm.getCurrentArray();
+        Arrays.fill(this.currents, Direction.CENTER);
+        for(int i = 0; i < currents.length; i++) {
+            this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
         }
-        this.cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
-        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
-            cooldownMultipliers[i][0] = 1.0;
-            cooldownMultipliers[i][1] = 1.0;
-        }
-        for (MapLocation loc : getAllLocations()){
-                if (getCurrent(loc) != Direction.CENTER){ 
-                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CURRENT_MULTIPLIER; 
-                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CURRENT_MULTIPLIER;
-                }
-                else if (getCloud(loc)){
-                   cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
-                   cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
-                }
-            }
+
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -124,12 +109,6 @@ public strictfp class GameWorld {
             this.islandIdToIsland.put(key, newIsland);            
         }
 
-        //Initialize currents
-        int[] gmCurrents = gm.getCurrentArray();
-        for(int i = 0; i < currents.length; i++) {
-            this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
-        }
-
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
         
@@ -144,6 +123,24 @@ public strictfp class GameWorld {
             }
         }
 
+        //indices are: map position, team, boost/destabilize/anchor lists
+        this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
+        for (int i = 0; i < boosts.length; i++){ 
+            for (int j = 0; j < boosts[0].length; j++)
+                for (int k = 0; k < boosts[0][0].length; k++)
+                    this.boosts[i][j][k] = new ArrayList<Integer>();
+        }
+        this.cooldownMultipliers = new double[gm.getWidth()*gm.getHeight()][2];
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            cooldownMultipliers[i][0] = 1.0;
+            cooldownMultipliers[i][1] = 1.0;
+        }
+        for (MapLocation loc : getAllLocations()) {
+            if (getCloud(loc)){
+                cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
+                cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
+            }
+        }
 
     }
 

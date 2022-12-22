@@ -125,12 +125,17 @@ public class Inventory {
         return mana;
     }
 
+    public int getWeight() {
+        int total = (getTotalAnchors() * GameConstants.ANCHOR_WEIGHT) + adamantium + mana + elixir;
+        return total;
+    }
+
     /**
      * Checks if the given weight of resources can be added to the inventory without going over the maximum capacity.
      */
     public boolean canAdd(int amount) {
         if(maxCapacity == -1) return true;
-        int total = (getTotalAnchors() * GameConstants.ANCHOR_WEIGHT) + adamantium + mana + elixir;
+        int total = getWeight();
         return total + amount <= maxCapacity;
     }
 

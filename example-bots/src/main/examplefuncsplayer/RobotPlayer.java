@@ -182,13 +182,12 @@ public strictfp class RobotPlayer {
                 }
             }
         }
-        int[] islandIds = rc.senseNearbyIslands();
-        if (islandIds.length > 0) {
-            MapLocation[] islandLocs = rc.senseNearbyIslandLocations(islandIds[0]);
-            System.out.println("Island Locs: " + Arrays.toString(islandLocs) + " for island with id " + islandIds[0]);
-
-        }
-        System.out.println("Island IDs: " + Arrays.toString(islandIds));
+        // int[] islandIds = rc.senseNearbyIslands();
+        // if (islandIds.length > 0) {
+        //     MapLocation[] islandLocs = rc.senseNearbyIslandLocations(islandIds[0]);
+        //     System.out.println("Island Locs: " + Arrays.toString(islandLocs) + " for island with id " + islandIds[0]);
+        // }
+        // System.out.println("Island IDs: " + Arrays.toString(islandIds));
         RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam());
         for (RobotInfo robot : robots) {
             if (robot.getType() == RobotType.HEADQUARTERS) {

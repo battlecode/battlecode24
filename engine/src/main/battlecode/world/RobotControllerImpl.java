@@ -507,8 +507,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanMove(dir);
         MapLocation nextLoc = adjacentLocation(dir);
         this.robot.setLocation(nextLoc);
-        // this has to happen after robot's location changed because rubble
-        this.robot.addMovementCooldownTurns(getType().movementCooldown);
+        this.robot.addMovementCooldownTurns();
     }
 
     // ***********************************
