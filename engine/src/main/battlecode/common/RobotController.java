@@ -115,13 +115,13 @@ public strictfp interface RobotController {
     int getResourceAmount(ResourceType rType);
 
     /**
-     * Returns whether a robot is holding a reality anchor
+     * Returns type of anchor being held by robot
      *
-     * @return whether a robot is holding a reality anchor
+     * @return type of anchor being held by robot, null if none
      *
      * @battlecode.doc.costlymethod
      */
-    boolean checkHasAnchor();
+    Anchor getAnchor();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****

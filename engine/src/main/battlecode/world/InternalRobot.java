@@ -137,7 +137,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 break;
             case NO_RESOURCE:
                 if (amount != 0) 
-                    throw new IllegalArgumentException("No resource should have value of 0");
+                    throw new IllegalArgumentException("No resource should have value of 0 but has value of " + amount);
                 break;
         }
     }

@@ -73,7 +73,6 @@ public strictfp class GameWorld {
         for(int i = 0; i < currents.length; i++) {
             this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
         }
-
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -471,6 +470,9 @@ public strictfp class GameWorld {
      * @return the cooldown due to boosts/destabilizes at that location
      */
     public int getCooldownWithMultiplier(int cooldown, MapLocation location, Team team) {
+        if (Math.abs(cooldownMultipliers[locationToIndex(location)][team.ordinal()] - 1.0) > 0.01) {
+            System.out.println("Cooldown multiplier is: " + cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
+        }
         return (int) Math.round(cooldown*cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
     }
 
@@ -928,7 +930,7 @@ public strictfp class GameWorld {
 
 
     public Island[] getAllIslands(){
-        return (Island[]) islandIdToIsland.values().toArray();
+        return islandIdToIsland.values().toArray(new Island[islandIdToIsland.size()]);
     }
 
     

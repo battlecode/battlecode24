@@ -130,8 +130,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean checkHasAnchor() {
-        return this.robot.holdingAnchor();  
+    public Anchor getAnchor() {
+        return this.robot.getTypeAnchor();  
     }
 
     private InternalRobot getRobotByID(int id) {
