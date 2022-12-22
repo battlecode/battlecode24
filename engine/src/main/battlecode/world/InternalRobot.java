@@ -314,6 +314,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.addRobot(loc, this);
         this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
         this.location = loc;
+        System.out.println("Current is moving " + this.getID() + " to " + loc);
     }
 
 

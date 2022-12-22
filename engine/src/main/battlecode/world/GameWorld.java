@@ -818,6 +818,7 @@ public strictfp class GameWorld {
             MapLocation origLoc = robot.getLocation();
             Direction current = getCurrent(origLoc);
             MapLocation newLoc = origLoc.add(current);
+            System.out.println("Moving robot from " + origLoc + " to " + newLoc);
             robot.setLocationForCurrents(newLoc);
         }
     }
