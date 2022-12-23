@@ -626,6 +626,7 @@ export default class GameWorld {
           case schema.Action.PLACE_ANCHOR:
             setAction(false, false, true)
             let curr_island = this.mapStats.island_stats.get(target)
+            curr_island.owner = body.team
             curr_island.is_accelerated = body.accelerated_anchors > 0
             this.bodies.alter({ id: robotID, normal_anchors: 0, accelerated_anchors: 0 })
             break
