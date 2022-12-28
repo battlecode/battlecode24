@@ -140,6 +140,11 @@ public class GameConstants {
     public static final int BOOSTER_DURATION = 10;
     public static final int DESTABILIZER_DURATION = 5;
 
+    /** Constants for number of boosts that stack. */
+    public static final int MAX_BOOST_STACKS = 3;
+    public static final int MAX_DESTABILIZE_STACKS = 2;
+    public static final int MAX_ANCHOR_STACKS = 1;
+
     /** Constants for well rates. */
     public static final int WELL_STANDARD_RATE = 2;
     public static final int WELL_ACCELERATED_RATE = 4;
