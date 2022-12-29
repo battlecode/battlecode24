@@ -434,7 +434,9 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }): void {
+  setTileInfo(x: number, y: number, xrel: number, yrel: number, resource: number,
+    well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
+    island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined): void {
     let content: string = ""
     content += `X: <b>${xrel}</b>`  // + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3)
     content += ` | Y: <b>${yrel}</b>` // + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3)
@@ -442,11 +444,22 @@ export default class Controls {
     content += ' | Well: ' + `<b>${cst.RESOURCENAMES[resource]}${resource > 0 && well_stats.upgraded ? "*" : ""}</b>`
     if (resource > 0 && (well_stats.adamantium > 0 || well_stats.elixir > 0 || well_stats.mana > 0)) {
       content += ' ('
-      if (well_stats.adamantium >0) content += `Ad: ${well_stats.adamantium}, `;
-      if (well_stats.mana > 0) content += `Mn: ${well_stats.mana}, `;
-      if (well_stats.elixir > 0) content += `Ex: ${well_stats.elixir}, `;
-      content = content.substring(0, content.length - 2);
-      content += ")";
+      if (well_stats.adamantium > 0) content += `Ad: ${well_stats.adamantium}, `
+      if (well_stats.mana > 0) content += `Mn: ${well_stats.mana}, `
+      if (well_stats.elixir > 0) content += `Ex: ${well_stats.elixir}, `
+      content = content.substring(0, content.length - 2)
+      content += ")"
+    }
+
+    if (island_stats) {
+      content += ' | Island:'
+      if (island_stats.owner > 0) {
+        content += ` <b>${cst.TEAM_NAMES[island_stats.owner - 1]}</b> (${island_stats.flip_progress})`
+        if (island_stats.is_accelerated)
+          content += ' acc'
+      } else {
+        content += " <b>Free</b>"
+      }
     }
 
     this.tileInfo.innerHTML = content

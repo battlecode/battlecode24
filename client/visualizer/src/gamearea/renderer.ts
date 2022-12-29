@@ -27,7 +27,9 @@ export default class Renderer {
   constructor(
     readonly canvases: Record<CanvasType, HTMLCanvasElement>, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number,
+      well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
+      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => void
   ) {
     this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
@@ -317,7 +319,21 @@ export default class Renderer {
 
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
     ctx.globalAlpha = .5
-    let first_color = island_stat.owner == 0 ? '#00000099' : cst.TEAM_COLORS[island_stat.owner - 1]
+
+    const sigmoid = (x) => { return 1 / (1 + Math.exp(-x)) }
+    const blendColors = (colorA, colorB, amount) => {
+      const [rA, gA, bA] = colorA.match(/\w\w/g).map((c) => parseInt(c, 16))
+      const [rB, gB, bB] = colorB.match(/\w\w/g).map((c) => parseInt(c, 16))
+      const r = Math.round(rA + (rB - rA) * amount).toString(16).padStart(2, '0')
+      const g = Math.round(gA + (gB - gA) * amount).toString(16).padStart(2, '0')
+      const b = Math.round(bA + (bB - bA) * amount).toString(16).padStart(2, '0')
+      return '#' + r + g + b
+    }
+
+    let first_color = '#666666'
+    if (island_stat.owner != 0)
+      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], sigmoid(island_stat.flip_progress / 15 - 2))
+
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
 
     let x = i * scale
@@ -425,6 +441,7 @@ export default class Renderer {
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
+
     const ctx = this.ctx[CanvasType.DYNAMIC]
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
 
@@ -453,10 +470,17 @@ export default class Renderer {
     // render images with priority last to have them be on top of other units.
     const renderBot = (i: number) => {
       let img = this.imgs.robots[types[i]][teams[i]]
+      let bot_square_idx = xs[i] + ys[i] * (world.maxCorner.x - world.minCorner.x)
       let max_hp = this.metadata.types[types[i]].health
       this.drawBot(img, realXs[i], realYs[i], hps[i], Math.min(1, hps[i] / max_hp), cst.bodyTypeToSize(types[i]))
+
+      //draw sight and action radiuses
       let selected = ids[i] === this.lastSelectedID
-      this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
+      if (this.conf.seeActionRadius || selected)
+        this.drawBotRadius(realXs[i], realYs[i], this.metadata.types[types[i]].actionRadiusSquared, cst.ACTION_RADIUS_COLOR)
+      let vis_radius = world.mapStats.clouds[bot_square_idx] ? 4 : this.metadata.types[types[i]].visionRadiusSquared
+      if (this.conf.seeVisionRadius || selected)
+        this.drawBotRadius(realXs[i], realYs[i], vis_radius, cst.VISION_RADIUS_COLOR)
 
       //draw rescoures
       if (accelerated_anchors[i] > 0) {
@@ -564,20 +588,6 @@ export default class Renderer {
   }
 
   /**
-   * Draws the sight radii of the robot.
-   */
-  private drawSightRadii(x: number, y: number, type: schema.BodyType, single?: Boolean) {
-    // handle bots with no radius here, if necessary
-    if (this.conf.seeActionRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].actionRadiusSquared, cst.ACTION_RADIUS_COLOR)
-    }
-
-    if (this.conf.seeVisionRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].visionRadiusSquared, cst.VISION_RADIUS_COLOR)
-    }
-  }
-
-  /**
    * Draws an image centered at (x, y) with the given radius
    */
   /*
@@ -595,10 +605,6 @@ export default class Renderer {
     if (this.conf.doingRotate) [x, y] = [y, x]
     let realWidth = img.naturalWidth / img_size
     let realHeight = img.naturalHeight / img_size
-    const sigmoid = (x) => {
-      return 1 / (1 + Math.exp(-x))
-    }
-    //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
     let size = ratio * 0.5 + 0.5
     ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
     if (ratio < 1) {
@@ -660,7 +666,9 @@ export default class Renderer {
       const x = xrel + world.minCorner.x
       const y = yrel + world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx],
+        world.mapStats.resource_well_stats.get(idx)!,
+        world.mapStats.island_stats.get(world.mapStats.islands[idx]))
     }
 
     // Overlay is on top so we will use it for mouse events
@@ -675,7 +683,9 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx],
+        world.mapStats.resource_well_stats.get(idx)!,
+        world.mapStats.island_stats.get(world.mapStats.islands[idx]))
       this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 
