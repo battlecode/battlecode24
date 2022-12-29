@@ -856,26 +856,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(anchor);
         assertCanActLocation(loc);
         assertIsActionReady();
-        System.out.println("In assertCanTakeAnchor");
         if (getType() != RobotType.CARRIER){
-            System.out.println("not a carrier");
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot collect anchors.");
         }
         if (!isHeadquarter(loc)){
-            System.out.println("not a headquarter");
             throw new GameActionException(CANT_DO_THAT, 
                     "Can only take anchors from headquarters.");
         }
         InternalRobot hq = this.gameWorld.getRobot(loc);
-        System.out.println(hq.inventory.getNumAnchors(Anchor.STANDARD));
         if (hq.getNumAnchors(anchor) < 1) {
-            System.out.println("No anchor to take");
             throw new GameActionException(CANT_DO_THAT, 
             "Not enough anchors");
         }
         if (!this.robot.canAddAnchor()) {
-            System.out.println("Not enough capacity");
             throw new GameActionException(CANT_DO_THAT, 
             "Not enough capacity to pick up an anchor.");
         }
