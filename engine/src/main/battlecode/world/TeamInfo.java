@@ -175,8 +175,9 @@ public class TeamInfo {
 
     private void checkWin (Team team){ 
         int islandsOwned = numIslandsOccupied(team);
-        assert(islandsOwned/gameWorld.getAllIslands().length >= 0.75);
+        assert(islandsOwned/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED);
         this.gameWorld.gameStats.setWinner(team);
+        this.gameWorld.gameStats.setDominationFactor(DominationFactor.CONQUEST);
     }
 
     /**
@@ -186,7 +187,7 @@ public class TeamInfo {
     public void placeAnchor(Team team) {
         this.totalAnchorsPlaced[team.ordinal()]++;
         this.currentAnchorsPlaced[team.ordinal()]++;
-        if (this.currentAnchorsPlaced[team.ordinal()]/gameWorld.getAllIslands().length >= 0.75) {
+        if (this.currentAnchorsPlaced[team.ordinal()]/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
             checkWin(team); // Do an extra check to make sure the win is correct
         }
     }

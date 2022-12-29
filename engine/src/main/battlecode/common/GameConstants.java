@@ -74,7 +74,7 @@ public class GameConstants {
     public static final int UPGRADE_WELL_AMOUNT = 3600;
 
     /** The percentage of islands that need to be occupied for a team to win */
-    public static final double PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75;
+    public static final double WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75;
     
     /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
     public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
