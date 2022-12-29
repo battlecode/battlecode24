@@ -68,10 +68,10 @@ public class GameConstants {
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
-    public static final int UPGRADE_TO_ELIXIR = 15000;
+    public static final int UPGRADE_TO_ELIXIR = 1500;
 
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
-    public static final int UPGRADE_WELL_RATE = 10000;
+    public static final int UPGRADE_WELL_AMOUNT = 3600;
 
     /** The percentage of islands that need to be occupied for a team to win */
     public static final double PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75;
@@ -106,14 +106,6 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    // TODO: this is currently based on the percentage of total number of squares in the island
-    // rather than the number of occupied square. It is unclear which we want it to be.
-    /** The percentage of an island that needs to be owned by the team which owns the island to reset the anchor strength. */
-    public static final float PERCENT_OWNING_TEAM_ISLAND = 0.85f;
-
-    /** The percentage of an island that needs to be owned by the opposing team to reduce the anchor strength. */
-    public static final float PERCENT_OPPOSING_TEAM_ISLAND = 0.4f;
-
     /** The number of game rounds between applying movement due to currents */
     public static final int CURRENT_STRENGTH = 1;
 
@@ -122,6 +114,9 @@ public class GameConstants {
 
     /** The weight of an anchor */
     public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+
+    /** Constant for vision radius when affected by cloud */
+    public static final int CLOUD_VISION_RADIUS_SQUARED = 4;
 
     /** Constants for cooldown multipliers. */
     public static final double BOOSTER_MULTIPLIER = -.1;
@@ -146,8 +141,8 @@ public class GameConstants {
     public static final int MAX_ANCHOR_STACKS = 1;
 
     /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 2;
-    public static final int WELL_ACCELERATED_RATE = 4;
+    public static final int WELL_STANDARD_RATE = 4;
+    public static final int WELL_ACCELERATED_RATE = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -157,6 +152,5 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    //TOOD: change pls
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 }

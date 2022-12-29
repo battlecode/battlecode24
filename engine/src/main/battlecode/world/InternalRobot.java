@@ -269,7 +269,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
+        int visionRadiusSquared = getVisionRadiusSquared();
+        if (this.gameWorld.getCloud(toSense) || this.gameWorld.getCloud(this.getLocation())) {
+            visionRadiusSquared = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
+        }
+        return this.location.distanceSquaredTo(toSense) <= visionRadiusSquared;
     }
 
     /**
@@ -314,7 +318,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.addRobot(loc, this);
         this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
         this.location = loc;
-        System.out.println("Current is moving " + this.getID() + " to " + loc);
     }
 
 

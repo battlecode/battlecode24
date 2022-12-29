@@ -18,7 +18,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    HEADQUARTERS    ( 0,   0,   0,   5,   0, 1,   0,  9, 20, 10000),
+    HEADQUARTERS    ( 0,   0,   0,   10,   0, 1,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -28,7 +28,7 @@ public enum RobotType {
      * 
      * @battlecode.doc.robottype
      */
-    CARRIER         ( 50,   0,   0,   10,   0, 40,   0,  9, 20, 10000),
+    CARRIER         ( 50,   0,   0,   10,   0, 15,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -46,7 +46,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    DESTABILIZER    (  0,   0, 400,  50,  25, 20,   5, 13, 20, 10000),
+    DESTABILIZER    (  0,   0, 200,  50,  25, 40,   5, 13, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -55,7 +55,7 @@ public enum RobotType {
      * 
      * @battlecode.doc.robottype
      */
-    BOOSTER         (  0,   0, 250, 100,  25, 30,   0, 25, 20, 10000),
+    BOOSTER         (  0,   0, 150, 100,  25, 40,   0, 25, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     /**
      * Amplifiers are the key to communication for your army. They enable 

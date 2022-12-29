@@ -406,15 +406,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-
-        // TODO update based on well implementation
         Well[] allSensedWells = gameWorld.getAllWellsWithinRadiusSquared(center, actualRadiusSquared);
-        List<Well> validSensedWells = Arrays.asList(allSensedWells);
-        validSensedWells.removeIf(well -> !canSenseLocation(well.getMapLocation()) ||
-            (resourceType != null && well.getResourceType() != resourceType));
-        List<Well> validSensedWellsCopy = new ArrayList<Well>();
-        validSensedWells.forEach( (well) -> validSensedWellsCopy.add(well.copy()) );
-        return validSensedWellsCopy.toArray(new Well[validSensedWellsCopy.size()]);
+        List<Well> validSensedWells = new ArrayList<>();
+        for (Well well : allSensedWells) {
+            // Can't actually sense location
+            if (!canSenseLocation(well.getMapLocation())) {
+                continue;
+            }
+            // Resource types don't match
+            if (resourceType != null && well.getResourceType() != resourceType) {
+                continue;
+            }
+            validSensedWells.add(well.copy());
+        }
+        return validSensedWells.toArray(new Well[validSensedWells.size()]);
     }
 
     @Override

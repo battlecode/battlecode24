@@ -17,8 +17,6 @@ public class Island {
     int anchorHealth;
 
     public Island(GameWorld gw, int ID, List<MapLocation> locations) {
-        // TODO: this may not be the right place for this assertion but as we rebalance this needs to be true
-        assert(GameConstants.PERCENT_OPPOSING_TEAM_ISLAND + GameConstants.PERCENT_OWNING_TEAM_ISLAND > 1.0f);
         this.gw = gw;
         this.ID = ID;
         this.locations = new MapLocation[locations.size()];
@@ -95,16 +93,11 @@ public class Island {
             if (robot != null) {
                 Team robotTeam = robot.getTeam();
                 numOccupied[robotTeam.ordinal()] ++;
-                System.out.println("Incrementing for team " + robotTeam);
             }
         }
         int diffPctOccupied = (100*(numOccupied[teamOwning.ordinal()] - numOccupied[teamOwning.opponent().ordinal()]))/(locations.length);
-        System.out.println("Percent owned of island at location " + locations[0] + " is " + diffPctOccupied);
-        System.out.println("Old health is " + this.anchorHealth);
         this.anchorHealth = Math.min(this.anchorPlanted.totalHealth, this.anchorHealth + diffPctOccupied);
-        System.out.println("New health is " + this.anchorHealth);
         if (this.anchorHealth <= 0) {
-            System.out.println("Removing anchor");
             this.gw.getTeamInfo().removeAnchor(this.teamOwning);
             this.teamOwning = Team.NEUTRAL;
             if (this.anchorPlanted == Anchor.ACCELERATING) {
