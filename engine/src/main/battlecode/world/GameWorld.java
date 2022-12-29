@@ -102,7 +102,6 @@ public strictfp class GameWorld {
                 islandIdToLocations.put(islandId, prevLocations);
             }
         }
-        this.islandIdToIsland.put(0, null);
         for (int key : islandIdToLocations.keySet()) {
             Island newIsland = new Island(this, key, islandIdToLocations.get(key));
             this.islandIdToIsland.put(key, newIsland);            
@@ -650,12 +649,11 @@ public strictfp class GameWorld {
 
     public void processEndOfRound() {
 
-        // Process end of each robot's round
-        objectInfo.eachRobot((robot) -> {
-            // Add resources to team for each headquarter
-            robot.processEndOfRound(currentRound);
-            return true;
-        });
+        //advance turn for all island
+        for (Island island : getAllIslands()) {
+            island.advanceTurn();
+            this.matchMaker.addIslandInfo(island);
+        }
         
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){
@@ -686,6 +684,12 @@ public strictfp class GameWorld {
                 }
             }
         }
+        // Process end of each robot's round
+        objectInfo.eachRobot((robot) -> {
+            // Add resources to team for each headquarter
+            robot.processEndOfRound(currentRound);
+            return true;
+        });
 
         for (Well well : this.wells) {
             if (well == null)

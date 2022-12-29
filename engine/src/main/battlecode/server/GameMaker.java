@@ -660,10 +660,10 @@ public strictfp class GameMaker {
             wellAccelerationID.add(well.accelerationId());
         }
 
-        public void addIslandInfo(int islandID, int turnoverTurns, int ownership) {
-            islandIDs.add(islandID);
-            islandTurnoverTurns.add(turnoverTurns);
-            islandOwnership.add(ownership);
+        public void addIslandInfo(Island island) {
+            islandIDs.add(island.getID());
+            islandTurnoverTurns.add(island.getHealth());
+            islandOwnership.add(island.getTeamInt());
         }
 
         public void addTeamInfo(Team team, int adChange, int mnChange, int exChange) {

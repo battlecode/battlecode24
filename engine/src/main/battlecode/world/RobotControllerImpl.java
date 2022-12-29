@@ -358,7 +358,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
         }
 
-        return island.turnsLeftToRemoveAnchor;
+        return island.anchorHealth;
     }
 
     @Override
