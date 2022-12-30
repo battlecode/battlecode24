@@ -413,7 +413,10 @@ export default class Looper {
                 }
             }
         })
-
+        for (let team in meta.teams) {
+            let teamID = meta.teams[team].teamID
+            this.stats.setIsland(teamID,world.mapStats)
+        }
         if (this.match.winner && this.match.current.turn == this.match.lastTurn) {
             this.stats.setWinner(this.match.winner, teamNames, teamIDs)
         }

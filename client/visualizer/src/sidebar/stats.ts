@@ -79,6 +79,7 @@ export default class Stats {
 
   private ECs: HTMLDivElement;
   
+  private islandDisplays: HTMLSpanElement[];
   // Note: robot types and number of teams are currently fixed regardless of
   // match info. Keep in mind if we ever change these, or implement this less
   // statically.
@@ -331,6 +332,47 @@ export default class Stats {
     return div;
   }
 
+
+  private initIslandDisplays(teamIDs: Array<number>) {
+    const islandDisplay: HTMLSpanElement[] = [];
+    teamIDs.forEach((id: number) => {
+      const adamantiumIncome = document.createElement("span");
+      adamantiumIncome.style.color = hex[id];
+      adamantiumIncome.style.fontWeight = "bold";
+      adamantiumIncome.textContent = "0";
+      adamantiumIncome.style.padding = "10px";
+      islandDisplay[id] = adamantiumIncome
+    });
+    return islandDisplay;
+  }
+
+  private getIslandDisplaysElement(teamIDs: Array<number>): HTMLElement {
+    const table = document.createElement("table");
+    table.id = "islands-table";
+    table.style.width = "100%";
+
+    const title = document.createElement('td');
+    title.colSpan = 4;
+    const label = document.createElement('div');
+    label.className = "stats-header";
+    label.innerText = 'Islands owned by each team';
+
+    const row = document.createElement("tr");
+
+    const cellIsland = document.createElement("td");
+    teamIDs.forEach((id: number) => {
+
+      cellIsland.appendChild(this.islandDisplays[id]);
+      row.appendChild(cellIsland);
+    });
+
+    title.appendChild(label);
+    table.appendChild(title);
+    table.appendChild(row);
+
+    return table;
+  }
+  
   // private drawBuffsGraph(ctx: CanvasRenderingContext2D, upto: number) {
   //   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   //   // draw axes
@@ -671,6 +713,11 @@ export default class Stats {
     this.div.appendChild(this.getECDivElement());
 
     this.div.appendChild(document.createElement("br"));
+    
+    this.islandDisplays = this.initIslandDisplays(teamIDs);
+    const islandElement = this.getIslandDisplaysElement(teamIDs);
+    this.div.appendChild(islandElement);
+
   }
 
   tourIndexJumpFun(e) {
@@ -818,5 +865,16 @@ export default class Stats {
 
     div.appendChild(img);
     this.ECs.appendChild(div);
+  }
+
+  setIsland(teamID: number, mapStats: gameworld.MapStats) { // island
+    let ans = 0;
+    for (let entry of Array.from(mapStats.island_stats.entries())) {
+      let key = entry[0];
+      let value = entry[1];
+      ans += (value.owner == teamID?1:0)
+  }
+    this.islandDisplays[teamID].textContent =
+      String(ans); // change islandDisplays later
   }
 }
