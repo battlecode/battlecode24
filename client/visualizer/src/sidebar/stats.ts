@@ -6,6 +6,11 @@ import Runner from '../runner';
 import Chart = require('chart.js');
 import { HEADQUARTERS } from '../constants';
 
+const blue_background_chart_rgb: Chart.ChartColor = 'rgba(54, 162, 235, 0)'
+const blue_border_chart_rgb: Chart.ChartColor = 'rgb(108, 140, 188)'
+const red_background_chart_rgb: Chart.ChartColor = 'rgba(255, 99, 132, 0)' 
+const red_border_chart_rgb: Chart.ChartColor = 'rgb(131,24,27)'
+
 const hex: Object = {
   1: "var(--red)",
   2: "var(--blue)"
@@ -528,16 +533,16 @@ export default class Stats {
             label: 'Red Adamantium',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(255, 99, 132, 0)',
-            borderColor: 'rgb(131,24,27)',
+            backgroundColor: red_background_chart_rgb,
+            borderColor: red_border_chart_rgb,
             pointRadius: 0,
           },
           {
             label: 'Blue Adamantium',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0)',
-            borderColor: 'rgb(108, 140, 188)',
+            backgroundColor: blue_background_chart_rgb,
+            borderColor: blue_border_chart_rgb,
             pointRadius: 0,
           }]
       },
@@ -575,16 +580,16 @@ export default class Stats {
             label: 'Red Mana',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(255, 99, 132, 0)',
-            borderColor: 'rgb(131,24,27)',
+            backgroundColor: red_background_chart_rgb,
+            borderColor: red_border_chart_rgb,
             pointRadius: 0,
           },
           {
             label: 'Blue Mana',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0)',
-            borderColor: 'rgb(108, 140, 188)',
+            backgroundColor: blue_background_chart_rgb,
+            borderColor: blue_border_chart_rgb,
             pointRadius: 0,
           }]
       },
@@ -621,16 +626,16 @@ export default class Stats {
             label: 'Red Elixir',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(255, 99, 132, 0)',
-            borderColor: 'rgb(131,24,27)',
+            backgroundColor: red_background_chart_rgb,
+            borderColor: red_border_chart_rgb,
             pointRadius: 0,
           },
           {
             label: 'Blue Elixir',
             lineTension: 0,
             data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0)',
-            borderColor: 'rgb(108, 140, 188)',
+            backgroundColor: blue_background_chart_rgb,
+            borderColor: blue_border_chart_rgb,
             pointRadius: 0,
           }]
       },
