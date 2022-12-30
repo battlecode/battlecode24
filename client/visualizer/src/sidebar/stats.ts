@@ -784,7 +784,7 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean) { // incomes
+  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean, resources) { // incomes
     this.incomeDisplays[teamID].adamantiumIncome.textContent =
       "Ad: " + String((teamStats.adamantiumIncomeDataset[teamStats.adamantiumIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2)); // change incomeDisplays later
     this.incomeDisplays[teamID].elixirIncome.textContent =

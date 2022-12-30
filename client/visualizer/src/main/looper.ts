@@ -3,6 +3,8 @@ import * as cst from '../constants'
 import * as config from '../config'
 import * as imageloader from '../imageloader'
 
+import deepcopy = require('deepcopy')
+
 import Controls from '../main/controls'
 import Splash from '../main/splash'
 
@@ -392,7 +394,31 @@ export default class Looper {
             // this.stats.setBid(teamID, teamStats.bid);
 
             // Force an update if the game is paused for immediate feedback
-            this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0)
+            var resources = {} // team id -> resource type -> {with_robots: #, with_HQ[#, # ,#]}
+            var initial_resources = {"with_robots":0, "with_HQ":[]}
+            for (var i = 0; i < 3; i++){
+                resources[i] = {"Ad": deepcopy(initial_resources ), "El": deepcopy(initial_resources ), "Mn": deepcopy(initial_resources)}
+            }
+
+            for (var i = 0; i < world.bodies.length; i++){
+                var  body = world.bodies.lookup(world.bodies.arrays['id'][i]);
+                var team_id = body["team"]
+                var ad = body["adamantium"]
+                var el =  body["elixir"]
+                var mn = body["mana"]
+                if (body['type'] == 1){
+                    resources[team_id]["with_HQ"]["Ad"].push(ad);
+                    resources[team_id]["with_HQ"]["Mn"].push(mn);
+                    resources[team_id]["with_HQ"]["El"].push(el);
+                } else {
+                    resources[team_id]["with_robots"]["Ad"] += ad;
+                    resources[team_id]["with_robots"]["Mn"] += mn;
+                    resources[team_id]["with_robots"]["El"] += el;
+                }
+              }
+
+
+            this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0, resources)
         }
 
         for (var a = 0; a < teamIDs.length; a++) {
