@@ -154,13 +154,14 @@ export default class ScaffoldCommunicator {
            onErr: (err: Error) => void, onExitNoError: () => void,
            onStdout: (data: string) => void, onStderr: (data: string) => void) {
     const options = [
-      `runFromClient`,
+      `run`,
       `-x`,
       `unpackClient`,
+      `-PwaitForClient=true`,
       `-PteamA=${teamA}`,
       `-PteamB=${teamB}`,
       `-Pmaps=${maps.join(',')}`,
-      `-PprofilerEnabled=${enableProfiler}`,
+      `-PenableProfiler=${enableProfiler}`,
     ];
     const proc = child_process.spawn(
       this.wrapperPath,
