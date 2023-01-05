@@ -937,74 +937,74 @@ export default class GameWorld {
     for (let i = 0; i < idsArray.length; i++)
       this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }])
   }
-
+  
   /**
     * Parse logs for a round.
     */
-  private parseLogs(round: number, logs: string) {
-    // TODO regex this properly
-    // Regex
-    let lines = logs.split(/\r?\n/)
-    let header = /^\[(A|B):(ENLIGHTENMENT_CENTER|POLITICIAN|SLANDERER|MUCKRAKER)#(\d+)@(\d+)\] (.*)/
+  // private parseLogs(round: number, logs: string) {
+  //   // TODO regex this properly
+  //   // Regex
+  //   let lines = logs.split(/\r?\n/)
+  //   let header = /^\[(A|B):(ENLIGHTENMENT_CENTER|POLITICIAN|SLANDERER|MUCKRAKER)#(\d+)@(\d+)\] (.*)/
 
-    let roundLogs = new Array<Log>()
+  //   let roundLogs = new Array<Log>()
 
-    // Parse each line
-    let index: number = 0
-    while (index < lines.length) {
-      let line = lines[index]
-      let matches = line.match(header)
+  //   // Parse each line
+  //   let index: number = 0
+  //   while (index < lines.length) {
+  //     let line = lines[index]
+  //     let matches = line.match(header)
 
-      // Ignore empty string
-      if (line === "") {
-        index += 1
-        continue
-      }
+  //     // Ignore empty string
+  //     if (line === "") {
+  //       index += 1
+  //       continue
+  //     }
 
-      // The entire string and its 5 parenthesized substrings must be matched!
-      if (matches === null || (matches && matches.length != 6)) {
-        // throw new Error(`Wrong log format: ${line}`);
-        console.log(`Wrong log format: ${line}`)
-        console.log('Omitting logs')
-        return
-      }
+  //     // The entire string and its 5 parenthesized substrings must be matched!
+  //     if (matches === null || (matches && matches.length != 6)) {
+  //       // throw new Error(`Wrong log format: ${line}`);
+  //       console.log(`Wrong log format: ${line}`)
+  //       console.log('Omitting logs')
+  //       return
+  //     }
 
-      let shortenRobot = new Map()
-      shortenRobot.set("ENLIGHTENMENT_CENTER", "EC")
-      shortenRobot.set("POLITICIAN", "P")
-      shortenRobot.set("SLANDERER", "SL")
-      shortenRobot.set("MUCKRAKER", "MCKR")
+  //     let shortenRobot = new Map()
+  //     shortenRobot.set("ENLIGHTENMENT_CENTER", "EC")
+  //     shortenRobot.set("POLITICIAN", "P")
+  //     shortenRobot.set("SLANDERER", "SL")
+  //     shortenRobot.set("MUCKRAKER", "MCKR")
 
-      // Get the matches
-      let team = matches[1]
-      let robotType = matches[2]
-      let id = parseInt(matches[3])
-      let logRound = parseInt(matches[4])
-      let text = new Array<string>()
-      let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>"
-      let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> "
-      text.push(mText + mText2 + matches[5])
-      index += 1
+  //     // Get the matches
+  //     let team = matches[1]
+  //     let robotType = matches[2]
+  //     let id = parseInt(matches[3])
+  //     let logRound = parseInt(matches[4])
+  //     let text = new Array<string>()
+  //     let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>"
+  //     let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> "
+  //     text.push(mText + mText2 + matches[5])
+  //     index += 1
 
-      // If there is additional non-header text in the following lines, add it
-      while (index < lines.length && !lines[index].match(header)) {
-        text.push(lines[index])
-        index += 1
-      }
+  //     // If there is additional non-header text in the following lines, add it
+  //     while (index < lines.length && !lines[index].match(header)) {
+  //       text.push(lines[index])
+  //       index += 1
+  //     }
 
-      if (logRound != round) {
-        console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`)
-      }
+  //     if (logRound != round) {
+  //       console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`)
+  //     }
 
-      // Push the parsed log
-      roundLogs.push({
-        team: team,
-        robotType: robotType,
-        id: id,
-        round: logRound,
-        text: text.join('\n')
-      })
-    }
-    this.logs.push(roundLogs)
-  }
+  //     // Push the parsed log
+  //     roundLogs.push({
+  //       team: team,
+  //       robotType: robotType,
+  //       id: id,
+  //       round: logRound,
+  //       text: text.join('\n')
+  //     })
+  //   }
+  //   this.logs.push(roundLogs)
+  // }
 }
