@@ -85,9 +85,9 @@ export type TeamStats = {
 
   //is this efficient? probably fine
   // x: turn, y: value
-  adamantiumIncomeDataset: { x: number, y: number }[];
-  manaIncomeDataset: { x: number, y: number }[];
-  elixirIncomeDataset: { x: number, y: number }[];
+  adamantiumIncomeDataset: { x: number, y: number }[]
+  manaIncomeDataset: { x: number, y: number }[]
+  elixirIncomeDataset: { x: number, y: number }[]
   adamantiumMinedHist: number[],
   manaMinedHist: number[],
   elixirMinedHist: number[],
@@ -136,11 +136,11 @@ export default class GameWorld {
    * Everything that isn't an indicator string.
    */
   bodies: StructOfArrays<BodiesSchema>
-  
+
   /**
    * Stores previous locations of alive robots
    */
-  pathHistory: Map<number, { x: number, y: number }[]>;
+  pathHistory: Map<number, { x: number, y: number }[]>
 
   /*
    * Stats for each team
@@ -252,8 +252,8 @@ export default class GameWorld {
       mana: new Int32Array(0),
       hp: new Int32Array(0),
     }, 'id')
-    
-    this.pathHistory = new Map();
+
+    this.pathHistory = new Map()
 
     // Instantiate teamStats
     this.teamStats = new Map<number, TeamStats>()
@@ -404,7 +404,7 @@ export default class GameWorld {
         let tile_y = (tile_loc - tile_x) / width
         for (let x = tile_x - acc_radius; x <= tile_x + acc_radius; x += 1) {
           for (let y = tile_y - acc_radius; y <= tile_y + acc_radius; y += 1) {
-            if (x >= 0 && x < width && y >= 0 && y < height && 
+            if (x >= 0 && x < width && y >= 0 && y < height &&
               ((tile_x - x) * (tile_x - x) + (tile_y - y) * (tile_y - y) <= acc_radius * acc_radius))
               island_stat.accelerated_tiles.add(x + y * width)
           }
@@ -489,31 +489,31 @@ export default class GameWorld {
       this.teamStats.set(teamID, statObj)
     }
 
-    // Location changes on bodies
-    const movedLocs = delta.movedLocs(this._vecTableSlot1)
-    if (movedLocs) {
-      const movedIds = delta.movedIDsArray();
-      const xsArray = movedLocs.xsArray();
-      const ysArray = movedLocs.ysArray();
-      this.bodies.alterBulk({
-        id: movedIds,
-        x: xsArray,
-        y: ysArray,
-      });
-
-      // Update path history
-      for (let j = 0; j < movedIds.length; j++) {
-        const elem = this.pathHistory.get(movedIds[j]);
-        elem.unshift({ x: xsArray[j], y: ysArray[j] });
-        if (elem.length > 20)
-          elem.pop();
-      }
-    }
-
     // Spawned bodies
     const bodies = delta.spawnedBodies(this._bodiesSlot)
     if (bodies) {
       this.insertBodies(bodies)
+    }
+
+    // Location changes on bodies
+    const movedLocs = delta.movedLocs(this._vecTableSlot1)
+    if (movedLocs) {
+      const movedIds = delta.movedIDsArray()
+      const xsArray = movedLocs.xsArray()
+      const ysArray = movedLocs.ysArray()
+      this.bodies.alterBulk({
+        id: movedIds,
+        x: xsArray,
+        y: ysArray,
+      })
+
+      // Update path history
+      for (let j = 0; j < movedIds.length; j++) {
+        const elem = this.pathHistory.get(movedIds[j])
+        elem.unshift({ x: xsArray[j], y: ysArray[j] })
+        if (elem.length > 20)
+          elem.pop()
+      }
     }
 
     this.mapStats.effects.forEach(s => s.turns_remaining--)
@@ -732,7 +732,7 @@ export default class GameWorld {
 
 
     //mining history 
-    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
+    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0
     for (let team in this.meta.teams) {
       let teamID = this.meta.teams[team].teamID
       let statsObj = this.teamStats.get(teamID) as TeamStats
@@ -740,23 +740,23 @@ export default class GameWorld {
       statsObj.adamantiumMinedHist.push(statsObj.adamantiumMined)
       if (statsObj.adamantiumMinedHist.length > 100) statsObj.adamantiumMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })        
+        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })
 
       statsObj.manaMinedHist.push(statsObj.manaMined)
       if (statsObj.manaMinedHist.length > 100) statsObj.manaMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })        
+        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })
 
       statsObj.elixirMinedHist.push(statsObj.elixirMined)
       if (statsObj.elixirMinedHist.length > 100) statsObj.elixirMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })        
+        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })
     }
 
     // Died bodies
     if (delta.diedIDsLength() > 0) {
       // Update team stats
-      const idsArray = delta.diedIDsArray();
+      const idsArray = delta.diedIDsArray()
       var indices = this.bodies.lookupIndices(idsArray)
       for (let i = 0; i < delta.diedIDsLength(); i++) {
         let index = indices[i]
@@ -771,11 +771,11 @@ export default class GameWorld {
 
       // Update bodies soa
       this.insertDiedBodies(delta)
-      this.bodies.deleteBulk(idsArray);
-      
+      this.bodies.deleteBulk(idsArray)
+
       // Remove path histories
       for (let i = 0; i < idsArray.length; i++)
-        this.pathHistory.delete(idsArray[i]);
+        this.pathHistory.delete(idsArray[i])
     }
 
     // Insert indicator dots and lines
@@ -887,9 +887,9 @@ export default class GameWorld {
     // let this slide for now.
 
     // Insert bodies
-    const idsArray = bodies.robotIDsArray();
-    const xsArray = locs.xsArray();
-    const ysArray = locs.ysArray();
+    const idsArray = bodies.robotIDsArray()
+    const xsArray = locs.xsArray()
+    const ysArray = locs.ysArray()
     this.bodies.insertBulk({
       id: idsArray,
       team: teams,
@@ -908,10 +908,10 @@ export default class GameWorld {
       mana: new Int32Array(bodies.robotIDsLength()),
       anchor: new Int8Array(bodies.robotIDsLength()),
     })
-    
+
     // Update initial path history
     for (let i = 0; i < idsArray.length; i++)
-      this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }]);
+      this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }])
   }
 
   /**

@@ -9,149 +9,78 @@ sourceCompatibility = 1.8
 // Fun fact: this line of code single-handedly fixed an error I spent two hours debugging.
 evaluationDependsOnChildren()
 
-if (!project.hasProperty("teamA")) {
-    ext.teamA = "examplefuncsplayer"
-}
-if (!project.hasProperty("teamB")) {
-    ext.teamB = "examplefuncsplayer"
-}
-if (!project.hasProperty("maps")) {
-    ext.maps = "maptest"
-}
+configurations {
+    scala
 
-if (project.hasProperty("release_version")) {
-    if (!project.property("release_version").startsWith("2022")) {
-        throw new StopExecutionException("release version must start with 2022!")
+    engine {
+      transitive false
+    }
+    bots {
+      transitive false
     }
 }
 
-configurations {
-    scala
-}
-
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
     scala group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
     scala group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
     scala group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
+
+    engine project(":engine")
+    bots project(":example-bots")
 }
 
-def serverJar = new File(project(":engine").libsDir, "engine.jar")
+test {
+    debugOptions {
+        enabled = true
+        host = 'localhost'
+        port = 5005
+        server = true
+        suspend = true
+    }
+}
+
+def serverJar = configurations.engine.singleFile
 
 task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
-    main = 'battlecode.world.maps.' + project.property('buildMap')
+    mainClass = 'battlecode.world.maps.' + project.property('buildMap')
     classpath = files(serverJar)
 }
 
 task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
-  main = 'battlecode.world.BuildMaps'
+  mainClass = 'battlecode.world.BuildMaps'
   classpath = files(serverJar)
 }
 
+def defaultClassLocation = project(':example-bots').sourceSets.main.output.classesDirs.getAsPath()
+def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
-  main = 'battlecode.server.Main'
+  mainClass = 'battlecode.server.Main'
   classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
   args = ['-c=-']
   jvmArgs = [
+    '-Dbc.server.wait-for-client=' + (project.findProperty('waitForClient') ?: 'false'),
     '-Dbc.server.mode=headless',
     '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+    '-Dbc.server.robot-player-to-system-out=' + (project.findProperty('outputVerbose') ?: 'true'),
+    '-Dbc.server.debug=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.debug-methods=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.enable-profiler=' + (project.findProperty('enableProfiler') ?: 'false'),
+    '-Dbc.engine.show-indicators=' + (project.findProperty('showIndicators') ?: 'true'),
+    '-Dbc.game.team-a=' + project.property('teamA'),
+    '-Dbc.game.team-b=' + project.property('teamB'),
+    '-Dbc.game.team-a.url=' + (project.findProperty('classLocationA') ?: defaultClassLocation),
+    '-Dbc.game.team-b.url=' + (project.findProperty('classLocationB') ?: defaultClassLocation),
+    '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
+    '-Dbc.game.team-b.package=' + (project.findProperty('packageNameB') ?: project.property('teamB')),
+    '-Dbc.game.maps=' + project.property('maps'),
+    '-Dbc.server.save-file=' + (project.findProperty('replay') ?: defaultReplay),
   ]
 }
-
-task debug(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
-  main = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
-  args = ['-c=-']
-  jvmArgs = [
-    '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
-    '-Dbc.server.mode=headless',
-    '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
-  ]
-}
-
-task headlessX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
-  main = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
-  args = ['-c=-']
-  jvmArgs = [
-    '-Dbc.server.mode=headless',
-    '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
-  ]
-}
-
-task debugX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
-  main = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
-  args = ['-c=-']
-  jvmArgs = [
-    '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
-    '-Dbc.server.mode=headless',
-    '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
-  ]
-}
-
-
-task runFromClient(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
-    main = 'battlecode.server.Main'
-    classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
-    args = ['-c=-']
-    jvmArgs = [
-            '-Dbc.server.wait-for-client=true',
-            '-Dbc.server.mode=headless',
-            '-Dbc.server.map-path=maps',
-            '-Dbc.server.debug=false',
-            '-Dbc.server.robot-player-to-system-out=false',
-            '-Dbc.engine.debug-methods=true',
-            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-            '-Dbc.game.team-a='+project.property('teamA'),
-            '-Dbc.game.team-b='+project.property('teamB'),
-            '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-            '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDirs.getAsPath(),
-            '-Dbc.game.maps='+project.property('maps'),
-            '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
-    ]
-}
-
-
 
 
 task run(dependsOn: ['headless']) {}
@@ -182,10 +111,10 @@ task release_main(type: Jar, dependsOn: [':engine:build']) {
     Files.write(f_version.toPath(), [project.property("release_version")]);
   }
 
-  baseName = "battlecode";
+  archiveBaseName = "battlecode";
   if (project.hasProperty("release_version"))
     version = project.property("release_version");
-  destinationDir = project.projectDir;
+  destinationDirectory = project.projectDir;
 
   FileCollection src = files(f_version);
   src += zipTree(serverJar);
@@ -203,38 +132,12 @@ task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
       throw new InvalidUserDataException("Must provide property \"release_version\"")
   }
 
-  baseName = "battlecode-javadoc"
+  archiveBaseName = "battlecode-javadoc"
   if (project.hasProperty("release_version"))
     version = project.property("release_version");
-  destinationDir = project.projectDir;
+  destinationDirectory = project.projectDir;
 
   from new File(project(":engine").docsDir, "javadoc")
-}
-
-task release_docs_zip(type: Zip, dependsOn: [':engine:javadoc']) {
-  doFirst {
-    if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
-      throw new InvalidUserDataException("Must provide property \"release_version\"")
-  }
-
-  baseName = "battlecode-javadoc"
-  if (project.hasProperty("release_version"))
-    version = project.property("release_version");
-  destinationDir = project.projectDir;
-
-  from new File(project(":engine").docsDir, "javadoc")
-}
-
-task release_sources(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
-  from project(":engine").sourceSets.main.allSource
-
-  baseName = "battlecode-source"
-  if (project.hasProperty("release_version"))
-    version = project.property("release_version");
-  destinationDir = project.projectDir;
-
-  // from new File(project(":engine").sourceDir, "source")
 }
 
 task prodClient {
@@ -271,25 +174,11 @@ task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
 }
 
 
-
 publishing {
-  repositories {
-    maven {
-      url = "https://us-east1-maven.pkg.dev/battlecode18/battlecode22-engine"
-      credentials {
-        username = "_json_key_base64"
-        password = System.getenv("ARTIFACT_REGISTRY_MAVEN_SECRET")
-      }
-      authentication {
-        basic(BasicAuthentication)
-      }
-    }
-  }
-
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22'
+      artifactId 'battlecode23'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
@@ -297,22 +186,19 @@ publishing {
       artifact release_docs {
         classifier 'javadoc'
       }
-      artifact release_sources {
-        classifier 'sources'
-      }
     }
 
     clientWin(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win'
+      artifactId 'battlecode23-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin
     }
-    
+
     clientMac(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-mac'
+      artifactId 'battlecode23-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientMac
@@ -320,7 +206,7 @@ publishing {
 
     clientLinux(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux'
+      artifactId 'battlecode23-client-linux'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux
@@ -328,7 +214,7 @@ publishing {
 
     clientWin32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win-32'
+      artifactId 'battlecode23-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin32
@@ -336,7 +222,7 @@ publishing {
 
     clientLinux32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux-32'
+      artifactId 'battlecode23-client-linux-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux32

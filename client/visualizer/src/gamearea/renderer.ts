@@ -103,6 +103,10 @@ export default class Renderer {
       this.ctx[key].restore()
   }
 
+  redrawStatic(){
+    this.staticRendered = false
+  }
+
   /**
    * Release resources.
    */
@@ -390,6 +394,7 @@ export default class Renderer {
   private renderPath(world: GameWorld) {
     const path = world.pathHistory.get(this.lastSelectedID);
     if (!path || path.length < 2) return
+    if(world.bodies.lookup(this.lastSelectedID).type == cst.HEADQUARTERS) return
     const ctx = this.ctx[CanvasType.DYNAMIC]
     const height = world.maxCorner.y - world.minCorner.y
     

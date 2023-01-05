@@ -8,7 +8,6 @@ If you're a competitor and not interested in *developing* the client, you should
  * `npm run watch`
  * `npm run electron`
  * `npm run prod-electron`
- * `npm run prod-electron-no-sign`
  * `npm run prod-test`: Test just for local platform.
  * `npm run clean`
 
