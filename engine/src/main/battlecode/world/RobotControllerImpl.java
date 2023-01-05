@@ -153,10 +153,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+         if (!this.gameWorld.getGameMap().onTheMap(loc))
+            return false;
         if (!this.robot.canSenseLocation(loc))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within vision range");
-        return this.gameWorld.getGameMap().onTheMap(loc);
+        return true;
     }
 
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
