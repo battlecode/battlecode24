@@ -86,9 +86,9 @@ export default class Renderer {
       this.renderResources(world)
       //if (selectedTrail)
       //  this.renderTrail(world, selectedTrail)
+      this.renderBodies(world, curTime, nextStep, lerpAmount)
       if (this.lastSelectedID)
         this.renderPath(world);
-      this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -403,6 +403,7 @@ export default class Renderer {
     ctx.lineWidth = startLineWidth
 
     ctx.beginPath()
+    this.drawCircle(path[0].x, height - path[0].y - 1, ctx.lineWidth / 10, "white", "white")
     ctx.moveTo(path[0].x + .5, (height - path[0].y - .5))
     for (let i = 1; i < path.length; i++) {
       ctx.globalAlpha = 1 / Math.sqrt(i);
@@ -463,10 +464,13 @@ export default class Renderer {
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
     const adamantiums = bodies.arrays.adamantium
-    const normal_anchors = bodies.arrays.normal_anchors
-    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const manas = bodies.arrays.mana
     const elixirs = bodies.arrays.elixir
+    const prevAdamantiums = bodies.arrays.previous_adamantium
+    const prevManas = bodies.arrays.previous_mana
+    const prevElixirs = bodies.arrays.previous_elixir
+    const normal_anchors = bodies.arrays.normal_anchors
+    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
@@ -512,6 +516,9 @@ export default class Renderer {
         this.drawBotRadius(realXs[i], realYs[i], vis_radius, cst.VISION_RADIUS_COLOR)
 
       //draw rescoures
+      const adamantiumColor = "#838D63"
+      const manaColor = "#D79DA2"
+      const elixirColor = "#FBCC3F"
       if (accelerated_anchors[i] > 0) {
         let anchorColor = "#6C6C6C"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
@@ -519,9 +526,6 @@ export default class Renderer {
         let anchorColor = "#EEAC09"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
       } else {
-        let adamantiumColor = "#838D63"
-        let manaColor = "#D79DA2"
-        let elixirColor = "#FBCC3F"
         if (adamantiums[i])
           this.drawCircle(realXs[i], realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
         if (manas[i])
@@ -530,36 +534,55 @@ export default class Renderer {
           this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
       }
 
-
       // draw effect
-      if (actions[i] == schema.Action.THROW_ATTACK) {
+      if (actions[i] == schema.Action.THROW_ATTACK || actions[i] == schema.Action.LAUNCH_ATTACK) {
         // Direction
-        const target = targets[i]
         let yshift = (teams[i] - 1.5) * .15 + 0.5
         let xshift = (teams[i] - 1.5) * .15 + 0.5
         ctx.save()
         ctx.beginPath()
-        ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        const startX = realXs[i] + xshift
+        const startY = realYs[i] + yshift
+        const endX = targetxs[i] + xshift
+        const endY = this.flip(targetys[i], minY, maxY) + yshift
+        
+        // Line
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
         ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
         ctx.lineWidth = 0.05
         ctx.stroke()
+        
+        // Arrow
+        const midX = (startX + endX) * 0.5
+        const midY = (startY + endY) * 0.5
+        let dirVec = { x: endX - startX, y: endY - startY }
+        const dirVecMag = Math.sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y)
+        dirVec = { x: dirVec.x / dirVecMag, y: dirVec.y / dirVecMag }
+        const rightVec = { x: dirVec.y, y: -dirVec.x }
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x - rightVec.x) * 0.1, midY + (-dirVec.y - rightVec.y) * 0.1)
+        ctx.stroke()
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x + rightVec.x) * 0.1, midY + (-dirVec.y + rightVec.y) * 0.1)
+        ctx.stroke()
+
+        // Draw resources if thrower
+        if (actions[i] == schema.Action.THROW_ATTACK) {
+          const dv = 0.1; // Scale for distance between dots
+          const dr = 0.0; // Scale for distance from dots to line
+          const rad = 0.001;
+          if (prevAdamantiums[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr, midY - 0.5 - rightVec.y * dr, rad, adamantiumColor, "#00000088")
+          if (prevManas[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr - dirVec.x * dv, midY - 0.5 - rightVec.y * dr - dirVec.y * dv, rad, manaColor, "#00000088")
+          if (prevElixirs[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr + dirVec.x * dv, midY - 0.5 - rightVec.y * dr + dirVec.y * dv, rad, elixirColor, "#00000088")
+        }
+
         ctx.restore()
       }
-
-      // if (actions[i] == schema.Action.REPAIR) {
-      //   let yshift = 0.5
-      //   let xshift = 0.5
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-      //   this.ctx.strokeStyle = '#54FF79'
-      //   this.ctx.lineWidth = 0.075
-      //   this.ctx.stroke()
-      //   this.ctx.restore()
-      // };
-
+      
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);

@@ -27,6 +27,9 @@ export type BodiesSchema = {
   targety: Int32Array,
   // parent: Int32Array,
 
+  previous_adamantium: Int32Array,
+  previous_elixir: Int32Array,
+  previous_mana: Int32Array,
   adamantium: Int32Array,
   elixir: Int32Array,
   mana: Int32Array,
@@ -247,6 +250,9 @@ export default class GameWorld {
       targety: new Int32Array(0),
       normal_anchors: new Int16Array(0),
       accelerated_anchors: new Int16Array(0),
+      previous_adamantium: new Int32Array(0),
+      previous_elixir: new Int32Array(0),
+      previous_mana: new Int32Array(0),
       adamantium: new Int32Array(0),
       elixir: new Int32Array(0),
       mana: new Int32Array(0),
@@ -561,7 +567,7 @@ export default class GameWorld {
       for (let i = 0; i < delta.actionsLength(); i++) {
         const action = delta.actions(i)
         const robotID = delta.actionIDs(i)
-        const target = delta.actionTargets(i)
+        let target = delta.actionTargets(i)
         const body = robotID != -1 ? this.bodies.lookup(robotID) : null
         const teamStatsObj = body != null ? this.teamStats.get(body.team) : null
         const width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
@@ -588,12 +594,29 @@ export default class GameWorld {
 
         switch (action) {
           case schema.Action.THROW_ATTACK:
-            this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            if (target != -1) //missed attack
+            this.bodies.alter({
+              id: robotID,
+              previous_adamantium: body.adamantium,
+              previous_elixir: body.elixir,
+              previous_mana: body.mana,
+              adamantium: 0,
+              elixir: 0,
+              mana: 0
+            })
+            if (target >= 0) // Hit attack: target is bot
               setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
             break
           case schema.Action.LAUNCH_ATTACK:
-            setAction(false, true, false)
+            if (target >= 0) // Hit attack: target is bot
+              setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
             break
           case schema.Action.PICK_UP_RESOURCE:
             setAction(false, false, true)
@@ -737,18 +760,19 @@ export default class GameWorld {
       let teamID = this.meta.teams[team].teamID
       let statsObj = this.teamStats.get(teamID) as TeamStats
 
+      const averageWindow = 100;
       statsObj.adamantiumMinedHist.push(statsObj.adamantiumMined)
-      if (statsObj.adamantiumMinedHist.length > 100) statsObj.adamantiumMinedHist.shift()
+      if (statsObj.adamantiumMinedHist.length > averageWindow) statsObj.adamantiumMinedHist.shift()
       if (this.turn % 10 == 0)
         statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })
 
       statsObj.manaMinedHist.push(statsObj.manaMined)
-      if (statsObj.manaMinedHist.length > 100) statsObj.manaMinedHist.shift()
+      if (statsObj.manaMinedHist.length > averageWindow) statsObj.manaMinedHist.shift()
       if (this.turn % 10 == 0)
         statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })
 
       statsObj.elixirMinedHist.push(statsObj.elixirMined)
-      if (statsObj.elixirMinedHist.length > 100) statsObj.elixirMinedHist.shift()
+      if (statsObj.elixirMinedHist.length > averageWindow) statsObj.elixirMinedHist.shift()
       if (this.turn % 10 == 0)
         statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })
     }
