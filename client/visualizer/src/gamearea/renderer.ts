@@ -84,9 +84,8 @@ export default class Renderer {
       this.clearCanvas(CanvasType.DYNAMIC)
       this.renderIslands(world)
       this.renderResources(world)
-      if (selectedTrail) {
-        this.renderTrail(world, selectedTrail)
-      }
+      //if (selectedTrail)
+      //  this.renderTrail(world, selectedTrail)
       if (this.lastSelectedID)
         this.renderPath(world);
       this.renderBodies(world, curTime, nextStep, lerpAmount)
