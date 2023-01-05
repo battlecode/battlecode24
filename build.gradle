@@ -33,6 +33,16 @@ dependencies {
     bots project(":example-bots")
 }
 
+test {
+    debugOptions {
+        enabled = true
+        host = 'localhost'
+        port = 5005
+        server = true
+        suspend = true
+    }
+}
+
 def serverJar = configurations.engine.singleFile
 
 task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
@@ -45,42 +55,30 @@ task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
   classpath = files(serverJar)
 }
 
+def defaultClassLocation = project(':example-bots').sourceSets.main.output.classesDirs.getAsPath()
+def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   mainClass = 'battlecode.server.Main'
   classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
   args = ['-c=-']
   jvmArgs = [
+    '-Dbc.server.wait-for-client=' + (project.findProperty('waitForClient') ?: 'false'),
     '-Dbc.server.mode=headless',
     '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
-  ]
-}
-
-task debug(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
-  mainClass = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
-  args = ['-c=-']
-  jvmArgs = [
-    '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
-    '-Dbc.server.mode=headless',
-    '-Dbc.server.map-path=maps',
-    '-Dbc.server.debug=true',
-    '-Dbc.engine.debug-methods=true',
-    '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-    '-Dbc.game.team-a='+project.property('teamA'),
-    '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDirs.getAsPath(),
-    '-Dbc.game.maps='+project.property('maps'),
-    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+    '-Dbc.server.robot-player-to-system-out=' + (project.findProperty('outputVerbose') ?: 'true'),
+    '-Dbc.server.debug=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.debug-methods=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.enable-profiler=' + (project.findProperty('enableProfiler') ?: 'false'),
+    '-Dbc.engine.show-indicators=' + (project.findProperty('showIndicators') ?: 'true'),
+    '-Dbc.game.team-a=' + project.property('teamA'),
+    '-Dbc.game.team-b=' + project.property('teamB'),
+    '-Dbc.game.team-a.url=' + (project.findProperty('classLocationA') ?: defaultClassLocation),
+    '-Dbc.game.team-b.url=' + (project.findProperty('classLocationB') ?: defaultClassLocation),
+    '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
+    '-Dbc.game.team-b.package=' + (project.findProperty('packageNameB') ?: project.property('teamB')),
+    '-Dbc.game.maps=' + project.property('maps'),
+    '-Dbc.server.save-file=' + (project.findProperty('replay') ?: defaultReplay),
   ]
 }
 
