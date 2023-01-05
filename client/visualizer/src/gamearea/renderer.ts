@@ -87,6 +87,8 @@ export default class Renderer {
       if (selectedTrail) {
         this.renderTrail(world, selectedTrail)
       }
+      if (this.lastSelectedID)
+        this.renderPath(world);
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderEffects(world)
       this.renderHoverBox(world)
@@ -386,6 +388,29 @@ export default class Renderer {
     ctx.fill()
   }
 
+  private renderPath(world: GameWorld) {
+    const path = world.pathHistory.get(this.lastSelectedID);
+    if (!path || path.length < 2) return
+    const ctx = this.ctx[CanvasType.DYNAMIC]
+    const height = world.maxCorner.y - world.minCorner.y
+    
+    const startLineWidth = 0.15
+    ctx.strokeStyle = "white"
+    ctx.lineWidth = startLineWidth
+
+    ctx.beginPath()
+    ctx.moveTo(path[0].x + .5, (height - path[0].y - .5))
+    for (let i = 1; i < path.length; i++) {
+      ctx.globalAlpha = 1 / Math.sqrt(i);
+      ctx.lineWidth = startLineWidth / Math.sqrt(i * 0.5)
+      ctx.lineTo(path[i].x + .5, (height - path[i].y - .5))
+      ctx.stroke()
+      this.drawCircle(path[i].x, height - path[i].y - 1, ctx.lineWidth / 10, "white", "white")
+      ctx.moveTo(path[i].x + .5, (height - path[i].y - .5))
+    }
+    ctx.globalAlpha = 1;
+  }
+
   private renderTrail(world: GameWorld, selectedTrail: { x: number, y: number }[]) {
     if (selectedTrail.length < 2) return
     const ctx = this.ctx[CanvasType.DYNAMIC]
@@ -578,6 +603,7 @@ export default class Renderer {
   private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
     const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
+    ctx.save();
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
     ctx.strokeStyle = borderColor
@@ -585,6 +611,7 @@ export default class Renderer {
     ctx.stroke()
     ctx.fillStyle = color
     ctx.fill()
+    ctx.restore();
   }
 
   /**
