@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",
-    "@types/electron": "^1.6.10",
     "@types/node": "^12.12.14",
     "@types/victor": "^1.1.0",
     "awesome-typescript-loader": "^5.2.1",
