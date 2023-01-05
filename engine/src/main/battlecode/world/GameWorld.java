@@ -720,57 +720,6 @@ public strictfp class GameWorld {
             running = false;
     }
 
-    // private boolean attemptApplyCurrent(InternalRobot robot, HashMap<InternalRobot, Boolean> moved){
-    //     //If we already attempted to move the robot, it cannot be moved again
-    //     if(moved.get(robot)) return false;
-
-    //     moved.put(robot, true);
-    //     MapLocation loc = robot.getLocation();
-    //     Direction current = getCurrent(loc);
-    //     if (current == Direction.CENTER) {
-    //         return false;
-    //     }
-    //     MapLocation moveTo = loc.add(current);
-
-    //     if(!gameMap.onTheMap(moveTo) || !isPassable(moveTo)) return false;
-    //     InternalRobot inMoveTo = getRobot(moveTo);
-    //     if(inMoveTo == null) {
-    //         robot.setLocation(moveTo);
-    //         return true;
-    //     }
-    //     if(moved.containsKey(inMoveTo) && !moved.get(inMoveTo)) {
-    //         // Set the location earlier so loops work
-    //         robot.setLocation(moveTo);
-    //         if(attemptApplyCurrent(inMoveTo, moved)) {
-    //             return true;
-    //         }
-    //         robot.setLocation(loc);
-    //         return false;
-    //     }
-    //     return false;
-    // }
-
-    // private void applyCurrents() {
-    //     //Map of all robots that are on a space with a current
-    //     //The value is true if an attempt has been made to move the robot
-    //     HashMap<InternalRobot, Boolean> moved = new HashMap<>();
-    //     for(int i = 0; i < robots.length; i++){
-    //         for(int j = 0; j < robots[i].length; j++) {
-    //             InternalRobot robot = robots[i][j];
-    //             if (robot == null)
-    //                 continue;
-    //             MapLocation loc = robot.getLocation();
-    //             if (getCurrent(loc) != Direction.CENTER && robot.getType() != RobotType.HEADQUARTERS) {
-    //                 moved.put(robot, false);
-    //             }
-    //         }
-    //     }
-
-    //     for(InternalRobot robot : moved.keySet()){
-    //         attemptApplyCurrent(robot, moved);
-    //     }
-    // }
-
     private void addToNotMoving(InternalRobot robot, HashMap<MapLocation, List<InternalRobot>> forecastedLocToRobot, Set<InternalRobot> notMoving, Set<MapLocation> visited) {
         MapLocation origLocation = robot.getLocation();
         if (visited.contains(origLocation)) {
@@ -876,12 +825,6 @@ public strictfp class GameWorld {
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
-        // if (checkArchonDeath) {
-        //     // this happens here because both teams' Archons can die in the same round
-        //     if (type == RobotType.ARCHON && this.objectInfo.getRobotTypeCount(team, RobotType.ARCHON) == 0)
-        //         setWinner(team == Team.A ? Team.B : Team.A, DominationFactor.ANNIHILATION);
-        // }
-
         matchMaker.addDied(id);
     }
 
@@ -904,6 +847,9 @@ public strictfp class GameWorld {
     }
 
     public boolean isWell(MapLocation loc) {
+        if (!this.gameMap.onTheMap(loc)) {
+            return false;
+        }
         return this.wells[locationToIndex(loc)] != null;
     }
 
