@@ -4,14 +4,6 @@ This is the game client for Battlecode 2023, which can run in your web browser o
 
 If you're a competitor and not interested in *developing* the client, you shouldn't do any of the things this document tells you to do. Proceed at your own risk.
 
-### NPM scripts
- * `npm run watch`
- * `npm run electron`
- * `npm run prod-electron`
- * `npm run prod-test`: Test just for local platform.
- * `npm run clean`
-
-
 ### Tournament Mode
 
 Change the value of `tournamentMode` in `visualizer/config.ts` from `false` to `true` to enable the tournament mode. The client will in tournament accept JSON files of a format specified in `visualizer/tournament.ts` and automatically step through the replays.
@@ -51,9 +43,17 @@ Also note that this repo doesn't contain all of the client code. See `../playbac
 
 If you've made a change in `../playback` and want to integrate it here, you need to do `npm install` again. It's a bit of a pain; and should probably be integrated in this folder at some point.
 
+To delete the output of `prod` commands, run 
+
+```sh
+$ npm run clean
+```
+
 ### Deploying
 
-To build a release bundle:
+#### Non-Electron
+
+To get a web-based version of the client, run:
 ```sh
 $ npm run prod
 ```
@@ -64,3 +64,15 @@ This will bundle up all of the assets you want in the `out` folder. You can then
 - `<script>window.battlecode.mount(document.getElementById('battlecode-div'))</script>`
 
 You now have a copy of the battlecode client running on your web page. See `src/app.ts` and `src/config.ts` to learn about the client's API.
+
+#### Electron
+
+Electron releases are produced in GitHub Actions, which runs `npm run prod-electron` (see `.github/workflows/release.yml`). Note that this command will probably fail if run from your local machine. 
+
+If you want to test some sort of production electron release, do:
+
+```sh
+$ npm run prod-test
+```
+
+This will build the electron release for your own OS and architecture. Then, find it in the `dist` folder of `client`.
