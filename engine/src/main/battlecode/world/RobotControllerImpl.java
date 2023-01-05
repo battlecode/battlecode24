@@ -810,7 +810,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (rType == ResourceType.NO_RESOURCE) {
             throw new IllegalArgumentException("Should not be a well with no resource");
         }
-        int rate = this.gameWorld.getWell(loc).isUpgraded() ? 4:2;
+        int rate = this.gameWorld.getWell(loc).getRate();
         amount = amount == -1 ? rate : amount;
         this.robot.addResourceAmount(rType, amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_RESOURCE, locationToInt(loc));
