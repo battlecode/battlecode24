@@ -231,22 +231,22 @@ export default class Stats {
   private initIncomeDisplays(teamIDs: Array<number>) {
     const incomeDisplays: IncomeDisplay[] = [];
     teamIDs.forEach((id: number) => {
-      const adamantiumIncome = document.createElement("span");
-      const manaIncome = document.createElement("span");
-      const elixirIncome = document.createElement("span");
+      const adamantiumIncome = document.createElement("div");
+      const manaIncome = document.createElement("div");
+      const elixirIncome = document.createElement("div");
       adamantiumIncome.style.color = hex[id];
       adamantiumIncome.style.fontWeight = "bold";
-      adamantiumIncome.textContent = "L: 0";
+      adamantiumIncome.textContent = "Ad: 0";
       adamantiumIncome.style.padding = "10px";
       manaIncome.style.color = hex[id];
       manaIncome.style.fontWeight = "bold";
-      manaIncome.textContent = "G: 0";
+      manaIncome.textContent = "MN: 0";
       manaIncome.style.padding = "10px";
       elixirIncome.style.color = hex[id];
       elixirIncome.style.fontWeight = "bold";
-      elixirIncome.textContent = "G: 0";
+      elixirIncome.textContent = "EL: 0";
       elixirIncome.style.padding = "10px";
-      incomeDisplays[id] = {adamantiumIncome: adamantiumIncome, elixirIncome: elixirIncome, manaIncome: manaIncome};
+      incomeDisplays[id] = {adamantiumIncome: adamantiumIncome,  manaIncome: manaIncome, elixirIncome: elixirIncome};
     });
     return incomeDisplays;
   }
@@ -274,15 +274,6 @@ export default class Stats {
       row.appendChild(cellAdamantium);
     });
 
-    const cellElixir = document.createElement("td");
-    teamIDs.forEach((id: number) => {
-      
-      // cell.appendChild(document.createTextNode("1.001"));
-      // cell.appendChild(this.buffDisplays[id].numBuffs);
-      // cell.appendChild(document.createTextNode(" = "));
-      cellElixir.appendChild(this.incomeDisplays[id].elixirIncome);
-      row.appendChild(cellElixir);
-    });
     
     const cellMana = document.createElement("td");
     teamIDs.forEach((id: number) => {
@@ -293,7 +284,15 @@ export default class Stats {
       cellMana.appendChild(this.incomeDisplays[id].manaIncome);
       row.appendChild(cellMana);
     });
-
+    const cellElixir = document.createElement("td");
+    teamIDs.forEach((id: number) => {
+      
+      // cell.appendChild(document.createTextNode("1.001"));
+      // cell.appendChild(this.buffDisplays[id].numBuffs);
+      // cell.appendChild(document.createTextNode(" = "));
+      cellElixir.appendChild(this.incomeDisplays[id].elixirIncome);
+      row.appendChild(cellElixir);
+    });
     title.appendChild(label);
     table.appendChild(title);
     table.appendChild(row);
