@@ -464,10 +464,13 @@ export default class Renderer {
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
     const adamantiums = bodies.arrays.adamantium
-    const normal_anchors = bodies.arrays.normal_anchors
-    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const manas = bodies.arrays.mana
     const elixirs = bodies.arrays.elixir
+    const prevAdamantiums = bodies.arrays.previous_adamantium
+    const prevManas = bodies.arrays.previous_mana
+    const prevElixirs = bodies.arrays.previous_elixir
+    const normal_anchors = bodies.arrays.normal_anchors
+    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
@@ -513,6 +516,9 @@ export default class Renderer {
         this.drawBotRadius(realXs[i], realYs[i], vis_radius, cst.VISION_RADIUS_COLOR)
 
       //draw rescoures
+      const adamantiumColor = "#838D63"
+      const manaColor = "#D79DA2"
+      const elixirColor = "#FBCC3F"
       if (accelerated_anchors[i] > 0) {
         let anchorColor = "#6C6C6C"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
@@ -520,9 +526,6 @@ export default class Renderer {
         let anchorColor = "#EEAC09"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
       } else {
-        let adamantiumColor = "#838D63"
-        let manaColor = "#D79DA2"
-        let elixirColor = "#FBCC3F"
         if (adamantiums[i])
           this.drawCircle(realXs[i], realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
         if (manas[i])
@@ -563,10 +566,18 @@ export default class Renderer {
         ctx.moveTo(midX, midY)
         ctx.lineTo(midX + (-dirVec.x + rightVec.x) * 0.1, midY + (-dirVec.y + rightVec.y) * 0.1)
         ctx.stroke()
-        
+
         // Draw resources if thrower
         if (actions[i] == schema.Action.THROW_ATTACK) {
-          
+          const dv = 0.1; // Scale for distance between dots
+          const dr = 0.0; // Scale for distance from dots to line
+          const rad = 0.001;
+          if (prevAdamantiums[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr, midY - 0.5 - rightVec.y * dr, rad, adamantiumColor, "#00000088")
+          if (prevManas[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr - dirVec.x * dv, midY - 0.5 - rightVec.y * dr - dirVec.y * dv, rad, manaColor, "#00000088")
+          if (prevElixirs[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr + dirVec.x * dv, midY - 0.5 - rightVec.y * dr + dirVec.y * dv, rad, elixirColor, "#00000088")
         }
 
         ctx.restore()

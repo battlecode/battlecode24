@@ -27,6 +27,9 @@ export type BodiesSchema = {
   targety: Int32Array,
   // parent: Int32Array,
 
+  previous_adamantium: Int32Array,
+  previous_elixir: Int32Array,
+  previous_mana: Int32Array,
   adamantium: Int32Array,
   elixir: Int32Array,
   mana: Int32Array,
@@ -247,6 +250,9 @@ export default class GameWorld {
       targety: new Int32Array(0),
       normal_anchors: new Int16Array(0),
       accelerated_anchors: new Int16Array(0),
+      previous_adamantium: new Int32Array(0),
+      previous_elixir: new Int32Array(0),
+      previous_mana: new Int32Array(0),
       adamantium: new Int32Array(0),
       elixir: new Int32Array(0),
       mana: new Int32Array(0),
@@ -588,7 +594,15 @@ export default class GameWorld {
 
         switch (action) {
           case schema.Action.THROW_ATTACK:
-            this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
+            this.bodies.alter({
+              id: robotID,
+              previous_adamantium: body.adamantium,
+              previous_elixir: body.elixir,
+              previous_mana: body.mana,
+              adamantium: 0,
+              elixir: 0,
+              mana: 0
+            })
             if (target >= 0) // Hit attack: target is bot
               setAction(false, true, false)
             else { // Missed attack: target is location (-location - 1)
