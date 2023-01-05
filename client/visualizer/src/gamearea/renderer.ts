@@ -102,6 +102,10 @@ export default class Renderer {
       this.ctx[key].restore()
   }
 
+  redrawStatic(){
+    this.staticRendered = false
+  }
+
   /**
    * Release resources.
    */

@@ -487,6 +487,7 @@ export default class Runner {
           break
         case 71: // "g" - Toogle grid view
           this.conf.showGrid = !this.conf.showGrid
+          this.looper!.renderer.redrawStatic()
           break
         // case 75: // "k"
         //   this.conf.showAnomalies = !this.conf.showAnomalies

@@ -130,15 +130,9 @@ export default class Sidebar {
     <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
     <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
     </ol>
-    <b class="blue">Notes on game stats (Game)</b><br>
-    Lead and gold incomes are running averages over the past 100 turns.<br>
-    In the game bar, the anomalies bars follow the below color key:<br><br>
-
-    Abyss - <span style="color:blue">Blue</span><br>
-    Vortex - <span style="color:purple">Purple</span><br>
-    Fury - <span style="color:red">Red</span><br>
-    Charge - <span style="color:yellow">Yellow</span><br>
-    <br>
+    <b class="blue">Notes on game stats</b><br>
+    TODO
+    <br><br>
 
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
     LEFT - Step Back One Turn<br>
@@ -152,11 +146,10 @@ export default class Sidebar {
     C - Toggle All Indicator Dots/Lines<br>
     G - Toggle Grid<br>
     N - Toggle Action Radius<br>
-    M - Toggle Sensor Radius<br>
+    M - Toggle Vision Radius<br>
     B - Toggle Interpolation<br>
     Q - Toggle whether to profile matches.<br>
     [ - Hide/unhide sidebar navigation.<br>
-    K - Toggle anomaly visualization.<br>
     <br>
     <b class="blue">Keyboard Shortcuts (Map Editor)</b><br
     <br>
@@ -186,37 +179,13 @@ export default class Sidebar {
     Runner before running the game. Make sure that the runFromClient
     Gradle task sets bc.engine.enable-profiler to the value of the
     "profilerEnabled" property, as can be seen in the
-    <a href="https://github.com/battlecode/battlecode21-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
+    <a href="https://github.com/battlecode/battlecode23-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
     Make sure to add the "profilerEnabled" property to your
-    <a href="https://github.com/battlecode/battlecode21-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
+    <a href="https://github.com/battlecode/battlecode23-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
     file as well. A maximum of 2,000,000 events are recorded per team per
     match if profiling is enabled to prevent the replay file from becoming
     enormous.
-    <br>
-    <br>
-    <b class="blue">How to Use the Map Editor</b><br>
-    Select the initial map settings: name, width, height, and symmetry. <br>
-    <br>
-    To place archons, choose "Robots", and to place to lead, choose "Lead". Then, set the coordinates, and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
-    <!--The "ID" of a robot is a unique identifier for a pair of symmetric robots. It is not the ID the robot will have in the game! --><br>
-    <br>
-    To set tiles' rubble values, choose "Rubble", select the rubble value, brush size, and brush style,
-    and then <b>hold and drag</b> your mouse across the map. <br>
-    <br>
-    To schedule anomalies, choose "Anomalies", fill in the anomaly type and round, and click "Add/Update". Anomalies at a particular round can be updated by specifying a
-    round number and clicking "Add/Update", and deleted by specifying a round number and clicking "Delete".
-    <br>
-    <!--Before exporting, click "Validate" to see if any changes need to be
-    made, and <b>"Remove Invalid Units"</b> to automatically remove off-map or
-    overlapping units. -->
-    <br>
-    When you are happy with your map, click "Export".
-    If you are directed to save your map, save it in the
-    <code>/battlecode-scaffold-${this.conf.year}/maps</code> directory of your scaffold.
-    (Note: the name of your <code>.${this.conf.map_extension}</code> file must be the same as the name of your
-    map.) <br>
-    <br>
-    Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.${this.conf.map_extension}</code>.`
+    <br>`
 
     if (this.conf.tournamentMode) {
       innerHTML +=

@@ -21,7 +21,7 @@ export default class MapRenderer {
   // Callbacks for clicking robots and trees on the canvas
   readonly onclickUnit: (id: number) => void
   readonly onclickBlank: (x, y) => void
-  readonly onMouseover: (x: number, y: number, rubble: number, lead: number) => void
+  readonly onMouseover: (x: number, y: number, walls: boolean, resource: number) => void
   readonly onDrag: (x, y) => void
 
   // Other useful values
@@ -33,7 +33,7 @@ export default class MapRenderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config,
     onclickUnit: (id: number) => void, onclickBlank: (x: number, y: number) => void,
-    onMouseover: (x: number, y: number, rubble: number, lead: number) => void,
+    onMouseover: (x: number, y: number, walls: boolean, resource: number) => void,
     onDrag: (x: number, y: number) => void) {
     this.canvas = canvas
     this.conf = conf
@@ -486,7 +486,7 @@ export default class MapRenderer {
 
     this.canvas.onmousemove = (event) => {
       const { x, y } = this.getIntegerLocation(event, this.map)
-      //this.onMouseover(x: number, y: number, this.map.rubble[(y)*this.width + x], this.map.leadVals[y*this.width + x]);
+      this.onMouseover(x, y, this.map.walls[(y) * this.width + x], this.map.resource_wells[y * this.width + x])
       hoverPos = { x: x, y: y }
     }
 
