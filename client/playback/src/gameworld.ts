@@ -136,6 +136,11 @@ export default class GameWorld {
    * Everything that isn't an indicator string.
    */
   bodies: StructOfArrays<BodiesSchema>
+  
+  /**
+   * Stores previous locations of alive robots
+   */
+  pathHistory: Map<number, { x: number, y: number }[]>;
 
   /*
    * Stats for each team
@@ -247,6 +252,8 @@ export default class GameWorld {
       mana: new Int32Array(0),
       hp: new Int32Array(0),
     }, 'id')
+    
+    this.pathHistory = new Map();
 
     // Instantiate teamStats
     this.teamStats = new Map<number, TeamStats>()
@@ -437,6 +444,10 @@ export default class GameWorld {
     this.mapName = source.mapName
     this.diedBodies.copyFrom(source.diedBodies)
     this.bodies.copyFrom(source.bodies)
+    this.pathHistory = new Map()
+    source.pathHistory.forEach((value, key) => {
+      this.pathHistory.set(key, deepcopy(value))
+    })
     this.indicatorDots.copyFrom(source.indicatorDots)
     this.indicatorLines.copyFrom(source.indicatorLines)
     this.indicatorStrings = Object.assign({}, source.indicatorStrings)
@@ -481,11 +492,22 @@ export default class GameWorld {
     // Location changes on bodies
     const movedLocs = delta.movedLocs(this._vecTableSlot1)
     if (movedLocs) {
+      const movedIds = delta.movedIDsArray();
+      const xsArray = movedLocs.xsArray();
+      const ysArray = movedLocs.ysArray();
       this.bodies.alterBulk({
-        id: delta.movedIDsArray(),
-        x: movedLocs.xsArray(),
-        y: movedLocs.ysArray(),
-      })
+        id: movedIds,
+        x: xsArray,
+        y: ysArray,
+      });
+
+      // Update path history
+      for (let j = 0; j < movedIds.length; j++) {
+        const elem = this.pathHistory.get(movedIds[j]);
+        elem.unshift({ x: xsArray[j], y: ysArray[j] });
+        if (elem.length > 20)
+          elem.pop();
+      }
     }
 
     // Spawned bodies
@@ -734,7 +756,8 @@ export default class GameWorld {
     // Died bodies
     if (delta.diedIDsLength() > 0) {
       // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray())
+      const idsArray = delta.diedIDsArray();
+      var indices = this.bodies.lookupIndices(idsArray)
       for (let i = 0; i < delta.diedIDsLength(); i++) {
         let index = indices[i]
         let team = this.bodies.arrays.team[index]
@@ -748,7 +771,11 @@ export default class GameWorld {
 
       // Update bodies soa
       this.insertDiedBodies(delta)
-      this.bodies.deleteBulk(delta.diedIDsArray())
+      this.bodies.deleteBulk(idsArray);
+      
+      // Remove path histories
+      for (let i = 0; i < idsArray.length; i++)
+        this.pathHistory.delete(idsArray[i]);
     }
 
     // Insert indicator dots and lines
@@ -860,13 +887,15 @@ export default class GameWorld {
     // let this slide for now.
 
     // Insert bodies
-
+    const idsArray = bodies.robotIDsArray();
+    const xsArray = locs.xsArray();
+    const ysArray = locs.ysArray();
     this.bodies.insertBulk({
-      id: bodies.robotIDsArray(),
+      id: idsArray,
       team: teams,
       type: types,
-      x: locs.xsArray(),
-      y: locs.ysArray(),
+      x: xsArray,
+      y: ysArray,
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
       action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
       target: new Int32Array(bodies.robotIDsLength()),
@@ -879,6 +908,10 @@ export default class GameWorld {
       mana: new Int32Array(bodies.robotIDsLength()),
       anchor: new Int8Array(bodies.robotIDsLength()),
     })
+    
+    // Update initial path history
+    for (let i = 0; i < idsArray.length; i++)
+      this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }]);
   }
 
   /**
