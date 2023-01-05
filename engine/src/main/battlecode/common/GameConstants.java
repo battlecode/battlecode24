@@ -74,20 +74,16 @@ public class GameConstants {
     public static final int UPGRADE_WELL_AMOUNT = 3600;
 
     /** The percentage of islands that need to be occupied for a team to win */
-    public static final double WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75;
+    public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
     
     /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
-    public static final int DISTANCE_FROM_SIGNAL_AMPLIFIER = 36;
+    public static final int DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER = 20;
 
     /** The distance a robot must be from an island to be able to write to the shared array */
-    public static final int DISTANCE_FROM_ISLAND = 45;
+    public static final int DISTANCE_SQUARED_FROM_ISLAND = 4;
 
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
-    public static final int DISTANCE_FROM_HEADQUARTER = 50;
-
-    /** The amount of damage a launcher can do */
-    public static final int LAUNCHER_ATTACK_DAMAGE = 6;
-    // TODO: this doesn't make sense, max capacity is like 50
+    public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
 
     /** The discout factor on the amount of damage a carrier can do based on their capacity */
     public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
@@ -124,12 +120,9 @@ public class GameConstants {
     public static final double ANCHOR_MULTIPLIER = -.15;
     public static final double CLOUD_MULTIPLIER = .2;
 
-    /** Constant for damage dealt by destabilizer */
-    public static final int DESTABILIZER_DAMAGE = 10;
-
     /** Constants for boost radii squared. */
-    public static final int DESTABILIZER_RADIUS_SQUARED = 20;
-    public static final int BOOSTER_RADIUS_SQUARED = 40;
+    public static final int DESTABILIZER_RADIUS_SQUARED = 15;
+    public static final int BOOSTER_RADIUS_SQUARED = 20;
 
     /** Constants for boost durations. */
     public static final int BOOSTER_DURATION = 10;

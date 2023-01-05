@@ -273,7 +273,11 @@ public strictfp class GameWorld {
     }
 
     public boolean getCloud(MapLocation loc) {
-        return this.clouds[locationToIndex(loc)];
+        int idx = locationToIndex(loc);
+        if (idx < 0 || idx >= this.clouds.length) {
+            return false;
+        }
+        return this.clouds[idx];
     }
 
     public Direction getCurrent(MapLocation loc) {
@@ -674,7 +678,7 @@ public strictfp class GameWorld {
                         InternalRobot robot = getRobot(loc);
                         if (robot != null && robot.getTeam().ordinal() == teamIndex) {
                             // TODO: Send correct action info to client, this may be hard
-                            robot.addHealth(-1*GameConstants.DESTABILIZER_DAMAGE);
+                            robot.addHealth(-1*robot.getType().damage);
                         }
                         //update multiplier if no longer being destabilized
                         if (curDestabilize.size() <= GameConstants.MAX_DESTABILIZE_STACKS)

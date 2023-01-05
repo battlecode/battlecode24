@@ -770,7 +770,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT,
