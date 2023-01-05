@@ -178,7 +178,7 @@ publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22'
+      artifactId 'battlecode23'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
@@ -190,7 +190,7 @@ publishing {
 
     clientWin(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win'
+      artifactId 'battlecode23-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin
@@ -198,7 +198,7 @@ publishing {
 
     clientMac(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-mac'
+      artifactId 'battlecode23-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientMac
@@ -206,7 +206,7 @@ publishing {
 
     clientLinux(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux'
+      artifactId 'battlecode23-client-linux'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux
@@ -214,7 +214,7 @@ publishing {
 
     clientWin32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win-32'
+      artifactId 'battlecode23-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin32
@@ -222,7 +222,7 @@ publishing {
 
     clientLinux32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux-32'
+      artifactId 'battlecode23-client-linux-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux32

@@ -11,7 +11,7 @@ env:
   # RELEASE_ARTIFACT_ID is the name of the Maven artifact produced by the buildsystem.
   # Important: you must make sure no ID is a prefix of a different ID. Otherwise, you could
   # inadvertently cause unintended episodes to become public.
-  RELEASE_ARTIFACT_ID: battlecode22
+  RELEASE_ARTIFACT_ID: battlecode23
 
   # IS_PUBLIC is whether to release deployments publicly. Set to exactly the text "YES" to do so.
   IS_PUBLIC: NO
