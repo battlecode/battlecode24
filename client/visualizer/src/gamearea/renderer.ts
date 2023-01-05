@@ -531,36 +531,47 @@ export default class Renderer {
           this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
       }
 
-
       // draw effect
-      if (actions[i] == schema.Action.THROW_ATTACK) {
+      if (actions[i] == schema.Action.THROW_ATTACK || actions[i] == schema.Action.LAUNCH_ATTACK) {
         // Direction
-        const target = targets[i]
         let yshift = (teams[i] - 1.5) * .15 + 0.5
         let xshift = (teams[i] - 1.5) * .15 + 0.5
         ctx.save()
         ctx.beginPath()
-        ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        const startX = realXs[i] + xshift
+        const startY = realYs[i] + yshift
+        const endX = targetxs[i] + xshift
+        const endY = this.flip(targetys[i], minY, maxY) + yshift
+        
+        // Line
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
         ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
         ctx.lineWidth = 0.05
         ctx.stroke()
+        
+        // Arrow
+        const midX = (startX + endX) * 0.5
+        const midY = (startY + endY) * 0.5
+        let dirVec = { x: endX - startX, y: endY - startY }
+        const dirVecMag = Math.sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y)
+        dirVec = { x: dirVec.x / dirVecMag, y: dirVec.y / dirVecMag }
+        const rightVec = { x: dirVec.y, y: -dirVec.x }
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x - rightVec.x) * 0.1, midY + (-dirVec.y - rightVec.y) * 0.1)
+        ctx.stroke()
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x + rightVec.x) * 0.1, midY + (-dirVec.y + rightVec.y) * 0.1)
+        ctx.stroke()
+        
+        // Draw resources if thrower
+        if (actions[i] == schema.Action.THROW_ATTACK) {
+          
+        }
+
         ctx.restore()
       }
-
-      // if (actions[i] == schema.Action.REPAIR) {
-      //   let yshift = 0.5
-      //   let xshift = 0.5
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-      //   this.ctx.strokeStyle = '#54FF79'
-      //   this.ctx.lineWidth = 0.075
-      //   this.ctx.stroke()
-      //   this.ctx.restore()
-      // };
-
+      
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
