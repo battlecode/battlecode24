@@ -183,13 +183,8 @@ export default class Sidebar {
     on a profiled match file, press "Q".</i><br>
     The profiler can be used to find out which methods are using a lot of
     bytecodes. To use it, tick the "Profiler enabled" checkbox in the
-    Runner before running the game. Make sure that the runFromClient
-    Gradle task sets bc.engine.enable-profiler to the value of the
-    "profilerEnabled" property, as can be seen in the
-    <a href="https://github.com/battlecode/battlecode21-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
-    Make sure to add the "profilerEnabled" property to your
-    <a href="https://github.com/battlecode/battlecode21-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
-    file as well. A maximum of 2,000,000 events are recorded per team per
+    Runner before running the game.
+    A maximum of 2,000,000 events are recorded per team per
     match if profiling is enabled to prevent the replay file from becoming
     enormous.
     <br>
