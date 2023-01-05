@@ -649,8 +649,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
-        InternalRobot bot = this.gameWorld.getRobot(loc);
-        this.robot.attack(bot);
+        this.robot.attack(loc);
     }
 
     // ***********************************

@@ -45,19 +45,25 @@ public class InternalCarrier extends InternalRobot {
         return (int) GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum);
     }
 
+    private int locationToInt(MapLocation loc) {
+        return this.gameWorld.locationToIndex(loc);
+    }
+
     /**
-     * Attacks another robot (carrier). Assumes bot is in range.
+     * Attacks another location (carrier).
      * Empties inventory accordingly.
      * 
-     * @param bot the robot to be attacked
+     * @param loc the location to be attacked
      */
-    public void attack(InternalRobot bot) {
+    public void attack(MapLocation loc) {
+        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (!(bot == null)) {
             int dmg = getDamage();
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
         } else {
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -1);
+            System.out.println("Trying to attack but failing, location " + loc);
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -locationToInt(loc) - 1);
         }
         this.emptyResources();
     }

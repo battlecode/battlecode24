@@ -16,7 +16,7 @@ import battlecode.schema.Action;
 public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     private final RobotControllerImpl controller;
-    private final GameWorld gameWorld;
+    protected final GameWorld gameWorld;
 
     private final int ID;
     private Team team;
@@ -395,9 +395,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
-     * @param bot the robot to be attacked
+     * @param loc the location of the bot
      */
-    public void attack(InternalRobot bot) {
+    public void attack(MapLocation loc) {
+        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (!(bot == null)) {
             int dmg = getDamage();
             bot.addHealth(-dmg);
