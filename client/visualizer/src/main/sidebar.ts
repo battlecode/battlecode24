@@ -122,6 +122,9 @@ export default class Sidebar {
    * Initializes the help div
    */
   private initializeHelp(): HTMLDivElement {
+    // <b class="blue">Notes on game stats</b><br>
+    // TODO
+    // <br>
     var innerHTML: string =
       `
     <b class="red">Issues?</b>
@@ -130,9 +133,8 @@ export default class Sidebar {
     <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
     <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
     </ol>
-    <b class="blue">Notes on game stats</b><br>
-    TODO
-    <br><br>
+
+    <br>
 
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
     LEFT - Step Back One Turn<br>
