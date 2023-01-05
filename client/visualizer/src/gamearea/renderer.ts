@@ -86,9 +86,9 @@ export default class Renderer {
       this.renderResources(world)
       //if (selectedTrail)
       //  this.renderTrail(world, selectedTrail)
+      this.renderBodies(world, curTime, nextStep, lerpAmount)
       if (this.lastSelectedID)
         this.renderPath(world);
-      this.renderBodies(world, curTime, nextStep, lerpAmount)
       this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -398,6 +398,7 @@ export default class Renderer {
     ctx.lineWidth = startLineWidth
 
     ctx.beginPath()
+    this.drawCircle(path[0].x, height - path[0].y - 1, ctx.lineWidth / 10, "white", "white")
     ctx.moveTo(path[0].x + .5, (height - path[0].y - .5))
     for (let i = 1; i < path.length; i++) {
       ctx.globalAlpha = 1 / Math.sqrt(i);
