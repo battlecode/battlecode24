@@ -442,7 +442,7 @@ export default class GameWorld {
     this.indicatorStrings = Object.assign({}, source.indicatorStrings)
     this.teamStats = new Map<number, TeamStats>()
     source.teamStats.forEach((value: TeamStats, key: number) => {
-      this.teamStats.set(key, ,(value))
+      this.teamStats.set(key, deepcopy(value))
     })
     this.mapStats = deepcopy(source.mapStats)
     this.actionRobots = Array.from(source.actionRobots)

@@ -394,7 +394,7 @@ export default class Looper {
             // this.stats.setBid(teamID, teamStats.bid);
 
             // Force an update if the game is paused for immediate feedback
-            var resources = {} // team id -> resource type -> {with_robots: #, with_HQ[#, # ,#]}
+            var resources = {} // team id -> resource type -> {with_robots: #, with_HQ[#, # ,#, ...]}
             var initial_resources = {"with_robots":0, "with_HQ":[]}
             for (var i = 0; i < 3; i++){
                 resources[i] = {"Ad": deepcopy(initial_resources ), "El": deepcopy(initial_resources ), "Mn": deepcopy(initial_resources)}
@@ -407,17 +407,15 @@ export default class Looper {
                 var el =  body["elixir"]
                 var mn = body["mana"]
                 if (body['type'] == 1){
-                    resources[team_id]["with_HQ"]["Ad"].push(ad);
-                    resources[team_id]["with_HQ"]["Mn"].push(mn);
-                    resources[team_id]["with_HQ"]["El"].push(el);
+                    resources[team_id]["Ad"]["with_HQ"].push(ad);
+                    resources[team_id]["Mn"]["with_HQ"].push(mn);
+                    resources[team_id]["El"]["with_HQ"].push(el);
                 } else {
-                    resources[team_id]["with_robots"]["Ad"] += ad;
-                    resources[team_id]["with_robots"]["Mn"] += mn;
-                    resources[team_id]["with_robots"]["El"] += el;
+                    resources[team_id]["Ad"]["with_robots"] += ad;
+                    resources[team_id]["Mn"]["with_robots"] += mn;
+                    resources[team_id]["El"]["with_robots"] += el;
                 }
               }
-
-
             this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0, resources)
         }
 
