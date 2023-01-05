@@ -44,8 +44,10 @@ var conf = {
     ])
   ],
   devServer: {
-    // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
-    writeToDisk: filePath => filePath.includes('speedscope/')
+    devMiddleware: {
+      // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
+      writeToDisk: filePath => filePath.includes('speedscope/')
+    }
   }
 };
 
