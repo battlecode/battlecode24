@@ -171,12 +171,12 @@ export default class MapEditorForm {
       this.getActiveForm().setForm(x, y)
     }
 
-    const onMouseover = (x: number, y: number, walls: number, resources: number) => {
+    const onMouseover = (x: number, y: number, walls: boolean, resources: number) => {
       let content: string = ""
       content += 'X: ' + `${x}`.padStart(3)
       content += ' | Y: ' + `${y}`.padStart(3)
-      content += ' | Wall: ' + `${walls.toFixed(3)}`
-      content += ' | Resource: ' + `${resources.toFixed(3)}`
+      content += ' | Wall: ' + `${walls}`
+      content += ' | Resource: ' + `${cst.RESOURCENAMES[resources]}`
       this.tileInfo.textContent = content
     }
 

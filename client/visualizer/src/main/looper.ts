@@ -36,7 +36,7 @@ export default class Looper {
     private updatesPerSecond: TickCounter
     private lastSelectedID: number | undefined
     private selectedTrail: { x: number, y: number }[]
-    private renderer: Renderer
+    renderer: Renderer
     private loadedProfiler: boolean
 
     private console: Console

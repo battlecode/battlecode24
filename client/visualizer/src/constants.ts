@@ -72,20 +72,20 @@ export const TILE_COLORS: Array<number>[] = [
 // [242, 0, 252] // pink
 
 // Given passability, get index of tile to use.
-export const getLevel = (x: number): number => {
-  const nLev = TILE_COLORS.length
-  const level = Math.floor((x + 9) / 10)
-  return Math.min(nLev - 1, Math.max(0, level))
-}
+// export const getLevel = (x: number): number => {
+//   const nLev = TILE_COLORS.length
+//   const level = Math.floor((x + 9) / 10)
+//   return Math.min(nLev - 1, Math.max(0, level))
+// }
 
-export const passiveInfluenceRate = (round: number): number => {
-  //return Math.floor((1/50 + 0.03 * Math.exp(-0.001 * x)) * x); this one's for slanderers
-  return Math.ceil(0.2 * Math.sqrt(round))
-}
+// export const passiveInfluenceRate = (round: number): number => {
+//   //return Math.floor((1/50 + 0.03 * Math.exp(-0.001 * x)) * x); this one's for slanderers
+//   return Math.ceil(0.2 * Math.sqrt(round))
+// }
 
-export const buffFactor = (numBuffs: number): number => {
-  return 1 + 0.001 * numBuffs
-}
+// export const buffFactor = (numBuffs: number): number => {
+//   return 1 + 0.001 * numBuffs
+// }
 
 // Expected bot image size
 //export const IMAGE_SIZE = 25
