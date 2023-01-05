@@ -77,6 +77,10 @@ export default class Stats {
   private incomeChartMana: Chart;
   private incomeChartElixir: Chart;
 
+  private distribChartAdamantium: Chart;
+  private distribChartMana: Chart;
+  private distribChartElixir: Chart;
+
   private ECs: HTMLDivElement;
   
   private islandDisplays: HTMLSpanElement[];
@@ -317,6 +321,27 @@ export default class Stats {
   private getIncomeElixirGraph() {
     const canvas = document.createElement("canvas");
     canvas.id = "elixirGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getDistribElixirGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "elixirDistirbGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getDistribAdamantiumGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "adamantiumDistirbGraph";
+    canvas.className = "graph";
+    return canvas;
+  }
+
+  private getDistribManaGraph() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "manaDistirbGraph";
     canvas.className = "graph";
     return canvas;
   }
@@ -565,6 +590,45 @@ export default class Stats {
     row2.append(elixirWrapper)
     graphs.append(row2);
 
+
+
+    const row3=  document.createElement("div")
+    row3.style.display = 'flex';
+    row3.style.flexDirection = "row";
+    row3.style.justifyContent = "center";
+
+
+    
+
+
+    const adamantiumDistribWrapper = document.createElement("div");
+    adamantiumDistribWrapper.style.width = "50%";
+    const canvasElementDstirbAdamantium = this.getDistribAdamantiumGraph();
+    adamantiumDistribWrapper.appendChild(canvasElementDstirbAdamantium);    
+    row3.append(adamantiumDistribWrapper)
+
+    const manaDistribWrapper = document.createElement("div");
+    manaDistribWrapper.style.width = "50%";
+    const canvasElementDstirbMana = this.getDistribManaGraph();
+    manaDistribWrapper.appendChild(canvasElementDstirbMana);    
+    row3.append(manaDistribWrapper)
+
+    graphs.append(row3);
+
+    const row4=  document.createElement("div")
+    row4.style.display = 'flex';
+    row4.style.flexDirection = "row";
+    row4.style.justifyContent = "center";
+
+
+    const elixirDistribWrapper = document.createElement("div");
+    elixirDistribWrapper.style.width = "50%";
+    const canvasElementDstirbElixir = this.getDistribElixirGraph();
+    elixirDistribWrapper.appendChild(canvasElementDstirbElixir);    
+    row4.append(elixirDistribWrapper)
+
+    
+    graphs.append(row4);
     this.div.appendChild(graphs);
     
     this.incomeChartAdamantium = new Chart(canvasElementAdamantium, {
@@ -706,6 +770,109 @@ export default class Stats {
       }
     });
 
+    this.distribChartElixir = new Chart(canvasElementDstirbElixir, {
+      type: 'bar',
+      data: {
+        labels: ['HQs', 'HQs', 'robots', 'robots'],
+        datasets: [
+          {
+            //label: "Population (millions)",
+            backgroundColor: [blue_background_chart_rgb, red_background_chart_rgb, blue_background_chart_rgb, red_background_chart_rgb],
+            borderColor: [blue_border_chart_rgb, red_border_chart_rgb, blue_border_chart_rgb, red_border_chart_rgb],
+            data: [0, 0, 0, 0],
+            borderWidth: 1,
+          }
+        ]
+        
+      } ,
+    
+    options: {
+      aspectRatio: 0.75,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+       },
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Elixit Distribution'
+      }
+    }
+      
+    })
+
+    this.distribChartMana = new Chart(canvasElementDstirbMana, {
+      type: 'bar',
+      data: {
+        labels: ['HQs', 'HQs', 'robots', 'robots'],
+        datasets: [
+          {
+            //label: "Population (millions)",
+            backgroundColor: [blue_background_chart_rgb, red_background_chart_rgb, blue_background_chart_rgb, red_background_chart_rgb],
+            borderColor: [blue_border_chart_rgb, red_border_chart_rgb, blue_border_chart_rgb, red_border_chart_rgb],
+            data: [0, 0, 0, 0],
+            borderWidth: 1,
+          }
+        ]
+        
+      } ,
+    options: {
+      aspectRatio: 0.75,
+
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+       },
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Mana Distribution'
+      }
+    }
+      
+    })
+
+    this. distribChartAdamantium= new Chart(canvasElementDstirbAdamantium, {
+      type: 'bar',
+      data: {
+        labels: ['HQs', 'HQs', 'robots', 'robots'],
+        datasets: [
+          {
+            //label: "Population (millions)",
+            backgroundColor: [blue_background_chart_rgb, red_background_chart_rgb, blue_background_chart_rgb, red_background_chart_rgb],
+            borderColor: [blue_border_chart_rgb, red_border_chart_rgb, blue_border_chart_rgb, red_border_chart_rgb],
+            data: [0, 0, 0, 0],
+            borderWidth: 1,
+          }
+        ],
+      } ,
+    
+    options: {
+      aspectRatio: 0.75,
+
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+       },
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Adamantium Distribution'
+      }
+    }
+      
+    })
+
+
     this.ECs = document.createElement("div");
     this.ECs.style.height = "100px";
     this.ECs.style.display = "flex";
@@ -783,7 +950,7 @@ export default class Stats {
     else relBar.style.width = String(Math.round(influence * 100 / totalInfluence)) + "%";
   }*/
 
-  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean, resources) { // incomes
+  setIncome(teamID: number, teamStats: gameworld.TeamStats, turn: number, forceUpdate: boolean) { // incomes
     this.incomeDisplays[teamID].adamantiumIncome.textContent =
       "Ad: " + String((teamStats.adamantiumIncomeDataset[teamStats.adamantiumIncomeDataset.length - 1] ?? { y: 0 }).y.toFixed(2)); // change incomeDisplays later
     this.incomeDisplays[teamID].elixirIncome.textContent =
@@ -805,10 +972,33 @@ export default class Stats {
       this.incomeChartMana.update();
       this.incomeChartElixir.update();
     }
+  }
+  updateDistributionBars(resources){
+        
+    var redHQsElixir = resources[1]["El"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var blueHQsElixir = resources[2]["El"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var redRobotsElixir = resources[1]["El"]["with_robots"];
+    var blueRobotsElixir = resources[2]["El"]["with_robots"];
+    
+    
+    this.distribChartElixir.data.datasets![0].data = [blueHQsElixir, redHQsElixir, blueRobotsElixir, redRobotsElixir];
 
-    // update bars here
-    //console.log(teamID, count, "fsdfsdf");
-    //if(robotType === ARCHON) this.updateRelBars(teamID, count);
+
+    var redHQsMana = resources[1]["Mn"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var blueHQsMana = resources[2]["Mn"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var redRobotsMana = resources[1]["Mn"]["with_robots"];
+    var blueRobotsMana = resources[2]["Mn"]["with_robots"];
+
+    this.distribChartMana.data.datasets![0].data = [blueHQsMana, redHQsMana, blueRobotsMana, redRobotsMana];
+   
+    var redHQsAd = resources[1]["Ad"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var blueHQsAd = resources[2]["Ad"]["with_HQ"].reduce((partialSum, a) => partialSum + a, 0);
+    var redRobotsAd = resources[1]["Ad"]["with_robots"];
+    var blueRobotsAd = resources[2]["Ad"]["with_robots"];
+   
+    this.distribChartAdamantium.data.datasets![0].data = [blueHQsAd, redHQsAd, blueRobotsAd, redRobotsAd];
+
+
   }
   
   updateBars(teamAdamantium: Array<number>, teamMana: Array<number>, teamElixir: Array<number>){

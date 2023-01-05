@@ -416,7 +416,8 @@ export default class Looper {
                     resources[team_id]["El"]["with_robots"] += el;
                 }
               }
-            this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0, resources)
+            this.stats.setIncome(teamID, teamStats, world.turn, this.goalUPS === 0)
+            this.stats.updateDistributionBars(resources);
         }
 
         for (var a = 0; a < teamIDs.length; a++) {
