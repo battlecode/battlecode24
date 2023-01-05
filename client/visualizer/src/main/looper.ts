@@ -38,7 +38,7 @@ export default class Looper {
     private updatesPerSecond: TickCounter
     private lastSelectedID: number | undefined
     private selectedTrail: { x: number, y: number }[]
-    private renderer: Renderer
+    renderer: Renderer
     private loadedProfiler: boolean
 
     private console: Console
@@ -92,9 +92,10 @@ export default class Looper {
             this.selectedTrail = []
         }
 
-        const onMouseover = (x: number, y: number, xrel: number, yrel: number, resource_type: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => {
-            // Better make tile type and hand that over
-            controls.setTileInfo(x, y, xrel, yrel, resource_type, well_stats)
+        const onMouseover = (x: number, y: number, xrel: number, yrel: number, resource_type: number,
+            well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
+            island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => {
+            controls.setTileInfo(x, y, xrel, yrel, resource_type, well_stats, island_stats)
         }
 
         // Configure renderer for this match

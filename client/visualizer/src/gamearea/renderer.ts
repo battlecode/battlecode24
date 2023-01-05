@@ -27,7 +27,9 @@ export default class Renderer {
   constructor(
     readonly canvases: Record<CanvasType, HTMLCanvasElement>, readonly imgs: AllImages, private conf: config.Config, readonly metadata: Metadata,
     readonly onRobotSelected: (id: number) => void,
-    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number, well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean }) => void
+    readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number,
+      well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
+      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => void
   ) {
     this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
@@ -82,10 +84,11 @@ export default class Renderer {
       this.clearCanvas(CanvasType.DYNAMIC)
       this.renderIslands(world)
       this.renderResources(world)
-      if (selectedTrail) {
-        this.renderTrail(world, selectedTrail)
-      }
+      //if (selectedTrail)
+      //  this.renderTrail(world, selectedTrail)
       this.renderBodies(world, curTime, nextStep, lerpAmount)
+      if (this.lastSelectedID)
+        this.renderPath(world);
       this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -98,6 +101,10 @@ export default class Renderer {
     // restore default rendering
     for (let key in this.ctx)
       this.ctx[key].restore()
+  }
+
+  redrawStatic(){
+    this.staticRendered = false
   }
 
   /**
@@ -317,7 +324,21 @@ export default class Renderer {
 
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
     ctx.globalAlpha = .5
-    let first_color = island_stat.owner == 0 ? '#00000099' : cst.TEAM_COLORS[island_stat.owner - 1]
+
+    const sigmoid = (x) => { return 1 / (1 + Math.exp(-x)) }
+    const blendColors = (colorA, colorB, amount) => {
+      const [rA, gA, bA] = colorA.match(/\w\w/g).map((c) => parseInt(c, 16))
+      const [rB, gB, bB] = colorB.match(/\w\w/g).map((c) => parseInt(c, 16))
+      const r = Math.round(rA + (rB - rA) * amount).toString(16).padStart(2, '0')
+      const g = Math.round(gA + (gB - gA) * amount).toString(16).padStart(2, '0')
+      const b = Math.round(bA + (bB - bA) * amount).toString(16).padStart(2, '0')
+      return '#' + r + g + b
+    }
+
+    let first_color = '#666666'
+    if (island_stat.owner != 0)
+      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], sigmoid(island_stat.flip_progress / 15 - 2))
+
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
 
     let x = i * scale
@@ -370,6 +391,31 @@ export default class Renderer {
     ctx.fill()
   }
 
+  private renderPath(world: GameWorld) {
+    const path = world.pathHistory.get(this.lastSelectedID);
+    if (!path || path.length < 2) return
+    if(world.bodies.lookup(this.lastSelectedID).type == cst.HEADQUARTERS) return
+    const ctx = this.ctx[CanvasType.DYNAMIC]
+    const height = world.maxCorner.y - world.minCorner.y
+    
+    const startLineWidth = 0.15
+    ctx.strokeStyle = "white"
+    ctx.lineWidth = startLineWidth
+
+    ctx.beginPath()
+    this.drawCircle(path[0].x, height - path[0].y - 1, ctx.lineWidth / 10, "white", "white")
+    ctx.moveTo(path[0].x + .5, (height - path[0].y - .5))
+    for (let i = 1; i < path.length; i++) {
+      ctx.globalAlpha = 1 / Math.sqrt(i);
+      ctx.lineWidth = startLineWidth / Math.sqrt(i * 0.5)
+      ctx.lineTo(path[i].x + .5, (height - path[i].y - .5))
+      ctx.stroke()
+      this.drawCircle(path[i].x, height - path[i].y - 1, ctx.lineWidth / 10, "white", "white")
+      ctx.moveTo(path[i].x + .5, (height - path[i].y - .5))
+    }
+    ctx.globalAlpha = 1;
+  }
+
   private renderTrail(world: GameWorld, selectedTrail: { x: number, y: number }[]) {
     if (selectedTrail.length < 2) return
     const ctx = this.ctx[CanvasType.DYNAMIC]
@@ -418,12 +464,16 @@ export default class Renderer {
     const targetxs = bodies.arrays.targetx
     const targetys = bodies.arrays.targety
     const adamantiums = bodies.arrays.adamantium
-    const normal_anchors = bodies.arrays.normal_anchors
-    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const manas = bodies.arrays.mana
     const elixirs = bodies.arrays.elixir
+    const prevAdamantiums = bodies.arrays.previous_adamantium
+    const prevManas = bodies.arrays.previous_mana
+    const prevElixirs = bodies.arrays.previous_elixir
+    const normal_anchors = bodies.arrays.normal_anchors
+    const accelerated_anchors = bodies.arrays.accelerated_anchors
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
+
 
     const ctx = this.ctx[CanvasType.DYNAMIC]
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array
@@ -453,12 +503,22 @@ export default class Renderer {
     // render images with priority last to have them be on top of other units.
     const renderBot = (i: number) => {
       let img = this.imgs.robots[types[i]][teams[i]]
+      let bot_square_idx = xs[i] + ys[i] * (world.maxCorner.x - world.minCorner.x)
       let max_hp = this.metadata.types[types[i]].health
       this.drawBot(img, realXs[i], realYs[i], hps[i], Math.min(1, hps[i] / max_hp), cst.bodyTypeToSize(types[i]))
+
+      //draw sight and action radiuses
       let selected = ids[i] === this.lastSelectedID
-      this.drawSightRadii(realXs[i], realYs[i], types[i], ids[i] === this.lastSelectedID)
+      if (this.conf.seeActionRadius || selected)
+        this.drawBotRadius(realXs[i], realYs[i], this.metadata.types[types[i]].actionRadiusSquared, cst.ACTION_RADIUS_COLOR)
+      let vis_radius = world.mapStats.clouds[bot_square_idx] ? 4 : this.metadata.types[types[i]].visionRadiusSquared
+      if (this.conf.seeVisionRadius || selected)
+        this.drawBotRadius(realXs[i], realYs[i], vis_radius, cst.VISION_RADIUS_COLOR)
 
       //draw rescoures
+      const adamantiumColor = "#838D63"
+      const manaColor = "#D79DA2"
+      const elixirColor = "#FBCC3F"
       if (accelerated_anchors[i] > 0) {
         let anchorColor = "#6C6C6C"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
@@ -466,9 +526,6 @@ export default class Renderer {
         let anchorColor = "#EEAC09"
         this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
       } else {
-        let adamantiumColor = "#838D63"
-        let manaColor = "#D79DA2"
-        let elixirColor = "#FBCC3F"
         if (adamantiums[i])
           this.drawCircle(realXs[i], realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
         if (manas[i])
@@ -477,36 +534,55 @@ export default class Renderer {
           this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
       }
 
-
       // draw effect
-      if (actions[i] == schema.Action.THROW_ATTACK) {
+      if (actions[i] == schema.Action.THROW_ATTACK || actions[i] == schema.Action.LAUNCH_ATTACK) {
         // Direction
-        const target = targets[i]
         let yshift = (teams[i] - 1.5) * .15 + 0.5
         let xshift = (teams[i] - 1.5) * .15 + 0.5
         ctx.save()
         ctx.beginPath()
-        ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-        ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
+        const startX = realXs[i] + xshift
+        const startY = realYs[i] + yshift
+        const endX = targetxs[i] + xshift
+        const endY = this.flip(targetys[i], minY, maxY) + yshift
+        
+        // Line
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
         ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
         ctx.lineWidth = 0.05
         ctx.stroke()
+        
+        // Arrow
+        const midX = (startX + endX) * 0.5
+        const midY = (startY + endY) * 0.5
+        let dirVec = { x: endX - startX, y: endY - startY }
+        const dirVecMag = Math.sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y)
+        dirVec = { x: dirVec.x / dirVecMag, y: dirVec.y / dirVecMag }
+        const rightVec = { x: dirVec.y, y: -dirVec.x }
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x - rightVec.x) * 0.1, midY + (-dirVec.y - rightVec.y) * 0.1)
+        ctx.stroke()
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x + rightVec.x) * 0.1, midY + (-dirVec.y + rightVec.y) * 0.1)
+        ctx.stroke()
+
+        // Draw resources if thrower
+        if (actions[i] == schema.Action.THROW_ATTACK) {
+          const dv = 0.1; // Scale for distance between dots
+          const dr = 0.0; // Scale for distance from dots to line
+          const rad = 0.001;
+          if (prevAdamantiums[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr, midY - 0.5 - rightVec.y * dr, rad, adamantiumColor, "#00000088")
+          if (prevManas[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr - dirVec.x * dv, midY - 0.5 - rightVec.y * dr - dirVec.y * dv, rad, manaColor, "#00000088")
+          if (prevElixirs[i])
+            this.drawCircle(midX - 0.5 - rightVec.x * dr + dirVec.x * dv, midY - 0.5 - rightVec.y * dr + dirVec.y * dv, rad, elixirColor, "#00000088")
+        }
+
         ctx.restore()
       }
-
-      // if (actions[i] == schema.Action.REPAIR) {
-      //   let yshift = 0.5
-      //   let xshift = 0.5
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.moveTo(realXs[i] + xshift, realYs[i] + yshift)
-      //   this.ctx.lineTo(targetxs[i] + xshift, this.flip(targetys[i], minY, maxY) + yshift)
-      //   this.ctx.strokeStyle = '#54FF79'
-      //   this.ctx.lineWidth = 0.075
-      //   this.ctx.stroke()
-      //   this.ctx.restore()
-      // };
-
+      
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
@@ -554,6 +630,7 @@ export default class Renderer {
   private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
     const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
+    ctx.save();
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
     ctx.strokeStyle = borderColor
@@ -561,20 +638,7 @@ export default class Renderer {
     ctx.stroke()
     ctx.fillStyle = color
     ctx.fill()
-  }
-
-  /**
-   * Draws the sight radii of the robot.
-   */
-  private drawSightRadii(x: number, y: number, type: schema.BodyType, single?: Boolean) {
-    // handle bots with no radius here, if necessary
-    if (this.conf.seeActionRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].actionRadiusSquared, cst.ACTION_RADIUS_COLOR)
-    }
-
-    if (this.conf.seeVisionRadius || single) {
-      this.drawBotRadius(x, y, this.metadata.types[type].visionRadiusSquared, cst.VISION_RADIUS_COLOR)
-    }
+    ctx.restore();
   }
 
   /**
@@ -595,10 +659,6 @@ export default class Renderer {
     if (this.conf.doingRotate) [x, y] = [y, x]
     let realWidth = img.naturalWidth / img_size
     let realHeight = img.naturalHeight / img_size
-    const sigmoid = (x) => {
-      return 1 / (1 + Math.exp(-x))
-    }
-    //this.ctx.filter = `brightness(${sigmoid(c - 100) * 30 + 90}%)`;
     let size = ratio * 0.5 + 0.5
     ctx.drawImage(img, x + (1 - realWidth * size) / 2, y + (1 - realHeight * size) / 2, realWidth * size, realHeight * size)
     if (ratio < 1) {
@@ -660,7 +720,9 @@ export default class Renderer {
       const x = xrel + world.minCorner.x
       const y = yrel + world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx],
+        world.mapStats.resource_well_stats.get(idx)!,
+        world.mapStats.island_stats.get(world.mapStats.islands[idx]))
     }
 
     // Overlay is on top so we will use it for mouse events
@@ -675,7 +737,9 @@ export default class Renderer {
       const xrel = x - world.minCorner.x
       const yrel = y - world.minCorner.y
       const idx = world.mapStats.getIdx(xrel, yrel)
-      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx], world.mapStats.resource_well_stats.get(idx)!)
+      onMouseover(x, y, xrel, yrel, world.mapStats.resources[idx],
+        world.mapStats.resource_well_stats.get(idx)!,
+        world.mapStats.island_stats.get(world.mapStats.islands[idx]))
       this.hoverPos = { xrel: xrel, yrel: yrel }
     }
 

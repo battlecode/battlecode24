@@ -209,9 +209,9 @@ export function loadAll(config: Config, callback: (arg0: AllImages) => void) {
   loadImageInMap(result.resources, cst.MANA, 'resources/mana')
   loadImageInMap(result.resources, cst.ELIXIR, 'resources/elixir')
   for(let upgraded of [0,1]){
-    loadImageInArrayMap(result.resource_wells, cst.ADAMANTIUM, upgraded, `resources/adamantium_well_${upgraded?"upgraded_":""}smaller`)
-    loadImageInArrayMap(result.resource_wells, cst.MANA, upgraded, `resources/mana_well_${upgraded?"upgraded_":""}smaller`)
-    loadImageInArrayMap(result.resource_wells, cst.ELIXIR, upgraded, `resources/elixir_well_${upgraded?"upgraded_":""}smaller`)
+    loadImageInArrayMap(result.resource_wells, cst.ADAMANTIUM, upgraded, `resources/adamantium_well${upgraded?"_upgraded":""}_smaller`)
+    loadImageInArrayMap(result.resource_wells, cst.MANA, upgraded, `resources/mana_well${upgraded?"_upgraded":""}_smaller`)
+    loadImageInArrayMap(result.resource_wells, cst.ELIXIR, upgraded, `resources/elixir_well${upgraded?"_upgraded":""}_smaller`)
   }
 
   

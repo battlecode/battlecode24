@@ -27,6 +27,9 @@ export type BodiesSchema = {
   targety: Int32Array,
   // parent: Int32Array,
 
+  previous_adamantium: Int32Array,
+  previous_elixir: Int32Array,
+  previous_mana: Int32Array,
   adamantium: Int32Array,
   elixir: Int32Array,
   mana: Int32Array,
@@ -85,9 +88,9 @@ export type TeamStats = {
 
   //is this efficient? probably fine
   // x: turn, y: value
-  adamantiumIncomeDataset: { x: number, y: number }[];
-  manaIncomeDataset: { x: number, y: number }[];
-  elixirIncomeDataset: { x: number, y: number }[];
+  adamantiumIncomeDataset: { x: number, y: number }[]
+  manaIncomeDataset: { x: number, y: number }[]
+  elixirIncomeDataset: { x: number, y: number }[]
   adamantiumMinedHist: number[],
   manaMinedHist: number[],
   elixirMinedHist: number[],
@@ -136,6 +139,11 @@ export default class GameWorld {
    * Everything that isn't an indicator string.
    */
   bodies: StructOfArrays<BodiesSchema>
+
+  /**
+   * Stores previous locations of alive robots
+   */
+  pathHistory: Map<number, { x: number, y: number }[]>
 
   /*
    * Stats for each team
@@ -242,11 +250,16 @@ export default class GameWorld {
       targety: new Int32Array(0),
       normal_anchors: new Int16Array(0),
       accelerated_anchors: new Int16Array(0),
+      previous_adamantium: new Int32Array(0),
+      previous_elixir: new Int32Array(0),
+      previous_mana: new Int32Array(0),
       adamantium: new Int32Array(0),
       elixir: new Int32Array(0),
       mana: new Int32Array(0),
       hp: new Int32Array(0),
     }, 'id')
+
+    this.pathHistory = new Map()
 
     // Instantiate teamStats
     this.teamStats = new Map<number, TeamStats>()
@@ -397,7 +410,7 @@ export default class GameWorld {
         let tile_y = (tile_loc - tile_x) / width
         for (let x = tile_x - acc_radius; x <= tile_x + acc_radius; x += 1) {
           for (let y = tile_y - acc_radius; y <= tile_y + acc_radius; y += 1) {
-            if (x >= 0 && x < width && y >= 0 && y < height && 
+            if (x >= 0 && x < width && y >= 0 && y < height &&
               ((tile_x - x) * (tile_x - x) + (tile_y - y) * (tile_y - y) <= acc_radius * acc_radius))
               island_stat.accelerated_tiles.add(x + y * width)
           }
@@ -437,6 +450,10 @@ export default class GameWorld {
     this.mapName = source.mapName
     this.diedBodies.copyFrom(source.diedBodies)
     this.bodies.copyFrom(source.bodies)
+    this.pathHistory = new Map()
+    source.pathHistory.forEach((value, key) => {
+      this.pathHistory.set(key, deepcopy(value))
+    })
     this.indicatorDots.copyFrom(source.indicatorDots)
     this.indicatorLines.copyFrom(source.indicatorLines)
     this.indicatorStrings = Object.assign({}, source.indicatorStrings)
@@ -478,20 +495,31 @@ export default class GameWorld {
       this.teamStats.set(teamID, statObj)
     }
 
-    // Location changes on bodies
-    const movedLocs = delta.movedLocs(this._vecTableSlot1)
-    if (movedLocs) {
-      this.bodies.alterBulk({
-        id: delta.movedIDsArray(),
-        x: movedLocs.xsArray(),
-        y: movedLocs.ysArray(),
-      })
-    }
-
     // Spawned bodies
     const bodies = delta.spawnedBodies(this._bodiesSlot)
     if (bodies) {
       this.insertBodies(bodies)
+    }
+
+    // Location changes on bodies
+    const movedLocs = delta.movedLocs(this._vecTableSlot1)
+    if (movedLocs) {
+      const movedIds = delta.movedIDsArray()
+      const xsArray = movedLocs.xsArray()
+      const ysArray = movedLocs.ysArray()
+      this.bodies.alterBulk({
+        id: movedIds,
+        x: xsArray,
+        y: ysArray,
+      })
+
+      // Update path history
+      for (let j = 0; j < movedIds.length; j++) {
+        const elem = this.pathHistory.get(movedIds[j])
+        elem.unshift({ x: xsArray[j], y: ysArray[j] })
+        if (elem.length > 20)
+          elem.pop()
+      }
     }
 
     this.mapStats.effects.forEach(s => s.turns_remaining--)
@@ -539,7 +567,7 @@ export default class GameWorld {
       for (let i = 0; i < delta.actionsLength(); i++) {
         const action = delta.actions(i)
         const robotID = delta.actionIDs(i)
-        const target = delta.actionTargets(i)
+        let target = delta.actionTargets(i)
         const body = robotID != -1 ? this.bodies.lookup(robotID) : null
         const teamStatsObj = body != null ? this.teamStats.get(body.team) : null
         const width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
@@ -566,12 +594,29 @@ export default class GameWorld {
 
         switch (action) {
           case schema.Action.THROW_ATTACK:
-            this.bodies.alter({ id: robotID, adamantium: 0, elixir: 0, mana: 0 })
-            if (target != -1) //missed attack
+            this.bodies.alter({
+              id: robotID,
+              previous_adamantium: body.adamantium,
+              previous_elixir: body.elixir,
+              previous_mana: body.mana,
+              adamantium: 0,
+              elixir: 0,
+              mana: 0
+            })
+            if (target >= 0) // Hit attack: target is bot
               setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
             break
           case schema.Action.LAUNCH_ATTACK:
-            setAction(false, true, false)
+            if (target >= 0) // Hit attack: target is bot
+              setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
             break
           case schema.Action.PICK_UP_RESOURCE:
             setAction(false, false, true)
@@ -710,31 +755,33 @@ export default class GameWorld {
 
 
     //mining history 
-    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
+    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0
     for (let team in this.meta.teams) {
       let teamID = this.meta.teams[team].teamID
       let statsObj = this.teamStats.get(teamID) as TeamStats
 
+      const averageWindow = 100;
       statsObj.adamantiumMinedHist.push(statsObj.adamantiumMined)
-      if (statsObj.adamantiumMinedHist.length > 100) statsObj.adamantiumMinedHist.shift()
+      if (statsObj.adamantiumMinedHist.length > averageWindow) statsObj.adamantiumMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })        
+        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })
 
       statsObj.manaMinedHist.push(statsObj.manaMined)
-      if (statsObj.manaMinedHist.length > 100) statsObj.manaMinedHist.shift()
+      if (statsObj.manaMinedHist.length > averageWindow) statsObj.manaMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })        
+        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })
 
       statsObj.elixirMinedHist.push(statsObj.elixirMined)
-      if (statsObj.elixirMinedHist.length > 100) statsObj.elixirMinedHist.shift()
+      if (statsObj.elixirMinedHist.length > averageWindow) statsObj.elixirMinedHist.shift()
       if (this.turn % 10 == 0)
-        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })        
+        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })
     }
 
     // Died bodies
     if (delta.diedIDsLength() > 0) {
       // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray())
+      const idsArray = delta.diedIDsArray()
+      var indices = this.bodies.lookupIndices(idsArray)
       for (let i = 0; i < delta.diedIDsLength(); i++) {
         let index = indices[i]
         let team = this.bodies.arrays.team[index]
@@ -748,7 +795,11 @@ export default class GameWorld {
 
       // Update bodies soa
       this.insertDiedBodies(delta)
-      this.bodies.deleteBulk(delta.diedIDsArray())
+      this.bodies.deleteBulk(idsArray)
+
+      // Remove path histories
+      for (let i = 0; i < idsArray.length; i++)
+        this.pathHistory.delete(idsArray[i])
     }
 
     // Insert indicator dots and lines
@@ -860,13 +911,15 @@ export default class GameWorld {
     // let this slide for now.
 
     // Insert bodies
-
+    const idsArray = bodies.robotIDsArray()
+    const xsArray = locs.xsArray()
+    const ysArray = locs.ysArray()
     this.bodies.insertBulk({
-      id: bodies.robotIDsArray(),
+      id: idsArray,
       team: teams,
       type: types,
-      x: locs.xsArray(),
-      y: locs.ysArray(),
+      x: xsArray,
+      y: ysArray,
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
       action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
       target: new Int32Array(bodies.robotIDsLength()),
@@ -879,6 +932,10 @@ export default class GameWorld {
       mana: new Int32Array(bodies.robotIDsLength()),
       anchor: new Int8Array(bodies.robotIDsLength()),
     })
+
+    // Update initial path history
+    for (let i = 0; i < idsArray.length; i++)
+      this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }])
   }
   
   /**
