@@ -913,13 +913,13 @@ public strictfp class GameWorld {
      */
     public boolean inRangeForAmplification(InternalRobot bot) {
         MapLocation loc = bot.getLocation();
-        int maxInterestRadius = Math.max(GameConstants.DISTANCE_FROM_HEADQUARTER, GameConstants.DISTANCE_FROM_SIGNAL_AMPLIFIER);
+        int maxInterestRadius = Math.max(GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER, GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER);
         for(InternalRobot otherRobot: this.getAllRobotsWithinRadiusSquared(bot.getLocation(), maxInterestRadius, bot.getTeam())){
             int maxDistance = 0;
             if (otherRobot.getType() == RobotType.AMPLIFIER) {
-                maxDistance = GameConstants.DISTANCE_FROM_SIGNAL_AMPLIFIER;
+                maxDistance = GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER;
             } else if (otherRobot.getType() == RobotType.HEADQUARTERS) {
-                maxDistance = GameConstants.DISTANCE_FROM_HEADQUARTER;
+                maxDistance = GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER;
             }
             int distance = otherRobot.getLocation().distanceSquaredTo(loc);
             if (distance <= maxDistance)
@@ -928,7 +928,7 @@ public strictfp class GameWorld {
         for(Island island: getAllIslands()) {
             if (island.getTeam() == bot.getTeam()) {
                 int distance = island.minDistTo(loc);
-                if (distance <= GameConstants.DISTANCE_FROM_ISLAND)
+                if (distance <= GameConstants.DISTANCE_SQUARED_FROM_ISLAND)
                     return true;
             }
         }

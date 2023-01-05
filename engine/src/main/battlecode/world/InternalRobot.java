@@ -389,7 +389,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     
     private int getDamage() {
         assert(this.type == RobotType.LAUNCHER);
-        return GameConstants.LAUNCHER_ATTACK_DAMAGE;
+        return this.type.damage;
     }
 
     /**
