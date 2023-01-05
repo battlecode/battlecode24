@@ -11,7 +11,6 @@
     "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env dev",
     "electron": "webpack --mode=development --env electron --env dev && electron .",
     "prod-electron": "webpack --mode=production --env electron && npm uninstall sharp && electron-builder -mwl --dir --ia32 --x64",
-    "prod-electron-no-sign": "webpack --mode=production --env electron && npm uninstall sharp && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -mwl --dir --ia32 --x64",
     "prod-test": "webpack --mode=production --env electron && npm uninstall sharp && electron-builder",
     "shrink-images": "ts-node src/image_processor.ts"
   },
