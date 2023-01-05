@@ -29,7 +29,6 @@
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
-    "sharp": "^0.31.2",
     "speedscope": "1.5.2",
     "victor": "^1.1.0"
   },
@@ -46,6 +45,7 @@
     "file-loader": "^5.0.2",
     "json-loader": "^0.5.7",
     "node": "^14.15.0",
+    "sharp": "^0.31.2",
     "style-loader": "^1.0.1",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
