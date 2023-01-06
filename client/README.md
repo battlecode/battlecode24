@@ -17,5 +17,6 @@ This NPM module does not have any dependencies or meaningful output, but it is f
  * `npm run build`, `npm run build-playback`
  * `npm run electron`: Run the client in electron. You might want to run this most of the time.
  * `npm run watch`: Watch for the changes of `visualizer`. Note that it *does not watch* `playback`.
- * `npm run prod-electron`, `npm run prod-electron-no-sign`, `npm run prod-test`
+ * `npm run prod-electron`: Builds production versions of electron clients, for many OS's. Note that this will probably not work if run on your local machine, but it should work in our production build-and-release environment, which is on GitHub Actions / CI. 
+ * `npm run prod-test`: Builds a production version of the electron client for your local machine's OS.
  * `npm run clean`: Cleans `dist/`. (output folder of `prod`)

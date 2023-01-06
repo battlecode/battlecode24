@@ -20,8 +20,6 @@ export default class Metadata {
    */
   types: {[key: number]: BodyTypeMetaData};
 
-  buildingTypes: schema.BodyType[] = [schema.BodyType.ARCHON, schema.BodyType.LABORATORY, schema.BodyType.WATCHTOWER];
-
   /**
    * All the teams in a game.
    */
@@ -51,20 +49,12 @@ export default class Metadata {
       const body = header.bodyTypeMetadata(i);
       this.types[body.type()] = new BodyTypeMetaData(
         body.type(),
-        body.buildCostLead(),
-        body.buildCostGold(),
-        body.level2CostLead(),
-        body.level2CostGold(),
-        body.level3CostLead(),
-        body.level3CostGold(),
+        body.buildCostAd(),
+        body.buildCostEx(),
+        body.buildCostMn(),
         body.actionCooldown(),
         body.movementCooldown(),
         body.health(),
-        body.level2Health(),
-        body.level3Health(),
-        body.damage(),
-        body.level2Damage(),
-        body.level3Damage(),
         body.actionRadiusSquared(),
         body.visionRadiusSquared(),
         body.bytecodeLimit()
@@ -102,13 +92,14 @@ export class Team {
  */
 export class BodyTypeMetaData {
   constructor(public type: schema.BodyType,
-    public buildCostLead:number, public buildCostGold: number,
-    public level2CostLead: number, public level2CostGold: number,
-    public level3CostLead: number, public level3CostGold: number,
-    public actionCooldown:number, public movementCooldown:number, 
-    public health: number, public level2Health: number, public level3Health: number,
-    public damage: number, public level2Damage: number, public level3Damage: number,
-    public actionRadiusSquared:number, public visionRadiusSquared:number, 
+    public buildCostAdamantium:number,
+    public buildCostElixir: number,
+    public buildCostMana: number,
+    public actionCooldown:number, 
+    public movementCooldown:number, 
+    public health: number, 
+    public actionRadiusSquared:number, 
+    public visionRadiusSquared:number, 
     public bytecodeLimit:number) {
   }
 }
