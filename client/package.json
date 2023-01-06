@@ -23,8 +23,5 @@
   "bugs": {
     "url": "https://github.com/battlecode/battlecode23/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode23#readme",
-  "dependencies": {
-    "deepcopy": "^2.1.0"
-  }
+  "homepage": "https://github.com/battlecode/battlecode23#readme"
 }
