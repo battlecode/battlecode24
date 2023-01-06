@@ -156,7 +156,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public Anchor getTypeAnchor() {
-        assert(this.type == RobotType.CARRIER); // Don't ever call this with a headquarter, TODO: Maybe make this check better
+        assert(this.type == RobotType.CARRIER); // Don't ever call this with a headquarter
         if (getNumAnchors(Anchor.STANDARD) > 0) {
             return Anchor.STANDARD;
         } else if (getNumAnchors(Anchor.ACCELERATING) > 0) {

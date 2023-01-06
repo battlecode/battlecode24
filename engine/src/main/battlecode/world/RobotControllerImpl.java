@@ -621,19 +621,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null) {
-            throw new GameActionException(CANT_DO_THAT,
-            "There is no robot to attack");
-        }
         if (getType() == RobotType.CARRIER){
             int totalResources = getResourceAmount(ResourceType.ADAMANTIUM)+getResourceAmount(ResourceType.MANA)+getResourceAmount(ResourceType.ELIXIR);
             if (totalResources == 0)
                 throw new GameActionException(CANT_DO_THAT,
                     "Robot is a carrier but has no inventory to attack with");
-        }
-        if (!(bot == null) && bot.getTeam().equals(getTeam())) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is not on the enemy team.");
+            if (!(bot == null) && bot.getTeam().equals(getTeam())) {
+                throw new GameActionException(CANT_DO_THAT,
+                        "Robot is not on the enemy team.");
+            }
+        } else {
+            if (bot == null) {
+                throw new GameActionException(CANT_DO_THAT,
+                "There is no robot to attack");
+            }
         }
     }
 
