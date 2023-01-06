@@ -187,7 +187,7 @@ public class TeamInfo {
     public void placeAnchor(Team team) {
         this.totalAnchorsPlaced[team.ordinal()]++;
         this.currentAnchorsPlaced[team.ordinal()]++;
-        if (this.currentAnchorsPlaced[team.ordinal()]/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
+        if (((float)this.currentAnchorsPlaced[team.ordinal()])/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
             checkWin(team); // Do an extra check to make sure the win is correct
         }
     }
