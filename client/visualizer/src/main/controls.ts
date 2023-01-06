@@ -489,7 +489,7 @@ export default class Controls {
       infoString += ` | Mana: <span class="info-num">${mana}</span>`
       infoString += ` | Elixir: <span class="info-num">${elixir}</span>`
       if (anchor)
-        infoString += ` | Anchor: <span class="info-num">${anchor}</span>`
+        infoString += ` | Anchors: <span class="info-num">${anchor}</span>`
     }
     // if (parent !== undefined) infoString += ` | <span class="info-name">Parent:</span> <span class="info-num">${parent}</span>`;
     infoString += `<br><span class="info-name">Indicator String:</span> <span class="info-string"><span class="info-string">${indicatorString}</span></span>`

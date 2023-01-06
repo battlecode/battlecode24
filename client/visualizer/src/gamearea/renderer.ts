@@ -88,7 +88,7 @@ export default class Renderer {
       //  this.renderTrail(world, selectedTrail)
       this.renderBodies(world, curTime, nextStep, lerpAmount)
       if (this.lastSelectedID)
-        this.renderPath(world);
+        this.renderPath(world)
       this.renderEffects(world)
       this.renderHoverBox(world)
       this.renderIndicatorDotsLines(world)
@@ -103,7 +103,7 @@ export default class Renderer {
       this.ctx[key].restore()
   }
 
-  redrawStatic(){
+  redrawStatic() {
     this.staticRendered = false
   }
 
@@ -216,7 +216,7 @@ export default class Renderer {
   }
 
   private renderResources(world: GameWorld) {
-    const ctx = this.ctx[CanvasType.BACKGROUND]
+    const ctx = this.ctx[CanvasType.DYNAMIC]
     ctx.globalAlpha = 1
     let minX = world.minCorner.x
     let minY = world.minCorner.y
@@ -229,12 +229,11 @@ export default class Renderer {
 
       ctx.lineWidth = 1 / 20
       ctx.globalAlpha = 1
-
       const cx = (minX + i), cy = (minY + plotJ)
 
       if (map.resources[idxVal] > 0) {
         let upgraded = map.resource_well_stats.get(idxVal)!.upgraded
-        let size = upgraded ? 1 : .75
+        let size = upgraded ? .95 : .85
         let img = this.imgs.resource_wells[map.resources[idxVal]][upgraded ? 1 : 0]
         if (!this.conf.doingRotate) ctx.drawImage(img, cx + (1 - size) / 2, cy + (1 - size) / 2, size, size)
         else ctx.drawImage(img, cy + (1 - size) / 2, cx + (1 - size) / 2, size, size)
@@ -392,12 +391,12 @@ export default class Renderer {
   }
 
   private renderPath(world: GameWorld) {
-    const path = world.pathHistory.get(this.lastSelectedID);
+    const path = world.pathHistory.get(this.lastSelectedID)
     if (!path || path.length < 2) return
-    if(world.bodies.lookup(this.lastSelectedID).type == cst.HEADQUARTERS) return
+    if (world.bodies.lookup(this.lastSelectedID).type == cst.HEADQUARTERS) return
     const ctx = this.ctx[CanvasType.DYNAMIC]
     const height = world.maxCorner.y - world.minCorner.y
-    
+
     const startLineWidth = 0.15
     ctx.strokeStyle = "white"
     ctx.lineWidth = startLineWidth
@@ -406,14 +405,14 @@ export default class Renderer {
     this.drawCircle(path[0].x, height - path[0].y - 1, ctx.lineWidth / 10, "white", "white")
     ctx.moveTo(path[0].x + .5, (height - path[0].y - .5))
     for (let i = 1; i < path.length; i++) {
-      ctx.globalAlpha = 1 / Math.sqrt(i);
+      ctx.globalAlpha = 1 / Math.sqrt(i)
       ctx.lineWidth = startLineWidth / Math.sqrt(i * 0.5)
       ctx.lineTo(path[i].x + .5, (height - path[i].y - .5))
       ctx.stroke()
       this.drawCircle(path[i].x, height - path[i].y - 1, ctx.lineWidth / 10, "white", "white")
       ctx.moveTo(path[i].x + .5, (height - path[i].y - .5))
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = 1
   }
 
   private renderTrail(world: GameWorld, selectedTrail: { x: number, y: number }[]) {
@@ -519,20 +518,20 @@ export default class Renderer {
       const adamantiumColor = "#838D63"
       const manaColor = "#D79DA2"
       const elixirColor = "#FBCC3F"
-      if (accelerated_anchors[i] > 0) {
+      if (normal_anchors[i] > 0) {
         let anchorColor = "#6C6C6C"
-        this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
-      } else if (normal_anchors[i] > 0) {
-        let anchorColor = "#EEAC09"
-        this.drawCircle(realXs[i], realYs[i] - 0.55, 0.006, anchorColor, "#00000088")
-      } else {
-        if (adamantiums[i])
-          this.drawCircle(realXs[i], realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
-        if (manas[i])
-          this.drawCircle(realXs[i] + 0.2, realYs[i] - 0.5, 0.004, manaColor, "#00000088")
-        if (elixirs[i])
-          this.drawCircle(realXs[i] + 0.4, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
+        this.drawCircle(realXs[i] - 0.45, realYs[i] - 0.45, 0.005, anchorColor, "#00000088")
       }
+      if (accelerated_anchors[i] > 0) {
+        let anchorColor = "#EEAC09"
+        this.drawCircle(realXs[i] - 0.2, realYs[i] - 0.45, 0.005, anchorColor, "#00000088")
+      }
+      if (adamantiums[i])
+        this.drawCircle(realXs[i] + .05, realYs[i] - 0.5, 0.004, adamantiumColor, "#00000088")
+      if (manas[i])
+        this.drawCircle(realXs[i] + 0.25, realYs[i] - 0.5, 0.004, manaColor, "#00000088")
+      if (elixirs[i])
+        this.drawCircle(realXs[i] + 0.45, realYs[i] - 0.5, 0.004, elixirColor, "#00000088")
 
       // draw effect
       if (actions[i] == schema.Action.THROW_ATTACK || actions[i] == schema.Action.LAUNCH_ATTACK) {
@@ -545,14 +544,14 @@ export default class Renderer {
         const startY = realYs[i] + yshift
         const endX = targetxs[i] + xshift
         const endY = this.flip(targetys[i], minY, maxY) + yshift
-        
+
         // Line
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
         ctx.strokeStyle = teams[i] == 1 ? 'red' : 'blue'
         ctx.lineWidth = 0.05
         ctx.stroke()
-        
+
         // Arrow
         const midX = (startX + endX) * 0.5
         const midY = (startY + endY) * 0.5
@@ -569,9 +568,9 @@ export default class Renderer {
 
         // Draw resources if thrower
         if (actions[i] == schema.Action.THROW_ATTACK) {
-          const dv = 0.1; // Scale for distance between dots
-          const dr = 0.0; // Scale for distance from dots to line
-          const rad = 0.001;
+          const dv = 0.1 // Scale for distance between dots
+          const dr = 0.0 // Scale for distance from dots to line
+          const rad = 0.001
           if (prevAdamantiums[i])
             this.drawCircle(midX - 0.5 - rightVec.x * dr, midY - 0.5 - rightVec.y * dr, rad, adamantiumColor, "#00000088")
           if (prevManas[i])
@@ -582,7 +581,7 @@ export default class Renderer {
 
         ctx.restore()
       }
-      
+
       // TODO: handle abilities/actions
       // let effect: string | null = cst.abilityToEffectString(abilities[i]);
       // if (effect !== null) drawEffect(effect, realXs[i], realYs[i]);
@@ -630,7 +629,7 @@ export default class Renderer {
   private drawCircle(x: number, y: number, radiusSquared: number, color: string, borderColor: string) {
     const ctx = this.ctx[CanvasType.DYNAMIC]
     if (this.conf.doingRotate) [x, y] = [y, x]
-    ctx.save();
+    ctx.save()
     ctx.beginPath()
     ctx.arc(x + 0.5, y + 0.5, Math.sqrt(radiusSquared), 0, 2 * Math.PI)
     ctx.strokeStyle = borderColor
@@ -638,7 +637,7 @@ export default class Renderer {
     ctx.stroke()
     ctx.fillStyle = color
     ctx.fill()
-    ctx.restore();
+    ctx.restore()
   }
 
   /**
