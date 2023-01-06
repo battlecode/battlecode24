@@ -5,6 +5,7 @@ import { gameworld, schema } from 'battlecode-playback';
 import Runner from '../runner';
 import Chart = require('chart.js');
 import { HEADQUARTERS } from '../constants';
+import { threadId } from 'worker_threads';
 
 const blue_background_chart_rgb: Chart.ChartColor = 'rgba(54, 162, 235, 0)'
 const blue_border_chart_rgb: Chart.ChartColor = 'rgb(108, 140, 188)'
@@ -798,7 +799,7 @@ export default class Stats {
       legend: { display: false },
       title: {
         display: true,
-        text: 'Elixit Distribution'
+        text: 'Elixir Distribution'
       }
     }
       
@@ -998,6 +999,9 @@ export default class Stats {
    
     this.distribChartAdamantium.data.datasets![0].data = [blueHQsAd, redHQsAd, blueRobotsAd, redRobotsAd];
 
+    this.distribChartAdamantium.update()
+    this.distribChartElixir.update()
+    this.distribChartMana.update()
 
   }
   
