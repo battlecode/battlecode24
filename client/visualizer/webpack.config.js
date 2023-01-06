@@ -1,10 +1,10 @@
 // This is all james' fault
 // Don't worry, he eventually repented and became an electrical engineer
 
-var webpack = require('webpack');
-var merge = require('webpack-merge');
-var path = require('path');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+var webpack = require('webpack')
+var merge = require('webpack-merge')
+var path = require('path')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 
 var conf = {
   context: path.resolve(__dirname, 'src'),
@@ -35,10 +35,10 @@ var conf = {
         transform: (content, filePath) => {
           // Make speedscope's localProfilePath hash parameter support relative paths
           if (filePath.endsWith('.js')) {
-            return content.toString().replace('file:///', '');
+            return content.toString().replace('file:///', '')
           }
 
-          return content;
+          return content
         }
       }
     ])
@@ -47,12 +47,15 @@ var conf = {
     devMiddleware: {
       // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
       writeToDisk: filePath => filePath.includes('speedscope/')
-    }
+    },
+    static: {
+      directory: path.join(__dirname, '/'),
+    },
   }
-};
+}
 
-module.exports = function(env) {
-  env = env || {};
+module.exports = function (env) {
+  env = env || {}
 
   if (env.dev) {
     // we're in dev
@@ -65,7 +68,7 @@ module.exports = function(env) {
           debug: true
         }),
       ]
-    });
+    })
   } else {
     // we're compiling for prod
     conf = merge(conf, {
@@ -77,7 +80,7 @@ module.exports = function(env) {
           debug: false
         }),
       ]
-    });
+    })
   }
 
   if (env.electron) {
@@ -91,7 +94,7 @@ module.exports = function(env) {
       ],
       // electron will find './out/thing.ext' but won't find '/out/thing.ext'
       output: { publicPath: './out/' }
-    });
+    })
   } else {
     // we're compiling for the browser
     conf = merge(conf, {
@@ -107,8 +110,8 @@ module.exports = function(env) {
       //   'child_process': 'child_process',
       //   'http': 'http'
       // }
-    });
+    })
   }
 
-  return conf;
-};
+  return conf
+}
