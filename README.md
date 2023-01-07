@@ -1,4 +1,4 @@
-# Battlecode 2022
+# Battlecode 2023
 
 🚩
 
@@ -15,14 +15,6 @@ Instead, follow the instructions [here](https://play.battlecode.org/getting-star
 - `/example-bots`: A bunch of example bots for the game!
 
 ## Development
-
-### Website
-
-While it isn't strictly necessary, running is easier with [Docker](https://docs.docker.com/get-docker/) installed. If you have Windows, I'd also recommend installing [Cygwin](https://www.cygwin.com/), since we have some scripts and programs that won't work with the standard Windows command prompt. (Docker is not strictly necessary, but it makes stuff easier, especially the backend.)
-
-It's easiest to run the frontend and backend individually, in a separate terminal window for each. For instructions on how to do this, see each of their directories' readmes.
-
-You could also run both the backend and the frontend in a single Docker container, by running `docker-compose up --build`. But, it's better to run them individuallly.
 
 ### Engine
 
@@ -49,20 +41,6 @@ npm run watch
 ```
 
 which will launch the client on http://localhost:8080 (if available).
-
-### Docs
-
-You can generate javadocs as follows:
-
-```
-./gradlew release_docs_zip -Prelease_version=2020.0.0.0.0.1
-```
-
-This will create a `zip` file. Unzip and open the `index.html` file in it to view the docs. In particular, looking at the documentation for `RobotController` will be helpful.
-
-To deploy these docs, get the above zip file, and unzip it. Rename the resulting folder to `javadoc`. Then, put it in `frontend/public`, suchh that there's a `frontend/public/javadoc/index.html`. Then run the frontend deploy process!
-
-TODO -- these steps ought to simply be in the frontend deploy script.
 
 ## Notes for porting to a new repo
 
