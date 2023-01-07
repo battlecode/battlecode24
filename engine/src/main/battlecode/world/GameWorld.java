@@ -414,10 +414,10 @@ public strictfp class GameWorld {
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
-    public Island[] getAllIslandsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+    public Island[] getAllIslandsWithinVision(InternalRobot robot, int radiusSquared) {
         ArrayList<Island> returnIslands = new ArrayList<Island>();
-        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
-            if (getIsland(newLocation) != null)
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(robot.getLocation(), radiusSquared))
+            if (robot.canSenseLocation(newLocation) && getIsland(newLocation) != null)
                 returnIslands.add(getIsland(newLocation));
         return returnIslands.toArray(new Island[returnIslands.size()]);
     }

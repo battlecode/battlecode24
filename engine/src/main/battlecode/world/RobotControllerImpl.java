@@ -7,9 +7,7 @@ import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 
 import java.util.*;
-
-import org.apache.commons.lang3.NotImplementedException;
-
+import java.util.stream.Collectors;
 
 /**
  * The actual implementation of RobotController. Its methods *must* be called
@@ -148,8 +146,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** GENERAL VISION METHODS *****
     // ***********************************
 
-    //TODO: Make sure all parameter have assertNotNull on them
-
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
@@ -187,11 +183,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             assertCanSenseLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public boolean canSenseRadiusSquared(int radiusSquared) {
-        return this.robot.canSenseRadiusSquared(radiusSquared);
     }
 
     @Override
@@ -239,7 +230,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         try {
             return senseNearbyRobots(-1);
         } catch (GameActionException e) {
-            // TODO: why do we need to do this?
             return new RobotInfo[0];
         }
     }
@@ -270,7 +260,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             // check if can sense
             if (!canSenseLocation(sensedRobot.getLocation()))
                 continue; 
-            // check if right team TODO probably don't need
+            // check if right team
             if (team != null && sensedRobot.getTeam() != team)
                 continue;
             validSensedRobots.add(sensedRobot.getRobotInfo());
@@ -293,7 +283,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public int[] senseNearbyIslands() {
-        Island[] allSensedIslands = gameWorld.getAllIslandsWithinRadiusSquared(getLocation(), getType().visionRadiusSquared);
+        Island[] allSensedIslands = gameWorld.getAllIslandsWithinVision(this.robot, getType().visionRadiusSquared);
         Set<Integer> islandIdsSet = new HashSet<>();
         for(int i = 0; i < allSensedIslands.length; i++) {
             islandIdsSet.add(allSensedIslands[i].ID);
@@ -435,7 +425,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (radiusSquared < 0)
             throw new GameActionException(CANT_DO_THAT,
                     "Radius squared must be non-negative.");
-        return this.gameWorld.getAllLocationsWithinRadiusSquared(center, Math.min(radiusSquared, getType().visionRadiusSquared));
+        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, Math.min(radiusSquared, getType().visionRadiusSquared));
+        List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
+        return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
     }
 
     // ***********************************
