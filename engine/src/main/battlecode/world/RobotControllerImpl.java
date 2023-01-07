@@ -308,8 +308,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException {
-        return senseNearbyIslandLocations(-1, idx);
+    public MapLocation[] senseNearbyIslandLocations(int idx) {
+        try {
+            return senseNearbyIslandLocations(-1, idx);
+        } catch (GameActionException e) {
+            return new MapLocation[0];
+        }
     }
     
     @Override
@@ -772,6 +776,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
+        assertCanActLocation(loc);
         assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER)
@@ -802,11 +807,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void collectResource(MapLocation loc, int amount) throws GameActionException {
         assertCanCollectResource(loc, amount);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
-    
-        // For methods below, Inventory class would have to first be implemented
-        // --> Inventory would have methods such as canAdd() and add[ResourceName](amount)
-        // Also assuming that ResourceType is a class tht returns an enum
-        // --> Would check to see what resources a well holds
 
         ResourceType rType = gameWorld.getWell(loc).getResourceType();
         if (rType == ResourceType.NO_RESOURCE) {
@@ -862,6 +862,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertNotNull(anchor);
         assertCanActLocation(loc);
+        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER){
             throw new GameActionException(CANT_DO_THAT,
