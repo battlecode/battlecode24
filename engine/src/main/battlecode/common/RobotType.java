@@ -101,8 +101,6 @@ public enum RobotType {
 
     /**
      * The damage per attack for a robot of this type.
-     *
-     * @see #getDamage
      */
     public final int damage;
 

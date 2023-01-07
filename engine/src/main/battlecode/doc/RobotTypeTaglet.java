@@ -177,10 +177,6 @@ public class RobotTypeTaglet implements Taglet {
 
         StringBuilder builder = new StringBuilder();
         try {
-            appendField(builder, rt, "buildCostLead");
-            builder.append("<br />");
-            appendField(builder, rt, "buildCostGold");
-            builder.append("<br />");
             appendField(builder, rt, "actionCooldown");
             builder.append("<br />");
             appendField(builder, rt, "movementCooldown");

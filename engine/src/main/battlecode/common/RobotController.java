@@ -838,6 +838,7 @@ public strictfp interface RobotController {
      * 
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
+     * @return whether it is possible to write to the shared array
      * 
      * @battlecode.doc.costlymethod
      */
