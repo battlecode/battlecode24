@@ -315,8 +315,9 @@ public strictfp interface RobotController {
      * 
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
+     * @throws GameActionException if the robot cannot sense the island with the specificed id
      */
-    MapLocation[] senseNearbyIslandLocations(int idx);
+    MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException;
 
     /**
      * Returns an array of all locations that belong to the island with the given index that are
@@ -328,7 +329,7 @@ public strictfp interface RobotController {
      * @param radiusSquared the squared radius of all locations to be returned
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
-     * @throws GameActionException if the radius is negative (and not -1)
+     * @throws GameActionException if the radius is negative (and not -1) or specified island cannot be sensed
      *
      * @battlecode.doc.costlymethod
      */
@@ -345,7 +346,7 @@ public strictfp interface RobotController {
      * @param radiusSquared the squared radius of all locations to be returned
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
-     * @throws GameActionException if the radius is negative (and not -1)
+     * @throws GameActionException if the radius is negative (and not -1) or specified island cannot be sensed
      *
      * @battlecode.doc.costlymethod
      */

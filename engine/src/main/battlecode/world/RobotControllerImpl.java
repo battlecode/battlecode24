@@ -308,12 +308,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public MapLocation[] senseNearbyIslandLocations(int idx) {
-        try {
-            return senseNearbyIslandLocations(-1, idx);
-        } catch (GameActionException e) {
-            return new MapLocation[0];
-        }
+    public MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException {
+        return senseNearbyIslandLocations(-1, idx);
     }
     
     @Override
