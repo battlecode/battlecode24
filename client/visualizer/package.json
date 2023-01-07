@@ -29,9 +29,9 @@
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
+    "deepcopy": "^2.1.0",
     "speedscope": "1.5.2",
-    "victor": "^1.1.0",
-    "deepcopy": "^2.1.0"
+    "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",

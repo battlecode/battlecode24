@@ -42,7 +42,10 @@ export default class ScaffoldCommunicator {
   }
 
   get sourcePath() {
-    return path.join(this.scaffoldPath, 'src')
+    let sp = path.join(this.scaffoldPath, 'src')
+    if (!fs.existsSync(sp))
+      sp = path.join(this.scaffoldPath, 'example-bots', 'src')
+    return sp
   }
 
   /**
@@ -163,7 +166,7 @@ export default class ScaffoldCommunicator {
       `-PteamB=${teamB}`,
       `-Pmaps=${maps.join(',')}`,
       `-PenableProfiler=${enableProfiler}`,
-    ];
+    ]
     const proc = child_process.spawn(
       this.wrapperPath,
       options,
