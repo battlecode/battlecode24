@@ -15,17 +15,13 @@ import battlecode.util.TeamMapping;
 import battlecode.world.*;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.array.TCharArrayList;
 import java.util.List;
 import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.function.ToIntFunction;
 import java.util.zip.GZIPOutputStream;
 

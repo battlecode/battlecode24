@@ -10,7 +10,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "2022.2.2.0";
+    public static final String SPEC_VERSION = "0.1.1";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -50,14 +50,12 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    //TODO: fix -> I think I changed these to correct amounts (200)
     /** The initial amount of mana each team starts with. */
     public static final int INITIAL_MN_AMOUNT = 200;
 
     /** The initial amount of adamantium each team starts with. */
     public static final int INITIAL_AD_AMOUNT = 200;
 
-    //TODO: We may want to reduce this since it is added to each hq
     /** The amount of adamantium each headquarter on a team gains per turn. */
     public static final int PASSIVE_AD_INCREASE = 2;
 

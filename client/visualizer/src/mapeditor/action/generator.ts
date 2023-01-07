@@ -17,15 +17,16 @@ export type UploadedMap = {
   name: string,
   width: number,
   height: number,
-  rubble: number[],
-  lead: number[],
-  anomalies: number[],
-  anomalyRounds: number[],
+  walls: boolean[],
+  resources: number[],
+  clouds: boolean[],
+  currents: number[],
+  islands: number[],
   bodies: MapUnit[]
 }
 
 /**
- * Generates a .map22 file from a GameMap. Assumes the given GameMap represents
+ * Generates a .mapXX file from a GameMap. Assumes the given GameMap represents
  * a valid game map.
  */
 export default class MapGenerator {
@@ -134,10 +135,11 @@ export default class MapGenerator {
     // schema.SpawnedBodyTable.addInfluences(builder, influencesVectorB);
     const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-    const rubble = schema.GameMap.createRubbleVector(builder, map.rubble);
-    const lead = schema.GameMap.createRubbleVector(builder, map.leadVals);
-    const anomalies = schema.GameMap.createAnomaliesVector(builder, map.anomalies);
-    const anomalyRounds = schema.GameMap.createAnomalyRoundsVector(builder, map.anomalyRounds);
+    const walls = schema.GameMap.createWallsVector(builder, map.walls);
+    const resources = schema.GameMap.createResourcesVector(builder, map.resource_wells);
+    const clouds = schema.GameMap.createCloudsVector(builder, map.clouds);
+    const currents = schema.GameMap.createCurrentsVector(builder, map.currents);
+    const islands = schema.GameMap.createIslandsVector(builder, map.islands);
 
     // Create the game map
     let nameP = builder.createString(name);
@@ -148,10 +150,13 @@ export default class MapGenerator {
     schema.GameMap.addSymmetry(builder, map.symmetry);
     schema.GameMap.addBodies(builder, bodies);
     schema.GameMap.addRandomSeed(builder, randomSeed);
-    schema.GameMap.addRubble(builder, rubble);
-    schema.GameMap.addLead(builder, lead);
-    schema.GameMap.addAnomalies(builder, anomalies);
-    schema.GameMap.addAnomalyRounds(builder, anomalyRounds);
+    schema.GameMap.addWalls(builder, walls);
+    schema.GameMap.addResources(builder, resources);
+    schema.GameMap.addClouds(builder, clouds);
+    schema.GameMap.addIslands(builder, islands);
+    schema.GameMap.addCurrents(builder, currents);
+
+
     const gameMap = schema.GameMap.endGameMap(builder);
 
     // Return the game map to write to a file
@@ -185,7 +190,7 @@ export default class MapGenerator {
   }
 
   /**
-   * Reads a .map22 file.
+   * Reads a .mapXX file.
    */
   static readMap(file: ArrayBuffer): UploadedMap {
     const data = new Uint8Array(file);
@@ -212,14 +217,16 @@ export default class MapGenerator {
         radius: 0.5
       });
     }
+    console.log(map.cloudsArray())
     return {
       name: map.name()!,
       width: maxCorner.x() - minCorner.x(),
       height: maxCorner.y() - minCorner.y(),
-      rubble: Array.from(map.rubbleArray()!),
-      lead: Array.from(map.leadArray()!),
-      anomalies: Array.from(map.anomaliesArray()!),
-      anomalyRounds: Array.from(map.anomalyRoundsArray()!),
+      walls: Array.from(map.wallsArray()!).map(Boolean),
+      resources: Array.from(map.resourcesArray()!),
+      clouds: Array.from(map.cloudsArray()!).map(Boolean),
+      currents:Array.from(map.currentsArray()!),
+      islands:Array.from(map.islandsArray()!),
       bodies: mapUnits
     };
   }

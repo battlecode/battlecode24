@@ -1,6 +1,6 @@
 {
   "name": "battlecode-client",
-  "version": "2022.0.0",
+  "version": "2023.0.0",
   "description": "Client wrapper of visualizer and playback",
   "main": "visualizer/electron-main.js",
   "scripts": {
@@ -12,18 +12,16 @@
     "electron": "npm run build-playback && (cd visualizer && npm run electron)",
     "watch": "npm run build-playback && (cd visualizer && npm run watch)",
     "prod-electron": "npm run build-playback && (cd visualizer && npm run prod-electron)",
-    "prod-electron-no-sign": "npm run build-playback && (cd visualizer && npm run prod-electron-no-sign)",
     "prod-test": "npm run build-playback && (cd visualizer && npm run prod-test)"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/battlecode/battlecode21.git"
+    "url": "git+https://github.com/battlecode/battlecode23.git"
   },
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/battlecode/battlecode21/issues"
+    "url": "https://github.com/battlecode/battlecode23/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode21#readme",
-  "dependencies": {}
+  "homepage": "https://github.com/battlecode/battlecode23#readme"
 }

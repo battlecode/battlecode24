@@ -8,7 +8,6 @@ import battlecode.common.Team;
 import battlecode.schema.Action;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
-import battlecode.world.Inventory;
 
 public class InternalCarrier extends InternalRobot {
 

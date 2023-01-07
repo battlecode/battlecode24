@@ -47,7 +47,7 @@ public strictfp interface RobotController {
     int getMapHeight();
 
     /**
-     * Returns the number of robots on your team, including Archons.
+     * Returns the number of robots on your team, including Headquarters.
      * If this number ever reaches zero, you immediately lose.
      *
      * @return the number of robots on your team
@@ -261,7 +261,7 @@ public strictfp interface RobotController {
      * radius is used
      * @param team filter game objects by the given team; if null is passed,
      * objects from all teams are returned
-     * @return sorted array of RobotInfo objects of the robots you saw
+     * @return array of RobotInfo objects of the robots you saw
      * @throws GameActionException if the radius is negative (and not -1) or the center given is null
      *
      * @battlecode.doc.costlymethod
@@ -297,7 +297,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int[] senseNearbyIslands() throws GameActionException;
+    int[] senseNearbyIslands();
 
     /**
      * Returns an array of all locations that belong to the island with the given index that are within
@@ -305,6 +305,7 @@ public strictfp interface RobotController {
      * 
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
+     * @throws GameActionException if the robot cannot sense the island with the specificed id
      */
     MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException;
 
@@ -318,7 +319,7 @@ public strictfp interface RobotController {
      * @param radiusSquared the squared radius of all locations to be returned
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
-     * @throws GameActionException if the radius is negative (and not -1)
+     * @throws GameActionException if the radius is negative (and not -1) or specified island cannot be sensed
      *
      * @battlecode.doc.costlymethod
      */
@@ -335,7 +336,7 @@ public strictfp interface RobotController {
      * @param radiusSquared the squared radius of all locations to be returned
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
-     * @throws GameActionException if the radius is negative (and not -1)
+     * @throws GameActionException if the radius is negative (and not -1) or specified island cannot be sensed
      *
      * @battlecode.doc.costlymethod
      */
@@ -344,7 +345,7 @@ public strictfp interface RobotController {
     /**
      * Return the team controlling the island with index islandIdx.
      * 
-     * @param islandIdx
+     * @param islandIdx the index of the specified island
      * @return team controlling the island.
      * @throws GameActionException if islandIdx does not correspond to a visible island
      */
@@ -353,7 +354,7 @@ public strictfp interface RobotController {
     /**
      * Return the number of turns left to remove the anchor on the island with index idlandIdx, -1 if there is no anchor.
      * 
-     * @param islandIdx
+     * @param islandIdx the index of the specified island
      * @return number of turns left to remove the anchor on the island, -1 if there is no anchor.
      * @throws GameActionException if islandIdx does not correspond to a visible island
      */
@@ -362,7 +363,7 @@ public strictfp interface RobotController {
     /**
      * Return type of anchor on this island, null if there is no anchor.
      * 
-     * @param islandIdx
+     * @param islandIdx the index of the specified island
      * @return type of anchor on this island, null if there is no anchor.
      * @throws GameActionException if islandIdx does not correspond to a visible island
      */
@@ -553,18 +554,16 @@ public strictfp interface RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-
-    //TODO: fix these descriptions
     /**
      * Tests whether the robot can build a robot of the given type in the
-     * given direction. Checks that the robot is of a type that can build,
+     * given location. Checks that the robot is of a type that can build,
      * that the robot can build the desired type, that the target location is
      * on the map, that the target location is not occupied, that the robot has
-     * the amount of lead/gold it's trying to spend, and that there are no
+     * the amount of resources it's trying to spend, and that there are no
      * cooldown turns remaining.
      *
      * @param type the type of robot to build
-     * @param dir the direction to build in
+     * @param loc the location to spawn the robot
      * @return whether it is possible to build a robot of the given type in the
      * given direction
      *
@@ -573,10 +572,10 @@ public strictfp interface RobotController {
     boolean canBuildRobot(RobotType type, MapLocation loc);
 
     /**
-     * Builds a robot of the given type in the given direction.
+     * Builds a robot of the given type in the given location.
      *
      * @param type the type of robot to build
-     * @param dir the direction to spawn the unit
+     * @param loc the location to spawn the unit
      * @throws GameActionException if the conditions of <code>canBuildRobot</code>
      * are not all satisfied
      *
@@ -623,7 +622,6 @@ public strictfp interface RobotController {
      * Checks that the robot can boost other units. Also checks that there are no 
      * cooldown turns remaining.
      *
-     * @param  none
      * @return whether it is possible for this robot to boost
      *
      * @battlecode.doc.costlymethod
@@ -634,7 +632,6 @@ public strictfp interface RobotController {
     /** 
      * Boosts at a given location.
      *
-     * @param none
      * @throws GameActionException if conditions for boosting are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -645,14 +642,13 @@ public strictfp interface RobotController {
     // ****** DESTABILIZER METHODS *******
     // ***********************************
 
-    // TODO: fix spec to have loc
     /**
      * Tests whether this robot is able to destabilize
      * 
      * Checks that the robot can destabilize other units. Also checks that there are no 
-     * cooldown turns remaining.
+     * cooldown turns remaining and the location is within range to act upon.
      *
-     * @param  none
+     * @param loc the location at which the destabilizing attack will be centered
      * @return whether it is possible for this robot to destabilize
      *
      * @battlecode.doc.costlymethod
@@ -663,7 +659,7 @@ public strictfp interface RobotController {
     /** 
      * Destabilizes at a given location.
      *
-     * @param none
+     * @param loc the location at which the destabilizing attack will be centered
      * @throws GameActionException if conditions for destabilizing are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -740,9 +736,23 @@ public strictfp interface RobotController {
      */
     void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
 
-    //TODO: spec
+    /**
+     * Tests if the current robot can build an anchor of type anchor. 
+     * 
+     * To be able to build an anchor a robot must be a headquarter and 
+     * have sufficient resources for the anchor being built
+     * 
+     * @param anchor the anchor to be built
+     * @return whether it is possible to build the specified anchor
+     */
     boolean canBuildAnchor(Anchor anchor);
 
+    /**
+     * Builds an anchor of type anchor. Subtracts the necessary resources.
+     * 
+     * @param anchor the anchor to be built
+     * @throws GameActionException if conditions for building anchors are not satsified
+     */
     void buildAnchor(Anchor anchor) throws GameActionException;
 
     /**
@@ -753,7 +763,6 @@ public strictfp interface RobotController {
      * 
      * Valid locations must be the current location or adjacent to the current 
      * location. 
-     * TODO: is the above true then my code is wrong, let's check
      * 
      * Checks that carrier has sufficient capacity for the anchor. 
      *
@@ -797,11 +806,6 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
-    // ***************************
-    // **** AMPLIFIER METHODS **** 
-    // ***************************
-
-
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
@@ -825,6 +829,7 @@ public strictfp interface RobotController {
      * 
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
+     * @return whether it is possible to write to the shared array
      * 
      * @battlecode.doc.costlymethod
      */
