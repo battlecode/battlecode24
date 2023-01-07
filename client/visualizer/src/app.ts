@@ -75,11 +75,16 @@ export default class Client {
     this.conf = config.defaults(conf);
 
     imageloader.loadAll(conf, (images: imageloader.AllImages) => {
+      console.log("Loading images complete")
+
       this.imgs = images;
       this.runner = new Runner(this.root, this.conf, this.imgs);
-      this.root.appendChild(this.loadControls());
       this.root.appendChild(this.loadSidebar());
-      this.root.appendChild(this.loadGameArea());
+      let rightside = document.createElement('div');
+      rightside.id = "rightside"
+      this.root.appendChild(rightside)
+      rightside.appendChild(this.loadControls());
+      rightside.appendChild(this.loadGameArea());
       this.loadScaffold();
       this.runner.ready(this.controls, this.stats, this.gamearea, this.console, this.matchqueue, this.sidebar, this.profiler);
     });

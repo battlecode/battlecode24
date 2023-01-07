@@ -1,17 +1,8 @@
-# Battlecode Visualizer 2020 📺
+# Battlecode Visualizer 2023 📺
 
-This is the game client for Battlecode 2020, which can run in your web browser or as a standalone application.
+This is the game client for Battlecode 2023, which can run in your web browser or as a standalone application.
 
 If you're a competitor and not interested in *developing* the client, you shouldn't do any of the things this document tells you to do. Proceed at your own risk.
-
-### NPM scripts
- * `npm run watch`
- * `npm run electron`
- * `npm run prod-electron`
- * `npm run prod-electron-no-sign`
- * `npm run prod-test`: Test just for local platform.
- * `npm run clean`
-
 
 ### Tournament Mode
 
@@ -36,7 +27,7 @@ To watch using a standalone app (Electron):
 $ npm run electron
 ```
 
-When you `npm run electron`, you can set the default file to run when it is launched, by placing `default.bc22` in `/client` folder. So, it's loading `/client/default.bc22` file when it is launched.
+When you `npm run electron`, you can set the default file to run when it is launched, by placing `default.bc23` in `/client` folder. So, it's loading `/client/default.bc23` file when it is launched.
 
 To run the tests:
 ```sh
@@ -48,13 +39,21 @@ All code and assets go in `src`, which is written in Typescript. Note that we're
 
 If you want to add a dependency, run `npm install --save package-name` and then `npm install --save @types/package-name` (for the typescript declarations). If `@types/package-name` doesn't exist, sacrifice a goat, or possibly a grad student.
 
-Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc22` match files. This repo has everything else; video, sound, controls, etc.
+Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc23` match files. This repo has everything else; video, sound, controls, etc.
 
 If you've made a change in `../playback` and want to integrate it here, you need to do `npm install` again. It's a bit of a pain; and should probably be integrated in this folder at some point.
 
+To delete the output of `prod` commands, run 
+
+```sh
+$ npm run clean
+```
+
 ### Deploying
 
-To build a release bundle:
+#### Non-Electron
+
+To get a web-based version of the client, run:
 ```sh
 $ npm run prod
 ```
@@ -65,3 +64,15 @@ This will bundle up all of the assets you want in the `out` folder. You can then
 - `<script>window.battlecode.mount(document.getElementById('battlecode-div'))</script>`
 
 You now have a copy of the battlecode client running on your web page. See `src/app.ts` and `src/config.ts` to learn about the client's API.
+
+#### Electron
+
+Electron releases are produced in GitHub Actions, which runs `npm run prod-electron` (see `.github/workflows/release.yml`). Note that this command will probably fail if run from your local machine. 
+
+If you want to test some sort of production electron release, do:
+
+```sh
+$ npm run prod-test
+```
+
+This will build the electron release for your own OS and architecture. Then, find it in the `dist` folder of `client`.
