@@ -28,6 +28,8 @@ repositories {
 
 dependencies {
   implementation(
+    [group: 'org.slf4j', name: 'slf4j-api', version: '2.0.6'],
+    [group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.6'],
     [group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'],
     [group: 'commons-cli', name: 'commons-cli', version: '1.5.0'],
     [group: 'commons-io', name: 'commons-io', version: '2.11.0'],

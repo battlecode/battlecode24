@@ -33,16 +33,6 @@ dependencies {
     bots project(":example-bots")
 }
 
-test {
-    debugOptions {
-        enabled = true
-        host = 'localhost'
-        port = 5005
-        server = true
-        suspend = true
-    }
-}
-
 def serverJar = configurations.engine.singleFile
 
 task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
