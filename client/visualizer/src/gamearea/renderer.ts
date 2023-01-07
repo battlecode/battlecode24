@@ -322,7 +322,7 @@ export default class Renderer {
   }
 
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
-    ctx.globalAlpha = .5
+    ctx.globalAlpha = .7
 
     const sigmoid = (x) => { return 1 / (1 + Math.exp(-x)) }
     const blendColors = (colorA, colorB, amount) => {
@@ -336,7 +336,7 @@ export default class Renderer {
 
     let first_color = '#666666'
     if (island_stat.owner != 0)
-      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], sigmoid(island_stat.flip_progress / 15 - 2))
+      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], Math.min(1, sigmoid(island_stat.flip_progress / 15 - 2) + .3))
 
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
 
