@@ -150,16 +150,6 @@ public strictfp interface RobotController {
     boolean canSenseLocation(MapLocation loc);
 
     /**
-     * Checks whether a point at the given radius squared is within the robot's vision range.
-     *
-     * @param radiusSquared the radius to check
-     * @return true if the given radius is within the robot's vision range; false otherwise
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSenseRadiusSquared(int radiusSquared);
-
-    /**
      * Checks whether a robot is at a given location. Assumes the location is valid.
      *
      * @param loc the location to check
