@@ -364,6 +364,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public Well senseWell(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getWell(loc);
+    }
+
+    @Override
     public Well[] senseNearbyWells() {
         return senseNearbyWells(null);
     }

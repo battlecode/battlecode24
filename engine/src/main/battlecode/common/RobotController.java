@@ -370,6 +370,17 @@ public strictfp interface RobotController {
     Anchor senseAnchor(int islandIdx) throws GameActionException;
 
     /**
+     * Sense well at location.
+     *
+     * @param loc to sense well at
+     * @return Well at given location
+     * @throws GameActionException if location can not be sensed
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Well senseWell(MapLocation loc) throws GameActionException;
+
+    /**
      * Return all wells.
      *
      * @return all locations within vision radius that contain wells
