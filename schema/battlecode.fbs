@@ -250,8 +250,6 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
-
-    // TODO: Do we want these for visual purposes, they have to actually be stored in headquarters this year but client may find it useful to know the total amount for graphs
     /// The total amount of Ad change of this team, this round
     teamAdChanges: [int];
     /// The total amount of Mn change of this team, this round

@@ -441,7 +441,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // ****** BYTECODE METHODS *********
     // *********************************
 
-    // TODO
     public boolean canExecuteCode() {
         return true;
     }

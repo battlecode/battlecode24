@@ -80,7 +80,6 @@ public class Well {
         return type;
     }
   
-    // TODO: Rather than doing this we should have an upgrade part of the state, this can become weird as we empty it
     public boolean isUpgraded(){
         return this.isUpgraded;
     }

@@ -10,7 +10,7 @@ import battlecode.common.*;
 
 public class Island {
     final int ID;
-    final MapLocation[] locations; // TODO: do we want to make this immutable or change it to a copy to be extra safe?
+    final MapLocation[] locations;
     final GameWorld gw;
     Team teamOwning;
     Anchor anchorPlanted;

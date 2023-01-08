@@ -160,8 +160,6 @@ public strictfp class GameWorld {
             return GameState.DONE;
         }
 
-        // TODO: eliminate debugging prints eventually
-
         try {
             this.processBeginningOfRound();
             this.controlProvider.roundStarted();
@@ -673,7 +671,6 @@ public strictfp class GameWorld {
                         //deal damage
                         InternalRobot robot = getRobot(loc);
                         if (robot != null && robot.getTeam().ordinal() == teamIndex) {
-                            // TODO: Send correct action info to client, this may be hard
                             robot.addHealth(-1*robot.getType().damage);
                         }
                         //update multiplier if no longer being destabilized

@@ -145,7 +145,6 @@ public class TeamInfo {
     	this.adamantiumCounts[team.ordinal()] += amount;
     }
 
-    //TODO: Make sure all switches have breaks after them
     public void addResource(ResourceType rType, Team team, int amount) throws IllegalArgumentException {
         switch (rType) {
             case ADAMANTIUM:

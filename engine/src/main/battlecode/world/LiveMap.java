@@ -95,7 +95,6 @@ public strictfp class LiveMap {
         this.mapName = mapName;
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        // TODO: Automatically or manually verify these are consistent
         this.wallArray = new boolean[width * height];
         this.cloudArray = new boolean[width * height];
         this.currentArray = new int[width * height];

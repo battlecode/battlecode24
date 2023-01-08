@@ -73,8 +73,6 @@ public class MapBuilder {
                 throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
             }
         }
-        // TODO: You shouldn't need to add until you actually create the internal robot
-
         bodies.add(new RobotInfo(
                 id,
                 team,

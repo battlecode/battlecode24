@@ -345,7 +345,6 @@ public final strictfp class GameMapIO {
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType == RobotType.HEADQUARTERS) {
-                    // TODO: currently assuming initial amount is added to each headquarter, this may be wrong
                     Inventory headquarterInventory = new Inventory();
                     initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, headquarterInventory, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
                 }
