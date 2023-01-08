@@ -306,6 +306,8 @@ public strictfp interface RobotController {
      * @param idx the index of the island to search for
      * @return array of nearby locations on the island
      * @throws GameActionException if the robot cannot sense the island with the specificed id
+     * 
+     * @battlecode.doc.costlymethod
      */
     MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException;
 
@@ -348,6 +350,8 @@ public strictfp interface RobotController {
      * @param islandIdx the index of the specified island
      * @return team controlling the island.
      * @throws GameActionException if islandIdx does not correspond to a visible island
+     * 
+     * @battlecode.doc.costlymethod
      */
     Team senseTeamOccupyingIsland(int islandIdx) throws GameActionException;
 
@@ -357,6 +361,8 @@ public strictfp interface RobotController {
      * @param islandIdx the index of the specified island
      * @return number of turns left to remove the anchor on the island, -1 if there is no anchor.
      * @throws GameActionException if islandIdx does not correspond to a visible island
+     * 
+     * @battlecode.doc.costlymethod
      */
     int senseTurnsLeftToTurn(int islandIdx) throws GameActionException;
 
@@ -366,6 +372,8 @@ public strictfp interface RobotController {
      * @param islandIdx the index of the specified island
      * @return type of anchor on this island, null if there is no anchor.
      * @throws GameActionException if islandIdx does not correspond to a visible island
+     * 
+     * @battlecode.doc.costlymethod
      */
     Anchor senseAnchor(int islandIdx) throws GameActionException;
 
@@ -378,7 +386,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well senseWell(MapLocation loc) throws GameActionException;
+    WellInfo senseWell(MapLocation loc) throws GameActionException;
 
     /**
      * Return all wells.
@@ -387,7 +395,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells();
+    WellInfo[] senseNearbyWells();
 
     /**
      * Return all wells within a specified radius of a center location.
@@ -401,7 +409,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells(int radiusSquared) throws GameActionException;
+    WellInfo[] senseNearbyWells(int radiusSquared) throws GameActionException;
 
     /**
      * Return all wells within a specified radius of a center location.
@@ -416,7 +424,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
+    WellInfo[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
      * Return all wells of the given resource type
@@ -426,7 +434,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells(ResourceType resourceType);
+    WellInfo[] senseNearbyWells(ResourceType resourceType);
 
     /**
      * Return all wells within a specified radius of a center location of the given resource type
@@ -441,7 +449,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException;
+    WellInfo[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException;
 
     /**
      * Return all wells within a specified radius of a center location of the given resource type
@@ -457,7 +465,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
+    WellInfo[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -755,6 +763,8 @@ public strictfp interface RobotController {
      * 
      * @param anchor the anchor to be built
      * @return whether it is possible to build the specified anchor
+     * 
+     * @battlecode.doc.costlymethod
      */
     boolean canBuildAnchor(Anchor anchor);
 
@@ -763,6 +773,8 @@ public strictfp interface RobotController {
      * 
      * @param anchor the anchor to be built
      * @throws GameActionException if conditions for building anchors are not satsified
+     * 
+     * @battlecode.doc.costlymethod
      */
     void buildAnchor(Anchor anchor) throws GameActionException;
 
@@ -780,6 +792,8 @@ public strictfp interface RobotController {
      * @param loc target HQ location
      * @param anchorType type of anchor to take
      * @return whether it is possible to take anchor from given location
+     * 
+     * @battlecode.doc.costlymethod
      */
     boolean canTakeAnchor(MapLocation loc, Anchor anchorType);
 

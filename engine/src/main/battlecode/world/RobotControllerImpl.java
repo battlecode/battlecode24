@@ -364,49 +364,49 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Well senseWell(MapLocation loc) throws GameActionException {
+    public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        return this.gameWorld.getWell(loc);
+        return this.gameWorld.getWell(loc).getWellInfo();
     }
 
     @Override
-    public Well[] senseNearbyWells() {
+    public WellInfo[] senseNearbyWells() {
         return senseNearbyWells(null);
     }
 
     @Override
-    public Well[] senseNearbyWells(int radiusSquared) throws GameActionException {
+    public WellInfo[] senseNearbyWells(int radiusSquared) throws GameActionException {
         return senseNearbyWells(radiusSquared, null);
     }
 
     @Override
-    public Well[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException {
+    public WellInfo[] senseNearbyWells(MapLocation center, int radiusSquared) throws GameActionException {
         return senseNearbyWells(center, radiusSquared, null);
     }
 
     @Override
-    public Well[] senseNearbyWells(ResourceType resourceType) {
+    public WellInfo[] senseNearbyWells(ResourceType resourceType) {
         try {
             return senseNearbyWells(-1, resourceType);
         } catch (GameActionException e) {
-            return new Well[0];
+            return new WellInfo[0];
         }
     }
 
     @Override
-    public Well[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
+    public WellInfo[] senseNearbyWells(int radiusSquared, ResourceType resourceType) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
         return senseNearbyWells(getLocation(), radiusSquared, resourceType);
     }
 
     @Override
-    public Well[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException {
+    public WellInfo[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         Well[] allSensedWells = gameWorld.getAllWellsWithinRadiusSquared(center, actualRadiusSquared);
-        List<Well> validSensedWells = new ArrayList<>();
+        List<WellInfo> validSensedWells = new ArrayList<>();
         for (Well well : allSensedWells) {
             // Can't actually sense location
             if (!canSenseLocation(well.getMapLocation())) {
@@ -416,9 +416,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (resourceType != null && well.getResourceType() != resourceType) {
                 continue;
             }
-            validSensedWells.add(well.copy());
+            validSensedWells.add(well.getWellInfo());
         }
-        return validSensedWells.toArray(new Well[validSensedWells.size()]);
+        return validSensedWells.toArray(new WellInfo[validSensedWells.size()]);
     }
 
     @Override
