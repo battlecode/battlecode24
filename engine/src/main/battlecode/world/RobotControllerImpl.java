@@ -732,11 +732,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
-        if (amount < 0 && this.robot.canAdd(-1*amount)) { // Carrier is picking up the resource from another location (headquarters)
+        if (amount < 0) { // Carrier is picking up the resource from another location (headquarters)
+            if(!this.robot.canAdd(-1*amount)) {
+                throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
+            }
             if (!isHeadquarter(loc)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from headquarters");
             }
-            throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
+            if (gameWorld.getRobot(loc).getResource(type) < -amount) {
+                throw new GameActionException(CANT_DO_THAT, "Headquarter does not have enough of that resource");
+            }
         }
         if (!isWell(loc) && !isHeadquarter(loc)) {
             throw new GameActionException(CANT_DO_THAT, "Cannot transfer to a location that is not a well or a headquarter");
