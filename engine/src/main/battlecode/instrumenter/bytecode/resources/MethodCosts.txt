@@ -94,9 +94,11 @@ battlecode/common/RobotType/getBuildCost                                1    fal
 battlecode/common/RobotType/getMaxHealth                                1    false
 battlecode/common/Team/opponent                                         1    false
 battlecode/common/Team/isPlayer                                         1    false
-battlecode/common/WellInfo/getResource                                      1    false
-battlecode/common/WellInfo/getMapLocation                                   1    false
-
+battlecode/common/WellInfo/getResource                                  1    false
+battlecode/common/WellInfo/getMapLocation                               1    false
+battlecode/common/WellInfo/getResourceType                              1    false
+battlecode/common/WellInfo/isUpgraded                                   1    false
+battlecode/common/WellInfo/getRate                                      2    false
 java/lang/Math/IEEEremainder            1  false
 java/lang/Math/abs                      1  false
 java/lang/Math/acos                     1  false
