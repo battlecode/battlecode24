@@ -36,9 +36,6 @@ public class Well {
         inv.addAdamantium(amount);
         if (type == ResourceType.MANA && inv.getAdamantium() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
-            //TODO: should inventory be set to zero after an upgrade
-            inv.addAdamantium(-inv.getAdamantium());
-            inv.addMana(-inv.getMana());
         }
         if (inv.getAdamantium() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
@@ -49,9 +46,6 @@ public class Well {
         inv.addMana(amount);
         if (type == ResourceType.ADAMANTIUM && inv.getMana() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
-            //TODO: should inventory be set to zero after an upgrade
-            inv.addAdamantium(-inv.getAdamantium());
-            inv.addMana(-inv.getMana());
         }
         if (inv.getMana() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
