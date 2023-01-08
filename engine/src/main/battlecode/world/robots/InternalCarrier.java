@@ -41,7 +41,7 @@ public class InternalCarrier extends InternalRobot {
         int resourceSum = this.getResource(ResourceType.ADAMANTIUM) 
             + this.getResource(ResourceType.MANA) 
             + this.getResource(ResourceType.ELIXIR);
-        return (int) GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum);
+        return (int) Math.floor(GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum));
     }
 
     private int locationToInt(MapLocation loc) {

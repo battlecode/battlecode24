@@ -11,16 +11,14 @@ public enum Anchor {
     // Cost in Mana, Cost in Adamantium, Cost in Elixir
 
     /**
-     * Standard anchors are built out of standard type anchors and only take 15 turns
-     * to remove. They also do not have any other affects.
+     * Standard anchors are built out of standard type anchors and only have 250 health. They also do not have any other affects.
      */
-    STANDARD       (250,    0,   1.0f, 100, 100, 0),
+    STANDARD       (250,    0,   0.0f, 100, 100, 0),
 
     /**
-     * Accelerating anchors are built out of elixir (the strongest element) and take 40 turns
-     * to remove. They also power up nearby units of your team.
+     * Accelerating anchors are built out of elixir (the strongest element) and have 750 health. They also power up nearby units of your team.
      */
-    ACCELERATING      (750,    100,   1.15f, 0, 0, 300);
+    ACCELERATING      (750,    4,   -0.15f, 0, 0, 300);
 
     /**
      * How long this type of anchor takes to remove.

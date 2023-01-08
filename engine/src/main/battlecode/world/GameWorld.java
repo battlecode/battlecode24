@@ -355,10 +355,6 @@ public strictfp class GameWorld {
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             if (curAnchorList.size() < GameConstants.MAX_ANCHOR_STACKS){
-                //if current location is already being boosted
-             //if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
-                  //  cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER-GameConstants.BOOSTER_MULTIPLIER;
-               // else
                 cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
             }
             curAnchorList.add(island.getID());

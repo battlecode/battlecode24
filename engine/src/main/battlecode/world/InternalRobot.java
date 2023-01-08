@@ -327,7 +327,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     private int getBaseMovementCooldown() {
         if (this.getType() == RobotType.CARRIER) {
-            int cooldownAmount = (4*this.inventory.getWeight()/5) + 10;
+            int cooldownAmount = (int)(Math.floor((GameConstants.CARRIER_MOVEMENT_SLOPE*this.inventory.getWeight()))) + GameConstants.CARRIER_MOVEMENT_INTERCEPT;
             return cooldownAmount;
         } else {
             return this.getType().movementCooldown;

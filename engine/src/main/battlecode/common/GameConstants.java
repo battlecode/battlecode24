@@ -50,10 +50,10 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of mana each team starts with. */
+    /** The initial amount of mana each team starts with in each headquarter. */
     public static final int INITIAL_MN_AMOUNT = 200;
 
-    /** The initial amount of adamantium each team starts with. */
+    /** The initial amount of adamantium each team starts with in each headquarter. */
     public static final int INITIAL_AD_AMOUNT = 200;
 
     /** The amount of adamantium each headquarter on a team gains per turn. */
@@ -83,8 +83,14 @@ public class GameConstants {
     /** The distance a robot must be from a headquarter to be able to write to the shared array */
     public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
 
-    /** The discout factor on the amount of damage a carrier can do based on their capacity */
+    /** The discount factor on the amount of damage a carrier can do based on their capacity */
     public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
+
+    /** The slope of the function to determine movement cooldown for carriers */
+    public static final float CARRIER_MOVEMENT_SLOPE = 0.375f;
+
+    /** The intercept of the function to determine movement cooldown for carriers */
+    public static final int CARRIER_MOVEMENT_INTERCEPT = 5;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -119,8 +125,8 @@ public class GameConstants {
     public static final double CLOUD_MULTIPLIER = .2;
 
     /** Constants for boost radii squared. */
-    public static final int DESTABILIZER_RADIUS_SQUARED = 15;
     public static final int BOOSTER_RADIUS_SQUARED = 20;
+    public static final int DESTABILIZER_RADIUS_SQUARED = 15;
 
     /** Constants for boost durations. */
     public static final int BOOSTER_DURATION = 10;
