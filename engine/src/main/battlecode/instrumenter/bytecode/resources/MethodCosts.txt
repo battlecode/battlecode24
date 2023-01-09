@@ -47,6 +47,7 @@ battlecode/common/RobotController/getHealth                             1    tru
 battlecode/common/RobotController/getID                                 1    true
 battlecode/common/RobotController/getResourceAmount                     5    false
 battlecode/common/RobotController/getAnchor                             1    false
+battlecode/common/RobotController/getNumAnchors                         5    true
 battlecode/common/RobotController/getLocation                           1    true
 battlecode/common/RobotController/getMapHeight                          1    true
 battlecode/common/RobotController/getMapWidth                           1    true

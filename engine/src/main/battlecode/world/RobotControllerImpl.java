@@ -132,6 +132,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getTypeAnchor();  
     }
 
+    @Override
+    public int getNumAnchors(Anchor anchor) {
+        if (anchor == null) {
+            return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
+        }
+        return this.robot.getNumAnchors(anchor);  
+    }
+
     private InternalRobot getRobotByID(int id) {
         if (!this.gameWorld.getObjectInfo().existsRobot(id))
             return null;

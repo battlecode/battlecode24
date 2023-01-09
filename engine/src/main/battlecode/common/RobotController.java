@@ -115,13 +115,23 @@ public strictfp interface RobotController {
     int getResourceAmount(ResourceType rType);
 
     /**
-     * Returns type of anchor being held by robot
+     * Returns type of anchor being held by carrier
      *
-     * @return type of anchor being held by robot, null if none
+     * @return type of anchor being held by carrier, null if none
      *
      * @battlecode.doc.costlymethod
      */
     Anchor getAnchor();
+
+    /**
+     * Returns num of anchors being held by robot
+     * 
+     * @param Anchor type of anchor to query, null for total
+     * @return num of anchor being held by robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumAnchors(Anchor anchorType);
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
