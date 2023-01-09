@@ -214,7 +214,7 @@ The per-turn bytecode limits for various robots are as follows:
 - Amplifier: 7,500
 
 
-Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode22/blob/main/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
+Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
 
 # Appendix: Other resources and utilities
 
@@ -222,7 +222,7 @@ Some standard functions such as the math library and sensing functions have fixe
 
 examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what `RobotPlayer` files should look like.
 
-If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode23/tree/main/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
+If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode23/tree/master/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
 
 ## **Debugging**
 
@@ -269,7 +269,7 @@ Classes in `java.util`, `java.math`, and scala and their subpackages are bytecod
  String.replaceFirst 
  String.split`
 
-The function `System.arraycopy` costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the [`MethodCosts.txt` file](https://github.com/battlecode/battlecode22/blob/main/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). Methods not listed are free. The bytecode costs of `battlecode.common` functions are also listed in the javadoc.
+The function `System.arraycopy` costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the [`MethodCosts.txt` file](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). Methods not listed are free. The bytecode costs of `battlecode.common` functions are also listed in the javadoc.
 
 Basic operations like integer comparison and array indexing cost small numbers of bytecodes each.
 
