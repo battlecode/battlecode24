@@ -250,7 +250,7 @@ public class MapBuilder {
         if (numTeamARobots < GameConstants.MIN_STARTING_HEADQUARTERS ||
             numTeamARobots > GameConstants.MAX_STARTING_HEADQUARTERS) {
             throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_HEADQUARTERS +
-                                       "and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
+                                       " and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
         }
 
         //assert that walls are not on same location as resources/islands/currents/clouds
@@ -310,9 +310,6 @@ public class MapBuilder {
                 }
             }
         } 
-        if (!(hasVisibleMana[0] && hasVisibleMana[1])){
-            throw new RuntimeException("Teams must have at least one mana well visible.");
-        }
         if (!(hasVisibleAdamantium[0] && hasVisibleAdamantium[1])){
             throw new RuntimeException("Teams must have at least one adamantium well visible.");
         }
