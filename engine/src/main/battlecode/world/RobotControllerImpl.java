@@ -635,6 +635,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 "There is no robot to attack");
             }
         }
+        if (bot != null && bot.getType() == RobotType.HEADQUARTERS) {
+            throw new GameActionException(CANT_DO_THAT,
+            "Can't attack headquarters");
+        }
     }
 
     @Override
@@ -738,6 +742,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             }
             if (!isHeadquarter(loc)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from headquarters");
+            }
+            if (getTeam() != gameWorld.getRobot(loc).getTeam()) {
+                throw new GameActionException(CANT_DO_THAT, "Carrier can only pick up resources from their team");
             }
             if (gameWorld.getRobot(loc).getResource(type) < -amount) {
                 throw new GameActionException(CANT_DO_THAT, "Headquarter does not have enough of that resource");
@@ -871,6 +878,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isHeadquarter(loc)){
             throw new GameActionException(CANT_DO_THAT, 
                     "Can only take anchors from headquarters.");
+        }
+        if (getTeam() != gameWorld.getRobot(loc).getTeam()){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only take anchors from same team.");
         }
         InternalRobot hq = this.gameWorld.getRobot(loc);
         if (hq.getNumAnchors(anchor) < 1) {
