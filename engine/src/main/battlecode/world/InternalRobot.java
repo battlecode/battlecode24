@@ -199,13 +199,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
-                && cachedRobotInfo.inventory.equals(inventory)
+                && cachedRobotInfo.inventory.equals(inventory.copy())
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, inventory, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, inventory.copy(), health, location);
         return this.cachedRobotInfo;
     }
 

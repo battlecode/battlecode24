@@ -44,7 +44,7 @@ public class RobotInfo {
         this.ID = ID;
         this.team = team;
         this.type = type;
-        this.inventory = inventory;
+        this.inventory = inventory.copy();
         this.health = health;
         this.location = location;
     }
@@ -108,7 +108,7 @@ public class RobotInfo {
     /**
      * Returns the total number of anchors this robot has.
      * 
-     * @return the total num of anchorx the robot is holding
+     * @return the total num of anchors the robot is holding
      */
     public int getTotalAnchors() {
         return inventory.getTotalAnchors();

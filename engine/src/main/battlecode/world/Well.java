@@ -1,6 +1,9 @@
-package battlecode.common;
+package battlecode.world;
 
-import battlecode.world.Inventory;
+import battlecode.common.GameConstants;
+import battlecode.common.MapLocation;
+import battlecode.common.ResourceType;
+import battlecode.common.WellInfo;
 
 public class Well {
 
@@ -32,7 +35,7 @@ public class Well {
         return loc;
     }
 
-    public void addAdamantium(int amount){
+    private void addAdamantium(int amount){
         inv.addAdamantium(amount);
         if (type == ResourceType.MANA && inv.getAdamantium() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
@@ -42,7 +45,7 @@ public class Well {
         }
     }
 
-    public void addMana(int amount){
+    private void addMana(int amount){
         inv.addMana(amount);
         if (type == ResourceType.ADAMANTIUM && inv.getMana() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
@@ -53,7 +56,7 @@ public class Well {
 
     }
 
-    public void addElixir(int amount){
+    private void addElixir(int amount){
         inv.addElixir(amount);
         if (inv.getElixir() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
@@ -96,6 +99,10 @@ public class Well {
         Inventory newInv = this.inv.copy();
         Well newWell = new Well(this.loc, this.type, newInv);
         return newWell;
+    }
+
+    public WellInfo getWellInfo(){
+        return new WellInfo(loc, type, inv.copy(), isUpgraded);
     }
 
     public String toString(){
