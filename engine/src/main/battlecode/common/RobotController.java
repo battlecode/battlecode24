@@ -150,6 +150,16 @@ public strictfp interface RobotController {
     boolean canSenseLocation(MapLocation loc);
 
     /**
+     * Checks whether the given location is within the robot's action range, and if it is on the map.
+     *
+     * @param loc the location to check
+     * @return true if the given location is within the robot's action range and is on the map; false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canActLocation(MapLocation loc);
+
+    /**
      * Checks whether a robot is at a given location. Assumes the location is valid.
      *
      * @param loc the location to check
@@ -280,6 +290,37 @@ public strictfp interface RobotController {
     boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
+     * Given a location, returns the muliplier that cooldowns are multiplied by
+     * for a robot on that location.
+     * 
+     * @param loc the given location
+     * @return the cooldown multiplier of that location
+     * @throws GameActionException if the robot cannot sense the given location
+     */
+    double senseCooldownMultiplier(MapLocation loc) throws GameActionException;
+
+    /**
+     * Given a location, returns the number of turns left on the oldest 
+     * enemy destabilization there. If the location is not currently being
+     * destabilized, returns -1.
+     *
+     * @param loc the given location
+     * @return the number of turns remaining of the oldest destabilize
+     * @throws GameActionException if the robot cannot sense the given location
+     */
+    int senseDestabilizeTurns(MapLocation loc) throws GameActionException;
+
+    /**
+     * Given a location, returns the number of turns left on the oldest allied
+     * boost there. If the location is not currently being boosted, returns -1.
+     *
+     * @param loc the given location
+     * @return the number of turns remaining of the oldest boost
+     * @throws GameActionException if the robot cannot sense the given location
+     */
+    int senseBoostTurns(MapLocation loc) throws GameActionException;
+
+    /**
      * Given a location, returns the index of the island located at that location.
      * 
      * @param loc the given location
@@ -364,7 +405,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    int senseTurnsLeftToTurn(int islandIdx) throws GameActionException;
+    int senseAnchorPlantedHealth(int islandIdx) throws GameActionException;
 
     /**
      * Return type of anchor on this island, null if there is no anchor.

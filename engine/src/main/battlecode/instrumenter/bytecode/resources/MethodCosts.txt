@@ -34,6 +34,7 @@ battlecode/common/RobotController/canBuildAnchor                        10   tru
 battlecode/common/RobotController/canTakeAnchor                         10   true
 battlecode/common/RobotController/canPlaceAnchor                        10   true
 battlecode/common/RobotController/canSenseLocation                      5    true
+battlecode/common/RobotController/canActLocation                        5    true
 battlecode/common/RobotController/canSenseRobot                         5    true
 battlecode/common/RobotController/canSenseRobotAtLocation               5    true
 battlecode/common/RobotController/canBoost                              10   true
@@ -69,8 +70,11 @@ battlecode/common/RobotController/readSharedArray                       2    tru
 battlecode/common/RobotController/resign                                0    true
 battlecode/common/RobotController/senseIsland                           20   true
 battlecode/common/RobotController/senseTeamOccupyingIsland              20   true
-battlecode/common/RobotController/senseTurnsLeftToTurn                  20   true
+battlecode/common/RobotController/senseAnchorPlantedHealth              20   true
 battlecode/common/RobotController/senseAnchor                           20   true
+battlecode/common/RobotController/senseCooldownMultiplier               20   true
+battlecode/common/RobotController/senseDestabilizeTurns                 20   true
+battlecode/common/RobotController/senseBoostTurns                       20   true
 battlecode/common/RobotController/senseNearbyIslands                    200  true
 battlecode/common/RobotController/senseNearbyIslandLocations            100  true
 battlecode/common/RobotController/senseNearbyRobots                     100  true
