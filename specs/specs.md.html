@@ -141,7 +141,7 @@ However, magic lingering in the winds has unexpectedly interfered with communica
 
 A robot can “sense” a square if the square is within the robot's sight range. Vision is **not** shared between robots, so a robot cannot necessarily sense information that is in sight range of a different robot.
 
-Sensing range is measured in squared units (Euclidean distance squared). **Note that all mentions of “units” are measured in radius squared.** For squares within the sensing range, robots can sense robots, resource wells, terrain (clouds, currents, and impassibility), and the current timeflow (given as a multiplier to cooldown). They can sense the type of robot and the type of resource well. You can check whether a square within range is on the map using onTheMap().
+Sensing range is measured in squared units (Euclidean distance squared). **Note that all mentions of “units” are measured in radius squared.** For squares within the sensing range, robots can sense robots, resource wells, terrain (clouds, currents, and impassibility), and the current timeflow (given as a multiplier to cooldown). They can sense the type of robot and the type of resource well. You can check whether a square within range is on the map using `onTheMap()`.
 
 Clouds obscure squares from the default vision radius. To sense these squares, a separate obscured vision of 4 units is applied. 
 
@@ -164,15 +164,15 @@ Robots perform actions to interact with the game world, and some cannot be perfo
 
 - Attacking. Attacking can only be done if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), the robot type is one that can attack, and the robot has the relevant resources required to attack (if it is a carrier). Attacking can be performed by calling the `attack()` method. This targets a particular square, damaging an enemy robot if they are located on the square. This increases the robot's action cooldown as determined by the robot type.
 - Moving. Moving can only be done if the robot's movement cooldown is less than 10 (can check with the `isMovementReady()` method) and if the ending square is unoccupied and passible. Moving can be performed by calling the `move()` method. This moves the robot in the specified direction. This increases the robot's movement cooldown as determined by the robot type. If you wish to check whether a move is valid, you can use the `canMove()` method. 
-- Collection. Carriers can collect resources if the robot’s action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the collectResource() method. This extracts resources from the targeted resource well and adds it to the carrier’s inventory according to the level of the well. This increases the robot's action cooldown as specified in the robot details.
-- Transferring. Carriers can transfer resources or anchors if the robot’s action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the transferResource() or transferAnchor() method. This transfers the specified amount of material to the target and removes it to the carrier’s inventory. If the given quantity is negative, the robot instead removes the specified materials. This increases the robot's action cooldown as specified in the robot details.
-- Anchoring. Carriers can place anchors if the robot’s action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the anchor() method. This places the held anchor on the sky island occupied by the robot and removes it to the carrier’s inventory. This increases the robot’s action cooldown as specified in robot details.
-- Boosting. Temporal boosters can accelerate time around them, but only when their action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the boost() method. This increases the robot’s action cooldown as specified in robot details. 
-- Destabilizing. Temporal destabilizers can decelerate time and deal damage around a specified location, but only when their action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the destabilize() method. This targets a particular location. This increases the robot’s action cooldown as specified in robot details.
-- Spawning. Headquarters can spawn robots, but only when their action cooldown is less than 10 (can check with the isActionReady() method), and can be performed by calling the buildRobot() method. This deducts the cost of the robot from the headquarter’s stockpile, then creates one robot of the specified type in the specified square. 
+- Collection. Carriers can collect resources if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `collectResource()` method. This extracts resources from the targeted resource well and adds it to the carrier’s inventory according to the level of the well. This increases the robot's action cooldown as specified in the robot details.
+- Transferring. Carriers can transfer resources or anchors if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `transferResource()` or `transferAnchor()` method. This transfers the specified amount of material to the target and removes it to the carrier’s inventory. If the given quantity is negative, the robot instead removes the specified materials. This increases the robot's action cooldown as specified in the robot details.
+- Anchoring. Carriers can place anchors if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `placeAnchor()` method. This places the held anchor on the sky island occupied by the robot and removes it to the carrier’s inventory. This increases the robot’s action cooldown as specified in robot details.
+- Boosting. Temporal boosters can accelerate time around them, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `boost()` method. This increases the robot’s action cooldown as specified in robot details. 
+- Destabilizing. Temporal destabilizers can decelerate time and deal damage around a specified location, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `destabilize()` method. This targets a particular location. This increases the robot’s action cooldown as specified in robot details.
+- Spawning. Headquarters can spawn robots, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `buildRobot()` method. This deducts the cost of the robot from the headquarter’s stockpile, then creates one robot of the specified type in the specified square. 
 - Crafting. Headquarters can craft anchors and hold them in their storage. This increases the headquarter’s action cooldown as specified in robot details. 
-- Communicating. All robots can read the team array by calling readSharedArray(), for standard Java bytecode costs. Robots satisfying the communication requirements can also update the contents of the shared array with writeSharedArray(), which incurs a flat bytecode cost of 100 bytecodes per write.
-- Disintegrating. Any robot can call the disintegrate() method. This immediately destroys the robot that calls it.
+- Communicating. All robots can read the team array by calling `readSharedArray()`, for standard Java bytecode costs. Robots satisfying the communication requirements can also update the contents of the shared array with `writeSharedArray()`, which incurs a flat bytecode cost of 75 bytecodes per write.
+- Disintegrating. Any robot can call the `disintegrate()` method. This immediately destroys the robot that calls it.
 
 **After every turn, the movement and action cooldowns of all robots are decremented by 10.**
 
@@ -186,9 +186,9 @@ Attack and vision ranges are squared Euclidean distances. A vision range of 36 m
 | --- | --- | --- | --- | --- | --- | --- |
 | Cost | N/A | 50 Ad | 60 Mn | 200 Ex | 150 Ex | 40 Ad, 40 Mn
 | Cooldown / action | 10 | 10 | 10 | 70 | 140 | N/A 
-| Cooldown / move | N/A | fill in | 20 | 25 | 25 | 15
+| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 20 | 25 | 25 | 15
 | Health | N/A | 15 | 20 | 30 | 40 | 40
-| Attack | N/A | fill in | 6 | 5 | N/A | N/A
+| Attack | N/A | $\left\lfloor\left(\frac{m}{5}\right)\right\rfloor$ | 6 | 5 | N/A | N/A
 | Action radius | 9 | 9 | 16 | 13 | N/A | N/A
 | Vision radius | 34 | 20 | 20 | 20 | 20 | 34
 | Bytecode limit | 20,000 | 10,000 | 10,000 | 10,000 | 10,000 | 7,500
