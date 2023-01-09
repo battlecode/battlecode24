@@ -661,6 +661,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 throw new GameActionException(CANT_DO_THAT,
                 "There is no robot to attack");
             }
+            if (bot.getTeam().equals(getTeam())) {
+                throw new GameActionException(CANT_DO_THAT,
+                        "Robot is not on the enemy team.");
+            }
         }
         if (bot != null && bot.getType() == RobotType.HEADQUARTERS) {
             throw new GameActionException(CANT_DO_THAT,
