@@ -250,7 +250,7 @@ public class MapBuilder {
         if (numTeamARobots < GameConstants.MIN_STARTING_HEADQUARTERS ||
             numTeamARobots > GameConstants.MAX_STARTING_HEADQUARTERS) {
             throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_HEADQUARTERS +
-                                       "and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
+                                       " and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
         }
 
         //assert that walls are not on same location as resources/islands/currents/clouds
@@ -279,9 +279,12 @@ public class MapBuilder {
             if (this.currentArray[i] != 0 && robots[i] != null)
                 throw new RuntimeException("Currents can't be on same square as headquarters");
 
+            //assert that currents are not on same square as wells
+            if (this.currentArray[i] != 0 && this.resourceArray[i] != 0)
+                throw new RuntimeException("Currents can't be on same square as wells");
         }
         
-        // assert rubble, lead, and Archon symmetry
+        // assert rubble, lead, and headquarter symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
@@ -310,9 +313,6 @@ public class MapBuilder {
                 }
             }
         } 
-        if (!(hasVisibleMana[0] && hasVisibleMana[1])){
-            throw new RuntimeException("Teams must have at least one mana well visible.");
-        }
         if (!(hasVisibleAdamantium[0] && hasVisibleAdamantium[1])){
             throw new RuntimeException("Teams must have at least one adamantium well visible.");
         }

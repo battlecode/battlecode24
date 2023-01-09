@@ -34,6 +34,18 @@ public class GameConstants {
     /** The maximum number of starting Headquarters per team. */
     public static final int MAX_STARTING_HEADQUARTERS = 4;
 
+    /** The minimum number of islands on the map. */
+    public static final int MIN_NUMBER_ISLANDS = 4;
+
+    /** The maximum area of an island in units. */
+    public static final int MAX_ISLAND_AREA = 20;
+
+    /** The maximum distance between wells of different types. */
+    public static final int MAX_DISTANCE_BETWEEN_WELLS = 81;
+
+    /** The maximum percentage of the map that can be wells of a certain type. */
+    public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************

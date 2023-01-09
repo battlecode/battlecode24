@@ -52,7 +52,7 @@ public enum Direction {
      */
     CENTER(0, 0);
 
-    public static Direction[] DIRECTION_ORDER = {CENTER, WEST, SOUTHWEST, SOUTH, SOUTHEAST, EAST, NORTHEAST, NORTH, NORTHWEST};
+    public static Direction[] DIRECTION_ORDER = {CENTER, WEST, NORTHWEST, NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST};
 
     public int getDirectionOrderNum() {
         return ArrayUtils.indexOf(DIRECTION_ORDER, this);
