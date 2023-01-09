@@ -38,7 +38,7 @@ battlecode/common/RobotController/canSenseRobot                         5    tru
 battlecode/common/RobotController/canSenseRobotAtLocation               5    true
 battlecode/common/RobotController/canBoost                              10   true
 battlecode/common/RobotController/canDestabilize                        10   true
-battlecode/common/RobotController/canWriteSharedArray                   50   true
+battlecode/common/RobotController/canWriteSharedArray                   10   true
 battlecode/common/RobotController/disintegrate                          0    true
 battlecode/common/RobotController/getActionCooldownTurns                1    true
 battlecode/common/RobotController/getAllLocationsWithinRadiusSquared    100  true
@@ -84,7 +84,7 @@ battlecode/common/RobotController/setIndicatorLine                      0    tru
 battlecode/common/RobotController/setIndicatorString                    0    true
 battlecode/common/RobotController/boost                                 0    true
 battlecode/common/RobotController/destabilize                           0    true
-battlecode/common/RobotController/writeSharedArray                      0    true
+battlecode/common/RobotController/writeSharedArray                      75   true
 battlecode/common/RobotType/canAttack                                   1    false
 battlecode/common/RobotType/canExtract                                  1    false
 battlecode/common/RobotType/canPlaceAnchor                              1    false
