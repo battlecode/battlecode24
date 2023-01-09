@@ -44,7 +44,7 @@ export default class ScaffoldCommunicator {
   get sourcePath() {
     let sp = path.join(this.scaffoldPath, 'src')
     if (!fs.existsSync(sp))
-      sp = path.join(this.scaffoldPath, 'example-bots', 'src')
+      sp = path.join(this.scaffoldPath, 'example-bots', 'src', 'main')
     return sp
   }
 
@@ -197,6 +197,7 @@ export default class ScaffoldCommunicator {
 
   killProcs() {
     this.procs.forEach(function (proc) {
+      // console.log(proc);
       proc.kill()
     })
   }

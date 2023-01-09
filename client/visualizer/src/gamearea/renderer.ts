@@ -786,7 +786,7 @@ export default class Renderer {
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
-    console.log(dots.length)
+    // console.log(dots.length)
 
     for (let i = 0; i < dots.length; i++) {
       if (dotsID[i] === this.lastSelectedID || this.conf.allIndicators) {

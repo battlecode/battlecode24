@@ -225,13 +225,14 @@ export default class Sidebar {
     return this.updateText
   }
   private updateUpdate() {
+    let inst = this
     this.updateText.style.display = "none"
     if (process.env.ELECTRON) {
       (async function (splashDiv, version) {
 
         var options = {
-          host: 'play.battlecode.org',
-          path: `/versions/${this.conf.year}/version.txt`
+          host: 'api.battlecode.org',
+          path: `/api/episode/e/bc23/?format=json`
         }
 
         var req = http.get(options, function (res) {
@@ -240,8 +241,8 @@ export default class Sidebar {
             data += chunk
           }).on('end', function () {
 
-            var latest = data
-
+            var latest = JSON.parse(data).release_version_public
+            console.log("Latest version: " + latest)
             if (latest.trim() != version.trim()) {
               let newVersion = document.createElement("p")
               newVersion.innerHTML = "NEW VERSION AVAILABLE!!!! (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest

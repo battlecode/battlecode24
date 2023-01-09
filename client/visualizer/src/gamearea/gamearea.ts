@@ -96,12 +96,13 @@ export default class GameArea {
     this.splashDiv.appendChild(splashTitle)
     this.splashDiv.appendChild(splashSubtitle)
 
+    let inst = this
     if (process.env.ELECTRON) {
       (async function (splashDiv, version) {
 
         var options = {
-          host: this.conf.year + '.battlecode.org',
-          path: '/versions/' + this.conf.year + '/version.txt'
+          host: inst.conf.year + '.battlecode.org',
+          path: '/versions/' + inst.conf.year + '/version.txt'
         }
 
         var req = http.get(options, function (res) {
@@ -121,7 +122,7 @@ export default class GameArea {
 
           })
         })
-      })(this.splashDiv, this.conf.gameVersion)
+      })(inst.splashDiv, inst.conf.gameVersion)
     }
   }
 

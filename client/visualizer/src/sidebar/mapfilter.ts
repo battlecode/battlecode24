@@ -143,12 +143,12 @@ export default class MapFilter {
   private mapTypeToString(type: MapType): string {
     switch(type) {
       case MapType.DEFAULT: return "Default";
-      case MapType.SPRINT_1: return "Sprint 1";
-      case MapType.SPRINT_2: return "Sprint 2";
-      case MapType.INTL_QUALIFYING: return "Intl Quals";
-      case MapType.US_QUALIFYING: return "US Quals";
-      case MapType.HS_NEWBIE: return "HS and Newbie";
-      case MapType.FINAL: return "Final";
+      // case MapType.SPRINT_1: return "Sprint 1";
+      // case MapType.SPRINT_2: return "Sprint 2";
+      // case MapType.INTL_QUALIFYING: return "Intl Quals";
+      // case MapType.US_QUALIFYING: return "US Quals";
+      // case MapType.HS_NEWBIE: return "HS and Newbie";
+      // case MapType.FINAL: return "Final";
       default: return "Custom";
     }
   }
