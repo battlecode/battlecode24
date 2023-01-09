@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *2023.0.0.0*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *0.1.7*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -280,111 +280,6 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
-
-- Version 2022.2.0.0 (January 18, 2022)
-  - Breaking changes: Sprint II Balancing changes
-    - Archons:
-      - Decrease level 2 Mutation cost to 300 Pb
-    - Watchtowers:
-      - Decrease initial cost to 150 Pb
-      - Decrease level 2 Mutation cost to 150 Pb
-    - Laboratories:
-      - Decrease build cost to 180 Pb
-      - Decrease level 2 Mutation cost to 150 Pb
-      - Change exchange rate constants to $A=20, B=18$
-      - Change exchange rate constant $k$ to 0.02 for level 1, 0.01 for level 2, 0.005 for level 3
-    - Miners:
-      - Increase bytecode limit to 10,000
-    - Builders:
-      - Increase attack to -2 (ie. repair to 2)
-    - Sages:
-      - Increase action radius to 25
-      - Increase Abyss depletion rate to 99%
-      - Increase Charge damage rate to 22%
-    - Lead regeneration:
-      - Increase rate to 5 Pb every 20 turns
-  - Client:
-    - Visualize repair actions and Anomalies
-    - Add health bar
-    - Shift attack visualizations so they do not overlap
-  - Sprint maps released
-
-- Version 2022.1.0.2 (January 16, 2022)
-  - Engine
-    - Trigger tiebreakers if all Archons are destroyed simultaneously during Fury.
-    - Add some map validation to main server (thanks @stefangimmillaro!)
-
-- Version 2022.1.0.1 (January 12, 2022)
-  - Engine
-    - Remove initial cooldown for all newly built robots
-    - Fix bug in lead and gold sensing functions
-
-- Version 2022.1.0.0 (January 11, 2022)
-  - Breaking changes: Sprint I Balancing changes
-    - Archons:
-      - Decrease nominal worth to 100 Au
-      - Decrease level 2 Mutation cost to 400 Pb
-      - Decrease level 3 Mutation cost to 80 Au
-      - Change mutation health to 600 → 1080 → 1944
-      - Change mutation repair to 2 → 4 → 6
-    - Watchtowers:
-      - Decrease level 2 Mutation cost to 200 Pb
-      - Decrease level 3 Mutation cost to 60 Au
-      - Charge mutation health to 150 → 270 → 486
-      - Change mutation damage to 4 → 8 → 12
-    - Laboratories:
-      - Decrease build cost to 250 Pb
-      - Decrease level 2 Mutation cost to 200 Pb
-      - Decrease level 3 Mutation cost to 25 Au
-      - Change mutation health to 100 → 180 → 324
-    - Sages:
-      - Decrease build cost to 20 Au
-      - Increase action radius to 20
-      - Increase vision radius to 34
-    - Lead regeneration:
-      - Decrease rate to 3 Pb every 40 turns
-  - Sprint maps released
-
-- Version 2022.0.3.1 (January 10, 2022)
-  - Client
-    - Fix robot selection on (0, 0)
-    - Fix gold income
-    - Improvements to runner team selection (thanks @jmerle!)
-  - Other
-    - Improvements to Javadoc deploy script
-
-- Version 2022.0.3.0 (January 9, 2022)
-  - Engine
-    - (New feature) Add overloads for sensing nearby locations with metals
-    - Do not dump debug map information at start of match
-  - Client
-    - Track HP change on mutations and fix DP display
-    - Running averages for lead and gold income
-  - Other
-    - Javadocs are 2022, not 2017
-
-- Version 2022.0.2.0 (January 5, 2022)
-  - Engine
-    - (New feature) Add `rc.senseNearbyLocationsWithLead` and `rc.senseNearbyLocationsWithGold`
-    - Make passive Lead increase occur after Anomalies are processed
-  - Client
-    - Fix portable Archon display
-    - Fix mutation tracking
-    - Update help text
-    - Fix Vortex anomaly rendering
-  - Other
-    - Improvements to release scripts
-
-- Version 2022.0.1.1 (January 4, 2022)
-  - Specs
-    - Clarify that Archons are not guaranteed to have ID at least 10,000
-    - Update various URLs
-  - Engine
-    - Fix Archon damage to always be negative (ie. repair)
-    - Fix maximum value for communication array to actually be $2^{16}-1$
-
-- Version 2022.0.1.0 (January 3, 2022)
-  - Initial release
 
 <style class="fallback">body{visibility:hidden}</style>
 <script>markdeepOptions={tocStyle:'long'};</script>
