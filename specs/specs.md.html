@@ -17,11 +17,9 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *0.1.1*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *2023.0.0.0*
 
-The 2023 specifications have not been ported yet. Following is the 2022 specs.
-
-**Welcome to Battlecode 2022: Mutation.**
+**Welcome to Battlecode 2023: Tempest.**
 
 This is a high-level overview of this year's game. It is highly recommended to read this entire document before you begin writing bots.
 
@@ -29,35 +27,77 @@ This is a high-level overview of this year's game. It is highly recommended to r
 
 # Background
 
-The dust settles on the scorched landscape, the sun's glare harsh and unforgiving. The world is a radioactive wasteland, overrun with mutations and anomalies. Buildings have learned to walk, transmutation has given birth to the blooming science of alchemy, and even the robots have become sentient.
+Lightning booms in the distance and mountains crack as they shift about. Rampant anomalies destroy the very fabric of reality, spurred by the misuse of mutation and alchemy. In a last ditch effort to save humanity, alchemists have torn open unstable portals to a new universe filled with beautiful floating islands and time-bending tempests.
 
-The arduous task of restoring civilization is yet to begin, but amidst the uncertainty, two warring factions of robots have emerged. History is being written before our eyes, for only one faction will rise above the turmoil to secure the future of the world.
+To anchor their dying universe to this bountiful world, humanity must take to the skies and explore the mysterious laws that govern them. But you are not alone – escapees from another reality have fled to this world as well and seek to take it for themselves. The battle of realities has begun, and only one will survive. 
 
 # Objective
 
-In **Battlecode: Mutation**, you will write code to control your faction of robots, in a dangerous battle to conquer the enemy team.
+In **Battlecode: Tempest**, you will write code to control your faction of robots, in a dangerous battle to conquer the sky islands of the world.
 
-The game world is subject to frequent Anomalies that can inflict long-lasting damage to both teams. Each player will begin with several Archons, and the player who loses all Archons first loses the game. Players must create robots that can tolerate onslaughts of Anomalies as they fight the opposing player faction.
+e first faction to conquer 75% of the sky islands wins the battle. Islands are conquered by placing a reality anchor on them, and reality anchors are crafted at each factions headquarters. Each player begins with several headquarters which can create robots, craft anchors, and store resources.
 
 Good luck!
 
+# Map overview
+
+Each Battlecode game will be played on a map. The map is a discrete 2-dimensional rectangular grid, of size ranging between 20×20 and 60×60 inclusive. The bottom-left corner of the map will have coordinates (0, 0); coordinates increase East (right) and North (up). Coordinates on the map are represented as MapLocation objects holding the x and y coordinates of the location.
+
+In order to prevent maps from favoring one player over another, it is guaranteed that the world is symmetric either by rotation or reflection.
+
+## Passability
+
+Due to dangerous weather, each square of the map is marked as either impassable or passable. Impassable squares are covered by heavy storms and anomalous hurricanes, and cannot be moved into. Passable squares have clear skies, and can be freely moved through. These squares stay fixed throughout the game.
+
+## Clouds and Currents
+
+The magical winds contain time-bending properties that affect robots that pass through them. These winds cannot pass through impassable squares due to their anomalous weather. 
+
+Time accelerating directional currents flow throughout the map, pushing robots in a specified direction. Robots in a current will be forced to move in the direction of the current at the end of the turn, applied after existing robot movement. Currents will usually appear together on the map in lines or other shapes. **Each current must flow into a different square.**
+
+Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision radius of 4 is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision radius of 4. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns, stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+
+## Islands, Headquarters, and Wells
+
+Certain areas of the map are designated as *sky islands*. Islands appear as groups of connected squares, each group composing a single island. To fully anchor your faction’s universe and win the game, your faction must have reality anchors on **75%** or more of the islands. Once this condition has been fulfilled, your faction will instantly win the game. Sky islands are passable squares. 
+
+Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
+
+*Resource wells* appear throughout the map and contain an infinite amount of a specific resource type. They cannot be moved or destroyed. No currents, headquarters, or impassable squares can be located on a well. **Robots can travel over wells.** 
+
+# Resources
+
+The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headquarter has its own isolated stockpile of these resources, and constructing robots/reality anchors subtracts from this stockpile. Collecting and bringing back resources for your headquarters enables you to amass a larger and more powerful army of robots. **Resources are not automatically usable when a carrier collects them - they must be carried back to a headquarter.**
+
+There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each team will have one adamantium well located within immediately visible distance. All maps are guaranteed to have at least one adamantium well and one mana well. 
+
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 4 kg/action. If 3600 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 10 kg/action. Alternatively, if 1500 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+
+For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 81 units of a Mana well and vice versa. 
+
+Every five rounds, each headquarter will naturally produce 2 kg of adamantium and 2 kg of mana, automatically adding these resources to its reserves. Both teams start the game with 200 kg of adamantium and 200 kg of mana in each headquarter. Resource costs for robot construction can be found in the in-depth section further below.
+
 # Robots
 
-The Battlecode world involves many robots of different kinds. These robots can perform actions such as attacking, moving, and communicating with each other. In each battle, your robots will face an enemy faction on the game map.
+The Battlecode world involves many robots of different kinds. All robots can perform actions such as moving, sensing, and communicating with each other. In each battle, your robots will face one opposing enemy team.
 
 The game is turn-based and divided into **rounds**. In each round, every robot gets a **turn** in which it gets a chance to run code and take actions. Code that a robot runs costs **bytecodes**, a measure of computational resources. A robot only has a predetermined amount of bytecodes available per turn, after which the robot's turn is immediately ended and computations are resumed on its next turn. If your robot has finished its turn, it should call `Clock.yield()` to wait for the next turn to begin.
 
 All robots have a certain amount of HP (also known as hitpoints, health, life, or such). When a robot's HP reaches zero, the robot is immediately removed from the game.
 
-Robots are assigned unique random IDs no smaller than 10,000, except for your Archons.
+Robots are assigned unique random IDs no smaller than 10,000, except for your headquarters.
 
 Robots interact with only their nearby surroundings through sensing, moving, and special abilities. Each robot runs an independent copy of your code. Robots will be unable to share static variables (they will each have their own copy), because they are run in separate JVMs.
 
-There are two types of robots: Droids and Buildings. Droids are robots which can freely move, forming your team's mobile combat forces; on the other hand, Buildings are generally immobile robots. You can create new robots by spending its associated resource cost. Different types of robots specialize in different tasks, and you should aim to use each type to your advantage.
+Two or more robots may not be on the same square. When their movement cooldown is over, robots can move onto any of the 8 neighboring squares. 
 
-## Buildings overview
+## Headquarters
 
-Buildings are generally immobile robots. When first created, they are Prototypes that cannot move or act; after they are fully built, they become Turrets that can perform actions.
+Headquarters store resources, spawn robots, and create reality anchors. Each headquarter can store an infinite amount of resources and anchors. Headquarters can spawn robots using their stored resources within an action radius defined in **Robots in-depth**, and carriers can deposit and receive resources and anchors when located on one of the eight neighboring squares. Headquarters cannot be moved, created, or destroyed.
+
+## Carriers
+
+Carriers are produced with 50 kg of Ad. Upon creation, their inventory is empty. They can hold a maximum of 40 kg of material. The movement speed of a Carrier is dependent on the quantity the robot is carrying. Specifically, when a Carrier stores m kg of materials, its movement cooldown is $\left\lfloor\left(\frac{3m}{8}\right\rfloor + 5\right$
 
 There are three types of Buildings.
 
@@ -264,33 +304,33 @@ Some standard functions such as the math library and sensing functions have fixe
 
 # Appendix: Other resources and utilities
 
-## Sample player
+## **Sample player**
 
 examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what `RobotPlayer` files should look like.
 
 If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode22/tree/main/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
 
-## Debugging
+## **Debugging**
 
 Debugging is extremely important. See the debugging tips to learn about our useful debug tools.
 
-## Monitoring
+## **Monitoring**
 
 The `Clock` class provides a way to identify the current round (`rc.getRoundNum()`), and how many bytecodes have been executed during the current round (`Clock.getBytecodeNum()`).
 
-## GameActionExceptions
+## **GameActionExceptions**
 
 `GameActionException`s are thrown when something cannot be done. It is often the result of illegal actions such as moving onto another robot, or an unexpected round change in your code. Thus, you must write your player defensively and handle `GameActionException`s judiciously. You should also be prepared for any ability to fail and make sure that this has as little effect as possible on the control flow of your program.
 
 Throwing any `Exception`s cause a bytecode penalty of 500 bytecodes. Unhandled exceptions may paralyze your robot.
 
-## Complete documentation
+## **Complete documentation**
 
 Every function you could possibly use to interact with the game can be found in our javadocs.
 
 # Appendix: Other restrictions
 
-## Java language usage
+## **Java language usage**
 
 Players may use classes from any of the packages listed in `AllowedPackages.txt`, except for classes listed in `DisallowedPackages.txt`. These files can be found here.
 
@@ -300,11 +340,11 @@ Furthermore, the following restrictions apply:
 
 Note that violating any of the above restrictions will cause the robots to explode when run, even if the source files compile without problems.
 
-## Memory usage
+## **Memory usage**
 
 Robots must keep their memory usage reasonable. If a robot uses more than 8 Mb of heap space during a tournament or scrimmage match, the robot may explode.
 
-## More information on bytecode costs
+## **More information on bytecode costs**
 
 Classes in `java.util`, `java.math`, and scala and their subpackages are bytecode counted as if they were your own code. The following functions in `java.lang` are also bytecode counted as if they were your own code.
 
@@ -326,17 +366,6 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
-
-- Version 2022.2.1.0 (January 26, 2022)
-  - Engine:
-    - Fix bug impacting correct Vortex Anomaly behavior
-  - Qualifying tournament maps released
-
-- Version 2022.2.0.1 (January 20, 2022)
-  - Client:
-    - Release maps from Sprint II too
-  - Specs:
-    - Minor typographic and stylistic improvements
 
 - Version 2022.2.0.0 (January 18, 2022)
   - Breaking changes: Sprint II Balancing changes
@@ -367,12 +396,12 @@ If something is unclear, direct your questions to our Discord where other people
   - Sprint maps released
 
 - Version 2022.1.0.2 (January 16, 2022)
-  - Engine:
+  - Engine
     - Trigger tiebreakers if all Archons are destroyed simultaneously during Fury.
     - Add some map validation to main server (thanks @stefangimmillaro!)
 
 - Version 2022.1.0.1 (January 12, 2022)
-  - Engine:
+  - Engine
     - Remove initial cooldown for all newly built robots
     - Fix bug in lead and gold sensing functions
 
@@ -403,40 +432,40 @@ If something is unclear, direct your questions to our Discord where other people
   - Sprint maps released
 
 - Version 2022.0.3.1 (January 10, 2022)
-  - Client:
+  - Client
     - Fix robot selection on (0, 0)
     - Fix gold income
     - Improvements to runner team selection (thanks @jmerle!)
-  - Other:
+  - Other
     - Improvements to Javadoc deploy script
 
 - Version 2022.0.3.0 (January 9, 2022)
-  - Engine:
+  - Engine
     - (New feature) Add overloads for sensing nearby locations with metals
     - Do not dump debug map information at start of match
-  - Client:
+  - Client
     - Track HP change on mutations and fix DP display
     - Running averages for lead and gold income
-  - Other:
+  - Other
     - Javadocs are 2022, not 2017
 
 - Version 2022.0.2.0 (January 5, 2022)
-  - Engine:
+  - Engine
     - (New feature) Add `rc.senseNearbyLocationsWithLead` and `rc.senseNearbyLocationsWithGold`
     - Make passive Lead increase occur after Anomalies are processed
-  - Client:
+  - Client
     - Fix portable Archon display
     - Fix mutation tracking
     - Update help text
     - Fix Vortex anomaly rendering
-  - Other:
+  - Other
     - Improvements to release scripts
 
 - Version 2022.0.1.1 (January 4, 2022)
-  - Specs:
+  - Specs
     - Clarify that Archons are not guaranteed to have ID at least 10,000
     - Update various URLs
-  - Engine:
+  - Engine
     - Fix Archon damage to always be negative (ie. repair)
     - Fix maximum value for communication array to actually be $2^{16}-1$
 
