@@ -5,7 +5,6 @@ import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
-import battlecode.common.Well;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.instrumenter.profiler.ProfilerEventType;

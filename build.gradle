@@ -91,7 +91,7 @@ task runClient {
   }
 }
 
-task release(dependsOn: ['release_main', 'release_docs'])
+task release(dependsOn: ['release_main', 'release_docs', 'release_sources'])
 
 task release_main(type: Jar, dependsOn: [':engine:build']) {
   File f_version = new File(project.projectDir, "battlecode_version");
@@ -105,7 +105,7 @@ task release_main(type: Jar, dependsOn: [':engine:build']) {
 
   archiveBaseName = "battlecode";
   if (project.hasProperty("release_version"))
-    version = project.property("release_version");
+    archiveVersion = project.property("release_version");
   destinationDirectory = project.projectDir;
 
   FileCollection src = files(f_version);
@@ -126,10 +126,19 @@ task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
 
   archiveBaseName = "battlecode-javadoc"
   if (project.hasProperty("release_version"))
-    version = project.property("release_version");
+    archiveVersion = project.property("release_version");
   destinationDirectory = project.projectDir;
 
   from new File(project(":engine").docsDir, "javadoc")
+}
+
+task release_sources(type: Jar, dependsOn: classes) {
+  archiveBaseName = "battlecode-source"
+  if (project.hasProperty("release_version"))
+    archiveVersion = project.property("release_version");
+  destinationDirectory = project.projectDir;
+
+  from project(":engine").sourceSets.main.allSource
 }
 
 task prodClient {
@@ -177,6 +186,10 @@ publishing {
 
       artifact release_docs {
         classifier 'javadoc'
+      }
+
+      artifact release_sources {
+        classifier 'sources'
       }
     }
 

@@ -14,7 +14,7 @@ var conf = {
   },
   output: {
     path: path.resolve(__dirname, 'out'),
-    publicPath: '/out/',
+    publicPath: 'out/',
     filename: '[name].js'
   },
   resolve: {

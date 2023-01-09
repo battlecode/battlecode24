@@ -5,14 +5,18 @@ sourceCompatibility = 1.8
 sourceSets {
   main {
     java.srcDirs = ["src/main"]
+    java.includes = ["**/*.java"]
     resources.srcDirs = ["src/main"]
+    resources.excludes = ["**/*.java"]
 
     java.destinationDirectory.set(file("$buildDir/classes"))
     output.resourcesDir = "$buildDir/classes"
   }
   test {
     java.srcDirs = ["src/test"]
+    java.includes = ["**/*.java"]
     resources.srcDirs = ["src/test"]
+    resources.excludes = ["**/*.java"]
 
     java.destinationDirectory.set(file("$buildDir/tests"))
     output.resourcesDir = "$buildDir/tests"
