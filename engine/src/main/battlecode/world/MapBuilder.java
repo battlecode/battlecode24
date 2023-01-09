@@ -279,9 +279,12 @@ public class MapBuilder {
             if (this.currentArray[i] != 0 && robots[i] != null)
                 throw new RuntimeException("Currents can't be on same square as headquarters");
 
+            //assert that currents are not on same square as wells
+            if (this.currentArray[i] != 0 && this.resourceArray[i] != 0)
+                throw new RuntimeException("Currents can't be on same square as wells");
         }
         
-        // assert rubble, lead, and Archon symmetry
+        // assert rubble, lead, and headquarter symmetry
         ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
         if (!allMapSymmetries.contains(this.symmetry)) {
             throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
