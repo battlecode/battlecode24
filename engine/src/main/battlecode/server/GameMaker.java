@@ -248,7 +248,6 @@ public strictfp class GameMaker {
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);
             TeamData.addTeamID(builder, TeamMapping.id(Team.A));
-            System.out.println("Team A: " + TeamMapping.id(Team.A));
 
             int teamAOffset = TeamData.endTeamData(builder);
 
@@ -257,7 +256,6 @@ public strictfp class GameMaker {
             TeamData.startTeamData(builder);
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);
-            System.out.println("Team B: " + TeamMapping.id(Team.B));
             TeamData.addTeamID(builder, TeamMapping.id(Team.B));
             int teamBOffset = TeamData.endTeamData(builder);
             int[] teamsVec = {teamAOffset, teamBOffset};

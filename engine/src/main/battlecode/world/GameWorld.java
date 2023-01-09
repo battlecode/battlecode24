@@ -163,7 +163,6 @@ public strictfp class GameWorld {
         try {
             this.processBeginningOfRound();
             this.controlProvider.roundStarted();
-            System.out.println("Round: " + this.currentRound);
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
                 objectInfo.eachDynamicBodyByExecOrder((body) -> {
@@ -466,9 +465,6 @@ public strictfp class GameWorld {
      * @return the cooldown due to boosts/destabilizes at that location
      */
     public int getCooldownWithMultiplier(int cooldown, MapLocation location, Team team) {
-        if (Math.abs(cooldownMultipliers[locationToIndex(location)][team.ordinal()] - 1.0) > 0.01) {
-            System.out.println("Cooldown multiplier is: " + cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
-        }
         return (int) Math.round(cooldown*cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
     }
 
@@ -530,7 +526,6 @@ public strictfp class GameWorld {
             return true;
         } else if (realityAnchorCountA < realityAnchorCountB) {
             setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
-            System.out.println("A: " + realityAnchorCountA + " B: " + realityAnchorCountB);
             return true;
         }
         return false;
@@ -553,11 +548,9 @@ public strictfp class GameWorld {
         
         if (totalElixirValues[Team.A.ordinal()] > totalElixirValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
-            System.out.println("Elixir: A: " + totalElixirValues[0] + " B: " + totalElixirValues[1]);
             return true;
         } else if (totalElixirValues[Team.B.ordinal()] > totalElixirValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
-            System.out.println("Elixir: A: " + totalElixirValues[0] + " B: " + totalElixirValues[1]);
             return true;
         }
         return false;
@@ -580,11 +573,9 @@ public strictfp class GameWorld {
         
         if (totalManaValues[Team.A.ordinal()] > totalManaValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
-            System.out.println("Mana: A: " + totalManaValues[Team.A.ordinal()] + " B: " + totalManaValues[Team.B.ordinal()]);
             return true;
         } else if (totalManaValues[Team.B.ordinal()] > totalManaValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
-            System.out.println("Mana: A: " + totalManaValues[Team.A.ordinal()] + " B: " + totalManaValues[Team.B.ordinal()]);
             return true;
         }
         return false;
@@ -607,11 +598,9 @@ public strictfp class GameWorld {
         
         if (totalAdamantiumValues[Team.A.ordinal()] > totalAdamantiumValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
-            System.out.println("Adamanitum: A: " + totalAdamantiumValues[Team.A.ordinal()] + " B: " + totalAdamantiumValues[Team.B.ordinal()]);
             return true;
         } else if (totalAdamantiumValues[Team.B.ordinal()] > totalAdamantiumValues[Team.A.ordinal()]) {
             setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
-            System.out.println("Adamantium: A: " + totalAdamantiumValues[Team.A.ordinal()] + " B: " + totalAdamantiumValues[Team.B.ordinal()]);
             return true;
         }
         return false;

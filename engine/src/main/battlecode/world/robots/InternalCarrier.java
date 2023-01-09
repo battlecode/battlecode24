@@ -61,7 +61,6 @@ public class InternalCarrier extends InternalRobot {
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
         } else {
-            System.out.println("Trying to attack but failing, location " + loc);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -locationToInt(loc) - 1);
         }
         this.emptyResources();
