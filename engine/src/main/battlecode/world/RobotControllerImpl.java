@@ -159,12 +159,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        if (!this.gameWorld.getGameMap().onTheMap(loc))
+        throw new GameActionException(CANT_SENSE_THAT,
+                "Target location is not on the map");
         if (!this.robot.canSenseLocation(loc))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within vision range");
-        if (!this.gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
     }
 
     private void assertCanActLocation(MapLocation loc) throws GameActionException {
@@ -181,6 +181,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canSenseLocation(MapLocation loc) {
         try {
             assertCanSenseLocation(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public boolean canActLocation(MapLocation loc) {
+        try {
+            assertCanActLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -364,12 +372,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int senseTurnsLeftToTurn(int islandIdx) throws GameActionException {
+    public int senseAnchorPlantedHealth(int islandIdx) throws GameActionException {
         Island island = gameWorld.getIsland(islandIdx);
         if (island == null || !canSenseIsland(island)) {
             throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
         }
-
         return island.anchorHealth;
     }
 
@@ -379,7 +386,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (island == null || !canSenseIsland(island)) {
             throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
         }
-
         return island.anchorPlanted;
     }
 
@@ -387,7 +393,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        return this.gameWorld.getWell(loc).getWellInfo();
+        Well well = this.gameWorld.getWell(loc);
+        return well == null ? null : well.getWellInfo();
     }
 
     @Override
@@ -747,6 +754,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanTransferResource(MapLocation loc, ResourceType type, int amount) throws GameActionException {
         assertNotNull(loc);
+        assertNotNull(type);
         assertCanActLocation(loc);
         assertIsActionReady();
 

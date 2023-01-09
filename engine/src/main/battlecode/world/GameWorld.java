@@ -331,8 +331,10 @@ public strictfp class GameWorld {
         for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
             ArrayList<Integer> curBoostsList = this.boosts[locationToIndex(loc)][team.ordinal()][BOOST_INDEX];
             //no other boosts at this location
-            if (curBoostsList.size() < GameConstants.MAX_BOOST_STACKS)
+            if (curBoostsList.size() < GameConstants.MAX_BOOST_STACKS) {
                 cooldownMultipliers[locationToIndex(loc)][team.ordinal()] += GameConstants.BOOSTER_MULTIPLIER;
+                cooldownMultipliers[locationToIndex(loc)][team.ordinal()] = Math.round(cooldownMultipliers[locationToIndex(loc)][team.ordinal()] * 100.0)/100.0;
+            }
             curBoostsList.add(lastRound);
         }
     }
@@ -347,8 +349,10 @@ public strictfp class GameWorld {
         int radiusSquared = GameConstants.DESTABILIZER_RADIUS_SQUARED;
         for (MapLocation loc : getAllLocationsWithinRadiusSquared(center, radiusSquared)){
             ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.opponent().ordinal()][DESTABILIZE_INDEX];
-            if (curDestabilizers.size() < GameConstants.MAX_DESTABILIZE_STACKS)
+            if (curDestabilizers.size() < GameConstants.MAX_DESTABILIZE_STACKS) {
                 cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] += GameConstants.DESTABILIZER_MULTIPLIER;
+                cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] = Math.round(cooldownMultipliers[locationToIndex(loc)][team.opponent().ordinal()] * 100.0)/100.0;
+            }
             curDestabilizers.add(lastRound);
         }
     }
@@ -365,6 +369,7 @@ public strictfp class GameWorld {
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             if (curAnchorList.size() < GameConstants.MAX_ANCHOR_STACKS){
                 cooldownMultipliers[locationToIndex(loc)][teamOrdinal] += GameConstants.ANCHOR_MULTIPLIER;
+                cooldownMultipliers[locationToIndex(loc)][teamOrdinal] = Math.round(cooldownMultipliers[locationToIndex(loc)][teamOrdinal] * 100.0)/100.0;
             }
             curAnchorList.add(island.getID());
         }
@@ -376,10 +381,8 @@ public strictfp class GameWorld {
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             if (curAnchorList.size() <= GameConstants.MAX_ANCHOR_STACKS){
-              //  if (this.boosts[locationToIndex(loc)][teamOrdinal][BOOST_INDEX].size() != 0)
-              //      cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER- GameConstants.BOOSTER_MULTIPLIER;
-              //  else
-                    cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER ;    
+                cooldownMultipliers[locationToIndex(loc)][teamOrdinal] -= GameConstants.ANCHOR_MULTIPLIER;  
+                cooldownMultipliers[locationToIndex(loc)][teamOrdinal] = Math.round(cooldownMultipliers[locationToIndex(loc)][teamOrdinal] * 100.0)/100.0;  
             }
             curAnchorList.remove(boostIdentifier);
         }
