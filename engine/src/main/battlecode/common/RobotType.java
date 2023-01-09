@@ -167,7 +167,7 @@ public enum RobotType {
      * @return whether this type can buff nearby allies
      * @battlecode.doc.costlymethod
      */
-    public boolean canDestablize() {
+    public boolean canDestabilize() {
         return this == DESTABILIZER;
     }
 
