@@ -136,7 +136,9 @@ public strictfp class GameWorld {
         for (MapLocation loc : getAllLocations()) {
             if (getCloud(loc)){
                 cooldownMultipliers[locationToIndex(loc)][0] += GameConstants.CLOUD_MULTIPLIER; 
-                cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER; 
+                cooldownMultipliers[locationToIndex(loc)][1] += GameConstants.CLOUD_MULTIPLIER;
+                cooldownMultipliers[locationToIndex(loc)][0] = Math.round(cooldownMultipliers[locationToIndex(loc)][0] * 100.0)/100.0;
+                cooldownMultipliers[locationToIndex(loc)][1] = Math.round(cooldownMultipliers[locationToIndex(loc)][1] * 100.0)/100.0; 
             }
         }
 
@@ -668,8 +670,10 @@ public strictfp class GameWorld {
                 for (int j = curBoosts.size()-1; j >= 0; j--){
                     if (curBoosts.get(j) <= getCurrentRound()+1){
                         //update multiplier
-                        if (curBoosts.size() <= GameConstants.MAX_BOOST_STACKS)
+                        if (curBoosts.size() <= GameConstants.MAX_BOOST_STACKS) {
                             cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.BOOSTER_MULTIPLIER;
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] = Math.round(cooldownMultipliers[locationToIndex(loc)][teamIndex] * 100.0)/100.0;
+                        }
                         curBoosts.remove(j);
                     }
                 }
@@ -683,8 +687,10 @@ public strictfp class GameWorld {
                             robot.addHealth(-1*robot.getType().damage);
                         }
                         //update multiplier if no longer being destabilized
-                        if (curDestabilize.size() <= GameConstants.MAX_DESTABILIZE_STACKS)
+                        if (curDestabilize.size() <= GameConstants.MAX_DESTABILIZE_STACKS) {
                             cooldownMultipliers[locationToIndex(loc)][teamIndex] -= GameConstants.DESTABILIZER_MULTIPLIER;
+                            cooldownMultipliers[locationToIndex(loc)][teamIndex] = Math.round(cooldownMultipliers[locationToIndex(loc)][teamIndex] * 100.0)/100.0;
+                        }
                         curDestabilize.remove(j);
                     }
                 }
