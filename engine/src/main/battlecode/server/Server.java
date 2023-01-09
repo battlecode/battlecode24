@@ -212,26 +212,17 @@ public strictfp class Server implements Runnable {
             throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
         }
         
-        // Check rubble
-        for (int rubble : liveMap.getRubbleArray()) {
-            if (rubble < GameConstants.MIN_RUBBLE) {
-                throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_RUBBLE");
-            }
-            if (rubble > GameConstants.MAX_RUBBLE) {
-                throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_RUBBLE");
-            }
-        }
-        
-        // Check starting Archons
-        int archonCount = 0;
+        // Check starting Headquarters
+        int headquarterCount = 0;
         for (RobotInfo robotInfo : liveMap.getInitialBodies()) {
-            if (robotInfo.type == RobotType.ARCHON) archonCount++;
+            if (robotInfo.type == RobotType.HEADQUARTERS) headquarterCount++;
         }
-        if (archonCount < GameConstants.MIN_STARTING_ARCHONS * 2) {
-            throw new RuntimeException("RUBBLE BENEATH GameConstants.MIN_STARTING_ARCHONS");
+
+        if (headquarterCount < GameConstants.MIN_STARTING_HEADQUARTERS * 2) {
+            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " BENEATH GameConstants.MIN_STARTING_ARCHONS");
         }
-        if (archonCount > GameConstants.MAX_STARTING_ARCHONS * 2) {
-            throw new RuntimeException("RUBBLE EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
+        if (headquarterCount > GameConstants.MAX_STARTING_HEADQUARTERS * 8) {
+            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " EXCEEDS GameConstants.MAX_STARTING_ARCHONS");
         }
     }
 
@@ -401,17 +392,23 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case ANNIHILATION:
-                sb.append("The winning team won by annihilating the enemy team's Archons.");
+            case CONQUEST:
+                sb.append("The winning team won by capturing 75% of sky islands.");
                 break;
-            case MORE_ARCHONS:
-                sb.append("The winning team won by having more Archons.");
+            case MORE_SKY_ISLANDS:
+                sb.append("The winning team won by having more sky islands.");
                 break;
-            case MORE_GOLD_NET_WORTH:
-                sb.append("The winning team won on tiebreakers (more gold net worth).");
+            case MORE_REALITY_ANCHORS:
+                sb.append("The winning team won on tiebreakers (more reality anchors).");
                 break;
-            case MORE_LEAD_NET_WORTH:
-                sb.append("The winning team won on tiebreakers (more lead net worth).");
+            case MORE_ELIXIR_NET_WORTH:
+                sb.append("The winning team won on tiebreakers (more elixir net worth).");
+                break;
+            case MORE_MANA_NET_WORTH:
+                sb.append("The winning team won on tiebreakers (more mana net worth).");
+                break;
+            case MORE_ADAMANTIUM_NET_WORTH:
+                sb.append("The winning team won on tiebreakers (more adamantium net worth).");
                 break;
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (coin flip).");

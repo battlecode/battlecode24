@@ -1,4 +1,9 @@
 /* Global stylings here */
+:root {
+    --blue: #407496;
+    --red: #d53e43;
+    --grey: #253b49;
+}
 
 /* Scrollbar styling */
 
@@ -13,11 +18,83 @@ background: rgb(252, 252, 252);
 
 /* Handle */
 /*::-webkit-scrollbar-thumb {
-background: rgb(39, 39, 39);
+background: var(--grey);
 }*/
 
+body {
+    margin: 0;
+}
+
+#root {
+    font-family: tahoma;
+    font-size: 14px;
+    width: 100vw;
+    height: 100vh;
+    margin: 0px;
+    display: flex;
+}
+
+#rightside {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0px; /* Stupid fix for overflow */
+}
+
+#sidebar {
+    /* Positioning */
+    height: 100%;
+    width: 400px;
+    min-width: 400px;
+    /* position: fixed; */
+    z-index: 1;
+    /* top: 0;
+    left: 0; */
+    overflow-x: hidden;
+    box-sizing: border-box;
+
+    /* Inner style */
+    background-color: white;
+    color: var(--grey);
+    text-align: center;
+    font-size: 14px;
+    font-family: sans-serif;
+
+    /* Inner formatting */
+    padding: 10px;
+}
+
+#gamearea {
+    display: flex;
+    flex-grow: 1;
+    /* position: fixed; */
+    /* top: 75px;
+    left: 405px; */
+    background: var(--grey);
+    align-items: center; /* Vertical center alignment */
+    justify-content: center; /* Horizontal center alignment */
+}
+
+#baseDiv {
+    /* width: 100%; */
+    height: 65px;
+    /* margin-left: 410px; */
+    /* position: fixed; */
+    z-index: 0.5;
+    /* top: 0; */
+    overflow-x: scroll;
+    overflow-y: hidden;
+    color: var(--grey);
+    background-color: white;
+    padding: 10px;
+    white-space: nowrap;
+}
+
 .gameWrapper {
-    background: #e0e0e0;
+    border: 1px solid #e6e6e6;
+    background: #f7f7f7;
+    box-shadow: rgb(99 99 99 / 20%) 0px 2px 8px 0px;
+
     color: #222;
     border-radius: 4px;
     padding: 8px;
@@ -34,7 +111,7 @@ p {
 }
 
 .blue {
-    color: #4f7ee6;
+    color: var(--blue);
 }
 
 /* .graph {
@@ -42,7 +119,7 @@ p {
 } */
 
 .red {
-    color: #db3627;
+    color: var(--red);
 }
 
 #matchQueue {
@@ -52,7 +129,6 @@ p {
     margin-bottom: 16px;
     font-family: Tahoma, sans-serif;
 }
-
 
 .robotSpriteStats img {
     width: 30px;
@@ -90,12 +166,23 @@ p {
 .active-match {
     background: #ffffff;
     padding: 4px;
+    margin-top: 5px;
+    margin-bottom: 3px;
     border-radius: 4px;
+    border: 1px solid #e6e6e6;
 }
 
 .inactive-match {
     padding: 4px;
     cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 3px;
+    border-radius: 4px;
+    border: 1px solid #e6e6e6;
+}
+
+.playing-label {
+    color: green;
 }
 
 #mapEditor {
@@ -108,22 +195,16 @@ form {
 }
 
 #gamearea canvas {
-    max-height: calc(100vh - 79px);
-    max-width: 99.5%;
-    margin-top:auto;
-    margin-bottom:auto;
+    max-height: calc(100vh - 85px);
+    max-width: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 #gamearea iframe {
     height: 100%;
     width: 100%;
     border: 0;
-}
-
-#gamearea {
-    display:flex;
-    align-items: center; /* Vertical center alignment */
-    justify-content: center; /* Horizontal center alignment */
 }
 
 #gamearea:empty {
@@ -137,8 +218,16 @@ form {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     /* margin-right: 325px;
     margin-left: 10px; */
+}
+
+.game-canvas {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #export {
@@ -146,15 +235,7 @@ form {
     width: 90%;
 }
 
-#root {
-    font-family: tahoma;
-    font-size: 14px;
-    width: 100%;
-    height: 100%;
-    margin: 0px;
-}
-
-input[type='file'] {
+input[type="file"] {
     display: none;
 }
 
@@ -165,13 +246,19 @@ input[type='file'] {
     white-space: nowrap;
     text-align: center;
     line-height: 1.25;
-    padding: .4rem .8rem;
-    margin: .1rem;
+    padding: 0.25rem 0.6rem;
+    margin: 0.1rem 0.1rem 0.16rem 0.1rem;
     border: 1px solid transparent;
-    border-radius: 5px;
-    background-color: #777777;
+    border-radius: 3px;
+    background-color: var(--grey);
     color: white;
     font-size: 14px;
+    min-width: 36px;
+}
+.custom-button img {
+    filter: invert(100%);
+    height: 14px;
+    margin-top: 4px;
 }
 
 .upload-button-div {
@@ -190,23 +277,28 @@ input[type='file'] {
     font-size: 17px;
 }
 
-.custom-button:active, button:target {
-    background-color: #8c8c8c;
+.custom-button:active,
+button:target {
+    background-color: #425a69;
+}
+.custom-button:hover {
+    background-color: #2e4758;
 }
 .custom-button:focus {
     outline: none;
 }
 
 .info {
+    margin-left: 5px;
     font-size: 11px;
-    line-height: 20px;
+    line-height: 23px;
     position: relative;
     top: -5px;
 }
 
 .timeline {
     position: relative;
-    top: 4px;
+    top: 1.5px;
 }
 
 .info-name {
@@ -223,20 +315,11 @@ input[type='file'] {
 }
 
 .info-string {
-  border-radius: 8px;
-  background-color: #333;
-  color: #49b5f3;
-  padding: 3px;
-  margin: 0px 1px;
-}
-
-#gamearea {
-    width: calc(100vw - 405px);
-    height: calc(100vh - 75px);
-    position: fixed;
-    top: 75px;
-    left: 405px;
-    background: rgb(39, 39, 39);
+    border-radius: 8px;
+    background-color: #333;
+    color: #49b5f3;
+    padding: 3px;
+    margin: 0px 1px;
 }
 
 .teamHeader {
@@ -244,6 +327,7 @@ input[type='file'] {
     font-size: 20px;
     margin-top: 15px;
     margin-bottom: 5px;
+    color: white;
 }
 
 .tdLabel {
@@ -274,7 +358,7 @@ input[type='file'] {
     cursor: pointer;
 }
 
-label{
+label {
     display: inline-block;
     clear: left;
     /* width: 80px; */
@@ -294,42 +378,26 @@ label{
     border-radius: 10px;
 }
 
-input, select {
+input,
+select {
     padding: 5px;
     margin: 5px;
     display: inline-block;
-}
-
-#baseDiv {
-    width: 100%;
-    height: 65px;
-    margin-left: 410px;
-    position: fixed;
-    z-index: 0.5;
-    top: 0;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    color: rgb(39, 39, 39);
-    background-color: white;
-    padding: 10px;
+    border: 1px solid var(--grey);
+    border-radius: 3px;
 }
 
 #timelineCanvas {
     height: 32px;
     width: 300px;
-    background-color: #999;
+    background-color: var(--grey);
     display: inline-block;
+    border-radius: 3px;
 }
 
 .stats-header {
-    margin: 8px auto 8px auto;
-    width: fit-content;
     font-size: 1.17em;
     font-weight: bold;
-    padding: 5px;
-    border-style: solid;
-    border-radius: 5px;
-    border-width: 1px;
 }
 
 h4 {
@@ -340,29 +408,6 @@ h4 {
     text-align: left;
     font-family: Tahoma, sans-serif;
     font-size: 14px;
-    padding: 10px;
-}
-
-
-#sidebar {
-    /* Positioning */
-    height: 100%;
-    width: 400px;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    overflow-x: hidden;
-    box-sizing: border-box;
-
-    /* Inner style */
-    background-color: white;
-    color: rgb(39, 39, 39);
-    text-align: center;
-    font-size: 14px;
-    font-family: sans-serif;
-
-    /* Inner formatting */
     padding: 10px;
 }
 
@@ -382,17 +427,17 @@ h4 {
 
 #sidebar button.modebutton {
     background-color: white;
-    color: rgb(39, 39, 39);
+    color: var(--grey);
     padding: 10px 5px;
     width: 100%;
-    border-bottom-color: rgba(0,0,0,0.04);
+    border-bottom-color: rgba(0, 0, 0, 0.04);
     border-bottom-style: groove;
 }
 #sidebar button.modebutton:hover {
-    background-color: rgba(0,0,0,0.04);
+    background-color: rgba(0, 0, 0, 0.04);
 }
 #sidebar button.selectedmodebutton {
-    border-bottom-color: blue !important;
+    border-bottom-color: var(--blue) !important;
 }
 
 #logo {
@@ -442,7 +487,6 @@ h4 {
 
 #splashNewVersion {
     color: deepskyblue;
-
 }
 
 .mapInputBox {
@@ -457,7 +501,6 @@ h4 {
 .mapInputLabel {
     text-align: right;
     margin-right: 12px;
-
 }
 
 #gameEditorHeaderTable {
@@ -469,7 +512,6 @@ h4 {
     margin-top: 8px;
     margin-bottom: 8px;
     padding-left: 48px;
-
 }
 
 #mapsDiv {
@@ -498,9 +540,9 @@ h4 {
     font-weight: bold;
 }
 
-.control-button {
+/* .control-button {
     background-color: #bbb !important;
-}
+} */
 
 #robotLogs {
     height: 70vh;
@@ -512,7 +554,7 @@ h4 {
 }
 
 .changebuttonbutton {
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
     /* text-decoration: underline; */
     color: #777;
     border: none;
@@ -530,29 +572,29 @@ h4 {
     color: red;
 }
 
-.specialLog{
+.specialLog {
     color: yellow;
 }
 
 .slide-control {
     width: 200px;
     height: 8px;
-    background-color: rgb(39, 39, 39);;
+    background-color: var(--grey);
     overflow: visible;
-    display:block;
+    display: block;
     position: relative;
     margin-top: 12px;
 }
 
 .slide-control-button {
-    position:absolute;
-    z-index:2;
-    width:12px;
-    height:32px;
-    left:150px;
+    position: absolute;
+    z-index: 2;
+    width: 12px;
+    height: 32px;
+    left: 150px;
     margin-left: -12px;
     top: -10px;
-    bottom:-32px;
+    bottom: -32px;
     border-radius: 8px;
     background: #777;
 }
@@ -572,7 +614,7 @@ h4 {
 #battlecode-splash {
     position: absolute;
     text-align: center;
-    z-index: -1;
+    /* z-index: -1; */
     overflow: hidden;
 }
 
@@ -608,7 +650,7 @@ h4 {
 .influence-bar {
     height: 30px;
     line-height: 30px;
-    color: white;
+    /* color: white; */
     min-width: fit-content;
 }
 
@@ -623,10 +665,8 @@ h4 {
 
 .buff-div {
     height: 30px;
-    line-height: 30px
+    line-height: 30px;
 }
-
-
 
 #star {
     margin-top: 1em;

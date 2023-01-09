@@ -25,11 +25,18 @@ export type BodiesSchema = {
   target: Int32Array,
   targetx: Int32Array,
   targety: Int32Array,
-  parent: Int32Array,
+  // parent: Int32Array,
+
+  previous_adamantium: Int32Array,
+  previous_elixir: Int32Array,
+  previous_mana: Int32Array,
+  adamantium: Int32Array,
+  elixir: Int32Array,
+  mana: Int32Array,
+  normal_anchors: Int16Array,
+  accelerated_anchors: Int16Array,
+
   hp: Int32Array,
-  level: Int8Array,
-  portable: Int8Array,
-  prototype: Int8Array
 }
 
 // NOTE: consider changing MapStats to schema to use SOA for better performance, if it has large data
@@ -40,14 +47,23 @@ export type MapStats = {
   bodies: schema.SpawnedBodyTable,
   randomSeed: number,
 
-  rubble: Int32Array, // double
-  leadVals: Int32Array
-  goldVals: Int32Array
+  walls: Int8Array,
+  clouds: Int8Array,
+  currents: Int8Array,
+
+  islands: Int32Array,
+  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> }>,
+
+  resources: Int8Array,
+  resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
+
+  effects: { type: string, turns_remaining: number, team: number, x: number, y: number }[],
+  //these are unused because there is no way for a resource to be dropped on the ground
+  //   adamantiumVals: Int32Array
+  //   manaVals: Int32Array
+  //   elixirVals: Int32Array
 
   symmetry: number
-
-  anomalies: Int32Array
-  anomalyRounds: Int32Array
 
   getIdx: (x: number, y: number) => number
   getLoc: (idx: number) => Victor
@@ -55,18 +71,29 @@ export type MapStats = {
 
 export type TeamStats = {
   // An array of numbers corresponding to team stats, which map to RobotTypes
-  // Corresponds to robot type (including NONE. length 5)
-  // First four are droids (guard, wizard, builder, miner), last three are buildings (turret, archon, lab)
-  robots: [number[], number[], number[], number[], number[], number[], number[]],
-  lead: number,
-  gold: number,
-  total_hp: [number[], number[], number[], number[], number[], number[], number[]],
-  leadChange: number,
-  goldChange: number,
-  leadMined: number,
-  goldMined: number,
-  leadMinedHist: number[],
-  goldMinedHist: number[],
+  // HEADQUARTERS, CARRIER, LAUNCHER, AMPLIFIER, DESTABILIZER, BOOSTER
+  robots: [number, number, number, number, number, number],
+  total_hp: [number, number, number, number, number, number],
+
+  adamantium: number,
+  mana: number,
+  elixir: number,
+
+  adamantiumChange: number,
+  manaChange: number,
+  elixirChange: number,
+  adamantiumMined: number,
+  manaMined: number,
+  elixirMined: number,
+
+  //is this efficient? probably fine
+  // x: turn, y: value
+  adamantiumIncomeDataset: { x: number, y: number }[]
+  manaIncomeDataset: { x: number, y: number }[]
+  elixirIncomeDataset: { x: number, y: number }[]
+  adamantiumMinedHist: number[],
+  manaMinedHist: number[],
+  elixirMinedHist: number[],
 }
 
 export type IndicatorDotsSchema = {
@@ -112,6 +139,11 @@ export default class GameWorld {
    * Everything that isn't an indicator string.
    */
   bodies: StructOfArrays<BodiesSchema>
+
+  /**
+   * Stores previous locations of alive robots
+   */
+  pathHistory: Map<number, { x: number, y: number }[]>
 
   /*
    * Stats for each team
@@ -195,7 +227,6 @@ export default class GameWorld {
    * which should be removed in the current round.
    */
   private actionRobots: number[] = [];
-  private bidRobots: number[] = [];
 
   constructor(meta: Metadata, config: playbackConfig) {
     this.meta = meta
@@ -217,28 +248,41 @@ export default class GameWorld {
       target: new Int32Array(0),
       targetx: new Int32Array(0),
       targety: new Int32Array(0),
-      parent: new Int32Array(0),
+      normal_anchors: new Int16Array(0),
+      accelerated_anchors: new Int16Array(0),
+      previous_adamantium: new Int32Array(0),
+      previous_elixir: new Int32Array(0),
+      previous_mana: new Int32Array(0),
+      adamantium: new Int32Array(0),
+      elixir: new Int32Array(0),
+      mana: new Int32Array(0),
       hp: new Int32Array(0),
-      level: new Int8Array(0),
-      portable: new Int8Array(0),
-      prototype: new Int8Array(0)
     }, 'id')
+
+    this.pathHistory = new Map()
 
     // Instantiate teamStats
     this.teamStats = new Map<number, TeamStats>()
     for (let team in this.meta.teams) {
       var teamID = this.meta.teams[team].teamID
       this.teamStats.set(teamID, {
-        robots: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        lead: 0,
-        gold: 0,
-        total_hp: [[0], [0], [0], [0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        leadChange: 0,
-        goldChange: 0,
-        leadMined: 0,
-        goldMined: 0,
-        leadMinedHist: [],
-        goldMinedHist: []
+        robots: [0, 0, 0, 0, 0, 0],
+        adamantium: 0,
+        mana: 0,
+        elixir: 0,
+        total_hp: [0, 0, 0, 0, 0, 0],
+        adamantiumChange: 0,
+        manaChange: 0,
+        elixirChange: 0,
+        adamantiumMined: 0,
+        manaMined: 0,
+        elixirMined: 0,
+        adamantiumIncomeDataset: [],
+        manaIncomeDataset: [],
+        elixirIncomeDataset: [],
+        adamantiumMinedHist: [],
+        manaMinedHist: [],
+        elixirMinedHist: [],
       })
     }
 
@@ -250,13 +294,15 @@ export default class GameWorld {
       bodies: new schema.SpawnedBodyTable(),
       randomSeed: 0,
 
-      rubble: new Int32Array(0),
-      leadVals: new Int32Array(0),
-      goldVals: new Int32Array(0),
-
+      walls: new Int8Array(0),
+      clouds: new Int8Array(0),
+      currents: new Int8Array(0),
+      islands: new Int32Array(0),
+      island_stats: new Map(),
+      resources: new Int8Array(0),
+      resource_well_stats: new Map(),
+      effects: [],
       symmetry: 0,
-      anomalies: new Int32Array(0),
-      anomalyRounds: new Int32Array(0),
 
       getIdx: (x: number, y: number) => 0,
       getLoc: (idx: number) => new Victor(0, 0)
@@ -319,8 +365,8 @@ export default class GameWorld {
     this.mapStats.maxCorner.x = maxCorner.x()
     this.mapStats.maxCorner.y = maxCorner.y()
 
-    this.mapStats.goldVals = new Int32Array(maxCorner.x() * maxCorner.y())
-    this.mapStats.leadVals = map.leadArray()
+    const width = (maxCorner.x() - minCorner.x())
+    const height = (maxCorner.y() - minCorner.y())
 
     const bodies = map.bodies(this._bodiesSlot)
     if (bodies && bodies.robotIDsLength) {
@@ -329,9 +375,50 @@ export default class GameWorld {
 
     this.mapStats.randomSeed = map.randomSeed()
 
-    this.mapStats.rubble = map.rubbleArray()
+    this.mapStats.walls = map.wallsArray()
+    this.mapStats.clouds = map.cloudsArray()
+    this.mapStats.currents = Int8Array.from(map.currentsArray())
 
-    const width = (maxCorner.x() - minCorner.x())
+    this.mapStats.resources = Int8Array.from(map.resourcesArray())
+    for (let i = 0; i < this.mapStats.resources.length; i++) {
+      if (this.mapStats.resources[i] != 0) {
+        this.mapStats.resource_well_stats.set(i, { adamantium: 0, mana: 0, elixir: 0, upgraded: false })
+      }
+    }
+
+    this.mapStats.clouds = Int8Array.from(map.cloudsArray())
+    this.mapStats.currents = Int8Array.from(map.currentsArray())
+
+    this.mapStats.islands = map.islandsArray()
+    for (let i = 0; i < this.mapStats.islands.length; i++) {
+      if (this.mapStats.islands[i] != 0) {
+        let island_id = this.mapStats.islands[i]
+        if (this.mapStats.island_stats.has(island_id)) {
+          let existing_island = this.mapStats.island_stats.get(island_id)
+          existing_island.locations.push(i)
+        } else {
+          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set() })
+        }
+      }
+    }
+
+    // set the acceleration radius for when an island is accelerated
+    let acc_radius = 2
+    this.mapStats.island_stats.forEach((island_stat, key) => {
+      for (let tile_loc of island_stat.locations) {
+        let tile_x = tile_loc % width
+        let tile_y = (tile_loc - tile_x) / width
+        for (let x = tile_x - acc_radius; x <= tile_x + acc_radius; x += 1) {
+          for (let y = tile_y - acc_radius; y <= tile_y + acc_radius; y += 1) {
+            if (x >= 0 && x < width && y >= 0 && y < height &&
+              ((tile_x - x) * (tile_x - x) + (tile_y - y) * (tile_y - y) <= acc_radius * acc_radius))
+              island_stat.accelerated_tiles.add(x + y * width)
+          }
+        }
+      }
+    })
+
+
     this.mapStats.getIdx = (x: number, y: number) => (
       Math.floor(y) * width + Math.floor(x)
     )
@@ -341,8 +428,8 @@ export default class GameWorld {
 
     this.mapStats.symmetry = map.symmetry()
 
-    this.mapStats.anomalies = Int32Array.from(map.anomaliesArray())
-    this.mapStats.anomalyRounds = Int32Array.from(map.anomalyRoundsArray())
+    // this.mapStats.anomalies = Int32Array.from(map.anomaliesArray())
+    // this.mapStats.anomalyRounds = Int32Array.from(map.anomalyRoundsArray())
 
     // Check with header.totalRounds() ?
   }
@@ -363,6 +450,10 @@ export default class GameWorld {
     this.mapName = source.mapName
     this.diedBodies.copyFrom(source.diedBodies)
     this.bodies.copyFrom(source.bodies)
+    this.pathHistory = new Map()
+    source.pathHistory.forEach((value, key) => {
+      this.pathHistory.set(key, deepcopy(value))
+    })
     this.indicatorDots.copyFrom(source.indicatorDots)
     this.indicatorLines.copyFrom(source.indicatorLines)
     this.indicatorStrings = Object.assign({}, source.indicatorStrings)
@@ -372,7 +463,6 @@ export default class GameWorld {
     })
     this.mapStats = deepcopy(source.mapStats)
     this.actionRobots = Array.from(source.actionRobots)
-    this.bidRobots = Array.from(source.bidRobots)
     this.logs = Array.from(source.logs)
     this.logsShift = source.logsShift
   }
@@ -390,24 +480,19 @@ export default class GameWorld {
       let teamID = delta.teamIDs(i)
       let statObj = this.teamStats.get(teamID)
 
-      statObj.lead += delta.teamLeadChanges(i)
-      statObj.gold += delta.teamGoldChanges(i)
-      statObj.leadChange = delta.teamLeadChanges(i)
-      statObj.goldChange = delta.teamGoldChanges(i)
-      statObj.leadMined = 0
-      statObj.goldMined = 0
+      statObj.adamantium += delta.teamAdChanges(i)
+      statObj.mana += delta.teamMnChanges(i)
+      statObj.elixir += delta.teamExChanges(i)
+
+      statObj.adamantiumChange = delta.teamAdChanges(i)
+      statObj.manaChange = delta.teamMnChanges(i)
+      statObj.elixirChange = delta.teamExChanges(i)
+
+      statObj.adamantiumMined = 0
+      statObj.manaMined = 0
+      statObj.elixirMined = 0
 
       this.teamStats.set(teamID, statObj)
-    }
-
-    // Location changes on bodies
-    const movedLocs = delta.movedLocs(this._vecTableSlot1)
-    if (movedLocs) {
-      this.bodies.alterBulk({
-        id: delta.movedIDsArray(),
-        x: movedLocs.xsArray(),
-        y: movedLocs.ysArray(),
-      })
     }
 
     // Spawned bodies
@@ -416,249 +501,305 @@ export default class GameWorld {
       this.insertBodies(bodies)
     }
 
-    // Remove abilities from previous round
-    this.bodies.alterBulk({id: new Int32Array(this.actionRobots), action: (new Int8Array(this.actionRobots.length)).fill(-1), 
-      target: new Int32Array(this.actionRobots.length), targetx: new Int32Array(this.actionRobots.length), targety: new Int32Array(this.actionRobots.length)});
-    this.actionRobots = [];
+    // Location changes on bodies
+    const movedLocs = delta.movedLocs(this._vecTableSlot1)
+    if (movedLocs) {
+      const movedIds = delta.movedIDsArray()
+      const xsArray = movedLocs.xsArray()
+      const ysArray = movedLocs.ysArray()
+      this.bodies.alterBulk({
+        id: movedIds,
+        x: xsArray,
+        y: ysArray,
+      })
 
-    // Remove bids from previous round
-    this.bodies.alterBulk({ id: new Int32Array(this.bidRobots), bid: new Int32Array(this.bidRobots.length) })
-    this.bidRobots = []
+      // Update path history
+      for (let j = 0; j < movedIds.length; j++) {
+        const elem = this.pathHistory.get(movedIds[j])
+        elem.unshift({ x: xsArray[j], y: ysArray[j] })
+        if (elem.length > 20)
+          elem.pop()
+      }
+    }
+
+    this.mapStats.effects.forEach(s => s.turns_remaining--)
+    this.mapStats.effects = this.mapStats.effects.filter(s => s.turns_remaining >= 0)
+
+    // Remove abilities from previous round
+    this.bodies.alterBulk({
+      id: new Int32Array(this.actionRobots), action: (new Int8Array(this.actionRobots.length)).fill(-1),
+      target: new Int32Array(this.actionRobots.length), targetx: new Int32Array(this.actionRobots.length), targety: new Int32Array(this.actionRobots.length)
+    })
+    this.actionRobots = []
 
     // Map changes
-    const leadLocations = delta.leadDropLocations(this._vecTableSlot1)
-    if (leadLocations) {
-      const xs = leadLocations.xsArray()
-      const ys = leadLocations.ysArray()
+    // const leadLocations = delta.leadDropLocations(this._vecTableSlot1)
+    // if (leadLocations) {
+    //   const xs = leadLocations.xsArray()
+    //   const ys = leadLocations.ysArray()
 
-      xs.forEach((x, i) => {
-        const y = ys[i]
-        this.mapStats.leadVals[this.mapStats.getIdx(x, y)] += delta.leadDropValues(i)
-      })
-    }
+    //   xs.forEach((x, i) => {
+    //     const y = ys[i]
+    //     this.mapStats.leadVals[this.mapStats.getIdx(x, y)] += delta.leadDropValues(i)
+    //   })
+    // }
 
-    const goldLocations = delta.goldDropLocations(this._vecTableSlot1)
-    if (goldLocations) {
-      const xs = goldLocations.xsArray()
-      const ys = goldLocations.ysArray()
-      let inst = this
-      xs.forEach((x, i) => {
-        const y = ys[i]
-        inst.mapStats.goldVals[inst.mapStats.getIdx(x, y)] += delta.goldDropValues(i)
-      })
-    }
+    // const goldLocations = delta.goldDropLocations(this._vecTableSlot1)
+    // if (goldLocations) {
+    //   const xs = goldLocations.xsArray()
+    //   const ys = goldLocations.ysArray()
+    //   let inst = this
+    //   xs.forEach((x, i) => {
+    //     const y = ys[i]
+    //     inst.mapStats.goldVals[inst.mapStats.getIdx(x, y)] += delta.goldDropValues(i)
+    //   })
+    // }
 
-    if (delta.roundID() % this.meta.constants.increasePeriod() == 0) {
-      this.mapStats.leadVals.forEach((x, i) => {
-        this.mapStats.leadVals[i] = x > 0 ? x + this.meta.constants.leadAdditiveIncease() : 0
-      })
-    }
+    // Are we doing this in this way this year
+    // if (delta.roundID() % this.meta.constants.increasePeriod() == 0) {
+    //   this.mapStats.leadVals.forEach((x, i) => {
+    //     this.mapStats.leadVals[i] = x > 0 ? x + this.meta.constants.leadAdditiveIncease() : 0
+    //   })
+    // }
 
     // Actions
-    if(delta.actionsLength() > 0){
-      const arrays = this.bodies.arrays;
-      
-      for(let i=0; i<delta.actionsLength(); i++){
-        const action = delta.actions(i);
-        const robotID = delta.actionIDs(i);
-        const target = delta.actionTargets(i);
-        const body = robotID != -1 ? this.bodies.lookup(robotID) : null;
-        const teamStatsObj = body != null ? this.teamStats.get(body.team) : null;
-        const setAction = (set_target: Boolean = false, set_target_loc: Boolean = false) => {
-          this.bodies.alter({id: robotID, action: action as number});
-          if (set_target) this.bodies.alter({id: robotID, target: target});
-          if (set_target_loc) {
-            const target_body = this.bodies.lookup(target);
-            this.bodies.alter({id: robotID, targetx: target_body.x, targety: target_body.y});
+    if (delta.actionsLength() > 0) {
+      for (let i = 0; i < delta.actionsLength(); i++) {
+        const action = delta.actions(i)
+        const robotID = delta.actionIDs(i)
+        let target = delta.actionTargets(i)
+        const body = robotID != -1 ? this.bodies.lookup(robotID) : null
+        const teamStatsObj = body != null ? this.teamStats.get(body.team) : null
+        const width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
+
+
+        const setAction = (set_target: Boolean = false, set_target_loc_from_body_id: Boolean = false, set_target_loc_from_location: Boolean = false) => {
+          this.bodies.alter({ id: robotID, action: action as number })
+
+          if (set_target)
+            this.bodies.alter({ id: robotID, target: target })
+          else if (set_target_loc_from_body_id) {
+            const target_body = this.bodies.lookup(target)
+            this.bodies.alter({ id: robotID, targetx: target_body.x, targety: target_body.y })
+          } else if (set_target_loc_from_location) {
+            const width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x
+            const target_x = target % width
+            const target_y = (target - target_x) / width
+            this.bodies.alter({ id: robotID, targetx: target_x, targety: target_y })
           }
-          this.actionRobots.push(robotID);
-        }; // should be called for actions performed *by* the robot
+
+          this.actionRobots.push(robotID)
+        }
+
+
         switch (action) {
-          // TODO: validate actions?
-          // Actions list from battlecode.fbs enum Action
+          case schema.Action.THROW_ATTACK:
+            this.bodies.alter({
+              id: robotID,
+              previous_adamantium: body.adamantium,
+              previous_elixir: body.elixir,
+              previous_mana: body.mana,
+              adamantium: 0,
+              elixir: 0,
+              mana: 0
+            })
+            if (target >= 0) // Hit attack: target is bot
+              setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
+            break
+          case schema.Action.LAUNCH_ATTACK:
+            if (target >= 0) // Hit attack: target is bot
+              setAction(false, true, false)
+            else { // Missed attack: target is location (-location - 1)
+              target = -target - 1;
+              setAction(false, false, true)
+            }
+            break
+          case schema.Action.PICK_UP_RESOURCE:
+            setAction(false, false, true)
+            break
 
-          case schema.Action.ATTACK:
-            setAction(true, true);
-            break;
-          /// Slanderers passively generate influence for the
-          /// Enlightenment Center that created them.
-          /// Target: parent ID
-          case schema.Action.LOCAL_ABYSS:
+          case schema.Action.PLACE_RESOURCE:
+            setAction(false, false, true)
+            break
+
+          case schema.Action.DESTABILIZE:
+            // setAction(false, false, true)
+            this.mapStats.effects.push({
+              type: 'destabilize', turns_remaining: 4, team: body.team,
+              x: target % width, y: (target - target % width) / width
+            })
+            break
+
+          // case schema.Action.DESTABILIZE_DAMAGE:
+          //   setAction(false, false, true)
+          //   break
+
+          case schema.Action.BOOST:
+            // setAction(false, false, true)
+            this.mapStats.effects.push({
+              type: 'boost', turns_remaining: 9, team: body.team,
+              x: target % width, y: (target - target % width) / width
+            })
+            break
+
+          case schema.Action.BUILD_ANCHOR:
+            if (target == 0) {
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
+            break
+
+          case schema.Action.PICK_UP_ANCHOR:
             setAction()
+            let anchor_type = target % 2
+            let hq_id = Math.floor(target / 2)
+            let hq = this.bodies.lookup(hq_id)
+            if (anchor_type == 0) {
+              this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
+              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            } else {
+              this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
+              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+            }
             break
 
-          case schema.Action.LOCAL_CHARGE:
-            setAction()
+          case schema.Action.PLACE_ANCHOR:
+            setAction(false, false, true)
+            let curr_island = this.mapStats.island_stats.get(target)
+            curr_island.owner = body.team
+            curr_island.is_accelerated = body.accelerated_anchors > 0
+            this.bodies.alter({ id: robotID, normal_anchors: 0, accelerated_anchors: 0 })
             break
 
-          case schema.Action.LOCAL_FURY:
-            setAction()
+          case schema.Action.CHANGE_ADAMANTIUM:
+            if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
+              teamStatsObj.adamantiumMined += target
+            this.bodies.alter({ id: robotID, adamantium: body.adamantium + target })
             break
 
-          case schema.Action.TRANSMUTE:
-            setAction();
-            teamStatsObj.goldMined += 1;
-            // teamStatsObj.gold += target;
-            // teamStatsObj.lead -= 0;
-            break;
-
-          case schema.Action.TRANSFORM:
-            setAction()
-            this.bodies.alter({ id: robotID, portable: 1 - body.portable })
+          case schema.Action.CHANGE_ELIXIR:
+            if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
+              teamStatsObj.elixirMined += target
+            this.bodies.alter({ id: robotID, elixir: body.elixir + target })
             break
 
-          case schema.Action.MINE_LEAD:
-            setAction()
-            teamStatsObj.leadMined += 1;
+          case schema.Action.CHANGE_MANA:
+            if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
+              teamStatsObj.manaMined += target
+            this.bodies.alter({ id: robotID, mana: body.mana + target })
             break
 
-          case schema.Action.MINE_GOLD:
-            setAction()
-            teamStatsObj.goldMined += 1;  
-            break
-
-          case schema.Action.MUTATE:
-            const target_body = this.bodies.lookup(target);
-            teamStatsObj.robots[target_body.type][target_body.level - 1] -= 1
-            teamStatsObj.robots[target_body.type][target_body.level + 1 - 1] += 1
-            teamStatsObj.total_hp[target_body.type][target_body.level - 1] -= body.hp
-            teamStatsObj.total_hp[target_body.type][target_body.level + 1 - 1] += body.hp
-            this.bodies.alter({ id: target, level: target_body.level + 1 })
-            break
-
-          /// Builds a unit (enlightent center).
-          /// Target: spawned unit
           case schema.Action.SPAWN_UNIT:
-            setAction()
-            this.bodies.alter({ id: target, parent: robotID })
-            break
-
-          case schema.Action.REPAIR:
-            setAction(true, true);
             break
 
           case schema.Action.CHANGE_HEALTH:
-            this.bodies.alter({ id: robotID, hp: body.hp + target});
-            teamStatsObj.total_hp[body.type][body.level - 1] += target;
-            break;
-
-          case schema.Action.FULLY_REPAIRED:
-            this.bodies.alter({ id: robotID, prototype: 0});
-            //teamStatsObj.total_hp[body.type][body.level] += target;
-            break;
+            this.bodies.alter({ id: robotID, hp: body.hp + target })
+            teamStatsObj.total_hp[body.type] += target
+            break
 
           case schema.Action.DIE_EXCEPTION:
             console.log(`Exception occured: robotID(${robotID}), target(${target}`)
             break
 
-          case schema.Action.VORTEX:
-            let w = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
-            let h = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
-            switch (target) {
-              case 0:
-                for (let x = 0; x < Math.floor(w / 2); x++) {
-                  for (let y = 0; y < Math.floor((w + 1) / 2); y++) {
-                    let curX = x
-                    let curY = y
-                    let lastRubble = this.mapStats.rubble[curX + curY * w]
-                    for (let i = 0; i < 4; i++) {
-                      let tempX = curX
-                      curX = curY
-                      curY = (w - 1) - tempX
-                      let idx = curX + curY * w
-                      let tempRubble = this.mapStats.rubble[idx]
-                      this.mapStats.rubble[idx] = lastRubble
-                      lastRubble = tempRubble
-                    }
-                  }
-                }
-                break
-              case 1:
-                for (let x = 0; x < Math.floor(w / 2); x++) {
-                  for (let y = 0; y < h; y++) {
-                    let idx = x + y * w
-                    let newX = w - 1 - x
-                    let newIdx = newX + y * w
-                    let prevRubble = this.mapStats.rubble[idx]
-                    this.mapStats.rubble[idx] = this.mapStats.rubble[newIdx]
-                    this.mapStats.rubble[newIdx] = prevRubble
-                  }
-                }
-                break
-              case 2:
-                for (let y = 0; y < Math.floor(h / 2); y++) {
-                  for (let x = 0; x < w; x++) {
-                    let idx = x + y * w
-                    let newY = h - 1 - y
-                    let newIdx = x + newY * w
-                    let prevRubble = this.mapStats.rubble[idx]
-                    this.mapStats.rubble[idx] = this.mapStats.rubble[newIdx]
-                    this.mapStats.rubble[newIdx] = prevRubble
-                  }
-                }
-                break
-            }
-
           default:
-            //console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
+            console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`)
             break
         }
         if (body) this.teamStats.set(body.team, teamStatsObj)
       }
     }
 
-    for (let team in this.meta.teams) {
-      let teamID = this.meta.teams[team].teamID;
-      let statsObj = this.teamStats.get(teamID) as TeamStats;
-      statsObj.leadMinedHist.push(statsObj.leadMined);
-      if (statsObj.leadMinedHist.length > 100) statsObj.leadMinedHist.shift();
-      statsObj.goldMinedHist.push(statsObj.goldMined);
-      if (statsObj.goldMinedHist.length > 100) statsObj.goldMinedHist.shift();
+    //resource wells (THIS SHOULD JUST BE IDS)
+    // const wells = delta.resourceWellLocs(this._vecTableSlot1)
+
+    for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
+      let well_index = delta.resourceWellLocs(i)
+      let well_resource = delta.resourceID(i)
+      let well_adamantium = delta.wellAdamantiumValues(i)
+      let well_elixir = delta.wellElixirValues(i)
+      let well_mana = delta.wellManaValues(i)
+
+      // if (well_adamantium != 0 || well_elixir != 0 || well_mana != 0) {
+      //   console.log("Well received resources:")
+      //   console.log(well_adamantium)
+      //   console.log(well_elixir)
+      //   console.log(well_mana)
+      // }
+
+      let current_resource_stats = this.mapStats.resource_well_stats.get(well_index)
+
+      this.mapStats.resources[well_index] = well_resource
+
+      current_resource_stats.adamantium = well_adamantium
+      current_resource_stats.mana = well_mana
+      current_resource_stats.elixir = well_elixir
+      current_resource_stats.upgraded = delta.wellAccelerationID(i) > 0
     }
 
-    // income
-    // this.bodies.arrays.type.forEach((type, i) => {
-    //   let robotID = this.bodies.arrays.id[i];
-    //   let team = this.bodies.arrays.team[i];
-    //   let ability = this.bodies.arrays.ability[i];
-    //   let influence = this.bodies.arrays.influence[i];
-    //   let income = this.bodies.arrays.income[i];
-    //   let parent = this.bodies.arrays.parent[i];
-    //   var teamStatsObj = this.teamStats.get(team);
-    //   if (ability === 3) {
-    //       let delta = Math.floor((1/50 + 0.03 * Math.exp(-0.001 * influence)) * influence);
-    //       teamStatsObj.income += delta;
-    //       this.bodies.alter({id: parent, income: delta});
-    //   } else if (type === schema.BodyType.ENLIGHTENMENT_CENTER && teamStatsObj) {
-    //      let delta = Math.ceil(0.2 * Math.sqrt(this.turn));
-    //      teamStatsObj.income += delta;
-    //      this.bodies.alter({id: robotID, income: delta});
-    //   } else if (income !== 0) {
-    //     this.bodies.alter({id: robotID, income: 0});
-    //   }
-    //   this.teamStats.set(team, teamStatsObj);
-    // })
+    for (let i = 0; i < delta.islandIDsLength(); i++) {
+      let id = delta.islandIDs(i)
+      let owner = delta.islandOwnership(i)
+      let turnover = delta.islandTurnoverTurns(i)
+      let island_stats = this.mapStats.island_stats.get(id)
+      island_stats.flip_progress = turnover
+      if (island_stats.owner != owner) {
+        island_stats.is_accelerated = false
+      }
+      island_stats.owner = owner
+    }
+
+
+    //mining history 
+    const average = (array) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0
+    for (let team in this.meta.teams) {
+      let teamID = this.meta.teams[team].teamID
+      let statsObj = this.teamStats.get(teamID) as TeamStats
+
+      const averageWindow = 100;
+      statsObj.adamantiumMinedHist.push(statsObj.adamantiumMined)
+      if (statsObj.adamantiumMinedHist.length > averageWindow) statsObj.adamantiumMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.adamantiumIncomeDataset.push({ x: this.turn, y: average(statsObj.adamantiumMinedHist) })
+
+      statsObj.manaMinedHist.push(statsObj.manaMined)
+      if (statsObj.manaMinedHist.length > averageWindow) statsObj.manaMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.manaIncomeDataset.push({ x: this.turn, y: average(statsObj.manaMinedHist) })
+
+      statsObj.elixirMinedHist.push(statsObj.elixirMined)
+      if (statsObj.elixirMinedHist.length > averageWindow) statsObj.elixirMinedHist.shift()
+      if (this.turn % 10 == 0)
+        statsObj.elixirIncomeDataset.push({ x: this.turn, y: average(statsObj.elixirMinedHist) })
+    }
 
     // Died bodies
     if (delta.diedIDsLength() > 0) {
       // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-      for(let i = 0; i < delta.diedIDsLength(); i++) {
-          let index = indices[i];
-          let team = this.bodies.arrays.team[index];
-          let type = this.bodies.arrays.type[index];
-          let statObj = this.teamStats.get(team);
-          if(!statObj) {continue;} // In case this is a neutral bot
-          statObj.robots[type][this.bodies.arrays.level[index] - 1] -= 1;
-          let hp = this.bodies.arrays.hp[index];
-          let level = this.bodies.arrays.level[index];
-          statObj.total_hp[type][level - 1] -= hp;
-          this.teamStats.set(team, statObj);
+      const idsArray = delta.diedIDsArray()
+      var indices = this.bodies.lookupIndices(idsArray)
+      for (let i = 0; i < delta.diedIDsLength(); i++) {
+        let index = indices[i]
+        let team = this.bodies.arrays.team[index]
+        let type = this.bodies.arrays.type[index]
+        let statObj = this.teamStats.get(team)
+        if (!statObj) { continue } // In case this is a neutral bot
+        statObj.robots[type] -= 1
+        statObj.total_hp[type] -= this.bodies.arrays.hp[index]
+        this.teamStats.set(team, statObj)
       }
 
       // Update bodies soa
       this.insertDiedBodies(delta)
-      this.bodies.deleteBulk(delta.diedIDsArray())
+      this.bodies.deleteBulk(idsArray)
+
+      // Remove path histories
+      for (let i = 0; i < idsArray.length; i++)
+        this.pathHistory.delete(idsArray[i])
     }
 
     // Insert indicator dots and lines
@@ -666,16 +807,10 @@ export default class GameWorld {
     this.insertIndicatorLines(delta)
 
     //indicator strings
-    for(var i = 0; i < delta.indicatorStringsLength(); i++){
+    for (var i = 0; i < delta.indicatorStringsLength(); i++) {
       let bodyID = delta.indicatorStringIDs(i)
       this.indicatorStrings[bodyID] = delta.indicatorStrings(i)
     }
-
-    // Logs
-    // TODO
-
-    // Message pool
-    // TODO
 
     // Increase the turn count
     this.turn = delta.roundID()
@@ -687,18 +822,6 @@ export default class GameWorld {
         bytecodesUsed: delta.bytecodesUsedArray()
       })
     }
-
-    // TODO: process indicator strings
-
-    // // Process logs
-    // if (this.config.processLogs) this.parseLogs(delta.roundID(), delta.logs() ? <string> delta.logs(flatbuffers.Encoding.UTF16_STRING) : "");
-    // else this.logsShift++;
-
-    // while (this.logs.length >= 25) {
-    //   this.logs.shift();
-    //   this.logsShift++;
-    // }
-    // console.log(delta.roundID(), this.logsShift, this.logs[0]);
   }
 
   private insertDiedBodies(delta: schema.Round) {
@@ -766,20 +889,17 @@ export default class GameWorld {
   private insertBodies(bodies: schema.SpawnedBodyTable) {
 
     // Store frequently used arrays
-    var teams = bodies.teamIDsArray();
-    var types = bodies.typesArray();
-    var hps = new Int32Array(bodies.robotIDsLength());
-    var prototypes = new Int8Array(bodies.robotIDsLength());
+    var teams = bodies.teamIDsArray()
+    var types = bodies.typesArray()
+    var hps = new Int32Array(bodies.robotIDsLength())
 
     // Update spawn stats
     for (let i = 0; i < bodies.robotIDsLength(); i++) {
-      // if(teams[i] == 0) continue;
-      var statObj = this.teamStats.get(teams[i]);
-      statObj.robots[types[i]][0] += 1; // TODO: handle level
-      statObj.total_hp[types[i]][0] += this.meta.types[types[i]].health; // TODO: extract meta info
-      this.teamStats.set(teams[i], statObj);
-      hps[i] = this.meta.types[types[i]].health;
-      prototypes[i] = (this.meta.buildingTypes.includes(types[i]) && types[i] != schema.BodyType.ARCHON) ? 1 : 0;
+      var statObj = this.teamStats.get(teams[i])
+      statObj.robots[types[i]] += 1
+      statObj.total_hp[types[i]] += this.meta.types[types[i]].health // TODO: extract meta info
+      this.teamStats.set(teams[i], statObj)
+      hps[i] = this.meta.types[types[i]].health
     }
 
     const locs = bodies.locs(this._vecTableSlot1)
@@ -790,101 +910,101 @@ export default class GameWorld {
     // You can't reuse TypedArrays easily, so I'm inclined to
     // let this slide for now.
 
-    // Initialize convictions
-
     // Insert bodies
-
-    const levels = new Int8Array(bodies.robotIDsLength())
-    levels.fill(1)
-
+    const idsArray = bodies.robotIDsArray()
+    const xsArray = locs.xsArray()
+    const ysArray = locs.ysArray()
     this.bodies.insertBulk({
-      id: bodies.robotIDsArray(),
+      id: idsArray,
       team: teams,
       type: types,
-      x: locs.xsArray(),
-      y: locs.ysArray(),
-      flag: new Int32Array(bodies.robotIDsLength()),
+      x: xsArray,
+      y: ysArray,
       bytecodesUsed: new Int32Array(bodies.robotIDsLength()),
       action: (new Int8Array(bodies.robotIDsLength())).fill(-1),
       target: new Int32Array(bodies.robotIDsLength()),
       targetx: new Int32Array(bodies.robotIDsLength()),
       targety: new Int32Array(bodies.robotIDsLength()),
-      bid: new Int32Array(bodies.robotIDsLength()),
       parent: new Int32Array(bodies.robotIDsLength()),
       hp: hps,
-      level: levels,
-      portable: new Int8Array(bodies.robotIDsLength()),
-      prototype: prototypes,
-    });
-  }
+      adamantium: new Int32Array(bodies.robotIDsLength()),
+      elixir: new Int32Array(bodies.robotIDsLength()),
+      mana: new Int32Array(bodies.robotIDsLength()),
+      anchor: new Int8Array(bodies.robotIDsLength()),
+    })
 
+    // Update initial path history
+    for (let i = 0; i < idsArray.length; i++)
+      this.pathHistory.set(idsArray[i], [{ x: xsArray[i], y: ysArray[i] }])
+  }
+  
   /**
     * Parse logs for a round.
     */
-  private parseLogs(round: number, logs: string) {
-    // TODO regex this properly
-    // Regex
-    let lines = logs.split(/\r?\n/)
-    let header = /^\[(A|B):(ENLIGHTENMENT_CENTER|POLITICIAN|SLANDERER|MUCKRAKER)#(\d+)@(\d+)\] (.*)/
+  // private parseLogs(round: number, logs: string) {
+  //   // TODO regex this properly
+  //   // Regex
+  //   let lines = logs.split(/\r?\n/)
+  //   let header = /^\[(A|B):(ENLIGHTENMENT_CENTER|POLITICIAN|SLANDERER|MUCKRAKER)#(\d+)@(\d+)\] (.*)/
 
-    let roundLogs = new Array<Log>()
+  //   let roundLogs = new Array<Log>()
 
-    // Parse each line
-    let index: number = 0
-    while (index < lines.length) {
-      let line = lines[index]
-      let matches = line.match(header)
+  //   // Parse each line
+  //   let index: number = 0
+  //   while (index < lines.length) {
+  //     let line = lines[index]
+  //     let matches = line.match(header)
 
-      // Ignore empty string
-      if (line === "") {
-        index += 1
-        continue
-      }
+  //     // Ignore empty string
+  //     if (line === "") {
+  //       index += 1
+  //       continue
+  //     }
 
-      // The entire string and its 5 parenthesized substrings must be matched!
-      if (matches === null || (matches && matches.length != 6)) {
-        // throw new Error(`Wrong log format: ${line}`);
-        console.log(`Wrong log format: ${line}`)
-        console.log('Omitting logs')
-        return
-      }
+  //     // The entire string and its 5 parenthesized substrings must be matched!
+  //     if (matches === null || (matches && matches.length != 6)) {
+  //       // throw new Error(`Wrong log format: ${line}`);
+  //       console.log(`Wrong log format: ${line}`)
+  //       console.log('Omitting logs')
+  //       return
+  //     }
 
-      let shortenRobot = new Map()
-      shortenRobot.set("ENLIGHTENMENT_CENTER", "EC")
-      shortenRobot.set("POLITICIAN", "P")
-      shortenRobot.set("SLANDERER", "SL")
-      shortenRobot.set("MUCKRAKER", "MCKR")
+  //     let shortenRobot = new Map()
+  //     shortenRobot.set("ENLIGHTENMENT_CENTER", "EC")
+  //     shortenRobot.set("POLITICIAN", "P")
+  //     shortenRobot.set("SLANDERER", "SL")
+  //     shortenRobot.set("MUCKRAKER", "MCKR")
 
-      // Get the matches
-      let team = matches[1]
-      let robotType = matches[2]
-      let id = parseInt(matches[3])
-      let logRound = parseInt(matches[4])
-      let text = new Array<string>()
-      let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>"
-      let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> "
-      text.push(mText + mText2 + matches[5])
-      index += 1
+  //     // Get the matches
+  //     let team = matches[1]
+  //     let robotType = matches[2]
+  //     let id = parseInt(matches[3])
+  //     let logRound = parseInt(matches[4])
+  //     let text = new Array<string>()
+  //     let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>"
+  //     let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> "
+  //     text.push(mText + mText2 + matches[5])
+  //     index += 1
 
-      // If there is additional non-header text in the following lines, add it
-      while (index < lines.length && !lines[index].match(header)) {
-        text.push(lines[index])
-        index += 1
-      }
+  //     // If there is additional non-header text in the following lines, add it
+  //     while (index < lines.length && !lines[index].match(header)) {
+  //       text.push(lines[index])
+  //       index += 1
+  //     }
 
-      if (logRound != round) {
-        console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`)
-      }
+  //     if (logRound != round) {
+  //       console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`)
+  //     }
 
-      // Push the parsed log
-      roundLogs.push({
-        team: team,
-        robotType: robotType,
-        id: id,
-        round: logRound,
-        text: text.join('\n')
-      })
-    }
-    this.logs.push(roundLogs)
-  }
+  //     // Push the parsed log
+  //     roundLogs.push({
+  //       team: team,
+  //       robotType: robotType,
+  //       id: id,
+  //       round: logRound,
+  //       text: text.join('\n')
+  //     })
+  //   }
+  //   this.logs.push(roundLogs)
+  // }
 }

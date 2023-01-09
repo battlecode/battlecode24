@@ -1,6 +1,6 @@
 {
   "name": "battlecode-visualizer",
-  "version": "2022.0.0",
+  "version": "2023.0.0",
   "description": "Visualizing the game using playback",
   "private": true,
   "scripts": {
@@ -8,40 +8,42 @@
     "lint": "tslint \"src/**/*.ts\"",
     "build": "webpack --mode=development",
     "prod": "webpack --mode=production",
-    "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env.dev",
-    "electron": "webpack --mode=development --env.electron --env.dev && electron .",
-    "prod-electron": "webpack --mode=production --env.electron && electron-builder -mwl --dir --ia32 --x64",
-    "prod-electron-no-sign": "webpack --mode=production --env.electron && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -mwl --dir --ia32 --x64",
-    "prod-test": "webpack --mode=production --env.electron && electron-builder"
+    "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env dev",
+    "electron": "webpack --mode=development --env electron --env dev && electron .",
+    "prod-electron": "webpack --mode=production --env electron && npm uninstall sharp && USE_HARD_LINKS=false electron-builder -mwl --dir --ia32 --x64",
+    "prod-test": "webpack --mode=production --env electron && npm uninstall sharp && electron-builder",
+    "prod-test-mac": "webpack --mode=production --env electron && npm uninstall sharp && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "shrink-images": "ts-node src/image_processor.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/battlecode/battlecode21.git"
+    "url": "git+https://github.com/battlecode/battlecode23.git"
   },
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/battlecode/battlecode21/issues"
+    "url": "https://github.com/battlecode/battlecode23/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode21#readme",
+  "homepage": "https://github.com/battlecode/battlecode23#readme",
   "dependencies": {
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
+    "deepcopy": "^2.1.0",
     "speedscope": "1.5.2",
     "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",
-    "@types/electron": "^1.6.10",
     "@types/node": "^12.12.14",
     "@types/victor": "^1.1.0",
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.5",
     "css-loader": "^3.2.1",
     "electron": "^10.1.5",
-    "electron-builder": "^22.1.0",
+    "electron-builder": "^22.9.1",
     "file-loader": "^5.0.2",
+    "html-webpack-plugin": "^5.5.0",
     "json-loader": "^0.5.7",
     "node": "^14.15.0",
     "style-loader": "^1.0.1",
@@ -49,9 +51,9 @@
     "tslint": "^5.20.1",
     "typescript": "^3.7.3",
     "url-loader": "^3.0.0",
-    "webpack": "^5.4.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1",
     "webpack-merge": "^4.2.2"
   },
   "main": "electron-main.js",
@@ -70,10 +72,18 @@
     },
     "fileAssociations": [
       {
-        "ext": "bc22",
-        "name": "BC22",
-        "description": "Battlecode Match 2022",
-        "role": "Viewer"
+        "ext": "bc23",
+        "name": "BC23",
+        "description": "Battlecode Match 2023",
+        "role": "Viewer",
+        "icon": "build/icon"
+      },
+      {
+        "ext": "map23",
+        "name": "MAP23",
+        "description": "Battlecode Map 2023",
+        "role": "Viewer",
+        "icon": "build/icon"
       }
     ],
     "mac": {

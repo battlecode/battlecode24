@@ -1,4 +1,4 @@
-# Battlecode 2022
+# Battlecode 2023
 
 🚩
 

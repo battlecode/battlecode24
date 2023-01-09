@@ -46,7 +46,7 @@ task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
 }
 
 def defaultClassLocation = project(':example-bots').sourceSets.main.output.classesDirs.getAsPath()
-def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc23'
 
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   mainClass = 'battlecode.server.Main'
@@ -72,8 +72,10 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
   ]
 }
 
+// keep the client happy because it references this step
+task unpackClient() {}
 
-task run(dependsOn: ['headless']) {}
+task run(dependsOn: ['headless', 'unpackClient']) {}
 
 task runClient {
   doLast {
@@ -168,7 +170,7 @@ publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22'
+      artifactId 'battlecode23'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
@@ -180,7 +182,7 @@ publishing {
 
     clientWin(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win'
+      artifactId 'battlecode23-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin
@@ -188,7 +190,7 @@ publishing {
 
     clientMac(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-mac'
+      artifactId 'battlecode23-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientMac
@@ -196,7 +198,7 @@ publishing {
 
     clientLinux(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux'
+      artifactId 'battlecode23-client-linux'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux
@@ -204,7 +206,7 @@ publishing {
 
     clientWin32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-win-32'
+      artifactId 'battlecode23-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientWin32
@@ -212,7 +214,7 @@ publishing {
 
     clientLinux32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode22-client-linux-32'
+      artifactId 'battlecode23-client-linux-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact releaseClientLinux32

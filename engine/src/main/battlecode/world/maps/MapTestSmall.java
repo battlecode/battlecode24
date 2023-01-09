@@ -1,6 +1,7 @@
 package battlecode.world.maps;
 
 import battlecode.common.MapLocation;
+import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.world.GameMapIO;
@@ -39,12 +40,22 @@ public class MapTestSmall {
 
     public static void makeSimple() throws IOException {
         MapBuilder mapBuilder = new MapBuilder(mapName, 32, 32, 0, 0, 30);
-        mapBuilder.addSymmetricArchon(5, 5);
+        mapBuilder.addSymmetricHeadquarter(5, 5);
         Random random = new Random(6147);
 
         for (int i = 0; i < mapBuilder.width / 2; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricLead(i, j, random.nextInt(100));
+                if (i == 5 && j == 5) 
+                    continue;
+                if (i == 6 && j == 6)
+                    mapBuilder.setSymmetricResource(i, j, ResourceType.ADAMANTIUM.resourceID);
+                else if (i == 4 && j == 4)
+                    mapBuilder.setSymmetricResource(i, j, ResourceType.MANA.resourceID);
+                else if (i*13 + j*11 % 10 != 0)
+                    continue;
+                else
+                    mapBuilder.setSymmetricResource(i, j, random.nextInt(3) + 1);
+
             }
         }
 

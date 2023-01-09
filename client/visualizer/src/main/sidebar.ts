@@ -1,143 +1,139 @@
-import {Config, Mode} from '../config';
-import {AllImages} from '../imageloader';
+import { Config, Mode } from '../config'
+import { AllImages } from '../imageloader'
 
-import Stats from '../sidebar/stats';
-import Console from '../sidebar/console';
-import MatchRunner from '../sidebar/matchrunner';
-import MatchQueue from '../sidebar/matchqueue';
-import Profiler from '../sidebar/profiler';
-import MapEditor from '../mapeditor/mapeditor';
-import ScaffoldCommunicator from './scaffold';
-import Runner from '../runner';
+import Stats from '../sidebar/stats'
+import Console from '../sidebar/console'
+import MatchRunner from '../sidebar/matchrunner'
+import MatchQueue from '../sidebar/matchqueue'
+import Profiler from '../sidebar/profiler'
+import MapEditor from '../mapeditor/mapeditor'
+import ScaffoldCommunicator from './scaffold'
+import Runner from '../runner'
 
-import {http,electron} from './electron-modules';
+import { http, electron } from './electron-modules'
 
 
 
 export default class Sidebar {
 
   // HTML elements
-  readonly div: HTMLDivElement; // The public div
-  private readonly innerDiv: HTMLDivElement;
-  private readonly images: AllImages;
-  private readonly modeButtons: Map<Mode, HTMLButtonElement>;
+  readonly div: HTMLDivElement // The public div
+  private readonly innerDiv: HTMLDivElement
+  private readonly images: AllImages
+  private readonly modeButtons: Map<Mode, HTMLButtonElement>
 
   // Different modes
-  readonly stats: Stats;
-  readonly console: Console;
-  readonly mapeditor: MapEditor;
-  readonly matchrunner: MatchRunner;
-  readonly matchqueue: MatchQueue;
-  readonly profiler?: Profiler;
-  private readonly help: HTMLDivElement;
+  readonly stats: Stats
+  readonly console: Console
+  readonly mapeditor: MapEditor
+  readonly matchrunner: MatchRunner
+  readonly matchqueue: MatchQueue
+  readonly profiler?: Profiler
+  private readonly help: HTMLDivElement
 
   // Options
-  private readonly conf: Config;
+  private readonly conf: Config
 
   // Scaffold
-  private scaffold: ScaffoldCommunicator;
+  private scaffold: ScaffoldCommunicator
 
   // Update texts
-  private updateText: HTMLDivElement;
+  private updateText: HTMLDivElement
 
   // Mode panel
-  private modePanel: HTMLTableElement;
+  private modePanel: HTMLTableElement
 
   // Callback to update the game area when changing modes
-  cb: () => void;
+  cb: () => void
 
   constructor(conf: Config, images: AllImages, runner: Runner) {
     // Initialize fields
-    this.div = document.createElement("div");
-    this.innerDiv = document.createElement("div");
-    this.images = images;
-    this.console = new Console(conf);
-    this.mapeditor = new MapEditor(conf, images);
+    this.div = document.createElement("div")
+    this.innerDiv = document.createElement("div")
+    this.images = images
+    this.console = new Console(conf)
+    this.mapeditor = new MapEditor(conf, images)
     this.matchrunner = new MatchRunner(conf, () => {
       // Set callback for matchrunner in case the scaffold is loaded later
       electron.remote.dialog.showOpenDialog({
         title: 'Please select your battlecode-scaffold directory.',
         properties: ['openDirectory']
       }).then((result) => {
-        let filePaths = result.filePaths;
+        let filePaths = result.filePaths
         if (filePaths.length > 0) {
-          this.scaffold = new ScaffoldCommunicator(filePaths[0]);
-          this.addScaffold(this.scaffold);
+          this.scaffold = new ScaffoldCommunicator(filePaths[0])
+          this.addScaffold(this.scaffold)
         } else {
-          console.log('No scaffold found or provided');
+          console.log('No scaffold found or provided')
         }
       })
     }, () => {
       // set callback for running a game, which should trigger the update check
-      this.updateUpdate();
-    });
-    if (conf.useProfiler) this.profiler = new Profiler(conf);
-    this.matchqueue = new MatchQueue(conf, images, runner);
-    this.stats = new Stats(conf, images, runner);
-    this.conf = conf;
-    this.help = this.initializeHelp();
+      this.updateUpdate()
+    })
+    if (conf.useProfiler) this.profiler = new Profiler(conf)
+    this.matchqueue = new MatchQueue(conf, images, runner)
+    this.stats = new Stats(conf, images, runner)
+    this.conf = conf
+    this.help = this.initializeHelp()
 
     // Initialize div structure
-    this.loadStyles();
-    this.div.appendChild(this.screamForUpdate());
-    this.div.appendChild(this.battlecodeLogo());
+    this.loadStyles()
+    this.div.appendChild(this.screamForUpdate())
+    this.div.appendChild(this.battlecodeLogo())
 
-    this.modePanel = document.createElement('table');
-    this.modePanel.className = 'modepanel';
+    this.modePanel = document.createElement('table')
+    this.modePanel.className = 'modepanel'
 
-    const modePanelRow1 = document.createElement('tr');
-    const modePanelRow2 = document.createElement('tr');
+    const modePanelRow1 = document.createElement('tr')
+    const modePanelRow2 = document.createElement('tr')
 
-    this.modeButtons = new Map<Mode, HTMLButtonElement>();
-    modePanelRow1.appendChild(this.modeButton(Mode.GAME, "Game"));
+    this.modeButtons = new Map<Mode, HTMLButtonElement>()
+    modePanelRow1.appendChild(this.modeButton(Mode.GAME, "Game"))
     // modePanelRow1.appendChild(this.modeButton(Mode.LOGS, "Logs"));
-    modePanelRow1.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
-    modePanelRow1.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
-    if (this.conf.useProfiler) modePanelRow2.appendChild(this.modeButton(Mode.PROFILER, "Profiler"));
-    modePanelRow2.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
-    modePanelRow2.appendChild(this.modeButton(Mode.HELP, "Help"));
+    modePanelRow1.appendChild(this.modeButton(Mode.QUEUE, "Queue"))
+    modePanelRow1.appendChild(this.modeButton(Mode.RUNNER, "Runner"))
+    if (this.conf.useProfiler) modePanelRow2.appendChild(this.modeButton(Mode.PROFILER, "Profiler"))
+    modePanelRow2.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"))
+    modePanelRow2.appendChild(this.modeButton(Mode.HELP, "Help"))
 
-    this.modePanel.appendChild(modePanelRow1);
-    this.modePanel.appendChild(modePanelRow2);
+    this.modePanel.appendChild(modePanelRow1)
+    this.modePanel.appendChild(modePanelRow2)
 
-    this.div.appendChild(this.modePanel);
+    this.div.appendChild(this.modePanel)
 
-    this.div.appendChild(this.innerDiv);
+    this.div.appendChild(this.innerDiv)
 
-    this.conf.mode = Mode.GAME; // MAPEDITOR;
+    this.conf.mode = Mode.GAME // MAPEDITOR;
 
-    this.updateModeButtons();
-    this.setSidebar();
+    this.updateModeButtons()
+    this.setSidebar()
   }
 
   /**
    * Sets a scaffold if a scaffold directory is found after everything is loaded
    */
   addScaffold(scaffold: ScaffoldCommunicator): void {
-    this.mapeditor.addScaffold(scaffold);
-    this.matchrunner.addScaffold(scaffold);
+    this.mapeditor.addScaffold(scaffold)
+    this.matchrunner.addScaffold(scaffold)
   }
 
   /**
    * Initializes the help div
    */
   private initializeHelp(): HTMLDivElement {
+    // <b class="blue">Notes on game stats</b><br>
+    // TODO
+    // <br>
     var innerHTML: string =
-    `
+      `
     <b class="red">Issues?</b>
     <ol style="margin-left: -20px; margin-top: 0px;">
     <li>Refresh (Ctrl-R or Command-R).</li>
     <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
     <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
     </ol>
-    <b class="blue">Notes on game stats (Game)</b><br>
-    Lead and gold incomes are running averages over the past 100 turns.<br>
-    In the game bar, the anomalies bars follow the below color key:<br><br>
 
-    Abyss - <span style="color:blue">Blue</span><br>
-    Vortex - <span style="color:purple">Purple</span><br>
-    Fury - <span style="color:red">Red</span><br>
-    Charge - <span style="color:yellow">Yellow</span><br>
     <br>
 
     <b class="blue">Keyboard Shortcuts (Game)</b><br>
@@ -152,11 +148,10 @@ export default class Sidebar {
     C - Toggle All Indicator Dots/Lines<br>
     G - Toggle Grid<br>
     N - Toggle Action Radius<br>
-    M - Toggle Sensor Radius<br>
+    M - Toggle Vision Radius<br>
     B - Toggle Interpolation<br>
     Q - Toggle whether to profile matches.<br>
     [ - Hide/unhide sidebar navigation.<br>
-    K - Toggle anomaly visualization.<br>
     <br>
     <b class="blue">Keyboard Shortcuts (Map Editor)</b><br
     <br>
@@ -171,7 +166,7 @@ export default class Sidebar {
     press "Kill ongoing processes". Note that the part of the match that has already
     loaded will remain in the client.<br>
     <br>
-    <i>From the web client:</i> You can always upload a <code>.bc22</code> file by
+    <i>From the web client:</i> You can always upload a <code>.${this.conf.game_extension}</code> file by
     clicking the upload button in the <code>Queue</code> section.<br>
     <br>
     Use the control buttons at the top of the screen to
@@ -183,49 +178,30 @@ export default class Sidebar {
     on a profiled match file, press "Q".</i><br>
     The profiler can be used to find out which methods are using a lot of
     bytecodes. To use it, tick the "Profiler enabled" checkbox in the
-    Runner before running the game.
-    A maximum of 2,000,000 events are recorded per team per
+    Runner before running the game. Make sure that the runFromClient
+    Gradle task sets bc.engine.enable-profiler to the value of the
+    "profilerEnabled" property, as can be seen in the
+    <a href="https://github.com/battlecode/battlecode23-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
+    Make sure to add the "profilerEnabled" property to your
+    <a href="https://github.com/battlecode/battlecode23-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
+    file as well. A maximum of 2,000,000 events are recorded per team per
     match if profiling is enabled to prevent the replay file from becoming
     enormous.
-    <br>
-    <br>
-    <b class="blue">How to Use the Map Editor</b><br>
-    Select the initial map settings: name, width, height, and symmetry. <br>
-    <br>
-    To place archons, choose "Robots", and to place to lead, choose "Lead". Then, set the coordinates, and click "Add/Update" or "Delete." The coordinates can also be set by clicking the map.
-    <!--The "ID" of a robot is a unique identifier for a pair of symmetric robots. It is not the ID the robot will have in the game! --><br>
-    <br>
-    To set tiles' rubble values, choose "Rubble", select the rubble value, brush size, and brush style,
-    and then <b>hold and drag</b> your mouse across the map. <br>
-    <br>
-    To schedule anomalies, choose "Anomalies", fill in the anomaly type and round, and click "Add/Update". Anomalies at a particular round can be updated by specifying a
-    round number and clicking "Add/Update", and deleted by specifying a round number and clicking "Delete".
-    <br>
-    <!--Before exporting, click "Validate" to see if any changes need to be
-    made, and <b>"Remove Invalid Units"</b> to automatically remove off-map or
-    overlapping units. -->
-    <br>
-    When you are happy with your map, click "Export".
-    If you are directed to save your map, save it in the
-    <code>/battlecode-scaffold-2022/maps</code> directory of your scaffold.
-    (Note: the name of your <code>.map22</code> file must be the same as the name of your
-    map.) <br>
-    <br>
-    Exported file name must be the same as the map name chosen above. For instance, <code>DefaultMap.bc22</code>.`;
+    <br>`
 
     if (this.conf.tournamentMode) {
-      innerHTML += 
-      `<br><br>
+      innerHTML +=
+        `<br><br>
       <b class="blue">Tournament Mode Keyboard Shortcuts</b><br>
       D - Next match<br>
       A - Previous match`
     }
 
-    const div = document.createElement("div");
-    div.id = "helpDiv";
+    const div = document.createElement("div")
+    div.id = "helpDiv"
 
-    div.innerHTML = innerHTML;
-    return div;
+    div.innerHTML = innerHTML
+    return div
   }
 
   /**
@@ -233,7 +209,7 @@ export default class Sidebar {
    */
   private loadStyles(): void {
 
-    this.div.id = "sidebar";
+    this.div.id = "sidebar"
 
   }
 
@@ -241,44 +217,45 @@ export default class Sidebar {
    * Scream for update, if outdated.
    */
   private screamForUpdate(): HTMLDivElement {
-    this.updateText = document.createElement("div");
-    this.updateText.id = "updateText";
+    this.updateText = document.createElement("div")
+    this.updateText.id = "updateText"
 
-    this.updateUpdate();
+    this.updateUpdate()
 
-    return this.updateText;
+    return this.updateText
   }
   private updateUpdate() {
-    this.updateText.style.display = "none";
+    let inst = this
+    this.updateText.style.display = "none"
     if (process.env.ELECTRON) {
       (async function (splashDiv, version) {
 
         var options = {
-          host: 'play.battlecode.org',
-          path: '/versions/2022/version.txt'
-        };
+          host: 'api.battlecode.org',
+          path: `/api/episode/e/bc23/?format=json`
+        }
 
-        var req = http.get(options, function(res) {
-          let data = "";
-          res.on('data', function(chunk) {
+        var req = http.get(options, function (res) {
+          let data = ""
+          res.on('data', function (chunk) {
             data += chunk
-          }).on('end', function() {
+          }).on('end', function () {
 
-            var latest = data;
-
-            if(latest.trim() != version.trim()) {
-              let newVersion = document.createElement("p");
-              newVersion.innerHTML = "NEW VERSION AVAILABLE!!!! (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest;
-              splashDiv.style.display = "unset";
+            var latest = JSON.parse(data).release_version_public
+            console.log("Latest version: " + latest)
+            if (latest.trim() != version.trim()) {
+              let newVersion = document.createElement("p")
+              newVersion.innerHTML = "NEW VERSION AVAILABLE!!!! (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest
+              splashDiv.style.display = "unset"
               while (splashDiv.firstChild) {
-                splashDiv.removeChild(splashDiv.firstChild);
+                splashDiv.removeChild(splashDiv.firstChild)
               }
-              splashDiv.appendChild(newVersion);
+              splashDiv.appendChild(newVersion)
             }
 
           })
-        });
-      })(this.updateText, this.conf.gameVersion);
+        })
+      })(this.updateText, this.conf.gameVersion)
     }
   }
 
@@ -286,38 +263,38 @@ export default class Sidebar {
    * Battlecode logo or title, at the top of the sidebar
    */
   private battlecodeLogo(): HTMLDivElement {
-    let logo: HTMLDivElement = document.createElement("div");
-    logo.id = "logo";
+    let logo: HTMLDivElement = document.createElement("div")
+    logo.id = "logo"
 
-    let boldText = document.createElement("b");
-    boldText.innerHTML = "Battlecode 2022";
-    logo.appendChild(boldText);
-    return logo;
+    let boldText = document.createElement("b")
+    boldText.innerHTML = "Battlecode " + this.conf.year
+    logo.appendChild(boldText)
+    return logo
   }
 
   private updateModeButtons() {
     this.modeButtons.forEach(button => {
-      button.className = 'modebutton';
-    });
-    let modeButton = this.modeButtons.get(this.conf.mode);
+      button.className = 'modebutton'
+    })
+    let modeButton = this.modeButtons.get(this.conf.mode)
     if (modeButton !== undefined)
-      modeButton.className = 'modebutton selectedmodebutton';
+      modeButton.className = 'modebutton selectedmodebutton'
   }
 
   private modeButton(mode: Mode, text: string): HTMLTableDataCellElement {
-    const cellButton = document.createElement('td');
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = 'modebutton';
-    button.innerHTML = text;
+    const cellButton = document.createElement('td')
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = 'modebutton'
+    button.innerHTML = text
     button.onclick = () => {
-      this.conf.mode = mode;
-      this.updateModeButtons();
-      this.setSidebar();
-    };
-    this.modeButtons.set(mode, button);
-    cellButton.appendChild(button);
-    return cellButton;
+      this.conf.mode = mode
+      this.updateModeButtons()
+      this.setSidebar()
+    }
+    this.modeButtons.set(mode, button)
+    cellButton.appendChild(button)
+    return cellButton
   }
 
   /**
@@ -326,7 +303,7 @@ export default class Sidebar {
   private setSidebar(): void {
     // Clear the sidebar
     while (this.innerDiv.firstChild) {
-      this.innerDiv.removeChild(this.innerDiv.firstChild);
+      this.innerDiv.removeChild(this.innerDiv.firstChild)
     }
 
     // Update the div and set the correct onkeydown events
@@ -334,34 +311,34 @@ export default class Sidebar {
     // this seems it was not updated for a while
     switch (this.conf.mode) {
       case Mode.GAME:
-        this.innerDiv.appendChild(this.stats.div);
-        break;
+        this.innerDiv.appendChild(this.stats.div)
+        break
       case Mode.HELP:
-        this.innerDiv.appendChild(this.help);
-        break;
+        this.innerDiv.appendChild(this.help)
+        break
       case Mode.LOGS:
-        this.innerDiv.appendChild(this.console.div);
-        break;
+        this.innerDiv.appendChild(this.console.div)
+        break
       case Mode.RUNNER:
-        this.innerDiv.appendChild(this.matchrunner.div);
-        break;
+        this.innerDiv.appendChild(this.matchrunner.div)
+        break
       case Mode.QUEUE:
-        this.innerDiv.appendChild(this.matchqueue.div);
-        break;
+        this.innerDiv.appendChild(this.matchqueue.div)
+        break
       case Mode.MAPEDITOR:
-        this.innerDiv.appendChild(this.mapeditor.div);
-        break;
+        this.innerDiv.appendChild(this.mapeditor.div)
+        break
       case Mode.PROFILER:
-        if (this.profiler) this.innerDiv.append(this.profiler.div);
-        break;
+        if (this.profiler) this.innerDiv.append(this.profiler.div)
+        break
     }
 
     if (this.cb !== undefined) {
-      this.cb();
+      this.cb()
     }
   }
 
   hidePanel() {
-    this.modePanel.style.display = (this.modePanel.style.display === "" ? "none" : "");
+    this.modePanel.style.display = (this.modePanel.style.display === "" ? "none" : "")
   }
 }

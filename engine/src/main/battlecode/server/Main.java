@@ -1,7 +1,6 @@
 package battlecode.server;
 
 import java.io.File;
-import java.net.URL;
 
 public class Main {
 

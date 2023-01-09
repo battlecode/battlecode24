@@ -227,7 +227,10 @@ export default class MatchRunner {
     this.killProcs.type = "button";
     this.killProcs.appendChild(document.createTextNode("Kill ongoing processes"));
     this.killProcs.className = 'custom-button';
-    this.killProcs.onclick = () => this.scaffold.killProcs();
+    this.killProcs.onclick = () => {
+      this.scaffold.killProcs();
+      this.makeLog('Killed Process', 'errorLog')
+    }
     div.appendChild(this.killProcs);
     div.appendChild(document.createElement("br"));
 
