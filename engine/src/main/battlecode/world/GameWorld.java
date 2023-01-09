@@ -470,7 +470,11 @@ public strictfp class GameWorld {
     private MapLocation[] getAllLocations() {
         return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
     }
-
+    
+    public double getCooldownMultiplier(MapLocation location, Team team){
+        return cooldownMultipliers[locationToIndex(location)][team.ordinal()];
+    }
+    
    /**
      * @param cooldown without multiplier applied
      * @param location of robot calling the command
