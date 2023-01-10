@@ -461,8 +461,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
             cooldownMultipliers[team.ordinal()] = gameWorld.getCooldownMultiplier(loc, team);
             numActiveElements[team.ordinal()][BOOST_INDEX] = gameWorld.getNumActiveBoosts(loc, team);
             numActiveElements[team.ordinal()][DESTABILIZE_INDEX] = gameWorld.getNumActiveDestabilize(loc, team);
-            turnsLeft[team.ordinal()][BOOST_INDEX] = gameWorld.getOldestBoost(loc, team);
-            turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = gameWorld.getOldestDestabilize(loc, team);
+            int oldestBoost = gameWorld.getOldestBoost(loc, team);
+            turnsLeft[team.ordinal()][BOOST_INDEX] = oldestBoost == -1 ? -1 : oldestBoost - getRoundNum();
+            int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
+            turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
         MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
         return currentLocInfo;
