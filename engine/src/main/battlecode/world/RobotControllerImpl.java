@@ -835,6 +835,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to transfer.");
+        }
         if (amount < 0) { // Carrier is picking up the resource from another location (headquarters)
             if(!this.robot.canAdd(-1*amount)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
@@ -883,7 +887,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
-        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT,
@@ -891,6 +894,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isWell(loc))
             throw new GameActionException(CANT_DO_THAT, 
                     "Location is not a well");
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to collect.");
+        }
         int rate = this.gameWorld.getWell(loc).getRate();
         amount = amount == -1 ? rate : amount;
         if (amount > rate)
@@ -968,7 +975,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertNotNull(anchor);
         assertCanActLocation(loc);
-        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER){
             throw new GameActionException(CANT_DO_THAT,
@@ -981,6 +987,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getTeam() != gameWorld.getRobot(loc).getTeam()){
             throw new GameActionException(CANT_DO_THAT, 
                     "Can only take anchors from same team.");
+        }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to collect.");
         }
         InternalRobot hq = this.gameWorld.getRobot(loc);
         if (hq.getNumAnchors(anchor) < 1) {
