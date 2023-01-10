@@ -6,20 +6,18 @@
 }
 
 /* Scrollbar styling */
-
-/*::-webkit-scrollbar {
-    width: 10px;
-}*/
-
-/* Track */
-/*::-webkit-scrollbar-track {
-background: rgb(252, 252, 252);
-}*/
-
-/* Handle */
-/*::-webkit-scrollbar-thumb {
-background: var(--grey);
-}*/
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+::-webkit-scrollbar-track {
+    background: #fff2;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #20282c;
+    border-radius: 20px;
+    border: 1px solid white;
+}
 
 body {
     margin: 0;
