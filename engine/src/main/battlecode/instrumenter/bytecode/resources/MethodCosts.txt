@@ -83,6 +83,8 @@ battlecode/common/RobotController/senseRobotAtLocation                  25   tru
 battlecode/common/RobotController/sensePassability                      5    true
 battlecode/common/RobotController/senseWell                             5    true
 battlecode/common/RobotController/senseNearbyWells                      100  true
+battlecode/common/RobotController/senseMapInfo                          10   true
+battlecode/common/RobotController/senseNearbyMapInfos                   200  true
 battlecode/common/RobotController/setIndicatorDot                       0    true
 battlecode/common/RobotController/setIndicatorLine                      0    true
 battlecode/common/RobotController/setIndicatorString                    0    true

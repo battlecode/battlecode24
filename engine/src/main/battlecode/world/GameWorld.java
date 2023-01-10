@@ -346,6 +346,11 @@ public strictfp class GameWorld {
         return curBoosts.size() == 0 ? -1 : curBoosts.get(0);
     }
 
+    public int getNumActiveBoosts(MapLocation loc, Team team) {
+        ArrayList<Integer> curBoosts = this.boosts[locationToIndex(loc)][team.ordinal()][BOOST_INDEX];
+        return curBoosts.size();
+    }
+
     public void addDestabilize(MapLocation center, Team team){ //team of the destabilizer robot
         int lastRound = getCurrentRound() + GameConstants.DESTABILIZER_DURATION;
         int radiusSquared = GameConstants.DESTABILIZER_RADIUS_SQUARED;
@@ -362,6 +367,11 @@ public strictfp class GameWorld {
     public int getOldestDestabilize(MapLocation loc, Team team){
         ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.ordinal()][DESTABILIZE_INDEX];
         return curDestabilizers.size() == 0 ? -1 : curDestabilizers.get(0);
+    }
+
+    public int getNumActiveDestabilize(MapLocation loc, Team team) {
+        ArrayList<Integer> curDestabilizers = this.boosts[locationToIndex(loc)][team.ordinal()][DESTABILIZE_INDEX];
+        return curDestabilizers.size();
     }
     
     public void addBoostFromAnchor(Island island){
