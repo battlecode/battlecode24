@@ -44,6 +44,17 @@ public class MapInfo {
     }
 
     /**
+     * Returns if this square has a cloud.
+     * 
+     * @return whether this square has a cloud
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean hasCloud() throws GameActionException {
+        return this.hasCloud;
+    }
+
+    /**
      * Returns the cooldownMultiplier currently on this square.
      * 
      * @param team the team to query the cooldown multiplier for
