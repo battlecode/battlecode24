@@ -511,7 +511,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             MapInfo mapInfo = getMapInfo(mapLoc);
-            System.out.println(mapInfo);
             validSensedMapInfo.add(mapInfo);
         }
         return validSensedMapInfo.toArray(new MapInfo[validSensedMapInfo.size()]);
