@@ -45,6 +45,8 @@ Each Battlecode game will be played on a map. The map is a discrete 2-dimensiona
 
 In order to prevent maps from favoring one player over another, it is guaranteed that the world is symmetric either by rotation or reflection.
 
+**Note that throughout this document there are mentions of “units” on the map. These units correspond to squared Euclidean distance. For example, a vision range of 36 units means that the robot can see a MapLocation within a circle of radius up to 6 tiles away.**
+
 ## Passability
 
 Due to dangerous weather, each square of the map is marked as either impassable or passable. Impassable squares are covered by heavy storms and anomalous hurricanes, and cannot be moved into. Passable squares have clear skies, and can be freely moved through. These squares stay fixed throughout the game.
@@ -55,7 +57,9 @@ The magical winds contain time-bending properties that affect robots that pass t
 
 Time accelerating directional currents flow throughout the map, pushing robots in a specified direction. Robots in a current will be forced to move in the direction of the current at the end of the turn, applied after existing robot movement. Currents will usually appear together on the map in lines or other shapes. **Each current must flow into a different square.**
 
-Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision radius of 4 is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision radius of 4. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+
+**Note that all stacking of time-bending effects occurs additively.**
 
 ## Islands, Headquarters, and Wells
 
@@ -105,7 +109,7 @@ Carriers can also throw resources to attack. This attack strikes an enemy in the
 
 ## Signal Amplifiers
 
-Signal amplifiers are produced with 40 kg of adamantium and 40 kg of mana. They allow nearby all robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
+Signal amplifiers are produced with 40 kg of adamantium and 40 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
 
 ## Launchers
 
@@ -133,15 +137,15 @@ Standard anchors have a max health of 250 while accelerating anchors have a max 
 
 Robots can only see their immediate surroundings and are independently controlled by copies of your code, making coordination very challenging. You will be unable to share any variables between them; note that even static variables will not be shared, as each robot will receive its own copy.
 
-To communicate between robots, alchemists from your home universe have developed a system to allow robots to read and write from a shared array of 64 non-negative integers strictly less than 216. Array values persist across turns; ie. they are not reset. 
+To communicate between robots, alchemists from your home universe have developed a system to allow robots to read and write from a shared array of 64 non-negative integers strictly less than $2^{16}$. Array values persist across turns; ie. they are not reset. 
 
-However, magic lingering in the winds has unexpectedly interfered with communication. While all robots can still read from the shared array for a specified bytecode cost, robots that stray too far from headquarters and anchored islands cannot write to the array. To combat this interference, alchemists have developed powerful signal amplifier robots that allow nearby robots to write to the shared array. Robots must be within 20 units of a signal amplifier, 4 units from an island with a planted reality anchor, or 9 units from a headquarter to write to the shared array.  
+However, magic lingering in the winds has unexpectedly interfered with communication. While all robots can still read from the shared array for a specified bytecode cost, robots that stray too far from their headquarters and anchored islands cannot write to the array. To combat this interference, alchemists have developed powerful signal amplifier robots that allow nearby robots to write to the shared array. Robots must be within 20 units of a signal amplifier from their team, 4 units from an island with a planted reality anchor from their team, or 9 units from one of their headquarters to write to the shared array.  
 
 # Sensing and Vision
 
 A robot can “sense” a square if the square is within the robot's sight range. Vision is **not** shared between robots, so a robot cannot necessarily sense information that is in sight range of a different robot.
 
-Sensing range is measured in squared units (Euclidean distance squared). **Note that all mentions of “units” are measured in radius squared.** For squares within the sensing range, robots can sense robots, resource wells, terrain (clouds, currents, and impassibility), and the current timeflow (given as a multiplier to cooldown). They can sense the type of robot and the type of resource well. You can check whether a square within range is on the map using `onTheMap()`.
+Sensing range is measured in squared units (Euclidean distance squared). For squares within the sensing range, robots can sense robots, resource wells, terrain (clouds, currents, and impassibility), and the current timeflow (given as a multiplier to cooldown). They can sense the type of robot and the type of resource well. You can check whether a square within range is on the map using `onTheMap()`.
 
 Clouds obscure squares from the default vision radius. To sense these squares, a separate obscured vision of 4 units is applied. 
 
@@ -280,6 +284,20 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 0.0.1 (January 10, 2023)
+  - Spec Fixes:
+    - Communication max value: 216 -> $2^{16}$
+    - Clarified rules of communication (near *own* headquarters or planted anchor)
+    - Moved defintion of units to top of document
+    - Clarified time-bending effects stack additively
+    - Added links to allowed and disallowed classes (thanks stefangimmillaro)
+  - Engine Fixes:
+    - Added sensing mapInfo to detect currents, clouds and time-bending effects
+    - Fixed assert bug on checking for adjacency in collecting and transfering resources and anchors
+    - Resigning now means the other player wins automatically
+
+
 
 <style class="fallback">body{visibility:hidden}</style>
 <script>markdeepOptions={tocStyle:'long'};</script>
