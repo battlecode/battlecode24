@@ -126,7 +126,7 @@ public strictfp interface RobotController {
     /**
      * Returns num of anchors being held by robot
      * 
-     * @param Anchor type of anchor to query, null for total
+     * @param anchorType type of anchor to query, null for total
      * @return num of anchor being held by robot
      *
      * @battlecode.doc.costlymethod

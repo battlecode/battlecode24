@@ -46,6 +46,7 @@ public class MapInfo {
     /**
      * Returns the cooldownMultiplier currently on this square.
      * 
+     * @param team the team to query the cooldown multiplier for
      * @return the cooldownMultiplier currently on this square
      * @throws GameActionException if team is not valid
      * 
@@ -81,6 +82,7 @@ public class MapInfo {
     /**
      * Returns the number of boosts currently applying to this square.
      * 
+     * @param team the team to query the boosts for
      * @return the number of boosts currently applying to this square
      * @throws GameActionException if team is not valid
      * 
@@ -94,6 +96,7 @@ public class MapInfo {
     /**
      * Returns the number of destabilizier currently applying to this square.
      * 
+     * @param team the team to query the destabilizes for
      * @return the number of destabilizer currently applying to this square
      * @throws GameActionException if team is not valid
      * 
@@ -107,6 +110,7 @@ public class MapInfo {
     /**
      * Returns the number of turns left before a booster is removed
      * 
+     * @param team the team to query the remaining boost turns for
      * @return the number of turns left before a booster is removed, -1 if none active
      * @throws GameActionException if team is not valid
      * 
@@ -120,6 +124,7 @@ public class MapInfo {
     /**
      * Returns the number of turns left before a destabilizer is removed
      * 
+     * @param team the team to query the remaining destabilize turns for
      * @return the number of turns left before a destabilizer is removed, -1 if none active
      * @throws GameActionException if team is not valid
      * 
