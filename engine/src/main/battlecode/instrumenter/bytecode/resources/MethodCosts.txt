@@ -84,6 +84,8 @@ battlecode/common/RobotController/senseRobotAtLocation                  25   tru
 battlecode/common/RobotController/sensePassability                      5    true
 battlecode/common/RobotController/senseWell                             5    true
 battlecode/common/RobotController/senseNearbyWells                      100  true
+battlecode/common/RobotController/senseMapInfo                          10   true
+battlecode/common/RobotController/senseNearbyMapInfos                   200  true
 battlecode/common/RobotController/setIndicatorDot                       0    true
 battlecode/common/RobotController/setIndicatorLine                      0    true
 battlecode/common/RobotController/setIndicatorString                    0    true
@@ -104,6 +106,16 @@ battlecode/common/WellInfo/getMapLocation                               1    fal
 battlecode/common/WellInfo/getResourceType                              1    false
 battlecode/common/WellInfo/isUpgraded                                   1    false
 battlecode/common/WellInfo/getRate                                      2    false
+battlecode/common/MapInfo/getMapLocation                                1    false
+battlecode/common/MapInfo/getCurrentDirection                           5    false
+battlecode/common/MapInfo/getCooldownMuliplier                          5    false
+battlecode/common/MapInfo/getNumBoosts                                  5    false
+battlecode/common/MapInfo/getNumDestabilizers                           5    false
+battlecode/common/MapInfo/getBoostTurnsLeft                             5    false
+battlecode/common/MapInfo/getDestabilizerTurnsLeft                      5    false
+battlecode/common/MapInfo/toString                                      15    false
+
+
 java/lang/Math/IEEEremainder            1  false
 java/lang/Math/abs                      1  false
 java/lang/Math/acos                     1  false

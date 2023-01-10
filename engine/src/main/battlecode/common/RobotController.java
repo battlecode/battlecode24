@@ -519,6 +519,71 @@ public strictfp interface RobotController {
     WellInfo[] senseNearbyWells(MapLocation center, int radiusSquared, ResourceType resourceType) throws GameActionException;
 
     /**
+     * Sense the map info at a location 
+     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     *
+     * @param loc to sense map at
+     * @return MapInfo describing map at location
+     * @throws GameActionException if location can not be sensed
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapInfo senseMapInfo(MapLocation loc) throws GameActionException;
+
+    /**
+     * Return map info for all senseable locations. 
+     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     *
+     * @return MapInfo about all locations within vision radius
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapInfo[] senseNearbyMapInfos();
+
+    /**
+     * Return map info for all senseable locations within a radius squared. 
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return MapInfo about all locations within vision radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapInfo[] senseNearbyMapInfos(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return map info for all senseable locations within vision radius of a center location. 
+     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     *
+     * @param center the center of the search area
+     * @return MapInfo about all locations within vision radius
+     * @throws GameActionException if center is null
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapInfo[] senseNearbyMapInfos(MapLocation center) throws GameActionException;
+
+    /**
+     * Return map info for all senseable locations within a radius squared of a center location. 
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return MapInfo about all locations within vision radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction

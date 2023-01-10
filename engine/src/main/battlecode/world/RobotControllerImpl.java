@@ -456,6 +456,74 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return validSensedWells.toArray(new WellInfo[validSensedWells.size()]);
     }
 
+    private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
+        double[] cooldownMultipliers = new double[2];
+        int[][] numActiveElements = new int[2][2];
+        int[][] turnsLeft = new int[2][2];
+        int BOOST_INDEX = 0;
+        int DESTABILIZE_INDEX = 1;
+        for (Team team : Team.values()) {
+            if (team == Team.NEUTRAL) {
+                continue;
+            }
+            cooldownMultipliers[team.ordinal()] = gameWorld.getCooldownMultiplier(loc, team);
+            numActiveElements[team.ordinal()][BOOST_INDEX] = gameWorld.getNumActiveBoosts(loc, team);
+            numActiveElements[team.ordinal()][DESTABILIZE_INDEX] = gameWorld.getNumActiveDestabilize(loc, team);
+            int oldestBoost = gameWorld.getOldestBoost(loc, team);
+            turnsLeft[team.ordinal()][BOOST_INDEX] = oldestBoost == -1 ? -1 : oldestBoost - getRoundNum();
+            int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
+            turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
+        }
+        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        return currentLocInfo;
+    }
+
+    @Override
+    public MapInfo senseMapInfo(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanSenseLocation(loc);
+        return getMapInfo(loc);
+    }
+
+    @Override
+    public MapInfo[] senseNearbyMapInfos() {
+        try {
+            return senseNearbyMapInfos(-1);
+        } catch (GameActionException e) {
+            return new MapInfo[0];
+        }
+    }
+
+    @Override
+    public MapInfo[] senseNearbyMapInfos(int radiusSquared) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyMapInfos(getLocation(), radiusSquared);
+    }
+
+    @Override
+    public MapInfo[] senseNearbyMapInfos(MapLocation center) throws GameActionException {
+        assertNotNull(center);
+        return senseNearbyMapInfos(center, -1);
+    }
+
+    @Override
+    public MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        List<MapInfo> validSensedMapInfo = new ArrayList<>();
+        for (MapLocation mapLoc : allSensedLocs) {
+            // Can't actually sense location
+            if (!canSenseLocation(mapLoc)) {
+                continue;
+            }
+            MapInfo mapInfo = getMapInfo(mapLoc);
+            validSensedMapInfo.add(mapInfo);
+        }
+        return validSensedMapInfo.toArray(new MapInfo[validSensedMapInfo.size()]);
+    }
+
     @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
@@ -776,6 +844,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to transfer.");
+        }
         if (amount < 0) { // Carrier is picking up the resource from another location (headquarters)
             if(!this.robot.canAdd(-1*amount)) {
                 throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough capacity to collect the resource");
@@ -824,7 +896,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanCollectResource(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
-        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT,
@@ -832,6 +903,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isWell(loc))
             throw new GameActionException(CANT_DO_THAT, 
                     "Location is not a well");
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to collect.");
+        }
         int rate = this.gameWorld.getWell(loc).getRate();
         amount = amount == -1 ? rate : amount;
         if (amount > rate)
@@ -909,7 +984,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertNotNull(anchor);
         assertCanActLocation(loc);
-        assert(this.robot.getLocation().isAdjacentTo(loc));
         assertIsActionReady();
         if (getType() != RobotType.CARRIER){
             throw new GameActionException(CANT_DO_THAT,
@@ -922,6 +996,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getTeam() != gameWorld.getRobot(loc).getTeam()){
             throw new GameActionException(CANT_DO_THAT, 
                     "Can only take anchors from same team.");
+        }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to collect.");
         }
         InternalRobot hq = this.gameWorld.getRobot(loc);
         if (hq.getNumAnchors(anchor) < 1) {
