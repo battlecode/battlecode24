@@ -880,14 +880,17 @@ public strictfp class GameWorld {
         int maxInterestRadius = Math.max(GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER, GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER);
         for(InternalRobot otherRobot: this.getAllRobotsWithinRadiusSquared(bot.getLocation(), maxInterestRadius, bot.getTeam())){
             int maxDistance = 0;
+            if (otherRobot.equals(bot))
+                continue;
             if (otherRobot.getType() == RobotType.AMPLIFIER) {
                 maxDistance = GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER;
             } else if (otherRobot.getType() == RobotType.HEADQUARTERS) {
                 maxDistance = GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER;
             }
             int distance = otherRobot.getLocation().distanceSquaredTo(loc);
-            if (distance <= maxDistance)
+            if (distance <= maxDistance) {
                 return true;
+            }
         }
         for(Island island: getAllIslands()) {
             if (island.getTeam() == bot.getTeam()) {
