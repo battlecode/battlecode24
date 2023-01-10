@@ -585,6 +585,9 @@ public strictfp class Server implements Runnable {
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (coin flip).");
                 break;
+            case RESIGNATION:
+                sb.append("Other team has resigned. Congrats on scaring them I guess...");
+                break;
         }
 
         return sb.toString();

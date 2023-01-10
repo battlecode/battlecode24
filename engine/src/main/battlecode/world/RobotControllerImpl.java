@@ -1093,6 +1093,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             }
             return true;
         });
+        gameWorld.setWinner(team.opponent(), DominationFactor.RESIGNATION);
     }
 
     // ***********************************

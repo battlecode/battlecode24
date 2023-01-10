@@ -32,4 +32,8 @@ public enum DominationFactor {
      * Win by coinflip (tiebreak 5).
      */
     WON_BY_DUBIOUS_REASONS,
+    /**
+     * Win because the other team resigns.
+     */
+    RESIGNATION,
 }
