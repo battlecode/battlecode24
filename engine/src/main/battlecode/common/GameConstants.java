@@ -37,6 +37,9 @@ public class GameConstants {
     /** The minimum number of islands on the map. */
     public static final int MIN_NUMBER_ISLANDS = 4;
 
+    /** The minimum number of islands on the map. */
+    public static final int MAX_NUMBER_ISLANDS = 35;
+
     /** The maximum area of an island in units. */
     public static final int MAX_ISLAND_AREA = 20;
 
