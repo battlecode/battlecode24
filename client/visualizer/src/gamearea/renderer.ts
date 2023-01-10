@@ -29,7 +29,7 @@ export default class Renderer {
     readonly onRobotSelected: (id: number) => void,
     readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number,
       well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
-      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => void
+      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number } | undefined) => void
   ) {
     this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
