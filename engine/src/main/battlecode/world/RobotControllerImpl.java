@@ -631,6 +631,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getType() != RobotType.HEADQUARTERS)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
+        if (type == RobotType.HEADQUARTERS)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot build headquarters.");
         for (ResourceType rType : ResourceType.values()) {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
