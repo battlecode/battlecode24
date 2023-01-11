@@ -32,7 +32,7 @@ public class RobotInfo {
     /**
      * The inventory of the robot.
      */
-    public final Inventory inventory;
+    private final Inventory inventory;
 
     /**
      * The current location of the robot.

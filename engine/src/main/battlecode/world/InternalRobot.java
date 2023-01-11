@@ -199,7 +199,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
-                && cachedRobotInfo.inventory.equals(inventory.copy())
+                && cachedRobotInfo.getNumAnchors(Anchor.STANDARD) == inventory.getNumAnchors(Anchor.STANDARD)
+                && cachedRobotInfo.getNumAnchors(Anchor.ACCELERATING) == inventory.getNumAnchors(Anchor.ACCELERATING)
+                && cachedRobotInfo.getResourceAmount(ResourceType.ADAMANTIUM) == inventory.getResource(ResourceType.ADAMANTIUM)
+                && cachedRobotInfo.getResourceAmount(ResourceType.MANA) == inventory.getResource(ResourceType.MANA)
+                && cachedRobotInfo.getResourceAmount(ResourceType.ELIXIR) == inventory.getResource(ResourceType.ELIXIR)
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;

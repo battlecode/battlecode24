@@ -52,7 +52,7 @@ export type MapStats = {
   currents: Int8Array,
 
   islands: Int32Array,
-  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> }>,
+  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number }>,
 
   resources: Int8Array,
   resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
@@ -397,7 +397,7 @@ export default class GameWorld {
           let existing_island = this.mapStats.island_stats.get(island_id)
           existing_island.locations.push(i)
         } else {
-          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set() })
+          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set(), id: island_id })
         }
       }
     }
@@ -656,15 +656,29 @@ export default class GameWorld {
 
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
-            let anchor_type = target % 2
-            let hq_id = Math.floor(target / 2)
-            let hq = this.bodies.lookup(hq_id)
-            if (anchor_type == 0) {
-              this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
-              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            if (target >= 0) {
+              let anchor_type = target % 2
+              let hq_id = Math.floor(target / 2)
+              let hq = this.bodies.lookup(hq_id)
+              if (anchor_type == 0) {
+                this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
+                this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+              } else {
+                this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
+                this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+              }
             } else {
-              this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
-              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+              let inverted_target = target*-1 - 1
+              let anchor_type = inverted_target % 2
+              let hq_id = Math.floor(inverted_target / 2)
+              let hq = this.bodies.lookup(hq_id)
+              if (anchor_type == 0) {
+                this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors + 1 })
+                this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors - 1 })
+              } else {
+                this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors + 1 })
+                this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors - 1 })
+              }
             }
             break
 

@@ -89,6 +89,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getIslandCount() {
+        return this.gameWorld.getAllIslands().length;
+    }
+
+    @Override
     public int getRobotCount() {
         return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -140,6 +145,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getNumAnchors(anchor);  
     }
 
+    @Override
+    public int getWeight() {
+        int resourceAmount = this.getResourceAmount(ResourceType.ADAMANTIUM) + this.getResourceAmount(ResourceType.MANA) + this.getResourceAmount(ResourceType.ELIXIR);
+        int anchorAmount = this.getNumAnchors(null);
+        return resourceAmount + GameConstants.ANCHOR_WEIGHT * anchorAmount;
+    }
+
     private InternalRobot getRobotByID(int id) {
         if (!this.gameWorld.getObjectInfo().existsRobot(id))
             return null;
@@ -159,9 +171,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
          if (!this.gameWorld.getGameMap().onTheMap(loc))
             return false;
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within vision range");
         return true;
     }
 
@@ -474,7 +483,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
-        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
         return currentLocInfo;
     }
 
@@ -631,6 +640,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getType() != RobotType.HEADQUARTERS)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
+        if (type == RobotType.HEADQUARTERS) {
+            throw new GameActionException(CANT_DO_THAT, "Headquarters cannot be built");
+        }
         for (ResourceType rType : ResourceType.values()) {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
@@ -841,6 +853,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getType() != RobotType.CARRIER) {
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
         }
+        if (amount == 0) {
+            throw new GameActionException(CANT_DO_THAT, "Don't transfer 0 resources. Do it again but this time with more");
+        }
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
         }
@@ -1028,6 +1043,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addAnchor(anchor);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, headquarters.getID()*2 + anchor.getAccelerationIndex());
+    }
+
+    private void assertCanReturnAnchor(MapLocation loc) throws GameActionException{
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getType() != RobotType.CARRIER){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot hold anchors.");
+        }
+        if (!isHeadquarter(loc)){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only return anchors back to headquarters.");
+        }
+        if (getTeam() != gameWorld.getRobot(loc).getTeam()){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only return anchors to the same team.");
+        }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to return.");
+        }
+        if (this.robot.getTypeAnchor() == null){
+            throw new GameActionException(CANT_DO_THAT,"Robot needs to hold an anchor of specified type to return it.");
+        }
+    }
+
+    @Override
+    public boolean canReturnAnchor(MapLocation loc){
+        try{
+            assertCanReturnAnchor(loc);
+            return true;
+        }
+        catch (GameActionException e){ return false; }
+    } 
+
+    @Override
+    public void returnAnchor(MapLocation loc) throws GameActionException{
+        assertCanReturnAnchor(loc);
+        InternalRobot headquarters = this.gameWorld.getRobot(loc);
+        Anchor anchor = this.getAnchor();
+        headquarters.addAnchor(anchor);
+        this.robot.releaseAnchor(anchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, -1*(headquarters.getID()*2 + anchor.getAccelerationIndex()) - 1);
     }
 
     // ***********************************
