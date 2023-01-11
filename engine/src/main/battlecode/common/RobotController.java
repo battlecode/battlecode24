@@ -927,29 +927,27 @@ public strictfp interface RobotController {
     /**
      * Tests whether the robot can return an anchor back to a HQ.
      * 
-     * Checks that the robot is a Carrier, the robot is holding the specified anchor type,
+     * Checks that the robot is a Carrier, the robot is holding an anchor,
      * the given location is a valid HQ, and there are no cooldown turns remaining.
      * 
      * Valid locations must be the current location or adjacent to the current location.
      *
      * @param loc target HQ location
-     * @param anchorType type of anchor to take
      * @return whether it is possible to return an anchor to the given location
      * 
-     * 
+     * @battlecode.doc.costlymethod
      */
-    boolean canReturnAnchor(MapLocation loc, Anchor anchorType);
+    boolean canReturnAnchor(MapLocation loc);
 
     /**
      * Return an anchor to the given location.
      * 
      * @param loc target HQ location
-     * @param anchorType type of anchor to take
      * @throws GameActionException if conditions for returning are not satisfied
      * 
-     * 
+     * @battlecode.doc.costlymethod
      */
-    void returnAnchor(MapLocation loc, Anchor anchorType) throws GameActionException;
+    void returnAnchor(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the robot can place an anchor at its current location.

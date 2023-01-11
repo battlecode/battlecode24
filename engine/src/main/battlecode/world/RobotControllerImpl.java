@@ -159,9 +159,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
          if (!this.gameWorld.getGameMap().onTheMap(loc))
             return false;
-        if (!this.robot.canSenseLocation(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location not within vision range");
         return true;
     }
 
@@ -1030,9 +1027,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, headquarters.getID()*2 + anchor.getAccelerationIndex());
     }
 
-    private void assertCanReturnAnchor(MapLocation loc, Anchor anchor) throws GameActionException{
+    private void assertCanReturnAnchor(MapLocation loc) throws GameActionException{
         assertNotNull(loc);
-        assertNotNull(anchor);
         assertCanActLocation(loc);
         assertIsActionReady();
         if (getType() != RobotType.CARRIER){
@@ -1051,28 +1047,29 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot needs to be adjacent to return.");
         }
-        if (this.robot.getNumAnchors(anchor) < 1){
+        if (this.robot.getTypeAnchor() == null){
             throw new GameActionException(CANT_DO_THAT,"Robot needs to hold an anchor of specified type to return it.");
         }
     }
 
     @Override
-    public boolean canReturnAnchor(MapLocation loc, Anchor anchor){
+    public boolean canReturnAnchor(MapLocation loc){
         try{
-            assertCanReturnAnchor(loc, anchor);
+            assertCanReturnAnchor(loc);
             return true;
         }
         catch (GameActionException e){ return false; }
     } 
 
     @Override
-    public void returnAnchor(MapLocation loc, Anchor anchor) throws GameActionException{
-        assertCanReturnAnchor(loc, anchor);
+    public void returnAnchor(MapLocation loc) throws GameActionException{
+        assertCanReturnAnchor(loc);
         InternalRobot headquarters = this.gameWorld.getRobot(loc);
+        Anchor anchor = this.getAnchor();
         headquarters.addAnchor(anchor);
         this.robot.releaseAnchor(anchor);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
-        //this.gameWorld.getMatchMaker().addAction(getID(),Action. , ); (not sure if new action or place anchor?)
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, -1*(headquarters.getID()*2 + anchor.getAccelerationIndex()) - 1);
     }
 
     // ***********************************
