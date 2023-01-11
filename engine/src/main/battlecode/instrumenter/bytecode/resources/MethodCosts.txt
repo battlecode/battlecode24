@@ -47,7 +47,9 @@ battlecode/common/RobotController/getAllLocationsWithinRadiusSquared    100  tru
 battlecode/common/RobotController/getHealth                             1    true
 battlecode/common/RobotController/getID                                 1    true
 battlecode/common/RobotController/getResourceAmount                     5    false
+battlecode/common/RobotController/getWeight                             10   false
 battlecode/common/RobotController/getAnchor                             1    false
+battlecode/common/RobotController/getIslandCount                        20   true
 battlecode/common/RobotController/getNumAnchors                         5    true
 battlecode/common/RobotController/getLocation                           1    true
 battlecode/common/RobotController/getMapHeight                          1    true

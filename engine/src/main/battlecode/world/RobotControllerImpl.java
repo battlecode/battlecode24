@@ -89,6 +89,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getIslandCount() {
+        return this.gameWorld.getAllIslands().length;
+    }
+
+    @Override
     public int getRobotCount() {
         return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -138,6 +143,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
         }
         return this.robot.getNumAnchors(anchor);  
+    }
+
+    @Override
+    public int getWeight() {
+        int resourceAmount = this.getResourceAmount(ResourceType.ADAMANTIUM) + this.getResourceAmount(ResourceType.MANA) + this.getResourceAmount(ResourceType.ELIXIR);
+        int anchorAmount = this.getNumAnchors(null);
+        return resourceAmount + GameConstants.ANCHOR_WEIGHT * anchorAmount;
     }
 
     private InternalRobot getRobotByID(int id) {

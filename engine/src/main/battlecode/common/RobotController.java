@@ -47,6 +47,15 @@ public strictfp interface RobotController {
     int getMapHeight();
 
     /**
+     * Returns the number of islands on the map
+     *
+     * @return number of islands
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getIslandCount();
+
+    /**
      * Returns the number of robots on your team, including Headquarters.
      * If this number ever reaches zero, you immediately lose.
      *
@@ -132,6 +141,15 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getNumAnchors(Anchor anchorType);
+
+    /**
+     * Returns the total weight of the robot's inventory
+     *
+     * @return the amount of material the robot is holding
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getWeight();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
