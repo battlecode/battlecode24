@@ -65,7 +65,7 @@ Time decelerating clouds also appear throughout the map, obscuring vision and sl
 
 Certain areas of the map are designated as *sky islands*. Islands appear as groups of connected squares, each group composing a single island. To fully anchor your faction’s universe and win the game, your faction must have reality anchors on **75%** or more of the islands. Once this condition has been fulfilled, your faction will instantly win the game. Sky islands are passable squares. 
 
-There will be at least 4 sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
+There will be between 4 and 35 (inclusive) sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
 
 Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
 
@@ -307,13 +307,16 @@ If something is unclear, direct your questions to our Discord where other people
     - GameConstants.UPGRADE_TO_ELIXIR 1500 --> 1000, reduces the amount needed to upgrade a well to elixir
     - GameConstants.UPGRADE_WELL_AMOUNT 3600 --> 2400, reduces the amount needed to upgrade a well to have the accelerated max output rate
   - Spec Fixes:
-    - Added statement of guarantee of at least 4 sky islands and no sky islands with greater than 20 area
+    - Added statement of guarantee of 4-35 sky islands and no sky islands with greater than 20 area
   - Engine Fixes:
     - Can no longer build headquarters
     - Communication bug is fixed
     - Added hasCloud method to MapInfo
     - Added isPassable method to MapInfo
     - Inventories in RobotInfo are now private, use getResourceAmount, getNumAnchors, getTotalAnchors instead
+    - Calling canTransferResource with 0 resources no longer works
+  - Client Fixes:
+    - Island IDs are now continuous and can be displayed in client
 
 
 <style class="fallback">body{visibility:hidden}</style>

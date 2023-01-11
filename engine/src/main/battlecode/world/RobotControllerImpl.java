@@ -632,7 +632,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
         if (type == RobotType.HEADQUARTERS) {
-            throw new GameActionException(CANT_DO_THAT, "Headquarters can not be built");
+            throw new GameActionException(CANT_DO_THAT, "Headquarters cannot be built");
         }
         for (ResourceType rType : ResourceType.values()) {
             if (rType == ResourceType.NO_RESOURCE)
@@ -843,6 +843,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         if (getType() != RobotType.CARRIER) {
             throw new GameActionException(CANT_DO_THAT, "This robot is not a carrier");
+        }
+        if (amount == 0) {
+            throw new GameActionException(CANT_DO_THAT, "Don't transfer 0 resources. Do it again but this time with more");
         }
         if (amount > 0 && getResourceAmount(type) < amount) { // Carrier is transfering to another location
             throw new GameActionException(CANT_DO_THAT, "Carrier does not have enough of that resource");
