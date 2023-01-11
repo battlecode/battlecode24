@@ -52,7 +52,7 @@ export type MapStats = {
   currents: Int8Array,
 
   islands: Int32Array,
-  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> }>,
+  island_stats: Map<number, { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number }>,
 
   resources: Int8Array,
   resource_well_stats: Map<number, { adamantium: number, mana: number, elixir: number, upgraded: boolean }>,
@@ -397,7 +397,7 @@ export default class GameWorld {
           let existing_island = this.mapStats.island_stats.get(island_id)
           existing_island.locations.push(i)
         } else {
-          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set() })
+          this.mapStats.island_stats.set(island_id, { owner: 0, flip_progress: 0, locations: [i], is_accelerated: false, accelerated_tiles: new Set(), id: island_id })
         }
       }
     }

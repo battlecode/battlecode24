@@ -676,6 +676,24 @@ export default class MapEditorForm {
     this.renderIndividual(x, y, true)
   }
 
+  private reassignIslandIds() {
+    let reassignedIslands = new Array(this.headerForm.getHeight() * this.headerForm.getWidth())
+    reassignedIslands.fill(0)
+
+    let curr_id = 1
+    let id_map = new Map<number, number>([[0, 0]]);
+
+    for (let i: number = 0; i < this.islands.length; i++) {
+      if (!id_map.has(this.islands[i])) {
+        id_map.set(this.islands[i], curr_id)
+        curr_id++
+      }
+      reassignedIslands[i] = id_map.get(this.islands[i])
+    }
+
+    return reassignedIslands
+  }
+
   /**
    * @return the active form based on which radio button is selected
    */
@@ -719,6 +737,8 @@ export default class MapEditorForm {
    * Returns a map with the given name, width, height, and bodies.
    */
   getMap(): GameMap {
+    let reassigned_islands = this.reassignIslandIds()
+
     return {
       name: this.headerForm.getName(),
       width: this.headerForm.getWidth(),
@@ -729,7 +749,7 @@ export default class MapEditorForm {
       resource_wells: this.resource_wells,
       clouds: this.clouds,
       currents: this.currents,
-      islands: this.islands,
+      islands: reassigned_islands,
       symmetry: this.symmetryForm.getSymmetry(),
     }
   }
