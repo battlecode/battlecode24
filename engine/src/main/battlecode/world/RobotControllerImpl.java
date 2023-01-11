@@ -1030,6 +1030,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, headquarters.getID()*2 + anchor.getAccelerationIndex());
     }
 
+    private void assertCanReturnAnchor(MapLocation loc, Anchor anchor) throws GameActionException{
+        assertNotNull(loc);
+        assertNotNull(anchor);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getType() != RobotType.CARRIER){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is of type " + getType() + " which cannot hold anchors.");
+        }
+        if (!isHeadquarter(loc)){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only return anchors back to headquarters.");
+        }
+        if (getTeam() != gameWorld.getRobot(loc).getTeam()){
+            throw new GameActionException(CANT_DO_THAT, 
+                    "Can only return anchors to the same team.");
+        }
+        if (!this.robot.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot needs to be adjacent to return.");
+        }
+        if (this.robot.getNumAnchors(anchor) < 1){
+            throw new GameActionException(CANT_DO_THAT,"Robot needs to hold an anchor of specified type to return it.");
+        }
+    }
+
+    @Override
+    public boolean canReturnAnchor(MapLocation loc, Anchor anchor){
+        try{
+            assertCanReturnAnchor(loc, anchor);
+            return true;
+        }
+        catch (GameActionException e){ return false; }
+    } 
+
+    @Override
+    public void returnAnchor(MapLocation loc, Anchor anchor) throws GameActionException{
+        assertCanReturnAnchor(loc, anchor);
+        InternalRobot headquarters = this.gameWorld.getRobot(loc);
+        headquarters.addAnchor(anchor);
+        this.robot.releaseAnchor(anchor);
+        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        //this.gameWorld.getMatchMaker().addAction(getID(),Action. , ); (not sure if new action or place anchor?)
+    }
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
