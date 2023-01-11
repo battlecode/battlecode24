@@ -306,6 +306,8 @@ public strictfp interface RobotController {
      * @param loc the given location
      * @return the cooldown multiplier of that location
      * @throws GameActionException if the robot cannot sense the given location
+     * 
+     * @battlecode.doc.costlymethod
      */
     double senseCooldownMultiplier(MapLocation loc) throws GameActionException;
 
@@ -317,6 +319,8 @@ public strictfp interface RobotController {
      * @param loc the given location
      * @return the number of turns remaining of the oldest destabilize
      * @throws GameActionException if the robot cannot sense the given location
+     * 
+     * @battlecode.doc.costlymethod
      */
     int senseDestabilizeTurns(MapLocation loc) throws GameActionException;
 
@@ -327,6 +331,8 @@ public strictfp interface RobotController {
      * @param loc the given location
      * @return the number of turns remaining of the oldest boost
      * @throws GameActionException if the robot cannot sense the given location
+     * 
+     * @battlecode.doc.costlymethod
      */
     int senseBoostTurns(MapLocation loc) throws GameActionException;
 
