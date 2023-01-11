@@ -65,6 +65,8 @@ Time decelerating clouds also appear throughout the map, obscuring vision and sl
 
 Certain areas of the map are designated as *sky islands*. Islands appear as groups of connected squares, each group composing a single island. To fully anchor your faction’s universe and win the game, your faction must have reality anchors on **75%** or more of the islands. Once this condition has been fulfilled, your faction will instantly win the game. Sky islands are passable squares. 
 
+There will be at least 4 sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
+
 Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
 
 *Resource wells* appear throughout the map and contain an infinite amount of a specific resource type. They cannot be moved or destroyed. No currents, headquarters, or impassable squares can be located on a well. **Robots can travel over wells.** 
@@ -298,7 +300,20 @@ If something is unclear, direct your questions to our Discord where other people
     - Resigning now means the other player wins automatically
   - Client Fixes:
     - Fixed client style scrollbars to prevent blocked content
-
+- Version 1.1.1 (January 11, 2023)
+  - Game changes:
+    - GameConstants.WELL_STANDARD_RATE 4 --> 2, reduces the standard max ouput rate of a well
+    - GameConstants.WELL_ACCELERATED_RATE 10 --> 6, reduces the accelerated max output rate of a well
+    - GameConstants.UPGRADE_TO_ELIXIR 1500 --> 1000, reduces the amount needed to upgrade a well to elixir
+    - GameConstants.UPGRADE_WELL_AMOUNT 3600 --> 2400, reduces the amount needed to upgrade a well to have the accelerated max output rate
+  - Spec Fixes:
+    - Added statement of guarantee of at least 4 sky islands and no sky islands with greater than 20 area
+  - Engine Fixes:
+    - Can no longer build headquarters
+    - Communication bug is fixed
+    - Added hasCloud method to MapInfo
+    - Added isPassable method to MapInfo
+    - Inventories in RobotInfo are now private, use getResourceAmount, getNumAnchors, getTotalAnchors instead
 
 
 <style class="fallback">body{visibility:hidden}</style>

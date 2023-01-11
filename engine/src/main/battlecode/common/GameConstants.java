@@ -37,6 +37,9 @@ public class GameConstants {
     /** The minimum number of islands on the map. */
     public static final int MIN_NUMBER_ISLANDS = 4;
 
+    /** The maximum number of islands on the map. */
+    public static final int MAX_NUMBER_ISLANDS = 35;
+
     /** The maximum area of an island in units. */
     public static final int MAX_ISLAND_AREA = 20;
 
@@ -78,10 +81,10 @@ public class GameConstants {
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
-    public static final int UPGRADE_TO_ELIXIR = 1500;
+    public static final int UPGRADE_TO_ELIXIR = 1000;
 
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
-    public static final int UPGRADE_WELL_AMOUNT = 3600;
+    public static final int UPGRADE_WELL_AMOUNT = 2400;
 
     /** The percentage of islands that need to be occupied for a team to win */
     public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
@@ -150,8 +153,8 @@ public class GameConstants {
     public static final int MAX_ANCHOR_STACKS = 1;
 
     /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 4;
-    public static final int WELL_ACCELERATED_RATE = 10;
+    public static final int WELL_STANDARD_RATE = 2;
+    public static final int WELL_ACCELERATED_RATE = 6;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

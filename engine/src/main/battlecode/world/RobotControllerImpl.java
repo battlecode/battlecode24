@@ -474,7 +474,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
-        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
         return currentLocInfo;
     }
 
@@ -631,9 +631,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (getType() != RobotType.HEADQUARTERS)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
-        if (type == RobotType.HEADQUARTERS)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Cannot build headquarters.");
+        if (type == RobotType.HEADQUARTERS) {
+            throw new GameActionException(CANT_DO_THAT, "Headquarters can not be built");
+        }
         for (ResourceType rType : ResourceType.values()) {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;

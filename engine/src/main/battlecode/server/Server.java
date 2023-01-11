@@ -295,6 +295,9 @@ public strictfp class Server implements Runnable {
         if (islandToAreaMapping.size() < GameConstants.MIN_NUMBER_ISLANDS) {
             throw new RuntimeException("Islands num of " + islandToAreaMapping.size() + " BENEATH GameConstants.MIN_NUMBER_ISLANDS");
         }
+        if (islandToAreaMapping.size() > GameConstants.MAX_NUMBER_ISLANDS) {
+            throw new RuntimeException("Islands num of " + islandToAreaMapping.size() + " ABOVE GameConstants.MAX_NUMBER_ISLANDS");
+        }
         for (int i : islandToAreaMapping.values()) {
             if (i > GameConstants.MAX_ISLAND_AREA) {
                 throw new RuntimeException("Island exceeds max allowable area");
