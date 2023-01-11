@@ -656,15 +656,29 @@ export default class GameWorld {
 
           case schema.Action.PICK_UP_ANCHOR:
             setAction()
-            let anchor_type = target % 2
-            let hq_id = Math.floor(target / 2)
-            let hq = this.bodies.lookup(hq_id)
-            if (anchor_type == 0) {
-              this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
-              this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+            if (target >= 0) {
+              let anchor_type = target % 2
+              let hq_id = Math.floor(target / 2)
+              let hq = this.bodies.lookup(hq_id)
+              if (anchor_type == 0) {
+                this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors - 1 })
+                this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors + 1 })
+              } else {
+                this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
+                this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+              }
             } else {
-              this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors - 1 })
-              this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors + 1 })
+              let inverted_target = target*-1 - 1
+              let anchor_type = inverted_target % 2
+              let hq_id = Math.floor(inverted_target / 2)
+              let hq = this.bodies.lookup(hq_id)
+              if (anchor_type == 0) {
+                this.bodies.alter({ id: hq_id, normal_anchors: hq.normal_anchors + 1 })
+                this.bodies.alter({ id: robotID, normal_anchors: body.normal_anchors - 1 })
+              } else {
+                this.bodies.alter({ id: hq_id, accelerated_anchors: hq.accelerated_anchors + 1 })
+                this.bodies.alter({ id: robotID, accelerated_anchors: body.accelerated_anchors - 1 })
+              }
             }
             break
 

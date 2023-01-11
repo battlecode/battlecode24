@@ -47,6 +47,15 @@ public strictfp interface RobotController {
     int getMapHeight();
 
     /**
+     * Returns the number of islands on the map
+     *
+     * @return number of islands
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getIslandCount();
+
+    /**
      * Returns the number of robots on your team, including Headquarters.
      * If this number ever reaches zero, you immediately lose.
      *
@@ -132,6 +141,15 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getNumAnchors(Anchor anchorType);
+
+    /**
+     * Returns the total weight of the robot's inventory
+     *
+     * @return the amount of material the robot is holding
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getWeight();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -929,6 +947,31 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void takeAnchor(MapLocation loc, Anchor anchorType) throws GameActionException;
+
+    /**
+     * Tests whether the robot can return an anchor back to a HQ.
+     * 
+     * Checks that the robot is a Carrier, the robot is holding an anchor,
+     * the given location is a valid HQ, and there are no cooldown turns remaining.
+     * 
+     * Valid locations must be the current location or adjacent to the current location.
+     *
+     * @param loc target HQ location
+     * @return whether it is possible to return an anchor to the given location
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean canReturnAnchor(MapLocation loc);
+
+    /**
+     * Return an anchor to the given location.
+     * 
+     * @param loc target HQ location
+     * @throws GameActionException if conditions for returning are not satisfied
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void returnAnchor(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether the robot can place an anchor at its current location.
