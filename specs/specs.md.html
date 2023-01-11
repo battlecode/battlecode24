@@ -300,6 +300,7 @@ If something is unclear, direct your questions to our Discord where other people
     - Resigning now means the other player wins automatically
   - Client Fixes:
     - Fixed client style scrollbars to prevent blocked content
+
 - Version 1.1.1 (January 11, 2023)
   - Game changes:
     - GameConstants.WELL_STANDARD_RATE 4 --> 2, reduces the standard max ouput rate of a well
@@ -310,13 +311,18 @@ If something is unclear, direct your questions to our Discord where other people
     - Added statement of guarantee of 4-35 sky islands and no sky islands with greater than 20 area
   - Engine Fixes:
     - Can no longer build headquarters
-    - Communication bug is fixed
+    - Communication bug (can always communicate) is fixed
     - Added hasCloud method to MapInfo
     - Added isPassable method to MapInfo
     - Inventories in RobotInfo are now private, use getResourceAmount, getNumAnchors, getTotalAnchors instead
     - Calling canTransferResource with 0 resources no longer works
+    - Added getIslandCount to robotController
+    - Added getWeight to robotController
+    - Changed onTheMap to not check for visibility
+    - Added canReturnAnchor and returnAnchor to place anchor back in headquarter
   - Client Fixes:
     - Island IDs are now continuous and can be displayed in client
+    - Added support for returning anchors to headquarters
 
 
 <style class="fallback">body{visibility:hidden}</style>
