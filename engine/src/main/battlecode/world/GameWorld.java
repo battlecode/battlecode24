@@ -876,6 +876,10 @@ public strictfp class GameWorld {
      * to write to the shared array
      */
     public boolean inRangeForAmplification(InternalRobot bot) {
+        if (bot.getType() == RobotType.HEADQUARTERS || bot.getType() == RobotType.AMPLIFIER) {
+            // These bots can always communicate
+            return true;
+        }
         MapLocation loc = bot.getLocation();
         int maxInterestRadius = Math.max(GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER, GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER);
         for(InternalRobot otherRobot: this.getAllRobotsWithinRadiusSquared(bot.getLocation(), maxInterestRadius, bot.getTeam())){
