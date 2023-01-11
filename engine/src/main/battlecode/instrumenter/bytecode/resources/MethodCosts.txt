@@ -33,6 +33,7 @@ battlecode/common/RobotController/canMove                               10   tru
 battlecode/common/RobotController/canBuildAnchor                        10   true
 battlecode/common/RobotController/canTakeAnchor                         10   true
 battlecode/common/RobotController/canPlaceAnchor                        10   true
+battlecode/common/RobotController/canReturnAnchor                       10   true
 battlecode/common/RobotController/canSenseLocation                      5    true
 battlecode/common/RobotController/canActLocation                        5    true
 battlecode/common/RobotController/canSenseRobot                         5    true
@@ -66,6 +67,7 @@ battlecode/common/RobotController/move                                  0    tru
 battlecode/common/RobotController/buildAnchor                           0    true
 battlecode/common/RobotController/takeAnchor                            0    true
 battlecode/common/RobotController/placeAnchor                           0    true
+battlecode/common/RobotController/returnAnchor                          0    true
 battlecode/common/RobotController/onTheMap                              5    true
 battlecode/common/RobotController/readSharedArray                       2    true
 battlecode/common/RobotController/resign                                0    true
