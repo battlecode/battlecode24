@@ -407,7 +407,7 @@ export default class Looper {
                 var ad = body["adamantium"]
                 var el =  body["elixir"]
                 var mn = body["mana"]
-                if (body['type'] == 1){
+                if (body['type'] == schema.BodyType.HEADQUARTERS){
                     resources[team_id]["Ad"]["with_HQ"].push(ad);
                     resources[team_id]["Mn"]["with_HQ"].push(mn);
                     resources[team_id]["El"]["with_HQ"].push(el);
