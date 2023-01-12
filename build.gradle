@@ -68,6 +68,7 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
     '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
     '-Dbc.game.team-b.package=' + (project.findProperty('packageNameB') ?: project.property('teamB')),
     '-Dbc.game.maps=' + project.property('maps'),
+    '-Dbc.server.validate-maps=' + project.property('validateMaps'),
     '-Dbc.server.save-file=' + (project.findProperty('replay') ?: defaultReplay),
   ]
 }

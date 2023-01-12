@@ -164,6 +164,8 @@ public strictfp class Server implements Runnable {
             final boolean profilingEnabled = options.getBoolean("bc.engine.enable-profiler");
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled);
 
+            final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
+
             // Count wins
             int aWins = 0, bWins = 0;
 
@@ -172,7 +174,7 @@ public strictfp class Server implements Runnable {
 
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, gameMaker);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees);
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -408,7 +410,7 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          GameMaker gameMaker) throws Exception {
+                          GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
@@ -423,8 +425,10 @@ public strictfp class Server implements Runnable {
         // Create the game world!
         currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
         
-        // Validate the map
-        validateMapOnGuarantees(currentWorld.getGameMap());
+        if (checkMapGuarantees) {
+            // Validate the map
+            validateMapOnGuarantees(currentWorld.getGameMap());
+        }
 
         // Get started
         if (interactive) {
