@@ -127,10 +127,11 @@ public strictfp interface RobotController {
      * Returns type of anchor being held by carrier
      *
      * @return type of anchor being held by carrier, null if none
+     * @throws GameActionException if robot is not a carrier
      *
      * @battlecode.doc.costlymethod
      */
-    Anchor getAnchor();
+    Anchor getAnchor() throws GameActionException;
 
     /**
      * Returns num of anchors being held by robot
