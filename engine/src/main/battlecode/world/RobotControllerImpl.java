@@ -483,7 +483,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
-        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
         return currentLocInfo;
     }
 
