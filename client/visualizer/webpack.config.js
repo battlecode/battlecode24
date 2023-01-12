@@ -113,5 +113,13 @@ module.exports = function (env) {
     })
   }
 
+  if (env.watch) {
+    // devServer does not like the ./out relative path.
+    // make it use a hard-path instead
+    conf = merge(conf, {
+      output: { publicPath: '/out/' }
+    })
+  }
+
   return conf
 }
