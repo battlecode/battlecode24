@@ -77,7 +77,7 @@ The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headqua
 
 There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each team will have one adamantium well located within immediately visible distance. All maps are guaranteed to have at least one adamantium well and one mana well. 
 
-Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 4 kg/action. If 3600 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 10 kg/action. Alternatively, if 1500 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 2 kg/action. If 2400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 6 kg/action. Alternatively, if 1000 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
 
 For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 81 units of a Mana well and vice versa. 
 
@@ -325,8 +325,12 @@ If something is unclear, direct your questions to our Discord where other people
     - Added support for returning anchors to headquarters
 
 - Version 1.3.0 
+  - Spec Fixes:
+    - Updated new well rates in general spec
   - Engine Fixes:
     - MapInfo's isPassable method no longer returns incorrect values
+  - Client Fixes:
+    - Old maps now have continuous IDs
 
 <style class="fallback">body{visibility:hidden}</style>
 <script>markdeepOptions={tocStyle:'long'};</script>
