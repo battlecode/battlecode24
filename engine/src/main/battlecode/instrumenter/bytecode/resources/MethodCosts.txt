@@ -118,6 +118,7 @@ battlecode/common/MapInfo/getNumDestabilizers                           5    fal
 battlecode/common/MapInfo/getBoostTurnsLeft                             5    false
 battlecode/common/MapInfo/getDestabilizerTurnsLeft                      5    false
 battlecode/common/MapInfo/hasCloud                                      5    false
+battlecode/common/MapInfo/isPassable                                    5    false
 battlecode/common/MapInfo/toString                                      15    false
 java/lang/Math/IEEEremainder            1  false
 java/lang/Math/abs                      1  false

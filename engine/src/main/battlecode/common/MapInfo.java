@@ -50,6 +50,7 @@ public class MapInfo {
      * Returns if this square has a cloud.
      * 
      * @return whether this square has a cloud
+     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
@@ -61,6 +62,7 @@ public class MapInfo {
      * Returns if this square is passable.
      * 
      * @return whether this square is passable
+     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
