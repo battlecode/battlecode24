@@ -305,12 +305,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public double senseCooldownMultiplier(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
+        System.out.println("senseBoostTurns is a deprecated method! It is at risk of being removed.");
         return this.gameWorld.getCooldownMultiplier(loc, getTeam());
     }
 
     @Override
     public int senseDestabilizeTurns(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
+        System.out.println("senseBoostTurns is a deprecated method! It is at risk of being removed.");
         int oldestDestabilize = this.gameWorld.getOldestDestabilize(loc, getTeam());
         return oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum(); 
     }
@@ -318,6 +320,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int senseBoostTurns(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
+        System.out.println("senseBoostTurns is a deprecated method! It is at risk of being removed.");
         int oldestBoost = this.gameWorld.getOldestBoost(loc, getTeam());
         return oldestBoost == -1 ? -1 : oldestBoost - getRoundNum();
     }
