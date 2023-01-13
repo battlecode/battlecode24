@@ -133,7 +133,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Anchor getAnchor() {
+    public Anchor getAnchor() throws GameActionException {
+        if (this.getType() != RobotType.CARRIER) {
+            throw new GameActionException(CANT_DO_THAT, "getAnchor can only be called with carrier, use getNumAnchors for headquarters");
+        }
         return this.robot.getTypeAnchor();  
     }
 

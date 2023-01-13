@@ -127,10 +127,11 @@ public strictfp interface RobotController {
      * Returns type of anchor being held by carrier
      *
      * @return type of anchor being held by carrier, null if none
+     * @throws GameActionException if robot is not a carrier
      *
      * @battlecode.doc.costlymethod
      */
-    Anchor getAnchor();
+    Anchor getAnchor() throws GameActionException;
 
     /**
      * Returns num of anchors being held by robot
@@ -321,6 +322,8 @@ public strictfp interface RobotController {
      * Given a location, returns the muliplier that cooldowns are multiplied by
      * for a robot on that location.
      * 
+     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
+     * 
      * @param loc the given location
      * @return the cooldown multiplier of that location
      * @throws GameActionException if the robot cannot sense the given location
@@ -333,6 +336,8 @@ public strictfp interface RobotController {
      * Given a location, returns the number of turns left on the oldest 
      * enemy destabilization there. If the location is not currently being
      * destabilized, returns -1.
+     * 
+     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
      *
      * @param loc the given location
      * @return the number of turns remaining of the oldest destabilize
@@ -345,6 +350,8 @@ public strictfp interface RobotController {
     /**
      * Given a location, returns the number of turns left on the oldest allied
      * boost there. If the location is not currently being boosted, returns -1.
+     * 
+     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
      *
      * @param loc the given location
      * @return the number of turns remaining of the oldest boost

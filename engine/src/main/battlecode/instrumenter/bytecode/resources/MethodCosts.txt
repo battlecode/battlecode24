@@ -60,7 +60,7 @@ battlecode/common/RobotController/getRoundNum                           1    tru
 battlecode/common/RobotController/getTeam                               1    true
 battlecode/common/RobotController/getType                               1    true
 battlecode/common/RobotController/isActionReady                         1    true
-battlecode/common/RobotController/isLocationOccupied                    20   true
+battlecode/common/RobotController/isLocationOccupied                    5    true
 battlecode/common/RobotController/isMovementReady                       1    true
 battlecode/common/RobotController/isTransformReady                      1    true
 battlecode/common/RobotController/collectResource                       0    true
