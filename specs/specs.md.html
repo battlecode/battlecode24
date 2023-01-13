@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *1.2.1*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *1.2.2*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -288,13 +288,16 @@ If something is unclear, direct your questions to our Discord where other people
 # Appendix: Changelog
 
 - Version 1.2.2 (January 12, 2023)
+  - Spec Fixes:
+    - Documented behavior of replacing ally anchors on islands
   - Engine Fixes: 
     - Reduced bytecode of isLocationOccupied to 5 to match senseRobotAtLocation
     - Added deprecation messages in outdated methods
     - getAnchor now throws exception if not called by carrier
     - Carriers can no longer utilize collectResource to obtain negative inventory
-    - islandIDs no longer clue you in on where other islands are ;)
     - Gradle now has the option to remove map validation
+  - Client Fixes:
+    - islandIDs no longer clue you in on where other islands are ;)
 
 - Version 1.2.1 (January 11, 2023)
   - Spec Fixes:
