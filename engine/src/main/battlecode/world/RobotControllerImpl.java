@@ -912,6 +912,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
+        if (amount < -1)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot collect a negative amount of resource.");
         if (getType() != RobotType.CARRIER)
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot collect.");
