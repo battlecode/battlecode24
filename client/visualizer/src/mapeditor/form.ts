@@ -680,17 +680,15 @@ export default class MapEditorForm {
     let reassignedIslands = new Array(this.headerForm.getHeight() * this.headerForm.getWidth())
     reassignedIslands.fill(0)
 
-    let curr_id = 1
-    let id_map = new Map<number, number>([[0, 0]]);
-
+    var setIslands = new Set(this.islands);
+    var sortedIslandIDs = Array.from(setIslands);
+    sortedIslandIDs.sort();
     for (let i: number = 0; i < this.islands.length; i++) {
-      if (!id_map.has(this.islands[i])) {
-        id_map.set(this.islands[i], curr_id)
-        curr_id++
+      if (this.islands[i] == 0) {
+        continue;
       }
-      reassignedIslands[i] = id_map.get(this.islands[i])
+      reassignedIslands[i] = sortedIslandIDs.findIndex((v) => this.islands[i] == v);
     }
-
     return reassignedIslands
   }
 
@@ -738,6 +736,7 @@ export default class MapEditorForm {
    */
   getMap(): GameMap {
     let reassigned_islands = this.reassignIslandIds()
+    // let reassigned_islands = this.islands
 
     return {
       name: this.headerForm.getName(),
