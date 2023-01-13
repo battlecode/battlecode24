@@ -112,7 +112,7 @@ battlecode/common/WellInfo/isUpgraded                                   1    fal
 battlecode/common/WellInfo/getRate                                      2    false
 battlecode/common/MapInfo/getMapLocation                                1    false
 battlecode/common/MapInfo/getCurrentDirection                           5    false
-battlecode/common/MapInfo/getCooldownMuliplier                          5    false
+battlecode/common/MapInfo/getCooldownMultiplier                         5    false
 battlecode/common/MapInfo/getNumBoosts                                  5    false
 battlecode/common/MapInfo/getNumDestabilizers                           5    false
 battlecode/common/MapInfo/getBoostTurnsLeft                             5    false

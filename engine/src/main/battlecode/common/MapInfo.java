@@ -79,7 +79,7 @@ public class MapInfo {
      * 
      * @battlecode.doc.costlymethod
      */
-    public double getCooldownMuliplier(Team team) throws GameActionException {
+    public double getCooldownMultiplier(Team team) throws GameActionException {
         assertValidTeam(team);
         return this.cooldownMultipliers[team.ordinal()];
     }
