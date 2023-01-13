@@ -51,6 +51,11 @@ export default class MapValidator {
       });
     });
 
+    // Between 1 and 4 original bodies (headquarters) per team
+    if (map.originalBodies.size < 1 || map.originalBodies.size > 4) {
+      errors.push (`Must be between 1 and 4 headquarters per team.`);
+    }
+
     if (errors.length > 0) {
       alert(errors.join("\n"));
       return false;
