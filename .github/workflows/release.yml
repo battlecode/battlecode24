@@ -44,6 +44,28 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v1'
 
+      - name: Clone private maps
+        if: ${{ env.IS_PUBLIC != 'YES' }}
+        uses: actions/checkout@v3
+        with:
+          repository: battlecode/private-maps
+          token: ${{ secrets.CI_REPOSITORY_CLONE_PAT }}
+          path: private-maps
+
+      - name: Inject private maps
+        if: ${{ env.IS_PUBLIC != 'YES' }}
+        run: |
+          source="private-maps/$RELEASE_ARTIFACT_ID"
+          dest="engine/src/main/battlecode/world/resources"
+          if [ -d "$source" ]; then
+            cp -r -i "$source/." "$dest/" < /dev/null &> private-maps-copy-log
+            if [ -s "private-maps-copy-log" ]; then
+              echo "FAILED! Public and private maps should not intersect."
+              cat private-maps-copy-log
+              exit 1
+            fi
+          fi
+
       - name: Set up Wine  # See actions/runner-images#743
         run: |
           sudo dpkg --add-architecture i386
