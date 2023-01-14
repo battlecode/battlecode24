@@ -166,7 +166,7 @@ export default class ScaffoldCommunicator {
       `-PteamB=${teamB}`,
       `-Pmaps=${maps.join(',')}`,
       `-PvalidateMaps=false`,
-      `-PswitchTeams=false`,
+      `-PalternateOrder=false`,
       `-PenableProfiler=${enableProfiler}`,
     ];
     const proc = child_process.spawn(

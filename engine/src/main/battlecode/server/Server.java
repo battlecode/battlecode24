@@ -165,7 +165,7 @@ public strictfp class Server implements Runnable {
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled);
 
             final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
-            final boolean switchTeams = options.getBoolean("bc.server.switch-teams");
+            final boolean alternateOrder = options.getBoolean("bc.server.alternate-order");
 
             // Count wins
             int aWins = 0, bWins = 0;
@@ -176,7 +176,7 @@ public strictfp class Server implements Runnable {
                 Team winner;
                 try {
                     winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
-                    if (switchTeams) {teamsReversed = !teamsReversed;}
+                    if (alternateOrder) {teamsReversed = !teamsReversed;}
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;

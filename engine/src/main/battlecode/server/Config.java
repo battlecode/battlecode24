@@ -50,7 +50,7 @@ public class Config {
         defaults.setProperty("bc.server.throttle-count", "15");
         defaults.setProperty("bc.server.output-xml", "true");
         defaults.setProperty("bc.server.validate-maps", "true");
-        defaults.setProperty("bc.server.switch-teams", "true");
+        defaults.setProperty("bc.server.alternate-order", "false");
 
 
 
