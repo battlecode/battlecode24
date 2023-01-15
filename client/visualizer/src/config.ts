@@ -154,7 +154,7 @@ export enum Mode {
 export function defaults(supplied?: any): Config {
   let year = "2023"
   let conf: Config = {
-    gameVersion: "1.3.0", //TODO: Change this on each release!
+    gameVersion: "1.3.1", //TODO: Change this on each release!
     year: year,
     map_extension: 'map'+year.substring(2),
     game_extension: 'bc'+year.substring(2),
