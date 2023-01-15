@@ -175,9 +175,6 @@ public strictfp class GameWorld {
                         }
                         hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
                         hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        // Add initial amounts of resource
-                        this.teamInfo.addAdamantium(hq.getTeam(), GameConstants.INITIAL_AD_AMOUNT);                        
-                        this.teamInfo.addMana(hq.getTeam(), GameConstants.INITIAL_MN_AMOUNT);
                         return true;
                     } else {
                         throw new RuntimeException("non-robot body registered as dynamic");
@@ -694,7 +691,7 @@ public strictfp class GameWorld {
                         //deal damage
                         InternalRobot robot = getRobot(loc);
                         if (robot != null && robot.getTeam().ordinal() == teamIndex) {
-                            robot.addHealth(-1*robot.getType().damage);
+                            robot.addHealth(-1*RobotType.DESTABILIZER.damage);
                         }
                         //update multiplier if no longer being destabilized
                         if (curDestabilize.size() <= GameConstants.MAX_DESTABILIZE_STACKS) {
@@ -843,6 +840,9 @@ public strictfp class GameWorld {
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
+        for (ResourceType rType : ResourceType.values()) {
+            robot.addResourceAmount(rType, -1*robot.getResource(rType));
+        }
         matchMaker.addDied(id);
     }
 

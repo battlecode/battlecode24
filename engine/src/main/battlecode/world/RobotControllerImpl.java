@@ -726,7 +726,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
             this.robot.addResourceAmount(rType, -1*type.getBuildCost(rType));
-            this.gameWorld.getTeamInfo().addResource(rType, team, -1*type.getBuildCost(rType));
         }
         int newId = this.gameWorld.spawnRobot(type, loc, team);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
@@ -765,7 +764,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
             this.robot.addResourceAmount(rType, -1*anchor.getBuildCost(rType));
-            this.gameWorld.getTeamInfo().addResource(rType, team, -1*anchor.getBuildCost(rType));
         }
         this.robot.addAnchor(anchor);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
@@ -944,7 +942,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         if (isWell(loc)) {
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
-            this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         } else if(isHeadquarter(loc)){
             InternalRobot headquarter = this.gameWorld.getRobot(loc);
             if (headquarter.getType() != RobotType.HEADQUARTERS) {
@@ -1004,7 +1001,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         amount = amount == -1 ? rate : amount;
         this.robot.addResourceAmount(rType, amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_RESOURCE, locationToInt(loc));
-        this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), amount);
     }
 
     private void assertCanPlaceAnchor() throws GameActionException {
