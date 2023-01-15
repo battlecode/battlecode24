@@ -410,6 +410,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public boolean senseCloud(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        if (this.getLocation().distanceSquaredTo(loc) > this.getType().visionRadiusSquared) {
+            throw new GameActionException(CANT_DO_THAT, "This location cannot be sensed");
+        }
+        return this.gameWorld.getCloud(loc);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations() {
+        try {
+            return senseNearbyCloudLocations(-1);
+        } catch (GameActionException e) {
+            return new MapLocation[0];
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations(int radiusSquared) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyCloudLocations(getLocation(), radiusSquared);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        List<MapLocation> validSensedCloudLocs = new ArrayList<>();
+        for (MapLocation loc : allLocations) {
+            // Can't actually sense location based on radius squared
+            if (!getLocation().isWithinDistanceSquared(loc, getType().visionRadiusSquared)) {
+                continue;
+            }
+            // Check if location has a cloud
+            if (!gameWorld.getCloud(loc)) {
+                continue;
+            }
+            validSensedCloudLocs.add(loc);
+        }
+        return validSensedCloudLocs.toArray(new MapLocation[validSensedCloudLocs.size()]);
+    }
+
+    @Override
     public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
