@@ -291,12 +291,13 @@ If something is unclear, direct your questions to our Discord where other people
   - Spec Fixes:
     - Clarified that clouds change vision radius to 4 units
   - Engine Fixes:
-    - Added check for islands being continuous for map to be valid
+    - Added check for islands being continuous for map to be valid (old maps may need to be recreated)
     - Removed exception throw in onTheMap
     - Fixed exception print in examplefuncsplayer
     - Added senseCloud and senseNearbyCloudLocations methods which allow sensing of visible clouds
     - Fixed destabilizer damage
     - Fixed updating teamInfo counts for resources
+    - Added alternateOrder option to gradle, when enabled this option will mean if multiple consecutive maps are played then teams will swap turn order
     - Changed error message to current version number :)
 
 - Version 1.2.4 (January 13, 2023)
