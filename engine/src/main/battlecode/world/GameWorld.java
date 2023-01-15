@@ -52,9 +52,12 @@ public strictfp class GameWorld {
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
+        this(gm, cp, matchMaker, false);
+    }
 
     @SuppressWarnings("unchecked")
-    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker, boolean reverseTeams) {
         this.walls = gm.getWallArray();
         this.clouds = gm.getCloudArray();
         this.islandIds = gm.getIslandArray();
@@ -83,8 +86,26 @@ public strictfp class GameWorld {
 
         // Add the robots contained in the LiveMap to this world.
         RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
+        RobotInfo[] bodiesToUse = initialBodies;
+        RobotInfo[] reversedBodies = new RobotInfo[initialBodies.length];
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
+            Inventory inv = new Inventory();
+            for (ResourceType rType : ResourceType.values()) {
+                if (rType == ResourceType.NO_RESOURCE) {
+                    continue;
+                }
+                inv.addResource(rType, robot.getResourceAmount(rType));
+            }
+            reversedBodies[i] = new RobotInfo(robot.ID, robot.team.opponent(), robot.type, inv, robot.health, robot.location);
+        }
+
+        if (reverseTeams) {
+            bodiesToUse = reversedBodies;
+        }
+
+        for (int i = 0; i < bodiesToUse.length; i++) {
+            RobotInfo robot = bodiesToUse[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             spawnRobot(robot.ID, robot.type, newLocation, robot.team);
         }
@@ -175,9 +196,6 @@ public strictfp class GameWorld {
                         }
                         hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
                         hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        // Add initial amounts of resource
-                        this.teamInfo.addAdamantium(hq.getTeam(), GameConstants.INITIAL_AD_AMOUNT);                        
-                        this.teamInfo.addMana(hq.getTeam(), GameConstants.INITIAL_MN_AMOUNT);
                         return true;
                     } else {
                         throw new RuntimeException("non-robot body registered as dynamic");
@@ -694,7 +712,7 @@ public strictfp class GameWorld {
                         //deal damage
                         InternalRobot robot = getRobot(loc);
                         if (robot != null && robot.getTeam().ordinal() == teamIndex) {
-                            robot.addHealth(-1*robot.getType().damage);
+                            robot.addHealth(-1*RobotType.DESTABILIZER.damage);
                         }
                         //update multiplier if no longer being destabilized
                         if (curDestabilize.size() <= GameConstants.MAX_DESTABILIZE_STACKS) {
@@ -843,6 +861,9 @@ public strictfp class GameWorld {
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
+        for (ResourceType rType : ResourceType.values()) {
+            robot.addResourceAmount(rType, -1*robot.getResource(rType));
+        }
         matchMaker.addDied(id);
     }
 

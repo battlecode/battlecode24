@@ -139,6 +139,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void addResourceAmount(ResourceType rType, int amount) {
+        this.gameWorld.getTeamInfo().addResource(rType, this.team, amount);
         this.inventory.addResource(rType, amount);
         addResourceChangeAction(rType, amount);
     }
@@ -432,10 +433,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         // anything
         if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0 && this.getType() == RobotType.HEADQUARTERS) {
             // Add resources to team
-            this.gameWorld.getTeamInfo().addAdamantium(this.getTeam(), GameConstants.PASSIVE_AD_INCREASE);
             this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
-
-            this.gameWorld.getTeamInfo().addMana(this.getTeam(), GameConstants.PASSIVE_MN_INCREASE);
             this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
         }
     }

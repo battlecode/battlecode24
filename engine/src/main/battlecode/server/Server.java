@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -165,16 +167,18 @@ public strictfp class Server implements Runnable {
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled);
 
             final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
+            final boolean alternateOrder = options.getBoolean("bc.server.alternate-order");
 
             // Count wins
             int aWins = 0, bWins = 0;
 
             // Loop through the maps in the current game
+            boolean teamsReversed = false;
             for (int matchIndex = 0; matchIndex < currentGame.getMaps().length; matchIndex++) {
-
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
+                    if (alternateOrder) {teamsReversed = !teamsReversed;}
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -222,6 +226,20 @@ public strictfp class Server implements Runnable {
         return new MapLocation(idx % liveMap.getWidth(),
                                idx / liveMap.getWidth());
     }
+
+    private void extendOut(LiveMap liveMap, MapLocation mapLocation, Set<MapLocation> seenLocations) {
+        int[] islandArray = liveMap.getIslandArray();
+        int currValue = islandArray[locationToIndex(liveMap, mapLocation)];
+        seenLocations.add(mapLocation);
+        for (Direction dir : Direction.cardinalDirections()) {
+            MapLocation newLocation = mapLocation.add(dir);
+            if (seenLocations.contains(newLocation)) {continue;}
+            if (islandArray[locationToIndex(liveMap, newLocation)] == currValue) {
+                extendOut(liveMap, newLocation, seenLocations);
+            }
+        }
+    }
+
     private void validateMapOnGuarantees(LiveMap liveMap) {
         // Check map dimensions
         if (liveMap.getWidth() > GameConstants.MAP_MAX_WIDTH) {
@@ -280,18 +298,25 @@ public strictfp class Server implements Runnable {
             if ((liveMap.getResourceArray()[i] != 0) && (robotArray[i] != null))
                 throw new RuntimeException("Wells can't be on same square as headquarters");
 
+            //assert that wells are not on same square as currents
+            if ((liveMap.getResourceArray()[i] != 0) && (liveMap.getCurrentArray()[i] != 0))
+                throw new RuntimeException("Wells can't be on same square as currents");
+
             //assert that currents are not on same square as headquarters
             if (liveMap.getCurrentArray()[i] != 0 && robotArray[i] != null)
                 throw new RuntimeException("Currents can't be on same square as headquarters");
         }
 
-        //assert that island guarantees are met (atleast 4 islands, none of which are larger than 20 units)
-        Map<Integer, Integer> islandToAreaMapping = new HashMap<>();
-        for (int i : liveMap.getIslandArray()) {
-            if (i == 0) {
+        //assert that island guarantees are met (at least 4 islands, none of which are larger than 20 units, all connected)
+        Map<Integer, List<MapLocation>> islandToAreaMapping = new HashMap<>();
+        for (int i = 0; i < liveMap.getIslandArray().length; i++) {
+            int islandId = liveMap.getIslandArray()[i];
+            if (islandId == 0) {
                 continue; // No island
             } else {
-                islandToAreaMapping.put(i, islandToAreaMapping.getOrDefault(i, 0) + 1);
+                List<MapLocation> islandAreas = islandToAreaMapping.getOrDefault(islandId, new ArrayList<MapLocation>());
+                islandAreas.add(indexToLocation(liveMap, i));
+                islandToAreaMapping.put(islandId, islandAreas);
             }
         }
         if (islandToAreaMapping.size() < GameConstants.MIN_NUMBER_ISLANDS) {
@@ -300,10 +325,18 @@ public strictfp class Server implements Runnable {
         if (islandToAreaMapping.size() > GameConstants.MAX_NUMBER_ISLANDS) {
             throw new RuntimeException("Islands num of " + islandToAreaMapping.size() + " ABOVE GameConstants.MAX_NUMBER_ISLANDS");
         }
-        for (int i : islandToAreaMapping.values()) {
-            if (i > GameConstants.MAX_ISLAND_AREA) {
+        Set<MapLocation> seenIslands = new HashSet<>();
+        int sumIslandSquares = 0;
+        for (int islandId : islandToAreaMapping.keySet()) {
+            List<MapLocation> islandLocs = islandToAreaMapping.get(islandId);
+            if (islandLocs.size() > GameConstants.MAX_ISLAND_AREA) {
                 throw new RuntimeException("Island exceeds max allowable area");
             }
+            sumIslandSquares += islandLocs.size();
+            extendOut(liveMap, islandLocs.get(0), seenIslands);
+        }
+        if (seenIslands.size() != sumIslandSquares) {
+            throw new RuntimeException("Islands are not continous");
         }
 
 
@@ -402,6 +435,9 @@ public strictfp class Server implements Runnable {
             }
         }
     }
+    private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+        return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
+    }
 
     /**
      * @return the winner of the match
@@ -410,7 +446,7 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+                          GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
@@ -423,7 +459,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker(), teamsReversed);
         
         if (checkMapGuarantees) {
             // Validate the map

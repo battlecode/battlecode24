@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *1.2.4*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *1.3.0*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -57,7 +57,7 @@ The magical winds contain time-bending properties that affect robots that pass t
 
 Time accelerating directional currents flow throughout the map, pushing robots in a specified direction. Robots in a current will be forced to move in the direction of the current at the end of the turn, applied after existing robot movement. Currents will usually appear together on the map in lines or other shapes. **Each current must flow into a different square.**
 
-Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similar vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
 
 **Note that all stacking of time-bending effects occurs additively.**
 
@@ -286,6 +286,19 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 1.3.0 (January 15, 2023)
+  - Spec Fixes:
+    - Clarified that clouds change vision radius to 4 units
+  - Engine Fixes:
+    - Added check for islands being continuous for map to be valid (old maps may need to be recreated)
+    - Removed exception throw in onTheMap
+    - Fixed exception print in examplefuncsplayer
+    - Added senseCloud and senseNearbyCloudLocations methods which allow sensing of visible clouds
+    - Fixed destabilizer damage
+    - Fixed updating teamInfo counts for resources
+    - Added alternateOrder option to gradle, when enabled this option will mean if multiple consecutive maps are played then teams will swap turn order
+    - Changed error message to current version number :)
 
 - Version 1.2.4 (January 13, 2023)
   - Engine Fixes:

@@ -170,7 +170,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
-    public boolean onTheMap(MapLocation loc) throws GameActionException {
+    public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
          if (!this.gameWorld.getGameMap().onTheMap(loc))
             return false;
@@ -407,6 +407,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
         }
         return island.anchorPlanted;
+    }
+
+    @Override
+    public boolean senseCloud(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        if (this.getLocation().distanceSquaredTo(loc) > this.getType().visionRadiusSquared) {
+            throw new GameActionException(CANT_DO_THAT, "This location cannot be sensed");
+        }
+        return this.gameWorld.getCloud(loc);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations() {
+        try {
+            return senseNearbyCloudLocations(-1);
+        } catch (GameActionException e) {
+            return new MapLocation[0];
+        }
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations(int radiusSquared) throws GameActionException {
+        assertRadiusNonNegative(radiusSquared);
+        return senseNearbyCloudLocations(getLocation(), radiusSquared);
+    }
+
+    @Override
+    public MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        List<MapLocation> validSensedCloudLocs = new ArrayList<>();
+        for (MapLocation loc : allLocations) {
+            // Can't actually sense location based on radius squared
+            if (!getLocation().isWithinDistanceSquared(loc, getType().visionRadiusSquared)) {
+                continue;
+            }
+            // Check if location has a cloud
+            if (!gameWorld.getCloud(loc)) {
+                continue;
+            }
+            validSensedCloudLocs.add(loc);
+        }
+        return validSensedCloudLocs.toArray(new MapLocation[validSensedCloudLocs.size()]);
     }
 
     @Override
@@ -681,7 +726,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
             this.robot.addResourceAmount(rType, -1*type.getBuildCost(rType));
-            this.gameWorld.getTeamInfo().addResource(rType, team, -1*type.getBuildCost(rType));
         }
         int newId = this.gameWorld.spawnRobot(type, loc, team);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
@@ -720,7 +764,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (rType == ResourceType.NO_RESOURCE)
                 continue;
             this.robot.addResourceAmount(rType, -1*anchor.getBuildCost(rType));
-            this.gameWorld.getTeamInfo().addResource(rType, team, -1*anchor.getBuildCost(rType));
         }
         this.robot.addAnchor(anchor);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
@@ -899,7 +942,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         if (isWell(loc)) {
             this.gameWorld.getWell(loc).addResourceAmount(rType, amount);
-            this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), -1*amount);
         } else if(isHeadquarter(loc)){
             InternalRobot headquarter = this.gameWorld.getRobot(loc);
             if (headquarter.getType() != RobotType.HEADQUARTERS) {
@@ -959,7 +1001,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         amount = amount == -1 ? rate : amount;
         this.robot.addResourceAmount(rType, amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_RESOURCE, locationToInt(loc));
-        this.gameWorld.getTeamInfo().addResource(rType, this.getTeam(), amount);
     }
 
     private void assertCanPlaceAnchor() throws GameActionException {

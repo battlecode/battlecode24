@@ -162,11 +162,10 @@ public strictfp interface RobotController {
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise
-     * @throws GameActionException if the location is not within vision range
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc) throws GameActionException;
+    boolean onTheMap(MapLocation loc);
 
     /**
      * Checks whether the given location is within the robot's vision range, and if it is on the map.
@@ -458,6 +457,55 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     Anchor senseAnchor(int islandIdx) throws GameActionException;
+
+    /**
+     * Sense if location has cloud.
+     *
+     * @param loc to sense cloud at
+     * @return if location has cloud
+     * @throws GameActionException if location can not be sensed
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean senseCloud(MapLocation loc) throws GameActionException;
+
+    /**
+     * Return all clouds.
+     *
+     * @return all locations within vision radius that contain clouds
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyCloudLocations();
+
+    /**
+     * Return all locations with clouds within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain clouds within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyCloudLocations(int radiusSquared) throws GameActionException;
+
+    /**
+     * Return all nearby locations with clouds within a specified radius of a center location.
+     * If radiusSquared is larger than the robot's vision radius, uses the robot's
+     * vision radius instead. If -1 is passed, all locations within vision radius
+     * are returned.
+     *
+     * @param center the center of the search area
+     * @param radiusSquared the squared radius of all locations to be returned
+     * @return all locations that contain clouds within the radius
+     * @throws GameActionException if the radius is negative (and not -1)
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
      * Sense well at location.
