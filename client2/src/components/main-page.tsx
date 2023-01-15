@@ -1,10 +1,14 @@
 import React from 'react'
+import { AppContextProvider } from './app-context'
 import { Sidebar } from './sidebar'
 
 export const MainPage: React.FC = () => {
     return (
-        <div>
-            <Sidebar />
-        </div>
+        <AppContextProvider>
+            <div className="flex">
+                <Sidebar />
+                <p>asd</p>
+            </div>
+        </AppContextProvider>
     )
 }
