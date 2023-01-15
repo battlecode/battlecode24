@@ -299,7 +299,7 @@ public strictfp class Server implements Runnable {
                 throw new RuntimeException("Wells can't be on same square as headquarters");
 
             //assert that wells are not on same square as currents
-            if ((liveMap.getResourceArray()[i] != 0) && (robotArray[i] != null))
+            if ((liveMap.getResourceArray()[i] != 0) && (liveMap.getCurrentArray()[i] != 0))
                 throw new RuntimeException("Wells can't be on same square as currents");
 
             //assert that currents are not on same square as headquarters
@@ -307,7 +307,7 @@ public strictfp class Server implements Runnable {
                 throw new RuntimeException("Currents can't be on same square as headquarters");
         }
 
-        //assert that island guarantees are met (atleast 4 islands, none of which are larger than 20 units, all connected)
+        //assert that island guarantees are met (at least 4 islands, none of which are larger than 20 units, all connected)
         Map<Integer, List<MapLocation>> islandToAreaMapping = new HashMap<>();
         for (int i = 0; i < liveMap.getIslandArray().length; i++) {
             int islandId = liveMap.getIslandArray()[i];
