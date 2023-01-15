@@ -1,0 +1,3 @@
+# Battlecode Client 🌱
+
+- Prettier
