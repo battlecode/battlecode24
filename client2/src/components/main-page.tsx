@@ -5,9 +5,9 @@ import { Sidebar } from './sidebar'
 export const MainPage: React.FC = () => {
     return (
         <AppContextProvider>
-            <div className="flex">
+            <div className="flex bg-gray-900">
                 <Sidebar />
-                <p>asd</p>
+                <p className="text-white">asd</p>
             </div>
         </AppContextProvider>
     )

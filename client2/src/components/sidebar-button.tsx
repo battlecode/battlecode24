@@ -33,7 +33,7 @@ export const SidebarButton: React.FC<Props> = (props) => {
             onClick={() => context.setState({ ...context.state, page: props.page })}
         >
             <TestIcon />
-            {props.name}
+            <p>{props.name}</p>
         </button>
     )
 }

@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
 
     return (
         <div
-            className={`${minWidth} ${maxWidth} h-screen bg-pink-700 flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden`}
+            className={`${minWidth} ${maxWidth} h-screen bg-pink-800 flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden drop-shadow-lg text-white`}
         >
             <div className="flex justify-between">
                 <div className="flex gap-3">
@@ -54,7 +54,7 @@ export const Sidebar: React.FC = () => {
                         {expanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
                     </button>
                 </div>
-                <p className="whitespace-nowrap">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
+                <p className="whitespace-nowrap text-white">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
             </div>
             {SIDEBAR_BUTTONS.map((b, i) => {
                 if ((!expanded && b.page == context.state.page) || expanded)
