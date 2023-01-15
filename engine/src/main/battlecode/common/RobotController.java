@@ -162,11 +162,10 @@ public strictfp interface RobotController {
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise
-     * @throws GameActionException if the location is not within vision range
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc) throws GameActionException;
+    boolean onTheMap(MapLocation loc);
 
     /**
      * Checks whether the given location is within the robot's vision range, and if it is on the map.
