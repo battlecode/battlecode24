@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
 
     return (
         <div
-            className={`${minWidth} ${maxWidth} h-screen bg-pink-800 flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden drop-shadow-lg text-white`}
+            className={`${minWidth} ${maxWidth} h-screen bg-pink-800 flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden shadow-centered text-white`}
         >
             <div className="flex justify-between">
                 <div className="flex gap-3">
