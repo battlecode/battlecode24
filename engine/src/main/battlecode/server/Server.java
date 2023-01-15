@@ -167,16 +167,18 @@ public strictfp class Server implements Runnable {
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled);
 
             final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
+            final boolean alternateOrder = options.getBoolean("bc.server.alternate-order");
 
             // Count wins
             int aWins = 0, bWins = 0;
 
             // Loop through the maps in the current game
+            boolean teamsReversed = false;
             for (int matchIndex = 0; matchIndex < currentGame.getMaps().length; matchIndex++) {
-
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
+                    if (alternateOrder) {teamsReversed = !teamsReversed;}
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -433,6 +435,9 @@ public strictfp class Server implements Runnable {
             }
         }
     }
+    private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+        return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
+    }
 
     /**
      * @return the winner of the match
@@ -441,7 +446,7 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+                          GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
@@ -454,7 +459,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker(), teamsReversed);
         
         if (checkMapGuarantees) {
             // Validate the map
