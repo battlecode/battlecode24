@@ -234,6 +234,7 @@ public strictfp class Server implements Runnable {
         for (Direction dir : Direction.cardinalDirections()) {
             MapLocation newLocation = mapLocation.add(dir);
             if (seenLocations.contains(newLocation)) {continue;}
+            if (!onTheMap(liveMap, newLocation)) {continue;}
             if (islandArray[locationToIndex(liveMap, newLocation)] == currValue) {
                 extendOut(liveMap, newLocation, seenLocations);
             }
@@ -452,7 +453,7 @@ public strictfp class Server implements Runnable {
         final LiveMap loadedMap;
 
         try {
-            loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
+            loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")), teamsReversed);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");
             throw e;

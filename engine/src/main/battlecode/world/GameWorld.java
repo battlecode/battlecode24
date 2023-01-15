@@ -86,26 +86,9 @@ public strictfp class GameWorld {
 
         // Add the robots contained in the LiveMap to this world.
         RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
-        RobotInfo[] bodiesToUse = initialBodies;
-        RobotInfo[] reversedBodies = new RobotInfo[initialBodies.length];
+
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
-            Inventory inv = new Inventory();
-            for (ResourceType rType : ResourceType.values()) {
-                if (rType == ResourceType.NO_RESOURCE) {
-                    continue;
-                }
-                inv.addResource(rType, robot.getResourceAmount(rType));
-            }
-            reversedBodies[i] = new RobotInfo(robot.ID, robot.team.opponent(), robot.type, inv, robot.health, robot.location);
-        }
-
-        if (reverseTeams) {
-            bodiesToUse = reversedBodies;
-        }
-
-        for (int i = 0; i < bodiesToUse.length; i++) {
-            RobotInfo robot = bodiesToUse[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             spawnRobot(robot.ID, robot.type, newLocation, robot.team);
         }

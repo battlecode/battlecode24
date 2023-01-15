@@ -48,18 +48,18 @@ public final strictfp class GameMapIO {
      * @return LiveMap for map
      * @throws IOException if the map fails to load or can't be found.
      */
-    public static LiveMap loadMap(String mapName, File mapDir) throws IOException {
+    public static LiveMap loadMap(String mapName, File mapDir, boolean teamsReversed) throws IOException {
         final LiveMap result;
 
         final File mapFile = new File(mapDir, mapName + MAP_EXTENSION);
         if (mapFile.exists()) {
-            result = loadMap(new FileInputStream(mapFile));
+            result = loadMap(new FileInputStream(mapFile), teamsReversed);
         } else {
             final InputStream backupStream = BACKUP_LOADER.getResourceAsStream(DEFAULT_MAP_PACKAGE + mapName + MAP_EXTENSION);
             if (backupStream == null) {
                 throw new IOException("Can't load map: " + mapName + " from dir " + mapDir + " or default maps.");
             }
-            result = loadMap(backupStream);
+            result = loadMap(backupStream, teamsReversed);
         }
 
         if (!result.getMapName().equals(mapName)) {
@@ -73,7 +73,7 @@ public final strictfp class GameMapIO {
 
     public static LiveMap loadMapAsResource(final ClassLoader loader,
                                             final String mapPackage,
-                                            final String map) throws IOException {
+                                            final String map, final boolean teamsReversed) throws IOException {
         final InputStream mapStream = loader.getResourceAsStream(
                 mapPackage + (mapPackage.endsWith("/")? "" : "/") +
                 map + MAP_EXTENSION
@@ -83,7 +83,7 @@ public final strictfp class GameMapIO {
             throw new IOException("Can't load map: " + map + " from package " + mapPackage);
         }
 
-        final LiveMap result = loadMap(mapStream);
+        final LiveMap result = loadMap(mapStream, teamsReversed);
 
         if (!result.getMapName().equals(map)) {
             throw new IOException("Invalid map: name (" + result.getMapName()
@@ -101,8 +101,8 @@ public final strictfp class GameMapIO {
      * @return a map read from the stream
      * @throws IOException if the read fails somehow
      */
-    public static LiveMap loadMap(InputStream stream) throws IOException {
-        return Serial.deserialize(IOUtils.toByteArray(stream));
+    public static LiveMap loadMap(InputStream stream, boolean teamsReversed) throws IOException {
+        return Serial.deserialize(IOUtils.toByteArray(stream), teamsReversed);
     }
 
     /**
@@ -189,12 +189,12 @@ public final strictfp class GameMapIO {
          * @param mapBytes the raw bytes of the map
          * @return a new copy of the map as a LiveMap
          */
-        public static LiveMap deserialize(byte[] mapBytes) {
+        public static LiveMap deserialize(byte[] mapBytes, boolean teamsReversed) {
             battlecode.schema.GameMap rawMap = battlecode.schema.GameMap.getRootAsGameMap(
                     ByteBuffer.wrap(mapBytes)
             );
 
-            return Serial.deserialize(rawMap);
+            return Serial.deserialize(rawMap, teamsReversed);
         }
 
         /**
@@ -219,7 +219,7 @@ public final strictfp class GameMapIO {
          * @param raw the flatbuffer map pointer
          * @return a new copy of the map as a LiveMap
          */
-        public static LiveMap deserialize(battlecode.schema.GameMap raw) {
+        public static LiveMap deserialize(battlecode.schema.GameMap raw, boolean teamsReversed) {
             final int width = (int) (raw.maxCorner().x() - raw.minCorner().x());
             final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
             final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
@@ -243,7 +243,7 @@ public final strictfp class GameMapIO {
 
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
-            initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
+            initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies, teamsReversed);
 
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
@@ -335,7 +335,7 @@ public final strictfp class GameMapIO {
         // *** HELPER METHODS *********
         // ****************************
 
-        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
+        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies, boolean teamsReversed) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
                 // all initial bodies should be headquarters
@@ -344,11 +344,14 @@ public final strictfp class GameMapIO {
                 int bodyX = locs.xs(i);
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
+                if (teamsReversed) {
+                    bodyTeam = bodyTeam.opponent();
+                }
                 if (bodyType == RobotType.HEADQUARTERS) {
                     Inventory headquarterInventory = new Inventory();
                     initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, headquarterInventory, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
                 }
-                // ignore robots that are not archons, TODO throw error?
+                // ignore robots that are not headquarters, TODO throw error?
             }
         }
     }
