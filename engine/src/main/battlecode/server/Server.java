@@ -460,7 +460,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker(), teamsReversed);
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
         
         if (checkMapGuarantees) {
             // Validate the map
