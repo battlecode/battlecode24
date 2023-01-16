@@ -474,7 +474,7 @@ public final class TeamClassLoaderFactory {
                             TeamClassLoaderFactory.normalReader(name),
                             false, false);
                 } catch (InstrumentationException ie) {
-                    TeamClassLoaderFactory.this.hasError = true;
+                    // TeamClassLoaderFactory.this.hasError = true;
                     throw ie;
                 }
 
