@@ -4,7 +4,7 @@ import { ControlsBarButton } from './controls-bar-button'
 
 export const ControlsBar: React.FC = () => {
     return (
-        <div className="flex bg-pink-800 fixed bottom-0 left-1/2 -translate-x-1/2 p-1.5 rounded-t-md text-white gap-1.5 shadow-centered">
+        <div className="flex bg-pink-900 fixed bottom-0 left-1/2 -translate-x-1/2 p-1.5 rounded-t-md text-white gap-1.5 shadow-centered">
             <div className="min-w-[350px] min-h-[30px] bg-gray-800 rounded-md mr-2 relative">
                 <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs pointer-events-none">
                     Round: <b>0</b>/2000

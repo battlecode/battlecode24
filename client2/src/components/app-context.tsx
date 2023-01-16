@@ -6,7 +6,7 @@ export interface AppState {
 }
 
 const DEFAULT_APP_STATE: AppState = {
-    page: PageType.GAME
+    page: PageType.QUEUE
 }
 
 export interface AppContext {
