@@ -102,10 +102,10 @@ public class Island {
         this.anchorHealth = Math.min(this.anchorPlanted.totalHealth, this.anchorHealth + diffPctOccupied);
         if (this.anchorHealth <= 0) {
             this.gw.getTeamInfo().removeAnchor(this.teamOwning);
-            this.teamOwning = Team.NEUTRAL;
             if (this.anchorPlanted == Anchor.ACCELERATING) {
                 this.gw.removeBoostFromAnchor(this);
             }
+            this.teamOwning = Team.NEUTRAL;
             this.anchorPlanted = null;
             this.anchorHealth = 0;
         }
