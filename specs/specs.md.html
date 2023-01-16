@@ -135,6 +135,8 @@ Standard Anchors are crafted with 100 kg of adamantium and 100 kg of mana. Accel
 
 Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
 
+Teams can place an anchor on top of an island they already control, overriding their last anchor. The new anchor will be at full health, regardless of the health of the past anchor. The same anchor type does not need to be used to override. Note that overriding an anchor on an already controlled island does not contribute towards the total number of anchors placed tiebreaker described later on.
+
 # Communication
 
 Robots can only see their immediate surroundings and are independently controlled by copies of your code, making coordination very challenging. You will be unable to share any variables between them; note that even static variables will not be shared, as each robot will receive its own copy.
@@ -286,6 +288,12 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 1.3.2 (January 16, 2023)
+  - Spec Fixes:
+    - Documented replacing ally anchor behaviors (actually this time)
+  - Engine Fixes:
+    - Fixed bug where removing accelerating anchors caused exceptions
 
 - Version 1.3.1 (January 15, 2023)
   - Engine Fixes:
