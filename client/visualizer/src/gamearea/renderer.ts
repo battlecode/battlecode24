@@ -192,10 +192,10 @@ export default class Renderer {
     for (var effect of world.mapStats.effects) {
       let color = 'white'
       if (effect.type == 'destabilize') {
-        color = effect.turns_remaining == 0 ? "#D53E433F" : "#573f5e3F"
+        color = effect.turns_remaining == 0 ? "#D53E432F" : "#573f5e2F"
       }
-      if (effect.type == 'boost') {
-        color = "#00F0003F"
+      if (effect.type == 'boost' || true) {
+        color = "#00F0000F"
       }
       this.drawCircle(effect.x, height - effect.y - 1, 25, color, cst.TEAM_COLORS[effect.team])
     }
@@ -501,6 +501,7 @@ export default class Renderer {
     // Render the robots
     // render images with priority last to have them be on top of other units.
     const renderBot = (i: number) => {
+      ctx.globalAlpha = 1
       let img = this.imgs.robots[types[i]][teams[i]]
       let bot_square_idx = xs[i] + ys[i] * (world.maxCorner.x - world.minCorner.x)
       let max_hp = this.metadata.types[types[i]].health
