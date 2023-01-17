@@ -75,11 +75,12 @@ public class Island {
     public void placeAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
         boolean prevOwnedIsland = this.teamOwning == placingTeam;
         assertCanPlaceAnchor(placingTeam, toPlace);
+        this.teamOwning = placingTeam;
         if (this.anchorPlanted != Anchor.ACCELERATING && toPlace == Anchor.ACCELERATING) {
+            this.anchorPlanted = toPlace;
             this.gw.addBoostFromAnchor(this);
         }
         this.anchorPlanted = toPlace;
-        this.teamOwning = placingTeam;
         this.anchorHealth = toPlace.totalHealth;
         if (!prevOwnedIsland) {
             this.gw.getTeamInfo().placeAnchor(placingTeam);
