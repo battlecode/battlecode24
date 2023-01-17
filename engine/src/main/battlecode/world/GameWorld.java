@@ -386,7 +386,7 @@ public strictfp class GameWorld {
     
     public void removeBoostFromAnchor(Island island){
         int teamOrdinal = island.getTeam().ordinal();
-        int boostIdentifier = island.getID();
+        Integer boostIdentifier = new Integer(island.getID());
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
             if (curAnchorList.size() <= GameConstants.MAX_ANCHOR_STACKS){
