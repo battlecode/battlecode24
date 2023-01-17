@@ -162,7 +162,6 @@ export default class Runner {
 
   loadMatch(files: FileList) {
     const file = files[0]
-    console.log(file)
     if (file.name.endsWith('.json')) {
       this.onTournamentLoaded(file)
     } else {
@@ -301,7 +300,6 @@ export default class Runner {
   };
 
   seekTournament(num: number) {
-    console.log('seek tournament')
     this.tournament?.seek(num, 0)
     this.processTournamentState()
   };
@@ -321,7 +319,6 @@ export default class Runner {
    */
   private nextTournamentState() {
     if (this.conf.tournamentMode) {
-      console.log('actually next tournament thing!')
 
       if (this.tournamentState === TournamentState.START_SPLASH) {
         // transition to mid game
@@ -335,7 +332,6 @@ export default class Runner {
           this.tournamentState = TournamentState.END_SPLASH
         }
       } else if (this.tournamentState === TournamentState.END_SPLASH) {
-        console.log("No more tournament games!")
       }
     }
   }
@@ -344,7 +340,6 @@ export default class Runner {
     if (this.conf.tournamentMode) {
       if (this.tournamentState === TournamentState.START_SPLASH) {
         // transition to mid game
-        console.log("No previous tournament games!")
       } else if (this.tournamentState === TournamentState.MID_GAME) {
         // go to the previous game
         if (this.currentMatch != null && this.currentGame != null && this.currentMatch > 0) {
@@ -392,8 +387,6 @@ export default class Runner {
 
   private processTournamentState() {
     if (this.conf.tournamentMode) {
-      console.log('update tour state!')
-      console.log('real update tour state!')
       // clear things
       Splash.removeScreen()
       // simply updates according to the current tournament state
@@ -402,7 +395,6 @@ export default class Runner {
         const team1 = this.games[this.currentGame].meta.teams[1].name
         const team2 = this.games[this.currentGame].meta.teams[2].name
         if (this.tournamentState === TournamentState.START_SPLASH) {
-          console.log('go from splash real update tour state!')
           Splash.addScreen(this.conf, this.root, team1, team2)
         } else if (this.tournamentState === TournamentState.END_SPLASH && this.currentGame != null && this.currentMatch != null) {
           // const wins = this.tournament.wins()
@@ -424,7 +416,6 @@ export default class Runner {
   }
 
   private runMatch() {
-    console.log('Running match.')
 
     // THIS IS A QUICKFIX FOR CHECKING THAT CURRENTGAME IS NOT NULL
     // TODO: IDEALLY, WE NEED TO FIGURE THIS OUT: CAN CURRENTGAME EVER BE NULL???
