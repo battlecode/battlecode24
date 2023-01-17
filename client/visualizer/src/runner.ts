@@ -162,7 +162,6 @@ export default class Runner {
 
   loadMatch(files: FileList) {
     const file = files[0]
-    console.log(file)
     if (file.name.endsWith('.json')) {
       this.onTournamentLoaded(file)
     } else {
@@ -203,6 +202,10 @@ export default class Runner {
     newGame.loadFullGameRaw(data)
     this.games.push(newGame)
     this.startGame()
+    if (this.conf.tournamentMode) {
+      this.tournamentState = TournamentState.START_SPLASH
+      this.processTournamentState()
+    }
     // } catch {
     //   throw new Error("game load failed.");
     // }
@@ -297,7 +300,6 @@ export default class Runner {
   };
 
   seekTournament(num: number) {
-    console.log('seek tournament')
     this.tournament?.seek(num, 0)
     this.processTournamentState()
   };
@@ -316,46 +318,32 @@ export default class Runner {
    * to end splash (only if last match in game), to next game.
    */
   private nextTournamentState() {
-    console.log('actually next tournament thing!')
-    if (this.tournament) {
+    if (this.conf.tournamentMode) {
+
       if (this.tournamentState === TournamentState.START_SPLASH) {
         // transition to mid game
         this.tournamentState = TournamentState.MID_GAME
       } else if (this.tournamentState === TournamentState.MID_GAME) {
         // go to the next game
-        if (this.tournament.hasNext() && !this.tournament.isLastMatchInGame()) {
-          this.tournament.next()
+        if (this.currentMatch != null && this.currentGame != null && !this.matchesCompleted()) {
+          this.goNextMatch()
         } else {
           // go to end splash
           this.tournamentState = TournamentState.END_SPLASH
         }
       } else if (this.tournamentState === TournamentState.END_SPLASH) {
-        // go to start splash
-        // if not ended
-        if (this.tournament.hasNext()) {
-          this.tournamentState = TournamentState.START_SPLASH
-          this.tournament.next()
-        } else {
-          console.log("No more tournament games!")
-        }
       }
     }
   }
 
   private previousTournamentState() {
-    if (this.tournament) {
+    if (this.conf.tournamentMode) {
       if (this.tournamentState === TournamentState.START_SPLASH) {
         // transition to mid game
-        if (this.tournament.hasPrev()) {
-          this.tournamentState = TournamentState.END_SPLASH
-          this.tournament.prev()
-        } else {
-          console.log("No previous tournament games!")
-        }
       } else if (this.tournamentState === TournamentState.MID_GAME) {
         // go to the previous game
-        if (this.tournament.hasPrev() && !this.tournament.isFirstMatchInGame()) {
-          this.tournament.prev()
+        if (this.currentMatch != null && this.currentGame != null && this.currentMatch > 0) {
+          this.goPreviousMatch()
         } else {
           // go to start splash
           this.tournamentState = TournamentState.START_SPLASH
@@ -368,39 +356,66 @@ export default class Runner {
     }
   }
 
+  private getCurrentWins(team1: string, team2: string, numMatches: number) {
+    let wins = {}
+    wins[team1] = 0
+    wins[team2] = 0
+    if (this.currentGame != null) {
+      for (let matchIdx = 0; matchIdx <= numMatches; matchIdx++) {
+        const winnerID = this.games[this.currentGame].getMatch(matchIdx).winner
+        const winner = this.games[this.currentGame].meta.teams[winnerID].name
+        wins[winner]++
+      }
+    }
+    return wins
+  }
+
+  private matchesCompleted() {
+    if (this.currentGame != null && this.currentMatch != null) {
+      const team1 = this.games[this.currentGame].meta.teams[1].name
+      const team2 = this.games[this.currentGame].meta.teams[2].name
+      const numMatches = this.games[this.currentGame].matchCount
+      const goal = Math.floor(numMatches / 2) + 1
+
+      const wins = this.getCurrentWins(team1, team2, this.currentMatch)
+
+      return wins[team1] >= goal || wins[team2] >= goal
+    }
+    return false
+
+  }
+
   private processTournamentState() {
-    console.log('update tour state!')
-    if (this.tournament) {
-      console.log('real update tour state!')
+    if (this.conf.tournamentMode) {
       // clear things
       Splash.removeScreen()
       // simply updates according to the current tournament state
-      this.resetAllGames()
       this.showBlankCanvas()
-      if (this.tournamentState === TournamentState.START_SPLASH) {
-        console.log('go from splash real update tour state!')
-        Splash.addScreen(this.conf, this.root, this.tournament.current().team1, this.tournament.current().team2)
-      } else if (this.tournamentState === TournamentState.END_SPLASH) {
-        const wins = this.tournament.wins()
-        const totalWins = this.tournament.totalWins()
-        let result: string = ""
-        const team1 = this.tournament.current().team1
-        const team2 = this.tournament.current().team2
-        if (wins[team1] > wins[team2]) result = `${team1} wins ${wins[team1]}-${wins[team2]}!`
-        else result = `${team2} wins ${wins[team2]}-${wins[team1]}!`
-        if (totalWins[team1] != wins[team1] || totalWins[team2] != wins[team2]) {
-          if (totalWins[team1] > totalWins[team2]) result += ` (Final score ${totalWins[team1]}-${totalWins[team2]})`
-          else result += ` (Final score ${totalWins[team2]}-${totalWins[team1]})`
+      if (this.currentGame != null) {
+        const team1 = this.games[this.currentGame].meta.teams[1].name
+        const team2 = this.games[this.currentGame].meta.teams[2].name
+        if (this.tournamentState === TournamentState.START_SPLASH) {
+          Splash.addScreen(this.conf, this.root, team1, team2)
+        } else if (this.tournamentState === TournamentState.END_SPLASH && this.currentGame != null && this.currentMatch != null) {
+          // const wins = this.tournament.wins()
+          // const totalWins = this.tournament.totalWins()
+          const numMatches = this.games[this.currentGame].matchCount
+          const wins = this.getCurrentWins(team1, team2, this.currentMatch)
+
+          let result: string = ""
+          if (wins[team1] > wins[team2]) result = `${team1} wins ${wins[team1]}-${wins[team2]}!`
+          else result = `${team2} wins ${wins[team2]}-${wins[team1]}!`
+
+          const overallWins = this.getCurrentWins(team1, team2, numMatches - 1)
+          if (overallWins[team1] > overallWins[team2]) result += ` (Final score ${overallWins[team1]}-${overallWins[team2]})`
+          else result += ` (Final score ${overallWins[team2]}-${overallWins[team1]})`
+          Splash.addWinnerScreen(this.conf, this.root, result)
         }
-        Splash.addWinnerScreen(this.conf, this.root, result)
-      } else if (this.tournamentState === TournamentState.MID_GAME) {
-        this.loadGameFromURL(this.tournament.current().url)
       }
     }
   }
 
   private runMatch() {
-    console.log('Running match.')
 
     // THIS IS A QUICKFIX FOR CHECKING THAT CURRENTGAME IS NOT NULL
     // TODO: IDEALLY, WE NEED TO FIGURE THIS OUT: CAN CURRENTGAME EVER BE NULL???
