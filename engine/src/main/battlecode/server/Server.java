@@ -341,27 +341,28 @@ public strictfp class Server implements Runnable {
         }
 
 
-        //assert that at least one adamantium well is visible to each team
-        boolean[] hasVisibleAdamantium = new boolean[2];
+        //assert that at least one adamantium well is within range of each HQ
         for (RobotInfo r : liveMap.getInitialBodies()){
             int teamOrdinal = r.getTeam().ordinal();
-            if (hasVisibleAdamantium[teamOrdinal]) continue;
 
             MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
                 liveMap.getOrigin(), 
                 liveMap.getWidth(), 
                 liveMap.getHeight(), 
                 r.getLocation(),
-                r.getType().visionRadiusSquared);
+                GameConstants.MIN_NEAREST_AD_DISTANCE);
+
+            boolean nearbyAdamantium = false;
             for (MapLocation loc : visibleLocations){
                 if (ResourceType.values()[liveMap.getResourceArray()[locationToIndex(liveMap, loc)]] == ResourceType.ADAMANTIUM){
-                    hasVisibleAdamantium[teamOrdinal] = true;
+                    nearbyAdamantium = true;
+                    break;
                 }
             }
+            if (!nearbyAdamantium){
+                throw new RuntimeException("Each headquarter must have at least one adamantium well within GameConstants.MIN_NEAREST_AD_DISTANCE.");
+            }
         } 
-        if (!(hasVisibleAdamantium[0] && hasVisibleAdamantium[1])){
-            throw new RuntimeException("Teams must have at least one adamantium well visible.");
-        }
 
         //assert that adamantium wells and mana well are close enough together
         Set<MapLocation> adWells = new HashSet<>();
