@@ -63,7 +63,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    AMPLIFIER       ( 40,  40,   0,   -1,  15, 400,   0, -1, 34,  10000)
+    AMPLIFIER       ( 30,  30,   0,   -1,  15, 120,   0, -1, 34,  10000)
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     ;
 
