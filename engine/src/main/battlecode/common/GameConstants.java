@@ -84,10 +84,10 @@ public class GameConstants {
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
-    public static final int UPGRADE_TO_ELIXIR = 1000;
+    public static final int UPGRADE_TO_ELIXIR = 700;
 
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
-    public static final int UPGRADE_WELL_AMOUNT = 2400;
+    public static final int UPGRADE_WELL_AMOUNT = 1700;
 
     /** The percentage of islands that need to be occupied for a team to win */
     public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
