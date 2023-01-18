@@ -55,7 +55,7 @@ public enum RobotType {
      * 
      * @battlecode.doc.robottype
      */
-    BOOSTER         (  0,   0, 150, 140,  25, 400,   0, -10, 20, 10000),
+    BOOSTER         (  0,   0, 150, 140,  25, 400,   0, -1, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     /**
      * Amplifiers are the key to communication for your army. They enable 
@@ -63,7 +63,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    AMPLIFIER       ( 40,  40,   0,   -1,  15, 400,   0, -10, 34,  10000)
+    AMPLIFIER       ( 40,  40,   0,   -1,  15, 400,   0, -1, 34,  10000)
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     ;
 
