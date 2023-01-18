@@ -10,7 +10,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "2.0.0";
+    public static final String SPEC_VERSION = "2.0.1";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -75,10 +75,10 @@ public class GameConstants {
     public static final int INITIAL_AD_AMOUNT = 200;
 
     /** The amount of adamantium each headquarter on a team gains per turn. */
-    public static final int PASSIVE_AD_INCREASE = 2;
+    public static final int PASSIVE_AD_INCREASE = 6;
 
     /** The amount of mana each headquarter on a team gains per turn. */
-    public static final int PASSIVE_MN_INCREASE = 2;
+    public static final int PASSIVE_MN_INCREASE = 6;
 
     /** The number of rounds between adding resources to headquarters. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;

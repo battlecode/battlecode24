@@ -13,12 +13,12 @@ public enum Anchor {
     /**
      * Standard anchors are built out of standard type anchors and only have 250 health. They also do not have any other affects.
      */
-    STANDARD       (250,    0,   0.0f, 3, 1, 100, 100, 0),
+    STANDARD       (250,    0,   0.0f, 1, 1, 100, 100, 0),
 
     /**
      * Accelerating anchors are built out of elixir (the strongest element) and have 750 health. They also power up nearby units of your team.
      */
-    ACCELERATING      (750,    4,   -0.15f, 3, 2, 0, 0, 300);
+    ACCELERATING      (750,    4,   -0.15f, 1, 2, 0, 0, 300);
 
     /**
      * How long this type of anchor takes to remove.
