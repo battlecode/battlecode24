@@ -806,7 +806,7 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is an attacking type unit and that the given location
      * is within the robot's reach (based on attack type). Also checks that 
-     * there are no cooldown turns remaining and that if the robot is a carrier
+     * there are no cooldown turns remaining and if the robot is a carrier
      * they have resources.
      *
      * @param loc target location to attack 
