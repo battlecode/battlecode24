@@ -375,6 +375,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
         int oldHealth = this.health;
         this.health += healthAmount;
+        this.health = Math.min(this.health, this.type.getMaxHealth());
         if (this.health <= 0) {
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {

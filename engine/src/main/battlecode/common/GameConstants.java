@@ -99,7 +99,7 @@ public class GameConstants {
     public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
 
     /** The discount factor on the amount of damage a carrier can do based on their capacity */
-    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
+    public static final float CARRIER_DAMAGE_FACTOR = 1.25f;
 
     /** The slope of the function to determine movement cooldown for carriers */
     public static final float CARRIER_MOVEMENT_SLOPE = 0.375f;
@@ -153,8 +153,8 @@ public class GameConstants {
     public static final int MAX_ANCHOR_STACKS = 1;
 
     /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 2;
-    public static final int WELL_ACCELERATED_RATE = 6;
+    public static final int WELL_STANDARD_RATE = 1;
+    public static final int WELL_ACCELERATED_RATE = 3;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
