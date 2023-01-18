@@ -29,7 +29,7 @@ export const DIRECTIONS: Record<number, Array<number>> = {
   7: [0, 1],
   8: [-1, 1]
 }
-export function INVDIRECTIONS(dir: { x: number, y: number }): number{
+export function INVDIRECTIONS(dir: { x: number, y: number }): number {
   for (let k in DIRECTIONS) {
     if (DIRECTIONS[k][0] == dir.x && DIRECTIONS[k][1] == dir.y) {
       return parseInt(k)
@@ -146,7 +146,7 @@ export const NUMBER_OF_TEAMS = 2
 // The key is the map name and the value is the type
 export enum MapType {
   DEFAULT,
-  // SPRINT_1,
+  SPRINT_1,
   // SPRINT_2,
   // INTL_QUALIFYING,
   // US_QUALIFYING,
@@ -157,7 +157,7 @@ export enum MapType {
 
 // Map types to filter in runner
 export const mapTypes: MapType[] = [MapType.DEFAULT,
-// MapType.SPRINT_1,
+MapType.SPRINT_1,
 // MapType.SPRINT_2,
 // MapType.INTL_QUALIFYING,
 // MapType.US_QUALIFYING,
@@ -170,29 +170,29 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["DefaultMap", MapType.DEFAULT],
   ["maptestsmall", MapType.DEFAULT],
   ["SmallElements", MapType.DEFAULT],
-  ["ArtistRendition", MapType.DEFAULT],
-  ["BatSignal", MapType.DEFAULT],
-  ["BowAndArrow", MapType.DEFAULT],
-  ["Cat", MapType.DEFAULT],
-  ["Clown", MapType.DEFAULT],
-  ["Diagonal", MapType.DEFAULT],
-  ["Eyelands", MapType.DEFAULT],
-  ["Frog", MapType.DEFAULT],
-  ["Grievance", MapType.DEFAULT],
-  ["Hah", MapType.DEFAULT],
-  ["Jail", MapType.DEFAULT],
-  ["KingdomRush", MapType.DEFAULT],
-  ["Minefield", MapType.DEFAULT],
-  ["Movepls", MapType.DEFAULT],
-  ["Orbit", MapType.DEFAULT],
-  ["Pathfind", MapType.DEFAULT],
-  ["Pit", MapType.DEFAULT],
-  ["Pizza", MapType.DEFAULT],
-  ["Quiet", MapType.DEFAULT],
-  ["Rectangle", MapType.DEFAULT],
-  ["Scatter", MapType.DEFAULT],
-  ["Sun", MapType.DEFAULT],
-  ["Tacocat", MapType.DEFAULT]
+  ["ArtistRendition", MapType.SPRINT_1],
+  ["BatSignal", MapType.SPRINT_1],
+  ["BowAndArrow", MapType.SPRINT_1],
+  ["Cat", MapType.SPRINT_1],
+  ["Clown", MapType.SPRINT_1],
+  ["Diagonal", MapType.SPRINT_1],
+  ["Eyelands", MapType.SPRINT_1],
+  ["Frog", MapType.SPRINT_1],
+  ["Grievance", MapType.SPRINT_1],
+  ["Hah", MapType.SPRINT_1],
+  ["Jail", MapType.SPRINT_1],
+  ["KingdomRush", MapType.SPRINT_1],
+  ["Minefield", MapType.SPRINT_1],
+  ["Movepls", MapType.SPRINT_1],
+  ["Orbit", MapType.SPRINT_1],
+  ["Pathfind", MapType.SPRINT_1],
+  ["Pit", MapType.SPRINT_1],
+  ["Pizza", MapType.SPRINT_1],
+  ["Quiet", MapType.SPRINT_1],
+  ["Rectangle", MapType.SPRINT_1],
+  ["Scatter", MapType.SPRINT_1],
+  ["Sun", MapType.SPRINT_1],
+  ["Tacocat", MapType.SPRINT_1]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
