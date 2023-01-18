@@ -25,7 +25,7 @@ battlecode/common/MapLocation/valueOf                                   25   fal
 battlecode/common/RobotController/adjacentLocation                      1    true
 battlecode/common/RobotController/attack                                0    true
 battlecode/common/RobotController/buildRobot                            0    true
-battlecode/common/RobotController/canAttack                             10   true
+battlecode/common/RobotController/canAttack                             5    true
 battlecode/common/RobotController/canBuildRobot                         10   true
 battlecode/common/RobotController/canCollectResource                    10   true
 battlecode/common/RobotController/canTransferResource                   10   true
@@ -84,7 +84,7 @@ battlecode/common/RobotController/senseNearbyIslands                    200  tru
 battlecode/common/RobotController/senseNearbyIslandLocations            100  true
 battlecode/common/RobotController/senseNearbyRobots                     100  true
 battlecode/common/RobotController/senseRobot                            25   true
-battlecode/common/RobotController/senseRobotAtLocation                  25   true
+battlecode/common/RobotController/senseRobotAtLocation                  15   true
 battlecode/common/RobotController/sensePassability                      5    true
 battlecode/common/RobotController/senseCloud                            5    true
 battlecode/common/RobotController/senseNearbyCloudLocations             100  true
