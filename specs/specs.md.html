@@ -67,7 +67,7 @@ Certain areas of the map are designated as *sky islands*. Islands appear as grou
 
 There will be between 4 and 35 (inclusive) sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
 
-Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
+Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. At the end of each round, headquarters deal 4 damage to every enemy robot within action radius.
 
 *Resource wells* appear throughout the map and contain an infinite amount of a specific resource type. They cannot be moved or destroyed. No currents, headquarters, or impassable squares can be located on a well. **Robots can travel over wells.** 
 
@@ -295,7 +295,8 @@ If something is unclear, direct your questions to our Discord where other people
 - Version 2.0.0 (January 18, 2023) - Post Sprint 1 Rebalancing
   - Balance Changes:
     - All health and damage multiplied by 10
-    - Added controlled islands healing robots 1 health every 3 rounds for default anchors, 2 health every 3 rounds for accelerating anchors
+    - Controled islands heal ally robots 1 health every 3 rounds for standard anchors, 2 health every 3 rounds for accelerating anchors
+    - Headquarters do 4 damage to all enemy robots within action radius at the end of each round
     - Carrier bytecode limit 10000 --> 12500, Amplifier bytecode limit 7500 --> 10000
     - senseMapInfo bytecode cost 10 --> 5, senseNearbyMapInfos 200 --> 100, all MapInfo methods which previously cost 5 bytecode lowered to 2
     - Carrier maximum damage 80 --> 50
