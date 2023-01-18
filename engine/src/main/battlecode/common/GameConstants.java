@@ -44,7 +44,10 @@ public class GameConstants {
     public static final int MAX_ISLAND_AREA = 20;
 
     /** The maximum distance between wells of different types. */
-    public static final int MAX_DISTANCE_BETWEEN_WELLS = 81;
+    public static final int MAX_DISTANCE_BETWEEN_WELLS = 100;
+
+    /** The minimum distance from a headquarter to the nearest adamantium well. */
+    public static final int MIN_NEAREST_AD_DISTANCE = 100;
 
     /** The maximum percentage of the map that can be wells of a certain type. */
     public static final float MAX_MAP_PERCENT_WELLS = 0.04f;

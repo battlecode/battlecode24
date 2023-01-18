@@ -75,11 +75,11 @@ Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroye
 
 The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headquarter has its own isolated stockpile of these resources, and constructing robots/reality anchors subtracts from this stockpile. Collecting and bringing back resources for your headquarters enables you to amass a larger and more powerful army of robots. **Resources are not automatically usable when a carrier collects them - they must be carried back to a headquarter.**
 
-There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each team will have one adamantium well located within immediately visible distance. All maps are guaranteed to have at least one adamantium well and one mana well. 
+There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each headquarter will have at least one adamantium well located within 100 units of them. All maps are guaranteed to have at least one adamantium well and one mana well. 
 
 Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 1 kg/action. If 2400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 1000 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
 
-For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 81 units of a Mana well and vice versa. 
+For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 100 units of a Mana well and vice versa. 
 
 Every five rounds, each headquarter will naturally produce 2 kg of adamantium and 2 kg of mana, automatically adding these resources to its reserves. Both teams start the game with 200 kg of adamantium and 200 kg of mana in each headquarter. Resource costs for robot construction can be found in the in-depth section further below.
 
@@ -291,11 +291,10 @@ If something is unclear, direct your questions to our Discord where other people
 
 # Appendix: Changelog
 
-
 - Version 2.0.0 (January 18, 2023) - Post Sprint 1 Rebalancing
   - Balance Changes:
     - All health and damage multiplied by 10
-    - Controled islands heal ally robots 1 health every 3 rounds for standard anchors, 2 health every 3 rounds for accelerating anchors
+    - Controlled islands heal ally robots 1 health every 3 rounds for standard anchors, 2 health every 3 rounds for accelerating anchors
     - Headquarters do 4 damage to all enemy robots within action radius at the end of each round
     - Carrier bytecode limit 10000 --> 12500, Amplifier bytecode limit 7500 --> 10000
     - senseMapInfo bytecode cost 10 --> 5, senseNearbyMapInfos 200 --> 100, all MapInfo methods which previously cost 5 bytecode lowered to 2
@@ -308,6 +307,8 @@ If something is unclear, direct your questions to our Discord where other people
     - GameConstants.WELL_STANDARD_RATE 2 --> 1
     - GameConstants.WELL_ACCELERATED_RATE 6 --> 3
     - Carrier action cooldown 10 --> 8
+    - Change guarantee on adamantium wells to be within 100 units of each HQ
+    - Increase minimum opposite well distance from 81 --> 100
   - Engine Fixes:
     - Changed canAttack and attack to succeed but deal no damage to empty locations, friendly robots, and headquarters to prevent detecting obscured robots
     - Removed carriers' held resources being counted twice for use in tiebreakers  
@@ -391,7 +392,7 @@ If something is unclear, direct your questions to our Discord where other people
     - Old maps now have continuous IDs
 
 - Version 1.2.0 (January 11, 2023)
-  - Game changes:
+  - Balance changes:
     - GameConstants.WELL_STANDARD_RATE 4 --> 2, reduces the standard max ouput rate of a well
     - GameConstants.WELL_ACCELERATED_RATE 10 --> 6, reduces the accelerated max output rate of a well
     - GameConstants.UPGRADE_TO_ELIXIR 1500 --> 1000, reduces the amount needed to upgrade a well to elixir
