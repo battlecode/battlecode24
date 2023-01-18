@@ -174,7 +174,9 @@ public class TeamInfo {
 
     private void checkWin (Team team){ 
         int islandsOwned = numIslandsOccupied(team);
-        assert(islandsOwned/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED);
+        if (((float)islandsOwned)/gameWorld.getAllIslands().length < GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
+            throw new InternalError("Reporting incorrect win");
+        }
         this.gameWorld.gameStats.setWinner(team);
         this.gameWorld.gameStats.setDominationFactor(DominationFactor.CONQUEST);
     }
