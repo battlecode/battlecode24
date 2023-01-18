@@ -293,6 +293,8 @@ If something is unclear, direct your questions to our Discord where other people
   - Engine Fixes:
     - Carrier bytecode limit 10000 --> 12500, Amplifier bytecode limit 7500 --> 10000
     - senseMapInfo bytecode cost 10 --> 5, senseNearbyMapInfos 200 --> 100, all MapInfo methods which previously cost 5 bytecode lowered to 2
+    - Carrier and Launcher robots can attack any square in range, if the location has no robot, a teammate or a hq no damage is document
+    - canAttack (10 --> 5) and senseRobotAtLocation (25 --> 15) methods reduced in bytecode to account for above
 
 - Version 1.3.7 (January 17, 2023)
   - Display sprint 1 maps in client
