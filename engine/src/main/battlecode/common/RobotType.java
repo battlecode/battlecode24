@@ -18,7 +18,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    HEADQUARTERS    ( 0,   0,   0,   10,   -1, 1,   4,  9, 34, 20000),
+    HEADQUARTERS    ( 0,   0,   0,   2,   -1, 1,   4,  9, 34, 20000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
