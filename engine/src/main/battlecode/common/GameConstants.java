@@ -153,8 +153,8 @@ public class GameConstants {
     public static final int MAX_ANCHOR_STACKS = 1;
 
     /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 2;
-    public static final int WELL_ACCELERATED_RATE = 6;
+    public static final int WELL_STANDARD_RATE = 1;
+    public static final int WELL_ACCELERATED_RATE = 3;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
