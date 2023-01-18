@@ -569,10 +569,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
-        if (radiusSquared < 0)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Radius squared must be non-negative.");
-        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, Math.min(radiusSquared, getType().visionRadiusSquared));
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
     }

@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *1.3.6*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *2.0.0*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -308,7 +308,8 @@ If something is unclear, direct your questions to our Discord where other people
     - GameConstants.WELL_ACCELERATED_RATE 6 --> 3
     - Carrier action cooldown 10 --> 8
     - Headquarter action cooldown 10 --> 2
-    - Change guarantee on adamantium wells to be within 100 units of each HQ
+    - Change guarantee on adamantium wells to be within 100 units of EACH HQ
+      - Modified AllElements, ArtistRendition and Pit maps to satisfy the new constraints
     - Increase minimum opposite well distance from 81 --> 100
     - GameConstants.UPGRADE_TO_ELIXIR 1000 --> 700
     - GameConstants.UPGRADE_WELL_AMOUNT 2400 --> 1700
@@ -316,6 +317,8 @@ If something is unclear, direct your questions to our Discord where other people
     - Changed canAttack and attack to succeed but deal no damage to empty locations, friendly robots, and headquarters to prevent detecting obscured robots
     - Removed carriers' held resources being counted twice for use in tiebreakers  
     - Removed deprecated methods (senseCooldownMultiplier, senseDestabilizeTurns, senseBoostTurns)
+    - Fixed spec of onTheMap
+    - getAllLocationsWithinRadiusSquared now correctly supports -1
 
 - Version 1.3.7 (January 17, 2023)
   - Display sprint 1 maps in client
