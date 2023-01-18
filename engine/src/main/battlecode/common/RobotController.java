@@ -317,49 +317,6 @@ public strictfp interface RobotController {
     boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Given a location, returns the muliplier that cooldowns are multiplied by
-     * for a robot on that location.
-     * 
-     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
-     * 
-     * @param loc the given location
-     * @return the cooldown multiplier of that location
-     * @throws GameActionException if the robot cannot sense the given location
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    double senseCooldownMultiplier(MapLocation loc) throws GameActionException;
-
-    /**
-     * Given a location, returns the number of turns left on the oldest 
-     * enemy destabilization there. If the location is not currently being
-     * destabilized, returns -1.
-     * 
-     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
-     *
-     * @param loc the given location
-     * @return the number of turns remaining of the oldest destabilize
-     * @throws GameActionException if the robot cannot sense the given location
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    int senseDestabilizeTurns(MapLocation loc) throws GameActionException;
-
-    /**
-     * Given a location, returns the number of turns left on the oldest allied
-     * boost there. If the location is not currently being boosted, returns -1.
-     * 
-     * IMPORTANT: Deprecated (will be removed post sprint 1) use senseMapInfo instead
-     *
-     * @param loc the given location
-     * @return the number of turns remaining of the oldest boost
-     * @throws GameActionException if the robot cannot sense the given location
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    int senseBoostTurns(MapLocation loc) throws GameActionException;
-
-    /**
      * Given a location, returns the index of the island located at that location.
      * 
      * @param loc the given location
