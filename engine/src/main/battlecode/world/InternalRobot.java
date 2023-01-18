@@ -370,12 +370,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        assert(healthAmount < 0); // No healing!
         if (this.getType() == RobotType.HEADQUARTERS) {
             return; // Can't damage headquarters
         }
         int oldHealth = this.health;
         this.health += healthAmount;
+        this.health = Math.min(this.health, this.type.getMaxHealth());
         if (this.health <= 0) {
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {
@@ -437,12 +437,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void processEndOfRound(int roundNum) {
-        // anything
-        if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0 && this.getType() == RobotType.HEADQUARTERS) {
-            // Add resources to team
-            this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
-            this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+        if (this.getType() == RobotType.HEADQUARTERS) {
+            for (InternalRobot robot : this.gameWorld.getAllRobotsWithinRadiusSquared(this.getLocation(), RobotType.HEADQUARTERS.actionRadiusSquared, this.team.opponent())) {
+                robot.addHealth(-RobotType.HEADQUARTERS.damage);
+            }
+            if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0) {
+                // Add resources to team
+                this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
+                this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+            }
         }
+
     }
 
     // *********************************
