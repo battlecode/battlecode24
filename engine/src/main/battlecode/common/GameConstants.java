@@ -10,7 +10,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.3.7";
+    public static final String SPEC_VERSION = "2.0.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -44,7 +44,10 @@ public class GameConstants {
     public static final int MAX_ISLAND_AREA = 20;
 
     /** The maximum distance between wells of different types. */
-    public static final int MAX_DISTANCE_BETWEEN_WELLS = 81;
+    public static final int MAX_DISTANCE_BETWEEN_WELLS = 100;
+
+    /** The minimum distance from a headquarter to the nearest adamantium well. */
+    public static final int MIN_NEAREST_AD_DISTANCE = 100;
 
     /** The maximum percentage of the map that can be wells of a certain type. */
     public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
@@ -81,10 +84,10 @@ public class GameConstants {
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
-    public static final int UPGRADE_TO_ELIXIR = 1000;
+    public static final int UPGRADE_TO_ELIXIR = 700;
 
     /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
-    public static final int UPGRADE_WELL_AMOUNT = 2400;
+    public static final int UPGRADE_WELL_AMOUNT = 1700;
 
     /** The percentage of islands that need to be occupied for a team to win */
     public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
@@ -99,7 +102,7 @@ public class GameConstants {
     public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
 
     /** The discount factor on the amount of damage a carrier can do based on their capacity */
-    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
+    public static final float CARRIER_DAMAGE_FACTOR = 1.25f;
 
     /** The slope of the function to determine movement cooldown for carriers */
     public static final float CARRIER_MOVEMENT_SLOPE = 0.375f;
@@ -153,8 +156,8 @@ public class GameConstants {
     public static final int MAX_ANCHOR_STACKS = 1;
 
     /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 2;
-    public static final int WELL_ACCELERATED_RATE = 6;
+    public static final int WELL_STANDARD_RATE = 1;
+    public static final int WELL_ACCELERATED_RATE = 3;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

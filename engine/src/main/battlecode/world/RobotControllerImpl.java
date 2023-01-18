@@ -303,26 +303,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
     
     @Override
-    public double senseCooldownMultiplier(MapLocation loc) throws GameActionException{
-        assertCanSenseLocation(loc);
-        return this.gameWorld.getCooldownMultiplier(loc, getTeam());
-    }
-
-    @Override
-    public int senseDestabilizeTurns(MapLocation loc) throws GameActionException{
-        assertCanSenseLocation(loc);
-        int oldestDestabilize = this.gameWorld.getOldestDestabilize(loc, getTeam());
-        return oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum(); 
-    }
-
-    @Override
-    public int senseBoostTurns(MapLocation loc) throws GameActionException{
-        assertCanSenseLocation(loc);
-        int oldestBoost = this.gameWorld.getOldestBoost(loc, getTeam());
-        return oldestBoost == -1 ? -1 : oldestBoost - getRoundNum();
-    }
-    
-    @Override
     public int senseIsland(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         Island island = this.gameWorld.getIsland(loc);
@@ -589,10 +569,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
-        if (radiusSquared < 0)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Radius squared must be non-negative.");
-        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, Math.min(radiusSquared, getType().visionRadiusSquared));
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
     }
@@ -780,29 +759,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!getType().canAttack())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
-        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (getType() == RobotType.CARRIER){
             int totalResources = getResourceAmount(ResourceType.ADAMANTIUM)+getResourceAmount(ResourceType.MANA)+getResourceAmount(ResourceType.ELIXIR);
             if (totalResources == 0)
                 throw new GameActionException(CANT_DO_THAT,
                     "Robot is a carrier but has no inventory to attack with");
-            if (!(bot == null) && bot.getTeam().equals(getTeam())) {
-                throw new GameActionException(CANT_DO_THAT,
-                        "Robot is not on the enemy team.");
-            }
-        } else {
-            if (bot == null) {
-                throw new GameActionException(CANT_DO_THAT,
-                "There is no robot to attack");
-            }
-            if (bot.getTeam().equals(getTeam())) {
-                throw new GameActionException(CANT_DO_THAT,
-                        "Robot is not on the enemy team.");
-            }
-        }
-        if (bot != null && bot.getType() == RobotType.HEADQUARTERS) {
-            throw new GameActionException(CANT_DO_THAT,
-            "Can't attack headquarters");
         }
     }
 
