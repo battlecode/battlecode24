@@ -392,14 +392,21 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.type.damage;
     }
 
+    private int locationToInt(MapLocation loc) {
+        return this.gameWorld.locationToIndex(loc);
+    }
+
     /**
-     * Attacks another robot (launcher). Assumes bot is in range.
+     * Attacks another location (launcher).
      * 
      * @param loc the location of the bot
      */
     public void attack(MapLocation loc) {
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (!(bot == null)) {
+        if (bot == null || bot.getTeam() == this.getTeam() || bot.getType() == RobotType.HEADQUARTERS) {
+            // If robot is null, of your team, or a hq do no damage, otherwise do damage
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, -locationToInt(loc) - 1);
+        } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
