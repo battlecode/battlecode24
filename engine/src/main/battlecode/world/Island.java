@@ -110,6 +110,13 @@ public class Island {
             this.anchorPlanted = null;
             this.anchorHealth = 0;
         }
+        int roundNum = this.gw.getCurrentRound();
+        for (MapLocation loc : this.locations){
+            InternalRobot robot = gw.getRobot(loc);
+            if (robot != null && robot.getTeam() == this.teamOwning && roundNum%this.anchorPlanted.healingFrequency == 0)
+                robot.addHealth(this.anchorPlanted.healingAmount);
+
+        }
     }
 
     public int minDistTo(MapLocation compareLoc) {

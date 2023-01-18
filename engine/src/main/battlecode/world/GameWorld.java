@@ -569,11 +569,6 @@ public strictfp class GameWorld {
         // consider team reserves
         totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
         totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
-
-        // sum live robot worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalElixirValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ELIXIR);
-        }
         
         if (totalElixirValues[Team.A.ordinal()] > totalElixirValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
@@ -594,11 +589,6 @@ public strictfp class GameWorld {
         // consider team reserves
         totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
         totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
-
-        // sum live robot worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalManaValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.MANA);
-        }
         
         if (totalManaValues[Team.A.ordinal()] > totalManaValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
@@ -619,11 +609,6 @@ public strictfp class GameWorld {
         // consider team reserves
         totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
         totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
-
-        // sum live robot worth
-        for (InternalRobot robot : objectInfo.robotsArray()) {
-            totalAdamantiumValues[robot.getTeam().ordinal()] += robot.getController().getResourceAmount(ResourceType.ADAMANTIUM);
-        }
         
         if (totalAdamantiumValues[Team.A.ordinal()] > totalAdamantiumValues[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);

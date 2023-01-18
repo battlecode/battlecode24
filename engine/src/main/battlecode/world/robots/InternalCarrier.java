@@ -56,14 +56,14 @@ public class InternalCarrier extends InternalRobot {
      */
     public void attack(MapLocation loc) {
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (!(bot == null)) {
+        if (bot == null || bot.getTeam() == this.getTeam() || bot.getType() == RobotType.HEADQUARTERS) {
+            // If robot is null, of your team, or a hq do no damage, otherwise do damage
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -locationToInt(loc) - 1);
+        } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
-        } else {
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -locationToInt(loc) - 1);
         }
         this.emptyResources();
     }
-
 }

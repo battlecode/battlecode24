@@ -157,8 +157,7 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Checks whether a MapLocation is on the map. Will throw an exception if
-     * the location is not within the vision range.
+     * Checks whether a MapLocation is on the map. 
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise
@@ -806,8 +805,8 @@ public strictfp interface RobotController {
      * 
      * Checks that the robot is an attacking type unit and that the given location
      * is within the robot's reach (based on attack type). Also checks that 
-     * there are no cooldown turns remaining and that a robot of the same team
-     * is not at the given location.
+     * there are no cooldown turns remaining and if the robot is a carrier
+     * they have resources.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
