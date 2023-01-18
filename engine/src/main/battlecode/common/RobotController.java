@@ -157,8 +157,7 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Checks whether a MapLocation is on the map. Will throw an exception if
-     * the location is not within the vision range.
+     * Checks whether a MapLocation is on the map. 
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise
