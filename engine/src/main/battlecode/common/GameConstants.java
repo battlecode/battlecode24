@@ -124,6 +124,15 @@ public class GameConstants {
     /** The number of game rounds between applying movement due to currents */
     public static final int CURRENT_STRENGTH = 1;
 
+    /** The number of game rounds between applying healing due to owned island */
+    public static final int ISLAND_STRENGTH = 3;
+
+    /** The amount that an island with a standard anchor will heal */
+    public static final int STANDARD_HEALING = 1;
+
+    /** The amount that an island with an accelerating anchor will heal */
+    public static final int ACCELERATING_HEALING = 1;
+
     /** The maximum capacity a carrier can carry */
     public static final int CARRIER_CAPACITY = 40;
 

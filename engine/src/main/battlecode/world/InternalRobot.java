@@ -370,12 +370,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        assert(healthAmount < 0); // No healing!
         if (this.getType() == RobotType.HEADQUARTERS) {
             return; // Can't damage headquarters
         }
         int oldHealth = this.health;
         this.health += healthAmount;
+        this.health = Math.min(this.health, this.type.getMaxHealth());
         if (this.health <= 0) {
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {

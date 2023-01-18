@@ -92,11 +92,16 @@ public class Island {
             return;
         }       
         int[] numOccupied = new int[2];
+        int roundNum = this.gw.getCurrentRound();
         for (MapLocation loc : this.locations) {
             InternalRobot robot = gw.getRobot(loc);
             if (robot != null) {
                 Team robotTeam = robot.getTeam();
                 numOccupied[robotTeam.ordinal()] ++;
+                if (roundNum%GameConstants.ISLAND_STRENGTH == 0 && robotTeam == this.teamOwning){
+                    int healingAmount = this.anchorPlanted == Anchor.STANDARD ? GameConstants.STANDARD_HEALING : GameConstants.ACCELERATING_HEALING;
+                    robot.addHealth(healingAmount);
+                }
             }
         }
         int diffPctOccupied = (100*(numOccupied[teamOwning.ordinal()] - numOccupied[teamOwning.opponent().ordinal()]))/(locations.length);
