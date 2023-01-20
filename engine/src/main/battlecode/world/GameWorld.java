@@ -523,10 +523,8 @@ public strictfp class GameWorld {
     public boolean setWinnerIfMoreSkyIslands() {
         int skyIslandCountA = 0;
         int skyIslandCountB = 0;
-        for(int id : islandIds) {
-            Island island = islandIdToIsland.get(id);
+        for(Island island : islandIdToIsland.values()) {
             if (island == null) {
-                assert(id == 0);
                 continue;
             }
             if(island.teamOwning == Team.A) skyIslandCountA++;
