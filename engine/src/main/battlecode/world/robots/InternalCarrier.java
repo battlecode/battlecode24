@@ -33,7 +33,9 @@ public class InternalCarrier extends InternalRobot {
      */
     private void emptyResources() {
         for (ResourceType rType : ResourceType.values()) {
-            this.inventory.addResource(rType, -1*this.inventory.getResource(rType));
+            int amount = -1*this.inventory.getResource(rType);
+            this.inventory.addResource(rType, amount);
+            this.gameWorld.getTeamInfo().addResource(rType, getTeam(), amount);
         }
     }
 
