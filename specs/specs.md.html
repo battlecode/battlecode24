@@ -135,7 +135,7 @@ Standard Anchors are crafted with 100 kg of adamantium and 100 kg of mana. Accel
 
 Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
 
-Allied robots standing on a controlled island get healed every 3 rounds, at the end of the round. Standard Anchors heal 1 health, while Accelerating Anchors heal 2 health. Allied robots will not get healed on the turn that teams lose control of an island.
+Allied robots standing on a controlled island get healed every round, at the end of the round. Standard Anchors heal 1 health, while Accelerating Anchors heal 2 health. Allied robots will not get healed on the turn that teams lose control of an island.
 
 Teams can place an anchor on top of an island they already control, overriding their last anchor. The new anchor will be at full health, regardless of the health of the past anchor. The same anchor type does not need to be used to override. Note that overriding an anchor on an already controlled island does not contribute towards the total number of anchors placed tiebreaker described later on.
 
@@ -195,7 +195,7 @@ Attack and vision ranges are squared Euclidean distances. A vision range of 36 m
 |  | Headquarter | Carrier | Launcher | Destabilizer | Booster | Amplifier
 | --- | --- | --- | --- | --- | --- | --- |
 | Cost | N/A | 50 Ad | 60 Mn | 200 Ex | 150 Ex | 30 Ad, 30 Mn
-| Cooldown / action | 10 | 8 | 10 | 70 | 140 | N/A 
+| Cooldown / action | 2 | 8 | 10 | 70 | 140 | N/A 
 | Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 15 | 20 | 25 | 15
 | Health | N/A | 150 | 200 | 300 | 400 | 120
 | Attack | 4 | $\left\lfloor\left(\frac{5m}{4}\right)\right\rfloor$ | 30 | 50 | N/A | N/A
@@ -292,13 +292,16 @@ If something is unclear, direct your questions to our Discord where other people
 # Appendix: Changelog
 
 - Version 2.0.2 (January 19, 2023)
+  - Spec Fixes:
+    - Anchor healing frequency fixed
+    - Headquarter cooldown fixed in table
   - Engine Fixes:
     - Fix bug in checking islands held win condition
 
 - Version 2.0.1 (January 18, 2023)
   - Balance Changes:
     - Anchor healing frequency every 3 turns --> 1 turn
-    - Passive headquarter resource increase from 5 Ad, 5 Mn --> 6 Ad, 6Mn
+    - Passive headquarter resource increase from 2 Ad, 2 Mn --> 6 Ad, 6 Mn
 
 - Version 2.0.0 (January 18, 2023) - Post Sprint 1 Rebalancing
   - Balance Changes:
@@ -317,7 +320,7 @@ If something is unclear, direct your questions to our Discord where other people
     - GameConstants.WELL_ACCELERATED_RATE 6 --> 3
     - Carrier action cooldown 10 --> 8
     - Headquarter action cooldown 10 --> 2
-    - Change guarantee on adamantium wells to be within 100 units of EACH HQ
+    - Change guarantee on adamantium wells: at least one well will be within 100 units of EACH HQ
       - Modified AllElements, ArtistRendition and Pit maps to satisfy the new constraints
     - Increase minimum opposite well distance from 81 --> 100
     - GameConstants.UPGRADE_TO_ELIXIR 1000 --> 700
