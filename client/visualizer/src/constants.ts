@@ -192,7 +192,12 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["Rectangle", MapType.SPRINT_1],
   ["Scatter", MapType.SPRINT_1],
   ["Sun", MapType.SPRINT_1],
-  ["Tacocat", MapType.SPRINT_1]
+  ["Tacocat", MapType.SPRINT_1],
+  ["Turtle", MapType.DEFAULT],
+  ["Dreamy", MapType.DEFAULT],
+  ["Forest", MapType.DEFAULT],
+  ["PairedProgramming", MapType.DEFAULT],
+  ["Rewind", MapType.DEFAULT]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
