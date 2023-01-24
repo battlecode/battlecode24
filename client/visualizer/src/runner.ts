@@ -435,7 +435,6 @@ export default class Runner {
 
     var infoString = ""
 
-    console.log("Running match with " + this.conf.tournamentMode)
     if (this.tournament) {
       const wins = this.tournament.wins(this.tournament.matchI - 1)
       infoString += `Map: <b>${this.tournament?.current().map}</b>`
