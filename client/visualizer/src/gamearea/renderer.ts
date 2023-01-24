@@ -194,7 +194,7 @@ export default class Renderer {
       if (effect.type == 'destabilize') {
         color = effect.turns_remaining == 0 ? "#D53E432F" : "#573f5e2F"
       }
-      if (effect.type == 'boost' || true) {
+      if (effect.type == 'boost') {
         color = "#00F0000F"
       }
       this.drawCircle(effect.x, height - effect.y - 1, 25, color, cst.TEAM_COLORS[effect.team])

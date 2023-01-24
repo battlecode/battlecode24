@@ -457,24 +457,24 @@ export default class Stats {
     this.maxVotes = 750;
 
     this.div.appendChild(document.createElement("br"));
-    if (this.conf.tournamentMode) {
-      // FOR TOURNAMENT
-      this.tourneyUpload = document.createElement('div');
+    // if (this.conf.tournamentMode) {
+    //   // FOR TOURNAMENT
+    //   this.tourneyUpload = document.createElement('div');
       
-      let uploadButton = this.runner.getUploadButton();
-      let tempdiv = document.createElement("div");
-      tempdiv.className = "upload-button-div";
-      tempdiv.appendChild(uploadButton);
-      this.tourneyUpload.appendChild(tempdiv);
+    //   let uploadButton = this.runner.getUploadButton();
+    //   let tempdiv = document.createElement("div");
+    //   tempdiv.className = "upload-button-div";
+    //   tempdiv.appendChild(uploadButton);
+    //   this.tourneyUpload.appendChild(tempdiv);
 
-      // add text input field
-      this.tourIndexJump.type = "text";
-      this.tourIndexJump.onkeyup = (e) => { this.tourIndexJumpFun(e) };
-      this.tourIndexJump.onchange = (e) => { this.tourIndexJumpFun(e) };
-      this.tourneyUpload.appendChild(this.tourIndexJump);
+    //   // add text input field
+    //   this.tourIndexJump.type = "text";
+    //   this.tourIndexJump.onkeyup = (e) => { this.tourIndexJumpFun(e) };
+    //   this.tourIndexJump.onchange = (e) => { this.tourIndexJumpFun(e) };
+    //   this.tourneyUpload.appendChild(this.tourIndexJump);
 
-      this.div.appendChild(this.tourneyUpload);
-    }
+    //   this.div.appendChild(this.tourneyUpload);
+    // }
 
     this.extraInfo = document.createElement('div');
     this.extraInfo.className = "extra-info";
