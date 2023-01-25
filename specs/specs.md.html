@@ -77,7 +77,7 @@ The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headqua
 
 There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each headquarter will have at least one adamantium well located within 100 units of them. All maps are guaranteed to have at least one adamantium well and one mana well. 
 
-Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of just over 1 kg/action. If 1400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 600 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 1 kg/action. If 1400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 600 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
 
 For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 100 units of a Mana well and vice versa. 
 
@@ -135,7 +135,7 @@ Standard Anchors are crafted with 80 kg of adamantium and 80 kg of mana. Acceler
 
 Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
 
-Allied robots standing on a controlled island get healed every round, at the end of the round. Standard Anchors heal 4 health, while Accelerating Anchors heal 6 health. Allied robots will not get healed on the turn that teams lose control of an island.
+Allied robots within 4 units of a controlled island get healed every round, at the end of the round. Standard Anchors heal 4 health, while Accelerating Anchors heal 6 health. Allied robots will not get healed on the turn that teams lose control of an island. Note that healing from controlled islands does stack.
 
 Teams can place an anchor on top of an island they already control, overriding their last anchor. The new anchor will be at full health, regardless of the health of the past anchor. The same anchor type does not need to be used to override. Note that overriding an anchor on an already controlled island does not contribute towards the total number of anchors placed tiebreaker described later on.
 
