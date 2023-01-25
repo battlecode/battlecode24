@@ -760,8 +760,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot attack.");
         if (getType() == RobotType.CARRIER){
-            int totalResources = getResourceAmount(ResourceType.ADAMANTIUM)+getResourceAmount(ResourceType.MANA)+getResourceAmount(ResourceType.ELIXIR);
-            if (totalResources == 0)
+            int totalWeight = this.getWeight();
+            if (totalWeight == 0)
                 throw new GameActionException(CANT_DO_THAT,
                     "Robot is a carrier but has no inventory to attack with");
         }
