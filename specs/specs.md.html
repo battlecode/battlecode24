@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *2.0.3*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *3.0.0*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -77,7 +77,7 @@ The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headqua
 
 There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each headquarter will have at least one adamantium well located within 100 units of them. All maps are guaranteed to have at least one adamantium well and one mana well. 
 
-Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of just over 1 kg/action. If 1700 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 700 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of just over 1 kg/action. If 1400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 600 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
 
 For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 100 units of a Mana well and vice versa. 
 
@@ -111,11 +111,11 @@ Carriers can also throw resources to attack. This attack strikes an enemy in the
 
 ## Signal Amplifiers
 
-Signal amplifiers are produced with 30 kg of adamantium and 30 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
+Signal amplifiers are produced with 30 kg of adamantium and 15 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
 
 ## Launchers
 
-Launchers are produced with 60 kg of mana. They can deal damage to enemy robots by targeting a square within 16 units to attack. This attack can hit obscured robots even if they are out of vision. 
+Launchers are produced with 45 kg of mana. They can deal damage to enemy robots by targeting a square within 16 units to attack. This attack can hit obscured robots even if they are out of vision. 
 
 ## Temporal Destabilizers
 
@@ -131,11 +131,11 @@ Reality anchors are the devices used to control sky islands. Anchors are manufac
 
 Reality anchors are 40 kg, meaning that carriers cannot carry any other items when holding an anchor. There are two types of anchors: Standard Anchors and Accelerating Anchors.
 
-Standard Anchors are crafted with 100 kg of adamantium and 100 kg of mana. Accelerating Anchors function similarly to Standard Anchors, but decrease surrounding ally robot cooldowns by 15%. This decrease affects all ally robot within 4 units of the island. These anchors are crafted with 300 kg of elixir. The boosting effects take place once the anchor has been placed and **does not stack with itself**.
+Standard Anchors are crafted with 80 kg of adamantium and 80 kg of mana. Accelerating Anchors function similarly to Standard Anchors, but decrease surrounding ally robot cooldowns by 15%. This decrease affects all ally robot within 4 units of the island. These anchors are crafted with 300 kg of elixir. The boosting effects take place once the anchor has been placed and **does not stack with itself**.
 
 Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
 
-Allied robots standing on a controlled island get healed every round, at the end of the round. Standard Anchors heal 1 health, while Accelerating Anchors heal 2 health. Allied robots will not get healed on the turn that teams lose control of an island.
+Allied robots standing on a controlled island get healed every round, at the end of the round. Standard Anchors heal 4 health, while Accelerating Anchors heal 6 health. Allied robots will not get healed on the turn that teams lose control of an island.
 
 Teams can place an anchor on top of an island they already control, overriding their last anchor. The new anchor will be at full health, regardless of the health of the past anchor. The same anchor type does not need to be used to override. Note that overriding an anchor on an already controlled island does not contribute towards the total number of anchors placed tiebreaker described later on.
 
@@ -194,11 +194,11 @@ Attack and vision ranges are squared Euclidean distances. A vision range of 36 m
 
 |  | Headquarter | Carrier | Launcher | Destabilizer | Booster | Amplifier
 | --- | --- | --- | --- | --- | --- | --- |
-| Cost | N/A | 50 Ad | 60 Mn | 200 Ex | 150 Ex | 30 Ad, 30 Mn
-| Cooldown / action | 2 | 8 | 10 | 70 | 140 | N/A 
-| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 15 | 20 | 25 | 15
+| Cost | N/A | 50 Ad | 45 Mn | 200 Ex | 150 Ex | 30 Ad, 15 Mn
+| Cooldown / action | 2 | 10 | 10 | 70 | 140 | N/A 
+| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 20 | 20 | 25 | 15
 | Health | N/A | 150 | 200 | 300 | 400 | 120
-| Attack | 4 | $\left\lfloor\left(\frac{5m}{4}\right)\right\rfloor$ | 30 | 50 | N/A | N/A
+| Attack | 4 | $\left\lfloor\left(\frac{5m}{4}\right)\right\rfloor$ | 20 | 50 | N/A | N/A
 | Action radius | 9 | 9 | 16 | 13 | N/A | N/A
 | Vision radius | 34 | 20 | 20 | 20 | 20 | 34
 | Bytecode limit | 20,000 | 12,500 | 10,000 | 10,000 | 10,000 | 10,000
@@ -290,6 +290,33 @@ Bytecodes relating to the creation of arrays (specifically `NEWARRAY`, `ANEWARRA
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # Appendix: Changelog
+
+- Version 3.0.0 (January 24, 2023)
+ - Island/Anchor Buffs (island healing was too weak last patch, and very few teams found advantages in capturing and defending islands):
+   - Healing affects all robots within 4 radius squared of an island
+   - Healing per turn increased from 1, 2 --> 4, 6 for standard and accelerating anchors respectively
+   - Standard anchor cost reduced from 100 Ad, 100 Mn --> 80 Ad, 80 Mn
+ - Launcher Nerfs (early game launcher rushes were too strong, so we'll be decreasing their damage and increasing their quantity to allow for longer combat):
+   - Launcher damage decreased from 40 --> 20
+   - Launcher move cooldown reverted from 15 --> 20
+   - Launcher cost decreased from 60 Mn --> 45 Mn
+ - Amplifier Buffs (amplifiers saw little use outside of the finals, so we intend to decrease the resources lost from creating an amplifier)
+   - Amplifier cost decreased from 30 Ad, 30 Mn --> 30 Ad, 15 Mn
+ - Carrier Revert (carrier action cooldown changes were unintuitive, so we intend to revert them to their past cooldowns)
+   - Carrier cooldown reverted from 8 --> 10
+ - Well Buffs (upgrading and converting wells was difficult due to achieve due to their high costs)
+   - Elixir conversion cost decreased from 700 --> 600
+   - Well upgrade cost decreased from 1700 --> 1400
+
+
+- Version 2.0.6 (January 24, 2023)
+ - Renamed Checkmate2 in Sprint 2 maps
+
+- Version 2.0.5 (January 24, 2023)
+ - Fixed Checkmate in Sprint 2 maps
+
+- Version 2.0.4 (January 23, 2023)
+ - Adding Sprint 2 maps
 
 - Version 2.0.3 (January 20, 2023)
  - Released additional maps with more clouds
