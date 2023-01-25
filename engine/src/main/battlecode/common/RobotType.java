@@ -37,7 +37,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    LAUNCHER        (  0,  45,   0,  20,  20, 200,   40, 16, 20, 10000),
+    LAUNCHER        (  0,  45,   0,  10,  20, 200,   20, 16, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
