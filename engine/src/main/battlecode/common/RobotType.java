@@ -28,7 +28,7 @@ public enum RobotType {
      * 
      * @battlecode.doc.robottype
      */
-    CARRIER         ( 50,   0,   0,   8,   0, 150,   0,  9, 20, 12500),
+    CARRIER         ( 50,   0,   0,   10,   0, 150,   0,  9, 20, 12500),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -37,7 +37,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    LAUNCHER        (  0,  60,   0,  10,  15, 200,   30, 16, 20, 10000),
+    LAUNCHER        (  0,  45,   0,  20,  20, 200,   40, 16, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
@@ -63,7 +63,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    AMPLIFIER       ( 30,  30,   0,   -1,  15, 120,   0, -1, 34,  10000)
+    AMPLIFIER       ( 30,  15,   0,   -1,  15, 120,   0, -1, 34,  10000)
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     ;
 
