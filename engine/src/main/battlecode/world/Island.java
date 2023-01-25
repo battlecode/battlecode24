@@ -130,7 +130,7 @@ public class Island {
         Set<MapLocation> locsWithinRange = new HashSet<>();
         if (this.anchorPlanted != null) {
                 for (MapLocation loc : this.locations) {
-                    locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
+                    locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, GameConstants.DISTANCE_SQUARED_FROM_ISLAND)));
                 }            
         }
         return locsWithinRange;

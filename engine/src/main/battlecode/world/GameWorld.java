@@ -372,7 +372,9 @@ public strictfp class GameWorld {
     }
     
     public void addBoostFromAnchor(Island island){
-        assert(island.getAnchor() == Anchor.ACCELERATING);
+        if(island.getAnchor() == Anchor.ACCELERATING) {
+            throw new InternalError("Anchor should be accelerating");
+        }
         int teamOrdinal = island.getTeam().ordinal(); 
         for (MapLocation loc : island.getLocsAffected()){
             ArrayList<Integer> curAnchorList = this.boosts[locationToIndex(loc)][teamOrdinal][ANCHOR_INDEX];
