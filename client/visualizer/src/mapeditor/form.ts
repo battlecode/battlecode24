@@ -610,8 +610,15 @@ export default class MapEditorForm {
       if (obstacle.cloud)
         this.clouds[y * this.headerForm.getWidth() + x] = this.clouds[translated_y * this.headerForm.getWidth() + translated_x] = obstacle.cloud
       if (obstacle.current && obstacle.current != 0) {
-        this.currents[y * this.headerForm.getWidth() + x] = obstacle.current
         let inverse_current = this.symmetryForm.transferDirection(obstacle.current)
+        if ((y * this.headerForm.getWidth() + x === translated_y * this.headerForm.getWidth() + translated_x)) {
+          if (obstacle.current !== inverse_current) {
+            alert("No symmetric current");
+            return
+          }
+        }
+
+        this.currents[y * this.headerForm.getWidth() + x] = obstacle.current
         this.currents[translated_y * this.headerForm.getWidth() + translated_x] = inverse_current
       }
     } else {
