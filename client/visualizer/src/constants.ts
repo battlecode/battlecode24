@@ -148,22 +148,12 @@ export enum MapType {
   DEFAULT,
   SPRINT_1,
   SPRINT_2,
-  // INTL_QUALIFYING,
-  // US_QUALIFYING,
-  // HS_NEWBIE,
-  // FINAL,
+  INTL_QUALIFYING,
+  US_QUALIFYING,
+  HS_NEWBIE,
+  FINAL,
   CUSTOM
 };
-
-// Map types to filter in runner
-export const mapTypes: MapType[] = [MapType.DEFAULT,
-MapType.SPRINT_1,
-// MapType.SPRINT_2,
-// MapType.INTL_QUALIFYING,
-// MapType.US_QUALIFYING,
-// MapType.HS_NEWBIE,
-// MapType.FINAL,
-MapType.CUSTOM]
 
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["AllElements", MapType.DEFAULT],
