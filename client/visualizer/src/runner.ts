@@ -441,6 +441,14 @@ export default class Runner {
       infoString += `<br>`
       infoString += `Score: <b class="red">${wins[this.tournament.current().team1]}</b> - <b class="blue">${wins[this.tournament.current().team2]}</b>`
     }
+    if (this.conf.tournamentMode) {
+      const team1 = this.games[this.currentGame].meta.teams[1].name
+      const team2 = this.games[this.currentGame].meta.teams[2].name
+      const wins = this.getCurrentWins(team1, team2, this.currentMatch - 1)
+      infoString += `Map: <b>${this.games[this.currentGame].getMatch(this.currentMatch).current.mapStats.name}</b>`
+      infoString += `<br>`
+      infoString += `Score: <b class="red">${wins[team1]}</b> - <b class="blue">${wins[team2]}</b>`
+    }
 
     this.looper = new Looper(match, meta, this.conf, this.imgs,
       this.controls, this.stats, this.gamearea, this.console, this.matchqueue, this.profiler, infoString,
