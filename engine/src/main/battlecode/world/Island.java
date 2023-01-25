@@ -111,11 +111,10 @@ public class Island {
             this.anchorHealth = 0;
         }
         int roundNum = this.gw.getCurrentRound();
-        for (MapLocation loc : this.locations){
+        for (MapLocation loc : this.getLocsAffected()){
             InternalRobot robot = gw.getRobot(loc);
             if (robot != null && robot.getTeam() == this.teamOwning && roundNum%this.anchorPlanted.healingFrequency == 0)
                 robot.addHealth(this.anchorPlanted.healingAmount);
-
         }
     }
 
@@ -130,11 +129,9 @@ public class Island {
     public Set<MapLocation> getLocsAffected() {
         Set<MapLocation> locsWithinRange = new HashSet<>();
         if (this.anchorPlanted != null) {
-            if (this.anchorPlanted == Anchor.ACCELERATING) {
                 for (MapLocation loc : this.locations) {
                     locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
                 }            
-            }
         }
         return locsWithinRange;
     }
