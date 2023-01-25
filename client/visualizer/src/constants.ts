@@ -147,7 +147,7 @@ export const NUMBER_OF_TEAMS = 2
 export enum MapType {
   DEFAULT,
   SPRINT_1,
-  // SPRINT_2,
+  SPRINT_2,
   // INTL_QUALIFYING,
   // US_QUALIFYING,
   // HS_NEWBIE,
@@ -197,7 +197,34 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["Dreamy", MapType.DEFAULT],
   ["Forest", MapType.DEFAULT],
   ["PairedProgramming", MapType.DEFAULT],
-  ["Rewind", MapType.DEFAULT]
+  ["Rewind", MapType.DEFAULT],
+  ["BattleSuns", MapType.SPRINT_2],
+  ["Checkmate2", MapType.SPRINT_2],
+  ["Cornucopia", MapType.SPRINT_2],
+  ["Crossword", MapType.SPRINT_2],
+  ["Cube", MapType.SPRINT_2],
+  ["Divergence", MapType.SPRINT_2],
+  ["FourNations", MapType.SPRINT_2],
+  ["HideAndSeek", MapType.SPRINT_2],
+  ["Lantern", MapType.SPRINT_2],
+  ["Lines", MapType.SPRINT_2],
+  ["Maze", MapType.SPRINT_2],
+  ["Pakbot", MapType.SPRINT_2],
+  ["Piglets", MapType.SPRINT_2],
+  ["Risk", MapType.SPRINT_2],
+  ["Sine", MapType.SPRINT_2],
+  ["Snowflake", MapType.SPRINT_2],
+  ["SomethingFishy", MapType.SPRINT_2],
+  ["Spin", MapType.SPRINT_2],
+  ["Spiral", MapType.SPRINT_2],
+  ["Squares", MapType.SPRINT_2],
+  ["Star", MapType.SPRINT_2],
+  ["Sus", MapType.SPRINT_2],
+  ["SweetDreams", MapType.SPRINT_2],
+  ["TicTacToe", MapType.SPRINT_2],
+  ["USA", MapType.SPRINT_2],
+
+
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
