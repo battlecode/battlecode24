@@ -1,5 +1,6 @@
 package battlecode.world.robots;
 
+import battlecode.common.Anchor;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
@@ -37,13 +38,15 @@ public class InternalCarrier extends InternalRobot {
             this.inventory.addResource(rType, amount);
             this.gameWorld.getTeamInfo().addResource(rType, getTeam(), amount);
         }
+        while (this.inventory.getNumAnchors(Anchor.STANDARD) > 0)
+            this.inventory.releaseAnchor(Anchor.STANDARD);
+        while (this.inventory.getNumAnchors(Anchor.ACCELERATING) > 0)
+            this.inventory.releaseAnchor(Anchor.ACCELERATING);
     }
-
+    
     private int getDamage() {
-        int resourceSum = this.getResource(ResourceType.ADAMANTIUM) 
-            + this.getResource(ResourceType.MANA) 
-            + this.getResource(ResourceType.ELIXIR);
-        return (int) Math.floor(GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum));
+        int weight = this.inventory.getWeight();
+        return (int) Math.floor(GameConstants.CARRIER_DAMAGE_FACTOR*(weight));
     }
 
     private int locationToInt(MapLocation loc) {
