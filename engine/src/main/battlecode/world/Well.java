@@ -40,7 +40,7 @@ public class Well {
         if (type == ResourceType.MANA && inv.getAdamantium() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
         }
-        if (inv.getAdamantium() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
+        if (type == ResourceType.ADAMANTIUM && inv.getAdamantium() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
         }
     }
@@ -50,7 +50,7 @@ public class Well {
         if (type == ResourceType.ADAMANTIUM && inv.getMana() >= GameConstants.UPGRADE_TO_ELIXIR) {
             type = ResourceType.ELIXIR;
         }
-        if (inv.getMana() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
+        if (type == ResourceType.MANA && inv.getMana() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
         }
 
@@ -58,7 +58,7 @@ public class Well {
 
     private void addElixir(int amount){
         inv.addElixir(amount);
-        if (inv.getElixir() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
+        if (type == ResourceType.ELIXIR && inv.getElixir() >= GameConstants.UPGRADE_WELL_AMOUNT && !this.isUpgraded) {
             this.isUpgraded = true;
         }
     }
