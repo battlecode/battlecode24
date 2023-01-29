@@ -213,8 +213,21 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["SweetDreams", MapType.SPRINT_2],
   ["TicTacToe", MapType.SPRINT_2],
   ["USA", MapType.SPRINT_2],
-
-
+  ["Barcode", MapType.INTL_QUALIFYING],
+  ["Contraction", MapType.INTL_QUALIFYING],
+  ["Flower", MapType.INTL_QUALIFYING],
+  ["Grapes", MapType.INTL_QUALIFYING],
+  ["IslandHopping", MapType.INTL_QUALIFYING],
+  ["Marsh", MapType.INTL_QUALIFYING],
+  ["RaceToTheTop", MapType.INTL_QUALIFYING],
+  ["Repetition", MapType.INTL_QUALIFYING],
+  ["River", MapType.INTL_QUALIFYING],
+  ["RockWall", MapType.INTL_QUALIFYING],
+  ["Sakura", MapType.INTL_QUALIFYING],
+  ["SoundWave", MapType.INTL_QUALIFYING],
+  ["ThirtyFive", MapType.INTL_QUALIFYING],
+  ["TimesUp", MapType.INTL_QUALIFYING],
+  ["TreasureMap", MapType.INTL_QUALIFYING],
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
