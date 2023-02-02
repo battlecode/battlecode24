@@ -393,7 +393,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean senseCloud(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         int visionRadius = this.getType().visionRadiusSquared;
-        if (this.gameWorld.getCloud(loc)) {
+        if (this.gameWorld.getCloud(this.getLocation())) {
             visionRadius = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
         }
         if (this.getLocation().distanceSquaredTo(loc) > visionRadius) {
@@ -425,7 +425,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> validSensedCloudLocs = new ArrayList<>();
         int visionRadius = getType().visionRadiusSquared;
-        if (this.gameWorld.getCloud(center)) {
+        if (this.gameWorld.getCloud(this.getLocation())) {
             visionRadius = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
         }
         for (MapLocation loc : allLocations) {
