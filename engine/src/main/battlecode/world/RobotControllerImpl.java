@@ -392,7 +392,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean senseCloud(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        if (this.getLocation().distanceSquaredTo(loc) > this.getType().visionRadiusSquared) {
+        int visionRadius = this.getType().visionRadiusSquared;
+        if (this.gameWorld.getCloud(loc)) {
+            visionRadius = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
+        }
+        if (this.getLocation().distanceSquaredTo(loc) > visionRadius) {
             throw new GameActionException(CANT_DO_THAT, "This location cannot be sensed");
         }
         return this.gameWorld.getCloud(loc);
@@ -420,9 +424,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
         MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> validSensedCloudLocs = new ArrayList<>();
+        int visionRadius = getType().visionRadiusSquared;
+        if (this.gameWorld.getCloud(center)) {
+            visionRadius = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
+        }
         for (MapLocation loc : allLocations) {
             // Can't actually sense location based on radius squared
-            if (!getLocation().isWithinDistanceSquared(loc, getType().visionRadiusSquared)) {
+            if (!getLocation().isWithinDistanceSquared(loc, visionRadius)) {
                 continue;
             }
             // Check if location has a cloud
