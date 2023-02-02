@@ -242,7 +242,23 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["Resign", MapType.US_QUALIFYING],
   ["Sneaky", MapType.US_QUALIFYING],
   ["Target", MapType.US_QUALIFYING],
-  ["Tightrope", MapType.US_QUALIFYING]
+  ["Tightrope", MapType.US_QUALIFYING],
+  ["BuildSite", MapType.HS_NEWBIE], 
+  ["CrownJewels", MapType.HS_NEWBIE], 
+  ["Elephant", MapType.HS_NEWBIE], 
+  ["ExtremelyMid", MapType.HS_NEWBIE], 
+  ["FishCake", MapType.HS_NEWBIE], 
+  ["Fractured", MapType.HS_NEWBIE], 
+  ["LookingGlass", MapType.HS_NEWBIE], 
+  ["MoonPhases", MapType.HS_NEWBIE], 
+  ["Pillars", MapType.HS_NEWBIE], 
+  ["PipesAndParabolas", MapType.HS_NEWBIE], 
+  ["ReverseFunnel", MapType.HS_NEWBIE], 
+  ["Spiderweb", MapType.HS_NEWBIE], 
+  ["Spots", MapType.HS_NEWBIE], 
+  ["Swooshy", MapType.HS_NEWBIE], 
+  ["VeryReasonable", MapType.HS_NEWBIE], 
+  ["Zig", MapType.HS_NEWBIE]
 ])
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
