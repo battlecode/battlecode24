@@ -360,6 +360,16 @@ export default class Looper {
         //     }
         // }
 
+        let t1_islands = 0
+        let t2_islands = 0
+        world.mapStats.island_stats.forEach(element => {
+            if(element.owner == 1)
+                t1_islands++
+            if(element.owner == 2)
+                t2_islands++
+        });
+        this.stats.setIslandCount(t1_islands, t2_islands)
+
         let teamAdamantium: number[] = []
         let teamMana: number[] = []
         let teamElixir: number[] = []
