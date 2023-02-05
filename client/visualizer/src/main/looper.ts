@@ -74,7 +74,7 @@ export default class Looper {
             teamNames.push(meta.teams[team].name)
             teamIDs.push(meta.teams[team].teamID)
         }
-        this.stats.initializeGame(teamNames, teamIDs)
+        this.stats.initializeGame(teamNames, teamIDs, match.current.mapStats.island_stats.size)
         const extraInfo = (this.mapinfo ? this.mapinfo + "\n" : "") + (this.conf.doingRotate ? " (Map rotated and flipped! Disable for new matches with 'Z'.)" : "")
         this.stats.setExtraInfo(extraInfo)
         if (!showTourneyUpload) this.stats.hideTourneyUpload()

@@ -106,7 +106,7 @@ export default class Stats {
 
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
-    this.initializeGame(teamNames, teamIDs);
+    this.initializeGame(teamNames, teamIDs, 0);
   }
 
   /**
@@ -177,6 +177,12 @@ export default class Stats {
     }
 
     return table;
+  }
+
+  private initIslandCount(islands: number){
+    let wrapper = document.createElement("div");
+    wrapper.innerHTML = `<b>${islands} islands</b> (${Math.ceil(islands * .75)} to win)`
+    return wrapper;
   }
 
   private initRelativeBars(teamIDs: Array<number>) {
@@ -448,7 +454,7 @@ export default class Stats {
   /**
    * Clear the current stats bar and reinitialize it with the given teams.
    */
-  initializeGame(teamNames: Array<string>, teamIDs: Array<number>) {
+  initializeGame(teamNames: Array<string>, teamIDs: Array<number>, islands: number) {
     // Remove the previous match info
     while (this.div.firstChild) {
       this.div.removeChild(this.div.firstChild);
@@ -510,6 +516,9 @@ export default class Stats {
       this.div.appendChild(teamDiv);
     }
 
+    
+    this.div.appendChild(document.createElement("hr"));
+    this.div.append(this.initIslandCount(islands))
     this.div.appendChild(document.createElement("hr"));
 
     // Add stats table
@@ -541,7 +550,7 @@ export default class Stats {
     const relativeBarsParent = document.createElement("tbody");
     relativeBarsParent.style.width = "100%";
     relativeBarsTable.appendChild(relativeBarsParent);
-    this.div.appendChild(relativeBarsTable);
+    this.div.appendChild(relativeBarsTable);    
 
     this.relativeBars = this.initRelativeBars(teamIDs);
     const relativeBarsElements = [
