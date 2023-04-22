@@ -5,7 +5,7 @@ import { CurrentMap, StaticMap } from './Map';
 
 const SNAPSHOT_EVERY = 50;
 
-export default class Round {
+export default class Match {
     private readonly snapshots: Turn[];
     private currentTurn: Turn;
     public readonly stats: TurnStat[] = [];

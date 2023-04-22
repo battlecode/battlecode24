@@ -1,14 +1,13 @@
-import Round from './Round';
+import Match from './Match';
 
 export default class Game {
-    private readonly rounds: Round[] = [];
-    private readonly teams: Map<Team, TeamStat> = new Map();
+    private readonly rounds: Match[] = [];
+    private readonly teams: [Team, Team];
 }
 
 export type Team = {
     name: string;
-    id: number;
-    local_id: number;
+    stats: TeamStat;
 };
 
 export type TeamStat = {

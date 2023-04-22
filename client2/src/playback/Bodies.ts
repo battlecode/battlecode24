@@ -1,35 +1,49 @@
 export default class Bodies {
-    // This needs to use struct of arrays stuff, maybe use the existing implementation? or we could hardcode the rows right here, maybe.
+    bodies: Map<number, Body> = new Map();
+    applyDelta(delta: any): void {
+        if (delta.diedIDsLength() > 0) {
+            for (let i = 0; i < delta.diedIDsLength(); i++) {
+                this.bodies.delete(delta.diedIDs(i));
+            }
+        }
+    }
+    copy(): Bodies {
+        throw new Error('Method not implemented.');
+    }
 }
 
-type BodiesRow = {
-    id: number;
-    x: number;
-    y: number;
-    type: number;
+export abstract class Body {
+    static robotName: string;
+    abstract draw(ctx: CanvasRenderingContext2D): void;
+    abstract onHoverInfo(): string;
+    abstract copy(): Body;
 };
 
-type Body = {
-    name: string;
-    draw(row: BodiesRow, ctx: CanvasRenderingContext2D): void;
-    onHoverInfo(row: BodiesRow): string;
-};
-
-export const bodiesMap: Record<number, Body> = {
-    1: {
-        name: 'Archon',
-        draw(row: BodiesRow, ctx: CanvasRenderingContext2D): void {
-        },
-        onHoverInfo(row: BodiesRow): string {
+export const BODY_DEFINITIONS: Record<number, typeof Body> = {
+    1: class Archon implements Body {
+        static robotName = 'Archon';
+        constructor() {
+        }
+        draw(ctx: CanvasRenderingContext2D): void {
+        }
+        onHoverInfo(): string {
             return 'Archon';
         }
-    },
-    2: {
-        name: 'Launcher',
-        draw(row: BodiesRow, ctx: CanvasRenderingContext2D): void {
-        },
-        onHoverInfo(row: BodiesRow): string {
-            return 'Launcher';
+        copy(): Archon {
+            return { ...this }; // if you store data more than one level deep, you'll need to copy it too
         }
     },
-};
+    2: class Launcher implements Body {
+        static robotName = 'Launcher';
+        constructor() {
+        }
+        draw(ctx: CanvasRenderingContext2D): void {
+        }
+        onHoverInfo(): string {
+            return 'Launcher';
+        }
+        copy(): Launcher {
+            return { ...this }; // if you store data more than one level deep, you'll need to copy it too
+        }
+    }
+}; 
