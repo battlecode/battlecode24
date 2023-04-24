@@ -13,5 +13,14 @@ export default class TurnStat {
      */
     applyDelta(SchemaDelta: any): void {
         this.team1gold += 1;
+
+        // Update spawn stats
+        for (let i = 0; i < initialBodies.robotIDsLength(); i++) {
+            var statObj = this.teamStats.get(teams[i]);
+            statObj.robots[types[i]] += 1;
+            statObj.total_hp[types[i]] += this.meta.types[types[i]].health; // TODO: extract meta info
+            this.teamStats.set(teams[i], statObj);
+            hps[i] = this.meta.types[types[i]].health;
+        }
     }
 }

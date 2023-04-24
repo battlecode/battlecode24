@@ -1,8 +1,9 @@
 import Turn from './Turn';
+import { schema } from 'battlecode-schema';
 
 export default class Actions {
     actions: Action[] = [];
-    applyDelta(delta: any): void {
+    applyDelta(delta: schema.Round): void {
         this.actions = [];
     }
     copy(): Actions {
@@ -11,7 +12,6 @@ export default class Actions {
 }
 
 export abstract class Action {
-    abstract robotID: number;
     abstract apply(turn: Turn): void;
     abstract copy(): Action;
 }

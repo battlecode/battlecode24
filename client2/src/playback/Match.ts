@@ -1,25 +1,42 @@
-import { Team } from './game';
+import { schema } from 'battlecode-schema';
+import assert from 'assert';
+import Game, { Team } from './Game';
 import Turn from './Turn';
 import TurnStat from './TurnStat';
 import { CurrentMap, StaticMap } from './Map';
+import Actions from './Actions';
+import Bodies from './Bodies';
+
 
 const SNAPSHOT_EVERY = 50;
 
 export default class Match {
+    private readonly deltas: schema.Round[];
     private readonly snapshots: Turn[];
     private currentTurn: Turn;
+    private readonly maxTurn: number;
     public readonly stats: TurnStat[] = [];
     public readonly winner: Team;
-    public readonly loser: Team;
     private readonly map: StaticMap;
 
-    constructor(something: any) {
-        this.winner = something.winner;
-        this.loser = something.loser;
-        this.map = something.map;
+    constructor(game: Game, header: schema.MatchHeader, turns: schema.Round[], footer: schema.MatchFooter) {
+        this.winner = game.teams[footer.winner()];
 
-        this.currentTurn = new Turn(this, 0, new CurrentMap(this.map), something.initialBodies, new TurnStat());
+        const mapData = header.map() ?? assert.fail('Map data not found in header');
+        this.map = new StaticMap(mapData);
+
+        const firstBodies = new Bodies(mapData.bodies() ?? assert.fail('Initial bodies not found in header'));
+
+        this.maxTurn = header.maxRounds();
+
+        this.currentTurn = new Turn(this, 0, new CurrentMap(this.map), firstBodies, new Actions(), new TurnStat());
         this.snapshots = [this.currentTurn];
+
+        this.deltas = turns;
+        this.deltas.forEach((delta, i) => assert(delta.roundID() === i, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`));
+
+        assert(footer.totalRounds() === this.deltas.length, `Wrong total turn count: is ${footer.totalRounds()}, should be ${this.deltas.length - 1}`);
+        assert(footer.totalRounds() == this.maxTurn + 1, `(not sure why theres two fields, maybe I misunderstood one of them) Wrong total turn count: is ${footer.totalRounds()}, should be ${this.maxTurn}`);
     }
 
     /**
@@ -37,7 +54,7 @@ export default class Match {
         let turn = this.snapshots[snapshotIndex].copy();
 
         while (turn.turnNumber < turnNumber) {
-            turn.applyDelta('todo');
+            turn.applyDelta(this.deltas[turn.turnNumber + 1]);
             if (turn.turnNumber % SNAPSHOT_EVERY === 0 && this.snapshots.length < turn.turnNumber / SNAPSHOT_EVERY) {
                 this.snapshots.push(turn.copy());
             }
