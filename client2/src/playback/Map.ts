@@ -21,6 +21,9 @@ export class CurrentMap {
     public readonly resource_well_stats: Map<number, ResourceWellStat>;
     public readonly island_stats: Map<number, IslandStat>;
     public readonly resources: Int8Array;
+    get width(): number { return this.staticMap.width; }
+    get height(): number { return this.staticMap.height; }
+
     constructor(from: StaticMap | CurrentMap) {
         if (from instanceof StaticMap) {
             // create current map from static map
@@ -57,6 +60,15 @@ export class CurrentMap {
             this.resources = new Int8Array(from.resources);
         }
     }
+
+    indexToLocation(index: number): { x: number, y: number; } {
+        const target_x = index % this.width;
+        const target_y = (index - target_x) / this.width;
+        assert(target_x >= 0 && target_x < this.width, `target_x ${target_x} out of bounds`);
+        assert(target_y >= 0 && target_y < this.height, `target_y ${target_y} out of bounds`);
+        return { x: target_x, y: target_y };
+    }
+
 
     copy(): CurrentMap {
         return new CurrentMap(this);

@@ -11,7 +11,11 @@ export default class Game {
     //metadata
     private readonly specVersion: string;
     private readonly constants: schema.Constants;
-    private readonly typeMetadata: schema.BodyTypeMetadata[] = [];
+    public readonly typeMetadata: schema.BodyTypeMetadata[] = [];
+
+    //shared throughout for efficiency??
+    public _bodiesSlot: schema.SpawnedBodyTable = new schema.SpawnedBodyTable();
+    public _vecTableSlot1: schema.VecTable = new schema.VecTable();
 
     constructor(wrapper: schema.GameWrapper) {
         const eventCount = wrapper.eventsLength();

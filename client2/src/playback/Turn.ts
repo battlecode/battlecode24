@@ -20,15 +20,15 @@ export default class Turn {
     public applyDelta(SchemaDelta: any): void {
         this.turnNumber += 1;
         
-        this.map.applyDelta(SchemaDelta);
-        
+        // stat should be done first so it can see info about the bodies that have died
         if (this.parent.stats.length > this.turnNumber) {
             this.stat = this.parent.stats[this.turnNumber].copy();
         } else {
-            this.stat.applyDelta(SchemaDelta);
+            this.stat.applyDelta(this, SchemaDelta);
             this.parent.stats[this.turnNumber] = this.stat.copy();
         }
 
+        this.map.applyDelta(SchemaDelta);
         this.bodies.applyDelta(SchemaDelta);
         this.actions.applyDelta(SchemaDelta);
     }
