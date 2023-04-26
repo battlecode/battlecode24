@@ -2,6 +2,7 @@ import Turn from './Turn';
 import { schema } from 'battlecode-schema';
 import assert from 'assert';
 import Bodies, { Carrier, Launcher } from './Bodies';
+import TurnStat from './TurnStat';
 
 export default class Actions {
     actions: Action[] = [];
@@ -12,7 +13,7 @@ export default class Actions {
 
     }
 
-    applyDelta(delta: schema.Round): void {
+    applyDelta(turn: Turn, delta: schema.Round, calculateTurnStats?: boolean = false): void {
         for (let i = 0; i < this.actions.length; i++) {
             this.actions[i].duration--;
             if (this.actions[i].duration == 0) {
@@ -27,7 +28,9 @@ export default class Actions {
                 const robotID = delta.actionIDs(i) ?? assert.fail('actionIDs not found in round');
                 const target = delta.actionTargets(i) ?? assert.fail('actionTargets not found in round');
                 const actionClass = ACTION_DEFINITIONS[action] ?? assert.fail(`Action ${action} not found in ACTION_DEFINITIONS`);
-                this.actions.push(new actionClass(robotID, target));
+                const newAction = new actionClass(robotID, target);
+                this.actions.push(newAction);
+                newAction.apply(turn, calculateTurnStats);
             }
         }
     }
@@ -46,29 +49,21 @@ export class Action {
         public duration: number = 1
     ) { }
 
-    apply(turn: Turn): void {
-        throw new Error('Not implemented, Action should not be instantiated directly');
-    };
-    draw(turn: Turn, ctx: CanvasRenderingContext2D) {
-        throw new Error('Not implemented, Action should not be instantiated directly');
-    }
-    copy(): Action {
-        throw new Error('Not implemented, Action should not be instantiated directly');
-    };
-}
-
-class PlaceholderAction extends Action {
-    constructor(robotID: number, target: number) {
-        super(robotID, target, 1);
-    }
-    apply(turn: Turn): void { }
+    /**
+     * Applies this action to the turn provided. If stat is provided, it will be mutated to reflect the action as well
+     * 
+     * @param turn the turn to apply this action to
+     * @param stat if provided, this action will mutate the stat to reflect the action
+     */
+    apply(turn: Turn, calculateTurnStats?: boolean = false): void { };
     draw(turn: Turn, ctx: CanvasRenderingContext2D) { }
-    copy(): PlaceholderAction {
+    copy(): Action {
         return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    }
+    };
 }
 
 class Throw extends Action {
+    can I remove the constructor so its like all the following ones
     constructor(robotID: number, target: number) {
         super(robotID, target, 1);
     }
@@ -86,76 +81,77 @@ class Throw extends Action {
             targetLoc = turn.map.indexToLocation(-this.target - 1);
         }
     }
+    Can I remove this and use Action copy() or does that mess up dynamic dispatch?
     copy(): Throw {
         return { ...this }; // if you store data more than one level deep, you'll need to copy it too
     }
 }
 
 class Launch extends Action {
-    constructor(robotID: number, target: number) {
-        super(robotID, target, 1);
-    }
-
     apply(turn: Turn): void {
         const body = turn.bodies.getById(this.robotID);
         assert(body instanceof Launcher, 'Cannot launch from non-launcher');
     }
-
-    copy(): Launch {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    }
 }
 
 class ChangeAdamantium extends Action {
-    case schema.Action.CHANGE_ADAMANTIUM:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-teamStatsObj.adamantiumMined += target;
-this.bodies.alter({ id: robotID, adamantium: body.adamantium + target });
-break;
+    apply(turn: Turn, calculateTurnStats = false): void {
+        const body = turn.bodies.getById(this.robotID);
+        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            turn.stat.getTeamStat(body.team).adamantiumMined += this.target;
+        }
+        body.adamantium += this.target;
+    }
 }
 
 class ChangeElixir extends Action {
-    case schema.Action.CHANGE_ELIXIR:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-teamStatsObj.elixirMined += target;
-this.bodies.alter({ id: robotID, elixir: body.elixir + target });
-break;
+    apply(turn: Turn, calculateTurnStats = false): void {
+        const body = turn.bodies.getById(this.robotID);
+        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            turn.stat.getTeamStat(body.team).elixirMined += this.target;
+        }
+        body.elixir += this.target;
+    }
 }
 
 class ChangeMana extends Action {
-    case schema.Action.CHANGE_MANA:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-teamStatsObj.manaMined += target;
-this.bodies.alter({ id: robotID, mana: body.mana + target });
-break;
+    apply(turn: Turn, calculateTurnStats = false): void {
+        const body = turn.bodies.getById(this.robotID);
+        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            turn.stat.getTeamStat(body.team).manaMined += this.target;
+        }
+        body.mana += this.target;
+    }
 }
 
 class ChangeHealth extends Action {
-    case schema.Action.CHANGE_HEALTH:
-        this.bodies.alter({ id: robotID, hp: body.hp + target });
-        teamStatsObj.total_hp[body.type] += target;
-        break;
+    apply(turn: Turn, calculateTurnStats = false): void {
+        const body = turn.bodies.getById(this.robotID);
+        if (calculateTurnStats) {
+            turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target;
+        }
+        body.hp += this.target;
+    }
 }
 
 class DieException extends Action {
-
-    case schema.Action.DIE_EXCEPTION:
-        console.log(`Exception occured: robotID(${robotID}), target(${target}`);
-break;
+    apply(turn: Turn, calculateTurnStats?: boolean | undefined): void {
+        console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`);
+    }
 }
 
 export const ACTION_DEFINITIONS: Record<number, typeof Action> = {};
 ACTION_DEFINITIONS[schema.Action.LAUNCH_ATTACK] = Launch;
 ACTION_DEFINITIONS[schema.Action.THROW_ATTACK] = Throw;
-ACTION_DEFINITIONS[schema.Action.PICK_UP_ANCHOR] = PlaceholderAction;
-ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = PlaceholderAction;
-ACTION_DEFINITIONS[schema.Action.DESTABILIZE] = PlaceholderAction;
-ACTION_DEFINITIONS[schema.Action.BOOST] = PlaceholderAction;
-ACTION_DEFINITIONS[schema.Action.BUILD_ANCHOR] = PlaceholderAction;
-ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = PlaceholderAction;
+ACTION_DEFINITIONS[schema.Action.PICK_UP_ANCHOR] = Action;
+ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = Action;
+ACTION_DEFINITIONS[schema.Action.DESTABILIZE] = Action;
+ACTION_DEFINITIONS[schema.Action.BOOST] = Action;
+ACTION_DEFINITIONS[schema.Action.BUILD_ANCHOR] = Action;
+ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = Action;
 ACTION_DEFINITIONS[schema.Action.CHANGE_ADAMANTIUM] = ChangeAdamantium;
 ACTION_DEFINITIONS[schema.Action.CHANGE_ELIXIR] = ChangeElixir;
 ACTION_DEFINITIONS[schema.Action.CHANGE_MANA] = ChangeMana;
 ACTION_DEFINITIONS[schema.Action.CHANGE_HEALTH] = ChangeHealth;
-ACTION_DEFINITIONS[schema.Action.SPAWN_UNIT] = PlaceholderAction;
+ACTION_DEFINITIONS[schema.Action.SPAWN_UNIT] = Action;
 ACTION_DEFINITIONS[schema.Action.DIE_EXCEPTION] = DieException;

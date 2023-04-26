@@ -89,27 +89,6 @@ export default class TurnStat {
             teamStat.elixirMined = 0;
         }
 
-        const actions = delta.actionsArray() ?? assert.fail('actionsArray not found in round');
-        for (let i = 0; i < actions.length; i++) {
-            issue here is getting the team of an action requires getting the body associated with it - this shouldnt be spread around in this way
-          case schema.Action.CHANGE_ADAMANTIUM:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-            teamStatsObj.adamantiumMined += target;
-        this.bodies.alter({ id: robotID, adamantium: body.adamantium + target });
-        break
-
-          case schema.Action.CHANGE_ELIXIR:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-            teamStatsObj.elixirMined += target;
-        this.bodies.alter({ id: robotID, elixir: body.elixir + target });
-        break
-
-          case schema.Action.CHANGE_MANA:
-        if (target > 0 && body.type != schema.BodyType.HEADQUARTERS)
-            teamStatsObj.manaMined += target;
-        this.bodies.alter({ id: robotID, mana: body.mana + target });
-        break;
-
         const averageWindow = 100;
         const average = (array: number[]) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
         for (const team of this.game.teams) {
@@ -128,5 +107,9 @@ export default class TurnStat {
                 teamStat.elixirIncomeDataset.push({ x: turn.turnNumber, y: average(teamStat.elixirMinedHist) });
             }
         }
+    }
+
+    public getTeamStat(team: Team): TeamTurnStat {
+        return this.teams.get(team) ?? assert.fail(`team ${team} not found in team stats in turn`);
     }
 }

@@ -78,11 +78,11 @@ export class Body {
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
-        protected adamantium: number = 0,
-        protected elixir: number = 0,
-        protected mana: number = 0,
-        protected anchor: number = 0,
-        protected bytecodesUsed: number = 0,
+        public adamantium: number = 0,
+        public elixir: number = 0,
+        public mana: number = 0,
+        public anchor: number = 0,
+        public bytecodesUsed: number = 0,
     ) { }
 
     public draw(ctx: CanvasRenderingContext2D): void {

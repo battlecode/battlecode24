@@ -11,6 +11,7 @@ import Bodies from './Bodies';
 const SNAPSHOT_EVERY = 50;
 
 export default class Match {
+    public readonly game: Game;
     private readonly deltas: schema.Round[];
     private readonly snapshots: Turn[];
     private currentTurn: Turn;
@@ -20,6 +21,7 @@ export default class Match {
     private readonly map: StaticMap;
 
     constructor(game: Game, header: schema.MatchHeader, turns: schema.Round[], footer: schema.MatchFooter) {
+        this.game = game;
         this.winner = game.teams[footer.winner()];
 
         const mapData = header.map() ?? assert.fail('Map data not found in header');
