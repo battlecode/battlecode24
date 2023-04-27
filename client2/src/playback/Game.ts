@@ -4,7 +4,8 @@ import { ungzip } from 'pako';
 import assert from 'assert';
 
 export default class Game {
-    private readonly rounds: Match[] = [];
+    private readonly matches: Match[] = [];
+    public currentMatch: Match | undefined = undefined;
     public readonly teams: [Team, Team];
     public readonly winner: Team;
 
@@ -13,7 +14,7 @@ export default class Game {
     private readonly constants: schema.Constants;
     public readonly typeMetadata: schema.BodyTypeMetadata[] = [];
 
-    //shared throughout for efficiency??
+    //shared slots for efficiency??
     public _bodiesSlot: schema.SpawnedBodyTable = new schema.SpawnedBodyTable();
     public _vecTableSlot1: schema.VecTable = new schema.VecTable();
 
@@ -41,7 +42,7 @@ export default class Game {
         }
         this.constants = gameHeader.constants() ?? assert.fail("Constants was null");
 
-        // load rounds ==========================================================================================
+        // load matches ==========================================================================================
         let i = 1;
         while (i < eventCount - 1) {
             const matchHeaderEvent = wrapper.events(i, eventSlot) ?? assert.fail("Event was null");
@@ -50,18 +51,21 @@ export default class Game {
 
             i++;
             let event;
-            let rounds = [];
+            let matches = [];
             while ((event = wrapper.events(i, eventSlot) ?? assert.fail("Event was null")).eType() !== schema.Event.MatchFooter) {
                 assert(event.eType() === schema.Event.Round, "Event must be Round");
-                rounds.push(event.e(new schema.Round()) as schema.Round);
+                matches.push(event.e(new schema.Round()) as schema.Round);
                 i++;
             }
 
             assert(event.eType() === schema.Event.MatchFooter, "Event must be MatchFooter");
             const matchFooter = event.e(new schema.MatchFooter()) as schema.MatchFooter;
 
-            this.rounds.push(new Match(this, matchHeader, rounds, matchFooter));
+            this.matches.push(new Match(this, matchHeader, matches, matchFooter));
         }
+
+        if (!this.currentMatch && this.matches.length > 0)
+            this.currentMatch = this.matches[0];
 
         // load footer ==========================================================================================
         const event = wrapper.events(eventCount - 1, eventSlot) ?? assert.fail("Event was null");
