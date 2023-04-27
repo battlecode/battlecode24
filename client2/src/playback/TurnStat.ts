@@ -15,6 +15,7 @@ class TeamTurnStat {
     adamantiumMined: number = 0;
     manaMined: number = 0;
     elixirMined: number = 0;
+    //TODO these shouldnt exist here, but one data point per turnstat
     // x: turn, y: value
     adamantiumIncomeDataset: { x: number, y: number; }[] = [];
     manaIncomeDataset: { x: number, y: number; }[] = [];
@@ -24,6 +25,7 @@ class TeamTurnStat {
     elixirMinedHist: number[] = [];
 
     copy(): TeamTurnStat {
+        //TODO this wont acutally work
         return JSON.parse(JSON.stringify(this));
     }
 };
@@ -31,6 +33,8 @@ class TeamTurnStat {
 export default class TurnStat {
     private readonly teams: Map<Team, TeamTurnStat>;
     private readonly game: Game;
+    public completed: boolean = false;
+
     constructor(game: Game, teams?: Map<Team, TeamTurnStat>) {
         this.game = game;
         this.teams = teams ?? new Map([
@@ -54,6 +58,7 @@ export default class TurnStat {
         const teams = bodies.teamIDsArray() ?? assert.fail('teamIDsArray not found in spawnedBodies');
         const types = bodies.typesArray() ?? assert.fail('typesArray not found in spawnedBodies');
 
+        //TODO move to where bodies are spawned
         for (let i = 0; i < bodies.robotIDsLength(); i++) {
             const teamStat = this.teams.get(this.game.teams[teams[i]]) ?? assert.fail(`team ${i} not found in team stats in turn`);
             const robotType: schema.BodyType = types[i];
@@ -61,6 +66,7 @@ export default class TurnStat {
             teamStat.total_hp[robotType] += this.game.typeMetadata[robotType].health(); // TODO: extract meta info
         }
 
+        //TODO move to where bodies are killed
         const diedIDs = delta.diedIDsArray() ?? assert.fail('diedIDsArray not found in round');
         if (diedIDs.length > 0) {
             for (let i = 0; i < diedIDs.length; i++) {
@@ -89,6 +95,7 @@ export default class TurnStat {
             teamStat.elixirMined = 0;
         }
 
+        //TODO team.adamantiumMined has not been incremented yet
         const averageWindow = 100;
         const average = (array: number[]) => array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0;
         for (const team of this.game.teams) {
@@ -107,6 +114,8 @@ export default class TurnStat {
                 teamStat.elixirIncomeDataset.push({ x: turn.turnNumber, y: average(teamStat.elixirMinedHist) });
             }
         }
+        this.completed = true;
+        //TODO use this instead of the weird flag `calculateTurnFlag`
     }
 
     public getTeamStat(team: Team): TeamTurnStat {

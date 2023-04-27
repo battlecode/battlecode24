@@ -13,7 +13,7 @@ export default class Actions {
 
     }
 
-    applyDelta(turn: Turn, delta: schema.Round, calculateTurnStats?: boolean = false): void {
+    applyDelta(turn: Turn, delta: schema.Round, calculateTurnStats: boolean = false): void {
         for (let i = 0; i < this.actions.length; i++) {
             this.actions[i].duration--;
             if (this.actions[i].duration == 0) {
@@ -55,15 +55,18 @@ export class Action {
      * @param turn the turn to apply this action to
      * @param stat if provided, this action will mutate the stat to reflect the action
      */
-    apply(turn: Turn, calculateTurnStats?: boolean = false): void { };
+    apply(turn: Turn, calculateTurnStats: boolean = false): void { };
     draw(turn: Turn, ctx: CanvasRenderingContext2D) { }
     copy(): Action {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    };
+        // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
+        return Object.create(
+            Object.getPrototypeOf(this),
+            Object.getOwnPropertyDescriptors(this)
+        );
+    }
 }
 
 class Throw extends Action {
-    can I remove the constructor so its like all the following ones
     constructor(robotID: number, target: number) {
         super(robotID, target, 1);
     }
@@ -80,10 +83,6 @@ class Throw extends Action {
         } else { // Missed attack: target is location (-location - 1)
             targetLoc = turn.map.indexToLocation(-this.target - 1);
         }
-    }
-    Can I remove this and use Action copy() or does that mess up dynamic dispatch?
-    copy(): Throw {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
     }
 }
 

@@ -21,9 +21,6 @@ export default class Turn {
      */
     public applyDelta(SchemaDelta: any): void {
         this.turnNumber += 1;
-        
-        the order of these events is really messy, and should be figured out
-        its also messy how actions loop up bodies to then go change stats(why is it not more seperated);
 
         // stat should be done first so it can see info about the bodies that have died
         if (this.match.stats.length > this.turnNumber) {

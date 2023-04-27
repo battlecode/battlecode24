@@ -92,7 +92,11 @@ export class Body {
         throw new Error('Method not implemented. Instances of Body should not be constructed');
     };
     public copy(): Body {
-        throw new Error('Method not implemented. Instances of Body should not be constructed');
+        // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
+        return Object.create(
+            Object.getPrototypeOf(this),
+            Object.getOwnPropertyDescriptors(this)
+        );
     };
 
     public moveTo(x: number, y: number): void {
@@ -119,9 +123,6 @@ export class Archon extends Body {
     onHoverInfo(): string {
         return 'Archon';
     }
-    copy(): Archon {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    }
 }
 
 export class Launcher extends Body {
@@ -134,9 +135,6 @@ export class Launcher extends Body {
     }
     onHoverInfo(): string {
         return Launcher.robotName;
-    }
-    copy(): Launcher {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
     }
 }
 
@@ -151,9 +149,6 @@ export class Carrier extends Body {
     onHoverInfo(): string {
         return 'Carrier';
     }
-    copy(): Carrier {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    }
 }
 
 export class Booster extends Body {
@@ -166,9 +161,6 @@ export class Booster extends Body {
     }
     onHoverInfo(): string {
         return Booster.robotName;
-    }
-    copy(): Booster {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
     }
 }
 
@@ -183,9 +175,6 @@ export class Destabilizer extends Body {
     onHoverInfo(): string {
         return Destabilizer.robotName;
     }
-    copy(): Destabilizer {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
-    }
 }
 
 export class Amplifier extends Body {
@@ -198,9 +187,6 @@ export class Amplifier extends Body {
     }
     onHoverInfo(): string {
         return Amplifier.robotName;
-    }
-    copy(): Amplifier {
-        return { ...this }; // if you store data more than one level deep, you'll need to copy it too
     }
 }
 
