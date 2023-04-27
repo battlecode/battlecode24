@@ -1,7 +1,7 @@
 import Turn from './Turn';
 import { schema } from 'battlecode-schema';
 import assert from 'assert';
-import Bodies, { Carrier, Launcher } from './Bodies';
+import Bodies from './Bodies';
 import TurnStat from './TurnStat';
 
 export default class Actions {
@@ -66,91 +66,78 @@ export class Action {
     }
 }
 
-class Throw extends Action {
-    constructor(robotID: number, target: number) {
-        super(robotID, target, 1);
-    }
-    apply(turn: Turn): void {
-        const body = turn.bodies.getById(this.robotID);
-        assert(body instanceof Carrier, 'Cannot throw from non-carrier');
-        body.clearResources();
-    }
-    draw(turn: Turn, ctx: CanvasRenderingContext2D) {
-        let targetLoc;
-        if (this.target >= 0) { // Hit attack: target is bot
-            const targetBody = turn.bodies.getById(this.target);
-            targetLoc = { x: targetBody.x, y: targetBody.y };
-        } else { // Missed attack: target is location (-location - 1)
-            targetLoc = turn.map.indexToLocation(-this.target - 1);
+export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
+    [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
+        apply(turn: Turn, calculateTurnStats?: boolean | undefined): void {
+            console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`);
         }
-    }
-}
-
-class Launch extends Action {
-    apply(turn: Turn): void {
-        const body = turn.bodies.getById(this.robotID);
-        assert(body instanceof Launcher, 'Cannot launch from non-launcher');
-    }
-}
-
-class ChangeAdamantium extends Action {
-    apply(turn: Turn, calculateTurnStats = false): void {
-        const body = turn.bodies.getById(this.robotID);
-        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
-            turn.stat.getTeamStat(body.team).adamantiumMined += this.target;
+    },
+    [schema.Action.CHANGE_HEALTH]: class ChangeHealth extends Action {
+        apply(turn: Turn, calculateTurnStats = false): void {
+            const body = turn.bodies.getById(this.robotID);
+            if (calculateTurnStats) {
+                turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target;
+            }
+            body.hp += this.target;
         }
-        body.adamantium += this.target;
-    }
-}
-
-class ChangeElixir extends Action {
-    apply(turn: Turn, calculateTurnStats = false): void {
-        const body = turn.bodies.getById(this.robotID);
-        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
-            turn.stat.getTeamStat(body.team).elixirMined += this.target;
+    },
+    [schema.Action.CHANGE_MANA]: class ChangeMana extends Action {
+        apply(turn: Turn, calculateTurnStats = false): void {
+            const body = turn.bodies.getById(this.robotID);
+            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+                turn.stat.getTeamStat(body.team).manaMined += this.target;
+            }
+            body.mana += this.target;
         }
-        body.elixir += this.target;
-    }
-}
-
-class ChangeMana extends Action {
-    apply(turn: Turn, calculateTurnStats = false): void {
-        const body = turn.bodies.getById(this.robotID);
-        if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
-            turn.stat.getTeamStat(body.team).manaMined += this.target;
+    },
+    [schema.Action.CHANGE_ELIXIR]: class ChangeElixir extends Action {
+        apply(turn: Turn, calculateTurnStats = false): void {
+            const body = turn.bodies.getById(this.robotID);
+            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+                turn.stat.getTeamStat(body.team).elixirMined += this.target;
+            }
+            body.elixir += this.target;
         }
-        body.mana += this.target;
-    }
-}
-
-class ChangeHealth extends Action {
-    apply(turn: Turn, calculateTurnStats = false): void {
-        const body = turn.bodies.getById(this.robotID);
-        if (calculateTurnStats) {
-            turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target;
+    },
+    [schema.Action.CHANGE_ADAMANTIUM]: class ChangeAdamantium extends Action {
+        apply(turn: Turn, calculateTurnStats = false): void {
+            const body = turn.bodies.getById(this.robotID);
+            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+                turn.stat.getTeamStat(body.team).adamantiumMined += this.target;
+            }
+            body.adamantium += this.target;
         }
-        body.hp += this.target;
-    }
-}
-
-class DieException extends Action {
-    apply(turn: Turn, calculateTurnStats?: boolean | undefined): void {
-        console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`);
-    }
-}
-
-export const ACTION_DEFINITIONS: Record<number, typeof Action> = {};
-ACTION_DEFINITIONS[schema.Action.LAUNCH_ATTACK] = Launch;
-ACTION_DEFINITIONS[schema.Action.THROW_ATTACK] = Throw;
-ACTION_DEFINITIONS[schema.Action.PICK_UP_ANCHOR] = Action;
-ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = Action;
-ACTION_DEFINITIONS[schema.Action.DESTABILIZE] = Action;
-ACTION_DEFINITIONS[schema.Action.BOOST] = Action;
-ACTION_DEFINITIONS[schema.Action.BUILD_ANCHOR] = Action;
-ACTION_DEFINITIONS[schema.Action.PLACE_ANCHOR] = Action;
-ACTION_DEFINITIONS[schema.Action.CHANGE_ADAMANTIUM] = ChangeAdamantium;
-ACTION_DEFINITIONS[schema.Action.CHANGE_ELIXIR] = ChangeElixir;
-ACTION_DEFINITIONS[schema.Action.CHANGE_MANA] = ChangeMana;
-ACTION_DEFINITIONS[schema.Action.CHANGE_HEALTH] = ChangeHealth;
-ACTION_DEFINITIONS[schema.Action.SPAWN_UNIT] = Action;
-ACTION_DEFINITIONS[schema.Action.DIE_EXCEPTION] = DieException;
+    },
+    [schema.Action.THROW_ATTACK]: class Throw extends Action {
+        constructor(robotID: number, target: number) {
+            super(robotID, target, 1);
+        }
+        apply(turn: Turn): void {
+            const body = turn.bodies.getById(this.robotID);
+            assert(body.type === schema.BodyType.CARRIER, 'Cannot throw from non-carrier');
+            body.clearResources();
+        }
+        draw(turn: Turn, ctx: CanvasRenderingContext2D) {
+            let targetLoc;
+            if (this.target >= 0) { // Hit attack: target is bot
+                const targetBody = turn.bodies.getById(this.target);
+                targetLoc = { x: targetBody.x, y: targetBody.y };
+            } else { // Missed attack: target is location (-location - 1)
+                targetLoc = turn.map.indexToLocation(-this.target - 1);
+            }
+        }
+    },
+    [schema.Action.LAUNCH_ATTACK]: class Launch extends Action {
+        apply(turn: Turn): void {
+            const body = turn.bodies.getById(this.robotID);
+            assert(body.type === schema.BodyType.LAUNCHER, 'Cannot launch from non-launcher');
+        }
+    },
+    [schema.Action.SPAWN_UNIT]: Action,
+    [schema.Action.PICK_UP_ANCHOR]: Action,
+    [schema.Action.PLACE_ANCHOR]: Action,
+    [schema.Action.DESTABILIZE]: Action,
+    [schema.Action.BOOST]: Action,
+    [schema.Action.BUILD_ANCHOR]: Action,
+    [schema.Action.PLACE_ANCHOR]: Action,
+};
