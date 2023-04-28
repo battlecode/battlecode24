@@ -13,7 +13,7 @@ export default class Actions {
 
     }
 
-    applyDelta(turn: Turn, delta: schema.Round, calculateTurnStats: boolean = false): void {
+    applyDelta(turn: Turn, delta: schema.Round): void {
         for (let i = 0; i < this.actions.length; i++) {
             this.actions[i].duration--;
             if (this.actions[i].duration == 0) {
@@ -30,7 +30,7 @@ export default class Actions {
                 const actionClass = ACTION_DEFINITIONS[action] ?? assert.fail(`Action ${action} not found in ACTION_DEFINITIONS`);
                 const newAction = new actionClass(robotID, target);
                 this.actions.push(newAction);
-                newAction.apply(turn, calculateTurnStats);
+                newAction.apply(turn);
             }
         }
     }
@@ -55,7 +55,7 @@ export class Action {
      * @param turn the turn to apply this action to
      * @param stat if provided, this action will mutate the stat to reflect the action
      */
-    apply(turn: Turn, calculateTurnStats: boolean = false): void { };
+    apply(turn: Turn): void { };
     draw(turn: Turn, ctx: CanvasRenderingContext2D) { }
     copy(): Action {
         // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
@@ -68,43 +68,39 @@ export class Action {
 
 export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
     [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
-        apply(turn: Turn, calculateTurnStats?: boolean | undefined): void {
+        apply(turn: Turn): void {
             console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`);
         }
     },
     [schema.Action.CHANGE_HEALTH]: class ChangeHealth extends Action {
-        apply(turn: Turn, calculateTurnStats = false): void {
+        apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID);
-            if (calculateTurnStats) {
+            if (!turn.stat.completed)
                 turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target;
-            }
             body.hp += this.target;
         }
     },
     [schema.Action.CHANGE_MANA]: class ChangeMana extends Action {
-        apply(turn: Turn, calculateTurnStats = false): void {
+        apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID);
-            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            if (!turn.stat.completed && body.type !== schema.BodyType.HEADQUARTERS)
                 turn.stat.getTeamStat(body.team).manaMined += this.target;
-            }
             body.mana += this.target;
         }
     },
     [schema.Action.CHANGE_ELIXIR]: class ChangeElixir extends Action {
-        apply(turn: Turn, calculateTurnStats = false): void {
+        apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID);
-            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            if (!turn.stat.completed && body.type !== schema.BodyType.HEADQUARTERS)
                 turn.stat.getTeamStat(body.team).elixirMined += this.target;
-            }
             body.elixir += this.target;
         }
     },
     [schema.Action.CHANGE_ADAMANTIUM]: class ChangeAdamantium extends Action {
-        apply(turn: Turn, calculateTurnStats = false): void {
+        apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID);
-            if (calculateTurnStats && body.type !== schema.BodyType.HEADQUARTERS) {
+            if (!turn.stat.completed && body.type !== schema.BodyType.HEADQUARTERS)
                 turn.stat.getTeamStat(body.team).adamantiumMined += this.target;
-            }
             body.adamantium += this.target;
         }
     },

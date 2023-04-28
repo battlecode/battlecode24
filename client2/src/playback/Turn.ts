@@ -8,7 +8,7 @@ import TurnStat from './TurnStat';
 export default class Turn {
     get teams(): Team[] { return this.match.game.teams; }
     constructor(
-        private readonly match: Match,
+        public readonly match: Match,
         public turnNumber: number = 0,
         public map: CurrentMap,
         public bodies: Bodies,
@@ -22,17 +22,18 @@ export default class Turn {
     public applyDelta(SchemaDelta: any): void {
         this.turnNumber += 1;
 
-        // stat should be done first so it can see info about the bodies that have died
-        if (this.match.stats.length > this.turnNumber) {
+        const computingStat = this.match.stats.length <= this.turnNumber;
+        if (computingStat)
+            this.stat.completed = false // mark that stat should be computed by bodies and actions below
+        else
             this.stat = this.match.stats[this.turnNumber].copy();
-            this.map.applyDelta(SchemaDelta);
-            this.bodies.applyDelta(SchemaDelta);
-            this.actions.applyDelta(this, SchemaDelta);
-        } else {
-            this.stat.applyDelta(this, SchemaDelta);
-            this.map.applyDelta(SchemaDelta);
-            this.bodies.applyDelta(SchemaDelta);
-            this.actions.applyDelta(this, SchemaDelta, true);
+
+        this.map.applyDelta(SchemaDelta);
+        this.bodies.applyDelta(this, SchemaDelta);
+        this.actions.applyDelta(this, SchemaDelta);
+
+        if (computingStat) { // finish computing stat and save to match
+            this.stat.applyDelta(this, SchemaDelta); 
             this.match.stats[this.turnNumber] = this.stat.copy();
         }
     }

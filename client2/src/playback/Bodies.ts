@@ -1,6 +1,8 @@
 import { schema } from 'battlecode-schema';
 import assert from 'assert';
 import Game, { Team } from './Game';
+import Turn from './Turn';
+import TurnStat from './TurnStat';
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map();
@@ -12,9 +14,9 @@ export default class Bodies {
             this.insertBodies(initialBodies);
     }
 
-    applyDelta(delta: schema.Round): void {
+    applyDelta(turn: Turn, delta: schema.Round): void {
         const bodies = delta.spawnedBodies(this.game._bodiesSlot);
-        if (bodies) this.insertBodies(bodies);
+        if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat);
 
         const movedLocs = delta.movedLocs(this.game._vecTableSlot1);
         if (movedLocs) {
@@ -29,12 +31,18 @@ export default class Bodies {
 
         if (delta.diedIDsLength() > 0) {
             for (let i = 0; i < delta.diedIDsLength(); i++) {
-                this.bodies.delete(delta.diedIDs(i)!);
+                const diedBody = this.bodies.get(delta.diedIDs(i)!) ?? assert.fail(`Body with id ${delta.diedIDs(i)} not found in bodies`);
+                if (!turn.stat.completed) {
+                    const teamStat = turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`);
+                    teamStat.robots[diedBody.type] -= 1;
+                    teamStat.total_hp[diedBody.type] -= this.game.typeMetadata[diedBody.type].health();
+                }
+                this.bodies.delete(diedBody.id);
             }
         }
     }
 
-    insertBodies(bodies: schema.SpawnedBodyTable): void {
+    insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
         var teams = bodies.teamIDsArray() ?? assert.fail('Initial body teams not found in header');
         var types = bodies.typesArray() ?? assert.fail('Initial body types not found in header');
 
@@ -52,6 +60,11 @@ export default class Bodies {
                 this.game.teams[teams[i]],
                 idsArray[i],
             ));
+            if (stat) {
+                const teamStat = stat.getTeamStat(this.game.teams[teams[i]]) ?? assert.fail(`team ${i} not found in team stats in turn`);
+                teamStat.robots[types[i]] += 1;
+                teamStat.total_hp[types[i]] += this.game.typeMetadata[types[i]].health();
+            }
         }
     }
 
