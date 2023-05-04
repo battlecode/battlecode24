@@ -10,21 +10,23 @@ module.exports = (env) => {
         target: 'web',
         devtool: development ? 'source-map' : undefined,
         resolve: {
-            extensions: ['.tsx', '.ts', '.js'],
-        }, 
+            extensions: ['.tsx', '.ts', '.js']
+        },
         module: {
             rules: [
                 {
                     test: /\.ts(x?)$/,
-                    include: /src/,
+                    exclude: /node_modules/,
                     loader: 'ts-loader'
                 },
                 {
                     test: /\.css$/,
+                    exclude: /node_modules/,
                     use: ['style-loader', 'css-loader', 'postcss-loader']
                 },
                 {
                     test: /\.(png|jpg|jpeg|gif|svg|ttf|otf|woff|woff2|eot)$/,
+                    exclude: /node_modules/,
                     loader: 'url-loader'
                 }
             ]
@@ -34,7 +36,7 @@ module.exports = (env) => {
             hot: true,
             port: 3000,
             static: {
-              directory: path.join(__dirname, '/'),
+                directory: path.join(__dirname, '/')
             }
         },
         output: {
@@ -48,8 +50,11 @@ module.exports = (env) => {
             new webpack.LoaderOptionsPlugin({
                 minimize: !development,
                 debug: development
+            }),
+            new webpack.ProvidePlugin({
+                process: 'process/browser'
             })
-        ],
+        ]
     }
 
     return config
