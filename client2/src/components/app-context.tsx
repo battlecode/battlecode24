@@ -1,12 +1,15 @@
 import React from 'react'
 import { PageType } from '../definitions'
+import Game from '../playback/Game'
 
 export interface AppState {
     page: PageType
+    activeGame: Game | undefined
 }
 
 const DEFAULT_APP_STATE: AppState = {
-    page: PageType.QUEUE
+    page: PageType.QUEUE,
+    activeGame: undefined
 }
 
 export interface AppContext {

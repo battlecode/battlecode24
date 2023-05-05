@@ -1,7 +1,11 @@
 import React from 'react'
+import { useAppContext } from '../components/app-context'
 import { ChevronDownIcon, ChevronUpIcon } from '../icons/chevron'
 
 export const GamePage: React.FC = () => {
+    const appContext = useAppContext()
+    const game = appContext.state.activeGame
+
     const teamBoxClasses =
         'w-full h-[50px] shadow-centered flex items-center text-center justify-center'
 
