@@ -3,6 +3,7 @@ import assert from 'assert';
 import Game, { Team } from './Game';
 import Turn from './Turn';
 import TurnStat from './TurnStat';
+import { loadImage } from '../imageloader';
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map();
@@ -85,6 +86,7 @@ export default class Bodies {
 export class Body {
     static robotName: string;
     public type: number = -1;
+    protected img: HTMLImageElement | undefined;
     constructor(
         public x: number,
         public y: number,
@@ -99,18 +101,27 @@ export class Body {
     ) { }
 
     public draw(ctx: CanvasRenderingContext2D): void {
-        throw new Error('Method not implemented. Instances of Body should not be constructed');
-    };
+        if (this.img) {
+            ctx.drawImage(this.img, this.x, this.y, 1, 1);
+        } else {
+            ctx.beginPath();
+            ctx.arc(this.x + 0.5, this.y + 0.5, 0.3, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0005';
+            ctx.fill();
+        }
+    }
+
     public onHoverInfo(): string {
-        throw new Error('Method not implemented. Instances of Body should not be constructed');
-    };
+        return Object.getPrototypeOf(this).constructor.robotName;
+    }
+
     public copy(): Body {
         // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
         return Object.create(
             Object.getPrototypeOf(this),
             Object.getOwnPropertyDescriptors(this)
         );
-    };
+    }
 
     public moveTo(x: number, y: number): void {
         this.x = x;
@@ -131,8 +142,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.HEADQUARTERS;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/headquarters').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return 'Headquarters';
@@ -143,8 +153,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.LAUNCHER;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/launcher').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return Launcher.robotName;
@@ -155,8 +164,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.CARRIER;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/carrier').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return 'Carrier';
@@ -167,8 +175,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.BOOSTER;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/booster').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return Booster.robotName;
@@ -179,8 +186,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.DESTABILIZER;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/destabilizer').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return Destabilizer.robotName;
@@ -191,8 +197,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.AMPLIFIER;
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id);
-        }
-        draw(ctx: CanvasRenderingContext2D): void {
+            loadImage('robots/amplifier').then((img) => this.img = img);
         }
         onHoverInfo(): string {
             return Amplifier.robotName;
