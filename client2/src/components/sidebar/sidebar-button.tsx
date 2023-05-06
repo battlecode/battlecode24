@@ -1,6 +1,6 @@
 import React from 'react'
-import { PageType } from '../definitions'
-import { useAppContext } from './app-context'
+import { PageType } from '../../definitions'
+import { useAppContext } from '../../app-context'
 
 interface Props {
     name: string

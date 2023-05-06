@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom/client'
-import { MainPage } from './components/main-page'
+import { MainPage } from './pages/main-page'
 
 import '../style.css'
 

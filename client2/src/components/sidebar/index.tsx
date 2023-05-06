@@ -1,12 +1,12 @@
 import { Menu } from '@headlessui/react'
 import React from 'react'
-import { BATTLECODE_YEAR } from '../constants'
-import { PageType } from '../definitions'
-import { ChevronDownIcon, ChevronUpIcon } from '../icons/chevron'
-import { ThreeBarsIcon } from '../icons/three-bars'
-import { GamePage } from '../pages/game'
-import { QueuePage } from '../pages/queue'
-import { useAppContext } from './app-context'
+import { BATTLECODE_YEAR } from '../../constants'
+import { PageType } from '../../definitions'
+import { ChevronDownIcon, ChevronUpIcon } from '../../icons/chevron'
+import { ThreeBarsIcon } from '../../icons/three-bars'
+import { GamePage } from './game'
+import { QueuePage } from './queue'
+import { useAppContext } from '../../app-context'
 import { SidebarButton } from './sidebar-button'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
@@ -47,7 +47,7 @@ export const Sidebar: React.FC = () => {
 
     return (
         <div
-            className={`${minWidth} ${maxWidth} h-screen bg-pink-900 flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden shadow-centered text-white`}
+            className={`${minWidth} ${maxWidth} h-screen bg-fg flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden shadow-centered text-white`}
         >
             <div className="flex justify-between">
                 <div className="flex gap-3">
