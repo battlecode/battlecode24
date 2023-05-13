@@ -1,8 +1,8 @@
 export enum PageType {
-    GAME = 0,
-    QUEUE,
-    RUNNER,
-    PROFILER,
-    MAPEDITOR,
-    HELP
+    GAME = "Game",
+    QUEUE = "Queue",
+    RUNNER = "Runner",
+    PROFILER = "Profiler",
+    MAPEDITOR = "Map Editor",
+    HELP = "Help"
 }

@@ -16,7 +16,7 @@ export const QueuePage: React.FC = () => {
     return (
         <div className="flex flex-col">
             <button
-                className="text-xs m-2 p-2 bg-buttonNeutral rounded-md"
+                className="text-xs m-2 p-2 bg-button rounded-md"
                 onClick={onUpload}
             >
                     Upload a .bc{BATTLECODE_YEAR % 100} replay file
