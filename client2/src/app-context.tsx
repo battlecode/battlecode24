@@ -1,12 +1,14 @@
 import React from 'react'
-import { PageType } from '../definitions'
+import { PageType } from './definitions'
 
 export interface AppState {
     page: PageType
+    queue: number[] // placeholder
 }
 
 const DEFAULT_APP_STATE: AppState = {
-    page: PageType.QUEUE
+    page: PageType.QUEUE,
+    queue: []
 }
 
 export interface AppContext {

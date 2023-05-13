@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from '../icons/chevron'
+import { ChevronDownIcon, ChevronUpIcon } from '../../../icons/chevron'
 
 export const GamePage: React.FC = () => {
     const teamBoxClasses =
@@ -9,19 +9,26 @@ export const GamePage: React.FC = () => {
 
     return (
         <div className="flex flex-col">
-            <div className={teamBoxClasses} style={{ backgroundColor: 'rgba(239,68,68,0.6)' }}>
+            <div className={teamBoxClasses + " bg-teamRed"}>
                 <p>Team 1</p>
             </div>
 
             <div className="h-[50px]" />
 
-            <div className={teamBoxClasses} style={{ backgroundColor: 'rgba(6,182,212,0.6)' }}>
+            <div className={teamBoxClasses + " bg-teamBlue"}>
                 <p>Team 2</p>
             </div>
 
             <button onClick={() => setShowStats(!showStats)} className="flex gap-2 my-4">
                 Stats {showStats ? <ChevronUpIcon /> : <ChevronDownIcon />}
             </button>
+
+            {
+                showStats && <div className="flex flex-col">
+                    <p>One stats components here</p>
+                    <p>Another one here</p>
+                </div>
+            }
         </div>
     )
 }
