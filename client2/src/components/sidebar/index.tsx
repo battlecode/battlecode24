@@ -8,13 +8,17 @@ import { QueuePage } from './queue'
 import { useAppContext } from '../../app-context'
 import { TbSelector } from 'react-icons/tb'
 import { BsChevronLeft } from 'react-icons/bs'
+import { HelpPage } from './help'
+import { MapEditorPage } from './map-editor'
+import { ProfilerPage } from './profiler'
+import { RunnerPage } from './runner'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
     { name: 'Queue', page: PageType.QUEUE },
     { name: 'Runner', page: PageType.RUNNER },
     { name: 'Profiler', page: PageType.PROFILER },
-    { name: 'Map Editor', page: PageType.MAPEDITOR },
+    { name: 'Map Editor', page: PageType.MAP_EDITOR },
     { name: 'Help', page: PageType.HELP }
 ]
 
@@ -37,6 +41,14 @@ export const Sidebar: React.FC = () => {
                 return <GamePage />
             case PageType.QUEUE:
                 return <QueuePage />
+            case PageType.RUNNER:
+                return <RunnerPage />
+            case PageType.PROFILER:
+                return <ProfilerPage />
+            case PageType.MAP_EDITOR:
+                return <MapEditorPage />
+            case PageType.HELP:
+                return <HelpPage />
         }
     }
 

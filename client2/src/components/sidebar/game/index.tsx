@@ -3,19 +3,19 @@ import { ChevronDownIcon, ChevronUpIcon } from '../../../icons/chevron'
 
 export const GamePage: React.FC = () => {
     const teamBoxClasses =
-        'w-full h-[50px] shadow-centered flex items-center text-center justify-center'
+        'w-full h-[50px] flex items-center text-center justify-center'
 
     const [showStats, setShowStats] = React.useState(false)
 
     return (
         <div className="flex flex-col">
-            <div className={teamBoxClasses + " bg-teamRed"}>
+            <div className={teamBoxClasses + " bg-red"}>
                 <p>Team 1</p>
             </div>
 
             <div className="h-[50px]" />
 
-            <div className={teamBoxClasses + " bg-teamBlue"}>
+            <div className={teamBoxClasses + " bg-blue"}>
                 <p>Team 2</p>
             </div>
 

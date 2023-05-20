@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
-import { useAppContext } from '../../app-context'
-import { BATTLECODE_YEAR } from '../../constants'
+import React from 'react'
+import { useAppContext } from '../../../app-context'
+import { BATTLECODE_YEAR } from '../../../constants'
+import Button from '../../button'
+import { FiUpload } from 'react-icons/fi'
 
 export const QueuePage: React.FC = () => {
     const context = useAppContext()
@@ -15,12 +17,12 @@ export const QueuePage: React.FC = () => {
 
     return (
         <div className="flex flex-col">
-            <button
-                className="text-xs m-2 p-2 bg-button rounded-md"
+            <Button
                 onClick={onUpload}
             >
-                    Upload a .bc{BATTLECODE_YEAR % 100} replay file
-            </button>
+                <FiUpload className="align-middle text-base mr-2"/>
+                Upload a .bc{BATTLECODE_YEAR % 100} replay file
+            </Button>
             <p>Games ({queue.length === 0 ? 0 : 1}/{queue.length})</p>
             {
                 queue.map((game) => <div>
