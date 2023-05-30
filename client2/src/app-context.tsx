@@ -7,7 +7,7 @@ export interface AppState {
 }
 
 const DEFAULT_APP_STATE: AppState = {
-    page: PageType.QUEUE,
+    page: PageType.GAME,
     queue: []
 }
 

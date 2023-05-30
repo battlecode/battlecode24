@@ -1,5 +1,6 @@
 import React from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from '../../../icons/chevron'
+import { UnitsTable } from './units-table'
 
 export const GamePage: React.FC = () => {
     const teamBoxClasses =
@@ -12,15 +13,17 @@ export const GamePage: React.FC = () => {
             <div className={teamBoxClasses + " bg-red"}>
                 <p>Team 1</p>
             </div>
+            <UnitsTable team={true}/>
 
-            <div className="h-[50px]" />
+            <div className="h-[30px]" />
 
             <div className={teamBoxClasses + " bg-blue"}>
                 <p>Team 2</p>
             </div>
+            <UnitsTable team={false}/>
 
-            <button onClick={() => setShowStats(!showStats)} className="flex gap-2 my-4">
-                Stats {showStats ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            <button onClick={() => setShowStats(!showStats)} className="flex gap-2 my-4 font-bold">
+                Stats {showStats ? <ChevronUpIcon className="stroke-2" /> : <ChevronDownIcon className="stroke-2"/>}
             </button>
 
             {
