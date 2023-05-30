@@ -17,9 +17,11 @@ module.exports = {
                 cyan: '#02a7b9',
                 blue: '#04a2d9',
 
-                dark: colors.gray['900'],
+                dark: colors.gray['800'],
+                darkHighlight: colors.gray['900'],
+                black: colors.black,
                 light: '#faf9fe',
-                lightHover: '#eeeeee',
+                lightHighlight: '#eeeeee',
             }
         },
     },
