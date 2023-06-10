@@ -3,7 +3,8 @@
   "version": "2022.0.0",
   "private": "true",
   "description": "flatbuffers parser for battlecode match files",
-  "main": "ts/index.ts",
+  "main": "js/index.js",
+  "types": "ts/index.ts",
   "scripts": {
     "test": "true",
     "build": "flatc --ts -o ts battlecode.fbs && flatc --java -o java battlecode.fbs"

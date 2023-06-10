@@ -1,4 +1,4 @@
-var webpack = require('webpack')
+const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
@@ -10,7 +10,10 @@ module.exports = (env) => {
         target: 'web',
         devtool: development ? 'source-map' : undefined,
         resolve: {
-            extensions: ['.tsx', '.ts', '.js']
+            extensions: ['.tsx', '.ts', '.js'],
+            fallback: {
+                assert: require.resolve('assert/')
+            }
         },
         module: {
             rules: [
