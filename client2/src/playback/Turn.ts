@@ -22,9 +22,9 @@ export default class Turn {
     public applyDelta(SchemaDelta: any): void {
         this.turnNumber += 1;
 
-        const computingStat = this.match.stats.length <= this.turnNumber;
-        if (computingStat)
-            this.stat.completed = false // mark that stat should be computed by bodies and actions below
+        const firstTimeComputingStat = this.match.stats.length <= this.turnNumber;
+        if (firstTimeComputingStat)
+            this.stat.completed = false; // mark that stat should be computed by bodies and actions below
         else
             this.stat = this.match.stats[this.turnNumber].copy();
 
@@ -32,8 +32,8 @@ export default class Turn {
         this.bodies.applyDelta(this, SchemaDelta);
         this.actions.applyDelta(this, SchemaDelta);
 
-        if (computingStat) { // finish computing stat and save to match
-            this.stat.applyDelta(this, SchemaDelta); 
+        if (firstTimeComputingStat) { // finish computing stat and save to match
+            this.stat.applyDelta(this, SchemaDelta);
             this.match.stats[this.turnNumber] = this.stat.copy();
         }
     }
