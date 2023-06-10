@@ -13,7 +13,7 @@ export default class Match {
     public readonly game: Game
     private readonly deltas: schema.Round[]
     private readonly snapshots: Turn[]
-    private currentTurn: Turn
+    public currentTurn: Turn
     private readonly maxTurn: number
     public readonly stats: TurnStat[] = []
     public readonly winner: Team

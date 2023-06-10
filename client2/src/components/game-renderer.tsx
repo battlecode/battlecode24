@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAppContext } from './app-context'
 
 export enum CanvasType {
     BACKGROUND = 'bkg',
@@ -8,6 +9,7 @@ export enum CanvasType {
 
 export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
+    const appContext = useAppContext()
     const [canvases, setCanvases] = React.useState(null as Map<CanvasType, React.ReactNode> | null)
 
     React.useEffect(() => {
@@ -24,6 +26,17 @@ export const GameRenderer: React.FC = () => {
         }
         setCanvases(canv)
     }, [])
+
+    React.useEffect(() => {
+        const game = appContext.state.activeGame
+        if (!game) return
+        const match = game.currentMatch
+        if (!match) return
+        const interval = setInterval(() => {
+            match.currentTurn.map
+        })
+        return () => clearInterval(interval)
+    }, [canvases, appContext.state.activeGame])
 
     if (!canvases) return <></>
 
