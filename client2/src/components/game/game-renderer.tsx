@@ -1,7 +1,7 @@
 import React from 'react'
-import { useAppContext } from '../app-context'
-import { Vector } from '../playback/Vector'
-import * as cst from '../constants'
+import { useAppContext } from '../../app-context'
+import { Vector } from '../../playback/Vector'
+import * as cst from '../../constants'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -15,6 +15,7 @@ export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
     const appContext = useAppContext()
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
+    const game = appContext.state.activeGame
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
@@ -31,7 +32,6 @@ export const GameRenderer: React.FC = () => {
     }
 
     React.useEffect(() => {
-        const game = appContext.state.activeGame
         if (!game) return
         const match = game.currentMatch
         if (!match) return
@@ -54,19 +54,23 @@ export const GameRenderer: React.FC = () => {
     // TODO: better support for strange aspect ratios, for now it is fine
     return (
         <div className="w-full h-screen flex items-center justify-center">
-            <div ref={wrapperRef} className="relative w-full h-full">
-                {Object.getOwnPropertyNames(CanvasType).map((ct, idx) => (
-                    <canvas
-                        className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full aspect-square"
-                        style={{
-                            transform: 'translate(-50%, -50%)',
-                            zIndex: CANVAS_Z_INDICES[idx]
-                        }}
-                        key={`canv${ct}`}
-                        ref={(ref) => (canvases.current[ct] = ref)}
-                    />
-                ))}
-            </div>
+            {!game || !game.currentMatch ? (
+                <p className="text-white text-center">Select a game from the queue</p>
+            ) : (
+                <div ref={wrapperRef} className="relative w-full h-full">
+                    {Object.getOwnPropertyNames(CanvasType).map((ct, idx) => (
+                        <canvas
+                            className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full aspect-square"
+                            style={{
+                                transform: 'translate(-50%, -50%)',
+                                zIndex: CANVAS_Z_INDICES[idx]
+                            }}
+                            key={`canv${ct}`}
+                            ref={(ref) => (canvases.current[ct] = ref)}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     )
 }
