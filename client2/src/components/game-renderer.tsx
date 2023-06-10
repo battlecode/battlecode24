@@ -1,5 +1,5 @@
 import React from 'react'
-import { useAppContext } from './app-context'
+import { useAppContext } from '../app-context'
 import { Vector } from '../playback/Vector'
 import * as cst from '../constants'
 

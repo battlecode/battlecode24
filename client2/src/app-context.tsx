@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageType } from './definitions'
-import Game from '../playback/Game'
+import Game from './playback/Game'
 
 export interface AppState {
     page: PageType
