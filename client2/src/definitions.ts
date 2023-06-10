@@ -3,6 +3,6 @@ export enum PageType {
     QUEUE = "Queue",
     RUNNER = "Runner",
     PROFILER = "Profiler",
-    MAPEDITOR = "Map Editor",
+    MAP_EDITOR = "Map Editor",
     HELP = "Help"
 }

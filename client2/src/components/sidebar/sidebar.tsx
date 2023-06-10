@@ -3,18 +3,22 @@ import React, { Fragment } from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
 import { PageType } from '../../definitions'
 import { ThreeBarsIcon } from '../../icons/three-bars'
-import { GamePage } from './game'
-import { QueuePage } from './queue'
+import { GamePage } from './game/game'
+import { QueuePage } from './queue/queue'
 import { useAppContext } from '../../app-context'
 import { TbSelector } from 'react-icons/tb'
 import { BsChevronLeft } from 'react-icons/bs'
+import { HelpPage } from './help/help'
+import { MapEditorPage } from './map-editor/map-editor'
+import { ProfilerPage } from './profiler/profiler'
+import { RunnerPage } from './runner/runner'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
     { name: 'Queue', page: PageType.QUEUE },
     { name: 'Runner', page: PageType.RUNNER },
     { name: 'Profiler', page: PageType.PROFILER },
-    { name: 'Map Editor', page: PageType.MAPEDITOR },
+    { name: 'Map Editor', page: PageType.MAP_EDITOR },
     { name: 'Help', page: PageType.HELP }
 ]
 
@@ -37,6 +41,14 @@ export const Sidebar: React.FC = () => {
                 return <GamePage />
             case PageType.QUEUE:
                 return <QueuePage />
+            case PageType.RUNNER:
+                return <RunnerPage />
+            case PageType.PROFILER:
+                return <ProfilerPage />
+            case PageType.MAP_EDITOR:
+                return <MapEditorPage />
+            case PageType.HELP:
+                return <HelpPage />
         }
     }
 
@@ -59,7 +71,7 @@ export const Sidebar: React.FC = () => {
             <div className="flex justify-between">
                 {open && <p className="p-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>}
                 <div className="flex gap-3">
-                    <button onClick={() => setOpen(!open)} className="p-2 hover:bg-lightHover rounded-md" style={{
+                    <button onClick={() => setOpen(!open)} className="p-2 hover:bg-lightHighlight rounded-md" style={{
                         width: '40px',
                         height: '40px'
                     }}>
@@ -70,7 +82,7 @@ export const Sidebar: React.FC = () => {
             {open && <>
                 <Listbox value={context.state.page} onChange={updatePage}>
                     <Listbox.Button
-                        className="text-left flex flex-row justify-between hover:bg-lightHover p-3 rounded-md border-black border"
+                        className="text-left flex flex-row justify-between hover:bg-lightHighlight p-3 rounded-md border-black border"
                     >
                         {context.state.page}
                         <TbSelector className="text-2xl align-middle"/>
@@ -89,7 +101,7 @@ export const Sidebar: React.FC = () => {
                                 return <Listbox.Option
                                     key={data.page}
                                     value={data.page}
-                                    className="text-left hover:bg-lightHover p-3 py-1 rounded-md cursor-pointer"
+                                    className="text-left hover:bg-lightHighlight p-3 py-1 rounded-md cursor-pointer"
                                 >
                                     {data.name}
                                 </Listbox.Option>
