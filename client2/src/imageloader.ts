@@ -2,6 +2,8 @@ const IMAGE_DIRECTORY = 'static/img/'
 
 const imgCache = new Map<string, Promise<HTMLImageElement>>()
 const loadedImgCache = new Map<string, HTMLImageElement>()
+const onLoadCallbacks: (() => void)[] = []
+
 /**
  * @param path the path of the image to load
  * @returns a promise that resolves to the image once the image has been loaded
@@ -17,6 +19,7 @@ export async function loadImage(path: string): Promise<HTMLImageElement> {
         img.onload = () => {
             loadedImgCache.set(path, img)
             resolve(img)
+            onLoadCallbacks.forEach((callback) => callback())
         }
         imgCache.set(path, loading)
         img.onerror = reject
@@ -40,4 +43,12 @@ export function getImageIfLoaded(path: string) {
     if (loadedImgCache.has(path)) return loadedImgCache.get(path)
     loadImage(path)
     return undefined
+}
+
+/**
+ * Calls the callback once any image loads
+ * @param callback the callback to call once any image loads
+ */
+export function triggerOnImageLoad(callback: () => void) {
+    onLoadCallbacks.push(callback)
 }

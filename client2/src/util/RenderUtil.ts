@@ -149,3 +149,22 @@ export const renderCenteredImage = (
 ) => {
     ctx.drawImage(img, coords.x + (1 - size) / 2, coords.y + (1 - size) / 2, size, size)
 }
+
+/**
+ * Renders the image centerd at the location if image exists, otherwise renders a loading indicator
+ */
+export const renderCenteredImageOrLoadingIndicator = (
+    ctx: CanvasRenderingContext2D,
+    img: CanvasImageSource | undefined,
+    coords: Vector,
+    size: number
+) => {
+    if (img) {
+        renderCenteredImage(ctx, img, coords, size)
+    } else {
+        ctx.beginPath()
+        ctx.arc(coords.x + 0.5, coords.y + 0.5, size / 2.5, 0, 2 * Math.PI)
+        ctx.fillStyle = '#0005'
+        ctx.fill()
+    }
+}

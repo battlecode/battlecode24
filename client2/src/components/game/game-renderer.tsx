@@ -35,6 +35,11 @@ export const GameRenderer: React.FC = () => {
         if (!game) return
         const match = game.currentMatch
         if (!match) return
+        /*
+         * If this isnt running at a regular interval (in general, we should probably have it only draw on changes),
+         * then we need to make it also draw on image load (see imageloader.triggerOnImageLoad()) unless we decide to
+         * block until all images are loaded (which is probably a bad idea)
+         */
         const interval = setInterval(() => {
             const turn = match.currentTurn
 
@@ -45,7 +50,15 @@ export const GameRenderer: React.FC = () => {
             updateCanvasDimensions(CanvasType.DYNAMIC, { x: turn.map.width, y: turn.map.height })
             ctx = getCanvasContext(CanvasType.DYNAMIC)!
             match.currentTurn.map.draw(ctx)
+            match.currentTurn.bodies.draw(ctx)
+            match.currentTurn.actions.draw(match.currentTurn, ctx)
         }, 100)
+
+        // test game playing
+        setInterval(() => {
+            match.stepTurn(1)
+        }, 500)
+
         return () => clearInterval(interval)
     }, [canvases, appContext.state.activeGame])
 

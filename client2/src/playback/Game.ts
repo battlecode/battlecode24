@@ -114,7 +114,7 @@ export class Team {
         }
         this.id = team.teamID() ?? assert.fail('Team id is missing')
         this.packageName = team.packageName() ?? assert.fail('Team package name is missing')
-        this.color = this.id === 0 ? 'red' : 'blue'
+        this.color = this.id === 1 ? 'red' : 'blue'
     }
 }
 

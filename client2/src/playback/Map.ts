@@ -260,7 +260,7 @@ export class CurrentMap {
                     const img = getImageIfLoaded(
                         `resources/${resourcename}_well_${upgraded ? 'upgraded_' : ''}smaller.png`
                     )
-                    if (img) renderUtils.renderCenteredImage(ctx, img, coords, size)
+                    renderUtils.renderCenteredImageOrLoadingIndicator(ctx, img, coords, size)
                 }
             }
         }

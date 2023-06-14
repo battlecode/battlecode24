@@ -99,6 +99,10 @@ export default class Bodies {
 
         return newBodies
     }
+
+    draw(ctx: CanvasRenderingContext2D): void {
+        for (const body of this.bodies.values()) body.draw(ctx)
+    }
 }
 
 export class Body {
@@ -119,14 +123,12 @@ export class Body {
     ) {}
 
     public draw(ctx: CanvasRenderingContext2D): void {
-        if (this.img) {
-            renderUtils.renderCenteredImage(ctx, this.img, { x: this.x, y: this.y }, 1)
-        } else {
-            ctx.beginPath()
-            ctx.arc(this.x + 0.5, this.y + 0.5, 0.3, 0, 2 * Math.PI)
-            ctx.fillStyle = '#0005'
-            ctx.fill()
-        }
+        renderUtils.renderCenteredImageOrLoadingIndicator(
+            ctx,
+            this.img,
+            { x: this.x, y: this.y },
+            1
+        )
     }
 
     public onHoverInfo(): string {
