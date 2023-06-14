@@ -39,7 +39,7 @@ module.exports = (env) => {
             hot: true,
             port: 3000,
             static: {
-                directory: path.join(__dirname, '/')
+                directory: path.join(__dirname, '/src')
             }
         },
         output: {

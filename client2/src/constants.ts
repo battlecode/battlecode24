@@ -25,3 +25,10 @@ export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
  * Renderer constants
  */
 export const TILE_RESOLUTION: number = 50 // Pixels per axis per tile
+
+// currently just used to get the file names from the resource id
+export const RESOURCE_NAMES: Record<number, string> = {
+    1: 'adamantium',
+    2: 'mana',
+    3: 'elixir'
+}

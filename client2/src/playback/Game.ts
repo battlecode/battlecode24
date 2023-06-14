@@ -104,6 +104,7 @@ export class Team {
     public stats: TeamStat
     public readonly id: number
     public readonly packageName: string
+    public readonly color: string
 
     constructor(team: schema.TeamData) {
         this.name = team.name() ?? assert.fail('Team name is missing')
@@ -113,6 +114,7 @@ export class Team {
         }
         this.id = team.teamID() ?? assert.fail('Team id is missing')
         this.packageName = team.packageName() ?? assert.fail('Team package name is missing')
+        this.color = this.id === 0 ? 'red' : 'blue'
     }
 }
 

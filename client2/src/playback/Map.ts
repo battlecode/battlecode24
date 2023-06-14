@@ -3,6 +3,7 @@ import assert from 'assert'
 import { Vector } from './Vector'
 import * as cst from '../constants'
 import * as renderUtils from '../util/RenderUtil'
+import { getImageIfLoaded } from '../imageloader'
 
 export type Dimension = {
     minCorner: Vector
@@ -253,11 +254,13 @@ export class CurrentMap {
                 if (this.staticMap.resources[schemaIdx] > 0) {
                     // Main image
                     const upgraded = this.resource_well_stats.get(schemaIdx)!.upgraded
+                    const resource = this.staticMap.resources[schemaIdx]
                     const size = upgraded ? 0.95 : 0.85
-                    const img = null //this.imgs.resource_wells[map.resources[idxVal]][upgraded ? 1 : 0]
-                    ctx.fillStyle = 'red'
-                    ctx.fillRect(coords.x, coords.y, size, size)
-                    //renderUtils.renderCenteredImage(ctx, img, coords, size)
+                    const resourcename = cst.RESOURCE_NAMES[resource]
+                    const img = getImageIfLoaded(
+                        `resources/${resourcename}_well_${upgraded ? 'upgraded_' : ''}smaller.png`
+                    )
+                    if (img) renderUtils.renderCenteredImage(ctx, img, coords, size)
                 }
             }
         }
