@@ -1,10 +1,9 @@
 import React from 'react'
 
 interface Props {
-    team: boolean
 }
 
-export const UnitsTable: React.FC<Props> = (props: Props) => {
+export const ResourceGraph: React.FC<Props> = (props: Props) => {
 
     const columnClassName = "w-[50px] text-center mx-auto"
 

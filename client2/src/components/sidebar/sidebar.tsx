@@ -1,7 +1,6 @@
 import { Listbox, Transition } from '@headlessui/react'
 import React, { Fragment } from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
-import { PageType } from '../../definitions'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
 import { QueuePage } from './queue/queue'
@@ -12,6 +11,7 @@ import { HelpPage } from './help/help'
 import { MapEditorPage } from './map-editor/map-editor'
 import { ProfilerPage } from './profiler/profiler'
 import { RunnerPage } from './runner/runner'
+import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -24,8 +24,9 @@ const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
 
 export const Sidebar: React.FC = () => {
     const context = useAppContext()
+    const [page, setPage] = usePage();
 
-    const [open, setOpen] = React.useState(true)
+    const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
 
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[56px]'
@@ -34,7 +35,7 @@ export const Sidebar: React.FC = () => {
     const renderPage = () => {
         if (!open) return undefined
 
-        switch (context.state.page) {
+        switch (page) {
             default:
                 return undefined
             case PageType.GAME:
@@ -53,16 +54,13 @@ export const Sidebar: React.FC = () => {
     }
 
     const updatePage = (newPage: PageType) => {
-        context.setState({
-            ...context.state,
-            page: newPage
-        })
+        setPage(newPage);
     }
 
     // Minimize the sidebar buttons when a new one has been selected
     React.useEffect(() => {
         setExpanded(false)
-    }, [context.state.page])
+    }, [page])
 
     return (
         <div
@@ -80,11 +78,11 @@ export const Sidebar: React.FC = () => {
                 </div>
             </div>
             {open && <>
-                <Listbox value={context.state.page} onChange={updatePage}>
+                <Listbox value={page} onChange={updatePage}>
                     <Listbox.Button
                         className="text-left flex flex-row justify-between hover:bg-lightHighlight p-3 rounded-md border-black border"
                     >
-                        {context.state.page}
+                        {page}
                         <TbSelector className="text-2xl align-middle"/>
                     </Listbox.Button>
                     <Transition
