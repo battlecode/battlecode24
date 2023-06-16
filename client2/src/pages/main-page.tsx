@@ -7,7 +7,7 @@ import { Game } from '../components/game/game'
 export const MainPage: React.FC = () => {
     return (
         <AppContextProvider>
-            <div className="flex bg-dark">
+            <div className="flex bg-dark overflow-hidden">
                 <Sidebar />
                 <div className="w-full h-screen flex justify-center">
                     <Game />

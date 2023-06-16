@@ -5,8 +5,8 @@ import { ResourceGraph } from './resource-graph'
 import { useSearchParamBool } from '../../../app-search-params'
 
 export const GamePage: React.FC = () => {
-    const teamBoxClasses =
-        'w-full h-[50px] flex items-center text-center justify-center'
+    const teamBoxClasses = 'w-full h-[50px] flex items-center text-center justify-center'
+    const showStatsArrowClasses = 'stroke-2 '
 
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
 
@@ -24,8 +24,11 @@ export const GamePage: React.FC = () => {
             </div>
             <UnitsTable team={false}/>
 
-            <button onClick={() => setShowStats(!showStats)} className="flex gap-2 mt-8 mb-1 ml-1 font-bold">
-                Stats {showStats ? <ChevronUpIcon className="stroke-2" /> : <ChevronDownIcon className="stroke-2"/>}
+            <button
+                onClick={() => setShowStats(!showStats)}
+                className="flex flex-row justify-between mt-8 mb-1 font-bold hover:bg-lightHighlight p-3 rounded-md border-black border"
+            >
+                Stats {showStats ? <ChevronDownIcon className={showStatsArrowClasses}/> : <ChevronUpIcon className={showStatsArrowClasses}/>}
             </button>
 
             {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
