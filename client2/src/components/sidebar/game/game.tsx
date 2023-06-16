@@ -24,15 +24,15 @@ export const GamePage: React.FC = () => {
             </div>
             <UnitsTable team={false}/>
 
-            <button onClick={() => setShowStats(!showStats)} className="flex gap-2 mt-6 mb-4 font-bold">
+            <button onClick={() => setShowStats(!showStats)} className="flex gap-2 mt-8 mb-1 ml-1 font-bold">
                 Stats {showStats ? <ChevronUpIcon className="stroke-2" /> : <ChevronDownIcon className="stroke-2"/>}
             </button>
 
-            {
-                showStats && <div className="flex flex-col">
-                    <ResourceGraph />
-                </div>
-            }
+            {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
+                      them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+            <div className={"flex flex-col transition-max-height overflow-hidden duration-300 ease-in-out " + (showStats ? "max-h-96" : "max-h-0")}>
+                <ResourceGraph active={showStats}/>
+            </div>
         </div>
     )
 }

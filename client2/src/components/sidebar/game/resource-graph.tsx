@@ -1,6 +1,7 @@
 import React from 'react'
 
 interface Props {
+    active: boolean
 }
 
 export const ResourceGraph: React.FC<Props> = (props: Props) => {
@@ -19,7 +20,7 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     ]
 
     return (
-        <table className="my-2">
+        <table className="my-2 w-full">
             <tr className="mb-4">
                 <th className="pb-1"></th>
                 {columns.map(column => 

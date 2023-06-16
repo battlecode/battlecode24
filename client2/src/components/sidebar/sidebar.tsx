@@ -23,7 +23,6 @@ const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
 ]
 
 export const Sidebar: React.FC = () => {
-    const context = useAppContext()
     const [page, setPage] = usePage();
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
