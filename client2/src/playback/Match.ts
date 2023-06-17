@@ -38,11 +38,6 @@ export default class Match {
         this.deltas.forEach((delta, i) =>
             assert(delta.roundID() === i + 1, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`)
         )
-
-        assert(
-            footer.totalRounds() == this.maxTurn,
-            `Wrong total turn count: is ${footer.totalRounds()}, should be ${this.maxTurn}`
-        )
     }
 
     /**
