@@ -2,6 +2,7 @@ import React from 'react'
 import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
 import * as cst from '../../constants'
+import { publishEvent, EventType } from '../../app-events'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -60,7 +61,8 @@ export const GameRenderer: React.FC = () => {
         // test game playing
         const stepInterval = setInterval(() => {
             match.stepTurn(1)
-        }, 500)
+            publishEvent(EventType.TURN_PROGRESS, {})
+        }, 100)
 
         return () => {
             clearInterval(renderInterval)

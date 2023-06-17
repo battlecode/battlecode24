@@ -3,26 +3,32 @@ import { ChevronDownIcon, ChevronUpIcon } from '../../../icons/chevron'
 import { UnitsTable } from './units-table'
 import { ResourceGraph } from './resource-graph'
 import { useSearchParamBool } from '../../../app-search-params'
+import { useAppContext } from '../../../app-context'
 
 export const GamePage: React.FC = () => {
+    const context = useAppContext()
+    const activeGame = context.state.activeGame
+
     const teamBoxClasses = 'w-full h-[50px] flex items-center text-center justify-center'
     const showStatsArrowClasses = 'stroke-2 '
 
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
 
+    const NO_GAME_TEAM_NAME = "?????"
+
     return (
         <div className="flex flex-col">
             <div className={teamBoxClasses + " bg-red"}>
-                <p>Team 1</p>
+                <p>{activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
-            <UnitsTable team={true}/>
+            <UnitsTable team={0}/>
 
             <div className="h-[30px]" />
 
             <div className={teamBoxClasses + " bg-blue"}>
-                <p>Team 2</p>
+                <p>{activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
-            <UnitsTable team={false}/>
+            <UnitsTable team={1}/>
 
             <button
                 onClick={() => setShowStats(!showStats)}
