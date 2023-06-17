@@ -30,8 +30,8 @@ export const Sidebar: React.FC = () => {
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
 
-    const minWidth = open ? 'min-w-[390px]' : 'min-w-[56px]'
-    const maxWidth = open ? 'max-w-[390px]' : 'max-w-[56px]'
+    const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
+    const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
     const renderPage = () => {
         if (!open) return undefined
@@ -64,7 +64,7 @@ export const Sidebar: React.FC = () => {
     }, [page])
 
     return (
-        <div className={`${minWidth} ${maxWidth} h-screen `}>
+        <div className={`${minWidth} ${maxWidth} bg-light text-black h-screen transition-[min-width,max-width] overflow-hidden`}>
             <Scrollbars
                 universal={true}
                 autoHide
@@ -74,7 +74,7 @@ export const Sidebar: React.FC = () => {
                 autoHeightMax={height}
                 autoHeightMin={height}
             >
-                <div className="bg-light flex flex-col gap-2 p-3 transition-[min-width,max-width] overflow-x-hidden shadow-centered text-black">
+                <div className="flex flex-col gap-2 p-3">
                     <div className="flex justify-between">
                         {open && (
                             <p className="p-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
