@@ -1,11 +1,14 @@
 import React from 'react'
+import Game from './playback/Game'
 
 export interface AppState {
-    queue: number[] // placeholder
+    queue: number[]
+    activeGame: Game | undefined
 }
 
 const DEFAULT_APP_STATE: AppState = {
-    queue: []
+    queue: [],
+    activeGame: undefined
 }
 
 export interface AppContext {

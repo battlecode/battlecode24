@@ -3,32 +3,40 @@ import { useAppContext } from '../../../app-context'
 import { BATTLECODE_YEAR } from '../../../constants'
 import Button from '../../button'
 import { FiUpload } from 'react-icons/fi'
+import Game from '../../../playback/Game'
 
 export const QueuePage: React.FC = () => {
     const context = useAppContext()
+    const inputRef = React.useRef<HTMLInputElement | null>()
     const queue = context.state.queue
 
-    const onUpload = () => {
-        context.setState({
-            ...context.state,
-            queue: queue.concat(0)
-        })
+    const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length == 0) return
+        const file = e.target.files[0]
+        const reader = new FileReader()
+        reader.onload = () => {
+            context.setState({
+                ...context.state,
+                activeGame: Game.loadFullGameRaw(reader.result as ArrayBuffer),
+                queue: queue.concat(0)
+            })
+        }
+        reader.readAsArrayBuffer(file)
     }
 
     return (
         <div className="flex flex-col">
-            <Button
-                onClick={onUpload}
-            >
-                <FiUpload className="align-middle text-base mr-2"/>
+            <input type="file" hidden ref={(ref) => (inputRef.current = ref)} onChange={upload} />
+            <Button onClick={() => inputRef.current?.click()}>
+                <FiUpload className="align-middle text-base mr-2" />
                 Upload a .bc{BATTLECODE_YEAR % 100} replay file
             </Button>
-            <p>Games ({queue.length === 0 ? 0 : 1}/{queue.length})</p>
-            {
-                queue.map((game) => <div>
-                    {game}
-                </div>)
-            }
+            <p>
+                Games ({queue.length === 0 ? 0 : 1}/{queue.length})
+            </p>
+            {queue.map((game) => (
+                <div>{game}</div>
+            ))}
         </div>
     )
 }
