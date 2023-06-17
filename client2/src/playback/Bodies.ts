@@ -3,7 +3,7 @@ import assert from 'assert'
 import Game, { Team } from './Game'
 import Turn from './Turn'
 import TurnStat from './TurnStat'
-import { loadImage } from '../imageloader'
+import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
 
 export default class Bodies {
@@ -97,15 +97,15 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(ctx: CanvasRenderingContext2D): void {
-        for (const body of this.bodies.values()) body.draw(ctx)
+    draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
+        for (const body of this.bodies.values()) body.draw(turn, ctx)
     }
 }
 
 export class Body {
     static robotName: string
     public type: number = -1
-    protected img: HTMLImageElement | undefined
+    protected imgPath: string = ''
     constructor(
         public x: number,
         public y: number,
@@ -119,8 +119,13 @@ export class Body {
         public bytecodesUsed: number = 0
     ) {}
 
-    public draw(ctx: CanvasRenderingContext2D): void {
-        renderUtils.renderCenteredImageOrLoadingIndicator(ctx, this.img, { x: this.x, y: this.y }, 1)
+    public draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
+        renderUtils.renderCenteredImageOrLoadingIndicator(
+            ctx,
+            getImageIfLoaded(this.imgPath),
+            renderUtils.getRenderCoords(this.x, this.y, turn.map.staticMap.dimension),
+            1
+        )
     }
 
     public onHoverInfo(): string {
@@ -151,7 +156,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.HEADQUARTERS
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_headquarters_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_headquarters_smaller.png`
         }
         onHoverInfo(): string {
             return 'Headquarters'
@@ -162,7 +167,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.LAUNCHER
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_launcher_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_launcher_smaller.png`
         }
         onHoverInfo(): string {
             return Launcher.robotName
@@ -173,7 +178,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.CARRIER
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_carrier_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_carrier_smaller.png`
         }
         onHoverInfo(): string {
             return 'Carrier'
@@ -184,7 +189,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.BOOSTER
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_booster_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_booster_smaller.png`
         }
         onHoverInfo(): string {
             return Booster.robotName
@@ -195,7 +200,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.DESTABILIZER
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_destabilizer_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
         }
         onHoverInfo(): string {
             return Destabilizer.robotName
@@ -206,7 +211,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         public type = schema.BodyType.AMPLIFIER
         constructor(x: number, y: number, hp: number, team: Team, id: number) {
             super(x, y, hp, team, id)
-            loadImage(`robots/${team.color}_amplifier_smaller.png`).then((img) => (this.img = img))
+            this.imgPath = `robots/${team.color}_amplifier_smaller.png`
         }
         onHoverInfo(): string {
             return Amplifier.robotName

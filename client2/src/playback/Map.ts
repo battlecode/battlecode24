@@ -3,7 +3,7 @@ import assert from 'assert'
 import { Vector } from './Vector'
 import * as cst from '../constants'
 import * as renderUtils from '../util/RenderUtil'
-import { getImageIfLoaded } from '../imageloader'
+import { getImageIfLoaded } from '../util/ImageLoader'
 
 export type Dimension = {
     minCorner: Vector
@@ -76,8 +76,7 @@ export class CurrentMap {
         } else {
             // create current map from current map (copy)
             this.resource_well_stats = new Map(from.resource_well_stats)
-            for (let [key, value] of this.resource_well_stats)
-                this.resource_well_stats.set(key, { ...value })
+            for (let [key, value] of this.resource_well_stats) this.resource_well_stats.set(key, { ...value })
 
             this.island_stats = new Map(from.island_stats)
             for (let [key, value] of this.island_stats) this.island_stats.set(key, { ...value })
@@ -104,35 +103,26 @@ export class CurrentMap {
      */
     applyDelta(delta: schema.Round): void {
         for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
-            const well_index =
-                delta.resourceWellLocs(i) ?? assert.fail(`resource well loc at ${i} not found`)
-            this.resources[well_index] =
-                delta.resourceID(i) ?? assert.fail(`resource id at ${i} not found`)
+            const well_index = delta.resourceWellLocs(i) ?? assert.fail(`resource well loc at ${i} not found`)
+            this.resources[well_index] = delta.resourceID(i) ?? assert.fail(`resource id at ${i} not found`)
 
             const current_resource_stats =
                 this.resource_well_stats.get(well_index) ??
                 assert.fail(`resource well stats at ${well_index} not found`)
             current_resource_stats.adamantium =
-                delta.wellAdamantiumValues(i) ??
-                assert.fail(`resource adamantium at ${i} not found`)
-            current_resource_stats.mana =
-                delta.wellManaValues(i) ?? assert.fail(`resource mana at ${i} not found`)
+                delta.wellAdamantiumValues(i) ?? assert.fail(`resource adamantium at ${i} not found`)
+            current_resource_stats.mana = delta.wellManaValues(i) ?? assert.fail(`resource mana at ${i} not found`)
             current_resource_stats.elixir =
                 delta.wellElixirValues(i) ?? assert.fail(`resource elixir at ${i} not found`)
             current_resource_stats.upgraded =
-                (delta.wellAccelerationID(i) ??
-                    assert.fail(`resource acceleration id at ${i} not found`)) > 0
+                (delta.wellAccelerationID(i) ?? assert.fail(`resource acceleration id at ${i} not found`)) > 0
         }
 
         for (let i = 0; i < delta.islandIDsLength(); i++) {
             const id = delta.islandIDs(i) ?? assert.fail(`island id at ${i} not found`)
-            const owner =
-                delta.islandOwnership(i) ?? assert.fail(`island ownership at ${i} not found`)
-            const turnover =
-                delta.islandTurnoverTurns(i) ??
-                assert.fail(`island turnover turns at ${i} not found`)
-            const island_stats =
-                this.island_stats.get(id) ?? assert.fail(`island stats at ${id} not found`)
+            const owner = delta.islandOwnership(i) ?? assert.fail(`island ownership at ${i} not found`)
+            const turnover = delta.islandTurnoverTurns(i) ?? assert.fail(`island turnover turns at ${i} not found`)
+            const island_stats = this.island_stats.get(id) ?? assert.fail(`island stats at ${id} not found`)
             island_stats.flip_progress = turnover
             if (island_stats.owner != owner) {
                 island_stats.is_accelerated = false
@@ -141,100 +131,88 @@ export class CurrentMap {
         }
     }
 
-    private renderIsland(
-        ctx: CanvasRenderingContext2D,
-        i: number,
-        j: number,
-        islandStat: IslandStat
-    ) {
-        renderUtils.renderRounded(
-            ctx,
-            i,
-            j,
-            this.staticMap.dimension,
-            this.staticMap.islands,
-            (scale) => {
-                ctx.globalAlpha = 0.7
+    private renderIsland(ctx: CanvasRenderingContext2D, i: number, j: number, islandStat: IslandStat) {
+        renderUtils.renderRounded(ctx, i, j, this.staticMap.dimension, this.staticMap.islands, (scale) => {
+            ctx.globalAlpha = 0.7
 
-                const sigmoid = (x: number) => {
-                    return 1 / (1 + Math.exp(-x))
-                }
-                const blendColors = (colorA: string, colorB: string, amount: number) => {
-                    const [rA, gA, bA] = colorA.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
-                    const [rB, gB, bB] = colorB.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
-                    const r = Math.round(rA + (rB - rA) * amount)
-                        .toString(16)
-                        .padStart(2, '0')
-                    const g = Math.round(gA + (gB - gA) * amount)
-                        .toString(16)
-                        .padStart(2, '0')
-                    const b = Math.round(bA + (bB - bA) * amount)
-                        .toString(16)
-                        .padStart(2, '0')
-                    return '#' + r + g + b
-                }
-
-                let first_color = '#666666'
-                if (islandStat.owner != 0)
-                    first_color = blendColors(
-                        first_color,
-                        cst.TEAM_COLORS[islandStat.owner - 1],
-                        Math.min(1, sigmoid(islandStat.flip_progress / 15 - 2) + 0.3)
-                    )
-
-                let second_color = islandStat.is_accelerated ? '#EEAC09' : first_color
-
-                const coords = renderUtils.getRenderCoords(i, j, this.staticMap.dimension)
-                const x = coords.x
-                const y = coords.y
-                let d = scale / 8
-
-                ctx.fillStyle = first_color
-                ctx.beginPath()
-                ctx.moveTo(x, y)
-                ctx.lineTo(x + d, y)
-                ctx.lineTo(x, y + d)
-                ctx.closePath()
-                ctx.fill()
-
-                ctx.fillStyle = second_color
-                ctx.beginPath()
-                ctx.moveTo(x + 3 * d, y)
-                ctx.lineTo(x + 5 * d, y)
-                ctx.lineTo(x, y + 5 * d)
-                ctx.lineTo(x, y + 3 * d)
-                ctx.closePath()
-                ctx.fill()
-
-                ctx.fillStyle = first_color
-                ctx.beginPath()
-                ctx.moveTo(x + 7 * d, y)
-                ctx.lineTo(x + 8 * d, y)
-                ctx.lineTo(x + 8 * d, y + d)
-                ctx.lineTo(x + d, y + 8 * d)
-                ctx.lineTo(x, y + 8 * d)
-                ctx.lineTo(x, y + 7 * d)
-                ctx.closePath()
-                ctx.fill()
-
-                ctx.fillStyle = second_color
-                ctx.beginPath()
-                ctx.moveTo(x + 5 * d, y + 8 * d)
-                ctx.lineTo(x + 3 * d, y + 8 * d)
-                ctx.lineTo(x + 8 * d, y + 3 * d)
-                ctx.lineTo(x + 8 * d, y + 5 * d)
-                ctx.closePath()
-                ctx.fill()
-
-                ctx.fillStyle = first_color
-                ctx.beginPath()
-                ctx.moveTo(x + 8 * d, y + 8 * d)
-                ctx.lineTo(x + 7 * d, y + 8 * d)
-                ctx.lineTo(x + 8 * d, y + 7 * d)
-                ctx.closePath()
-                ctx.fill()
+            const sigmoid = (x: number) => {
+                return 1 / (1 + Math.exp(-x))
             }
-        )
+            const blendColors = (colorA: string, colorB: string, amount: number) => {
+                const [rA, gA, bA] = colorA.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
+                const [rB, gB, bB] = colorB.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
+                const r = Math.round(rA + (rB - rA) * amount)
+                    .toString(16)
+                    .padStart(2, '0')
+                const g = Math.round(gA + (gB - gA) * amount)
+                    .toString(16)
+                    .padStart(2, '0')
+                const b = Math.round(bA + (bB - bA) * amount)
+                    .toString(16)
+                    .padStart(2, '0')
+                return '#' + r + g + b
+            }
+
+            let first_color = '#666666'
+            if (islandStat.owner != 0)
+                first_color = blendColors(
+                    first_color,
+                    cst.TEAM_COLORS[islandStat.owner - 1],
+                    Math.min(1, sigmoid(islandStat.flip_progress / 15 - 2) + 0.3)
+                )
+
+            let second_color = islandStat.is_accelerated ? '#EEAC09' : first_color
+
+            const coords = renderUtils.getRenderCoords(i, j, this.staticMap.dimension)
+            const x = coords.x
+            const y = coords.y
+            let d = scale / 8
+
+            ctx.fillStyle = first_color
+            ctx.beginPath()
+            ctx.moveTo(x, y)
+            ctx.lineTo(x + d, y)
+            ctx.lineTo(x, y + d)
+            ctx.closePath()
+            ctx.fill()
+
+            ctx.fillStyle = second_color
+            ctx.beginPath()
+            ctx.moveTo(x + 3 * d, y)
+            ctx.lineTo(x + 5 * d, y)
+            ctx.lineTo(x, y + 5 * d)
+            ctx.lineTo(x, y + 3 * d)
+            ctx.closePath()
+            ctx.fill()
+
+            ctx.fillStyle = first_color
+            ctx.beginPath()
+            ctx.moveTo(x + 7 * d, y)
+            ctx.lineTo(x + 8 * d, y)
+            ctx.lineTo(x + 8 * d, y + d)
+            ctx.lineTo(x + d, y + 8 * d)
+            ctx.lineTo(x, y + 8 * d)
+            ctx.lineTo(x, y + 7 * d)
+            ctx.closePath()
+            ctx.fill()
+
+            ctx.fillStyle = second_color
+            ctx.beginPath()
+            ctx.moveTo(x + 5 * d, y + 8 * d)
+            ctx.lineTo(x + 3 * d, y + 8 * d)
+            ctx.lineTo(x + 8 * d, y + 3 * d)
+            ctx.lineTo(x + 8 * d, y + 5 * d)
+            ctx.closePath()
+            ctx.fill()
+
+            ctx.fillStyle = first_color
+            ctx.beginPath()
+            ctx.moveTo(x + 8 * d, y + 8 * d)
+            ctx.lineTo(x + 7 * d, y + 8 * d)
+            ctx.lineTo(x + 8 * d, y + 7 * d)
+            ctx.closePath()
+            ctx.fill()
+        })
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -295,12 +273,8 @@ export class StaticMap {
 
         this.walls = map.wallsArray() ?? assert.fail('wallsArray() is null')
         this.clouds = map.cloudsArray() ?? assert.fail('cloudsArray() is null')
-        this.currents = Int8Array.from(
-            map.currentsArray() ?? assert.fail('currentsArray() is null')
-        )
-        this.resources = Int8Array.from(
-            map.resourcesArray() ?? assert.fail('resourcesArray() is null')
-        )
+        this.currents = Int8Array.from(map.currentsArray() ?? assert.fail('currentsArray() is null'))
+        this.resources = Int8Array.from(map.resourcesArray() ?? assert.fail('resourcesArray() is null'))
         this.islands = map.islandsArray() ?? assert.fail('islandsArray() is null')
     }
 

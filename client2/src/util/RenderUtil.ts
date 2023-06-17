@@ -26,9 +26,7 @@ export const get9SliceClipPath = (
         let x = cst.DIRECTIONS[v][0] + i
         let y = cst.DIRECTIONS[v][1] + j
         neighbors.push(
-            x < 0 || y < 0 || x == dims.width || y == dims.height
-                ? false
-                : valFunc(vals[getSchemaIdx(x, y, dims)])
+            x < 0 || y < 0 || x == dims.width || y == dims.height ? false : valFunc(vals[getSchemaIdx(x, y, dims)])
         )
     }
     let points: number[][] = []
@@ -54,10 +52,8 @@ export const get9SliceClipPath = (
                     points.push([cx, cy + sy * edge])
                     if (corner % 2 == 0) points.push([cx + sx * edge, cy])
                 }
-            } else if (neighbors[cr])
-                points.push(corner % 2 == 0 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
-            else if (neighbors[cl])
-                points.push(corner % 2 == 1 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
+            } else if (neighbors[cr]) points.push(corner % 2 == 0 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
+            else if (neighbors[cl]) points.push(corner % 2 == 1 ? [cx + sx * edge, cy] : [cx, cy + sy * edge])
         } else {
             if (corner % 2 == 0) points.push([cx + sx * edge, cy + sy * bevel])
             points.push([cx + sx * bevel, cy + sy * edge])
@@ -101,16 +97,10 @@ export const renderRounded = (
 ) => {
     const path = get9SliceClipPath(i, j, dims, values, valueCheck)
     const coords = getRenderCoords(i, j, dims)
-    applyClipScaled(ctx, coords.x / renderScale, coords.y / renderScale, renderScale, path, () =>
-        render(renderScale)
-    )
+    applyClipScaled(ctx, coords.x / renderScale, coords.y / renderScale, renderScale, path, () => render(renderScale))
 }
 
-export const applyStyles = (
-    ctx: CanvasRenderingContext2D,
-    styles: Record<string, any>,
-    render: () => void
-) => {
+export const applyStyles = (ctx: CanvasRenderingContext2D, styles: Record<string, any>, render: () => void) => {
     const saved: Record<string, any> = {}
     for (const style in styles) {
         saved[style] = (ctx as any)[style]
@@ -120,11 +110,7 @@ export const applyStyles = (
     for (const style in saved) (ctx as any)[style] = saved[style]
 }
 
-export const renderTileArrow = (
-    ctx: CanvasRenderingContext2D,
-    coords: Vector,
-    direction: number
-) => {
+export const renderTileArrow = (ctx: CanvasRenderingContext2D, coords: Vector, direction: number) => {
     ctx.beginPath()
 
     let dir = cst.DIRECTIONS[direction]

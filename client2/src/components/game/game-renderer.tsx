@@ -40,7 +40,8 @@ export const GameRenderer: React.FC = () => {
          * then we need to make it also draw on image load (see imageloader.triggerOnImageLoad()) unless we decide to
          * block until all images are loaded (which is probably a bad idea)
          */
-        const interval = setInterval(() => {
+        //match.jumpToTurn(50)
+        const render = () => {
             const turn = match.currentTurn
 
             updateCanvasDimensions(CanvasType.BACKGROUND, { x: turn.map.width, y: turn.map.height })
@@ -50,16 +51,21 @@ export const GameRenderer: React.FC = () => {
             updateCanvasDimensions(CanvasType.DYNAMIC, { x: turn.map.width, y: turn.map.height })
             ctx = getCanvasContext(CanvasType.DYNAMIC)!
             match.currentTurn.map.draw(ctx)
-            match.currentTurn.bodies.draw(ctx)
+            match.currentTurn.bodies.draw(match.currentTurn, ctx)
             match.currentTurn.actions.draw(match.currentTurn, ctx)
-        }, 100)
+        }
+        //render()
+        const renderInterval = setInterval(render, 100)
 
         // test game playing
-        setInterval(() => {
+        const stepInterval = setInterval(() => {
             match.stepTurn(1)
         }, 500)
 
-        return () => clearInterval(interval)
+        return () => {
+            clearInterval(renderInterval)
+            clearInterval(stepInterval)
+        }
     }, [canvases, appContext.state.activeGame])
 
     if (!canvases) return <></>
