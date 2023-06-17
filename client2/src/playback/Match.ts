@@ -55,7 +55,7 @@ export default class Match {
         let turn = this.snapshots[snapshotIndex].copy()
 
         while (turn.turnNumber < turnNumber) {
-            turn.applyDelta(this.deltas[turn.turnNumber + 1])
+            turn.applyDelta(this.deltas[turn.turnNumber])
             if (turn.turnNumber % SNAPSHOT_EVERY === 0 && this.snapshots.length < turn.turnNumber / SNAPSHOT_EVERY) {
                 this.snapshots.push(turn.copy())
             }
