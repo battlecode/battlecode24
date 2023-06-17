@@ -8,20 +8,18 @@ const onLoadCallbacks: (() => void)[] = []
  * @param path the path of the image to load
  * @returns a promise that resolves to the image once the image has been loaded
  */
-export async function loadImage(path: string): Promise<HTMLImageElement> {
-    if (imgCache.has(path)) return await imgCache.get(path)!
+export const loadImage = (path: string): Promise<HTMLImageElement> => {
+    if (imgCache.has(path)) return imgCache.get(path)!
 
     const img = new Image()
     img.src = IMAGE_DIRECTORY + path
 
-    let loading = new Promise<HTMLImageElement>(() => {})
-    loading = new Promise<HTMLImageElement>((resolve, reject) => {
+    const loading = new Promise<HTMLImageElement>((resolve, reject) => {
         img.onload = () => {
             loadedImgCache.set(path, img)
             resolve(img)
             onLoadCallbacks.forEach((callback) => callback())
         }
-        imgCache.set(path, loading)
         img.onerror = reject
     })
     loading.catch((e) => {
@@ -39,7 +37,7 @@ export async function loadImage(path: string): Promise<HTMLImageElement> {
  * @param path the path of the image to load
  * @returns the image if it has already been loaded, or undefined otherwise
  */
-export function getImageIfLoaded(path: string) {
+export const getImageIfLoaded = (path: string) => {
     if (loadedImgCache.has(path)) return loadedImgCache.get(path)
     loadImage(path)
     return undefined
@@ -49,6 +47,6 @@ export function getImageIfLoaded(path: string) {
  * Calls the callback once any image loads
  * @param callback the callback to call once any image loads
  */
-export function triggerOnImageLoad(callback: () => void) {
+export const triggerOnImageLoad = (callback: () => void) => {
     onLoadCallbacks.push(callback)
 }

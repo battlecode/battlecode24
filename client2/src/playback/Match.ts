@@ -38,11 +38,6 @@ export default class Match {
         this.deltas.forEach((delta, i) =>
             assert(delta.roundID() === i + 1, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`)
         )
-
-        assert(
-            footer.totalRounds() == this.maxTurn,
-            `Wrong total turn count: is ${footer.totalRounds()}, should be ${this.maxTurn}`
-        )
     }
 
     /**
@@ -60,7 +55,7 @@ export default class Match {
         let turn = this.snapshots[snapshotIndex].copy()
 
         while (turn.turnNumber < turnNumber) {
-            turn.applyDelta(this.deltas[turn.turnNumber + 1])
+            turn.applyDelta(this.deltas[turn.turnNumber])
             if (turn.turnNumber % SNAPSHOT_EVERY === 0 && this.snapshots.length < turn.turnNumber / SNAPSHOT_EVERY) {
                 this.snapshots.push(turn.copy())
             }

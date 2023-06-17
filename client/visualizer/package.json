@@ -31,7 +31,8 @@
     "chart.js": "^2.9.4",
     "deepcopy": "^2.1.0",
     "speedscope": "1.5.2",
-    "victor": "^1.1.0"
+    "victor": "^1.1.0",
+    "battlecode-schema": "file:../../schema"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",
