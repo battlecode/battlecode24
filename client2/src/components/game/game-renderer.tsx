@@ -62,7 +62,8 @@ export const GameRenderer: React.FC = () => {
         const stepInterval = setInterval(() => {
             match.stepTurn(1)
             publishEvent(EventType.TURN_PROGRESS, {})
-        }, 100)
+            console.log(match.currentTurn.turnNumber)
+        }, 300)
 
         return () => {
             clearInterval(renderInterval)

@@ -13,6 +13,8 @@ export function useRefresh(intervalMillis: number) {
     }, []);
 }
 
+// returns a function that can be used to force a component to rerender
+// useful for stats components to reread the contents
 export function useForceUpdate(): () => void {
     const [, updateState] = useState({});
     const forceUpdate = useCallback(() => updateState({}), []);

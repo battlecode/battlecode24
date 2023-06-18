@@ -2,7 +2,7 @@ const IMAGE_DIRECTORY = 'static/img/'
 
 const imgCache = new Map<string, Promise<HTMLImageElement>>()
 const loadedImgCache = new Map<string, HTMLImageElement>()
-const onLoadCallbacks: (() => void)[] = []
+const onLoadCallbacks = new Map<string, (() => void)[]>()
 
 /**
  * @param path the path of the image to load
@@ -18,7 +18,8 @@ export const loadImage = (path: string): Promise<HTMLImageElement> => {
         img.onload = () => {
             loadedImgCache.set(path, img)
             resolve(img)
-            onLoadCallbacks.forEach((callback) => callback())
+            onLoadCallbacks.get(path)?.forEach((callback) => callback())
+            onLoadCallbacks.get("")?.forEach((callback) => callback())
         }
         img.onerror = reject
     })
@@ -44,9 +45,26 @@ export const getImageIfLoaded = (path: string) => {
 }
 
 /**
- * Calls the callback once any image loads
+ * Calls the callback once an image loads
  * @param callback the callback to call once any image loads
+ * @param path the path to the image that when loaded will trigger the callback. if an empty string
+ *             is used, then the callback will be called on any image
  */
-export const triggerOnImageLoad = (callback: () => void) => {
-    onLoadCallbacks.push(callback)
+export const triggerOnImageLoad = (callback: () => void, path: string = "") => {
+    if (!onLoadCallbacks.has(path)) {
+        onLoadCallbacks.set(path, [])
+    }
+    onLoadCallbacks.get(path)?.push(callback)
+}
+
+/**
+ * Removes a stored callback (see triggerOnImageLoad for details on parameters)
+ * @param callback the callback that was stored
+ * @param path the path to the image that was used to register the callback
+ */
+export const removeTriggerOnImageLoad = (callback: () => void, path: string = "") => {
+    const index = onLoadCallbacks.get(path)?.indexOf(callback)
+    if (index !== -1 && index !== undefined) {
+        onLoadCallbacks.get(path)?.splice(index, 1)
+    }
 }
