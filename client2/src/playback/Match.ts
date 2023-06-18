@@ -51,6 +51,7 @@ export default class Match {
      * Sets the current turn to the turn at the given turn number.
      */
     public jumpToTurn(turnNumber: number): void {
+        turnNumber = Math.min(turnNumber, this.deltas.length)
         const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
         let turn = this.snapshots[snapshotIndex].copy()
 
