@@ -26,11 +26,12 @@ export default class Match {
         const mapData = header.map() ?? assert.fail('Map data not found in header')
         this.map = new StaticMap(mapData)
 
-        const firstBodies = new Bodies(game, mapData.bodies() ?? assert.fail('Initial bodies not found in header'))
+        const firstStats = new TurnStat(game)
+        const firstBodies = new Bodies(game, mapData.bodies() ?? assert.fail('Initial bodies not found in header'), firstStats)
 
         this.maxTurn = header.maxRounds()
 
-        this.currentTurn = new Turn(this, 0, new CurrentMap(this.map), firstBodies, new Actions(), new TurnStat(game))
+        this.currentTurn = new Turn(this, 0, new CurrentMap(this.map), firstBodies, new Actions(), firstStats)
         this.snapshots = [this.currentTurn]
         this.stats = [this.currentTurn.stat]
 

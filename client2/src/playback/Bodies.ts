@@ -8,8 +8,8 @@ import * as renderUtils from '../util/RenderUtil'
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map()
-    constructor(private readonly game: Game, initialBodies?: schema.SpawnedBodyTable) {
-        if (initialBodies) this.insertBodies(initialBodies)
+    constructor(private readonly game: Game, initialBodies?: schema.SpawnedBodyTable, initialStats?: TurnStat) {
+        if (initialBodies) this.insertBodies(initialBodies, initialStats)
     }
 
     /**
