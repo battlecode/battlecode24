@@ -40,7 +40,7 @@ export const GameRenderer: React.FC = () => {
          * then we need to make it also draw on image load (see imageloader.triggerOnImageLoad()) unless we decide to
          * block until all images are loaded (which is probably a bad idea)
          */
-        //match.jumpToTurn(50)
+        // match.jumpToTurn(1244)
         const render = () => {
             const turn = match.currentTurn
 

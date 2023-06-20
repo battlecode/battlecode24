@@ -112,8 +112,7 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             let targetLoc
             if (this.target >= 0) {
                 // Hit attack: target is bot
-                const targetBody = turn.bodies.getById(this.target)
-                targetLoc = { x: targetBody.x, y: targetBody.y }
+                targetLoc = {...turn.bodies.getPositionById(this.target)}
             } else {
                 // Missed attack: target is location (-location - 1)
                 targetLoc = turn.map.indexToLocation(-this.target - 1)
