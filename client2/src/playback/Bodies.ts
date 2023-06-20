@@ -5,9 +5,12 @@ import Turn from './Turn'
 import TurnStat from './TurnStat'
 import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
+import { Vector } from './Vector'
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map()
+    private justDeletedPositions: Map<number, Vector> = new Map()
+
     constructor(private readonly game: Game, initialBodies?: schema.SpawnedBodyTable, initialStats?: TurnStat) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
     }
@@ -19,6 +22,8 @@ export default class Bodies {
      * most likely be inside scopedCallback()
      */
     applyDelta(turn: Turn, delta: schema.Round, scopedCallback: () => void): void {
+        this.justDeletedPositions = new Map()
+
         const bodies = delta.spawnedBodies(this.game._bodiesSlot)
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
 
@@ -47,6 +52,7 @@ export default class Bodies {
                     teamStat.robots[diedBody.type] -= 1
                     teamStat.total_hp[diedBody.type] -= diedBody.hp
                 }
+                this.justDeletedPositions.set(diedBody.id, { x: diedBody.x, y: diedBody.y })
                 assert(this.bodies.delete(diedBody.id))
             }
         }
@@ -87,6 +93,24 @@ export default class Bodies {
 
     getById(id: number): Body {
         return this.bodies.get(id) ?? assert.fail(`Body with id ${id} not found in bodies`)
+    }
+
+    /**
+     * Returns position of the body with id if it is alive
+     * If the body has just been deleted, then it will return the last position of the body
+     * Otherwise it will throw an error
+     * 
+     * @param id id of body to look up
+     */
+    getPositionById(id: number): Vector {
+        if (this.bodies.has(id)) {
+            const body = this.getById(id)
+            return { x: body.x, y: body.y }
+        }
+        return (
+            this.justDeletedPositions.get(id) ??
+            assert.fail(`Body with id ${id} not found in bodies or justDeletedPositions`)
+        )
     }
 
     copy(): Bodies {
