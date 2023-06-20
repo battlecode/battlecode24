@@ -25,8 +25,7 @@ export default class Turn {
         this.turnNumber += 1
 
         const firstTimeComputingStat = this.match.stats.length <= this.turnNumber
-        if (firstTimeComputingStat)
-            this.stat.completed = false // mark that stat should be computed by bodies and actions below
+        if (firstTimeComputingStat) this.stat.completed = false // mark that stat should be computed by bodies and actions below
         else this.stat = this.match.stats[this.turnNumber].copy()
 
         this.map.applyDelta(schemaDelta)
