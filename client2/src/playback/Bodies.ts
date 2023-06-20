@@ -45,9 +45,9 @@ export default class Bodies {
                     const teamStat =
                         turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
                     teamStat.robots[diedBody.type] -= 1
-                    teamStat.total_hp[diedBody.type] -= this.game.typeMetadata[diedBody.type].health()
+                    teamStat.total_hp[diedBody.type] -= diedBody.hp
                 }
-                this.bodies.delete(diedBody.id)
+                assert(this.bodies.delete(diedBody.id))
             }
         }
     }

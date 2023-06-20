@@ -46,7 +46,9 @@ export default class TurnStat {
     copy(): TurnStat {
         const newTeamStats = new Map(this.teams)
         for (const [team, stat] of this.teams) newTeamStats.set(team, stat.copy())
-        return new TurnStat(this.game, newTeamStats)
+        const copy = new TurnStat(this.game, newTeamStats)
+        copy.completed = this.completed
+        return copy
     }
 
     /**
