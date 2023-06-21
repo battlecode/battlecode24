@@ -60,7 +60,7 @@ export const GameRenderer: React.FC = () => {
         // test game playing
         const stepInterval = setInterval(() => {
             match.stepTurn(1)
-        }, 500)
+        }, 10)
 
         return () => {
             clearInterval(renderInterval)

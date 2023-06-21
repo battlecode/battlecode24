@@ -94,6 +94,12 @@ export class CurrentMap {
         return { x: target_x, y: target_y }
     }
 
+    locationToIndex(x: number, y: number): number {
+        assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
+        assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
+        return y * this.height + x
+    }
+
     copy(): CurrentMap {
         return new CurrentMap(this)
     }

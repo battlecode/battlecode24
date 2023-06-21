@@ -107,16 +107,17 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             const body = turn.bodies.getById(this.robotID)
             assert(body.type === schema.BodyType.CARRIER, 'Cannot throw from non-carrier')
             body.clearResources()
+
+            // if attacking bot, turn location from target bot id into target bot location
+            if (this.target >= 0) {
+                const targetBody = turn.bodies.getById(this.target)
+                this.target = turn.map.locationToIndex(targetBody.x, targetBody.y)
+            } else {
+                this.target = -this.target - 1
+            }
         }
         draw(turn: Turn, ctx: CanvasRenderingContext2D) {
-            let targetLoc
-            if (this.target >= 0) {
-                // Hit attack: target is bot
-                targetLoc = {...turn.bodies.getPositionById(this.target)}
-            } else {
-                // Missed attack: target is location (-location - 1)
-                targetLoc = turn.map.indexToLocation(-this.target - 1)
-            }
+            const targetLoc = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.LAUNCH_ATTACK]: class Launch extends Action {
