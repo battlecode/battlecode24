@@ -18,7 +18,7 @@ export default class Match {
     private readonly maxTurn: number
     public readonly stats: TurnStat[] = []
     public readonly winner: Team
-    private readonly map: StaticMap
+    public readonly map: StaticMap
 
     constructor(game: Game, header: schema.MatchHeader, turns: schema.Round[], footer: schema.MatchFooter) {
         this.game = game

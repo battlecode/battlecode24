@@ -1,14 +1,17 @@
 import React from 'react'
 import Game from './playback/Game'
+import Match from './playback/Match';
 
 export interface AppState {
-    queue: number[]
-    activeGame: Game | undefined
+    queue: Game[]
+    activeGame: Game | undefined,
+    activeMatch: Match | undefined
 }
 
 const DEFAULT_APP_STATE: AppState = {
     queue: [],
-    activeGame: undefined
+    activeGame: undefined,
+    activeMatch: undefined
 }
 
 export interface AppContext {

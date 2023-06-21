@@ -33,8 +33,7 @@ export const GameRenderer: React.FC = () => {
     }
 
     React.useEffect(() => {
-        if (!game) return
-        const match = game.currentMatch
+        const match = appContext.state.activeMatch
         if (!match) return
         /*
          * If this isnt running at a regular interval (in general, we should probably have it only draw on changes),
@@ -69,7 +68,7 @@ export const GameRenderer: React.FC = () => {
             clearInterval(renderInterval)
             // clearInterval(stepInterval)
         }
-    }, [canvases, appContext.state.activeGame])
+    }, [canvases, appContext.state.activeMatch])
 
     if (!canvases) return <></>
 

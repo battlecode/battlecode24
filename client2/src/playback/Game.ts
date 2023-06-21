@@ -3,8 +3,10 @@ import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
 
+let nextID = 0
+
 export default class Game {
-    private readonly matches: Match[] = []
+    public readonly matches: Match[] = []
     public currentMatch: Match | undefined = undefined
     public readonly teams: [Team, Team]
     public readonly winner: Team
@@ -17,6 +19,10 @@ export default class Game {
     //shared slots for efficiency??
     public _bodiesSlot: schema.SpawnedBodyTable = new schema.SpawnedBodyTable()
     public _vecTableSlot1: schema.VecTable = new schema.VecTable()
+    /**
+     * The ID of this game. This is used to uniquely identify games in the UI, and is just based on uploaded order
+     */
+    public readonly id: number;
 
     constructor(wrapper: schema.GameWrapper) {
         const eventCount = wrapper.eventsLength()
@@ -80,6 +86,8 @@ export default class Game {
         assert(event.eType() === schema.Event.GameFooter, 'Last event must be GameFooter')
         const gameFooter = event.e(new schema.GameFooter()) as schema.GameFooter
         this.winner = this.teams[gameFooter.winner()]
+
+        this.id = nextID++
 
         console.log(this)
     }

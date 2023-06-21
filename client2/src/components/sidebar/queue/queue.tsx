@@ -4,6 +4,7 @@ import { BATTLECODE_YEAR } from '../../../constants'
 import Button from '../../button'
 import { FiUpload } from 'react-icons/fi'
 import Game from '../../../playback/Game'
+import { QueuedGame } from './queue-game';
 
 export const QueuePage: React.FC = () => {
     const context = useAppContext()
@@ -15,10 +16,12 @@ export const QueuePage: React.FC = () => {
         const file = e.target.files[0]
         const reader = new FileReader()
         reader.onload = () => {
+            const game = Game.loadFullGameRaw(reader.result as ArrayBuffer)
             context.setState({
                 ...context.state,
-                activeGame: Game.loadFullGameRaw(reader.result as ArrayBuffer),
-                queue: queue.concat(0)
+                activeGame: game,
+                activeMatch: game.currentMatch,
+                queue: queue.concat([game])
             })
         }
         reader.readAsArrayBuffer(file)
@@ -31,11 +34,11 @@ export const QueuePage: React.FC = () => {
                 <FiUpload className="align-middle text-base mr-2" />
                 Upload a .bc{BATTLECODE_YEAR % 100} replay file
             </Button>
-            <p>
+            <p className='mb-2'>
                 Games ({queue.length === 0 ? 0 : 1}/{queue.length})
             </p>
-            {queue.map((game, i) => (
-                <div key={i}>{game}</div>
+            {queue.map((game) => (
+                <QueuedGame key={game.id} game={game} />
             ))}
         </div>
     )

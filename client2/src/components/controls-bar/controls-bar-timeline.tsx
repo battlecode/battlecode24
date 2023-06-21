@@ -6,9 +6,6 @@ import { useForceUpdate } from '../../util/react-util'
 import { useListenEvent, EventType } from '../../app-events'
 
 export const ControlsBarTimeline: React.FC = () => {
-    const WIDTH = 350
-    const outerFormat = 'min-w-[' + WIDTH + 'px] min-h-[30px] bg-bg rounded-md mr-2 relative'
-
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
@@ -31,13 +28,13 @@ export const ControlsBarTimeline: React.FC = () => {
     const timelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
-        const turn = Math.floor((x / WIDTH) * 2000)
+        const turn = Math.floor((x / 350) * 2000)
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
     }
 
     if (!appContext.state.activeGame || !appContext.state.activeGame.currentMatch)
         return (
-            <div className={outerFormat}>
+            <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
                 <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs pointer-events-none">
                     Upload Game File
                 </p>
@@ -48,7 +45,7 @@ export const ControlsBarTimeline: React.FC = () => {
     const turn = () => appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
     const turnPercentage = () => (1 - turn() / 2000) * 100 + '%'
     return (
-        <div className={outerFormat}>
+        <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
             <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs select-none">
                 Turn: <b>{turn()}</b>/2000
             </p>
@@ -62,6 +59,7 @@ export const ControlsBarTimeline: React.FC = () => {
                 onMouseMove={timelineHover}
                 onMouseDown={timelineDown}
                 onMouseUp={timelineUp}
+                onMouseLeave={timelineUp}
             ></div>
         </div>
     )

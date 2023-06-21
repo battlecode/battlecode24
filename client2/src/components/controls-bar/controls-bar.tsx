@@ -54,7 +54,7 @@ export const ControlsBar: React.FC = () => {
 
     return (
         <div className="flex bg-darkHighlight text-white absolute bottom-0 p-1.5 rounded-t-md z-10 gap-1.5">
-            <ControlsBarTimeline/>
+            <ControlsBarTimeline />
             <ControlsBarButton
                 icon={<ControlIcons.ReverseIcon />}
                 tooltip="Reverse"
@@ -72,7 +72,7 @@ export const ControlsBar: React.FC = () => {
             />
             {updatesPerSecond == 0 ? (
                 <ControlsBarButton
-                    icon={<ControlIcons.GoNextIcon />}
+                    icon={<ControlIcons.PlaybackPlayIcon />}
                     tooltip="Play"
                     onClick={() => changeUpdatesPerSecond(1)}
                 />

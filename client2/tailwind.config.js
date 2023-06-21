@@ -25,6 +25,7 @@ module.exports = {
                 black: colors.black,
                 light: '#faf9fe',
                 lightHighlight: '#eeeeee',
+                medHighlight: '#d0d0d0',
             }
         },
     },
