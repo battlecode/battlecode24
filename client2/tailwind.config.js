@@ -7,6 +7,9 @@ module.exports = {
             sans: ['Martian Mono', 'sans-serif']
         },
         extend: {
+            transitionProperty: {
+                'max-height': 'max-height'
+            },
             boxShadow: {
                 'centered': '0 0 10px 1px rgba(0,0,0,0.6)',
             },

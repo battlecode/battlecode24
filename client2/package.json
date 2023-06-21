@@ -22,11 +22,15 @@
     "@headlessui/react": "^1.7.14",
     "assert": "^2.0.0",
     "battlecode-schema": "file:../schema",
+    "flatbuffers": "^23.5.26",
     "pako": "^2.1.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
+    "react-custom-scrollbars-2": "^4.5.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.8.0"
+    "react-icons": "^4.8.0",
+    "react-router-dom": "^6.13.0",
+    "recharts": "^2.6.2"
   },
   "devDependencies": {
     "@types/pako": "^2.0.0",
