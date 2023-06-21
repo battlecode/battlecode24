@@ -57,14 +57,14 @@ export const GameRenderer: React.FC = () => {
         //render()
         const renderInterval = setInterval(render, 100)
 
-        // test game playing
-        const stepInterval = setInterval(() => {
-            match.stepTurn(1)
-        }, 500)
+        // // test game playing
+        // const stepInterval = setInterval(() => {
+        //     match.stepTurn(1)
+        // }, 500)
 
         return () => {
             clearInterval(renderInterval)
-            clearInterval(stepInterval)
+            // clearInterval(stepInterval)
         }
     }, [canvases, appContext.state.activeGame])
 

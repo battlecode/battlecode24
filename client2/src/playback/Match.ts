@@ -49,6 +49,13 @@ export default class Match {
     }
 
     /**
+     * Sets the current turn to the last turn.
+     */
+    public jumpToEnd(): void {
+        this.jumpToTurn(this.maxTurn)
+    }
+
+    /**
      * Sets the current turn to the turn at the given turn number.
      */
     public jumpToTurn(turnNumber: number): void {

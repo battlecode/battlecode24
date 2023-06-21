@@ -34,8 +34,8 @@ export const QueuePage: React.FC = () => {
             <p>
                 Games ({queue.length === 0 ? 0 : 1}/{queue.length})
             </p>
-            {queue.map((game) => (
-                <div>{game}</div>
+            {queue.map((game, i) => (
+                <div key={i}>{game}</div>
             ))}
         </div>
     )
