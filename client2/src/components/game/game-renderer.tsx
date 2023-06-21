@@ -55,15 +55,15 @@ export const GameRenderer: React.FC = () => {
             match.currentTurn.bodies.draw(match.currentTurn, ctx)
             match.currentTurn.actions.draw(match.currentTurn, ctx)
         }
-        //render()
+
         const renderInterval = setInterval(render, 100)
 
         // test game playing
-        const stepInterval = setInterval(() => {
-            match.stepTurn(1)
-            publishEvent(EventType.TURN_PROGRESS, {})
-            console.log(match.currentTurn.turnNumber)
-        }, 300)
+        // const stepInterval = setInterval(() => {
+        //     match.stepTurn(1)
+        //     publishEvent(EventType.TURN_PROGRESS, {})
+        //     console.log(match.currentTurn.turnNumber)
+        // }, 300)
 
         return () => {
             clearInterval(renderInterval)

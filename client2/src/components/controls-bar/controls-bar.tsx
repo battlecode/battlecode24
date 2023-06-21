@@ -2,17 +2,13 @@ import React from 'react'
 import * as ControlIcons from '../../icons/controls'
 import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
+import { ControlsBarTimeline } from './controls-bar-timeline'
 
 export const ControlsBar: React.FC = () => {
-    const [updatesPerSecond, setUpdatesPerSecond] = React.useState(1)
+    const [updatesPerSecond, setUpdatesPerSecond] = React.useState(0)
     const appContext = useAppContext()
 
     const matchLoaded = () => appContext.state.activeGame && appContext.state.activeGame.currentMatch
-
-    const currentRound = () => {
-        if (!matchLoaded()) return 0
-        return appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
-    }
 
     const changeUpdatesPerSecond = (val: number) => {
         if (!matchLoaded()) return
@@ -22,8 +18,8 @@ export const ControlsBar: React.FC = () => {
     const multiplyUpdatesPerSecond = (multiplier: number) => {
         if (!matchLoaded()) return
         setUpdatesPerSecond((u) => {
-            const sign = Math.sign(u)
-            const newMag = Math.max(1 / 4, Math.min(64, Math.abs(u) * multiplier))
+            const sign = Math.sign(u * multiplier)
+            const newMag = Math.max(1 / 4, Math.min(64, Math.abs(u * multiplier)))
             return sign * newMag
         })
     }
@@ -33,9 +29,9 @@ export const ControlsBar: React.FC = () => {
         appContext.state.activeGame!.currentMatch!.stepTurn(delta)
     }
 
-    const jumpToStart = () => {
+    const jumpToTurn = (turn: number) => {
         if (!matchLoaded()) return
-        appContext.state.activeGame!.currentMatch!.jumpToTurn(0)
+        appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
     }
 
     const jumpToEnd = () => {
@@ -43,13 +39,22 @@ export const ControlsBar: React.FC = () => {
         appContext.state.activeGame!.currentMatch!.jumpToEnd()
     }
 
+    React.useEffect(() => {
+        if (!matchLoaded()) return
+        if (updatesPerSecond == 0) return
+
+        const stepInterval = setInterval(() => {
+            appContext.state.activeGame!.currentMatch!.stepTurn(Math.sign(updatesPerSecond))
+        }, 1000 / Math.abs(updatesPerSecond))
+
+        return () => {
+            clearInterval(stepInterval)
+        }
+    }, [updatesPerSecond, appContext.state.activeGame, appContext.state.activeGame?.currentMatch])
+
     return (
         <div className="flex bg-darkHighlight text-white absolute bottom-0 p-1.5 rounded-t-md z-10 gap-1.5">
-            <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
-                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs pointer-events-none">
-                    Round: <b>{currentRound()}</b>/2000
-                </p>
-            </div>
+            <ControlsBarTimeline/>
             <ControlsBarButton
                 icon={<ControlIcons.ReverseIcon />}
                 tooltip="Reverse"
@@ -57,7 +62,7 @@ export const ControlsBar: React.FC = () => {
             />
             <ControlsBarButton
                 icon={<ControlIcons.SkipBackwardsIcon />}
-                tooltip="Decrease Speed"
+                tooltip={'Decrease Speed (' + updatesPerSecond + ' ups)'}
                 onClick={() => multiplyUpdatesPerSecond(0.5)}
             />
             <ControlsBarButton
@@ -81,10 +86,14 @@ export const ControlsBar: React.FC = () => {
             <ControlsBarButton icon={<ControlIcons.GoNextIcon />} tooltip="Next Turn" onClick={() => stepTurn(1)} />
             <ControlsBarButton
                 icon={<ControlIcons.SkipForwardsIcon />}
-                tooltip="Increase Speed"
+                tooltip={'Increase Speed (' + updatesPerSecond + ' ups)'}
                 onClick={() => multiplyUpdatesPerSecond(2)}
             />
-            <ControlsBarButton icon={<ControlIcons.PlaybackStopIcon />} tooltip="Jump To Start" onClick={jumpToStart} />
+            <ControlsBarButton
+                icon={<ControlIcons.PlaybackStopIcon />}
+                tooltip="Jump To Start"
+                onClick={() => jumpToTurn(0)}
+            />
             <ControlsBarButton icon={<ControlIcons.GoEndIcon />} tooltip="Jump To End" onClick={jumpToEnd} />
         </div>
     )
