@@ -4,7 +4,7 @@
   "description": "Battlecode client",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "fix-schema": "(cd ../schema && npm i)",
+    "fix-schema": "(cd ../schema && npm i && cd ../client2 && rimraf node_modules/battlecode-schema && npm i)",
     "watch": "set NODE_ENV=development && webpack serve --config webpack.config.js --mode development --env dev",
     "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production"
   },
@@ -22,7 +22,6 @@
     "@headlessui/react": "^1.7.14",
     "assert": "^2.0.0",
     "battlecode-schema": "file:../schema",
-    "flatbuffers": "^23.5.26",
     "pako": "^2.1.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
