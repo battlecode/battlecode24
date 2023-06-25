@@ -1,4 +1,5 @@
 import React from 'react'
+import { EventType, useListenEvent } from '../app-events'
 
 interface OptionProp {
     value: any
@@ -9,6 +10,7 @@ interface OptionProp {
 interface Props {
     options: Record<string, OptionProp>
     onChange: (value: any) => void
+    flipOnRightClickCanvas?: boolean
 }
 
 export const Toggle: React.FC<Props> = (props: Props) => {
@@ -19,6 +21,17 @@ export const Toggle: React.FC<Props> = (props: Props) => {
         setValue(val)
     }
 
+    if (props.flipOnRightClickCanvas) {
+        useListenEvent(
+            EventType.CANVAS_RIGHT_CLICK,
+            ({ down }) => {
+                const values = Object.values(props.options)
+                onClick(values[down ? 1 : 0].value)
+            },
+            [value]
+        )
+    }
+
     return (
         <div className="flex flex-row gap-0.5 border border-black p-0.5 rounded-md">
             {Object.entries(props.options).map(([label, option_props], i) => (
@@ -27,11 +40,16 @@ export const Toggle: React.FC<Props> = (props: Props) => {
                     onClick={() => onClick(option_props.value)}
                     className={
                         option_props.className +
-                        ' transition rounded py-1 px-2 ' +
-                        (value !== option_props.value ? 'hover:bg-lightHighlight' : (option_props.selectedClass ?? 'text-white bg-darkHighlight'))
+                        ' flex flex-col transition rounded py-1 px-2 ' +
+                        (value !== option_props.value
+                            ? 'hover:bg-lightHighlight'
+                            : option_props.selectedClass ?? 'text-white bg-darkHighlight')
                     }
                 >
-                    {label}
+                    <span className={props.flipOnRightClickCanvas && i === 1 ? 'leading-3 mt-0.5' : ''}>{label}</span>
+                    {props.flipOnRightClickCanvas && i === 1 && (
+                        <span className="text-xxs leading-3 -mb-2 mt-px">right click</span>
+                    )}
                 </button>
             ))}
         </div>

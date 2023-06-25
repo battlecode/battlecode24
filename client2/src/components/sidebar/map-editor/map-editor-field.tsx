@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapEditorBrushField, MapEditorBrushFieldType } from './map-editor'
+import { MapEditorBrushField, MapEditorBrushFieldType } from './MapEditorBrush'
 import { TEAM_COLORS, TEAM_NAMES } from '../../../constants'
 import { Toggle } from '../../toggle'
 import { Select, NumInput } from '../../forms'
@@ -25,12 +25,23 @@ export const MapEditorBrushRowField: React.FC<Props> = (props: Props) => {
             field = (
                 <div className="flex flex-col">
                     <span className="mr-2 text-sm">{label}</span>
-                    <NumInput value={value} changeValue={changeValue} min={1} max={9} />
+                    <NumInput
+                        value={value}
+                        changeValue={changeValue}
+                        min={props.field.min ?? 0}
+                        max={props.field.max ?? 9999}
+                    />
                 </div>
             )
             break
         case MapEditorBrushFieldType.ADD_REMOVE:
-            field = <Toggle options={{ Add: { value: true }, Remove: { value: false } }} onChange={changeValue} />
+            field = (
+                <Toggle
+                    options={{ Add: { value: true }, Remove: { value: false } }}
+                    onChange={changeValue}
+                    flipOnRightClickCanvas={true}
+                />
+            )
             break
         case MapEditorBrushFieldType.TEAM:
             field = (

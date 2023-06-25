@@ -3,6 +3,7 @@ import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
 import * as cst from '../../constants'
 import { publishEvent, EventType } from '../../app-events'
+import assert from 'assert'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -57,18 +58,58 @@ export const GameRenderer: React.FC = () => {
 
         const renderInterval = setInterval(render, 100)
 
-        // test game playing
-        // const stepInterval = setInterval(() => {
-        //     match.stepTurn(1)
-        //     publishEvent(EventType.TURN_PROGRESS, {})
-        //     console.log(match.currentTurn.turnNumber)
-        // }, 300)
+        const noContextMenu = (e: MouseEvent) => {
+            e.preventDefault()
+        }
+        if (canvases.current) {
+            Object.values(canvases.current).forEach((canvas) => {
+                canvas!.addEventListener('contextmenu', noContextMenu)
+            })
+        }
 
         return () => {
             clearInterval(renderInterval)
-            // clearInterval(stepInterval)
+
+            if (canvases.current) {
+                Object.values(canvases.current).forEach((canvas) => {
+                    canvas!.removeEventListener('contextmenu', noContextMenu)
+                })
+            }
         }
     }, [canvases, appContext.state.activeMatch])
+
+    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const canvas = e.target as HTMLCanvasElement
+        const rect = canvas.getBoundingClientRect()
+        const map = game!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
+        let x = Math.floor(((e.clientX - rect.left) / rect.width) * map.width)
+        let y = Math.floor((1 - (e.clientY - rect.top) / rect.height) * map.height)
+        publishEvent(EventType.TILE_CLICK, { x: x, y: y })
+    }
+
+    const mouseDown = React.useRef(false)
+    const lastFiredDragEvent = React.useRef({ x: -1, y: -1 })
+    const onMouseUp = () => {
+        mouseDown.current = false
+        lastFiredDragEvent.current = { x: -1, y: -1 }
+    }
+    const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const canvas = e.target as HTMLCanvasElement
+        const rect = canvas.getBoundingClientRect()
+        const map = game!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
+        let x = Math.floor(((e.clientX - rect.left) / rect.width) * map.width)
+        let y = Math.floor((1 - (e.clientY - rect.top) / rect.height) * map.height)
+        if (x === lastFiredDragEvent.current.x && y === lastFiredDragEvent.current.y) return
+        lastFiredDragEvent.current = { x: x, y: y }
+        publishEvent(EventType.TILE_DRAG, { x: x, y: y })
+    }
+
+    const mouseDownRightPrev = React.useRef(false)
+    const mouseDownRight = (down: boolean) => {
+        if (down === mouseDownRightPrev.current) return
+        mouseDownRightPrev.current = down
+        publishEvent(EventType.CANVAS_RIGHT_CLICK, { down: down })
+    }
 
     if (!canvases) return <></>
 
@@ -88,6 +129,25 @@ export const GameRenderer: React.FC = () => {
                             }}
                             key={`canv${ct}`}
                             ref={(ref) => (canvases.current[ct] = ref)}
+                            onClick={onCanvasClick}
+                            onMouseMove={(e) => {
+                                if (mouseDown.current) onCanvasDrag(e)
+                            }}
+                            onMouseDown={() => {
+                                mouseDown.current = true
+                            }}
+                            onMouseUp={() => onMouseUp}
+                            onMouseLeave={() => {
+                                onMouseUp()
+                                mouseDownRight(false)
+                            }}
+                            onMouseDownCapture={(e) => {
+                                if (e.button == 2) mouseDownRight(true)
+                            }}
+                            onMouseUpCapture={(e) => {
+                                onMouseUp()
+                                if (e.button == 2) mouseDownRight(false)
+                            }}
                         />
                     ))}
                 </div>

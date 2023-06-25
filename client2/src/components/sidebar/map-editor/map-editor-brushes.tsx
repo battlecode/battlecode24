@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapEditorBrush } from './map-editor'
+import { MapEditorBrush } from './MapEditorBrush'
 import { BsChevronRight, BsChevronDown } from 'react-icons/bs'
 import { MapEditorBrushRowField } from './map-editor-field'
 

@@ -9,7 +9,7 @@ import {
     MapEditorBrushField,
     MapEditorBrushFieldType,
     Symmetry
-} from '../components/sidebar/map-editor/map-editor'
+} from '../components/sidebar/map-editor/MapEditorBrush'
 
 export type Dimension = {
     minCorner: Vector
@@ -251,32 +251,7 @@ export class CurrentMap {
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = [
-            {
-                name: 'Resources',
-                fields: {
-                    is_resource: {
-                        type: MapEditorBrushFieldType.ADD_REMOVE,
-                        value: true
-                    },
-                    resource: {
-                        type: MapEditorBrushFieldType.SINGLE_SELECT,
-                        value: 0,
-                        label: 'Resource',
-                        options: Object.entries(cst.RESOURCE_NAMES).map(([index, label]) => ({
-                            value: parseInt(index),
-                            label
-                        }))
-                    }
-                },
-                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
-                    const target_idx = this.locationToIndex(x, y)
-                    const resource: number = fields.is_resource.value
-                    this.staticMap.resources[target_idx] = resource ? resource : 0
-                    alert('TODO: update resource well stats')
-                }
-            }
-        ]
+        const brushes: MapEditorBrush[] = [new ResourcesBrush(this)]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 }
@@ -435,71 +410,136 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [
-            {
-                name: 'Walls',
-                fields: {
-                    is_wall: {
-                        type: MapEditorBrushFieldType.ADD_REMOVE,
-                        value: true
-                    },
-                    radius: {
-                        type: MapEditorBrushFieldType.POSITIVE_INTEGER,
-                        value: 1,
-                        label: 'Radius'
+        return [new WallsBrush(this), new CloudsBrush(this), new CurrentsBrush(this)]
+    }
+}
+
+class ResourcesBrush extends MapEditorBrush {
+    public readonly name = 'Resources'
+    public readonly fields = {
+        is_resource: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        resource: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            value: 1,
+            label: 'Resource',
+            options: Object.entries(cst.RESOURCE_NAMES).map(([index, label]) => ({
+                value: parseInt(index),
+                label
+            }))
+        }
+    }
+
+    constructor(private readonly map: CurrentMap) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const target_idx = this.map.locationToIndex(x, y)
+        const is_resource: boolean = fields.is_resource.value
+        const resource: number = fields.resource.value
+        const resource_val = is_resource ? resource : 0
+        if (this.map.staticMap.resources[target_idx] != resource_val) {
+            this.map.staticMap.resources[target_idx] = resource_val
+            if (is_resource) {
+                this.map.resource_well_stats.set(target_idx, {
+                    adamantium: 0,
+                    mana: 0,
+                    elixir: 0,
+                    upgraded: false
+                })
+            } else {
+                this.map.resource_well_stats.delete(target_idx)
+            }
+        }
+    }
+}
+
+class WallsBrush extends MapEditorBrush {
+    public readonly name = 'Walls'
+    public readonly fields = {
+        is_wall: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        radius: {
+            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+            value: 1,
+            label: 'Radius'
+        }
+    }
+
+    constructor(private readonly map: StaticMap) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const radius: number = fields.radius.value - 1
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                if (Math.sqrt(i * i + j * j) <= radius) {
+                    const target_x = x + i
+                    const target_y = y + j
+                    if (target_x >= 0 && target_x < this.map.width && target_y >= 0 && target_y < this.map.height) {
+                        const target_idx = this.map.locationToIndex(target_x, target_y)
+                        const is_wall: boolean = fields.is_wall.value
+                        this.map.walls[target_idx] = is_wall ? 1 : 0
                     }
-                },
-                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
-                    const radius: number = fields.radius.value
-                    for (let i = -radius; i <= radius; i++) {
-                        for (let j = -radius; j <= radius; j++) {
-                            if (Math.abs(i) + Math.abs(j) <= radius) {
-                                const target_x = x + i
-                                const target_y = y + j
-                                if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
-                                    const target_idx = this.locationToIndex(target_x, target_y)
-                                    const is_wall: boolean = fields.is_wall.value
-                                    this.walls[target_idx] = is_wall ? 1 : 0
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                name: 'Clouds',
-                fields: {
-                    is_cloud: {
-                        type: MapEditorBrushFieldType.ADD_REMOVE,
-                        value: true
-                    }
-                },
-                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
-                    const target_idx = this.locationToIndex(x, y)
-                    const is_cloud: boolean = fields.is_cloud.value
-                    this.clouds[target_idx] = is_cloud ? 1 : 0
-                }
-            },
-            {
-                name: 'Currents',
-                fields: {
-                    is_current: {
-                        type: MapEditorBrushFieldType.ADD_REMOVE,
-                        value: true
-                    },
-                    direction: {
-                        type: MapEditorBrushFieldType.POSITIVE_INTEGER,
-                        value: 0,
-                        label: 'Direction'
-                    }
-                },
-                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
-                    const target_idx = this.locationToIndex(x, y)
-                    const is_current: boolean = fields.is_current.value
-                    const direction: number = fields.direction.value
-                    this.currents[target_idx] = is_current ? direction : 0
                 }
             }
-        ]
+        }
+    }
+}
+
+class CloudsBrush extends MapEditorBrush {
+    public readonly name = 'Clouds'
+    public readonly fields = {
+        is_cloud: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        radius: {
+            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+            value: 1,
+            label: 'Radius'
+        }
+    }
+
+    constructor(private readonly map: StaticMap) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const target_idx = this.map.locationToIndex(x, y)
+        const is_cloud: boolean = fields.is_cloud.value
+        this.map.clouds[target_idx] = is_cloud ? 1 : 0
+    }
+}
+
+class CurrentsBrush extends MapEditorBrush {
+    public readonly name = 'Currents'
+    public readonly fields = {
+        is_current: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        direction: {
+            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+            value: 1,
+            label: 'Direction'
+        }
+    }
+
+    constructor(private readonly map: StaticMap) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const target_idx = this.map.locationToIndex(x, y)
+        const is_current: boolean = fields.is_current.value
+        const direction: number = fields.direction.value
+        this.map.currents[target_idx] = is_current ? direction : 0
     }
 }

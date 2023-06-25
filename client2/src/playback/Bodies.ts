@@ -9,13 +9,12 @@ import {
     MapEditorBrush,
     MapEditorBrushField,
     MapEditorBrushFieldType
-} from '../components/sidebar/map-editor/map-editor'
-import { CurrentMap } from './Map'
+} from '../components/sidebar/map-editor/MapEditorBrush'
 
 export default class Bodies {
-    private bodies: Map<number, Body> = new Map()
+    public bodies: Map<number, Body> = new Map()
 
-    constructor(private readonly game: Game, initialBodies?: schema.SpawnedBodyTable, initialStats?: TurnStat) {
+    constructor(public readonly game: Game, initialBodies?: schema.SpawnedBodyTable, initialStats?: TurnStat) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
     }
 
@@ -109,47 +108,20 @@ export default class Bodies {
     }
 
     getNextID(): number {
-        return Math.max(...this.bodies.keys()) + 1
+        return Math.max(-1, ...this.bodies.keys()) + 1
     }
 
     getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
         let found_body = undefined
         this.bodies.forEach((body, id) => {
             if (type && body.type !== type) return
-            if (body.team === team && body.x === x && body.y === y) found_body = body
+            if ((!team || body.team === team) && body.x === x && body.y === y) found_body = body
         })
         return found_body
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [
-            {
-                name: 'Archons',
-                fields: {
-                    is_archon: {
-                        type: MapEditorBrushFieldType.ADD_REMOVE,
-                        value: true
-                    },
-                    team: {
-                        type: MapEditorBrushFieldType.TEAM,
-                        value: 0
-                    }
-                },
-                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
-                    const team = this.game.teams[fields.team.value]
-                    const is_archon: boolean = fields.is_archon.value
-                    if (is_archon) {
-                        const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
-                        const archonMetadata = this.game.typeMetadata[schema.BodyType.HEADQUARTERS]
-                        const archon = new archonClass(x, y, archonMetadata.health(), team, this.getNextID())
-                        this.bodies.set(archon.id, archon)
-                    } else {
-                        let archon = this.getBodyAtLocation(x, y)
-                        if (archon) this.bodies.delete(archon.id)
-                    }
-                }
-            }
-        ]
+        return [new ArchonBrush(this)]
     }
 }
 
@@ -266,6 +238,38 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
         }
         onHoverInfo(): string {
             return Amplifier.robotName
+        }
+    }
+}
+
+export class ArchonBrush extends MapEditorBrush {
+    public readonly name = 'Archons'
+    public readonly fields = {
+        is_archon: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        team: {
+            type: MapEditorBrushFieldType.TEAM,
+            value: 0
+        }
+    }
+
+    constructor(private readonly bodies: Bodies) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const team = this.bodies.game.teams[fields.team.value]
+        const is_archon: boolean = fields.is_archon.value
+        if (is_archon) {
+            if (this.bodies.getBodyAtLocation(x, y)) return
+            const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
+            const archon = new archonClass(x, y, 1, team, this.bodies.getNextID())
+            this.bodies.bodies.set(archon.id, archon)
+        } else {
+            let archon = this.bodies.getBodyAtLocation(x, y, undefined, schema.BodyType.HEADQUARTERS)
+            if (archon) this.bodies.bodies.delete(archon.id)
         }
     }
 }

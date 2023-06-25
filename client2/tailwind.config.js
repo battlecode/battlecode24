@@ -6,6 +6,10 @@ module.exports = {
         fontFamily: {
             sans: ['Martian Mono', 'sans-serif']
         },
+        fontSize: {
+            'xxxs': '.4rem',
+            'xxs': '.5rem',
+        },
         extend: {
             transitionProperty: {
                 'max-height': 'max-height'
