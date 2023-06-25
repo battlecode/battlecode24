@@ -5,6 +5,12 @@ import Turn from './Turn'
 import TurnStat from './TurnStat'
 import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
+import {
+    MapEditorBrush,
+    MapEditorBrushField,
+    MapEditorBrushFieldType
+} from '../components/sidebar/map-editor/map-editor'
+import { CurrentMap } from './Map'
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map()
@@ -72,13 +78,13 @@ export default class Bodies {
                     xsArray[i],
                     ysArray[i],
                     this.game.typeMetadata[types[i]].health(),
-                    this.game.teams[teams[i] - 1],
+                    this.game.getTeamByID(teams[i]),
                     id
                 )
             )
             if (stat) {
                 const teamStat =
-                    stat.getTeamStat(this.game.teams[teams[i] - 1]) ??
+                    stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
                 teamStat.robots[types[i]] += 1
                 teamStat.total_hp[types[i]] += this.game.typeMetadata[types[i]].health()
@@ -101,11 +107,55 @@ export default class Bodies {
     draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
         for (const body of this.bodies.values()) body.draw(turn, ctx)
     }
+
+    getNextID(): number {
+        return Math.max(...this.bodies.keys()) + 1
+    }
+
+    getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
+        let found_body = undefined
+        this.bodies.forEach((body, id) => {
+            if (type && body.type !== type) return
+            if (body.team === team && body.x === x && body.y === y) found_body = body
+        })
+        return found_body
+    }
+
+    getEditorBrushes(): MapEditorBrush[] {
+        return [
+            {
+                name: 'Archons',
+                fields: {
+                    is_archon: {
+                        type: MapEditorBrushFieldType.ADD_REMOVE,
+                        value: true
+                    },
+                    team: {
+                        type: MapEditorBrushFieldType.TEAM,
+                        value: 0
+                    }
+                },
+                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
+                    const team = this.game.teams[fields.team.value]
+                    const is_archon: boolean = fields.is_archon.value
+                    if (is_archon) {
+                        const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
+                        const archonMetadata = this.game.typeMetadata[schema.BodyType.HEADQUARTERS]
+                        const archon = new archonClass(x, y, archonMetadata.health(), team, this.getNextID())
+                        this.bodies.set(archon.id, archon)
+                    } else {
+                        let archon = this.getBodyAtLocation(x, y)
+                        if (archon) this.bodies.delete(archon.id)
+                    }
+                }
+            }
+        ]
+    }
 }
 
 export class Body {
     static robotName: string
-    public type: number = -1
+    public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
     protected imgPath: string = ''
     constructor(
         public x: number,

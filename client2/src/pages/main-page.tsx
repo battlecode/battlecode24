@@ -3,6 +3,7 @@ import { AppContextProvider } from '../app-context'
 import { ControlsBar } from '../components/controls-bar/controls-bar'
 import { Sidebar } from '../components/sidebar/sidebar'
 import { Game } from '../components/game/game'
+import { TEAM_COLORS } from '../constants'
 
 export const MainPage: React.FC = () => {
     return (

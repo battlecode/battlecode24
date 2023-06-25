@@ -1,10 +1,10 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
 import { BATTLECODE_YEAR } from '../../../constants'
-import Button from '../../button'
+import { Button } from '../../button'
 import { FiUpload } from 'react-icons/fi'
 import Game from '../../../playback/Game'
-import { QueuedGame } from './queue-game';
+import { QueuedGame } from './queue-game'
 
 export const QueuePage: React.FC = () => {
     const context = useAppContext()
@@ -34,7 +34,7 @@ export const QueuePage: React.FC = () => {
                 <FiUpload className="align-middle text-base mr-2" />
                 Upload a .bc{BATTLECODE_YEAR % 100} replay file
             </Button>
-            <p className='mb-2'>
+            <p className="mb-2">
                 Games ({queue.length === 0 ? 0 : 1}/{queue.length})
             </p>
             {queue.map((game) => (

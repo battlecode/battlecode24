@@ -25,7 +25,7 @@ export const GamePage: React.FC = () => {
 
             <div className="h-[30px]" />
 
-            <div className={teamBoxClasses + " bg-blue"}>
+            <div className={teamBoxClasses + " bg-blueLight"}>
                 <p>{activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
             <UnitsTable team={1}/>

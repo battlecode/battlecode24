@@ -5,7 +5,7 @@ type Props = {
     onClick: (event: MouseEvent<HTMLButtonElement>) => void,
 }
 
-const Button = (props: PropsWithChildren<Props>) => (
+export const Button = (props: PropsWithChildren<Props>) => (
     <button className={"text-xs mx-auto px-4 py-3 mt-1 mb-3 flex flex-row bg-light hover:bg-lightHighlight border-black border rounded-md " + (props.className ?? "")}
             onClick={props.onClick}
     >
@@ -13,4 +13,10 @@ const Button = (props: PropsWithChildren<Props>) => (
     </button>
 )
 
-export default Button
+export const BrightButton = (props: PropsWithChildren<Props>) => (
+    <button className={"text-xs mx-auto px-4 py-3 mt-1 mb-3 flex flex-row bg-cyan hover:bg-cyanDark rounded-md text-white" + (props.className ?? "")}
+            onClick={props.onClick}
+    >
+        { props.children }
+    </button>
+)

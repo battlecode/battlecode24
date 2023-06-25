@@ -4,6 +4,12 @@ import { Vector } from './Vector'
 import * as cst from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
+import {
+    MapEditorBrush,
+    MapEditorBrushField,
+    MapEditorBrushFieldType,
+    Symmetry
+} from '../components/sidebar/map-editor/map-editor'
 
 export type Dimension = {
     minCorner: Vector
@@ -87,17 +93,11 @@ export class CurrentMap {
     }
 
     indexToLocation(index: number): { x: number; y: number } {
-        const target_x = index % this.width
-        const target_y = (index - target_x) / this.width
-        assert(target_x >= 0 && target_x < this.width, `target_x ${target_x} out of bounds`)
-        assert(target_y >= 0 && target_y < this.height, `target_y ${target_y} out of bounds`)
-        return { x: target_x, y: target_y }
+        return this.staticMap.indexToLocation(index)
     }
 
     locationToIndex(x: number, y: number): number {
-        assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
-        assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
-        return y * this.height + x
+        return this.staticMap.locationToIndex(x, y)
     }
 
     copy(): CurrentMap {
@@ -249,39 +249,115 @@ export class CurrentMap {
             }
         }
     }
+
+    getEditorBrushes() {
+        const brushes: MapEditorBrush[] = [
+            {
+                name: 'Resources',
+                fields: {
+                    is_resource: {
+                        type: MapEditorBrushFieldType.ADD_REMOVE,
+                        value: true
+                    },
+                    resource: {
+                        type: MapEditorBrushFieldType.SINGLE_SELECT,
+                        value: 0,
+                        label: 'Resource',
+                        options: Object.entries(cst.RESOURCE_NAMES).map(([index, label]) => ({
+                            value: parseInt(index),
+                            label
+                        }))
+                    }
+                },
+                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
+                    const target_idx = this.locationToIndex(x, y)
+                    const resource: number = fields.is_resource.value
+                    this.staticMap.resources[target_idx] = resource ? resource : 0
+                    alert('TODO: update resource well stats')
+                }
+            }
+        ]
+        return brushes.concat(this.staticMap.getEditorBrushes())
+    }
 }
 
 export class StaticMap {
-    public readonly name: string
-    public readonly randomSeed: number
-    public readonly symmetry: number
-    public readonly dimension: Dimension
+    constructor(
+        public readonly name: string,
+        public readonly randomSeed: number, // I dont know what this is for
+        public readonly symmetry: number,
+        public readonly dimension: Dimension,
+        public readonly walls: Int8Array,
+        public readonly clouds: Int8Array,
+        public readonly currents: Int8Array,
+        public readonly resources: Int8Array,
+        public readonly islands: Int32Array
+    ) {
+        if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) throw new Error(`Invalid symmetry ${symmetry}`)
+    }
 
-    public readonly walls: Int8Array
-    public readonly clouds: Int8Array
-    public readonly currents: Int8Array
-    public readonly resources: Int8Array
-    public readonly islands: Int32Array
+    static fromSchema(schemaMap: schema.GameMap) {
+        const name = schemaMap.name() as string
+        const randomSeed = schemaMap.randomSeed()
+        const symmetry = schemaMap.symmetry()
 
-    constructor(map: schema.GameMap) {
-        this.name = map.name() as string
-        this.randomSeed = map.randomSeed()
-        this.symmetry = map.symmetry()
-
-        const minCorner = { x: map.minCorner()!.x(), y: map.minCorner()!.y() }
-        const maxCorner = { x: map.maxCorner()!.x(), y: map.maxCorner()!.y() }
-        this.dimension = {
+        const minCorner = { x: schemaMap.minCorner()!.x(), y: schemaMap.minCorner()!.y() }
+        const maxCorner = { x: schemaMap.maxCorner()!.x(), y: schemaMap.maxCorner()!.y() }
+        const dimension = {
             minCorner,
             maxCorner,
             width: maxCorner.x - minCorner.x,
             height: maxCorner.y - minCorner.y
         }
 
-        this.walls = map.wallsArray() ?? assert.fail('wallsArray() is null')
-        this.clouds = map.cloudsArray() ?? assert.fail('cloudsArray() is null')
-        this.currents = Int8Array.from(map.currentsArray() ?? assert.fail('currentsArray() is null'))
-        this.resources = Int8Array.from(map.resourcesArray() ?? assert.fail('resourcesArray() is null'))
-        this.islands = map.islandsArray() ?? assert.fail('islandsArray() is null')
+        const walls = schemaMap.wallsArray() ?? assert.fail('wallsArray() is null')
+        const clouds = schemaMap.cloudsArray() ?? assert.fail('cloudsArray() is null')
+        const currents = Int8Array.from(schemaMap.currentsArray() ?? assert.fail('currentsArray() is null'))
+        const resources = Int8Array.from(schemaMap.resourcesArray() ?? assert.fail('resourcesArray() is null'))
+        const islands = schemaMap.islandsArray() ?? assert.fail('islandsArray() is null')
+        return new StaticMap(name, randomSeed, symmetry, dimension, walls, clouds, currents, resources, islands)
+    }
+
+    static fromParams(width: number, height: number, symmetry: Symmetry) {
+        const name = 'Custom Map'
+        const randomSeed = 0
+
+        const minCorner = { x: 0, y: 0 }
+        const maxCorner = { x: width, y: height }
+        const dimension = {
+            minCorner,
+            maxCorner,
+            width: maxCorner.x - minCorner.x,
+            height: maxCorner.y - minCorner.y
+        }
+
+        const walls = new Int8Array(width * height)
+        const clouds = new Int8Array(width * height)
+        const currents = new Int8Array(width * height)
+        const resources = new Int8Array(width * height)
+        const islands = new Int32Array(width * height)
+        return new StaticMap(name, randomSeed, symmetry, dimension, walls, clouds, currents, resources, islands)
+    }
+
+    get width(): number {
+        return this.dimension.width
+    }
+    get height(): number {
+        return this.dimension.height
+    }
+
+    indexToLocation(index: number): { x: number; y: number } {
+        const target_x = index % this.width
+        const target_y = (index - target_x) / this.width
+        assert(target_x >= 0 && target_x < this.width, `target_x ${target_x} out of bounds`)
+        assert(target_y >= 0 && target_y < this.height, `target_y ${target_y} out of bounds`)
+        return { x: target_x, y: target_y }
+    }
+
+    locationToIndex(x: number, y: number): number {
+        assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
+        assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
+        return y * this.height + x
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -356,5 +432,74 @@ export class StaticMap {
                 }
             }
         }
+    }
+
+    getEditorBrushes(): MapEditorBrush[] {
+        return [
+            {
+                name: 'Walls',
+                fields: {
+                    is_wall: {
+                        type: MapEditorBrushFieldType.ADD_REMOVE,
+                        value: true
+                    },
+                    radius: {
+                        type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+                        value: 1,
+                        label: 'Radius'
+                    }
+                },
+                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
+                    const radius: number = fields.radius.value
+                    for (let i = -radius; i <= radius; i++) {
+                        for (let j = -radius; j <= radius; j++) {
+                            if (Math.abs(i) + Math.abs(j) <= radius) {
+                                const target_x = x + i
+                                const target_y = y + j
+                                if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
+                                    const target_idx = this.locationToIndex(target_x, target_y)
+                                    const is_wall: boolean = fields.is_wall.value
+                                    this.walls[target_idx] = is_wall ? 1 : 0
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                name: 'Clouds',
+                fields: {
+                    is_cloud: {
+                        type: MapEditorBrushFieldType.ADD_REMOVE,
+                        value: true
+                    }
+                },
+                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
+                    const target_idx = this.locationToIndex(x, y)
+                    const is_cloud: boolean = fields.is_cloud.value
+                    this.clouds[target_idx] = is_cloud ? 1 : 0
+                }
+            },
+            {
+                name: 'Currents',
+                fields: {
+                    is_current: {
+                        type: MapEditorBrushFieldType.ADD_REMOVE,
+                        value: true
+                    },
+                    direction: {
+                        type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+                        value: 0,
+                        label: 'Direction'
+                    }
+                },
+                apply: (x: number, y: number, fields: Record<string, MapEditorBrushField>) => {
+                    const target_idx = this.locationToIndex(x, y)
+                    const is_current: boolean = fields.is_current.value
+                    const direction: number = fields.direction.value
+                    this.currents[target_idx] = is_current ? direction : 0
+                }
+            }
+        ]
     }
 }

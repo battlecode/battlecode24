@@ -15,11 +15,12 @@ export const DIRECTIONS: Record<number, Array<number>> = {
 }
 
 /*
- * Color constants
+ * Color constants (defined in tailwind.config.js as well)
  */
 export const TEAM_BLUE = '#407496'
 export const TEAM_RED = '#D53E43'
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
+export const TEAM_NAMES = ['Red', 'Blue']
 
 /*
  * Renderer constants
@@ -32,3 +33,5 @@ export const RESOURCE_NAMES: Record<number, string> = {
     2: 'mana',
     3: 'elixir'
 }
+
+export const SPEC_VERSION = '0.0.1'

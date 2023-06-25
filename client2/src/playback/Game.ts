@@ -2,6 +2,7 @@ import Match from './Match'
 import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
+import { SPEC_VERSION } from '../constants'
 
 let nextID = 0
 
@@ -16,15 +17,37 @@ export default class Game {
     private readonly constants: schema.Constants
     public readonly typeMetadata: schema.BodyTypeMetadata[] = []
 
+    /**
+     * Whether this game is playable (not currently being made in the map editor)
+     */
+    public readonly playable: boolean
+
     //shared slots for efficiency??
     public _bodiesSlot: schema.SpawnedBodyTable = new schema.SpawnedBodyTable()
     public _vecTableSlot1: schema.VecTable = new schema.VecTable()
+
     /**
      * The ID of this game. This is used to uniquely identify games in the UI, and is just based on uploaded order
      */
-    public readonly id: number;
+    public readonly id: number
 
-    constructor(wrapper: schema.GameWrapper) {
+    constructor(wrapper?: schema.GameWrapper) {
+        this.playable = !!wrapper
+
+        if (!wrapper) {
+            //bare minimum setup for map editor
+            this.teams = [
+                new Team('Red', { wins: 0, elo: 0 }, 1, 'map_editor_red', 'red'),
+                new Team('Blue', { wins: 0, elo: 0 }, 2, 'map_editor_blue', 'blue')
+            ]
+            this.winner = this.teams[0]
+            this.specVersion = SPEC_VERSION
+            this.constants = new schema.Constants()
+            this.id = nextID++
+            this.playable = false
+            return
+        }
+
         const eventCount = wrapper.eventsLength()
         if (eventCount < 5) throw new Error(`Too few events for well-formed game: ${eventCount}`)
 
@@ -32,22 +55,17 @@ export default class Game {
 
         // load header and metadata =============================================================================
         const gameHeaderEvent = wrapper.events(0, eventSlot) ?? assert.fail('Event was null')
-        assert(
-            gameHeaderEvent.eType() === schema.Event.GameHeader,
-            'First event must be GameHeader'
-        )
+        assert(gameHeaderEvent.eType() === schema.Event.GameHeader, 'First event must be GameHeader')
         const gameHeader = gameHeaderEvent.e(new schema.GameHeader()) as schema.GameHeader
-        this.specVersion =
-            (gameHeader.specVersion() as string) || assert.fail('Unknown spec version')
+        this.specVersion = (gameHeader.specVersion() as string) || assert.fail('Unknown spec version')
         this.teams = [
-            new Team(gameHeader.teams(0) ?? assert.fail('Team 0 was null')),
-            new Team(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
+            Team.fromSchema(gameHeader.teams(0) ?? assert.fail('Team 0 was null')),
+            Team.fromSchema(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
         ]
 
         const bodyCount = gameHeader.bodyTypeMetadataLength()
         for (let i = 0; i < bodyCount; i++) {
-            const bodyData =
-                gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
+            const bodyData = gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
             this.typeMetadata[bodyData.type()] = bodyData
         }
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
@@ -55,10 +73,7 @@ export default class Game {
         // load matches ==========================================================================================
         for (let i = 1; i < eventCount - 1; i++) {
             const matchHeaderEvent = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')
-            assert(
-                matchHeaderEvent.eType() === schema.Event.MatchHeader,
-                'Event must be MatchHeader'
-            )
+            assert(matchHeaderEvent.eType() === schema.Event.MatchHeader, 'Event must be MatchHeader')
             const matchHeader = matchHeaderEvent.e(new schema.MatchHeader()) as schema.MatchHeader
 
             i++
@@ -76,7 +91,7 @@ export default class Game {
             assert(event.eType() === schema.Event.MatchFooter, 'Event must be MatchFooter')
             const matchFooter = event.e(new schema.MatchFooter()) as schema.MatchFooter
 
-            this.matches.push(new Match(this, matchHeader, matches, matchFooter))
+            this.matches.push(Match.fromSchema(this, matchHeader, matches, matchFooter))
         }
 
         if (!this.currentMatch && this.matches.length > 0) this.currentMatch = this.matches[0]
@@ -92,6 +107,11 @@ export default class Game {
         console.log(this)
     }
 
+    public getTeamByID(id: number): Team {
+        for (const team of this.teams) if (team.id === id) return team
+        throw new Error('Team not found')
+    }
+
     /**
      * Load a full game from a gzipped ArrayBuffer containing a GameWrapper.
      *
@@ -100,29 +120,30 @@ export default class Game {
     public static loadFullGameRaw(data: ArrayBuffer): Game {
         const ungzipped = ungzip(new Uint8Array(data))
         console.log('Game un-gzipped!')
-        const wrapper = schema.GameWrapper.getRootAsGameWrapper(
-            new flatbuffers.ByteBuffer(ungzipped)
-        )
+        const wrapper = schema.GameWrapper.getRootAsGameWrapper(new flatbuffers.ByteBuffer(ungzipped))
         return new Game(wrapper)
     }
 }
 
 export class Team {
-    public readonly name: string
-    public stats: TeamStat
-    public readonly id: number
-    public readonly packageName: string
-    public readonly color: string
+    constructor(
+        public readonly name: string,
+        public stats: TeamStat,
+        public readonly id: number,
+        public readonly packageName: string,
+        public readonly color: string
+    ) {}
 
-    constructor(team: schema.TeamData) {
-        this.name = team.name() ?? assert.fail('Team name is missing')
-        this.stats = {
+    static fromSchema(team: schema.TeamData) {
+        const name = team.name() ?? assert.fail('Team name is missing')
+        const stats = {
             wins: 0,
             elo: 0
         }
-        this.id = team.teamID() ?? assert.fail('Team id is missing')
-        this.packageName = team.packageName() ?? assert.fail('Team package name is missing')
-        this.color = this.id === 1 ? 'red' : 'blue'
+        const id = team.teamID() ?? assert.fail('Team id is missing')
+        const packageName = team.packageName() ?? assert.fail('Team package name is missing')
+        const color = id === 1 ? 'red' : 'blue'
+        return new Team(name, stats, id, packageName, color)
     }
 }
 
