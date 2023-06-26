@@ -36,6 +36,16 @@ export default class Match {
         return new Match(game, [], 0, game.teams[0], map, bodies, firstStats)
     }
 
+    /**
+     * Creates a match from a map for loading into the map editor from an existing file.
+     */
+    public static fromMap(schema_map: schema.GameMap, game: Game, map: StaticMap): Match {
+        const firstStats = new TurnStat(game)
+        const mapBodies = schema_map.bodies() ?? assert.fail('Initial bodies not found in header')
+        const bodies = new Bodies(game, mapBodies, firstStats)
+        return new Match(game, [], 0, game.teams[0], map, bodies, firstStats)
+    }
+
     public static fromSchema(
         game: Game,
         header: schema.MatchHeader,

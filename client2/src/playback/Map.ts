@@ -8,6 +8,7 @@ import {
     MapEditorBrush,
     MapEditorBrushField,
     MapEditorBrushFieldType,
+    SymmetricMapEditorBrush,
     Symmetry
 } from '../components/sidebar/map-editor/MapEditorBrush'
 
@@ -50,7 +51,7 @@ export class CurrentMap {
         if (from instanceof StaticMap) {
             // create current map from static map
             this.staticMap = from
-            this.resources = from.resources
+            this.resources = from.initialResources
             this.resource_well_stats = new Map()
             for (let i = 0; i < this.resources.length; i++) {
                 if (this.resources[i] != 0) {
@@ -235,10 +236,10 @@ export class CurrentMap {
                 }
 
                 // Render resource
-                if (this.staticMap.resources[schemaIdx] > 0) {
+                if (this.resources[schemaIdx] > 0) {
                     // Main image
                     const upgraded = this.resource_well_stats.get(schemaIdx)!.upgraded
-                    const resource = this.staticMap.resources[schemaIdx]
+                    const resource = this.resources[schemaIdx]
                     const size = upgraded ? 0.95 : 0.85
                     const resourcename = cst.RESOURCE_NAMES[resource]
                     const img = getImageIfLoaded(
@@ -254,18 +255,60 @@ export class CurrentMap {
         const brushes: MapEditorBrush[] = [new ResourcesBrush(this)]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
+
+    isEmpty(): boolean {
+        return this.resource_well_stats.size == 0 && this.island_stats.size == 0 && this.staticMap.isEmpty()
+    }
+
+    clear(): void {
+        this.resource_well_stats.clear()
+        this.island_stats.clear()
+        this.resources.fill(0)
+        this.staticMap.clear()
+    }
+
+    /**
+     * Creates a packet of flatbuffers data which will later be inserted
+     * This and the next function are seperated due to how flatbuffers works
+     */
+    getSchemaPacket(builder: flatbuffers.Builder): [number, number, number, number, number] {
+        const walls = schema.GameMap.createWallsVector(
+            builder,
+            Array.from(this.staticMap.walls).map((x) => !!x)
+        )
+        const resources = schema.GameMap.createResourcesVector(builder, Uint8Array.from(this.resources))
+        const clouds = schema.GameMap.createCloudsVector(
+            builder,
+            Array.from(this.staticMap.clouds).map((x) => !!x)
+        )
+        const currents = schema.GameMap.createCurrentsVector(builder, Uint8Array.from(this.staticMap.currents))
+        const islands = schema.GameMap.createIslandsVector(builder, Uint8Array.from(this.staticMap.islands))
+        return [walls, resources, clouds, currents, islands]
+    }
+
+    /**
+     * Inserts an existing packet of flatbuffers data into the given builder
+     * This and the previous function are seperated due to how flatbuffers works
+     */
+    insertSchemaPacket(builder: flatbuffers.Builder, packet: [number, number, number, number, number]) {
+        schema.GameMap.addWalls(builder, packet[0])
+        schema.GameMap.addResources(builder, packet[1])
+        schema.GameMap.addClouds(builder, packet[2])
+        schema.GameMap.addCurrents(builder, packet[3])
+        schema.GameMap.addIslands(builder, packet[4])
+    }
 }
 
 export class StaticMap {
     constructor(
-        public readonly name: string,
+        public name: string,
         public readonly randomSeed: number, // I dont know what this is for
         public readonly symmetry: number,
         public readonly dimension: Dimension,
         public readonly walls: Int8Array,
         public readonly clouds: Int8Array,
         public readonly currents: Int8Array,
-        public readonly resources: Int8Array,
+        public readonly initialResources: Int8Array,
         public readonly islands: Int32Array
     ) {
         if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) throw new Error(`Invalid symmetry ${symmetry}`)
@@ -276,6 +319,8 @@ export class StaticMap {
         const randomSeed = schemaMap.randomSeed()
         const symmetry = schemaMap.symmetry()
 
+        assert(schemaMap.minCorner(), 'minCorner() is missing')
+        assert(schemaMap.maxCorner(), 'maxCorner() is missing')
         const minCorner = { x: schemaMap.minCorner()!.x(), y: schemaMap.minCorner()!.y() }
         const maxCorner = { x: schemaMap.maxCorner()!.x(), y: schemaMap.maxCorner()!.y() }
         const dimension = {
@@ -332,7 +377,23 @@ export class StaticMap {
     locationToIndex(x: number, y: number): number {
         assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
         assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
-        return y * this.height + x
+        return y * this.width + x
+    }
+
+    /**
+     * Returns a point representing the reflection of the given point following the map's symmetry.
+     */
+    applySymmetry(point: { x: number; y: number }): { x: number; y: number } {
+        switch (this.symmetry) {
+            case Symmetry.VERTICAL:
+                return { x: this.width - point.x - 1, y: point.y }
+            case Symmetry.HORIZONTAL:
+                return { x: point.x, y: this.height - point.y - 1 }
+            case Symmetry.ROTATIONAL:
+                return { x: this.width - point.x - 1, y: this.height - point.y - 1 }
+            default:
+                throw new Error(`Invalid symmetry ${this.symmetry}`)
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -409,12 +470,30 @@ export class StaticMap {
         }
     }
 
+    isEmpty(): boolean {
+        return (
+            this.walls.every((x) => x == 0) &&
+            this.clouds.every((x) => x == 0) &&
+            this.currents.every((x) => x == 0) &&
+            this.initialResources.every((x) => x == 0) &&
+            this.islands.every((x) => x == 0)
+        )
+    }
+
+    clear(): void {
+        this.walls.fill(0)
+        this.clouds.fill(0)
+        this.currents.fill(0)
+        this.initialResources.fill(0)
+        this.islands.fill(0)
+    }
+
     getEditorBrushes(): MapEditorBrush[] {
         return [new WallsBrush(this), new CloudsBrush(this), new CurrentsBrush(this)]
     }
 }
 
-class ResourcesBrush extends MapEditorBrush {
+class ResourcesBrush extends SymmetricMapEditorBrush {
     public readonly name = 'Resources'
     public readonly fields = {
         is_resource: {
@@ -432,32 +511,32 @@ class ResourcesBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly map: CurrentMap) {
-        super()
+    constructor(private readonly currentMap: CurrentMap) {
+        super(currentMap.staticMap)
     }
 
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const target_idx = this.map.locationToIndex(x, y)
         const is_resource: boolean = fields.is_resource.value
         const resource: number = fields.resource.value
         const resource_val = is_resource ? resource : 0
-        if (this.map.staticMap.resources[target_idx] != resource_val) {
-            this.map.staticMap.resources[target_idx] = resource_val
+        if (this.currentMap.resources[target_idx] != resource_val) {
+            this.currentMap.resources[target_idx] = resource_val
             if (is_resource) {
-                this.map.resource_well_stats.set(target_idx, {
+                this.currentMap.resource_well_stats.set(target_idx, {
                     adamantium: 0,
                     mana: 0,
                     elixir: 0,
                     upgraded: false
                 })
             } else {
-                this.map.resource_well_stats.delete(target_idx)
+                this.currentMap.resource_well_stats.delete(target_idx)
             }
         }
     }
 }
 
-class WallsBrush extends MapEditorBrush {
+class WallsBrush extends SymmetricMapEditorBrush {
     public readonly name = 'Walls'
     public readonly fields = {
         is_wall: {
@@ -471,11 +550,11 @@ class WallsBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly map: StaticMap) {
-        super()
+    constructor(map: StaticMap) {
+        super(map)
     }
 
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         for (let i = -radius; i <= radius; i++) {
             for (let j = -radius; j <= radius; j++) {
@@ -493,7 +572,7 @@ class WallsBrush extends MapEditorBrush {
     }
 }
 
-class CloudsBrush extends MapEditorBrush {
+class CloudsBrush extends SymmetricMapEditorBrush {
     public readonly name = 'Clouds'
     public readonly fields = {
         is_cloud: {
@@ -507,18 +586,18 @@ class CloudsBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly map: StaticMap) {
-        super()
+    constructor(map: StaticMap) {
+        super(map)
     }
 
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const target_idx = this.map.locationToIndex(x, y)
         const is_cloud: boolean = fields.is_cloud.value
         this.map.clouds[target_idx] = is_cloud ? 1 : 0
     }
 }
 
-class CurrentsBrush extends MapEditorBrush {
+class CurrentsBrush extends SymmetricMapEditorBrush {
     public readonly name = 'Currents'
     public readonly fields = {
         is_current: {
@@ -532,11 +611,11 @@ class CurrentsBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly map: StaticMap) {
-        super()
+    constructor(map: StaticMap) {
+        super(map)
     }
 
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const target_idx = this.map.locationToIndex(x, y)
         const is_current: boolean = fields.is_current.value
         const direction: number = fields.direction.value

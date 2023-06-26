@@ -10,6 +10,7 @@ import {
     MapEditorBrushField,
     MapEditorBrushFieldType
 } from '../components/sidebar/map-editor/MapEditorBrush'
+import { StaticMap } from './Map'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -71,22 +72,15 @@ export default class Bodies {
             const id = idsArray[i]
             const bodyClass =
                 BODY_DEFINITIONS[types[i]] ?? assert.fail(`Body type ${types[i]} not found in BODY_DEFINITIONS`)
-            this.bodies.set(
-                id,
-                new bodyClass(
-                    xsArray[i],
-                    ysArray[i],
-                    this.game.typeMetadata[types[i]].health(),
-                    this.game.getTeamByID(teams[i]),
-                    id
-                )
-            )
+            const health = this.game.playable ? this.game.typeMetadata[types[i]].health() : 1
+
+            this.bodies.set(id, new bodyClass(xsArray[i], ysArray[i], health, this.game.getTeamByID(teams[i]), id))
             if (stat) {
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
                 teamStat.robots[types[i]] += 1
-                teamStat.total_hp[types[i]] += this.game.typeMetadata[types[i]].health()
+                teamStat.total_hp[types[i]] += health
             }
         }
     }
@@ -120,8 +114,50 @@ export default class Bodies {
         return found_body
     }
 
-    getEditorBrushes(): MapEditorBrush[] {
-        return [new ArchonBrush(this)]
+    isEmpty(): boolean {
+        return this.bodies.size === 0
+    }
+
+    clear(): void {
+        this.bodies.clear()
+    }
+
+    getEditorBrushes(map: StaticMap): MapEditorBrush[] {
+        return [new ArchonBrush(this, map)]
+    }
+
+    toSpawnedBodyTable(builder: flatbuffers.Builder): number {
+        const robotIDs: Uint8Array = new Uint8Array(this.bodies.size)
+        const teamIDs: Uint8Array = new Uint8Array(this.bodies.size)
+        const types: schema.BodyType[] = []
+        const xs: Uint8Array = new Uint8Array(this.bodies.size)
+        const ys: Uint8Array = new Uint8Array(this.bodies.size)
+
+        Array.from(this.bodies.values()).forEach((body, i) => {
+            robotIDs[i] = body.id
+            teamIDs[i] = body.team.id
+            types[i] = body.type
+            xs[i] = body.x
+            ys[i] = body.y
+        })
+
+        const robotIDsVector = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs)
+        const teamIDsVector = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs)
+        const typesVector = schema.SpawnedBodyTable.createTypesVector(builder, types)
+
+        const xsTable = schema.VecTable.createXsVector(builder, xs)
+        const ysTable = schema.VecTable.createYsVector(builder, ys)
+        schema.VecTable.startVecTable(builder)
+        schema.VecTable.addXs(builder, xsTable)
+        schema.VecTable.addYs(builder, ysTable)
+        const locsVecTable = schema.VecTable.endVecTable(builder)
+
+        schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
+        schema.SpawnedBodyTable.addRobotIDs(builder, robotIDsVector)
+        schema.SpawnedBodyTable.addTeamIDs(builder, teamIDsVector)
+        schema.SpawnedBodyTable.addTypes(builder, typesVector)
+        schema.SpawnedBodyTable.addLocs(builder, locsVecTable)
+        return schema.SpawnedBodyTable.endSpawnedBodyTable(builder)
     }
 }
 
@@ -255,21 +291,40 @@ export class ArchonBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly bodies: Bodies) {
+    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
         super()
     }
 
     public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const team = this.bodies.game.teams[fields.team.value]
+        const symmetryPoint = this.map.applySymmetry({ x: x, y: y })
+        if (symmetryPoint.x == x && symmetryPoint.y == y) return // dont allow the case where the archon is on the symmetry line
+
         const is_archon: boolean = fields.is_archon.value
+
         if (is_archon) {
             if (this.bodies.getBodyAtLocation(x, y)) return
+
+            const team = this.bodies.game.teams[fields.team.value]
+            const otherTeam = this.bodies.game.teams[(fields.team.value + 1) % 2]
+
             const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
             const archon = new archonClass(x, y, 1, team, this.bodies.getNextID())
             this.bodies.bodies.set(archon.id, archon)
+            const otherArchon = new archonClass(symmetryPoint.x, symmetryPoint.y, 1, otherTeam, this.bodies.getNextID())
+            this.bodies.bodies.set(otherArchon.id, otherArchon)
         } else {
             let archon = this.bodies.getBodyAtLocation(x, y, undefined, schema.BodyType.HEADQUARTERS)
-            if (archon) this.bodies.bodies.delete(archon.id)
+            let otherArchon = this.bodies.getBodyAtLocation(
+                symmetryPoint.x,
+                symmetryPoint.y,
+                undefined,
+                schema.BodyType.HEADQUARTERS
+            )
+            if (archon || otherArchon) {
+                assert(archon && otherArchon, 'Archon and otherArchon should both be defined or both be undefined')
+                this.bodies.bodies.delete(archon.id)
+                this.bodies.bodies.delete(otherArchon.id)
+            }
         }
     }
 }

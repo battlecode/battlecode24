@@ -78,13 +78,19 @@ export const GameRenderer: React.FC = () => {
         }
     }, [canvases, appContext.state.activeMatch])
 
-    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    const eventToPoint = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const canvas = e.target as HTMLCanvasElement
         const rect = canvas.getBoundingClientRect()
         const map = game!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
         let x = Math.floor(((e.clientX - rect.left) / rect.width) * map.width)
         let y = Math.floor((1 - (e.clientY - rect.top) / rect.height) * map.height)
-        publishEvent(EventType.TILE_CLICK, { x: x, y: y })
+        x = Math.max(0, Math.min(x, map.width - 1))
+        y = Math.max(0, Math.min(y, map.height - 1))
+        return { x: x, y: y }
+    }
+
+    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        publishEvent(EventType.TILE_CLICK, eventToPoint(e))
     }
 
     const mouseDown = React.useRef(false)
@@ -94,20 +100,17 @@ export const GameRenderer: React.FC = () => {
         lastFiredDragEvent.current = { x: -1, y: -1 }
     }
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const canvas = e.target as HTMLCanvasElement
-        const rect = canvas.getBoundingClientRect()
-        const map = game!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
-        let x = Math.floor(((e.clientX - rect.left) / rect.width) * map.width)
-        let y = Math.floor((1 - (e.clientY - rect.top) / rect.height) * map.height)
-        if (x === lastFiredDragEvent.current.x && y === lastFiredDragEvent.current.y) return
-        lastFiredDragEvent.current = { x: x, y: y }
-        publishEvent(EventType.TILE_DRAG, { x: x, y: y })
+        const point = eventToPoint(e)
+        if (point.x === lastFiredDragEvent.current.x && point.y === lastFiredDragEvent.current.y) return
+        lastFiredDragEvent.current = point
+        publishEvent(EventType.TILE_DRAG, point)
     }
 
     const mouseDownRightPrev = React.useRef(false)
-    const mouseDownRight = (down: boolean) => {
+    const mouseDownRight = (down: boolean, e?: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (down === mouseDownRightPrev.current) return
         mouseDownRightPrev.current = down
+        if (!down && e) onCanvasClick(e)
         publishEvent(EventType.CANVAS_RIGHT_CLICK, { down: down })
     }
 
@@ -137,16 +140,16 @@ export const GameRenderer: React.FC = () => {
                                 mouseDown.current = true
                             }}
                             onMouseUp={() => onMouseUp}
-                            onMouseLeave={() => {
+                            onMouseLeave={(e) => {
                                 onMouseUp()
                                 mouseDownRight(false)
                             }}
                             onMouseDownCapture={(e) => {
-                                if (e.button == 2) mouseDownRight(true)
+                                if (e.button == 2) mouseDownRight(true, e)
                             }}
                             onMouseUpCapture={(e) => {
                                 onMouseUp()
-                                if (e.button == 2) mouseDownRight(false)
+                                if (e.button == 2) mouseDownRight(false, e)
                             }}
                         />
                     ))}

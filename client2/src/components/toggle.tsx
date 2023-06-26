@@ -25,8 +25,19 @@ export const Toggle: React.FC<Props> = (props: Props) => {
         useListenEvent(
             EventType.CANVAS_RIGHT_CLICK,
             ({ down }) => {
-                const values = Object.values(props.options)
-                onClick(values[down ? 1 : 0].value)
+                const toggle = () => {
+                    const values = Object.values(props.options)
+                    onClick(values[down ? 1 : 0].value)
+                }
+                if (down) {
+                    toggle()
+                } else {
+                    // do this after the event has been processed in other places to allow the right click to
+                    // process correctly (click to delete wouldnt work if toggle switched first)
+                    setTimeout(() => {
+                        toggle()
+                    })
+                }
             },
             [value]
         )

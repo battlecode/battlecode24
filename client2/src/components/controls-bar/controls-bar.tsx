@@ -52,6 +52,8 @@ export const ControlsBar: React.FC = () => {
         }
     }, [updatesPerSecond, appContext.state.activeGame, appContext.state.activeGame?.currentMatch])
 
+    if (!appContext.state.activeGame || !appContext.state.activeGame.playable) return null
+
     return (
         <div className="flex bg-darkHighlight text-white absolute bottom-0 p-1.5 rounded-t-md z-10 gap-1.5">
             <ControlsBarTimeline />
