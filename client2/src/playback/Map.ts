@@ -260,13 +260,6 @@ export class CurrentMap {
         return this.resource_well_stats.size == 0 && this.island_stats.size == 0 && this.staticMap.isEmpty()
     }
 
-    clear(): void {
-        this.resource_well_stats.clear()
-        this.island_stats.clear()
-        this.resources.fill(0)
-        this.staticMap.clear()
-    }
-
     /**
      * Creates a packet of flatbuffers data which will later be inserted
      * This and the next function are seperated due to how flatbuffers works
@@ -480,13 +473,6 @@ export class StaticMap {
         )
     }
 
-    clear(): void {
-        this.walls.fill(0)
-        this.clouds.fill(0)
-        this.currents.fill(0)
-        this.initialResources.fill(0)
-        this.islands.fill(0)
-    }
 
     getEditorBrushes(): MapEditorBrush[] {
         return [new WallsBrush(this), new CloudsBrush(this), new CurrentsBrush(this)]

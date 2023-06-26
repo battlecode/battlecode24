@@ -64,6 +64,7 @@ export const MapEditorPage: React.FC = () => {
         const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
         brushes[0].open = true
         setBrushes(brushes)
+        setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
     }, [mapParams])
 
     const changeWidth = (newWidth: number) => {
@@ -93,9 +94,8 @@ export const MapEditorPage: React.FC = () => {
     const [cleared, setCleared] = React.useState(true)
     const clearMap = () => {
         if (!confirm('Are you sure you want to clear the map?')) return
-        context.state.activeMatch!.currentTurn!.map.clear()
-        context.state.activeMatch!.currentTurn!.bodies.clear()
         setCleared(true)
+        setMapParams({ ...mapParams, imported: undefined })
     }
 
     const exportMap = () => {

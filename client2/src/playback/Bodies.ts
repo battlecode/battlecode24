@@ -118,10 +118,6 @@ export default class Bodies {
         return this.bodies.size === 0
     }
 
-    clear(): void {
-        this.bodies.clear()
-    }
-
     getEditorBrushes(map: StaticMap): MapEditorBrush[] {
         return [new ArchonBrush(this, map)]
     }
