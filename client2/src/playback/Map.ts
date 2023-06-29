@@ -305,6 +305,23 @@ export class StaticMap {
         public readonly islands: Int32Array
     ) {
         if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) throw new Error(`Invalid symmetry ${symmetry}`)
+
+        if (walls.length != dimension.width * dimension.height) throw new Error('Invalid walls length')
+        if (clouds.length != dimension.width * dimension.height) throw new Error('Invalid clouds length')
+        if (currents.length != dimension.width * dimension.height) throw new Error('Invalid currents length')
+        if (initialResources.length != dimension.width * dimension.height)
+            throw new Error('Invalid initialResources length')
+        if (islands.length != dimension.width * dimension.height) throw new Error('Invalid islands length')
+
+        if (walls.some((x) => x !== 0 && x !== 1)) throw new Error('Invalid walls value')
+        if (clouds.some((x) => x !== 0 && x !== 1)) throw new Error('Invalid clouds value')
+        if (currents.some((x) => x < 0 || x > 8)) throw new Error('Invalid currents value')
+
+        if (initialResources.some((x) => x !== 0 && !(x in cst.RESOURCE_NAMES)))
+            throw new Error('Invalid initialResources value')
+
+        for(let i = 0; i < dimension.width * dimension.height; i++)
+            if(walls[i] === 1 && initialResources[i] !== 0) throw new Error('Resource well on wall')
     }
 
     static fromSchema(schemaMap: schema.GameMap) {
@@ -472,7 +489,6 @@ export class StaticMap {
             this.islands.every((x) => x == 0)
         )
     }
-
 
     getEditorBrushes(): MapEditorBrush[] {
         return [new WallsBrush(this), new CloudsBrush(this), new CurrentsBrush(this)]

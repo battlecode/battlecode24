@@ -15,8 +15,25 @@ import { StaticMap } from './Map'
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
 
-    constructor(public readonly game: Game, initialBodies?: schema.SpawnedBodyTable, initialStats?: TurnStat) {
+    constructor(
+        public readonly game: Game,
+        initialBodies?: schema.SpawnedBodyTable,
+        initialStats?: TurnStat,
+        mapToVerify?: StaticMap
+    ) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
+
+        if (mapToVerify) {
+            for (let i = 0; i < mapToVerify.width * mapToVerify.height; i++) {
+                if (mapToVerify.walls[i] == 1 || mapToVerify.initialResources[i] > 0) {
+                    for (const body of this.bodies.values()) {
+                        if (body.x == i % mapToVerify.width && body.y == Math.floor(i / mapToVerify.width)) {
+                            assert.fail(`Body at (${body.x}, ${body.y}) is on top of a wall or resource`)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

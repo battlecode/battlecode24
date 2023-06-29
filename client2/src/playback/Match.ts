@@ -42,7 +42,7 @@ export default class Match {
     public static fromMap(schema_map: schema.GameMap, game: Game, map: StaticMap): Match {
         const firstStats = new TurnStat(game)
         const mapBodies = schema_map.bodies() ?? assert.fail('Initial bodies not found in header')
-        const bodies = new Bodies(game, mapBodies, firstStats)
+        const bodies = new Bodies(game, mapBodies, firstStats, map)
         return new Match(game, [], 0, game.teams[0], map, bodies, firstStats)
     }
 
