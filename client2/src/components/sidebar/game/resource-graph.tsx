@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import {
     LineChart,
     Line,
@@ -9,76 +9,59 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts'
+import { AppContext, useAppContext } from '../../../app-context'
+import { useListenEvent, EventType } from '../../../app-events'
+import { useForceUpdate } from '../../../util/react-util'
 
 interface Props {
     active: boolean
 }
 
-export const ResourceGraph: React.FC<Props> = (props: Props) => {
-    const chartData = [
-        {
-            name: 'Page A',
-            uv: 4000,
-            pv: 2400,
-            amt: 2400
-        },
-        {
-            name: 'Page B',
-            uv: 3000,
-            pv: 1398,
-            amt: 2210
-        },
-        {
-            name: 'Page C',
-            uv: 2000,
-            pv: 9800,
-            amt: 2290
-        },
-        {
-            name: 'Page D',
-            uv: 2780,
-            pv: 3908,
-            amt: 2000
-        },
-        {
-            name: 'Page E',
-            uv: 1890,
-            pv: 4800,
-            amt: 2181
-        },
-        {
-            name: 'Page F',
-            uv: 2390,
-            pv: 3800,
-            amt: 2500
-        },
-        {
-            name: 'Page G',
-            uv: 3490,
-            pv: 4300,
-            amt: 2100
+function getChartData(appContext: AppContext): any[] {
+    const match = appContext.state.activeMatch
+    if (match === undefined) {
+        return []
+    }
+
+    const redMana = match.stats.map(turnStat => turnStat.getTeamStat(match.game.teams[0]).mana)
+    const blueMana = match.stats.map(turnStat => turnStat.getTeamStat(match.game.teams[1]).mana)
+
+    return redMana.map((value, index) => {
+        return {
+            round: index + 1,
+            red_mana: value,
+            blue_mana: blueMana[index]
         }
-    ]
+    })
+}
+
+export const ResourceGraph: React.FC<Props> = (props: Props) => {
+
+    const appContext = useAppContext()
+    const forceUpdate = useForceUpdate()
+
+    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     return (
         <div className="my-2 px-2 w-full">
-            <ResponsiveContainer aspect={1} width="100%">
+            <ResponsiveContainer aspect={1.5} width="100%" className="text-xs">
                 <LineChart
-                    data={props.active ? chartData : []}
+                    data={props.active ? getChartData(appContext) : []}
                     margin={{
-                        top: 5,
+                        top: 10,
                         right: 30,
-                        left: 20,
+                        left: 0,
                         bottom: 5
                     }}
+                    className="mx-auto"
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="round" />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip labelFormatter={(label) => "Round " + label} separator=': '/>
                     <Legend />
-                    <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                    <Line type="linear" name="Red Mana" dataKey="red_mana" stroke="#ff9194" dot={false} activeDot={{ r: 4 }} />
+                    <Line type="linear" name="Blue Mana" dataKey="blue_mana" stroke="#04a2d9" dot={false} activeDot={{ r: 4 }} />
                 </LineChart>
             </ResponsiveContainer>
         </div>
