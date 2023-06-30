@@ -1,67 +1,85 @@
 import React, { useContext, useState } from 'react'
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
+import assert from 'assert'
 
 interface Props {
     active: boolean
+    property: string
+    propertyDisplayName: string
 }
 
-function getChartData(appContext: AppContext): any[] {
+function hasKey<O extends Object>(obj: O, key: PropertyKey): key is keyof O {
+    return key in obj
+}
+
+function getChartData(appContext: AppContext, property: string): any[] {
     const match = appContext.state.activeMatch
     if (match === undefined) {
         return []
     }
 
-    const redMana = match.stats.map(turnStat => turnStat.getTeamStat(match.game.teams[0]).mana)
-    const blueMana = match.stats.map(turnStat => turnStat.getTeamStat(match.game.teams[1]).mana)
+    const values = [0, 1].map((index) =>
+        match.stats.map((turnStat) => {
+            const teamStat = turnStat.getTeamStat(match.game.teams[index])
+            assert(hasKey(teamStat, property))
+            return teamStat[property]
+        })
+    )
 
-    return redMana.map((value, index) => {
+    return values[0].map((value, index) => {
         return {
             round: index + 1,
-            red_mana: value,
-            blue_mana: blueMana[index]
+            red: value,
+            blue: values[1][index]
         }
     })
 }
 
 export const ResourceGraph: React.FC<Props> = (props: Props) => {
-
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
 
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     return (
-        <div className="my-2 px-2 w-full">
+        <div className="mt-2 px-2 w-full">
+            <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
             <ResponsiveContainer aspect={1.5} width="100%" className="text-xs">
                 <LineChart
-                    data={props.active ? getChartData(appContext) : []}
+                    data={props.active ? getChartData(appContext, props.property) : []}
                     margin={{
                         top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 5
+                        right: 25,
+                        left: -25,
+                        bottom: 0
                     }}
                     className="mx-auto"
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="round" />
                     <YAxis />
-                    <Tooltip labelFormatter={(label) => "Round " + label} separator=': '/>
-                    <Legend />
-                    <Line type="linear" name="Red Mana" dataKey="red_mana" stroke="#ff9194" dot={false} activeDot={{ r: 4 }} />
-                    <Line type="linear" name="Blue Mana" dataKey="blue_mana" stroke="#04a2d9" dot={false} activeDot={{ r: 4 }} />
+                    <Tooltip labelFormatter={(label) => 'Round ' + label} separator=": " />
+                    <Line
+                        type="linear"
+                        name={'Red ' + props.propertyDisplayName}
+                        dataKey="red"
+                        stroke="#ff9194"
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        isAnimationActive={false}
+                    />
+                    <Line
+                        type="linear"
+                        name={'Blue ' + props.propertyDisplayName}
+                        dataKey="blue"
+                        stroke="#04a2d9"
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        isAnimationActive={false}
+                    />
                 </LineChart>
             </ResponsiveContainer>
         </div>
