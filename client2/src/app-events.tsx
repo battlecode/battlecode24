@@ -1,19 +1,20 @@
 import { useEffect } from 'react'
 
 export enum EventType {
-    TURN_PROGRESS = "turnprogress",
+    TURN_PROGRESS = 'turnprogress',
+    RENDER = 'render'
 }
 
-export function useListenEvent(eventType: EventType, callback: (event: any) => void) {
+export const useListenEvent = (eventType: EventType, callback: (event: any) => void, dependencies: any[] = []) => {
     useEffect(() => {
         document.addEventListener(eventType as string, callback)
         return () => {
-            document.removeEventListener(eventType as string, callback);
+            document.removeEventListener(eventType as string, callback)
         }
-    }, [])
+    }, dependencies)
 }
 
-export function publishEvent(eventType: string, eventData: any) {
+export const publishEvent = (eventType: string, eventData: any) => {
     const event = new CustomEvent(eventType as string, eventData)
-    document.dispatchEvent(event);
+    document.dispatchEvent(event)
 }

@@ -66,7 +66,7 @@ export default class Match {
     public jumpToTurn(turnNumber: number): void {
         turnNumber = Math.max(0, Math.min(turnNumber, this.deltas.length))
         if (turnNumber == this.currentTurn.turnNumber) return
-        
+
         const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
         let turn = this.snapshots[snapshotIndex].copy()
 
@@ -86,5 +86,6 @@ export default class Match {
 
         this.currentTurn = turn
         publishEvent(EventType.TURN_PROGRESS, {})
+        publishEvent(EventType.RENDER, {})
     }
 }
