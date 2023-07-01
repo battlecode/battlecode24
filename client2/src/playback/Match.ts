@@ -19,7 +19,8 @@ export default class Match {
     private readonly deltas: schema.Round[]
     private readonly snapshots: Turn[]
     public currentTurn: Turn
-    private currentSimulationStep: number
+    private currentSimulationStep: number = 0
+    private lastSimulationDelta: number = 0
     private readonly maxTurn: number
     public readonly stats: TurnStat[] = []
     public readonly winner: Team
@@ -41,9 +42,8 @@ export default class Match {
 
         this.maxTurn = header.maxRounds()
 
-        this.currentSimulationStep = 0
         this.currentTurn = new Turn(this, 0, new CurrentMap(this.map), firstBodies, new Actions(), firstStats)
-        this.snapshots = [this.currentTurn]
+        this.snapshots = [this.currentTurn.copy()]
         this.stats = [this.currentTurn.stat]
 
         this.deltas = turns
@@ -53,10 +53,14 @@ export default class Match {
     }
 
     /**
-     * Returns the normalized 0-1 value indicating the simulation progression for this turn
+     * Returns the normalized 0-1 value indicating the simulation progression for this turn.
+     * If the simulation step is decreasing, the inverse 1-0 factor is returned indicating
+     * a reversed simulation
      */
     public getInterpolationFactor(): number {
-        return this.currentSimulationStep / MAX_SIMULATION_STEPS
+        const factor = Math.abs(this.currentSimulationStep) / MAX_SIMULATION_STEPS
+        if (this.lastSimulationDelta < 0) return 1 - factor
+        return factor
     }
 
     /**
@@ -64,14 +68,20 @@ export default class Match {
      * the max simulation steps, the turn counter is increased accordingly
      */
     public stepSimulation(delta: number): void {
+        this.lastSimulationDelta = delta
         this.currentSimulationStep += delta
 
-        if (this.currentSimulationStep >= MAX_SIMULATION_STEPS) {
+        if (Math.abs(this.currentSimulationStep) >= MAX_SIMULATION_STEPS) {
             this.jumpToTurn(this.currentTurn.turnNumber + Math.floor(this.currentSimulationStep / MAX_SIMULATION_STEPS))
             return
         }
 
         publishEvent(EventType.RENDER, {})
+
+        // Reset the simulation delta because a potentially reversed interpolation
+        // factor should only apply to the most recent render, which has already
+        // been processed after the return of the event publish
+        this.lastSimulationDelta = 0
     }
 
     /**
@@ -93,27 +103,42 @@ export default class Match {
      */
     public jumpToTurn(turnNumber: number): void {
         turnNumber = Math.max(0, Math.min(turnNumber, this.deltas.length))
-        if (turnNumber == this.currentTurn.turnNumber) return
+        if (turnNumber == this.currentTurn.turnNumber) {
+            // Still want to reset simulation step here since a jump should always reset
+            this.currentSimulationStep = 0
+            return
+        }
 
-        // TODO: we don't need to recompute from snapshot every time, we can
-        // definitely reuse the previous turn sometimes
-        const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
-        let turn = this.snapshots[snapshotIndex].copy()
+        // If we are stepping backwards, we must always recompute from the latest checkpoint
+        const reversed = turnNumber < this.currentTurn.turnNumber
 
-        while (turn.turnNumber < turnNumber) {
-            const delta = this.deltas[turn.turnNumber]
-            const nextDelta = turn.turnNumber < this.deltas.length - 1 ? this.deltas[turn.turnNumber + 1] : null
-            turn.applyDelta(delta, nextDelta)
+        // If the new turn is closer to a snapshot than from the current turn, compute from the snapshot
+        const closeSnapshot =
+            Math.floor(turnNumber / SNAPSHOT_EVERY) > Math.floor(this.currentTurn.turnNumber / SNAPSHOT_EVERY)
+
+        const computeFromSnapshot = reversed || closeSnapshot
+        let updatingTurn = this.currentTurn
+        if (computeFromSnapshot) {
+            const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
+            updatingTurn = this.snapshots[snapshotIndex].copy()
+        }
+
+        while (updatingTurn.turnNumber < turnNumber) {
+            const delta = this.deltas[updatingTurn.turnNumber]
+            const nextDelta =
+                updatingTurn.turnNumber < this.deltas.length - 1 ? this.deltas[updatingTurn.turnNumber + 1] : null
+            updatingTurn.applyDelta(delta, nextDelta)
+
             if (
-                turn.turnNumber % SNAPSHOT_EVERY === 0 &&
-                this.snapshots.length < turn.turnNumber / SNAPSHOT_EVERY + 1
+                updatingTurn.turnNumber % SNAPSHOT_EVERY === 0 &&
+                this.snapshots.length < updatingTurn.turnNumber / SNAPSHOT_EVERY + 1
             ) {
-                this.snapshots.push(turn.copy())
+                this.snapshots.push(updatingTurn.copy())
             }
         }
 
         this.currentSimulationStep = 0
-        this.currentTurn = turn
+        this.currentTurn = updatingTurn
         publishEvent(EventType.TURN_PROGRESS, {})
         publishEvent(EventType.RENDER, {})
     }
