@@ -113,15 +113,14 @@ export default class Match {
         const reversed = turnNumber < this.currentTurn.turnNumber
 
         // If the new turn is closer to a snapshot than from the current turn, compute from the snapshot
+        const snapshotIndex = Math.floor(turnNumber / SNAPSHOT_EVERY)
         const closeSnapshot =
-            Math.floor(turnNumber / SNAPSHOT_EVERY) > Math.floor(this.currentTurn.turnNumber / SNAPSHOT_EVERY)
+            snapshotIndex > Math.floor(this.currentTurn.turnNumber / SNAPSHOT_EVERY) &&
+            snapshotIndex < this.snapshots.length
 
         const computeFromSnapshot = reversed || closeSnapshot
         let updatingTurn = this.currentTurn
-        if (computeFromSnapshot) {
-            const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
-            updatingTurn = this.snapshots[snapshotIndex].copy()
-        }
+        if (computeFromSnapshot) updatingTurn = this.snapshots[snapshotIndex].copy()
 
         while (updatingTurn.turnNumber < turnNumber) {
             const delta = this.deltas[updatingTurn.turnNumber]
