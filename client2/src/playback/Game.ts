@@ -16,13 +16,10 @@ export default class Game {
     private readonly constants: schema.Constants
     public readonly typeMetadata: schema.BodyTypeMetadata[] = []
 
-    //shared slots for efficiency??
-    public _bodiesSlot: schema.SpawnedBodyTable = new schema.SpawnedBodyTable()
-    public _vecTableSlot1: schema.VecTable = new schema.VecTable()
     /**
      * The ID of this game. This is used to uniquely identify games in the UI, and is just based on uploaded order
      */
-    public readonly id: number;
+    public readonly id: number
 
     constructor(wrapper: schema.GameWrapper) {
         const eventCount = wrapper.eventsLength()
@@ -32,13 +29,9 @@ export default class Game {
 
         // load header and metadata =============================================================================
         const gameHeaderEvent = wrapper.events(0, eventSlot) ?? assert.fail('Event was null')
-        assert(
-            gameHeaderEvent.eType() === schema.Event.GameHeader,
-            'First event must be GameHeader'
-        )
+        assert(gameHeaderEvent.eType() === schema.Event.GameHeader, 'First event must be GameHeader')
         const gameHeader = gameHeaderEvent.e(new schema.GameHeader()) as schema.GameHeader
-        this.specVersion =
-            (gameHeader.specVersion() as string) || assert.fail('Unknown spec version')
+        this.specVersion = (gameHeader.specVersion() as string) || assert.fail('Unknown spec version')
         this.teams = [
             new Team(gameHeader.teams(0) ?? assert.fail('Team 0 was null')),
             new Team(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
@@ -46,8 +39,7 @@ export default class Game {
 
         const bodyCount = gameHeader.bodyTypeMetadataLength()
         for (let i = 0; i < bodyCount; i++) {
-            const bodyData =
-                gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
+            const bodyData = gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
             this.typeMetadata[bodyData.type()] = bodyData
         }
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
@@ -55,10 +47,7 @@ export default class Game {
         // load matches ==========================================================================================
         for (let i = 1; i < eventCount - 1; i++) {
             const matchHeaderEvent = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')
-            assert(
-                matchHeaderEvent.eType() === schema.Event.MatchHeader,
-                'Event must be MatchHeader'
-            )
+            assert(matchHeaderEvent.eType() === schema.Event.MatchHeader, 'Event must be MatchHeader')
             const matchHeader = matchHeaderEvent.e(new schema.MatchHeader()) as schema.MatchHeader
 
             i++
@@ -100,9 +89,7 @@ export default class Game {
     public static loadFullGameRaw(data: ArrayBuffer): Game {
         const ungzipped = ungzip(new Uint8Array(data))
         console.log('Game un-gzipped!')
-        const wrapper = schema.GameWrapper.getRootAsGameWrapper(
-            new flatbuffers.ByteBuffer(ungzipped)
-        )
+        const wrapper = schema.GameWrapper.getRootAsGameWrapper(new flatbuffers.ByteBuffer(ungzipped))
         return new Game(wrapper)
     }
 }

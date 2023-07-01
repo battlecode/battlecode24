@@ -5,6 +5,7 @@ import Turn from './Turn'
 import TurnStat from './TurnStat'
 import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
+import { Vector } from './Vector'
 
 export default class Bodies {
     private bodies: Map<number, Body> = new Map()
@@ -13,27 +14,41 @@ export default class Bodies {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
     }
 
+    updateBodyPositions(delta: schema.Round, allowNullBodies: boolean) {
+        const movedLocs = delta.movedLocs()
+        if (!movedLocs) return
+        const movedIds = delta.movedIDsArray() ?? assert.fail('movedIDsArray not found in round')
+        const xsArray = movedLocs.xsArray() ?? assert.fail('movedLocs.xsArray not found in round')
+        const ysArray = movedLocs.ysArray() ?? assert.fail('movedLocs.ysArray not found in round')
+        for (let i = 0; i < delta.movedIDsLength(); i++) {
+            const id = movedIds[i]
+            const body = this.bodies.get(id)
+
+            assert.equal(allowNullBodies || !!body, true, `Moved body ${id} not found in bodies`)
+
+            if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
+        }
+    }
+
     /**
      * Applies a delta to the bodies array. Because of update order, bodies will first
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
      * Afterwards, diedBodies will be deleted, so any methods which reference bodies should
      * most likely be inside scopedCallback()
      */
-    applyDelta(turn: Turn, delta: schema.Round, scopedCallback: () => void): void {
-        const bodies = delta.spawnedBodies(this.game._bodiesSlot)
+    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null, scopedCallback: () => void): void {
+        const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
 
-        const movedLocs = delta.movedLocs(this.game._vecTableSlot1)
-        if (movedLocs) {
-            const movedIds = delta.movedIDsArray() ?? assert.fail('movedIDsArray not found in round')
-            const xsArray = movedLocs.xsArray() ?? assert.fail('movedLocs.xsArray not found in round')
-            const ysArray = movedLocs.ysArray() ?? assert.fail('movedLocs.ysArray not found in round')
-            for (let i = 0; i < delta.movedIDsLength(); i++) {
-                const id = movedIds[i]
-                const body = this.bodies.get(id) ?? assert.fail(`Moved body ${id} not found in bodies`)
-                body.moveTo(xsArray[i], ysArray[i])
-            }
-        }
+        // Update positions with respect to interpolation. The first call to update will set the body's
+        // target location to the value in delta. This is important when the body eventually gets removed
+        // because it should still interpolate to its final position. The second call to update will set the
+        // target position to the body's true next position iff it exists. In this case, we allow null
+        // bodies and skip them since they may not exist in the next turn. Most of the updates here are extra
+        // since the first call is really only necessary for bodies that die, so there is potential for
+        // optimization.
+        this.updateBodyPositions(delta, false)
+        if (nextDelta) this.updateBodyPositions(nextDelta, true)
 
         scopedCallback()
 
@@ -53,11 +68,11 @@ export default class Bodies {
         }
     }
 
-    insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
+    private insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
         var teams = bodies.teamIDsArray() ?? assert.fail('Initial body teams not found in header')
         var types = bodies.typesArray() ?? assert.fail('Initial body types not found in header')
 
-        const locs = bodies.locs(this.game._vecTableSlot1) ?? assert.fail('Initial body locations not found in header')
+        const locs = bodies.locs() ?? assert.fail('Initial body locations not found in header')
         const xsArray = locs.xsArray() ?? assert.fail('Initial body x locations not found in header')
         const ysArray = locs.ysArray() ?? assert.fail('Initial body y locations not found in header')
         const idsArray = bodies.robotIDsArray() ?? assert.fail('Initial body IDs not found in header')
@@ -69,8 +84,7 @@ export default class Bodies {
             this.bodies.set(
                 id,
                 new bodyClass(
-                    xsArray[i],
-                    ysArray[i],
+                    { x: xsArray[i], y: ysArray[i] },
                     this.game.typeMetadata[types[i]].health(),
                     this.game.teams[teams[i] - 1],
                     id
@@ -107,9 +121,9 @@ export class Body {
     static robotName: string
     public type: number = -1
     protected imgPath: string = ''
+    protected nextPos: Vector
     constructor(
-        public x: number,
-        public y: number,
+        public pos: Vector,
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
@@ -118,13 +132,20 @@ export class Body {
         public mana: number = 0,
         public anchor: number = 0,
         public bytecodesUsed: number = 0
-    ) {}
+    ) {
+        this.nextPos = this.pos
+    }
 
     public draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
+        const interpCoords = renderUtils.getInterpolatedCoords(
+            this.pos,
+            this.nextPos,
+            turn.match.getInterpolationFactor()
+        )
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(this.x, this.y, turn.map.staticMap.dimension),
+            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, turn.map.staticMap.dimension),
             1
         )
     }
@@ -138,9 +159,9 @@ export class Body {
         return Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this))
     }
 
-    public moveTo(x: number, y: number): void {
-        this.x = x
-        this.y = y
+    public moveTo(pos: Vector): void {
+        this.pos = this.nextPos
+        this.nextPos = pos
     }
 
     public clearResources(): void {
@@ -155,8 +176,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
         static robotName = 'Headquarters'
         public type = schema.BodyType.HEADQUARTERS
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_headquarters_smaller.png`
         }
         onHoverInfo(): string {
@@ -166,8 +187,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.LAUNCHER]: class Launcher extends Body {
         static robotName = 'Launcher'
         public type = schema.BodyType.LAUNCHER
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_launcher_smaller.png`
         }
         onHoverInfo(): string {
@@ -177,8 +198,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.CARRIER]: class Carrier extends Body {
         static robotName = 'Carrier'
         public type = schema.BodyType.CARRIER
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_carrier_smaller.png`
         }
         onHoverInfo(): string {
@@ -188,8 +209,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.BOOSTER]: class Booster extends Body {
         static robotName = 'Booster'
         public type = schema.BodyType.BOOSTER
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_booster_smaller.png`
         }
         onHoverInfo(): string {
@@ -199,8 +220,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
         static robotName = 'Destabilizer'
         public type = schema.BodyType.DESTABILIZER
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
         }
         onHoverInfo(): string {
@@ -210,8 +231,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
         static robotName = 'Amplifier'
         public type = schema.BodyType.AMPLIFIER
-        constructor(x: number, y: number, hp: number, team: Team, id: number) {
-            super(x, y, hp, team, id)
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_amplifier_smaller.png`
         }
         onHoverInfo(): string {
