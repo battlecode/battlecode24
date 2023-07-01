@@ -39,10 +39,8 @@ export const GameRenderer: React.FC = () => {
         const match = appContext.state.activeMatch
         if (!match) return
 
-        let ctx = getCanvasContext(CanvasType.BACKGROUND)!
-        match.currentTurn.map.staticMap.draw(ctx)
-
-        ctx = getCanvasContext(CanvasType.DYNAMIC)!
+        const ctx = getCanvasContext(CanvasType.DYNAMIC)!
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         match.currentTurn.map.draw(ctx)
         match.currentTurn.bodies.draw(match.currentTurn, ctx)
         match.currentTurn.actions.draw(match.currentTurn, ctx)
@@ -60,6 +58,9 @@ export const GameRenderer: React.FC = () => {
             y: match.currentTurn.map.height
         })
         updateCanvasDimensions(CanvasType.DYNAMIC, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
+
+        // Redraw static background
+        match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
 
         publishEvent(EventType.RENDER, {})
     }, [appContext.state.activeMatch])
