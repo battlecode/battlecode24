@@ -5,7 +5,7 @@ import { useAppContext } from '../../app-context'
 import { ControlsBarTimeline } from './controls-bar-timeline'
 import { MAX_SIMULATION_STEPS } from '../../playback/Match'
 
-const SIMULATION_UPDATE_INTERVAL_MS = 5
+const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
 export const ControlsBar: React.FC = () => {
     const [updatesPerSecond, setUpdatesPerSecond] = React.useState(0)
