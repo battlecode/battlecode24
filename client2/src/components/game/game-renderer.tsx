@@ -2,7 +2,7 @@ import React from 'react'
 import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
 import * as cst from '../../constants'
-import { publishEvent, EventType } from '../../app-events'
+import Tooltip from './tooltip'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -17,6 +17,7 @@ export const GameRenderer: React.FC = () => {
     const appContext = useAppContext()
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
     const game = appContext.state.activeGame
+    const [tooltipCanvas, setTooltipCanvas] = React.useState<HTMLCanvasElement>()
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
@@ -40,7 +41,6 @@ export const GameRenderer: React.FC = () => {
          * then we need to make it also draw on image load (see imageloader.triggerOnImageLoad()) unless we decide to
          * block until all images are loaded (which is probably a bad idea)
          */
-        // match.jumpToTurn(1244)
         const render = () => {
             const turn = match.currentTurn
 
@@ -57,16 +57,8 @@ export const GameRenderer: React.FC = () => {
 
         const renderInterval = setInterval(render, 100)
 
-        // test game playing
-        // const stepInterval = setInterval(() => {
-        //     match.stepTurn(1)
-        //     publishEvent(EventType.TURN_PROGRESS, {})
-        //     console.log(match.currentTurn.turnNumber)
-        // }, 300)
-
         return () => {
             clearInterval(renderInterval)
-            // clearInterval(stepInterval)
         }
     }, [canvases, appContext.state.activeMatch])
 
@@ -81,15 +73,22 @@ export const GameRenderer: React.FC = () => {
                 <div ref={wrapperRef} className="relative w-full h-full">
                     {Object.getOwnPropertyNames(CanvasType).map((ct, idx) => (
                         <canvas
-                            className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full aspect-square"
+                            className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
                             style={{
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: CANVAS_Z_INDICES[idx]
                             }}
                             key={`canv${ct}`}
-                            ref={(ref) => (canvases.current[ct] = ref)}
+                            ref={(ref) => {
+                                canvases.current[ct] = ref
+                                // TODO: there's def a better way to do this but idk how rn
+                                if (ct == CanvasType.DYNAMIC && ref && tooltipCanvas !== ref) {
+                                    setTooltipCanvas(ref)
+                                }
+                            }}
                         />
                     ))}
+                    <Tooltip canvas={tooltipCanvas} wrapperRef={wrapperRef} />
                 </div>
             )}
         </div>

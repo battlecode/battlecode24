@@ -29,7 +29,7 @@ export const QueuePage: React.FC = () => {
 
     return (
         <div className="flex flex-col">
-            <input type="file" hidden ref={(ref) => (inputRef.current = ref)} onChange={upload} />
+            <input type="file" hidden ref={(ref) => (inputRef.current = ref)} onChange={upload} accept={".bc" + BATTLECODE_YEAR % 100 + ",.bc*"}/>
             <Button onClick={() => inputRef.current?.click()}>
                 <FiUpload className="align-middle text-base mr-2" />
                 Upload a .bc{BATTLECODE_YEAR % 100} replay file
