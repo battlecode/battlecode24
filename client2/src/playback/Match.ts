@@ -20,7 +20,6 @@ export default class Match {
     private readonly snapshots: Turn[]
     public currentTurn: Turn
     private currentSimulationStep: number = 0
-    private lastSimulationDelta: number = 0
     private readonly maxTurn: number
     public readonly stats: TurnStat[] = []
     public readonly winner: Team
@@ -54,34 +53,28 @@ export default class Match {
 
     /**
      * Returns the normalized 0-1 value indicating the simulation progression for this turn.
-     * If the simulation step is decreasing, the inverse 1-0 factor is returned indicating
-     * a reversed simulation
      */
     public getInterpolationFactor(): number {
-        const factor = Math.abs(this.currentSimulationStep) / MAX_SIMULATION_STEPS
-        if (this.lastSimulationDelta < 0) return 1 - factor
-        return factor
+        return (Math.abs(this.currentSimulationStep) % MAX_SIMULATION_STEPS) / MAX_SIMULATION_STEPS
     }
 
     /**
-     * Change the simulation step to the current step + delta. If the step reaches
-     * the max simulation steps, the turn counter is increased accordingly
+     * Change the simulation step to the current step + delta. If the step reaches the max simulation steps, the turn counter is increased accordingly
      */
     public stepSimulation(delta: number): void {
-        this.lastSimulationDelta = delta
         this.currentSimulationStep += delta
+        if (this.currentSimulationStep < 0) this.currentSimulationStep = 0
 
-        if (Math.abs(this.currentSimulationStep) >= MAX_SIMULATION_STEPS) {
-            this.jumpToTurn(this.currentTurn.turnNumber + Math.floor(this.currentSimulationStep / MAX_SIMULATION_STEPS))
-            return
-        }
+        this.jumpToTurn(Math.floor(this.currentSimulationStep / MAX_SIMULATION_STEPS))
 
         publishEvent(EventType.RENDER, {})
+    }
 
-        // Reset the simulation delta because a potentially reversed interpolation
-        // factor should only apply to the most recent render, which has already
-        // been processed after the return of the event publish
-        this.lastSimulationDelta = 0
+    /**
+     * Clear any excess simulation steps and round it to the nearest turn
+     */
+    public roundSimulation(): void {
+        this.currentSimulationStep -= this.currentSimulationStep % MAX_SIMULATION_STEPS
     }
 
     /**
@@ -103,11 +96,7 @@ export default class Match {
      */
     public jumpToTurn(turnNumber: number): void {
         turnNumber = Math.max(0, Math.min(turnNumber, this.deltas.length))
-        if (turnNumber == this.currentTurn.turnNumber) {
-            // Still want to reset simulation step here since a jump should always reset
-            this.currentSimulationStep = 0
-            return
-        }
+        if (turnNumber == this.currentTurn.turnNumber) return
 
         // If we are stepping backwards, we must always recompute from the latest checkpoint
         const reversed = turnNumber < this.currentTurn.turnNumber
@@ -136,7 +125,11 @@ export default class Match {
             }
         }
 
-        this.currentSimulationStep = 0
+        // Update the simulation step so it remains consistent with the total turn value
+        // while also keeping the current simulation progress
+        this.currentSimulationStep =
+            updatingTurn.turnNumber * MAX_SIMULATION_STEPS + (this.currentSimulationStep % MAX_SIMULATION_STEPS)
+
         this.currentTurn = updatingTurn
         publishEvent(EventType.TURN_PROGRESS, {})
         publishEvent(EventType.RENDER, {})

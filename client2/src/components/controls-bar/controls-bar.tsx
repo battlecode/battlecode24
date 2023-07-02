@@ -30,16 +30,19 @@ export const ControlsBar: React.FC = () => {
     const stepTurn = (delta: number) => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.stepTurn(delta)
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     const jumpToTurn = (turn: number) => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     const jumpToEnd = () => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.jumpToEnd()
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     React.useEffect(() => {
