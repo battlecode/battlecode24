@@ -65,9 +65,12 @@ export default class Match {
         this.currentSimulationStep += delta
         if (this.currentSimulationStep < 0) this.currentSimulationStep = 0
 
+        const prevTurn = this.currentTurn.turnNumber
         this.jumpToTurn(Math.floor(this.currentSimulationStep / MAX_SIMULATION_STEPS))
 
-        publishEvent(EventType.RENDER, {})
+        // jumpToTurn will call render if the turn number changes so we shouldn't
+        // do it again
+        if (prevTurn == this.currentTurn.turnNumber) publishEvent(EventType.RENDER, {})
     }
 
     /**
