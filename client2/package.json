@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "fix-schema": "(cd ../schema && npm i && cd ../client2 && rimraf node_modules/battlecode-schema && npm i)",
     "watch": "set NODE_ENV=development && webpack serve --config webpack.config.js --mode development --env dev",
-    "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production"
+    "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production",
+    "tauri": "tauri"
   },
   "repository": {
     "type": "git",
@@ -32,9 +33,11 @@
     "recharts": "^2.6.2"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.4.0",
     "@types/pako": "^2.0.0",
     "@types/react": "^18.2.5",
     "@types/react-dom": "^18.2.3",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.1",
     "postcss-loader": "^7.3.0",
