@@ -53,6 +53,9 @@ export const GameRenderer: React.FC = () => {
             match.currentTurn.map.draw(ctx)
             match.currentTurn.bodies.draw(match.currentTurn, ctx)
             match.currentTurn.actions.draw(match.currentTurn, ctx)
+
+            updateCanvasDimensions(CanvasType.OVERLAY, { x: turn.map.width, y: turn.map.height })
+            ctx = getCanvasContext(CanvasType.OVERLAY)!
         }
 
         const renderInterval = setInterval(render, 100)
@@ -76,13 +79,13 @@ export const GameRenderer: React.FC = () => {
                             className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
                             style={{
                                 transform: 'translate(-50%, -50%)',
-                                zIndex: CANVAS_Z_INDICES[idx]
+                                zIndex: CANVAS_Z_INDICES[idx],
                             }}
                             key={`canv${ct}`}
                             ref={(ref) => {
                                 canvases.current[ct] = ref
                                 // TODO: there's def a better way to do this but idk how rn
-                                if (ct == CanvasType.DYNAMIC && ref && tooltipCanvas !== ref) {
+                                if (ct == CanvasType.OVERLAY && ref && tooltipCanvas !== ref) {
                                     setTooltipCanvas(ref)
                                 }
                             }}

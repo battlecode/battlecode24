@@ -90,6 +90,15 @@ export default class Bodies {
         return this.bodies.get(id) ?? assert.fail(`Body with id ${id} not found in bodies`)
     }
 
+    getByLocation(x: number, y: number): Body | undefined {
+        for (const body of this.bodies.values()) {
+            if (body.x == x && body.y == y) {
+                return body
+            }
+        }
+        return undefined
+    }
+
     copy(): Bodies {
         const newBodies = new Bodies(this.game)
         newBodies.bodies = new Map(this.bodies)
@@ -182,7 +191,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_carrier_smaller.png`
         }
         onHoverInfo(): string {
-            return 'Carrier'
+            return `Carrier ${this.x} ${this.y} ${this.team.color} ${this.id}`
         }
     },
     [schema.BodyType.BOOSTER]: class Booster extends Body {
