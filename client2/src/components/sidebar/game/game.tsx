@@ -25,11 +25,7 @@ export const GamePage: React.FC = () => {
 
             <div className="h-[30px]" />
 
-<<<<<<< HEAD
-            <div className={teamBoxClasses + " bg-blueLight"}>
-=======
             <div className={teamBoxClasses + ' bg-blue'}>
->>>>>>> client2-ui
                 <p>{activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
             <UnitsTable team={1} />
