@@ -1,0 +1,42 @@
+import { SetURLSearchParams, useSearchParams } from 'react-router-dom'
+
+export enum PageType {
+    GAME = "Game",
+    QUEUE = "Queue",
+    RUNNER = "Runner",
+    PROFILER = "Profiler",
+    MAP_EDITOR = "Map Editor",
+    HELP = "Help"
+}
+
+function updateSearchParams(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams, key: string, value: any) {
+    const newParams = Object.assign(
+        {},
+        [...searchParams.entries()].reduce(
+            (o, [key, value]) => ({ ...o, [key]: value }),
+            {}
+        ),
+        { [key]: value }
+    );
+    setSearchParams(newParams);
+}
+
+export function usePage(): readonly [PageType, (newPage: PageType) => void] {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const page = (searchParams.get("page") as PageType) ?? PageType.GAME;
+
+    const setPage = (newPage: PageType) => {
+        updateSearchParams(searchParams, setSearchParams, 'page', newPage);
+    };
+    return [page, setPage];
+}
+
+export function useSearchParamBool(paramName: string, defaultValue: boolean): readonly [boolean, (newValue: boolean) => void] {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const value = ((searchParams.get(paramName) ?? (defaultValue ? "1" : "0")) === "1");
+
+    const setValue = (newValue: boolean) => {
+        updateSearchParams(searchParams, setSearchParams, paramName, newValue ? "1" : "0");
+    };
+    return [value, setValue];
+}

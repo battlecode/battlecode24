@@ -33,16 +33,6 @@ dependencies {
     bots project(":example-bots")
 }
 
-test {
-    debugOptions {
-        enabled = true
-        host = 'localhost'
-        port = 5005
-        server = true
-        suspend = true
-    }
-}
-
 def serverJar = configurations.engine.singleFile
 
 task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
@@ -56,7 +46,7 @@ task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
 }
 
 def defaultClassLocation = project(':example-bots').sourceSets.main.output.classesDirs.getAsPath()
-def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc22'
+def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc23'
 
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   mainClass = 'battlecode.server.Main'
@@ -78,12 +68,15 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
     '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
     '-Dbc.game.team-b.package=' + (project.findProperty('packageNameB') ?: project.property('teamB')),
     '-Dbc.game.maps=' + project.property('maps'),
+    '-Dbc.server.validate-maps=' + project.property('validateMaps'),
     '-Dbc.server.save-file=' + (project.findProperty('replay') ?: defaultReplay),
   ]
 }
 
+// keep the client happy because it references this step
+task unpackClient() {}
 
-task run(dependsOn: ['headless']) {}
+task run(dependsOn: ['headless', 'unpackClient']) {}
 
 task runClient {
   doLast {
@@ -99,7 +92,7 @@ task runClient {
   }
 }
 
-task release(dependsOn: ['release_main', 'release_docs'])
+task release(dependsOn: ['release_main', 'release_docs', 'release_sources'])
 
 task release_main(type: Jar, dependsOn: [':engine:build']) {
   File f_version = new File(project.projectDir, "battlecode_version");
@@ -113,7 +106,7 @@ task release_main(type: Jar, dependsOn: [':engine:build']) {
 
   archiveBaseName = "battlecode";
   if (project.hasProperty("release_version"))
-    version = project.property("release_version");
+    archiveVersion = project.property("release_version");
   destinationDirectory = project.projectDir;
 
   FileCollection src = files(f_version);
@@ -134,10 +127,19 @@ task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
 
   archiveBaseName = "battlecode-javadoc"
   if (project.hasProperty("release_version"))
-    version = project.property("release_version");
+    archiveVersion = project.property("release_version");
   destinationDirectory = project.projectDir;
 
   from new File(project(":engine").docsDir, "javadoc")
+}
+
+task release_sources(type: Jar, dependsOn: classes) {
+  archiveBaseName = "battlecode-source"
+  if (project.hasProperty("release_version"))
+    archiveVersion = project.property("release_version");
+  destinationDirectory = project.projectDir;
+
+  from project(":engine").sourceSets.main.allSource
 }
 
 task prodClient {
@@ -185,6 +187,10 @@ publishing {
 
       artifact release_docs {
         classifier 'javadoc'
+      }
+
+      artifact release_sources {
+        classifier 'sources'
       }
     }
 

@@ -32,7 +32,7 @@ public class RobotInfo {
     /**
      * The inventory of the robot.
      */
-    public final Inventory inventory;
+    private final Inventory inventory;
 
     /**
      * The current location of the robot.
@@ -86,12 +86,32 @@ public class RobotInfo {
     }
 
     /**
-     * Returns the inventory of this robot.
-     *
-     * @return the inventory of this robot
+     * Returns the amount of resource this robot has.
+     * 
+     * @param rType the resource type of interest
+     * @return the amount of resources of this type the robot holds
      */
-    public Inventory getInventory() {
-        return inventory.copy();
+    public int getResourceAmount(ResourceType rType) {
+        return inventory.getResource(rType);
+    }
+
+    /**
+     * Returns the number of anchors this robot has.
+     * 
+     * @param anchor the anchor type of interest
+     * @return the num of this type of anchor the robot is holding
+     */
+    public int getNumAnchors(Anchor anchor) {
+        return inventory.getNumAnchors(anchor);
+    }
+
+    /**
+     * Returns the total number of anchors this robot has.
+     * 
+     * @return the total num of anchors the robot is holding
+     */
+    public int getTotalAnchors() {
+        return inventory.getTotalAnchors();
     }
 
     /**
@@ -132,7 +152,6 @@ public class RobotInfo {
 
     @Override
     public String toString() {
-        System.out.println("Got here");
         return "RobotInfo{" +
                 "ID=" + ID +
                 ", team=" + team +

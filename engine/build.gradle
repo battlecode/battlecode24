@@ -5,14 +5,18 @@ sourceCompatibility = 1.8
 sourceSets {
   main {
     java.srcDirs = ["src/main"]
+    java.includes = ["**/*.java"]
     resources.srcDirs = ["src/main"]
+    resources.excludes = ["**/*.java"]
 
     java.destinationDirectory.set(file("$buildDir/classes"))
     output.resourcesDir = "$buildDir/classes"
   }
   test {
     java.srcDirs = ["src/test"]
+    java.includes = ["**/*.java"]
     resources.srcDirs = ["src/test"]
+    resources.excludes = ["**/*.java"]
 
     java.destinationDirectory.set(file("$buildDir/tests"))
     output.resourcesDir = "$buildDir/tests"
@@ -28,6 +32,8 @@ repositories {
 
 dependencies {
   implementation(
+    [group: 'org.slf4j', name: 'slf4j-api', version: '2.0.6'],
+    [group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.6'],
     [group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'],
     [group: 'commons-cli', name: 'commons-cli', version: '1.5.0'],
     [group: 'commons-io', name: 'commons-io', version: '2.11.0'],

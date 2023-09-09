@@ -1,29 +1,60 @@
 package battlecode.world;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
-import javax.sound.sampled.SourceDataLine;
+import java.util.Set;
 
 import battlecode.common.*;
 
 
 
 public class Island {
-    final int idx;
-    final MapLocation[] locations; // TODO: do we want to make this immutable or change it to a copy to be extra safe?
+    final int ID;
+    final MapLocation[] locations;
     final GameWorld gw;
     Team teamOwning;
     Anchor anchorPlanted;
-    int turnsLeftToRemoveAnchor;
+    int anchorHealth;
 
-    public Island(GameWorld gw, int idx, List<MapLocation> locations) {
-        // TODO: this may not be the right place for this assertion but as we rebalance this needs to be true
-        assert(GameConstants.PERCENT_OPPOSING_TEAM_ISLAND + GameConstants.PERCENT_OWNING_TEAM_ISLAND > 1.0f);
+    public Island(GameWorld gw, int ID, List<MapLocation> locations) {
         this.gw = gw;
-        this.idx = idx;
+        this.ID = ID;
         this.locations = new MapLocation[locations.size()];
         for (int i = 0; i < locations.size(); i ++) {
             this.locations[i] = locations.get(i);
         }
+        this.teamOwning = Team.NEUTRAL;
+        this.anchorPlanted = null;
+        this.anchorHealth = 0;
+    }
+
+    public Team getTeam() {
+        return this.teamOwning;
+    }
+
+    public int getTeamInt() {
+        switch (getTeam()) {
+            case NEUTRAL:
+                return 0;
+            case A:
+                return 1;
+            case B:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public Anchor getAnchor() {
+        return this.anchorPlanted;
+    }
+
+    public int getHealth() {
+        return this.anchorHealth;
     }
 
     private void assertCanPlaceAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
@@ -42,11 +73,17 @@ public class Island {
     }
 
     public void placeAnchor(Team placingTeam, Anchor toPlace) throws GameActionException {
+        boolean prevOwnedIsland = this.teamOwning == placingTeam;
         assertCanPlaceAnchor(placingTeam, toPlace);
+        if (this.anchorPlanted != Anchor.ACCELERATING && toPlace == Anchor.ACCELERATING) {
+            this.gw.addBoostFromAnchor(this);
+        }
         this.anchorPlanted = toPlace;
         this.teamOwning = placingTeam;
-        this.turnsLeftToRemoveAnchor = toPlace.turnsToRemove;
-        this.gw.getTeamInfo().placeAnchor(placingTeam);
+        this.anchorHealth = toPlace.totalHealth;
+        if (!prevOwnedIsland) {
+            this.gw.getTeamInfo().placeAnchor(placingTeam);
+        }
     }
 
     public void advanceTurn() { 
@@ -54,24 +91,44 @@ public class Island {
             return;
         }       
         int[] numOccupied = new int[2];
-        for (MapLocation loc : locations) {
-            Team robotTeam = gw.getRobot(loc).getTeam();
-            numOccupied[robotTeam.ordinal()] ++;
-        }
-        if ((float) (numOccupied[teamOwning.ordinal()]) / locations.length >= GameConstants.PERCENT_OWNING_TEAM_ISLAND) {
-            // If the team controlling the island controls enough of the island reset the count
-            this.turnsLeftToRemoveAnchor = this.anchorPlanted.turnsToRemove;
-        } else if ((float) (numOccupied[teamOwning.opponent().ordinal()]) / locations.length >= GameConstants.PERCENT_OPPOSING_TEAM_ISLAND) {
-            // If the opposing team controls enough of the island decrease the count
-            this.turnsLeftToRemoveAnchor -= 1;
-            if (this.turnsLeftToRemoveAnchor <= 0) {
-                this.teamOwning = null;
-                this.anchorPlanted = null;
-                this.turnsLeftToRemoveAnchor = 0;
+        for (MapLocation loc : this.locations) {
+            InternalRobot robot = gw.getRobot(loc);
+            if (robot != null) {
+                Team robotTeam = robot.getTeam();
+                numOccupied[robotTeam.ordinal()] ++;
             }
-
         }
+        int diffPctOccupied = (100*(numOccupied[teamOwning.ordinal()] - numOccupied[teamOwning.opponent().ordinal()]))/(locations.length);
+        this.anchorHealth = Math.min(this.anchorPlanted.totalHealth, this.anchorHealth + diffPctOccupied);
+        if (this.anchorHealth <= 0) {
+            this.gw.getTeamInfo().removeAnchor(this.teamOwning);
+            this.teamOwning = Team.NEUTRAL;
+            if (this.anchorPlanted == Anchor.ACCELERATING) {
+                this.gw.removeBoostFromAnchor(this);
+            }
+            this.anchorPlanted = null;
+            this.anchorHealth = 0;
+        }
+    }
 
+    public int minDistTo(MapLocation compareLoc) {
+        int minDist = Integer.MAX_VALUE;
+        for (MapLocation loc : this.locations) {
+            minDist = Math.min(minDist, loc.distanceSquaredTo(compareLoc));
+        }
+        return minDist;
+    }
+
+    public Set<MapLocation> getLocsAffected() {
+        Set<MapLocation> locsWithinRange = new HashSet<>();
+        if (this.anchorPlanted != null) {
+            if (this.anchorPlanted == Anchor.ACCELERATING) {
+                for (MapLocation loc : this.locations) {
+                    locsWithinRange.addAll(Arrays.asList(this.gw.getAllLocationsWithinRadiusSquared(loc, this.anchorPlanted.unitsAffected)));
+                }            
+            }
+        }
+        return locsWithinRange;
     }
 
 }

@@ -94,7 +94,7 @@ export default class Looper {
 
         const onMouseover = (x: number, y: number, xrel: number, yrel: number, resource_type: number,
             well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
-            island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => {
+            island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number } | undefined) => {
             controls.setTileInfo(x, y, xrel, yrel, resource_type, well_stats, island_stats)
         }
 
@@ -407,7 +407,7 @@ export default class Looper {
                 var ad = body["adamantium"]
                 var el =  body["elixir"]
                 var mn = body["mana"]
-                if (body['type'] == 1){
+                if (body['type'] == schema.BodyType.HEADQUARTERS){
                     resources[team_id]["Ad"]["with_HQ"].push(ad);
                     resources[team_id]["Mn"]["with_HQ"].push(mn);
                     resources[team_id]["El"]["with_HQ"].push(el);

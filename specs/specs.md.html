@@ -17,11 +17,9 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *0.1.1*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *1.2.4*
 
-The 2023 specifications have not been ported yet. Following is the 2022 specs.
-
-**Welcome to Battlecode 2022: Mutation.**
+**Welcome to Battlecode 2023: Tempest.**
 
 This is a high-level overview of this year's game. It is highly recommended to read this entire document before you begin writing bots.
 
@@ -29,224 +27,187 @@ This is a high-level overview of this year's game. It is highly recommended to r
 
 # Background
 
-The dust settles on the scorched landscape, the sun's glare harsh and unforgiving. The world is a radioactive wasteland, overrun with mutations and anomalies. Buildings have learned to walk, transmutation has given birth to the blooming science of alchemy, and even the robots have become sentient.
+Lightning booms in the distance and mountains crack as they shift about. Rampant anomalies destroy the very fabric of reality, spurred by the misuse of mutation and alchemy. In a last ditch effort to save humanity, alchemists have torn open unstable portals to a new universe filled with beautiful floating islands and time-bending tempests.
 
-The arduous task of restoring civilization is yet to begin, but amidst the uncertainty, two warring factions of robots have emerged. History is being written before our eyes, for only one faction will rise above the turmoil to secure the future of the world.
+To anchor their dying universe to this bountiful world, humanity must take to the skies and explore the mysterious laws that govern them. But you are not alone – escapees from another reality have fled to this world as well and seek to take it for themselves. The battle of realities has begun, and only one will survive. 
 
 # Objective
 
-In **Battlecode: Mutation**, you will write code to control your faction of robots, in a dangerous battle to conquer the enemy team.
+In **Battlecode: Tempest**, you will write code to control your faction of robots, in a dangerous battle to conquer the sky islands of the world.
 
-The game world is subject to frequent Anomalies that can inflict long-lasting damage to both teams. Each player will begin with several Archons, and the player who loses all Archons first loses the game. Players must create robots that can tolerate onslaughts of Anomalies as they fight the opposing player faction.
+The first faction to conquer 75% of the sky islands wins the battle. Islands are conquered by placing a reality anchor on them, and reality anchors are crafted at each factions headquarters. Each player begins with several headquarters which can create robots, craft anchors, and store resources.
 
 Good luck!
 
+# Map overview
+
+Each Battlecode game will be played on a map. The map is a discrete 2-dimensional rectangular grid, of size ranging between 20×20 and 60×60 inclusive. The bottom-left corner of the map will have coordinates (0, 0); coordinates increase East (right) and North (up). Coordinates on the map are represented as `MapLocation` objects holding the `x` and `y`  coordinates of the location.
+
+In order to prevent maps from favoring one player over another, it is guaranteed that the world is symmetric either by rotation or reflection.
+
+**Note that throughout this document there are mentions of “units” on the map. These units correspond to squared Euclidean distance. For example, a vision range of 36 units means that the robot can see a MapLocation within a circle of radius up to 6 tiles away.**
+
+## Passability
+
+Due to dangerous weather, each square of the map is marked as either impassable or passable. Impassable squares are covered by heavy storms and anomalous hurricanes, and cannot be moved into. Passable squares have clear skies, and can be freely moved through. These squares stay fixed throughout the game.
+
+## Clouds and Currents
+
+The magical winds contain time-bending properties that affect robots that pass through them. These winds cannot pass through impassable squares due to their anomalous weather. 
+
+Time accelerating directional currents flow throughout the map, pushing robots in a specified direction. Robots in a current will be forced to move in the direction of the current at the end of the turn, applied after existing robot movement. Currents will usually appear together on the map in lines or other shapes. **Each current must flow into a different square.**
+
+Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+
+**Note that all stacking of time-bending effects occurs additively.**
+
+## Islands, Headquarters, and Wells
+
+Certain areas of the map are designated as *sky islands*. Islands appear as groups of connected squares, each group composing a single island. To fully anchor your faction’s universe and win the game, your faction must have reality anchors on **75%** or more of the islands. Once this condition has been fulfilled, your faction will instantly win the game. Sky islands are passable squares. 
+
+There will be between 4 and 35 (inclusive) sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
+
+Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
+
+*Resource wells* appear throughout the map and contain an infinite amount of a specific resource type. They cannot be moved or destroyed. No currents, headquarters, or impassable squares can be located on a well. **Robots can travel over wells.** 
+
+# Resources
+
+The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headquarter has its own isolated stockpile of these resources, and constructing robots/reality anchors subtracts from this stockpile. Collecting and bringing back resources for your headquarters enables you to amass a larger and more powerful army of robots. **Resources are not automatically usable when a carrier collects them - they must be carried back to a headquarter.**
+
+There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each team will have one adamantium well located within immediately visible distance. All maps are guaranteed to have at least one adamantium well and one mana well. 
+
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 2 kg/action. If 2400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 6 kg/action. Alternatively, if 1000 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+
+For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 81 units of a Mana well and vice versa. 
+
+Every five rounds, each headquarter will naturally produce 2 kg of adamantium and 2 kg of mana, automatically adding these resources to its reserves. Both teams start the game with 200 kg of adamantium and 200 kg of mana in each headquarter. Resource costs for robot construction can be found in the in-depth section further below.
+
 # Robots
 
-The Battlecode world involves many robots of different kinds. These robots can perform actions such as attacking, moving, and communicating with each other. In each battle, your robots will face an enemy faction on the game map.
+The Battlecode world involves many robots of different kinds. All robots can perform actions such as moving, sensing, and communicating with each other. In each battle, your robots will face one opposing enemy team.
 
 The game is turn-based and divided into **rounds**. In each round, every robot gets a **turn** in which it gets a chance to run code and take actions. Code that a robot runs costs **bytecodes**, a measure of computational resources. A robot only has a predetermined amount of bytecodes available per turn, after which the robot's turn is immediately ended and computations are resumed on its next turn. If your robot has finished its turn, it should call `Clock.yield()` to wait for the next turn to begin.
 
 All robots have a certain amount of HP (also known as hitpoints, health, life, or such). When a robot's HP reaches zero, the robot is immediately removed from the game.
 
-Robots are assigned unique random IDs no smaller than 10,000, except for your Archons.
+Robots are assigned unique random IDs no smaller than 10,000, except for your headquarters.
 
 Robots interact with only their nearby surroundings through sensing, moving, and special abilities. Each robot runs an independent copy of your code. Robots will be unable to share static variables (they will each have their own copy), because they are run in separate JVMs.
 
-There are two types of robots: Droids and Buildings. Droids are robots which can freely move, forming your team's mobile combat forces; on the other hand, Buildings are generally immobile robots. You can create new robots by spending its associated resource cost. Different types of robots specialize in different tasks, and you should aim to use each type to your advantage.
+Two or more robots may not be on the same square. When their movement cooldown is over, robots can move onto any of the 8 neighboring squares. 
 
-## Buildings overview
+## Headquarters
 
-Buildings are generally immobile robots. When first created, they are Prototypes that cannot move or act; after they are fully built, they become Turrets that can perform actions.
+Headquarters store resources, spawn robots, and create reality anchors. Each headquarter can store an infinite amount of resources and anchors. Headquarters can spawn robots using their stored resources within an action radius defined in **Robots in-depth**, and carriers can deposit and receive resources and anchors when located on one of the eight neighboring squares. Headquarters cannot be moved, created, or destroyed.
 
-There are three types of Buildings.
+## Carriers
 
-- Archons are headquarter Buildings that cannot be constructed. Each team starts with between 1 to 4 Archons inclusive as specified by the map, all at maximum health. Archons cannot attack, but they can build new Droids, and repair nearby Droids to increase their health.
-- Laboratories house alchemists who convert Lead into Gold. Laboratories cannot attack, but can choose to produce exactly 1 Au per turn by spending Lead at a variable conversion rate. Alchemists prefer working in solitude and spend less Lead when fewer friendly robots are in their vision range.
-- Watchtowers are defensive Buildings that reinforce an area. Watchtowers can deal powerful attacks to robots in a large range.
+Carriers are produced with 50 kg of Ad. Upon creation, their inventory is empty. They can hold a maximum of 40 kg of material. The movement speed of a Carrier is dependent on the quantity the robot is carrying. Specifically, when a Carrier stores $m$ kg of materials, its movement cooldown is $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$
 
-As a special mechanic, Buildings are allowed to transform between Turret and Portable mode. Each transformation takes place over 10 turns, during which the Building will be unable to take any actions.
+Carriers are the only robots that can move resources and anchors and interact with resource wells, headquarters, and sky islands. The range and rate at which they can interact with these depends on the material and target – see the Resource Wells, Headquarters, and Reality Anchors sections for more info. 
 
-- In Turret mode, they can perform their regular action, but not move.
-- In Portable mode, they can move, but not perform their regular action.
+Carriers can also throw resources to attack. This attack strikes an enemy in the targeted location with damage proportional to the quantity of resources thrown. When throwing $m$ kg of resource, the damage dealt is $\left\lfloor\left(\frac{m}{5}\right)\right\rfloor$. This attack can hit obscured robots even if they are out of vision. The thrown resources fall into the void, lost forever.
 
-Finally, Buildings can also be Mutated to increase their mutation level. Mutating a building causes it to become stronger, more powerful, and more formidable. Buildings begin at mutation level 1, and there are a total of 3 mutation levels.
+## Signal Amplifiers
 
-## Droids overview
+Signal amplifiers are produced with 40 kg of adamantium and 40 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
 
-Droids are highly mobile robots that form the foundation of your strategic and offensive capability.
+## Launchers
 
-- Miners are resource-farming Droids that collect resources scattered on the game map. Collected resources are instantly added to your team's resource bank, and are available for immediate use.
-- Builders are worker Droids that create new Buildings, and repair existing ones. New Buildings are initially in Prototype mode and must be repaired to full health before becoming Turrets.
-- Soldiers are general-purpose ranged attacking Droids.
-- Sages are Droids that can cause Anomalies. Anomalies caused by Sages affect a much smaller area than naturally-occurring ones, but have much more concentrated effects.
+Launchers are produced with 60 kg of mana. They can deal damage to enemy robots by targeting a square within 16 units to attack. This attack can hit obscured robots even if they are out of vision. 
 
-# Anomalies
+## Temporal Destabilizers
 
-The world is unstable. Anomalies are extraordinary events that may occur periodically, and can have long-lasting effects on your robots. Your advanced technology means you can access the forecast of all impending Anomalies; to thrive, your robots should be robust and designed to withstand them.
+Temporal destabilizers are produced with 200 kg of elixir. Destabilizers can select a square within 13 units of them to attack. Once a square has been selected, destabilizers slow down time to all squares within 15 units of the square, applying an 10% increase on all base future robot cooldowns. This effect lasts for 5 turns, after which damage is dealt to all enemies in the affected area. This effect can stack up to 2 times (a max of 2 total destabilizers can impact a square). This attack can hit obscured robots even if they are out of vision. 
 
-The schedule of Anomalies is predetermined for each map and can be sensed by your robots. You can generally expect them to occur naturally approximately once every 200 rounds, although this can vary. There are five different types of anomalies, as listed below.
+## Temporal Boosters
 
-- Abyss: Matter is lost into the abyss of spacetime. 10% of resources in all squares, as well as team reserves, are lost.
-- Charge: The air begins to conduct electricity, and tight packs of Droids short-circuit. The top 5% Droids with the most friendly robots in sensor radius are destroyed.
-- Fury: A searing solar flare erupts from the sun. All buildings in turret mode have 5% of their max health burned off.
-- Vortex: The world is upended and the terrain is reoriented based on the symmetry of the map.
-    - Horizontally Symmetric Map: Terrain is reflected across a vertical central line
-    - Vertically Symmetric Map: Terrain is reflected across a horizontal central line
-    - Rotationally Symmetric Map: Terrain change is chosen uniformly randomly between
-        - Reflection across central vertical line
-        - Reflection across central horizontal line
-        - Rotation of 90 degrees clockwise (Only for square maps)
-- Singularity: A black hole finds the weaker team and consumes it. This is guaranteed to happen on, and only on, turn 2000, and the team is selected via the tiebreakers listed in the Victory section.
+Temporal boosters are produced with 150 kg of elixir. Boosters can accelerate time around them by boosting, allowing ally robots to move and act faster than normal. Specifically, their boost ability applies a 10% tick reduction to all base ally robot cooldowns within 20 units of the booster for the next 10 turns. Note that the boosted location is fixed around the location the boost was applied, and does not move with the booster. This effect can stack up to 3 times with itself (a max of 3 total boosters can impact a square). 
 
-# Map overview
+# Reality Anchors
 
-Each Battlecode game will be played on a map. The map is a discrete 2-dimensional rectangular grid, of size ranging between 20x20 and 60x60 inclusive. The bottom-left corner of the map will have coordinates (0, 0); coordinates increase East (right) and North (up). Coordinates on the map are represented as `MapLocation` objects holding the `x` and `y` coordinates of the location.
+Reality anchors are the devices used to control sky islands. Anchors are manufactured at headquarters. Upon being manufactured, reality anchors will be placed within the headquarter’s storage. A carrier robot must then retrieve it from the headquarters and bring it to the island to conquer it. To place an anchor onto an island, the carrier robot must occupy a square on the island. Once placed, the reality anchor will apply to the entire island; i.e. the entire island will be anchored. 
 
-Each square of the map may contain a certain nonnegative integer amount of **rubble**. Walking through rubble will slow down your robots; you cannot move rubble. It is guaranteed that each square contains no more than 100 rubble.
+Reality anchors are 40 kg, meaning that carriers cannot carry any other items when holding an anchor. There are two types of anchors: Standard Anchors and Accelerating Anchors.
 
-Map squares may also initially contain a certain amount of **Lead**. Lead is one of the key resource types in the game, and can be collected by Miners. It is guaranteed that at least one of your Archons will initially have a Lead deposit within its vision range.
+Standard Anchors are crafted with 100 kg of adamantium and 100 kg of mana. Accelerating Anchors function similarly to Standard Anchors, but decrease surrounding ally robot cooldowns by 15%. This decrease affects all ally robot within 4 units of the island. These anchors are crafted with 300 kg of elixir. The boosting effects take place once the anchor has been placed and **does not stack with itself**.
 
-Each team will start with between 1 and 4 Archons on the map.
-
-Each map will also have a "schedule" for Anomalies, which describes the round and type of all naturally-occurring Anomalies. Players can sense this schedule in order to vary their strategy!  
-
-In order to prevent maps from favoring one player over another, it is guaranteed that the world is symmetric either by rotation or reflection.
-
-# Metals
-
-The core resources are Lead (symbol: Pb) and Gold (symbol: Au). Each team has a stockpile of these metals, and constructing robots subtracts from this stockpile. Earning more resources enables you to amass a larger and more powerful army of robots.
-
-There are Lead deposits scattered on the map, which can be collected by Miners. Whereas Lead is comparatively plentiful, Gold is not found naturally. Building a Laboratory will allow you to discover the science of alchemy; the Gold you synthesize will unlock the most powerful mechanics available in the world.
-
-Every round, each team will gain a passive income of 2 Pb. Additionally, every 20 rounds, any square of the map containing at least 1 Pb will generate an additional 5 Pb.
-
-Both teams start the game with 200 Pb and 0 Au. Resource costs for robot construction can be found in the in-depth section further below.
-
-# Rubble
-
-Each square on the map has some non-negative integer amount of rubble. Rubble can slow down robots acting or moving onto the square.
-
-Whenever a robot moves, attacks, or performs any other action, any cooldown it incurs is multiplied by a factor proportional to the rubble. Specifically, when incurring a base cooldown penalty of $c$, the actual cooldown applied is $\left\lfloor\left(1+\frac{r}{10}\right)\cdot c\right\rfloor$ if the robot is located on a square with $r$ rubble at the conclusion of the action.
-
-# Resource reclaim
-
-Whenever a robot is destroyed, 20% of its build cost is dropped on the square it last occupied. This includes its initial build cost, as well as the cost of any Mutations applied to it. Although Archons cannot be built, they have a nominal cost of 100 Au to be used in calculating the reclaim value.
-
-Notice that resource reclaim is the only way in which Gold will enter the game map and be available for collection by Miners.
+Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
 
 # Communication
 
 Robots can only see their immediate surroundings and are independently controlled by copies of your code, making coordination very challenging. You will be unable to share any variables between them; note that even static variables will not be shared, as each robot will receive its own copy.
 
-To facilitate communication, each team has a shared array of 64 non-negative integers strictly less than $2^{16}$. Array values persist across turns; ie. they are not reset. Any robot can read from the array for a very small bytecode cost; they can also write to the array for a larger bytecode cost.
+To communicate between robots, alchemists from your home universe have developed a system to allow robots to read and write from a shared array of 64 non-negative integers strictly less than $2^{16}$. Array values persist across turns; ie. they are not reset. 
 
-# Sensing and vision
+However, magic lingering in the winds has unexpectedly interfered with communication. While all robots can still read from the shared array for a specified bytecode cost, robots that stray too far from their headquarters and anchored islands cannot write to the array. To combat this interference, alchemists have developed powerful signal amplifier robots that allow nearby robots to write to the shared array. Robots must be within 20 units of a signal amplifier from their team, 4 units from an island with a planted reality anchor from their team, or 9 units from one of their headquarters to write to the shared array.  
 
-A robot can "sense" a square if the square is within the robot's sight range. A robot can "sense" another robot if it can sense the square that robot is occupying. Vision is **not** shared between robots, so a robot cannot necessarily sense information about robots in sight range of a different robot.
+# Sensing and Vision
 
-Sensing range is measured in squared units (Euclidean distance squared). The amount of rubble, Lead and Gold on a map square can only be sensed when that map square is within your sight range. You can also check whether a square within range is on the map using `onTheMap()`.
+A robot can “sense” a square if the square is within the robot's sight range. Vision is **not** shared between robots, so a robot cannot necessarily sense information that is in sight range of a different robot.
 
-# Victory and tiebreaks
+Sensing range is measured in squared units (Euclidean distance squared). For squares within the sensing range, robots can sense robots, resource wells, terrain (clouds, currents, and impassibility), and the current timeflow (given as a multiplier to cooldown). They can sense the type of robot and the type of resource well. You can check whether a square within range is on the map using `onTheMap()`.
 
-To win **Battlecode: Mutation**, your primary objective is to destroy all enemy Archons. The first team whose final Archon is destroyed immediately loses (and conversely, the team who destroys the opponent's last Archon immediately wins).
+Clouds obscure squares from the default vision radius. To sense these squares, a separate obscured vision of 4 units is applied. 
 
-Games must end in finite amounts of time. If games do not end by round 2000, the Singularity anomaly will occur, and destroy the weaker team. The following tiebreakers are applied in order to determine the stronger team.
+# Victory and Tiebreaks
 
-1. The team with more Archons.
-2. The team with greater net value in Au (alive robots and unexpended reserves).
-3. The team with greater net value in Pb (alive robots and unexpended reserves).
-4. A quantum phenomenon occurs and selects a uniformly random team.
+To win **Battlecode: Tempest**, your objective is to conquer 75% or more of all sky islands. The first team to succeed at this immediately wins. Sky islands must be captured all at once; if a team has conquered 75% islands at independent points in time but no longer controls them, this condition is not satisfied. 
 
-# Actions and cooldowns
+Games must end in finite amounts of time. If games do not end by round 2000, the following tiebreakers are applied in order to determine the stronger team.
 
-Robots perform actions to interact with the game world, and some cannot be performed multiple times in a single turn or in a short period of time. These actions are:
+1. The team with more sky islands captured.
+2. The team with more reality anchors placed in total throughout the round (regardless of if they were destroyed or not).
+3. The team with a greater amount of elixir (added up across all headquarters and carriers).
+4. The team with a greater amount of mana (added up across all headquarters and carriers).
+5. The team with a greater amount of adamantium (added up across all headquarters and carriers).
+6. A uniformly random team will be selected.
 
-- Attacking. Attacking can only be done if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `attack()` method. This targets a particular occupied square in range, and attacks the robot on that square. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
+# Actions and Cooldowns
 
-- Moving. Moving can only be done if the robot's movement cooldown is less than 10 (can check with the `isMovementReady()` method) and if the ending square is unoccupied. Moving can be performed by calling the `move()` method. This moves the robot in the specified direction. If you wish to check whether a move is valid, you can use the `canMove()` method. This increases the robot's movement cooldown as determined by the robot type and the rubble on the ending square.
+Robots perform actions to interact with the game world, most of which cannot be performed multiple times in a single turn or in a short period of time. These actions are:
 
-- Mining. Miners can mine resources on adjacent squares only if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mineLead()` and `mineGold()` methods. This extracts one unit of metal from the targeted square, and adds it to your team's reserve. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
-
-- Constructing. Archons can construct other Droids, and Builders can construct other Buildings, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `buildRobot()` method. This deducts the cost of the robot from the player's stockpile, then creates one robot of the specified type in the adjacent square of the specified direction. The `canBuild()` method can be used to check whether a construction is legal. This increases the robot's action cooldown as determined by the robot type and the rubble on the robot's square.
-
-- Mutating. Builders can Mutate other Buildings, but only when the Builder's action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `mutate()` method. This deducts the cost of the Mutation from the player's stockpile, then increases the mutation level of the specified Building. The `canMutation()` method can be used to check whether a Mutation is legal. This increases the action cooldown of the Builder, and also both cooldowns of the Building by 100.
-
-- Repairing. Archons can repair other Droids, and Builders can repair other Buildings increasing the health of the robot that they are repairing, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `repair()` method. The `canRepair()` method can be used to check whether the action is legal. This increases the action cooldown of the robot performing a repair as determined by the robot type and the rubble on the robot's square.
-
-- Transforming. Buildings can change modes, but only when their movement and action cooldowns are both less than 10 (can check with the `canTransform()` method), and can be performed by calling the `transform()` method. This transforms a Turret into Portable, or a Portable into a Turret, and increases both of the Building's cooldowns by 100.
-
-- Envisioning. Sages can envision an Anomaly, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `envision()` method. The `canEnvision()` method can be used to check whether the action is legal. This increases the robot's action cooldown as determined by the Sage robot type and the rubble on the robot's square.
-
-- Transmuting. Laboratories can transmute Lead into Gold, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `transmute()` method. This deducts the applicable amount of Lead from your stockpile to gain 1 Au. The `canTransmute()` method can be used to check whether there is sufficient Lead available. This increases the robot's action cooldown as determined by the Laboratory robot type and the rubble on the robot's square.
-    
-- Communicating. All robots can read the team array by calling `readSharedArray()`, for standard Java bytecode costs. Robots can also update the contents of the shared array with `writeSharedArray()`, which incurs a flat bytecode cost of 100 bytecodes per write.
-
+- Attacking. Attacking can only be done if the robot's action cooldown is less than 10 (can check with the `isActionReady()` method), the robot type is one that can attack, and the robot has the relevant resources required to attack (if it is a carrier). Attacking can be performed by calling the `attack()` method. This targets a particular square, damaging an enemy robot if they are located on the square. This increases the robot's action cooldown as determined by the robot type.
+- Moving. Moving can only be done if the robot's movement cooldown is less than 10 (can check with the `isMovementReady()` method) and if the ending square is unoccupied and passible. Moving can be performed by calling the `move()` method. This moves the robot in the specified direction. This increases the robot's movement cooldown as determined by the robot type. If you wish to check whether a move is valid, you can use the `canMove()` method. 
+- Collection. Carriers can collect resources if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `collectResource()` method. This extracts resources from the targeted resource well and adds it to the carrier’s inventory according to the level of the well. This increases the robot's action cooldown as specified in the robot details.
+- Transferring. Carriers can transfer resources or anchors if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `transferResource()` or `transferAnchor()` method. This transfers the specified amount of material to the target and removes it to the carrier’s inventory. If the given quantity is negative, the robot instead removes the specified materials. This increases the robot's action cooldown as specified in the robot details.
+- Anchoring. Carriers can place anchors if the robot’s action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `placeAnchor()` method. This places the held anchor on the sky island occupied by the robot and removes it to the carrier’s inventory. This increases the robot’s action cooldown as specified in robot details.
+- Boosting. Temporal boosters can accelerate time around them, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `boost()` method. This increases the robot’s action cooldown as specified in robot details. 
+- Destabilizing. Temporal destabilizers can decelerate time and deal damage around a specified location, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `destabilize()` method. This targets a particular location. This increases the robot’s action cooldown as specified in robot details.
+- Spawning. Headquarters can spawn robots, but only when their action cooldown is less than 10 (can check with the `isActionReady()` method), and can be performed by calling the `buildRobot()` method. This deducts the cost of the robot from the headquarter’s stockpile, then creates one robot of the specified type in the specified square. 
+- Crafting. Headquarters can craft anchors and hold them in their storage. This increases the headquarter’s action cooldown as specified in robot details. 
+- Communicating. All robots can read the team array by calling `readSharedArray()`, for standard Java bytecode costs. Robots satisfying the communication requirements can also update the contents of the shared array with `writeSharedArray()`, which incurs a flat bytecode cost of 75 bytecodes per write.
 - Disintegrating. Any robot can call the `disintegrate()` method. This immediately destroys the robot that calls it.
 
-After every turn, the movement and action cooldowns of all robots are decremented by 10.
+**After every turn, the movement and action cooldowns of all robots are decremented by 10.**
 
 # Robots in-depth
 
-All robots can read and write to the shared team array.
+All robots can read from the shared team array. Robots satisfying the proper communication requirements can also write to the array. 
 
-Attack and vision ranges are squared Euclidean distances. A vision range of 36 means that the robot can see a `MapLocation` within a circle of radius up to 6 tiles away.
+Attack and vision ranges are squared Euclidean distances. A vision range of 36 means that the robot can see a MapLocation within a circle of radius up to 6 tiles away.
 
-## Buildings
+|  | Headquarter | Carrier | Launcher | Destabilizer | Booster | Amplifier
+| --- | --- | --- | --- | --- | --- | --- |
+| Cost | N/A | 50 Ad | 60 Mn | 200 Ex | 150 Ex | 40 Ad, 40 Mn
+| Cooldown / action | 10 | 10 | 10 | 70 | 140 | N/A 
+| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 20 | 25 | 25 | 15
+| Health | N/A | 15 | 20 | 30 | 40 | 40
+| Attack | N/A | $\left\lfloor\left(\frac{m}{5}\right)\right\rfloor$ | 6 | 5 | N/A | N/A
+| Action radius | 9 | 9 | 16 | 13 | N/A | N/A
+| Vision radius | 34 | 20 | 20 | 20 | 20 | 34
+| Bytecode limit | 20,000 | 10,000 | 10,000 | 10,000 | 10,000 | 7,500
 
-Buildings are upgradeable robots, built by Builders. They are initially built in Prototype mode with 80% of their maximum health, and will automatically switch to Turret mode after being repaired to full health. Buildings can then switch between Turret and Portable modes by calling `transform()`, at the cost of 100 cooldown for both cooldown timers.
+- Headquarter: the central headquarters. Can spawn robots, build anchors, and store materials. 
+- Carrier: the material moving robot. Can extract resources from wells, carry resources and anchors, plant anchors, and throw resources. 
+- Launcher: the general-purpose attack robot. Can attack a single robot in a specified location. 
+- Destabilizer: the offensive time manipulator. Can debuff enemy robots and attack groups of them.
+- Booster: the supporting time manipulator. Can buff nearby ally robots. 
+- Amplifier: the communication essential. Allows nearby robots to write messages.
 
-Buildings can also be Mutated, which upgrades their properties. Being Mutated by a Builder also incurs a cost of 100 cooldown for both of the Building's cooldown timers.
 
-The cost of Mutating a Building depends on the Building type, as listed in the table below.
-
-|  | Archon | Laboratory | Watchtower |
-| --- | --- | --- | --- |
-| Cost | 100 Au (nominal) | 180 Pb | 150 Pb |
-| Cooldown / action | 10 | 10 | 10 |
-| Cooldown / move | 24 | 24 | 24 |
-| Health mutations | 600 → 1080 → 1944 | 100 → 180 → 324 | 150 → 270 → 486 |
-| Attack mutations | -2 → -4 → -6 | N/A | 4 → 8 → 12 |
-| Action radius | (repair) 20 | N/A | 20 |
-| Vision radius | 34 | 53 | 34 |
-| Bytecode limit | 20,000 | 5,000 | 10,000 |
-| Level 2 mutation cost | 300 Pb | 150 Pb | 150 Pb |
-| Level 3 mutation cost | 80 Au | 25 Au | 60 Au |
-
-- Archon: the headquarters robot type. Can construct and repair other Droids. Cannot be built.
-
-- Laboratory: the house of the alchemist. Can convert Lead into Gold. Since alchemists prefer solitude, if there are $n$ friendly robots within the Laboratory's vision range, 1 Au can be created by expending $\left\lfloor A-Be^{-kn}\right\rfloor$ Pb, where $A=20, B=18$. The value of $k$ depends on the Mutation level of the Laboratory, and is 0.02 at level 1, 0.01 at level 2, and 0.005 at level 3. This formula can be accessed with the method `getTransmutationRate()`.
-
-- Watchtower: a defensive reinforcement. Can attack enemy robots that stray within the attack radius.
-
-## Droids
-
-Droids are mobile robots, built by Archons.
-
-|  | Miner | Builder | Soldier | Sage |
-| --- | --- | --- | --- | --- |
-| Cost | 50 Pb | 40 Pb | 75 Pb | 20 Au |
-| Cooldown / action | 2 | 10 | 10 | 200 |
-| Cooldown / move | 20 | 20 | 16 | 25 |
-| Health | 40 | 30 | 50 | 100 |
-| Attack | N/A | -2 | 3 | 45 |
-| Action radius | (mine) 2 | (repair) 5 | 13 | 25 |
-| Vision radius | 20 | 20 | 20 | 34 |
-| Bytecode limit | 10,000 | 7,500 | 10,000 | 10,000 |
-
-- Miners: the resource collecting robot. Can mine squares for Lead and Gold.
-
-- Builders: the construction robot. Can build new Prototypes, and repair existing Buildings.
-
-- Soldiers: the general-purpose attack robot. Can attack nearby robots.
-
-- Sage: the bringer of Anomalies. Sages are able to produce concentrated attacks, as well as the following Anomalies, but at a very slow rate:
-    - Abyss: 99% of resources in all squares within action range are lost.
-    - Charge: The air begins to conduct electricity, and all enemy Droids within action range lose health equal to 22% of their maximum health.
-    - Fury: A searing solar flare erupts from the sun. All buildings within action range in turret mode have 10% of their max health burned off.
-    - Vortex and Singularity are not available to Sages.
-
-# Bytecode limits
+# Bytecode Limits
 
 Robots are also very limited in the amount of computation they are allowed to perform per turn. Bytecodes are a convenient measure of computation in languages like Java, where one Java bytecode corresponds roughly to one basic operation such as "subtract" or "get field", and a single line of code generally contains several bytecodes (for details see [here](http://en.wikipedia.org/wiki/Java_bytecode)). Because bytecodes are a feature of the compiled code itself, the same program will always compile to the same bytecodes and thus take the same amount of computation on the same inputs. This is great, because it allows us to avoid using time as a measure of computation, which leads to problems such as nondeterminism. With bytecode cutoffs, re-running the same match between the same bots produces exactly the same results - a feature you will find very useful for debugging.
 
@@ -254,45 +215,44 @@ Every round each robot sequentially takes its turn. If a robot attempts to excee
 
 The per-turn bytecode limits for various robots are as follows:
 
-- Archon: 20,000
-- Builder: 7,500
-- Miner, Soldier, Sage: 10,000
-- Watchtower: 10,000
-- Laboratory: 5,000
+- Headquarter: 20,000
+- Carrier, Launcher, Destabilizer, Booster: 10,000
+- Amplifier: 7,500
 
-Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode22/blob/main/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
+
+Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
 
 # Appendix: Other resources and utilities
 
-## Sample player
+## **Sample player**
 
 examplefuncsplayer, a simple player which performs various game actions, is included with battlecode. It includes helpful comments and is a template you can use to see what `RobotPlayer` files should look like.
 
-If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode22/tree/main/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
+If you are interested, you may find the full game engine implementation [here](https://github.com/battlecode/battlecode23/tree/master/engine). This is not at all required, but may be helpful if you are curious about the engine's implementation specifics.
 
-## Debugging
+## **Debugging**
 
 Debugging is extremely important. See the debugging tips to learn about our useful debug tools.
 
-## Monitoring
+## **Monitoring**
 
 The `Clock` class provides a way to identify the current round (`rc.getRoundNum()`), and how many bytecodes have been executed during the current round (`Clock.getBytecodeNum()`).
 
-## GameActionExceptions
+## **GameActionExceptions**
 
 `GameActionException`s are thrown when something cannot be done. It is often the result of illegal actions such as moving onto another robot, or an unexpected round change in your code. Thus, you must write your player defensively and handle `GameActionException`s judiciously. You should also be prepared for any ability to fail and make sure that this has as little effect as possible on the control flow of your program.
 
 Throwing any `Exception`s cause a bytecode penalty of 500 bytecodes. Unhandled exceptions may paralyze your robot.
 
-## Complete documentation
+## **Complete documentation**
 
 Every function you could possibly use to interact with the game can be found in our javadocs.
 
 # Appendix: Other restrictions
 
-## Java language usage
+## **Java language usage**
 
-Players may use classes from any of the packages listed in `AllowedPackages.txt`, except for classes listed in `DisallowedPackages.txt`. These files can be found here.
+Players may use classes from any of the packages listed in [AllowedPackages.txt](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/AllowedPackages.txt), except for classes listed in [DisallowedPackages.txt](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/DisallowedClasses.txt). These files can be found here.
 
 Furthermore, the following restrictions apply:
 
@@ -300,11 +260,11 @@ Furthermore, the following restrictions apply:
 
 Note that violating any of the above restrictions will cause the robots to explode when run, even if the source files compile without problems.
 
-## Memory usage
+## **Memory usage**
 
 Robots must keep their memory usage reasonable. If a robot uses more than 8 Mb of heap space during a tournament or scrimmage match, the robot may explode.
 
-## More information on bytecode costs
+## **More information on bytecode costs**
 
 Classes in `java.util`, `java.math`, and scala and their subpackages are bytecode counted as if they were your own code. The following functions in `java.lang` are also bytecode counted as if they were your own code.
 
@@ -315,7 +275,7 @@ Classes in `java.util`, `java.math`, and scala and their subpackages are bytecod
  String.replaceFirst 
  String.split`
 
-The function `System.arraycopy` costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the [`MethodCosts.txt` file](https://github.com/battlecode/battlecode22/blob/main/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). Methods not listed are free. The bytecode costs of `battlecode.common` functions are also listed in the javadoc.
+The function `System.arraycopy` costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the [`MethodCosts.txt` file](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). Methods not listed are free. The bytecode costs of `battlecode.common` functions are also listed in the javadoc.
 
 Basic operations like integer comparison and array indexing cost small numbers of bytecodes each.
 
@@ -327,121 +287,74 @@ If something is unclear, direct your questions to our Discord where other people
 
 # Appendix: Changelog
 
-- Version 2022.2.1.0 (January 26, 2022)
-  - Engine:
-    - Fix bug impacting correct Vortex Anomaly behavior
-  - Qualifying tournament maps released
+- Version 1.2.4 (January 13, 2023)
+  - Engine Fixes:
+    - Fixed the spelling of getCooldownMultiplier
+    - Removed getAnchor from the default RobotPlayer
 
-- Version 2022.2.0.1 (January 20, 2022)
-  - Client:
-    - Release maps from Sprint II too
-  - Specs:
-    - Minor typographic and stylistic improvements
+- Version 1.2.3 (January 13, 2023)
+  - Non-essential update for competitors but critical for infrastructure:
+    - Remove verbose deprecation output. Method deprecation will be re-documented in the future.
 
-- Version 2022.2.0.0 (January 18, 2022)
-  - Breaking changes: Sprint II Balancing changes
-    - Archons:
-      - Decrease level 2 Mutation cost to 300 Pb
-    - Watchtowers:
-      - Decrease initial cost to 150 Pb
-      - Decrease level 2 Mutation cost to 150 Pb
-    - Laboratories:
-      - Decrease build cost to 180 Pb
-      - Decrease level 2 Mutation cost to 150 Pb
-      - Change exchange rate constants to $A=20, B=18$
-      - Change exchange rate constant $k$ to 0.02 for level 1, 0.01 for level 2, 0.005 for level 3
-    - Miners:
-      - Increase bytecode limit to 10,000
-    - Builders:
-      - Increase attack to -2 (ie. repair to 2)
-    - Sages:
-      - Increase action radius to 25
-      - Increase Abyss depletion rate to 99%
-      - Increase Charge damage rate to 22%
-    - Lead regeneration:
-      - Increase rate to 5 Pb every 20 turns
-  - Client:
-    - Visualize repair actions and Anomalies
-    - Add health bar
-    - Shift attack visualizations so they do not overlap
-  - Sprint maps released
+- Version 1.2.2 (January 12, 2023)
+  - Spec Fixes:
+    - Documented behavior of replacing ally anchors on islands
+  - Engine Fixes: 
+    - Reduced bytecode of isLocationOccupied to 5 to match senseRobotAtLocation
+    - Added deprecation messages in outdated methods
+    - getAnchor now throws exception if not called by carrier
+    - Carriers can no longer utilize collectResource to obtain negative inventory
+    - Gradle now has the option to remove map validation
+  - Client Fixes:
+    - islandIDs no longer clue you in on where other islands are ;)
 
-- Version 2022.1.0.2 (January 16, 2022)
-  - Engine:
-    - Trigger tiebreakers if all Archons are destroyed simultaneously during Fury.
-    - Add some map validation to main server (thanks @stefangimmillaro!)
+- Version 1.2.1 (January 11, 2023)
+  - Spec Fixes:
+    - Updated new well rates in general spec
+  - Engine Fixes:
+    - MapInfo's isPassable method no longer returns incorrect values
+    - Changed default map to DefaultMap rather than maptestsmall
+  - Client Fixes:
+    - Old maps now have continuous IDs
 
-- Version 2022.1.0.1 (January 12, 2022)
-  - Engine:
-    - Remove initial cooldown for all newly built robots
-    - Fix bug in lead and gold sensing functions
+- Version 1.2.0 (January 11, 2023)
+  - Game changes:
+    - GameConstants.WELL_STANDARD_RATE 4 --> 2, reduces the standard max ouput rate of a well
+    - GameConstants.WELL_ACCELERATED_RATE 10 --> 6, reduces the accelerated max output rate of a well
+    - GameConstants.UPGRADE_TO_ELIXIR 1500 --> 1000, reduces the amount needed to upgrade a well to elixir
+    - GameConstants.UPGRADE_WELL_AMOUNT 3600 --> 2400, reduces the amount needed to upgrade a well to have the accelerated max output rate
+  - Spec Fixes:
+    - Added statement of guarantee of 4-35 sky islands and no sky islands with greater than 20 area
+  - Engine Fixes:
+    - Can no longer build headquarters
+    - Communication bug (can always communicate) is fixed
+    - Added hasCloud method to MapInfo
+    - Added isPassable method to MapInfo
+    - Inventories in RobotInfo are now private, use getResourceAmount, getNumAnchors, getTotalAnchors instead
+    - Calling canTransferResource with 0 resources no longer works
+    - Added getIslandCount to robotController
+    - Added getWeight to robotController
+    - Changed onTheMap to not check for visibility
+    - Added canReturnAnchor and returnAnchor to place anchor back in headquarter
+  - Client Fixes:
+    - Island IDs are now continuous and can be displayed in client
+    - Added support for returning anchors to headquarters
 
-- Version 2022.1.0.0 (January 11, 2022)
-  - Breaking changes: Sprint I Balancing changes
-    - Archons:
-      - Decrease nominal worth to 100 Au
-      - Decrease level 2 Mutation cost to 400 Pb
-      - Decrease level 3 Mutation cost to 80 Au
-      - Change mutation health to 600 → 1080 → 1944
-      - Change mutation repair to 2 → 4 → 6
-    - Watchtowers:
-      - Decrease level 2 Mutation cost to 200 Pb
-      - Decrease level 3 Mutation cost to 60 Au
-      - Charge mutation health to 150 → 270 → 486
-      - Change mutation damage to 4 → 8 → 12
-    - Laboratories:
-      - Decrease build cost to 250 Pb
-      - Decrease level 2 Mutation cost to 200 Pb
-      - Decrease level 3 Mutation cost to 25 Au
-      - Change mutation health to 100 → 180 → 324
-    - Sages:
-      - Decrease build cost to 20 Au
-      - Increase action radius to 20
-      - Increase vision radius to 34
-    - Lead regeneration:
-      - Decrease rate to 3 Pb every 40 turns
-  - Sprint maps released
+- Version 1.1.0 (January 10, 2023)
+  - Spec Fixes:
+    - Communication max value: 216 -> $2^{16}$
+    - Clarified rules of communication (near *own* headquarters or planted anchor)
+    - Moved defintion of units to top of document
+    - Clarified time-bending effects stack additively
+    - Added links to allowed and disallowed classes (thanks stefangimmillaro)
+  - Engine Fixes:
+    - Added sensing mapInfo to detect currents, clouds and time-bending effects
+    - Fixed assert bug on checking for adjacency in collecting and transfering resources and anchors
+    - Resigning now means the other player wins automatically
+  - Client Fixes:
+    - Fixed client style scrollbars to prevent blocked content
 
-- Version 2022.0.3.1 (January 10, 2022)
-  - Client:
-    - Fix robot selection on (0, 0)
-    - Fix gold income
-    - Improvements to runner team selection (thanks @jmerle!)
-  - Other:
-    - Improvements to Javadoc deploy script
 
-- Version 2022.0.3.0 (January 9, 2022)
-  - Engine:
-    - (New feature) Add overloads for sensing nearby locations with metals
-    - Do not dump debug map information at start of match
-  - Client:
-    - Track HP change on mutations and fix DP display
-    - Running averages for lead and gold income
-  - Other:
-    - Javadocs are 2022, not 2017
-
-- Version 2022.0.2.0 (January 5, 2022)
-  - Engine:
-    - (New feature) Add `rc.senseNearbyLocationsWithLead` and `rc.senseNearbyLocationsWithGold`
-    - Make passive Lead increase occur after Anomalies are processed
-  - Client:
-    - Fix portable Archon display
-    - Fix mutation tracking
-    - Update help text
-    - Fix Vortex anomaly rendering
-  - Other:
-    - Improvements to release scripts
-
-- Version 2022.0.1.1 (January 4, 2022)
-  - Specs:
-    - Clarify that Archons are not guaranteed to have ID at least 10,000
-    - Update various URLs
-  - Engine:
-    - Fix Archon damage to always be negative (ie. repair)
-    - Fix maximum value for communication array to actually be $2^{16}-1$
-
-- Version 2022.0.1.0 (January 3, 2022)
-  - Initial release
 
 <style class="fallback">body{visibility:hidden}</style>
 <script>markdeepOptions={tocStyle:'long'};</script>

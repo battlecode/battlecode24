@@ -49,6 +49,8 @@ public class Config {
         defaults.setProperty("bc.server.throttle", "yield");
         defaults.setProperty("bc.server.throttle-count", "15");
         defaults.setProperty("bc.server.output-xml", "true");
+        defaults.setProperty("bc.server.validate-maps", "true");
+
 
         // Whether to write robot player output to match files / system out
         // if bc.server.robot-player-to-system-out is false then it will only write

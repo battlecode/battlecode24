@@ -13,44 +13,57 @@ public enum RobotType {
     // Health, Damage, Action Radius (squared), Vision Radius (squared), Bytecode Limit
 
     /**
-     * Headquarters (TODO: description)
+     * Headquarters are the headquarters of your army. These stationary  
+     * locations can spawn robots, build anchors, and store materials.
+     *
      * @battlecode.doc.robottype
      */
-    HEADQUARTERS    ( 0,   0,   0,   5,   0, 1,   0,  9, 20, 10000),
+    HEADQUARTERS    ( 0,   0,   0,   10,   -1, 1,   0,  9, 34, 20000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Carrier (TODO: description)
+     * Carriers are material-moving robots. They can extract, carry, and
+     * transport resources and anchors. They can also attack other robots
+     * in a range and specified direction by throwing these resources.
+     * 
      * @battlecode.doc.robottype
      */
-    CARRIER         ( 50,   0,   0,   5,   0, 40,   0,  9, 20, 10000),
+    CARRIER         ( 50,   0,   0,   10,   0, 15,   0,  9, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Launcher (TODO: description)
+     * Launchers are general-purpose attacking robots. They can attack robots
+     * within a range and specified direction.
+     *
      * @battlecode.doc.robottype
      */
     LAUNCHER        (  0,  60,   0,  10,  20, 20,   6, 16, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Destablizer (TODO: description)
+     * Destablizers are offensive temporal manipulators. They decelerate time,
+     * increasing cooldowns and dealing damage to enemies within a certain range.
+     *
      * @battlecode.doc.robottype
      */
-    DESTABILIZER    (  0,   0, 400,  50,  25, 20,   5, 13, 20, 10000),
+    DESTABILIZER    (  0,   0, 200,  70,  25, 30,   5, 13, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
 
     /**
-     * Booster (TODO: description)
+     * Booster are supportive temporal manipulators. They accelerate time,
+     * decreasing cooldowns for ally robots within a certain range.
+     * 
      * @battlecode.doc.robottype
      */
-    BOOSTER         (  0,   0, 250, 100,  25, 30,   0, 25, 20, 10000),
+    BOOSTER         (  0,   0, 150, 140,  25, 40,   0, -1, 20, 10000),
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     /**
-     * Amplifier (TODO: description)
+     * Amplifiers are the key to communication for your army. They enable 
+     * robots within a range to write messages to their faction’s shared array.
+     *
      * @battlecode.doc.robottype
      */
-    AMPLIFIER       ( 40,  40,   0,   0,  16, 40,   0, 25, 34,  7500)
+    AMPLIFIER       ( 40,  40,   0,   -1,  15, 40,   0, -1, 34,  7500)
     //               BCA  BCM  BCE   AC   MC  HP  DMG  AR  VR     BL
     ;
 
@@ -88,8 +101,6 @@ public enum RobotType {
 
     /**
      * The damage per attack for a robot of this type.
-     *
-     * @see #getDamage
      */
     public final int damage;
 
@@ -156,7 +167,7 @@ public enum RobotType {
      * @return whether this type can buff nearby allies
      * @battlecode.doc.costlymethod
      */
-    public boolean canDestablize() {
+    public boolean canDestabilize() {
         return this == DESTABILIZER;
     }
 
@@ -171,20 +182,16 @@ public enum RobotType {
         return this.health;
     }
 
-    /**
-     * Determine the damage power of a robot
-     *
-     * @return the damage for a robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public int getDamage(int inventory) {
-        if (this == RobotType.CARRIER) {
-            return inventory/5;
-        } else if (this == RobotType.LAUNCHER) {
-            return 6;
-        } else {
-            return 0;
+    public int getBuildCost(ResourceType rType) {
+        switch (rType) {
+            case ADAMANTIUM:
+                return this.buildCostAdamantium;
+            case MANA:
+                return this.buildCostMana;
+            case ELIXIR:
+                return this.buildCostElixir;
+            default:
+                return 0;
         }
     }
 

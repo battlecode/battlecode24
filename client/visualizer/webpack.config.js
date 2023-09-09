@@ -14,7 +14,7 @@ var conf = {
   },
   output: {
     path: path.resolve(__dirname, 'out'),
-    publicPath: '/out/',
+    publicPath: 'out/',
     filename: '[name].js'
   },
   resolve: {
@@ -110,6 +110,14 @@ module.exports = function (env) {
       //   'child_process': 'child_process',
       //   'http': 'http'
       // }
+    })
+  }
+
+  if (env.watch) {
+    // devServer does not like the ./out relative path.
+    // make it use a hard-path instead
+    conf = merge(conf, {
+      output: { publicPath: '/out/' }
     })
   }
 

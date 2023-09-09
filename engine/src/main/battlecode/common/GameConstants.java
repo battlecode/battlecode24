@@ -6,10 +6,11 @@ package battlecode.common;
 @SuppressWarnings("unused")
 public class GameConstants {
 
+    //TODO: Let's organize this better but I'm lazy :)
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "0.1.1";
+    public static final String SPEC_VERSION = "1.2.4";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -33,11 +34,20 @@ public class GameConstants {
     /** The maximum number of starting Headquarters per team. */
     public static final int MAX_STARTING_HEADQUARTERS = 4;
 
-    /** The minimum amount of rubble per square. */
-    public static final int MIN_RUBBLE = 0;
+    /** The minimum number of islands on the map. */
+    public static final int MIN_NUMBER_ISLANDS = 4;
 
-    /** The maximum amount of rubble per square. */
-    public static final int MAX_RUBBLE = 100;
+    /** The maximum number of islands on the map. */
+    public static final int MAX_NUMBER_ISLANDS = 35;
+
+    /** The maximum area of an island in units. */
+    public static final int MAX_ISLAND_AREA = 20;
+
+    /** The maximum distance between wells of different types. */
+    public static final int MAX_DISTANCE_BETWEEN_WELLS = 81;
+
+    /** The maximum percentage of the map that can be wells of a certain type. */
+    public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
 
     // *********************************
     // ****** GAME PARAMETERS **********
@@ -55,21 +65,48 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of mana each team starts with. */
+    /** The initial amount of mana each team starts with in each headquarter. */
     public static final int INITIAL_MN_AMOUNT = 200;
 
-    /** The initial amount of adamantium each team starts with. */
-    public static final int INITIAL_AD_AMOUNT = 0;
+    /** The initial amount of adamantium each team starts with in each headquarter. */
+    public static final int INITIAL_AD_AMOUNT = 200;
 
-    /** The amount of adamantium each team gains per turn. */
+    /** The amount of adamantium each headquarter on a team gains per turn. */
     public static final int PASSIVE_AD_INCREASE = 2;
 
-    /** The amount of mana each team gains per turn. */
+    /** The amount of mana each headquarter on a team gains per turn. */
     public static final int PASSIVE_MN_INCREASE = 2;
 
-    /** The number of rounds between adding lead resources to the map. */
-    public static final int ADD_LEAD_EVERY_ROUNDS = 20;
+    /** The number of rounds between adding resources to headquarters. */
+    public static final int PASSIVE_INCREASE_ROUNDS = 5;
+
+    /** The amount of adamantium or mana needed to upgrade a well to elixir */
+    public static final int UPGRADE_TO_ELIXIR = 1000;
+
+    /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
+    public static final int UPGRADE_WELL_AMOUNT = 2400;
+
+    /** The percentage of islands that need to be occupied for a team to win */
+    public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
     
+    /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
+    public static final int DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER = 20;
+
+    /** The distance a robot must be from an island to be able to write to the shared array */
+    public static final int DISTANCE_SQUARED_FROM_ISLAND = 4;
+
+    /** The distance a robot must be from a headquarter to be able to write to the shared array */
+    public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
+
+    /** The discount factor on the amount of damage a carrier can do based on their capacity */
+    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
+
+    /** The slope of the function to determine movement cooldown for carriers */
+    public static final float CARRIER_MOVEMENT_SLOPE = 0.375f;
+
+    /** The intercept of the function to determine movement cooldown for carriers */
+    public static final int CARRIER_MOVEMENT_INTERCEPT = 5;
+
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************
@@ -80,32 +117,12 @@ public class GameConstants {
     /** The number of cooldown turns reduced per turn. */
     public static final int COOLDOWNS_PER_TURN = 10;
 
-    /** The number of cooldown turns per transformation. */
-    public static final int TRANSFORM_COOLDOWN = 100;
-
-    /** The number of cooldown turns per mutation. */
-    public static final int MUTATE_COOLDOWN = 100;
-
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    // TODO: this is currently based on the percentage of total number of squares in the island
-    // rather than the number of occupied square. It is unclear which we want it to be.
-    /** The percentage of an island that needs to be owned by the team which owns the island to reset the anchor strength. */
-    public static final float PERCENT_OWNING_TEAM_ISLAND = 0.85f;
-
-    /** The percentage of an island that needs to be owned by the opposing team to reduce the anchor strength. */
-    public static final float PERCENT_OPPOSING_TEAM_ISLAND = 0.4f;
-
-    /** A blueprint building's health, as a multiplier of max health. */
-    public static final float PROTOTYPE_HP_PERCENTAGE = 0.8f;
-
-    /** The multiplier for reclaiming a building's cost. */
-    public static final float RECLAIM_COST_MULTIPLIER = 0.2f;
-
-    /** The maximum level a building can be. */
-    public static final int MAX_LEVEL = 3;
+    /** The number of game rounds between applying movement due to currents */
+    public static final int CURRENT_STRENGTH = 1;
 
     /** The maximum capacity a carrier can carry */
     public static final int CARRIER_CAPACITY = 40;
@@ -113,13 +130,32 @@ public class GameConstants {
     /** The weight of an anchor */
     public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
 
-    /** Constants for alchemists converting lead to gold. */
-    public static final double ALCHEMIST_LONELINESS_A = 20;
-    public static final double ALCHEMIST_LONELINESS_B = 18;
-    public static final double ALCHEMIST_LONELINESS_K_L1 = 0.02;
-    public static final double ALCHEMIST_LONELINESS_K_L2 = 0.01;
-    public static final double ALCHEMIST_LONELINESS_K_L3 = 0.005;
+    /** Constant for vision radius when affected by cloud */
+    public static final int CLOUD_VISION_RADIUS_SQUARED = 4;
 
+    /** Constants for cooldown multipliers. */
+    public static final double BOOSTER_MULTIPLIER = -.1;
+    public static final double DESTABILIZER_MULTIPLIER = .1;
+    public static final double ANCHOR_MULTIPLIER = -.15;
+    public static final double CLOUD_MULTIPLIER = .2;
+
+    /** Constants for boost radii squared. */
+    public static final int BOOSTER_RADIUS_SQUARED = 20;
+    public static final int DESTABILIZER_RADIUS_SQUARED = 15;
+
+    /** Constants for boost durations. */
+    public static final int BOOSTER_DURATION = 10;
+    public static final int DESTABILIZER_DURATION = 5;
+
+    /** Constants for number of boosts that stack. */
+    public static final int MAX_BOOST_STACKS = 3;
+    public static final int MAX_DESTABILIZE_STACKS = 2;
+    public static final int MAX_ANCHOR_STACKS = 1;
+
+    /** Constants for well rates. */
+    public static final int WELL_STANDARD_RATE = 2;
+    public static final int WELL_ACCELERATED_RATE = 6;
+    
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************
@@ -128,7 +164,5 @@ public class GameConstants {
     public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 100;
-    
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 }
-

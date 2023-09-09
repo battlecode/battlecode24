@@ -1,5 +1,6 @@
 package battlecode.world.robots;
 
+import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
@@ -7,7 +8,6 @@ import battlecode.common.Team;
 import battlecode.schema.Action;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
-import battlecode.world.Inventory;
 
 public class InternalCarrier extends InternalRobot {
 
@@ -28,20 +28,42 @@ public class InternalCarrier extends InternalRobot {
     // ******************************************
 
     /**
-     * Attacks another robot (launcher). Assumes bot is in range.
+     * Empties the resources from a robot. Used in a throw attack.
+     * @param bot
+     */
+    private void emptyResources() {
+        for (ResourceType rType : ResourceType.values()) {
+            this.inventory.addResource(rType, -1*this.inventory.getResource(rType));
+        }
+    }
+
+    private int getDamage() {
+        int resourceSum = this.getResource(ResourceType.ADAMANTIUM) 
+            + this.getResource(ResourceType.MANA) 
+            + this.getResource(ResourceType.ELIXIR);
+        return (int) Math.floor(GameConstants.CARRIER_DAMAGE_FACTOR*(resourceSum));
+    }
+
+    private int locationToInt(MapLocation loc) {
+        return this.gameWorld.locationToIndex(loc);
+    }
+
+    /**
+     * Attacks another location (carrier).
      * Empties inventory accordingly.
      * 
-     * @param bot the robot to be attacked
+     * @param loc the location to be attacked
      */
-    public void attack(InternalRobot bot) {
+    public void attack(MapLocation loc) {
+        InternalRobot bot = this.gameWorld.getRobot(loc);
         if (!(bot == null)) {
-            int dmg = this.getType().getDamage(bot.getResource(ResourceType.ADAMANTIUM)+bot.getResource(ResourceType.MANA)+bot.getResource(ResourceType.ELIXIR));
+            int dmg = getDamage();
             bot.addHealth(-dmg);
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, bot.getID());
+        } else {
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.THROW_ATTACK, -locationToInt(loc) - 1);
         }
-        bot.addResource(ResourceType.ADAMANTIUM, -bot.getResource(ResourceType.ADAMANTIUM));
-        bot.addResource(ResourceType.MANA, -bot.getResource(ResourceType.MANA));
-        bot.addResource(ResourceType.ELIXIR, -bot.getResource(ResourceType.ELIXIR));
+        this.emptyResources();
     }
 
 }

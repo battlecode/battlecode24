@@ -1,5 +1,7 @@
 package battlecode.common;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * This enumeration represents a direction from one MapLocation to another.
  * There is a direction for each of the cardinals (north, south, east, west),
@@ -12,6 +14,7 @@ package battlecode.common;
  * equality tests.
  */
 public enum Direction {
+
     /**
      * Direction that represents pointing north (up on screen).
      */
@@ -48,6 +51,12 @@ public enum Direction {
      * Direction that represents pointing nowhere.
      */
     CENTER(0, 0);
+
+    public static Direction[] DIRECTION_ORDER = {CENTER, WEST, NORTHWEST, NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST};
+
+    public int getDirectionOrderNum() {
+        return ArrayUtils.indexOf(DIRECTION_ORDER, this);
+    }
 
     /**
      * Change in x.

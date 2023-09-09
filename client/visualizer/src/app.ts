@@ -69,6 +69,7 @@ export default class Client {
 
   constructor(root: HTMLElement, conf?: any) {
     console.log('Battlecode client loading...');
+    document.getElementById('altContent')?.remove();
 
     this.root = root;
     this.root.id = "root";

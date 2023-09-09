@@ -29,7 +29,7 @@ export default class Renderer {
     readonly onRobotSelected: (id: number) => void,
     readonly onMouseover: (x: number, y: number, xrel: number, yrel: number, resource: number,
       well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
-      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined) => void
+      island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number } | undefined) => void
   ) {
     this.ctx = {} as Record<CanvasType, CanvasRenderingContext2D>
     for (let key in canvases) {
@@ -322,7 +322,7 @@ export default class Renderer {
   }
 
   private drawIsland(i: number, j: number, scale: number, ctx: CanvasRenderingContext2D, island_stat: { owner: number; flip_progress: number; locations: number[]; is_accelerated: boolean }) {
-    ctx.globalAlpha = .5
+    ctx.globalAlpha = .7
 
     const sigmoid = (x) => { return 1 / (1 + Math.exp(-x)) }
     const blendColors = (colorA, colorB, amount) => {
@@ -336,7 +336,7 @@ export default class Renderer {
 
     let first_color = '#666666'
     if (island_stat.owner != 0)
-      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], sigmoid(island_stat.flip_progress / 15 - 2))
+      first_color = blendColors(first_color, cst.TEAM_COLORS[island_stat.owner - 1], Math.min(1, sigmoid(island_stat.flip_progress / 15 - 2) + .3))
 
     let second_color = island_stat.is_accelerated ? "#EEAC09" : first_color
 
@@ -786,7 +786,7 @@ export default class Renderer {
     const minY = world.minCorner.y
     const maxY = world.maxCorner.y - 1
 
-    console.log(dots.length)
+    // console.log(dots.length)
 
     for (let i = 0; i < dots.length; i++) {
       if (dotsID[i] === this.lastSelectedID || this.conf.allIndicators) {

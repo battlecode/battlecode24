@@ -42,7 +42,10 @@ export default class ScaffoldCommunicator {
   }
 
   get sourcePath() {
-    return path.join(this.scaffoldPath, 'src')
+    let sp = path.join(this.scaffoldPath, 'src')
+    if (!fs.existsSync(sp))
+      sp = path.join(this.scaffoldPath, 'example-bots', 'src', 'main')
+    return sp
   }
 
   /**
@@ -162,6 +165,7 @@ export default class ScaffoldCommunicator {
       `-PteamA=${teamA}`,
       `-PteamB=${teamB}`,
       `-Pmaps=${maps.join(',')}`,
+      `-PvalidateMaps=false`,
       `-PenableProfiler=${enableProfiler}`,
     ];
     const proc = child_process.spawn(
@@ -194,6 +198,7 @@ export default class ScaffoldCommunicator {
 
   killProcs() {
     this.procs.forEach(function (proc) {
+      // console.log(proc);
       proc.kill()
     })
   }

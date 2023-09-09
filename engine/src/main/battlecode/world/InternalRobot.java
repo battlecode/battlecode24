@@ -1,9 +1,5 @@
 package battlecode.world;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import battlecode.common.*;
 import battlecode.schema.Action;
 
@@ -16,13 +12,13 @@ import battlecode.schema.Action;
 public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     private final RobotControllerImpl controller;
-    private final GameWorld gameWorld;
+    protected final GameWorld gameWorld;
 
     private final int ID;
     private Team team;
     private RobotType type;
     private MapLocation location;
-    private Inventory inventory;
+    protected Inventory inventory;
     private int health;
 
     private long controlBits;
@@ -59,6 +55,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
+                // Add resources at start of game
                 break;
             case CARRIER:
                 this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
@@ -67,8 +64,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 this.inventory = new Inventory(0);
                 break;
         }
-        this.inventory = new Inventory();
-
         this.health = this.type.health;
 
         this.controlBits = 0;
@@ -76,8 +71,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
-        this.actionCooldownTurns = 0;
-        this.movementCooldownTurns = 0;
+        this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
 
         this.indicatorString = "";
 
@@ -116,20 +111,66 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return health;
     }
 
-    public Inventory getInventory() {
-        return this.inventory.copy();
-    }
-
     public int getResource(ResourceType r) {
         return this.inventory.getResource(r);
     }
 
-    public Anchor getAnchor() {
-        return this.inventory.getAnchor();
+    public boolean canAdd(int amount) {
+        assert(this.getType() == RobotType.CARRIER);
+        return this.inventory.canAdd(amount);
+    }
+    
+    private void addResourceChangeAction(ResourceType rType, int amount) {
+        switch (rType) {
+            case ADAMANTIUM:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
+                break;
+            case MANA:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_MANA, amount);
+                break;
+            case ELIXIR:
+                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ELIXIR, amount);
+                break;
+            case NO_RESOURCE:
+                if (amount != 0) 
+                    throw new IllegalArgumentException("No resource should have value of 0 but has value of " + amount);
+                break;
+        }
+    }
+
+    public void addResourceAmount(ResourceType rType, int amount) {
+        this.inventory.addResource(rType, amount);
+        addResourceChangeAction(rType, amount);
+    }
+
+    public int getNumAnchors(Anchor anchor) {
+        return this.inventory.getNumAnchors(anchor);
     }
 
     public boolean holdingAnchor() {
-        return getAnchor() != null;
+        return this.inventory.getTotalAnchors() > 0;
+    }
+
+    public Anchor getTypeAnchor() {
+        if (getNumAnchors(Anchor.STANDARD) > 0) {
+            return Anchor.STANDARD;
+        } else if (getNumAnchors(Anchor.ACCELERATING) > 0) {
+            return Anchor.ACCELERATING;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean canAddAnchor() {
+        return this.inventory.canAdd(GameConstants.ANCHOR_WEIGHT);
+    }
+
+    public void addAnchor(Anchor anchor) {
+        this.inventory.addAnchor(anchor);
+    }
+
+    public void releaseAnchor(Anchor anchor) {
+        this.inventory.releaseAnchor(anchor);
     }
 
     public long getControlBits() {
@@ -157,13 +198,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type
-                && cachedRobotInfo.inventory.equals(inventory)
+                && cachedRobotInfo.getNumAnchors(Anchor.STANDARD) == inventory.getNumAnchors(Anchor.STANDARD)
+                && cachedRobotInfo.getNumAnchors(Anchor.ACCELERATING) == inventory.getNumAnchors(Anchor.ACCELERATING)
+                && cachedRobotInfo.getResourceAmount(ResourceType.ADAMANTIUM) == inventory.getResource(ResourceType.ADAMANTIUM)
+                && cachedRobotInfo.getResourceAmount(ResourceType.MANA) == inventory.getResource(ResourceType.MANA)
+                && cachedRobotInfo.getResourceAmount(ResourceType.ELIXIR) == inventory.getResource(ResourceType.ELIXIR)
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, inventory, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, inventory.copy(), health, location);
         return this.cachedRobotInfo;
     }
 
@@ -223,7 +268,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
+        int visionRadiusSquared = getVisionRadiusSquared();
+        if (this.gameWorld.getCloud(toSense) || this.gameWorld.getCloud(this.getLocation())) {
+            visionRadiusSquared = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
+        }
+        return this.location.distanceSquaredTo(toSense) <= visionRadiusSquared;
     }
 
     /**
@@ -254,24 +303,45 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the new location of the robot
      */
     public void setLocation(MapLocation loc) {
+        this.gameWorld.moveRobot(getLocation(), loc);
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
 
     /**
+     * Sets the location of the robot (only for internal use through currents)
+     * 
+     * @param loc the new location of the robot
+     */
+    public void setLocationForCurrents(MapLocation loc) {
+        this.gameWorld.addRobot(loc, this);
+        this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
+        this.location = loc;
+    }
+
+
+    /**
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location);
+        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location, this.team);
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
+    private int getBaseMovementCooldown() {
+        if (this.getType() == RobotType.CARRIER) {
+            int cooldownAmount = (int)(Math.floor((GameConstants.CARRIER_MOVEMENT_SLOPE*this.inventory.getWeight()))) + GameConstants.CARRIER_MOVEMENT_INTERCEPT;
+            return cooldownAmount;
+        } else {
+            return this.getType().movementCooldown;
+        }
+    }
+    
     /**
      * Resets the movement cooldown.
      */
-    public void addMovementCooldownTurns(int numMovementCooldownToAdd) {
-        //TODO: needs to be changed
-        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numMovementCooldownToAdd, this.location);
+    public void addMovementCooldownTurns() {
+        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(getBaseMovementCooldown(), this.location, this.team);
         setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
     }
 
@@ -300,6 +370,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void addHealth(int healthAmount) {
         assert(healthAmount < 0); // No healing!
+        if (this.getType() == RobotType.HEADQUARTERS) {
+            return; // Can't damage headquarters
+        }
         int oldHealth = this.health;
         this.health += healthAmount;
         if (this.health <= 0) {
@@ -309,37 +382,27 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-    /**
-     * Adds resource to a robot. Input can be negative to subtract health.
-     * 
-     * @param t the resource type to add
-     * @param amount the amount of resource to add (can be negative)
-     */
-    public void addResource(ResourceType t, int amount) {
-        // TODO: this is dangerous, we should probably move it or combine it
-        assert(amount > 0 || getResource(t) >= -1*amount);
-        this.inventory.addResource(t, amount);
-    }
-
-
-
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
+    
+    private int getDamage() {
+        assert(this.type == RobotType.LAUNCHER);
+        return this.type.damage;
+    }
 
     /**
      * Attacks another robot (launcher). Assumes bot is in range.
      * 
-     * @param bot the robot to be attacked
+     * @param loc the location of the bot
      */
-    public void attack(InternalRobot bot) {
-        //TODO: Currently there is no attacking!
-        return;
-        // if (!(bot == null)) {
-        //     int dmg = this.type.getDamage(0);
-        //     bot.addHealth(-dmg);
-        //     this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
-        // }
+    public void attack(MapLocation loc) {
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        if (!(bot == null)) {
+            int dmg = getDamage();
+            bot.addHealth(-dmg);
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
+        }
     }
 
     // *********************************
@@ -365,15 +428,22 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive++;
     }
 
-    public void processEndOfRound() {
+    public void processEndOfRound(int roundNum) {
         // anything
+        if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0 && this.getType() == RobotType.HEADQUARTERS) {
+            // Add resources to team
+            this.gameWorld.getTeamInfo().addAdamantium(this.getTeam(), GameConstants.PASSIVE_AD_INCREASE);
+            this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
+
+            this.gameWorld.getTeamInfo().addMana(this.getTeam(), GameConstants.PASSIVE_MN_INCREASE);
+            this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+        }
     }
 
     // *********************************
     // ****** BYTECODE METHODS *********
     // *********************************
 
-    // TODO
     public boolean canExecuteCode() {
         return true;
     }

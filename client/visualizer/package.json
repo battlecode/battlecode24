@@ -8,7 +8,7 @@
     "lint": "tslint \"src/**/*.ts\"",
     "build": "webpack --mode=development",
     "prod": "webpack --mode=production",
-    "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env dev",
+    "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env dev --env watch",
     "electron": "webpack --mode=development --env electron --env dev && electron .",
     "prod-electron": "webpack --mode=production --env electron && npm uninstall sharp && USE_HARD_LINKS=false electron-builder -mwl --dir --ia32 --x64",
     "prod-test": "webpack --mode=production --env electron && npm uninstall sharp && electron-builder",
@@ -29,9 +29,10 @@
     "@types/chart.js": "^2.9.30",
     "battlecode-playback": "file:../playback",
     "chart.js": "^2.9.4",
+    "deepcopy": "^2.1.0",
     "speedscope": "1.5.2",
     "victor": "^1.1.0",
-    "deepcopy": "^2.1.0"
+    "battlecode-schema": "file:../../schema"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",

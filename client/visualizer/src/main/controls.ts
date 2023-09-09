@@ -436,7 +436,7 @@ export default class Controls {
    */
   setTileInfo(x: number, y: number, xrel: number, yrel: number, resource: number,
     well_stats: { adamantium: number, mana: number, elixir: number, upgraded: boolean },
-    island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number> } | undefined): void {
+    island_stats: { owner: number, flip_progress: number, locations: number[], is_accelerated: boolean, accelerated_tiles: Set<number>, id: number } | undefined): void {
     let content: string = ""
     content += `X: <b>${xrel}</b>`  // + `<b>${xrel}</b>`.padStart(3) + ` (${x})`.padStart(3)
     content += ` | Y: <b>${yrel}</b>` // + `<b>${yrel}</b>`.padStart(3) + ` (${y})`.padStart(3)
@@ -452,7 +452,7 @@ export default class Controls {
     }
 
     if (island_stats) {
-      content += ' | Island:'
+      content += ' | Island:' + ' (' + island_stats.id + ')'
       if (island_stats.owner > 0) {
         content += ` <b>${cst.TEAM_NAMES[island_stats.owner - 1]}</b> (${island_stats.flip_progress})`
         if (island_stats.is_accelerated)
