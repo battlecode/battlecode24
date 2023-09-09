@@ -4,6 +4,7 @@ import { Vector } from '../../playback/Vector'
 import { EventType, publishEvent, useListenEvent } from '../../app-events'
 import * as cst from '../../constants'
 import assert from 'assert'
+import Tooltip from './tooltip'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -18,6 +19,7 @@ export const GameRenderer: React.FC = () => {
     const appContext = useAppContext()
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
     const game = appContext.state.activeGame
+    const [tooltipCanvas, setTooltipCanvas] = React.useState<HTMLCanvasElement>()
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
@@ -130,13 +132,19 @@ export const GameRenderer: React.FC = () => {
                 <div ref={wrapperRef} className="relative w-full h-full">
                     {Object.getOwnPropertyNames(CanvasType).map((ct, idx) => (
                         <canvas
-                            className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full aspect-square"
+                            className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
                             style={{
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: CANVAS_Z_INDICES[idx]
                             }}
                             key={`canv${ct}`}
-                            ref={(ref) => (canvases.current[ct] = ref)}
+                            ref={(ref) => {
+                                canvases.current[ct] = ref
+                                // TODO: there's def a better way to do this but idk how rn
+                                if (ct == CanvasType.OVERLAY && ref && tooltipCanvas !== ref) {
+                                    setTooltipCanvas(ref)
+                                }
+                            }}
                             onClick={onCanvasClick}
                             onMouseMove={(e) => {
                                 if (mouseDown.current) onCanvasDrag(e)
@@ -158,6 +166,7 @@ export const GameRenderer: React.FC = () => {
                             }}
                         />
                     ))}
+                    <Tooltip canvas={tooltipCanvas} wrapperRef={wrapperRef} />
                 </div>
             )}
         </div>

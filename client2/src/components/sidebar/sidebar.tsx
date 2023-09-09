@@ -1,5 +1,5 @@
 import { Listbox, Transition } from '@headlessui/react'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment } from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
@@ -12,7 +12,7 @@ import { ProfilerPage } from './profiler/profiler'
 import { RunnerPage } from './runner/runner'
 import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import useWindowDimensions from '../../window-size'
+import useWindowDimensions from '../../util/window-size'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
