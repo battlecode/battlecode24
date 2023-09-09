@@ -12,6 +12,13 @@ export const getSchemaIdx = (cellX: number, cellY: number, dims: Dimension) => {
     return Math.floor(cellY) * dims.width + Math.floor(cellX)
 }
 
+export const getInterpolatedCoords = (prev: Vector, cur: Vector, alpha: number) => {
+    return {
+        x: prev.x * (1 - alpha) + cur.x * alpha,
+        y: prev.y * (1 - alpha) + cur.y * alpha
+    }
+}
+
 export const get9SliceClipPath = (
     i: number,
     j: number,

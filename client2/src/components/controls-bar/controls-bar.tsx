@@ -3,6 +3,9 @@ import * as ControlIcons from '../../icons/controls'
 import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
 import { ControlsBarTimeline } from './controls-bar-timeline'
+import { MAX_SIMULATION_STEPS } from '../../playback/Match'
+
+const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
 export const ControlsBar: React.FC = () => {
     const [updatesPerSecond, setUpdatesPerSecond] = React.useState(0)
@@ -27,25 +30,31 @@ export const ControlsBar: React.FC = () => {
     const stepTurn = (delta: number) => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.stepTurn(delta)
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     const jumpToTurn = (turn: number) => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     const jumpToEnd = () => {
         if (!matchLoaded()) return
         appContext.state.activeGame!.currentMatch!.jumpToEnd()
+        appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
     React.useEffect(() => {
         if (!matchLoaded()) return
         if (updatesPerSecond == 0) return
 
+        const msPerUpdate = 1000 / updatesPerSecond
+        const updatesPerInterval = SIMULATION_UPDATE_INTERVAL_MS / msPerUpdate
+        const simStepsPerInterval = updatesPerInterval * MAX_SIMULATION_STEPS
         const stepInterval = setInterval(() => {
-            appContext.state.activeGame!.currentMatch!.stepTurn(Math.sign(updatesPerSecond))
-        }, 1000 / Math.abs(updatesPerSecond))
+            appContext.state.activeGame!.currentMatch!.stepSimulation(simStepsPerInterval)
+        }, SIMULATION_UPDATE_INTERVAL_MS)
 
         return () => {
             clearInterval(stepInterval)

@@ -1,10 +1,10 @@
 import React from 'react'
 import Game from './playback/Game'
-import Match from './playback/Match';
+import Match from './playback/Match'
 
 export interface AppState {
     queue: Game[]
-    activeGame: Game | undefined,
+    activeGame: Game | undefined
     activeMatch: Match | undefined
 }
 

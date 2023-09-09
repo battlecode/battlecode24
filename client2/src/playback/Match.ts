@@ -8,12 +8,17 @@ import Actions from './Actions'
 import Bodies from './Bodies'
 import { publishEvent, EventType } from '../app-events'
 
+// Amount of turns before a snapshot of the game state is saved for the next recalculation
 const SNAPSHOT_EVERY = 50
+
+// Amount of simulation steps before the turn counter is progressed
+export const MAX_SIMULATION_STEPS = 500
 
 export default class Match {
     public currentTurn: Turn
     private readonly snapshots: Turn[]
     public readonly stats: TurnStat[]
+    private currentSimulationStep: number = 0
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],
@@ -75,6 +80,35 @@ export default class Match {
     }
 
     /**
+     * Returns the normalized 0-1 value indicating the simulation progression for this turn.
+     */
+    public getInterpolationFactor(): number {
+        return (Math.abs(this.currentSimulationStep) % MAX_SIMULATION_STEPS) / MAX_SIMULATION_STEPS
+    }
+
+    /**
+     * Change the simulation step to the current step + delta. If the step reaches the max simulation steps, the turn counter is increased accordingly
+     */
+    public stepSimulation(delta: number): void {
+        this.currentSimulationStep += delta
+        if (this.currentSimulationStep < 0) this.currentSimulationStep = 0
+
+        const prevTurn = this.currentTurn.turnNumber
+        this.jumpToTurn(Math.floor(this.currentSimulationStep / MAX_SIMULATION_STEPS))
+
+        // jumpToTurn will call render if the turn number changes so we shouldn't
+        // do it again
+        if (prevTurn == this.currentTurn.turnNumber) publishEvent(EventType.RENDER, {})
+    }
+
+    /**
+     * Clear any excess simulation steps and round it to the nearest turn
+     */
+    public roundSimulation(): void {
+        this.currentSimulationStep -= this.currentSimulationStep % MAX_SIMULATION_STEPS
+    }
+
+    /**
      * Change the rounds current turn to the current turn + delta.
      */
     public stepTurn(delta: number): void {
@@ -97,24 +131,40 @@ export default class Match {
         turnNumber = Math.max(0, Math.min(turnNumber, this.deltas.length))
         if (turnNumber == this.currentTurn.turnNumber) return
 
-        const snapshotIndex = Math.min(Math.floor(turnNumber / SNAPSHOT_EVERY), this.snapshots.length - 1)
-        let turn = this.snapshots[snapshotIndex].copy()
+        // If we are stepping backwards, we must always recompute from the latest checkpoint
+        const reversed = turnNumber < this.currentTurn.turnNumber
 
-        let steps = 0
-        while (turn.turnNumber < turnNumber) {
-            steps += 1
-            turn.applyDelta(this.deltas[turn.turnNumber])
+        // If the new turn is closer to a snapshot than from the current turn, compute from the snapshot
+        const snapshotIndex = Math.floor(turnNumber / SNAPSHOT_EVERY)
+        const closeSnapshot =
+            snapshotIndex > Math.floor(this.currentTurn.turnNumber / SNAPSHOT_EVERY) &&
+            snapshotIndex < this.snapshots.length
+
+        const computeFromSnapshot = reversed || closeSnapshot
+        let updatingTurn = this.currentTurn
+        if (computeFromSnapshot) updatingTurn = this.snapshots[snapshotIndex].copy()
+
+        while (updatingTurn.turnNumber < turnNumber) {
+            const delta = this.deltas[updatingTurn.turnNumber]
+            const nextDelta =
+                updatingTurn.turnNumber < this.deltas.length - 1 ? this.deltas[updatingTurn.turnNumber + 1] : null
+            updatingTurn.applyDelta(delta, nextDelta)
+
             if (
-                turn.turnNumber % SNAPSHOT_EVERY === 0 &&
-                this.snapshots.length < turn.turnNumber / SNAPSHOT_EVERY + 1
+                updatingTurn.turnNumber % SNAPSHOT_EVERY === 0 &&
+                this.snapshots.length < updatingTurn.turnNumber / SNAPSHOT_EVERY + 1
             ) {
-                this.snapshots.push(turn.copy())
+                this.snapshots.push(updatingTurn.copy())
             }
         }
 
-        // console.log(`Calculated ${steps} steps to generate turn ${turnNumber}.`)
+        // Update the simulation step so it remains consistent with the total turn value
+        // while also keeping the current simulation progress
+        this.currentSimulationStep =
+            updatingTurn.turnNumber * MAX_SIMULATION_STEPS + (this.currentSimulationStep % MAX_SIMULATION_STEPS)
 
-        this.currentTurn = turn
+        this.currentTurn = updatingTurn
         publishEvent(EventType.TURN_PROGRESS, {})
+        publishEvent(EventType.RENDER, {})
     }
 }

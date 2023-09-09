@@ -19,8 +19,6 @@ export const QueuePage: React.FC = () => {
             const game = Game.loadFullGameRaw(reader.result as ArrayBuffer)
             context.setState({
                 ...context.state,
-                activeGame: game,
-                activeMatch: game.currentMatch,
                 queue: queue.concat([game])
             })
         }

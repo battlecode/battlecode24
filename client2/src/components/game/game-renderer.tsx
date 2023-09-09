@@ -1,8 +1,8 @@
 import React from 'react'
 import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
+import { EventType, publishEvent, useListenEvent } from '../../app-events'
 import * as cst from '../../constants'
-import { publishEvent, EventType } from '../../app-events'
 import assert from 'assert'
 
 export enum CanvasType {
@@ -33,30 +33,35 @@ export const GameRenderer: React.FC = () => {
         elem.getContext('2d')?.scale(cst.TILE_RESOLUTION, cst.TILE_RESOLUTION)
     }
 
+    // Since this is a callback, we need to ensure we recreate the function when the
+    // active match changes. Similarly, the event listener needs to be updated, which
+    // will happen automatically via dependencies
+    const render = React.useCallback(() => {
+        const match = appContext.state.activeMatch
+        if (!match) return
+
+        const ctx = getCanvasContext(CanvasType.DYNAMIC)!
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        match.currentTurn.map.draw(ctx)
+        match.currentTurn.bodies.draw(match.currentTurn, ctx)
+        match.currentTurn.actions.draw(match.currentTurn, ctx)
+    }, [appContext.state.activeMatch])
+    useListenEvent(EventType.RENDER, render, [appContext.state.activeMatch])
+
+    // We want to rerender if the match changes
     React.useEffect(() => {
         const match = appContext.state.activeMatch
         if (!match) return
-        /*
-         * If this isnt running at a regular interval (in general, we should probably have it only draw on changes),
-         * then we need to make it also draw on image load (see imageloader.triggerOnImageLoad()) unless we decide to
-         * block until all images are loaded (which is probably a bad idea)
-         */
-        // match.jumpToTurn(1244)
-        const render = () => {
-            const turn = match.currentTurn
 
-            updateCanvasDimensions(CanvasType.BACKGROUND, { x: turn.map.width, y: turn.map.height })
-            let ctx = getCanvasContext(CanvasType.BACKGROUND)!
-            match.currentTurn.map.staticMap.draw(ctx)
+        // Update canvases to reflect board size of new match
+        updateCanvasDimensions(CanvasType.BACKGROUND, {
+            x: match.currentTurn.map.width,
+            y: match.currentTurn.map.height
+        })
+        updateCanvasDimensions(CanvasType.DYNAMIC, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
 
-            updateCanvasDimensions(CanvasType.DYNAMIC, { x: turn.map.width, y: turn.map.height })
-            ctx = getCanvasContext(CanvasType.DYNAMIC)!
-            match.currentTurn.map.draw(ctx)
-            match.currentTurn.bodies.draw(match.currentTurn, ctx)
-            match.currentTurn.actions.draw(match.currentTurn, ctx)
-        }
-
-        const renderInterval = setInterval(render, 100)
+        // Redraw static background
+        match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
 
         const noContextMenu = (e: MouseEvent) => {
             e.preventDefault()
@@ -67,9 +72,9 @@ export const GameRenderer: React.FC = () => {
             })
         }
 
-        return () => {
-            clearInterval(renderInterval)
+        publishEvent(EventType.RENDER, {})
 
+        return () => {
             if (canvases.current) {
                 Object.values(canvases.current).forEach((canvas) => {
                     canvas!.removeEventListener('contextmenu', noContextMenu)

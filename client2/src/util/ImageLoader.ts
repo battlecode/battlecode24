@@ -1,3 +1,5 @@
+import { EventType, publishEvent } from '../app-events'
+
 const IMAGE_DIRECTORY = 'static/img/'
 
 const imgCache = new Map<string, Promise<HTMLImageElement>>()
@@ -19,7 +21,11 @@ export const loadImage = (path: string): Promise<HTMLImageElement> => {
             loadedImgCache.set(path, img)
             resolve(img)
             onLoadCallbacks.get(path)?.forEach((callback) => callback())
-            onLoadCallbacks.get("")?.forEach((callback) => callback())
+            onLoadCallbacks.get('')?.forEach((callback) => callback())
+
+            // We want to rerender when an image loads so the user
+            // doesn't have to look at placeholders until they progress the turn
+            publishEvent(EventType.RENDER, {})
         }
         img.onerror = reject
     })
@@ -50,7 +56,7 @@ export const getImageIfLoaded = (path: string) => {
  * @param path the path to the image that when loaded will trigger the callback. if an empty string
  *             is used, then the callback will be called on any image
  */
-export const triggerOnImageLoad = (callback: () => void, path: string = "") => {
+export const triggerOnImageLoad = (callback: () => void, path: string = '') => {
     if (!onLoadCallbacks.has(path)) {
         onLoadCallbacks.set(path, [])
     }
@@ -62,7 +68,7 @@ export const triggerOnImageLoad = (callback: () => void, path: string = "") => {
  * @param callback the callback that was stored
  * @param path the path to the image that was used to register the callback
  */
-export const removeTriggerOnImageLoad = (callback: () => void, path: string = "") => {
+export const removeTriggerOnImageLoad = (callback: () => void, path: string = '') => {
     const index = onLoadCallbacks.get(path)?.indexOf(callback)
     if (index !== -1 && index !== undefined) {
         onLoadCallbacks.get(path)?.splice(index, 1)

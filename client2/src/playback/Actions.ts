@@ -111,7 +111,7 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             // if attacking bot, turn location from target bot id into target bot location
             if (this.target >= 0) {
                 const targetBody = turn.bodies.getById(this.target)
-                this.target = turn.map.locationToIndex(targetBody.x, targetBody.y)
+                this.target = turn.map.locationToIndex(targetBody.pos.x, targetBody.pos.y)
             } else {
                 this.target = -this.target - 1
             }

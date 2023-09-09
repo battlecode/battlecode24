@@ -1,3 +1,4 @@
+import { schema } from 'battlecode-schema'
 import Actions from './Actions'
 import Bodies from './Bodies'
 import { Team } from './Game'
@@ -21,21 +22,22 @@ export default class Turn {
     /**
      * Mutates this turn to reflect the given delta.
      */
-    public applyDelta(schemaDelta: any): void {
+    public applyDelta(delta: schema.Round, nextDelta: schema.Round | null): void {
         this.turnNumber += 1
 
         const firstTimeComputingStat = this.match.stats.length <= this.turnNumber
-        if (firstTimeComputingStat) this.stat.completed = false // mark that stat should be computed by bodies and actions below
+        if (firstTimeComputingStat)
+            this.stat.completed = false // mark that stat should be computed by bodies and actions below
         else this.stat = this.match.stats[this.turnNumber].copy()
 
-        this.map.applyDelta(schemaDelta)
-        this.bodies.applyDelta(this, schemaDelta, () => {
-            this.actions.applyDelta(this, schemaDelta)
+        this.map.applyDelta(delta)
+        this.bodies.applyDelta(this, delta, nextDelta, () => {
+            this.actions.applyDelta(this, delta)
         })
 
         if (firstTimeComputingStat) {
             // finish computing stat and save to match
-            this.stat.applyDelta(this, schemaDelta)
+            this.stat.applyDelta(this, delta)
             this.match.stats[this.turnNumber] = this.stat.copy()
         }
     }

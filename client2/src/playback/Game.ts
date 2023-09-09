@@ -78,7 +78,7 @@ export default class Game {
 
             i++
             let event
-            let matches = []
+            let matches: schema.Round[] = []
             while (
                 (event = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')).eType() !==
                 schema.Event.MatchFooter

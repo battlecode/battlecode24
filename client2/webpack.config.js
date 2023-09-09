@@ -1,6 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env) => {
     const development = env.dev
@@ -19,17 +20,17 @@ module.exports = (env) => {
             rules: [
                 {
                     test: /\.ts(x?)$/,
-                    exclude: /node_modules/,
+                    exclude: [/node_modules/, /src-tauri/],
                     loader: 'ts-loader'
                 },
                 {
                     test: /\.css$/,
-                    exclude: /node_modules/,
+                    exclude: [/node_modules/, /src-tauri/],
                     use: ['style-loader', 'css-loader', 'postcss-loader']
                 },
                 {
                     test: /\.(png|jpg|jpeg|gif|svg|ttf|otf|woff|woff2|eot)$/,
-                    exclude: /node_modules/,
+                    exclude: [/node_modules/, /src-tauri/],
                     loader: 'url-loader'
                 }
             ]
@@ -56,6 +57,9 @@ module.exports = (env) => {
             }),
             new webpack.ProvidePlugin({
                 process: 'process/browser'
+            }),
+            new CopyPlugin({
+                patterns: [{ from: 'src/static', to: 'static' }]
             })
         ]
     }

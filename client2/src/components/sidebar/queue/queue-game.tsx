@@ -1,7 +1,7 @@
 import React from 'react'
 import Game from '../../../playback/Game'
 import Match from '../../../playback/Match'
-import { useAppContext } from '../../../app-context';
+import { useAppContext } from '../../../app-context'
 
 interface Props {
     game: Game
@@ -28,7 +28,10 @@ export const QueuedGame: React.FC<Props> = (props) => {
             {props.game.matches.map((match, i) => (
                 <p
                     key={i}
-                    className={"rounded-sm border-black border mt-1 hover:bg-lightHighlight px-2 cursor-pointer " + (context.state.activeMatch === match ? "bg-medHighlight hover:bg-medHighlight" : "")}
+                    className={
+                        'rounded-sm border-black border mt-1 hover:bg-lightHighlight px-2 cursor-pointer ' +
+                        (context.state.activeMatch === match ? 'bg-medHighlight hover:bg-medHighlight' : '')
+                    }
                     onClick={() => setMatch(match)}
                 >
                     <span className="text-xs">{match.map.name}</span>
