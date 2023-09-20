@@ -29,7 +29,7 @@ export default class Match {
         firstStats: TurnStat
     ) {
         this.currentTurn = new Turn(this, 0, new CurrentMap(map), firstBodies, new Actions(), firstStats)
-        this.snapshots = [this.currentTurn]
+        this.snapshots = [this.currentTurn.copy()]
         this.stats = [this.currentTurn.stat]
     }
 
