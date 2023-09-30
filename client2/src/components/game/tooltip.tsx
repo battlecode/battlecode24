@@ -1,16 +1,18 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import * as cst from '../../constants'
 import { useMousePosition } from '../../util/mouse-pos'
 import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
+import { Vector } from '../../playback/Vector'
 
 type TooltipProps = {
-    canvas: HTMLCanvasElement | undefined
+    mapCanvas: HTMLCanvasElement | undefined
+    overlayCanvas: HTMLCanvasElement | undefined
     wrapperRef: React.MutableRefObject<HTMLElement | null>
 }
 
-const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
+const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const mousePos = useMousePosition()
     const appContext = useAppContext()
 
@@ -21,19 +23,19 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
 
     let canvasAbsLeft = 0,
         canvasAbsTop = 0
-    let tileCol = -1,
-        tileRow = -1
     let tileLeft = 0,
         tileTop = 0
     let tileWidth = 0,
         tileHeight = 0
+    let tileCol = -1,
+        tileRow = -1
 
-    if (canvas && wrapperRef.current) {
-        const canvasBoundingBox = canvas.getBoundingClientRect()
+    if (mapCanvas && wrapperRef.current) {
+        const canvasBoundingBox = mapCanvas.getBoundingClientRect()
         const wrapperBoundingBox = wrapperRef.current.getBoundingClientRect()
 
-        const scalingFactorX = canvas.width / canvasBoundingBox.width
-        const scalingFactorY = canvas.height / canvasBoundingBox.height
+        const scalingFactorX = mapCanvas.width / canvasBoundingBox.width
+        const scalingFactorY = mapCanvas.height / canvasBoundingBox.height
 
         const localX = (mousePos.x - canvasBoundingBox.left) * scalingFactorX
         const localY = (mousePos.y - canvasBoundingBox.top) * scalingFactorY
@@ -50,20 +52,41 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
         tileHeight = cst.TILE_RESOLUTION / scalingFactorY
     }
 
-    function onClick() {
-        if (clickedRobotId) {
-            setClickedRobotId(undefined)
+    function getHoveredBody() {
+        return appContext.state?.activeMatch?.map
+            ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
+              tileCol,
+              appContext.state.activeMatch.map.dimension.height - 1 - tileRow
+            )
+        : undefined
+    }
+
+    function onClick(e: Event) {
+        const hoveredBody = getHoveredBody()
+        console.log(hoveredBody)
+
+        if (hoveredBody === undefined) {
+            if (clickedRobotId === undefined) setClickedRobotId(undefined)
             return
         }
 
-        setClickedRobotId(0)
+        setClickedRobotId(hoveredBody.id)
     }
 
-    if (!canvas || !wrapperRef.current) {
+    useEffect(() => {
+        if (overlayCanvas) {
+            overlayCanvas.addEventListener('click', onClick)
+            return () => {
+                overlayCanvas.removeEventListener('click', onClick)
+            }
+        }
+    }, [overlayCanvas, mousePos])
+
+    if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
         return <Fragment />
     }
 
-    const canvasBoundingBox = canvas.getBoundingClientRect()
+    const canvasBoundingBox = mapCanvas.getBoundingClientRect()
     const hoverVisible = !(
         mousePos.x < canvasBoundingBox.left ||
         mousePos.x > canvasBoundingBox.right ||
@@ -71,13 +94,7 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
         mousePos.y > canvasBoundingBox.bottom
     )
 
-    // get hovered robot details
-    const hoveredBody = appContext.state?.activeMatch?.map
-        ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
-              tileCol,
-              appContext.state.activeMatch.map.dimension.height - 1 - tileRow
-          )
-        : undefined
+    const hoveredBody = getHoveredBody()
 
     return (
         <Fragment>
@@ -89,16 +106,16 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
                             left: tileLeft + 'px',
                             top: tileTop + 'px',
                             width: tileWidth + 'px',
-                            height: tileHeight + 'px'
+                            height: tileHeight + 'px',
+                            pointerEvents: 'none'
                         }}
-                        onClick={onClick}
                     />
                     {hoveredBody && (
                         <div
                             className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
                             style={{
                                 left: tileLeft + tileWidth * 0.75 + 'px',
-                                top: tileTop + tileHeight * 0.75 + 'px'
+                                top: tileTop + tileHeight * 0.75 + 'px',
                             }}
                         >
                             {hoveredBody.onHoverInfo()}
@@ -106,15 +123,15 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
                     )}
                 </Fragment>
             )}
-            {clickedRobotId && (
+            {clickedRobotId != undefined && (
                 <div
-                    className="absolute bg-black z-20"
+                    className="absolute bg-black z-20 text-white"
                     style={{
                         left: canvasAbsLeft + tileWidth * 0.75 + 'px',
                         top: canvasAbsTop + tileHeight * 0.75 + 'px'
                     }}
                 >
-                    test
+                    {}
                 </div>
             )}
         </Fragment>
