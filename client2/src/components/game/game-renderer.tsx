@@ -141,7 +141,7 @@ export const GameRenderer: React.FC = () => {
                             ref={(ref) => {
                                 canvases.current[ct] = ref
                                 // TODO: there's def a better way to do this but idk how rn
-                                if (ct == CanvasType.OVERLAY && ref && tooltipCanvas !== ref) {
+                                if (ct == CanvasType.BACKGROUND && ref && tooltipCanvas !== ref) {
                                     setTooltipCanvas(ref)
                                 }
                             }}
