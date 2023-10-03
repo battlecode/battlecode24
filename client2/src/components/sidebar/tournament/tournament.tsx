@@ -33,7 +33,7 @@ export const TournamentPage: React.FC = () => {
             />
             <Button onClick={() => inputRef.current?.click()}>
                 <FiUpload className="align-middle text-base mr-2" />
-                Upload a .bc{BATTLECODE_YEAR % 100} replay file
+                Upload a tournament file
             </Button>
         </div>
     )

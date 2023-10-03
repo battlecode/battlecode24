@@ -36,6 +36,7 @@ export const Sidebar: React.FC = () => {
 
     const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
     useEffect(() => {
+        console.log(tournamentMode)
         if (tournamentMode) {
             setPage(PageType.TOURNAMENT)
         }

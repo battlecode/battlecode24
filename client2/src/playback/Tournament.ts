@@ -4,7 +4,7 @@ export default class Tournament {
     constructor(tournament_json: string) {
         const tournament_json_parsed = JSON.parse(tournament_json)
         this.games = new Map(
-            tournament_json_parsed.games.map((game: any) => {
+            tournament_json_parsed.map((game: any) => {
                 return [
                     game.id,
                     {
@@ -19,7 +19,7 @@ export default class Tournament {
         )
 
         // load heirarchy structure
-        for (const game of tournament_json_parsed.games) {
+        for (const game of tournament_json_parsed) {
             if (game.dependsOn) {
                 for (const id of game.dependsOn) {
                     if (!this.games.has(id)) {
