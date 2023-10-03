@@ -1,5 +1,5 @@
 import { Listbox, Transition } from '@headlessui/react'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
@@ -13,6 +13,7 @@ import { RunnerPage } from './runner/runner'
 import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
+import { TournamentPage } from './tournament/tournament';
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -33,6 +34,13 @@ export const Sidebar: React.FC = () => {
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
+    const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
+    useEffect(() => {
+        if (tournamentMode) {
+            setPage(PageType.TOURNAMENT)
+        }
+    }, [tournamentMode])
+
     const renderPage = () => {
         if (!open) return undefined
 
@@ -51,6 +59,8 @@ export const Sidebar: React.FC = () => {
                 return <MapEditorPage />
             case PageType.HELP:
                 return <HelpPage />
+            case PageType.TOURNAMENT:
+                return <TournamentPage />
         }
     }
 
@@ -64,7 +74,9 @@ export const Sidebar: React.FC = () => {
     }, [page])
 
     return (
-        <div className={`${minWidth} ${maxWidth} bg-light text-black h-screen transition-[min-width,max-width] overflow-hidden`}>
+        <div
+            className={`${minWidth} ${maxWidth} bg-light text-black h-screen transition-[min-width,max-width] overflow-hidden`}
+        >
             <Scrollbars
                 universal={true}
                 autoHide
@@ -88,11 +100,7 @@ export const Sidebar: React.FC = () => {
                                     height: '40px'
                                 }}
                             >
-                                {open ? (
-                                    <BsChevronLeft className="mx-auto font-bold stroke-2" />
-                                ) : (
-                                    <ThreeBarsIcon />
-                                )}
+                                {open ? <BsChevronLeft className="mx-auto font-bold stroke-2" /> : <ThreeBarsIcon />}
                             </button>
                         </div>
                     </div>

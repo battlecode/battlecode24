@@ -22,7 +22,7 @@ export default class Match {
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],
-        private readonly maxTurn: number,
+        public readonly maxTurn: number,
         public readonly winner: Team,
         public readonly map: StaticMap,
         firstBodies: Bodies,
