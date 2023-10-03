@@ -21,7 +21,12 @@ export default class Tournament {
         // load heirarchy structure
         for (const game of tournament_json_parsed.games) {
             if (game.dependsOn) {
-                this.games.get(game.id)!.dependsOn = this.games.get(game.dependsOn)
+                for (const id of game.dependsOn) {
+                    if (!this.games.has(id)) {
+                        throw new Error(`Game ${game.id} depends on nonexistent game ${id}`)
+                    }
+                }
+                this.games.get(game.id)!.dependsOn = game.dependsOn.map((id: number) => this.games.get(id))
             }
         }
     }
@@ -30,7 +35,7 @@ export default class Tournament {
 type TournamentGame = {
     id: number
     teams: [string, string]
-    dependsOn?: TournamentGame
+    dependsOn?: [TournamentGame, TournamentGame]
     winner: 0 | 1
     viewed: boolean
     gameFile: string

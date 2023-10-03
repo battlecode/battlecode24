@@ -29,7 +29,7 @@ export const TournamentPage: React.FC = () => {
                 hidden
                 ref={(ref) => (inputRef.current = ref)}
                 onChange={upload}
-                accept={'.tour' + (BATTLECODE_YEAR % 100) + ',.tour*'}
+                accept={'.json'}
             />
             <Button onClick={() => inputRef.current?.click()}>
                 <FiUpload className="align-middle text-base mr-2" />

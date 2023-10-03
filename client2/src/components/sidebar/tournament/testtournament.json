@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "teams": ["Team 1", "Team 2"],
+        "dependsOn": null,
+        "winner": 0,
+        "gameFile": "path/to/game/file"
+    },
+    {
+        "id": 2,
+        "teams": ["Team 3", "Team 4"],
+        "dependsOn": null,
+        "winner": 0,
+        "gameFile": "path/to/game/file"
+    },
+    {
+        "id": 2,
+        "teams": ["Team 1", "Team 3"],
+        "dependsOn": [1,2],
+        "winner": 1,
+        "gameFile": "path/to/game/file"
+    }
+]
