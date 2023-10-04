@@ -69,7 +69,7 @@ export const GameRenderer: React.FC = () => {
             e.preventDefault()
         }
         if (canvases.current) {
-            Object.values(canvases.current).forEach((canvas) => {
+            Object.values(canvases.current).filter(c => c).forEach((canvas) => {
                 canvas!.addEventListener('contextmenu', noContextMenu)
             })
         }
@@ -78,7 +78,7 @@ export const GameRenderer: React.FC = () => {
 
         return () => {
             if (canvases.current) {
-                Object.values(canvases.current).forEach((canvas) => {
+                Object.values(canvases.current).filter(c => c).forEach((canvas) => {
                     canvas!.removeEventListener('contextmenu', noContextMenu)
                 })
             }

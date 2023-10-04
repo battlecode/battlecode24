@@ -13,7 +13,7 @@ import { RunnerPage } from './runner/runner'
 import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
-import { TournamentPage } from './tournament/tournament';
+import { TournamentPage } from './tournament/tournament'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -35,12 +35,6 @@ export const Sidebar: React.FC = () => {
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
     const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
-    useEffect(() => {
-        console.log(tournamentMode)
-        if (tournamentMode) {
-            setPage(PageType.TOURNAMENT)
-        }
-    }, [tournamentMode])
 
     const renderPage = () => {
         if (!open) return undefined
@@ -73,6 +67,17 @@ export const Sidebar: React.FC = () => {
     React.useEffect(() => {
         setExpanded(false)
     }, [page])
+
+    const activeSidebarButtons = React.useMemo(() => {
+        if (tournamentMode) {
+            return [
+                { name: 'Game', page: PageType.GAME },
+                { name: 'Queue', page: PageType.QUEUE },
+                { name: 'Tournament', page: PageType.TOURNAMENT }
+            ]
+        }
+        return SIDEBAR_BUTTONS
+    }, [tournamentMode])
 
     return (
         <div
@@ -122,7 +127,7 @@ export const Sidebar: React.FC = () => {
                                     leaveTo="transform scale-95 opacity-0 max-h-0"
                                 >
                                     <Listbox.Options>
-                                        {SIDEBAR_BUTTONS.map((data) => {
+                                        {activeSidebarButtons.map((data) => {
                                             return (
                                                 <Listbox.Option
                                                     key={data.page}
