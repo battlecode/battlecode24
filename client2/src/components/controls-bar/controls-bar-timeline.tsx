@@ -25,10 +25,13 @@ export const ControlsBarTimeline: React.FC = () => {
         down.current = false
     }
 
+    const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
+    console.log(maxTurn)
+
     const timelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
-        const turn = Math.floor((x / 350) * 2000)
+        const turn = Math.floor((x / 350) * maxTurn)
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
     }
 
@@ -43,7 +46,6 @@ export const ControlsBarTimeline: React.FC = () => {
         )
 
     const turn = appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
-    const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
     const turnPercentage = () => (1 - turn / maxTurn) * 100 + '%'
     return (
         <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">

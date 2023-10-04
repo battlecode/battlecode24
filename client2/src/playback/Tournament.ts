@@ -10,7 +10,8 @@ export default class Tournament {
                     {
                         teams: game.teams,
                         dependsOn: null,
-                        winner: game.winner,
+                        winnerIndex: game.winnerIndex,
+                        round: game.round,
                         viewed: false,
                         gameFile: game.gameFile
                     }
@@ -32,7 +33,7 @@ export default class Tournament {
     }
 }
 
-type TournamentGame = {
+export type TournamentGame = {
     id: number
     teams: [string, string]
     dependsOn?: [TournamentGame, TournamentGame]

@@ -1,7 +1,7 @@
 import React from 'react'
 import { GameRenderer } from './game-renderer'
 import { useAppContext } from '../../app-context';
-import { TournamentRenderer } from './tournament-renderer';
+import { TournamentRenderer } from './tournament-renderer/tournament-renderer';
 
 export const Game: React.FC = () => {
     const appContext = useAppContext()
