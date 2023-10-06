@@ -63,6 +63,10 @@ export const ControlsBar: React.FC = () => {
         })
     }
 
+    const hasNextMatch = appContext.state.activeGame &&
+    appContext.state.activeGame!.currentMatch &&
+    appContext.state.activeGame!.matches.indexOf(appContext.state.activeGame!.currentMatch!) + 1 < appContext.state.activeGame!.matches.length;
+
     const closeGame = () => {
         appContext.setState({
             ...appContext.state,
@@ -134,7 +138,7 @@ export const ControlsBar: React.FC = () => {
             <ControlsBarButton icon={<ControlIcons.GoEndIcon />} tooltip="Jump To End" onClick={jumpToEnd} />
             {appContext.state.tournament && (
                 <>
-                    <ControlsBarButton icon={<ControlIcons.NextRound />} tooltip="Next Round" onClick={nextMatch} />
+                    <ControlsBarButton icon={<ControlIcons.NextRound />} tooltip="Next Round" onClick={nextMatch} disabled={!hasNextMatch}/>
                     <ControlsBarButton icon={<ControlIcons.CloseGame />} tooltip="Close Game" onClick={closeGame} />
                 </>
             )}
