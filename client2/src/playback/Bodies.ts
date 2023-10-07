@@ -203,6 +203,7 @@ export default class Bodies {
 
 export class Body {
     static robotName: string
+    public radius: number = 0
     public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
     protected imgPath: string = ''
     protected nextPos: Vector
@@ -259,6 +260,7 @@ export class Body {
 export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
         static robotName = 'Headquarters'
+        public radius = 8
         public type = schema.BodyType.HEADQUARTERS
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)

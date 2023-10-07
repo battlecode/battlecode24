@@ -62,6 +62,7 @@ export const GameRenderer: React.FC = () => {
             y: match.currentTurn.map.height
         })
         updateCanvasDimensions(CanvasType.DYNAMIC, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
+        updateCanvasDimensions(CanvasType.OVERLAY, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
 
         // Redraw static background
         match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)

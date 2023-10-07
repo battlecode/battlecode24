@@ -4,6 +4,7 @@ import { useMousePosition } from '../../util/mouse-pos'
 import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
+import { Body } from '../../playback/Bodies'
 import { Vector } from '../../playback/Vector'
 
 type TooltipProps = {
@@ -19,7 +20,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
-    const [clickedRobotId, setClickedRobotId] = React.useState<number>()
+    const [clickedBody, setClickedRobot] = React.useState<Body | undefined>(undefined)
 
     let canvasAbsLeft = 0,
         canvasAbsTop = 0
@@ -63,14 +64,16 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     function onClick(e: Event) {
         const hoveredBody = getHoveredBody()
-        console.log(hoveredBody)
+        setClickedRobot(hoveredBody)
+    }
 
-        if (hoveredBody === undefined) {
-            if (clickedRobotId === undefined) setClickedRobotId(undefined)
-            return
+    function getLastSpots(body: Body, numSpot: number): Vector[] {
+        let spots: Vector[] = []
+        for (let i = 0; i < numSpot; i++) {
+
         }
 
-        setClickedRobotId(hoveredBody.id)
+        return spots;
     }
 
     useEffect(() => {
@@ -81,6 +84,35 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
             }
         }
     }, [overlayCanvas, mousePos])
+
+    const hoveredBody = getHoveredBody()
+
+    // draw tooltip stuff to overlay canvas
+    useEffect(() => {
+        const match = appContext.state.activeMatch
+        if (!match || !overlayCanvas) return
+
+        const ctx = overlayCanvas.getContext('2d')
+        if (!ctx) return
+
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+        if (hoveredBody) {
+            ctx.beginPath();
+            ctx.strokeStyle = "blue"
+            ctx.lineWidth = 1 / match.map.width;
+            ctx.arc(hoveredBody.pos.x + 0.5, match.map.height - (hoveredBody.pos.y + 0.5), Math.sqrt(hoveredBody.radius), 0, 360);
+            ctx.stroke();
+        }
+
+        if (clickedBody) {
+            ctx.beginPath();
+            ctx.strokeStyle = "blue"
+            ctx.lineWidth = 1 / match.map.width;
+            ctx.arc(clickedBody.pos.x + 0.5, match.map.height - (clickedBody.pos.y + 0.5), Math.sqrt(clickedBody.radius), 0, 360);
+            ctx.stroke();
+        }
+    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBody, tileLeft, tileTop]);
 
     if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
         return <Fragment />
@@ -93,8 +125,6 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         mousePos.y < canvasBoundingBox.top ||
         mousePos.y > canvasBoundingBox.bottom
     )
-
-    const hoveredBody = getHoveredBody()
 
     return (
         <Fragment>
@@ -123,15 +153,15 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
                     )}
                 </Fragment>
             )}
-            {clickedRobotId != undefined && (
+            {clickedBody !== undefined && (
                 <div
-                    className="absolute bg-black z-20 text-white"
+                    className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-md"
                     style={{
-                        left: canvasAbsLeft + tileWidth * 0.75 + 'px',
-                        top: canvasAbsTop + tileHeight * 0.75 + 'px'
+                        left: overlayCanvas.clientLeft + tileWidth * 0.5 + 'px',
+                        top: overlayCanvas.clientTop + tileHeight * 0.5 + 'px'
                     }}
                 >
-                    {}
+                    {clickedBody.onHoverInfo()}
                 </div>
             )}
         </Fragment>
