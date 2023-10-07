@@ -5,6 +5,10 @@ package battlecode.world;
  */
 public enum DominationFactor {
     /**
+     * Win by capturing all opponent flags.
+     */
+    CAPTURE, 
+    /**
      * Win by capturing 75+% of sky islands (early end).
      */
     CONQUEST,
