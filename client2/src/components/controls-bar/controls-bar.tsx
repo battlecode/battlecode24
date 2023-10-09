@@ -69,13 +69,16 @@ export const ControlsBar: React.FC = () => {
 	console.log("Keycode: " + keyboard.keyCode)
 	//console.log("Last Keycode: " + keyboard.lastPressed)
 
-	if (keyboard.keyCode != lastKeyPressed) { 
-		setLastKeyPressed(keyboard.keyCode)
+	if (keyboard.keyCode !== lastKeyPressed) { 
+		// Warning: Moving this line of code more below causes a infinite loop
+		// due to changing updatesPerSecond recursively calling useEffect. Keep
+		// it here. 
+		setLastKeyPressed(keyboard.keyCode) 
 
 		if (keyboard.keyCode === "Space")
-			changeUpdatesPerSecond(updatesPerSecond == 0 ? 1 : 0);
+			changeUpdatesPerSecond(updatesPerSecond === 0 ? 1 : 0);
 
-		if(updatesPerSecond == 0) { // Paused
+		if(updatesPerSecond === 0) { // Paused
 			if (keyboard.keyCode === "ArrowRight") 
 				stepTurn(1)
 			if (keyboard.keyCode === "ArrowLeft")

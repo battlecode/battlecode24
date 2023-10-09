@@ -11,6 +11,7 @@ import { MapEditorPage } from './map-editor/map-editor'
 import { ProfilerPage } from './profiler/profiler'
 import { RunnerPage } from './runner/runner'
 import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
+import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
 
@@ -26,9 +27,11 @@ const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
+	const keyboard = useKeyboard()
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
+    const [lastKeyPressed, setLastKeyPressed] = React.useState("")
 
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
@@ -54,6 +57,23 @@ export const Sidebar: React.FC = () => {
         }
     }
 
+	// If you find a better way of doing this, change this. Skip going through
+	// map and help tab, it's annoying for competitors.
+	const getNextPage = (currentPage: PageType, previous: boolean) => {
+        switch (currentPage) {
+			default:
+				return currentPage
+            case PageType.GAME:
+                return previous ? PageType.PROFILER : PageType.QUEUE
+            case PageType.QUEUE:
+                return previous ? PageType.GAME : PageType.RUNNER
+            case PageType.RUNNER:
+                return previous ? PageType.QUEUE : PageType.PROFILER
+            case PageType.PROFILER:
+                return previous? PageType.RUNNER : PageType.GAME
+        }
+	}
+
     const updatePage = (newPage: PageType) => {
         setPage(newPage)
     }
@@ -62,6 +82,16 @@ export const Sidebar: React.FC = () => {
     React.useEffect(() => {
         setExpanded(false)
     }, [page])
+
+	if (keyboard.keyCode !== lastKeyPressed) { 
+		setLastKeyPressed(keyboard.keyCode)
+
+		if (keyboard.keyCode === "Backquote")
+			updatePage(getNextPage(page, false))
+
+		if (keyboard.keyCode === "Digit1")
+			updatePage(getNextPage(page, true))
+	}
 
     return (
         <div className={`${minWidth} ${maxWidth} bg-light text-black h-screen transition-[min-width,max-width] overflow-hidden`}>
