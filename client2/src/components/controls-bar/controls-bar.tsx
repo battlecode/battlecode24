@@ -66,8 +66,6 @@ export const ControlsBar: React.FC = () => {
 
     if (!appContext.state.activeGame || !appContext.state.activeGame.playable) return null
 
-    console.log('Keycode: ' + keyboard.keyCode)
-    //console.log("Last Keycode: " + keyboard.lastPressed)
 
     if (keyboard.keyCode !== lastKeyPressed) {
         // If the competitor had manually pressed one of the buttons on the
