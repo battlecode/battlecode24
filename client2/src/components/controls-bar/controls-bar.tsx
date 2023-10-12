@@ -10,10 +10,10 @@ const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
 export const ControlsBar: React.FC = () => {
     const [updatesPerSecond, setUpdatesPerSecond] = React.useState(0)
-    const [lastKeyPressed, setLastKeyPressed] = React.useState("")
+    const [lastKeyPressed, setLastKeyPressed] = React.useState('')
     const appContext = useAppContext()
-	const keyboard = useKeyboard()
-	
+    const keyboard = useKeyboard()
+
     const matchLoaded = () => appContext.state.activeGame && appContext.state.activeGame.currentMatch
 
     const changeUpdatesPerSecond = (val: number) => {
@@ -66,45 +66,35 @@ export const ControlsBar: React.FC = () => {
 
     if (!appContext.state.activeGame || !appContext.state.activeGame.playable) return null
 
-	console.log("Keycode: " + keyboard.keyCode)
-	//console.log("Last Keycode: " + keyboard.lastPressed)
+    console.log('Keycode: ' + keyboard.keyCode)
+    //console.log("Last Keycode: " + keyboard.lastPressed)
 
-	if (keyboard.keyCode !== lastKeyPressed) { 
-		// If the competitor had manually pressed one of the buttons on the
-		// control bar before using a shortcut, unselect it; Most browsers have
-		// specific accessibility features that mess with these shortcuts.
-		if (keyboard.targetElem instanceof HTMLButtonElement)
-			keyboard.targetElem.blur()
+    if (keyboard.keyCode !== lastKeyPressed) {
+        // If the competitor had manually pressed one of the buttons on the
+        // control bar before using a shortcut, unselect it; Most browsers have
+        // specific accessibility features that mess with these shortcuts.
+        if (keyboard.targetElem instanceof HTMLButtonElement) keyboard.targetElem.blur()
 
-		// Warning: Moving this line of code more below causes a infinite loop
-		// due to changing updatesPerSecond recursively calling useEffect. Keep
-		// it here. 
-		setLastKeyPressed(keyboard.keyCode) 
+        // Warning: Moving this line of code more below causes a infinite loop
+        // due to changing updatesPerSecond recursively calling useEffect. Keep
+        // it here.
+        setLastKeyPressed(keyboard.keyCode)
 
-		if (keyboard.keyCode === "Space")
-			changeUpdatesPerSecond(updatesPerSecond === 0 ? 1 : 0);
+        if (keyboard.keyCode === 'Space') changeUpdatesPerSecond(updatesPerSecond === 0 ? 1 : 0)
 
-		if(updatesPerSecond === 0) { // Paused
-			if (keyboard.keyCode === "ArrowRight") 
-				stepTurn(1)
-			if (keyboard.keyCode === "ArrowLeft")
-				stepTurn(-1)
-		}
-		else { // Unpaused
-			if (keyboard.keyCode === "ArrowRight") 
-                multiplyUpdatesPerSecond(2)
-			if (keyboard.keyCode === "ArrowLeft")
-                multiplyUpdatesPerSecond(0.5)
-		}
+        if (updatesPerSecond === 0) {
+            // Paused
+            if (keyboard.keyCode === 'ArrowRight') stepTurn(1)
+            if (keyboard.keyCode === 'ArrowLeft') stepTurn(-1)
+        } else {
+            // Unpaused
+            if (keyboard.keyCode === 'ArrowRight') multiplyUpdatesPerSecond(2)
+            if (keyboard.keyCode === 'ArrowLeft') multiplyUpdatesPerSecond(0.5)
+        }
 
-
-		if (keyboard.keyCode === "Comma") 
-			jumpToTurn(0)
-		if (keyboard.keyCode === "Period") 
-			jumpToEnd()
-	}
-
-
+        if (keyboard.keyCode === 'Comma') jumpToTurn(0)
+        if (keyboard.keyCode === 'Period') jumpToEnd()
+    }
 
     return (
         <div className="flex bg-darkHighlight text-white absolute bottom-0 p-1.5 rounded-t-md z-10 gap-1.5">
