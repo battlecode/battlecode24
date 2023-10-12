@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 
 export function useKeyboard() {
-	const [key, setKey] = useState({ keyCode: "", repeat: false });
+	const [key, setKey] = useState<{ keyCode: string, repeat: boolean, targetElem: EventTarget | null }>({ keyCode: "", repeat: false, targetElem: null });
 
     useEffect(() => {
-		const pressedCallback = (e: KeyboardEvent) => setKey({ keyCode: e.code, repeat: e.repeat });
-		const releasedCallback = (e: KeyboardEvent) => setKey({ keyCode: "", repeat: e.repeat });
+		const pressedCallback = (e: KeyboardEvent) => setKey({ keyCode: e.code, repeat: e.repeat, targetElem: e.target });
+		const releasedCallback = (e: KeyboardEvent) => setKey({ keyCode: "", repeat: e.repeat, targetElem: e.target });
 
         window.addEventListener("keydown", pressedCallback);
         window.addEventListener("keyup", releasedCallback);

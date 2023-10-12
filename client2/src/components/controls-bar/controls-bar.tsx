@@ -70,6 +70,12 @@ export const ControlsBar: React.FC = () => {
 	//console.log("Last Keycode: " + keyboard.lastPressed)
 
 	if (keyboard.keyCode !== lastKeyPressed) { 
+		// If the competitor had manually pressed one of the buttons on the
+		// control bar before using a shortcut, unselect it; Most browsers have
+		// specific accessibility features that mess with these shortcuts.
+		if (keyboard.targetElem instanceof HTMLButtonElement)
+			keyboard.targetElem.blur()
+
 		// Warning: Moving this line of code more below causes a infinite loop
 		// due to changing updatesPerSecond recursively calling useEffect. Keep
 		// it here. 
