@@ -22,7 +22,7 @@ export default class Match {
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],
-        private readonly maxTurn: number,
+        public readonly maxTurn: number,
         public readonly winner: Team,
         public readonly map: StaticMap,
         firstBodies: Bodies,
@@ -69,12 +69,14 @@ export default class Match {
             firstStats
         )
 
-        const maxTurn = header.maxRounds()
+        // header.maxRounds() is always 2000
 
         const deltas = turns
         deltas.forEach((delta, i) =>
             assert(delta.roundID() === i + 1, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`)
         )
+
+        const maxTurn = deltas.length
 
         return new Match(game, deltas, maxTurn, winner, map, firstBodies, firstStats)
     }
@@ -145,6 +147,7 @@ export default class Match {
         if (computeFromSnapshot) updatingTurn = this.snapshots[snapshotIndex].copy()
 
         while (updatingTurn.turnNumber < turnNumber) {
+            console.log('Applying delta', updatingTurn.turnNumber)
             const delta = this.deltas[updatingTurn.turnNumber]
             const nextDelta =
                 updatingTurn.turnNumber < this.deltas.length - 1 ? this.deltas[updatingTurn.turnNumber + 1] : null

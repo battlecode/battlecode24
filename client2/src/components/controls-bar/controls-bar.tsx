@@ -45,6 +45,36 @@ export const ControlsBar: React.FC = () => {
         appContext.state.activeGame!.currentMatch!.roundSimulation()
     }
 
+    const nextMatch = () => {
+        if (!matchLoaded()) return
+        const game = appContext.state.activeGame!
+        const prevMatch = game.currentMatch!
+        const prevMatchIndex = game.matches.indexOf(prevMatch)
+        if (prevMatchIndex + 1 == game.matches.length) {
+            closeGame()
+            return
+        }
+
+        game.currentMatch = game.matches[prevMatchIndex + 1]
+        appContext.setState({
+            ...appContext.state,
+            activeGame: game,
+            activeMatch: game.currentMatch
+        })
+    }
+
+    const hasNextMatch = appContext.state.activeGame &&
+    appContext.state.activeGame!.currentMatch &&
+    appContext.state.activeGame!.matches.indexOf(appContext.state.activeGame!.currentMatch!) + 1 < appContext.state.activeGame!.matches.length;
+
+    const closeGame = () => {
+        appContext.setState({
+            ...appContext.state,
+            activeGame: undefined,
+            activeMatch: undefined
+        })
+    }
+
     React.useEffect(() => {
         if (!matchLoaded()) return
         if (updatesPerSecond == 0) return
@@ -106,6 +136,12 @@ export const ControlsBar: React.FC = () => {
                 onClick={() => jumpToTurn(0)}
             />
             <ControlsBarButton icon={<ControlIcons.GoEndIcon />} tooltip="Jump To End" onClick={jumpToEnd} />
+            {appContext.state.tournament && (
+                <>
+                    <ControlsBarButton icon={<ControlIcons.NextRound />} tooltip="Next Round" onClick={nextMatch} disabled={!hasNextMatch}/>
+                    <ControlsBarButton icon={<ControlIcons.CloseGame />} tooltip="Close Game" onClick={closeGame} />
+                </>
+            )}
         </div>
     )
 }
