@@ -95,6 +95,10 @@ public strictfp interface RobotController {
      */
     RobotType getType();
 
+    int getExperience(SkillType skill);
+
+    int getLevel(SkillType skill);
+
     /**
      * Returns this robot's current location.
      *
@@ -741,6 +745,30 @@ public strictfp interface RobotController {
      */
     boolean canBuildRobot(RobotType type, MapLocation loc);
 
+    // ***********************************
+    // *********** SPAWNING **************
+    // ***********************************
+
+    boolean canSpawn(MapLocation loc);
+
+    void spawn(MapLocation loc);
+
+    // ***********************************
+    // *********** BUILDING **************
+    // ***********************************
+
+    boolean canDig(MapLocation loc);
+
+    void dig(MapLocation loc);
+
+    boolean canFill(MapLocation loc);
+
+    void fill(MapLocation loc);
+
+    boolean canAquaform(BuildingType building, MapLocation loc);
+
+    void aquaform(BuildingType building, MapLocation loc);
+
     /**
      * Builds a robot of the given type in the given location.
      *
@@ -781,6 +809,10 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void attack(MapLocation loc) throws GameActionException;
+
+    boolean canHeal(MapLocation loc);
+
+    void heal(MapLocation loc);
 
     // ***********************************
     // ******** BOOSTERS METHODS *********
