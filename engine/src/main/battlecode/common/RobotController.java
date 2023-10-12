@@ -463,6 +463,8 @@ public strictfp interface RobotController {
      */
     MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
+    MapLocation[] senseFlagLocations(); 
+
     /**
      * Sense well at location.
      *
@@ -1007,6 +1009,15 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
+    boolean canPickupFlag(MapLocation loc);
+
+    void pickupFlag(MapLocation loc);
+
+    boolean canDropFlag(MapLocation loc);
+    
+    void dropFlag(MapLocation loc);
+
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
@@ -1053,6 +1064,10 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
+
+    boolean canBuyGlobal(GlobalUpgrade ug);
+
+    void buyGlobal(GlobalUpgrade ug);
 
     /**
      * Destroys the robot. 
