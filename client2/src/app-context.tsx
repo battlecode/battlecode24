@@ -1,11 +1,13 @@
 import React from 'react'
 import Game from './playback/Game'
 import Match from './playback/Match'
+import Tournament from './playback/Tournament';
 
 export interface AppState {
     queue: Game[]
     activeGame: Game | undefined
     activeMatch: Match | undefined
+    tournament?: Tournament
 }
 
 const DEFAULT_APP_STATE: AppState = {

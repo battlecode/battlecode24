@@ -1,5 +1,5 @@
 import { Listbox, Transition } from '@headlessui/react'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
@@ -14,6 +14,7 @@ import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
 import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
+import { TournamentPage } from './tournament/tournament'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -36,6 +37,8 @@ export const Sidebar: React.FC = () => {
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
+    const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
+
     const renderPage = () => {
         if (!open) return undefined
 
@@ -54,6 +57,8 @@ export const Sidebar: React.FC = () => {
                 return <MapEditorPage />
             case PageType.HELP:
                 return <HelpPage />
+            case PageType.TOURNAMENT:
+                return <TournamentPage />
         }
     }
 
@@ -90,6 +95,17 @@ export const Sidebar: React.FC = () => {
 
         if (keyboard.keyCode === 'Digit1') updatePage(getNextPage(page, true))
     }
+
+    const activeSidebarButtons = React.useMemo(() => {
+        if (tournamentMode) {
+            return [
+                { name: 'Game', page: PageType.GAME },
+                { name: 'Queue', page: PageType.QUEUE },
+                { name: 'Tournament', page: PageType.TOURNAMENT }
+            ]
+        }
+        return SIDEBAR_BUTTONS
+    }, [tournamentMode])
 
     return (
         <div
@@ -139,7 +155,7 @@ export const Sidebar: React.FC = () => {
                                     leaveTo="transform scale-95 opacity-0 max-h-0"
                                 >
                                     <Listbox.Options>
-                                        {SIDEBAR_BUTTONS.map((data) => {
+                                        {activeSidebarButtons.map((data) => {
                                             return (
                                                 <Listbox.Option
                                                     key={data.page}
