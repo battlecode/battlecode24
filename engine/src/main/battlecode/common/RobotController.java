@@ -95,6 +95,11 @@ public strictfp interface RobotController {
      */
     RobotType getType();
 
+    /**
+     * Returns this robot's experience points in the given skill
+     * @param skill The skill type
+     * @return This robot's experience level
+     */
     int getExperience(SkillType skill);
 
     int getLevel(SkillType skill);
