@@ -751,8 +751,21 @@ public strictfp interface RobotController {
     // *********** SPAWNING **************
     // ***********************************
 
+    /**
+     * Checks if the robot is allowed to spawn at the given location.
+     * A robot can spawn only inside the spawn zones.
+     * 
+     * @param loc the location to spawn the robot
+     * @return whether the robot can spawn at the location
+     */
     boolean canSpawn(MapLocation loc);
 
+    /**
+     * Spawns the robot at the given location. If spawning is not possible
+     * at this location, throws an error.
+     * 
+     * @param loc the location to spawn the robot
+     */
     void spawn(MapLocation loc);
 
     // ***********************************
