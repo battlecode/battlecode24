@@ -766,15 +766,59 @@ public strictfp interface RobotController {
 
     boolean canDig(MapLocation loc);
 
-    void dig(MapLocation loc);
+    /**
+     * Removes land and creates water in a location
+     * 
+     * @param loc Location to dig
+     * @throws GameActionException if loc is not dig-able
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void dig(MapLocation loc) throws GameActionException;;
 
+    /**
+     * Checks if a location can be filled
+     * 
+     * @param loc location to check if fillable
+     * 
+     * @return true if can fill in that location
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canFill(MapLocation loc);
 
-    void fill(MapLocation loc);
+    /**
+     * Fills a water location with land
+     * 
+     * @param loc location to fill
+     * @throws GameActionException if loc is not fill-able
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void fill(MapLocation loc) throws GameActionException;;
 
-    boolean canAquaform(BuildingType building, MapLocation loc);
+    /**
+     * Check if a location can be modified
+     * 
+     * @param building TrapType of trap to build at that location
+     * @param loc location to aquaform
+     * 
+     * @return true if trap can be built at loc
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean canAquaform(TrapType building, MapLocation loc);
 
-    void aquaform(BuildingType building, MapLocation loc);
+    /**
+     * Build a trap at a location
+     * 
+     * @param building type of trap to build
+     * @param loc location for trap type to build
+     * @throws GameActionException if trap cannot be built at loc
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void aquaform(TrapType building, MapLocation loc) throws GameActionException;;
 
     /**
      * Builds a robot of the given type in the given location.
