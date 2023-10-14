@@ -32,7 +32,6 @@ export const Sidebar: React.FC = () => {
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
-    const [lastKeyPressed, setLastKeyPressed] = React.useState('')
 
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
@@ -88,13 +87,11 @@ export const Sidebar: React.FC = () => {
         setExpanded(false)
     }, [page])
 
-    if (keyboard.keyCode !== lastKeyPressed) {
-        setLastKeyPressed(keyboard.keyCode)
-
+    React.useEffect(() => {
         if (keyboard.keyCode === 'Backquote') updatePage(getNextPage(page, false))
 
         if (keyboard.keyCode === 'Digit1') updatePage(getNextPage(page, true))
-    }
+    }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
         if (tournamentMode) {

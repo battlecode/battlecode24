@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import * as ControlIcons from '../../icons/controls'
 import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
 import { useKeyboard } from '../../util/keyboard'
 import { ControlsBarTimeline } from './controls-bar-timeline'
 import { MAX_SIMULATION_STEPS } from '../../playback/Match'
+import { EventType, useListenEvent } from '../../app-events'
+import { useForceUpdate } from '../../util/react-util'
 
 const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
 export const ControlsBar: React.FC = () => {
     const [updatesPerSecond, setUpdatesPerSecond] = React.useState(0)
-    const [lastKeyPressed, setLastKeyPressed] = React.useState('')
+    const [minimized, setMinimized] = React.useState(false)
     const appContext = useAppContext()
     const keyboard = useKeyboard()
 
@@ -66,9 +68,11 @@ export const ControlsBar: React.FC = () => {
         })
     }
 
-    const hasNextMatch = appContext.state.activeGame &&
-    appContext.state.activeGame!.currentMatch &&
-    appContext.state.activeGame!.matches.indexOf(appContext.state.activeGame!.currentMatch!) + 1 < appContext.state.activeGame!.matches.length;
+    const hasNextMatch =
+        appContext.state.activeGame &&
+        appContext.state.activeGame!.currentMatch &&
+        appContext.state.activeGame!.matches.indexOf(appContext.state.activeGame!.currentMatch!) + 1 <
+            appContext.state.activeGame!.matches.length
 
     const closeGame = () => {
         appContext.setState({
@@ -94,21 +98,15 @@ export const ControlsBar: React.FC = () => {
         }
     }, [updatesPerSecond, appContext.state.activeGame, appContext.state.activeGame?.currentMatch])
 
-    if (!appContext.state.activeGame || !appContext.state.activeGame.playable) return null
-
-
-    if (keyboard.keyCode !== lastKeyPressed) {
+    useEffect(() => {
         // If the competitor had manually pressed one of the buttons on the
         // control bar before using a shortcut, unselect it; Most browsers have
         // specific accessibility features that mess with these shortcuts.
         if (keyboard.targetElem instanceof HTMLButtonElement) keyboard.targetElem.blur()
 
-        // Warning: Moving this line of code more below causes a infinite loop
-        // due to changing updatesPerSecond recursively calling useEffect. Keep
-        // it here.
-        setLastKeyPressed(keyboard.keyCode)
-
         if (keyboard.keyCode === 'Space') changeUpdatesPerSecond(updatesPerSecond === 0 ? 1 : 0)
+
+        if (keyboard.keyCode === 'KeyC') setMinimized(!minimized)
 
         if (updatesPerSecond === 0) {
             // Paused
@@ -122,57 +120,106 @@ export const ControlsBar: React.FC = () => {
 
         if (keyboard.keyCode === 'Comma') jumpToTurn(0)
         if (keyboard.keyCode === 'Period') jumpToEnd()
-    }
+    }, [keyboard.keyCode])
+
+    const forceUpdate = useForceUpdate()
+    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+
+    if (!appContext.state.activeGame || !appContext.state.activeGame.playable) return null
+
+    const match = appContext.state.activeGame!.currentMatch!
+    const atStart = match.currentTurn.turnNumber == 0
+    const atEnd = match.currentTurn.turnNumber == match.maxTurn
 
     return (
-        <div className="flex bg-darkHighlight text-white absolute bottom-0 p-1.5 rounded-t-md z-10 gap-1.5">
-            <ControlsBarTimeline />
-            <ControlsBarButton
-                icon={<ControlIcons.ReverseIcon />}
-                tooltip="Reverse"
-                onClick={() => multiplyUpdatesPerSecond(-1)}
-            />
-            <ControlsBarButton
-                icon={<ControlIcons.SkipBackwardsIcon />}
-                tooltip={'Decrease Speed (' + updatesPerSecond + ' ups)'}
-                onClick={() => multiplyUpdatesPerSecond(0.5)}
-            />
-            <ControlsBarButton
-                icon={<ControlIcons.GoPreviousIcon />}
-                tooltip="Step Backwards"
-                onClick={() => stepTurn(-1)}
-            />
-            {updatesPerSecond == 0 ? (
+        <div className="flex absolute bottom-0 rounded-t-md z-10">
+            <button
+                title={minimized ? 'Open Controls (c)' : 'Close Controls (c)'}
+                className={
+                    (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
+                    ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold'
+                }
+                onClick={() => setMinimized(!minimized)}
+            >
+                {minimized ? '+' : '-'}
+            </button>
+            <div
+                className={
+                    (minimized ? 'opacity-10 pointer-events-none' : 'opacity-90') +
+                    ' flex bg-darkHighlight text-white p-1.5 rounded-t-md z-10 gap-1.5 relative'
+                }
+            >
+                <ControlsBarTimeline />
                 <ControlsBarButton
-                    icon={<ControlIcons.PlaybackPlayIcon />}
-                    tooltip="Play"
-                    onClick={() => changeUpdatesPerSecond(1)}
+                    icon={<ControlIcons.ReverseIcon />}
+                    tooltip="Reverse"
+                    onClick={() => multiplyUpdatesPerSecond(-1)}
                 />
-            ) : (
                 <ControlsBarButton
-                    icon={<ControlIcons.PlaybackPauseIcon />}
-                    tooltip="Pause"
-                    onClick={() => changeUpdatesPerSecond(0)}
+                    icon={<ControlIcons.SkipBackwardsIcon />}
+                    tooltip={'Decrease Speed (' + updatesPerSecond + ' ups)'}
+                    onClick={() => multiplyUpdatesPerSecond(0.5)}
+                    disabled={Math.abs(updatesPerSecond) <= 0.25}
                 />
-            )}
-            <ControlsBarButton icon={<ControlIcons.GoNextIcon />} tooltip="Next Turn" onClick={() => stepTurn(1)} />
-            <ControlsBarButton
-                icon={<ControlIcons.SkipForwardsIcon />}
-                tooltip={'Increase Speed (' + updatesPerSecond + ' ups)'}
-                onClick={() => multiplyUpdatesPerSecond(2)}
-            />
-            <ControlsBarButton
-                icon={<ControlIcons.PlaybackStopIcon />}
-                tooltip="Jump To Start"
-                onClick={() => jumpToTurn(0)}
-            />
-            <ControlsBarButton icon={<ControlIcons.GoEndIcon />} tooltip="Jump To End" onClick={jumpToEnd} />
-            {appContext.state.tournament && (
-                <>
-                    <ControlsBarButton icon={<ControlIcons.NextRound />} tooltip="Next Round" onClick={nextMatch} disabled={!hasNextMatch}/>
-                    <ControlsBarButton icon={<ControlIcons.CloseGame />} tooltip="Close Game" onClick={closeGame} />
-                </>
-            )}
+                <ControlsBarButton
+                    icon={<ControlIcons.GoPreviousIcon />}
+                    tooltip="Step Backwards"
+                    onClick={() => stepTurn(-1)}
+                    disabled={atStart}
+                />
+                {updatesPerSecond == 0 ? (
+                    <ControlsBarButton
+                        icon={<ControlIcons.PlaybackPlayIcon />}
+                        tooltip="Play"
+                        onClick={() => {
+                            setUpdatesPerSecond(1)
+                        }}
+                    />
+                ) : (
+                    <ControlsBarButton
+                        icon={<ControlIcons.PlaybackPauseIcon />}
+                        tooltip="Pause"
+                        onClick={() => {
+                            setUpdatesPerSecond(0)
+                        }}
+                    />
+                )}
+                <ControlsBarButton
+                    icon={<ControlIcons.GoNextIcon />}
+                    tooltip="Next Turn"
+                    onClick={() => stepTurn(1)}
+                    disabled={atEnd}
+                />
+                <ControlsBarButton
+                    icon={<ControlIcons.SkipForwardsIcon />}
+                    tooltip={'Increase Speed (' + updatesPerSecond + ' ups)'}
+                    onClick={() => multiplyUpdatesPerSecond(2)}
+                    disabled={Math.abs(updatesPerSecond) >= 64}
+                />
+                <ControlsBarButton
+                    icon={<ControlIcons.PlaybackStopIcon />}
+                    tooltip="Jump To Start"
+                    onClick={() => jumpToTurn(0)}
+                    disabled={atStart}
+                />
+                <ControlsBarButton
+                    icon={<ControlIcons.GoEndIcon />}
+                    tooltip="Jump To End"
+                    onClick={jumpToEnd}
+                    disabled={atEnd}
+                />
+                {appContext.state.tournament && (
+                    <>
+                        <ControlsBarButton
+                            icon={<ControlIcons.NextRound />}
+                            tooltip="Next Round"
+                            onClick={nextMatch}
+                            disabled={!hasNextMatch}
+                        />
+                        <ControlsBarButton icon={<ControlIcons.CloseGame />} tooltip="Close Game" onClick={closeGame} />
+                    </>
+                )}
+            </div>
         </div>
     )
 }

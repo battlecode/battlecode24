@@ -7,8 +7,9 @@ import { useListenEvent, EventType } from '../../app-events'
 
 export const ControlsBarTimeline: React.FC = () => {
     const appContext = useAppContext()
-    const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    // const forceUpdate = useForceUpdate()
+    const UPS = 'TODO'
+    // useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     let down = useRef(false)
     const timelineHover = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -26,7 +27,6 @@ export const ControlsBarTimeline: React.FC = () => {
     }
 
     const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
-    console.log(maxTurn)
 
     const timelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const rect = e.currentTarget.getBoundingClientRect()
@@ -49,8 +49,8 @@ export const ControlsBarTimeline: React.FC = () => {
     const turnPercentage = () => (1 - turn / maxTurn) * 100 + '%'
     return (
         <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
-            <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs select-none">
-                Turn: <b>{turn}</b>/{maxTurn}
+            <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
+                Turn: <b>{turn}</b>/{maxTurn} &nbsp; {UPS} UPS
             </p>
             <div className="absolute bg-white/10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
             <div
