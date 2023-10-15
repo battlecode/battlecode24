@@ -7,6 +7,7 @@ import { ControlsBarTimeline } from './controls-bar-timeline'
 import { MAX_SIMULATION_STEPS } from '../../playback/Match'
 import { EventType, useListenEvent } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
+import Tooltip from '../tooltip';
 
 const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
@@ -133,23 +134,24 @@ export const ControlsBar: React.FC = () => {
 
     return (
         <div className="flex absolute bottom-0 rounded-t-md z-10">
-            <button
-                title={minimized ? 'Open Controls (c)' : 'Close Controls (c)'}
-                className={
-                    (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
-                    ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold'
-                }
-                onClick={() => setMinimized(!minimized)}
-            >
-                {minimized ? '+' : '-'}
-            </button>
+            <Tooltip text={minimized ? 'Open Controls (c)' : 'Close Controls (c)'}>
+                <button
+                    className={
+                        (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
+                        ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold'
+                    }
+                    onClick={() => setMinimized(!minimized)}
+                >
+                    {minimized ? '+' : '-'}
+                </button>
+            </Tooltip>
             <div
                 className={
                     (minimized ? 'opacity-10 pointer-events-none' : 'opacity-90') +
                     ' flex bg-darkHighlight text-white p-1.5 rounded-t-md z-10 gap-1.5 relative'
                 }
             >
-                <ControlsBarTimeline />
+                <ControlsBarTimeline updatesPerSecond={updatesPerSecond} />
                 <ControlsBarButton
                     icon={<ControlIcons.ReverseIcon />}
                     tooltip="Reverse"
@@ -157,7 +159,7 @@ export const ControlsBar: React.FC = () => {
                 />
                 <ControlsBarButton
                     icon={<ControlIcons.SkipBackwardsIcon />}
-                    tooltip={'Decrease Speed (' + updatesPerSecond + ' ups)'}
+                    tooltip={'Decrease Speed'}
                     onClick={() => multiplyUpdatesPerSecond(0.5)}
                     disabled={Math.abs(updatesPerSecond) <= 0.25}
                 />
@@ -192,7 +194,7 @@ export const ControlsBar: React.FC = () => {
                 />
                 <ControlsBarButton
                     icon={<ControlIcons.SkipForwardsIcon />}
-                    tooltip={'Increase Speed (' + updatesPerSecond + ' ups)'}
+                    tooltip={'Increase Speed'}
                     onClick={() => multiplyUpdatesPerSecond(2)}
                     disabled={Math.abs(updatesPerSecond) >= 64}
                 />

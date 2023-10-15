@@ -5,10 +5,13 @@ import { useAppContext } from '../../app-context'
 import { useForceUpdate } from '../../util/react-util'
 import { useListenEvent, EventType } from '../../app-events'
 
-export const ControlsBarTimeline: React.FC = () => {
+interface TimelineProps {
+    updatesPerSecond: number
+}
+
+export const ControlsBarTimeline: React.FC<TimelineProps> = ({ updatesPerSecond }) => {
     const appContext = useAppContext()
     // const forceUpdate = useForceUpdate()
-    const UPS = 'TODO'
     // useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     let down = useRef(false)
@@ -50,7 +53,7 @@ export const ControlsBarTimeline: React.FC = () => {
     return (
         <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
             <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
-                Turn: <b>{turn}</b>/{maxTurn} &nbsp; {UPS} UPS
+                Turn: <b>{turn}</b>/{maxTurn} &nbsp; {updatesPerSecond} UPS
             </p>
             <div className="absolute bg-white/10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
             <div
