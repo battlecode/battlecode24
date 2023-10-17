@@ -16,9 +16,11 @@ const CANVAS_Z_INDICES = [0, 1, 2]
 
 export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
-    const appContext = useAppContext()
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
-    const game = appContext.state.activeGame
+
+    const appContext = useAppContext()
+    const { activeGame, activeMatch, updatesPerSecond } = appContext.state
+
     const [tooltipCanvas, setTooltipCanvas] = React.useState<HTMLCanvasElement>()
 
     const getCanvasContext = (ct: CanvasType) => {
@@ -35,8 +37,8 @@ export const GameRenderer: React.FC = () => {
         elem.getContext('2d')?.scale(cst.TILE_RESOLUTION, cst.TILE_RESOLUTION)
     }
 
-    // Since this is a callback, we need to ensure we recreate the function when the
-    // active match changes. Similarly, the event listener needs to be updated, which
+    // Since this is a callback, we need to ensure we recreate the function when
+    // dependent variables change. Similarly, the event listener needs to be updated, which
     // will happen automatically via dependencies
     const render = React.useCallback(() => {
         const match = appContext.state.activeMatch
@@ -47,8 +49,8 @@ export const GameRenderer: React.FC = () => {
         match.currentTurn.map.draw(ctx)
         match.currentTurn.bodies.draw(match.currentTurn, ctx)
         match.currentTurn.actions.draw(match.currentTurn, ctx)
-    }, [appContext.state.activeMatch])
-    useListenEvent(EventType.RENDER, render, [appContext.state.activeMatch])
+    }, [activeMatch])
+    useListenEvent(EventType.RENDER, render, [render])
 
     // We want to rerender if the match changes
     React.useEffect(() => {
@@ -69,18 +71,22 @@ export const GameRenderer: React.FC = () => {
             e.preventDefault()
         }
         if (canvases.current) {
-            Object.values(canvases.current).filter(c => c).forEach((canvas) => {
-                canvas!.addEventListener('contextmenu', noContextMenu)
-            })
+            Object.values(canvases.current)
+                .filter((c) => c)
+                .forEach((canvas) => {
+                    canvas!.addEventListener('contextmenu', noContextMenu)
+                })
         }
 
         publishEvent(EventType.RENDER, {})
 
         return () => {
             if (canvases.current) {
-                Object.values(canvases.current).filter(c => c).forEach((canvas) => {
-                    canvas!.removeEventListener('contextmenu', noContextMenu)
-                })
+                Object.values(canvases.current)
+                    .filter((c) => c)
+                    .forEach((canvas) => {
+                        canvas!.removeEventListener('contextmenu', noContextMenu)
+                    })
             }
         }
     }, [canvases, appContext.state.activeMatch])
@@ -88,7 +94,7 @@ export const GameRenderer: React.FC = () => {
     const eventToPoint = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const canvas = e.target as HTMLCanvasElement
         const rect = canvas.getBoundingClientRect()
-        const map = game!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
+        const map = activeGame!.currentMatch!.currentTurn!.map ?? assert.fail('map is null in onclick')
         let x = Math.floor(((e.clientX - rect.left) / rect.width) * map.width)
         let y = Math.floor((1 - (e.clientY - rect.top) / rect.height) * map.height)
         x = Math.max(0, Math.min(x, map.width - 1))
@@ -126,7 +132,7 @@ export const GameRenderer: React.FC = () => {
     // TODO: better support for strange aspect ratios, for now it is fine
     return (
         <div className="w-full h-screen flex items-center justify-center">
-            {!game || !game.currentMatch ? (
+            {!activeGame || !activeGame.currentMatch ? (
                 <p className="text-white text-center">Select a game from the queue</p>
             ) : (
                 <div ref={wrapperRef} className="relative w-full h-full">
