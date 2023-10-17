@@ -89,6 +89,13 @@ export default class Match {
     }
 
     /**
+     * Force a rerender by publishing a RENDER event
+     */
+    public rerender(): void {
+        publishEvent(EventType.RENDER, {})
+    }
+
+    /**
      * Change the simulation step to the current step + delta. If the step reaches the max simulation steps, the turn counter is increased accordingly
      */
     public stepSimulation(delta: number): void {
@@ -100,7 +107,7 @@ export default class Match {
 
         // jumpToTurn will call render if the turn number changes so we shouldn't
         // do it again
-        if (prevTurn == this.currentTurn.turnNumber) publishEvent(EventType.RENDER, {})
+        if (prevTurn == this.currentTurn.turnNumber) this.rerender()
     }
 
     /**
@@ -147,7 +154,6 @@ export default class Match {
         if (computeFromSnapshot) updatingTurn = this.snapshots[snapshotIndex].copy()
 
         while (updatingTurn.turnNumber < turnNumber) {
-            console.log('Applying delta', updatingTurn.turnNumber)
             const delta = this.deltas[updatingTurn.turnNumber]
             const nextDelta =
                 updatingTurn.turnNumber < this.deltas.length - 1 ? this.deltas[updatingTurn.turnNumber + 1] : null
@@ -168,6 +174,6 @@ export default class Match {
 
         this.currentTurn = updatingTurn
         publishEvent(EventType.TURN_PROGRESS, {})
-        publishEvent(EventType.RENDER, {})
+        this.rerender()
     }
 }

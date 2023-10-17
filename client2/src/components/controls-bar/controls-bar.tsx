@@ -86,6 +86,10 @@ export const ControlsBar: React.FC = () => {
     React.useEffect(() => {
         if (!matchLoaded) return
         if (appState.updatesPerSecond == 0) {
+            // Snap bots to their actual position when paused by rounding simulation
+            // to the true turn
+            appState.activeGame!.currentMatch!.roundSimulation()
+            appState.activeGame!.currentMatch!.rerender()
             return
         }
 
