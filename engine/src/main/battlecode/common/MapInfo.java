@@ -21,7 +21,7 @@ public class MapInfo {
 
     private boolean isWater;
 
-    private boolean hasBread;
+    private int breadAmount;
 
     // there should be some default TrapType (null) which represents no trap or an invisible trap
     private TrapType trapType;
@@ -34,14 +34,14 @@ public class MapInfo {
 
     // private int[][] turnsLeft; // [Team.A, Team.B][Booster, Destabilizer]
 
-    public MapInfo(MapLocation loc, /*boolean hasCloud,*/ boolean isPassable, boolean isWall, boolean isSpawnZone, boolean isWater, boolean hasBread, TrapType trapType/*, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft*/){
+    public MapInfo(MapLocation loc, /*boolean hasCloud,*/ boolean isPassable, boolean isWall, boolean isSpawnZone, boolean isWater, int breadAmount, TrapType trapType/*, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft*/){
         this.loc = loc;
         // this.hasCloud = hasCloud;
         this.isPassable = isPassable;
         this.isWall = isWall;
         this.isSpawnZone = isSpawnZone;
         this.isWater = isWater;
-        this.hasBread = hasBread;
+        this.breadAmount = breadAmount;
         this.trapType = trapType;
         // assert(cooldownMultipliers.length == 2);
         // this.cooldownMultipliers = cooldownMultipliers;
@@ -80,60 +80,56 @@ public class MapInfo {
      * Returns if this square is passable.
      * 
      * @return whether this square is passable
-     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isPassable() throws GameActionException {
-        return this.isPassable;
+    public boolean isPassable() {
+        return isPassable;
     }
 
     /**
      * Returns if this square is a wall.
      * 
      * @return whether this square is a wall
-     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isWall() throws GameActionException {
-        return this.isWall;
+    public boolean isWall() {
+        return isWall;
     }
 
     /**
      * Returns if this square is a spawn zone.
      * 
      * @return whether this square is a spawn zone
-     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isSpawnZone() throws GameActionException {
-        return this.isSpawnZone;
+    public boolean isSpawnZone() {
+        return isSpawnZone;
     }
 
     /**
      * Returns if this square has water in it.
      * 
      * @return whether this square has water
-     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isWater() throws GameActionException {
-        return this.isWater;
+    public boolean isWater() {
+        return isWater;
     }
 
     /**
-     * Returns if this square has bread on it.
+     * Returns the amount of bread on this square.
+     * If there is no bread on the square, returns 0.
      * 
-     * @return whether this square has bread
-     * @throws GameActionException if not valid
+     * @return the amount of bread on the square
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean hasBread() throws GameActionException {
-        return this.hasBread;
+    public int getBreadAmount() {
+        return breadAmount;
     }
 
     // /**
@@ -157,7 +153,7 @@ public class MapInfo {
      * 
      * @battlecode.doc.costlymethod
      */
-    public MapLocation getMapLocation(){
+    public MapLocation getMapLocation() {
         return loc;
     }
 
@@ -235,7 +231,7 @@ public class MapInfo {
                 (isWall ? ", wall" : "") +
                 (isWater ? ", water" : "") +
                 (isSpawnZone ? ", spawn zone" : "") +
-                (hasBread ? ", bread" : "") +
+                (breadAmount == 0 ? "" : ", bread=" + breadAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 // ", cooldownMultipliers=" +  Arrays.toString(this.cooldownMultipliers) +
                 // "current=" + this.currentDirection +
