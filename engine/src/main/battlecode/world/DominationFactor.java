@@ -7,31 +7,23 @@ public enum DominationFactor {
     /**
      * Win by capturing all opponent flags.
      */
-    CAPTURE, 
+    CAPTURE,
     /**
-     * Win by capturing 75+% of sky islands (early end).
+     * Win by capturing more flags (tiebreak 1).
      */
-    CONQUEST,
+    MORE_FLAG_CAPTURES, 
     /**
-     * Win by having more sky islands captured.
+     * Win by having a greater sum of levels across all units (including robots in jail) (tiebreak 2).
      */
-    MORE_SKY_ISLANDS,
+    SUM_LEVELS,
     /**
-     * Win by having placed more reality anchors in total (tiebreak 1).
+     * Win by killing more enemy units (tiebreak 3).
      */
-    MORE_REALITY_ANCHORS, 
+    MORE_ENEMIES_KILLED,
     /**
-     * Win by more elixir net worth (tiebreak 2).
+     * Win by picking up more flags (even if not retrieved successfully) (tiebreak 4).
      */
-    MORE_ELIXIR_NET_WORTH,
-    /**
-     * Win by more mana net worth (tiebreak 3).
-     */
-    MORE_MANA_NET_WORTH,
-    /**
-     * Win by more adamantium net worth (tiebreak 4).
-     */
-    MORE_ADAMANTIUM_NET_WORTH, 
+    MORE_FLAGS_PICKED, 
     /**
      * Win by coinflip (tiebreak 5).
      */
@@ -39,5 +31,5 @@ public enum DominationFactor {
     /**
      * Win because the other team resigns.
      */
-    RESIGNATION,
+    RESIGNATION;
 }

@@ -844,8 +844,25 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
+    /**
+     * Tests whether this robot can heal a nearby friendly unit.
+     * 
+     * Checks that this robot can heal and whether the friendly unit is within range. Also checks that 
+     * there are no cooldown turns remaining. 
+     * 
+     * @param loc location of friendly unit to be healed
+     * @return whether it is possible for this robot to heal
+     */
     boolean canHeal(MapLocation loc);
 
+    /** 
+     * Heal a nearby friendly unit.
+     * 
+     * @param loc the location of the friendly unit to be healed
+     * @throws GameActionException if conditions for healing are not satisfied
+     * 
+     * @battlecode.doc.costlymethod
+     */
     void heal(MapLocation loc);
 
     // ***********************************
@@ -1073,10 +1090,41 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
+    /**
+     * Tests whether robot can pickup a flag at the current location.
+     * 
+     * Checks that the flag is within range and that the flag is a friendly flag
+     * during setup phase or an enemy flag during attack phase. Also checks that
+     * there are no cooldown turns remaining. 
+     * 
+     * @param loc flag location
+     * @return whether it is possible to pick up the flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canPickupFlag(MapLocation loc);
 
+    /**
+     * Picks up flag at the specified location.
+     * 
+     * @throws GameActionException if conditions for picking up flags are not satisfied
+     * 
+     * @battlecode.doc.costlymethod
+     */
     void pickupFlag(MapLocation loc);
 
+    /**
+     * Tests whether robot can drop a flag at the current location.
+     * 
+     * Checks that the flag is within range (at most 1 cell away from robot) and 
+     * that the flag is a friendly flag during setup phase or an enemy flag during attack phase. 
+     * Also checks that there are no cooldown turns remaining. 
+     * 
+     * @param loc target flag location
+     * @return whether it is possible to pick up the flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canDropFlag(MapLocation loc);
     
     void dropFlag(MapLocation loc);
