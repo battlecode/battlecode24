@@ -88,20 +88,28 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     *
+     * Returns this robot's type.
+     * 
      * @return this robot's type
      *
      * @battlecode.doc.costlymethod
      */
     RobotType getType();
 
-/**
-     * Returns this robot's experience points in the given skill
-     * @param skill The skill type
-     * @return This robot's experience level
+    /**
+     * Returns the robot's current experience in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's experience in
+     * @return the robot's experience in the skill
      */
     int getExperience(SkillType skill);
 
+    /**
+     * Returns the robot's current level in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's level in
+     * @return the robot's level in the skill
+     */
     int getLevel(SkillType skill);
 
     /**
@@ -756,14 +764,33 @@ public strictfp interface RobotController {
     // *********** SPAWNING **************
     // ***********************************
 
+    /**
+     * Checks if the robot is allowed to spawn at the given location.
+     * A robot can spawn only inside the spawn zones.
+     * 
+     * @param loc the location to spawn the robot
+     * @return whether the robot can spawn at the location
+     */
     boolean canSpawn(MapLocation loc);
 
+    /**
+     * Spawns the robot at the given location. If spawning is not possible
+     * at this location, throws an error.
+     * 
+     * @param loc the location to spawn the robot
+     */
     void spawn(MapLocation loc);
 
     // ***********************************
     // *********** BUILDING **************
     // ***********************************
 
+    /**
+     * Checks if a robot can dig (create water) at the specified location.
+     * 
+     * @param loc the location to check
+     * @return true if a robot can dig, false otherwise
+     */
     boolean canDig(MapLocation loc);
 
     void dig(MapLocation loc);
