@@ -21,11 +21,11 @@ public enum DominationFactor {
      */
     MORE_ENEMIES_KILLED,
     /**
-     * Win by picking up more flags (even if not retrieved successfully) (tiebreak 3).
+     * Win by picking up more flags (even if not retrieved successfully) (tiebreak 4).
      */
     MORE_FLAGS_PICKED, 
     /**
-     * Win by coinflip (tiebreak 4).
+     * Win by coinflip (tiebreak 5).
      */
     WON_BY_DUBIOUS_REASONS,
     /**
