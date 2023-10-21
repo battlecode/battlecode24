@@ -95,7 +95,7 @@ public strictfp interface RobotController {
      */
     RobotType getType();
 
-    /**
+/**
      * Returns this robot's experience points in the given skill
      * @param skill The skill type
      * @return This robot's experience level
@@ -817,9 +817,9 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-    boolean canHeal(MapLocation loc);
+        boolean canHeal(MapLocation loc);
 
-    void heal(MapLocation loc);
+        void heal(MapLocation loc);
 
     // ***********************************
     // ******** BOOSTERS METHODS *********
@@ -1046,11 +1046,11 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
-    boolean canPickupFlag(MapLocation loc);
+        boolean canPickupFlag(MapLocation loc);
 
-    void pickupFlag(MapLocation loc);
+        void pickupFlag(MapLocation loc);
 
-    boolean canDropFlag(MapLocation loc);
+        boolean canDropFlag(MapLocation loc);
     
     void dropFlag(MapLocation loc);
 
