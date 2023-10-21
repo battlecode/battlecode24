@@ -770,7 +770,7 @@ public strictfp interface RobotController {
      * Removes land and creates water in a location
      * 
      * @param loc Location to dig
-     * @throws GameActionException if loc is not dig-able
+     * @throws GameActionException if loc is not diggable
      * 
      * @battlecode.doc.costlymethod
      */
@@ -791,7 +791,7 @@ public strictfp interface RobotController {
      * Fills a water location with land
      * 
      * @param loc location to fill
-     * @throws GameActionException if loc is not fill-able
+     * @throws GameActionException if loc is not fillable
      * 
      * @battlecode.doc.costlymethod
      */
