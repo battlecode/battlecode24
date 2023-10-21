@@ -6,6 +6,7 @@ import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import { Body } from '../../playback/Bodies'
 import { Vector } from '../../playback/Vector'
+import Match from '../../playback/Match'
 
 type TooltipProps = {
     mapCanvas: HTMLCanvasElement | undefined
@@ -67,15 +68,6 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         setClickedRobot(hoveredBody)
     }
 
-    function getLastSpots(body: Body, numSpot: number): Vector[] {
-        let spots: Vector[] = []
-        for (let i = 0; i < numSpot; i++) {
-
-        }
-
-        return spots;
-    }
-
     useEffect(() => {
         if (overlayCanvas) {
             overlayCanvas.addEventListener('click', onClick)
@@ -87,9 +79,27 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     const hoveredBody = getHoveredBody()
 
+    const drawBodyTooltip = (match: Match, ctx: CanvasRenderingContext2D, body: Body, isClicked: boolean) => {
+        ctx.beginPath();
+        ctx.strokeStyle = "blue"
+        ctx.lineWidth = 1 / match.map.width;
+        ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.actionRadius), 0, 360);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "red"
+        ctx.lineWidth = 1 / match.map.width;
+        ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.visionRadius), 0, 360);
+        ctx.stroke();
+
+        if (isClicked) {
+            console.log(body.prevSquares);
+        }
+    }
+
     // draw tooltip stuff to overlay canvas
     useEffect(() => {
-        const match = appContext.state.activeMatch
+        const match = appContext.state.activeMatch;
         if (!match || !overlayCanvas) return
 
         const ctx = overlayCanvas.getContext('2d')
@@ -98,21 +108,29 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
         if (hoveredBody) {
-            ctx.beginPath();
-            ctx.strokeStyle = "blue"
-            ctx.lineWidth = 1 / match.map.width;
-            ctx.arc(hoveredBody.pos.x + 0.5, match.map.height - (hoveredBody.pos.y + 0.5), Math.sqrt(hoveredBody.radius), 0, 360);
-            ctx.stroke();
+            drawBodyTooltip(match, ctx, hoveredBody, false);
         }
 
         if (clickedBody) {
-            ctx.beginPath();
-            ctx.strokeStyle = "blue"
-            ctx.lineWidth = 1 / match.map.width;
-            ctx.arc(clickedBody.pos.x + 0.5, match.map.height - (clickedBody.pos.y + 0.5), Math.sqrt(clickedBody.radius), 0, 360);
-            ctx.stroke();
+            drawBodyTooltip(match, ctx, clickedBody, true);
         }
     }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBody, tileLeft, tileTop]);
+
+    useEffect(() => {
+        setClickedRobot(undefined);
+    }, [appContext.state.activeMatch])
+
+    useListenEvent(EventType.TURN_PROGRESS, () => {
+        const match = appContext.state.activeMatch;
+        if (!match) return;
+
+        if (clickedBody) {
+            if (!match.currentTurn.bodies.hasId(clickedBody.id)) {
+                // TODO maybe show death info instead (i.e. turn it died on, last location, maybe even show it on the map)
+                setClickedRobot(undefined);
+            }
+        }
+    });
 
     if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
         return <Fragment />
@@ -131,7 +149,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
             {hoverVisible && (
                 <Fragment>
                     <div
-                        className="absolute border-2 border-black z-10 cursor-pointer"
+                        className="absolute border-2 border-black/70 z-10 cursor-pointer"
                         style={{
                             left: tileLeft + 'px',
                             top: tileTop + 'px',
@@ -148,7 +166,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
                                 top: tileTop + tileHeight * 0.75 + 'px',
                             }}
                         >
-                            {hoveredBody.onHoverInfo()}
+                            {hoveredBody.onHoverInfo().map((v) => <p>{v}</p>)}
                         </div>
                     )}
                 </Fragment>
@@ -161,7 +179,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
                         top: overlayCanvas.clientTop + tileHeight * 0.5 + 'px'
                     }}
                 >
-                    {clickedBody.onHoverInfo()}
+                    {clickedBody.onHoverInfo().map((v) => <p>{v}</p>)}
                 </div>
             )}
         </Fragment>

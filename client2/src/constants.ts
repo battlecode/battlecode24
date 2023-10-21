@@ -26,6 +26,7 @@ export const TEAM_NAMES = ['Red', 'Blue']
  * Renderer constants
  */
 export const TILE_RESOLUTION: number = 50 // Pixels per axis per tile
+export const TOOLTIP_PATH_LENGTH = 8;
 
 // currently just used to get the file names from the resource id
 export const RESOURCE_NAMES: Record<number, string> = {
