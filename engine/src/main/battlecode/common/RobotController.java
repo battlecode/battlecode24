@@ -1046,11 +1046,11 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
-        boolean canPickupFlag(MapLocation loc);
+    boolean canPickupFlag(MapLocation loc);
 
-        void pickupFlag(MapLocation loc);
+    void pickupFlag(MapLocation loc);
 
-        boolean canDropFlag(MapLocation loc);
+    boolean canDropFlag(MapLocation loc);
     
     void dropFlag(MapLocation loc);
 
