@@ -17,9 +17,16 @@ export const QueuePage: React.FC = () => {
         const reader = new FileReader()
         reader.onload = () => {
             const game = Game.loadFullGameRaw(reader.result as ArrayBuffer)
+            
+            // select the first match
+            const selectedMatch = game.matches[0]
+            game.currentMatch = selectedMatch
+
             context.setState({
                 ...context.state,
-                queue: queue.concat([game])
+                queue: queue.concat([game]),
+                activeGame: game,
+                activeMatch: selectedMatch
             })
         }
         reader.readAsArrayBuffer(file)

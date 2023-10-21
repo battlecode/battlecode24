@@ -18,9 +18,9 @@ export const ControlsBar: React.FC = () => {
 
     const matchLoaded = appState.activeGame && appState.activeGame.currentMatch
 
-    const changeUpdatesPerSecond = (val: number) => {
+    const changePaused = (paused: boolean) => {
         if (!matchLoaded) return
-        setAppState({ ...appState, updatesPerSecond: val })
+        setAppState({ ...appState, paused: paused, updatesPerSecond: (appState.updatesPerSecond == 0 && !paused) ? 1 : appState.updatesPerSecond })
     }
 
     const multiplyUpdatesPerSecond = (multiplier: number) => {
@@ -85,7 +85,7 @@ export const ControlsBar: React.FC = () => {
 
     React.useEffect(() => {
         if (!matchLoaded) return
-        if (appState.updatesPerSecond == 0) {
+        if (appState.paused) {
             // Snap bots to their actual position when paused by rounding simulation
             // to the true turn
             appState.activeGame!.currentMatch!.roundSimulation()
@@ -103,7 +103,7 @@ export const ControlsBar: React.FC = () => {
         return () => {
             clearInterval(stepInterval)
         }
-    }, [appState.updatesPerSecond, appState.activeGame, appState.activeGame?.currentMatch])
+    }, [appState.updatesPerSecond, appState.activeGame, appState.activeGame?.currentMatch, appState.paused])
 
     useEffect(() => {
         // If the competitor had manually pressed one of the buttons on the
@@ -111,7 +111,7 @@ export const ControlsBar: React.FC = () => {
         // specific accessibility features that mess with these shortcuts.
         if (keyboard.targetElem instanceof HTMLButtonElement) keyboard.targetElem.blur()
 
-        if (keyboard.keyCode === 'Space') changeUpdatesPerSecond(appState.updatesPerSecond === 0 ? 1 : 0)
+        if (keyboard.keyCode === 'Space') changePaused(!appState.paused)
 
         if (keyboard.keyCode === 'KeyC') setMinimized(!minimized)
 
@@ -180,7 +180,7 @@ export const ControlsBar: React.FC = () => {
                         icon={<ControlIcons.PlaybackPlayIcon />}
                         tooltip="Play"
                         onClick={() => {
-                            changeUpdatesPerSecond(1)
+                            changePaused(false)
                         }}
                     />
                 ) : (
@@ -188,7 +188,7 @@ export const ControlsBar: React.FC = () => {
                         icon={<ControlIcons.PlaybackPauseIcon />}
                         tooltip="Pause"
                         onClick={() => {
-                            changeUpdatesPerSecond(0)
+                            changePaused(true)
                         }}
                     />
                 )}
