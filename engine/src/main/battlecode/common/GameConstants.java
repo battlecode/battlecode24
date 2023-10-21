@@ -158,6 +158,10 @@ public class GameConstants {
     /** Constants for well rates. */
     public static final int WELL_STANDARD_RATE = 1;
     public static final int WELL_ACCELERATED_RATE = 3;
+
+    /** Constants for flags */
+    public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
+    public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
