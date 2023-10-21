@@ -49,7 +49,7 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
             <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
             <ResponsiveContainer aspect={1.5} width="100%" className="text-xs">
                 <LineChart
-                    data={props.active ? getChartData(appContext, props.property) : []}
+                    data={props.active ? [] : []}
                     margin={{
                         top: 10,
                         right: 25,
