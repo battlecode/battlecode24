@@ -11,6 +11,12 @@ export const QueuePage: React.FC = () => {
     const inputRef = React.useRef<HTMLInputElement | null>()
     const queue = context.state.queue
 
+    const keyboard = useKeyboard()
+
+    React.useEffect(() => {
+        if (keyboard.keyCode === 'ShiftLeft') inputRef.current?.click()
+    }, [keyboard.keyCode])
+
     const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) return
         const file = e.target.files[0]
