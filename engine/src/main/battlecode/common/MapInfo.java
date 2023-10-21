@@ -15,6 +15,10 @@ public class MapInfo {
 
     private boolean isPassable;
 
+    private boolean isSpawnZone;
+
+    private boolean hasWater;
+
     private double[] cooldownMultipliers;
 
     private Direction currentDirection;
@@ -23,10 +27,12 @@ public class MapInfo {
 
     private int[][] turnsLeft; // [Team.A, Team.B][Booster, Destabilizer]
 
-    public MapInfo(MapLocation loc, boolean hasCloud, boolean isPassable, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft){
+    public MapInfo(MapLocation loc, boolean hasCloud, boolean isPassable, boolean isSpawnZone, boolean hasWater, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft){
         this.loc = loc;
         this.hasCloud = hasCloud;
         this.isPassable = isPassable;
+        this.isSpawnZone = isSpawnZone;
+        this.hasWater = hasWater;
         assert(cooldownMultipliers.length == 2);
         this.cooldownMultipliers = cooldownMultipliers;
         this.currentDirection = curDirection;
@@ -68,6 +74,30 @@ public class MapInfo {
      */
     public boolean isPassable() throws GameActionException {
         return this.isPassable;
+    }
+
+    /**
+     * Returns if this square is a spawn zone.
+     * 
+     * @return whether this square is a spawn zone
+     * @throws GameActionException if not valid
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isSpawnZone() throws GameActionException {
+        return this.isSpawnZone;
+    }
+
+    /**
+     * Returns if this square has water in it.
+     * 
+     * @return whether this square has water
+     * @throws GameActionException if not valid
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean hasWater() throws GameActionException {
+        return this.hasWater;
     }
 
     /**

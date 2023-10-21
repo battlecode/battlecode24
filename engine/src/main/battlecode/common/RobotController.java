@@ -88,15 +88,28 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     *
+     * Returns this robot's type.
+     * 
      * @return this robot's type
      *
      * @battlecode.doc.costlymethod
      */
     RobotType getType();
 
+    /**
+     * Returns the robot's current experience in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's experience in
+     * @return the robot's experience in the skill
+     */
     int getExperience(SkillType skill);
 
+    /**
+     * Returns the robot's current level in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's level in
+     * @return the robot's level in the skill
+     */
     int getLevel(SkillType skill);
 
     /**
@@ -772,6 +785,12 @@ public strictfp interface RobotController {
     // *********** BUILDING **************
     // ***********************************
 
+    /**
+     * Checks if a robot can dig (create water) at the specified location.
+     * 
+     * @param loc the location to check
+     * @return true if a robot can dig, false otherwise
+     */
     boolean canDig(MapLocation loc);
 
     void dig(MapLocation loc);
