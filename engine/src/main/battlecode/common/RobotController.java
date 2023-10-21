@@ -1101,7 +1101,9 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
+    /*
+     * 
+     */
     boolean canBuyGlobal(GlobalUpgrade ug);
 
     void buyGlobal(GlobalUpgrade ug);
