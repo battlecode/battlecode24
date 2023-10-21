@@ -29,6 +29,7 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private boolean[] walls;
     private boolean[] clouds;
+    private ArrayList<Trap>[] trapTriggers;
     private ArrayList<Integer>[][][] boosts;
     private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
@@ -120,7 +121,10 @@ public strictfp class GameWorld {
                 this.wells[i] = new Well(loc, rType);
             }
         }
-
+        this.trapTriggers = new ArrayList[gm.getWidth()*gm.getHeight()];
+        for (int i = 0; i < trapTriggers.length; i++){
+            this.trapTriggers[i] = new ArrayList<Trap>();
+        }
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
@@ -321,9 +325,32 @@ public strictfp class GameWorld {
     }
 
     // ***********************************
-    // ****** BOOST METHODS **************
+    // ****** TRAP METHODS **************
     // ***********************************
     
+    public void placeTrap(MapLocation loc, Trap trap){
+        //should we be able to trigger traps we are diagonally next to?
+        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
+            this.trapTriggers[locationToIndex(adjLoc)].add(trap);
+        }
+    }
+
+    public void triggerTrap(Trap trap){
+        MapLocation loc = trap.getLocation();
+        switch(trap.getType()){
+            //TODO: fill in
+            case TrapType.STUN:
+                break;
+            case TrapType.EXPLODE:
+                break;
+            case TrapType.WATER:
+                break;
+        }
+        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
+            this.trapTriggers[locationToIndex(adjLoc)].remove(trap);
+        }
+    }
+
     public void addBoost(MapLocation center, Team team){
         int lastRound = getCurrentRound() + GameConstants.BOOSTER_DURATION;
         int radiusSquared = GameConstants.BOOSTER_RADIUS_SQUARED;
