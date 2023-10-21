@@ -817,9 +817,9 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-        boolean canHeal(MapLocation loc);
+    boolean canHeal(MapLocation loc);
 
-        void heal(MapLocation loc);
+    void heal(MapLocation loc);
 
     // ***********************************
     // ******** BOOSTERS METHODS *********
