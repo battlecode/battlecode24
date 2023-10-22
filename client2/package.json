@@ -21,8 +21,10 @@
   "homepage": "https://github.com/battlecode/battlecode23#readme",
   "dependencies": {
     "@headlessui/react": "^1.7.14",
+    "@types/d3": "^7.4.2",
     "assert": "^2.0.0",
     "battlecode-schema": "file:../schema",
+    "d3": "^7.8.5",
     "pako": "^2.1.0",
     "prettier": "^3.0.3",
     "process": "^0.11.10",
