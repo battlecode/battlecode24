@@ -128,8 +128,8 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
 
             const { x, y, width: w, height: h } = (text.node() as SVGSVGElement).getBBox()
 
-			// If the data point is low, swap the tooltip render to be on the
-			// top. "d" attr in path is SVG code to draw the tooltip icon
+            // If the data point is low, swap the tooltip render to be on the
+            // top. "d" attr in path is SVG code to draw the tooltip icon
             if (yScale(Math.max(data[i].blue, data[i].red)) / height > 0.7) {
                 text.attr('transform', `translate(${-w / 2},${y - 15 - 15})`)
                 path.attr('d', `M${-w / 2 - 10},-5H-5l5,5l5,-5H${w / 2 + 10}v${-h - 20}h-${w + 20}z`)
