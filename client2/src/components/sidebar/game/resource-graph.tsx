@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
+import { D3LineChart } from './d3-line-chart'
 import assert from 'assert'
 
 interface Props {
@@ -48,39 +49,14 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
         <div className="mt-2 px-2 w-full">
             <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
             <ResponsiveContainer aspect={1.5} width="100%" className="text-xs">
-                <LineChart
-                    data={props.active ? [] : []}
-                    margin={{
-                        top: 10,
-                        right: 25,
-                        left: -25,
-                        bottom: 0
-                    }}
-                    className="mx-auto"
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="round" />
-                    <YAxis />
-                    <Tooltip labelFormatter={(label) => 'Round ' + label} separator=": " />
-                    <Line
-                        type="linear"
-                        name={'Red ' + props.propertyDisplayName}
-                        dataKey="red"
-                        stroke="#ff9194"
-                        dot={false}
-                        activeDot={{ r: 4 }}
-                        isAnimationActive={false}
+                <div className="App">
+                    <D3LineChart
+                        data={getChartData(appContext, props.property)}
+                        width={300 + 40} // Add 40 so that tooltip is visible outside of SVG container
+                        height={300}
+                        margin={{ top: 20, right: 20 + 20, bottom: 30, left: 40 + 20 }}
                     />
-                    <Line
-                        type="linear"
-                        name={'Blue ' + props.propertyDisplayName}
-                        dataKey="blue"
-                        stroke="#04a2d9"
-                        dot={false}
-                        activeDot={{ r: 4 }}
-                        isAnimationActive={false}
-                    />
-                </LineChart>
+                </div>
             </ResponsiveContainer>
         </div>
     )

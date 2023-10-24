@@ -90,6 +90,8 @@ export const Sidebar: React.FC = () => {
     React.useEffect(() => {
         if (keyboard.keyCode === 'Backquote') updatePage(getNextPage(page, false))
 
+        if (keyboard.keyCode === 'ShiftLeft') updatePage(PageType.QUEUE)
+
         if (keyboard.keyCode === 'Digit1') updatePage(getNextPage(page, true))
     }, [keyboard.keyCode])
 
