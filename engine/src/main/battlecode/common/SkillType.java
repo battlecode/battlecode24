@@ -58,7 +58,7 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getCooldown(int level){
-        int[] attackCooldown = {0, -1, -2, -3, -3, -6, -10};
+        int[] attackCooldown = {0, -5, -10, -15, -20, -30, -40};
         int[] buildCooldown = {0, -5, -10, -15, -20, -30, -50};
         int[] healCooldown = {0, -5, -10, -15, -15, -15, -25};
         switch(this){
