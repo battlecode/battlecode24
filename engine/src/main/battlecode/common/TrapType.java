@@ -14,21 +14,21 @@ public enum TrapType {
      * 
      * @battlecode.doc.traptype
      */
-    EXPLOSIVE (25, 13, 9, 75, 50, 0, 0, 1),
+    EXPLOSIVE (25, 13, 9, 75, 50, false, 0, true),
 
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
      * 
      * @battlecode.doc.traptype
      */
-    WATER (10, 9, 0, 0, 0, 1, 0, 1),
+    WATER (10, 9, 0, 0, 0, true, 0, true),
 
     /**
      * When an opponent enters, all opponent robots movement and action cooldowns are set to 40.
      * 
      * @battlecode.doc.traptype
      */
-    STUN (10, 13, 0, 0, 0, 0, 40, 1);
+    STUN (10, 13, 0, 0, 0, false, 40, true);
 
     /**
      * Bread cost of each trap
