@@ -74,7 +74,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
         this.health = this.type.health;
 
-        this.buildExp = 0
+        this.buildExp = 0;
         this.healExp = 0;
         this.attackExp = 0;
 
