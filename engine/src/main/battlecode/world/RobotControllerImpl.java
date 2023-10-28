@@ -654,6 +654,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
         // TODO implement assertCanFill
+        assertCanActLocation(loc);
     }
 
     @Override
@@ -666,6 +667,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
         // TODO implement assertCanDig
+        assertCanActLocation(loc);
     }
 
     @Override
