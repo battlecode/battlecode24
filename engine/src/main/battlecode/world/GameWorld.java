@@ -42,6 +42,11 @@ public strictfp class GameWorld {
     //list of currents, center direction if there is no current in the tile
     private Direction[] currents;
     
+    //List of all flags, not indexed by location
+    private Flag[] allFlags;
+    //List of flags on each tile, indexed by location
+    private ArrayList<Flag>[] placedFlags;
+
     private static final int BOOST_INDEX = 0;
     private static final int DESTABILIZE_INDEX = 1;
     private static final int ANCHOR_INDEX = 2;
@@ -552,7 +557,9 @@ public strictfp class GameWorld {
     // *********************************
 
     public void processBeginningOfRound() {
-        // Increment round counter
+        //Update flag broadcast locations after a certain number of rounds
+        if(currentRound % GameConstants.FLAG_BROADCAST_UPDATE_INTERVAL == 0) updateFlagBroadcastLocations();
+
         currentRound++;
 
         // Process beginning of each robot's round
@@ -560,6 +567,17 @@ public strictfp class GameWorld {
             robot.processBeginningOfRound();
             return true;
         });
+    }
+
+    private void updateFlagBroadcastLocations() {
+        for(Flag flag : allFlags) {
+            updateFlagBroadcastLocation(flag);
+        }
+    }
+
+    private void updateFlagBroadcastLocation(Flag flag) {
+        MapLocation[] nearLocs = getAllLocationsWithinRadiusSquared(flag.getLoc(), GameConstants.FLAG_BROADCAST_NOISE_RADIUS);
+        flag.setBroadcastLoc(nearLocs[rand.nextInt(nearLocs.length)]);
     }
 
     public void setWinner(Team t, DominationFactor d) {

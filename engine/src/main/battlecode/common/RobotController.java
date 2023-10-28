@@ -88,7 +88,8 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     *
+     * Returns this robot's type.
+     * 
      * @return this robot's type
      *
      * @battlecode.doc.costlymethod
@@ -96,12 +97,19 @@ public strictfp interface RobotController {
     RobotType getType();
 
     /**
-     * Returns this robot's experience points in the given skill
-     * @param skill The skill type
-     * @return This robot's experience level
+     * Returns the robot's current experience in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's experience in
+     * @return the robot's experience in the skill
      */
     int getExperience(SkillType skill);
 
+    /**
+     * Returns the robot's current level in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's level in
+     * @return the robot's level in the skill
+     */
     int getLevel(SkillType skill);
 
     /**
@@ -756,25 +764,88 @@ public strictfp interface RobotController {
     // *********** SPAWNING **************
     // ***********************************
 
+    /**
+     * Checks if the robot is allowed to spawn at the given location.
+     * A robot can spawn only inside the spawn zones.
+     * 
+     * @param loc the location to spawn the robot
+     * @return whether the robot can spawn at the location
+     */
     boolean canSpawn(MapLocation loc);
 
+    /**
+     * Spawns the robot at the given location. If spawning is not possible
+     * at this location, throws an error.
+     * 
+     * @param loc the location to spawn the robot
+     */
     void spawn(MapLocation loc);
 
     // ***********************************
     // *********** BUILDING **************
     // ***********************************
 
+    /**
+     * Checks if a robot can dig (create water) at the specified location.
+     * 
+     * @param loc the location to check
+     * @return true if a robot can dig, false otherwise
+     */
     boolean canDig(MapLocation loc);
 
-    void dig(MapLocation loc);
+    /**
+     * Removes land and creates water in a location
+     * 
+     * @param loc Location to dig
+     * @throws GameActionException if loc is not diggable
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void dig(MapLocation loc) throws GameActionException;;
 
+    /**
+     * Checks if a location can be filled
+     * 
+     * @param loc location to check if fillable
+     * 
+     * @return true if can fill in that location
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canFill(MapLocation loc);
 
-    void fill(MapLocation loc);
+    /**
+     * Fills a water location with land
+     * 
+     * @param loc location to fill
+     * @throws GameActionException if loc is not fillable
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void fill(MapLocation loc) throws GameActionException;;
 
-    boolean canAquaform(BuildingType building, MapLocation loc);
+    /**
+     * Check if a location can be modified
+     * 
+     * @param building TrapType of trap to build at that location
+     * @param loc location to aquaform
+     * 
+     * @return true if trap can be built at loc
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean canAquaform(TrapType building, MapLocation loc);
 
-    void aquaform(BuildingType building, MapLocation loc);
+    /**
+     * Build a trap at a location
+     * 
+     * @param building type of trap to build
+     * @param loc location for trap type to build
+     * @throws GameActionException if trap cannot be built at loc
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void aquaform(TrapType building, MapLocation loc) throws GameActionException;;
 
     /**
      * Builds a robot of the given type in the given location.
@@ -817,8 +888,25 @@ public strictfp interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
+    /**
+     * Tests whether this robot can heal a nearby friendly unit.
+     * 
+     * Checks that this robot can heal and whether the friendly unit is within range. Also checks that 
+     * there are no cooldown turns remaining. 
+     * 
+     * @param loc location of friendly unit to be healed
+     * @return whether it is possible for this robot to heal
+     */
     boolean canHeal(MapLocation loc);
 
+    /** 
+     * Heal a nearby friendly unit.
+     * 
+     * @param loc the location of the friendly unit to be healed
+     * @throws GameActionException if conditions for healing are not satisfied
+     * 
+     * @battlecode.doc.costlymethod
+     */
     void heal(MapLocation loc);
 
     // ***********************************
@@ -1046,10 +1134,41 @@ public strictfp interface RobotController {
      */
     void placeAnchor() throws GameActionException;
 
+    /**
+     * Tests whether robot can pickup a flag at the current location.
+     * 
+     * Checks that the flag is within range and that the flag is a friendly flag
+     * during setup phase or an enemy flag during attack phase. Also checks that
+     * there are no cooldown turns remaining. 
+     * 
+     * @param loc flag location
+     * @return whether it is possible to pick up the flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canPickupFlag(MapLocation loc);
 
+    /**
+     * Picks up flag at the specified location.
+     * 
+     * @throws GameActionException if conditions for picking up flags are not satisfied
+     * 
+     * @battlecode.doc.costlymethod
+     */
     void pickupFlag(MapLocation loc);
 
+    /**
+     * Tests whether robot can drop a flag at the current location.
+     * 
+     * Checks that the flag is within range (at most 1 cell away from robot) and 
+     * that the flag is a friendly flag during setup phase or an enemy flag during attack phase. 
+     * Also checks that there are no cooldown turns remaining. 
+     * 
+     * @param loc target flag location
+     * @return whether it is possible to pick up the flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
     boolean canDropFlag(MapLocation loc);
     
     void dropFlag(MapLocation loc);

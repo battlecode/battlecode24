@@ -585,6 +585,98 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
+    // ****** MAP LOCATION METHODS *******
+    // ***********************************
+
+    private void assertCanDropFlag(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanDropFlag
+    }
+
+    @Override
+    public boolean canDropFlag(MapLocation loc) {
+        try {
+            assertCanDropFlag(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    private void assertCanPickUpFlag(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanPickUpFlag
+    }
+
+    @Override
+    public boolean canPickupFlag(MapLocation loc) {
+        try {
+            assertCanPickUpFlag(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    private void assertCanSpawn(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanSpawn
+    }
+
+    @Override
+    public boolean canSpawn(MapLocation loc) {
+        try {
+            assertCanSpawn(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    private void assertCanHeal(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanHeal
+    }
+
+    @Override
+    public boolean canHeal(MapLocation loc) {
+        try {
+            assertCanHeal(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    // ***********************************
+    // ****** AQUAFORMING METHODS ********
+    // ***********************************
+
+    private void assertCanAquaform(BuildingType bt, MapLocation loc) throws GameActionException {
+        // TODO implement assertCanAquaform
+    }
+
+    @Override
+    public boolean canAquaform(BuildingType bt, MapLocation loc) {
+        try {
+            assertCanAquaform(bt, loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    private void assertCanFill(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanFill
+    }
+
+    @Override
+    public boolean canFill(MapLocation loc) {
+        try {
+            assertCanFill(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    private void assertCanDig(MapLocation loc) throws GameActionException {
+        // TODO implement assertCanDig
+    }
+
+    @Override
+    public boolean canDig(MapLocation loc) {
+        try {
+            assertCanDig(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
 
