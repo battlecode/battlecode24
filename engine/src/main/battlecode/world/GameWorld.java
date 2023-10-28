@@ -313,6 +313,10 @@ public strictfp class GameWorld {
         placedFlags[locationToIndex(loc)].remove(flag);
     }
 
+    public boolean hasFlag(MapLocation loc) {
+        return placedFlags[locationToIndex(loc)].size() > 0;
+    }
+
     /**
      * Helper method that converts a location into an index.
      * 
