@@ -180,6 +180,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.flag = flag;
     }
 
+    public boolean hasFlag() {
+        return flag != null;
+    }
+
     public void removeFlag() {
         this.flag = null;
     }
