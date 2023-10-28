@@ -14,6 +14,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private final RobotControllerImpl controller;
     protected final GameWorld gameWorld;
 
+    private buildExp;
+    private healExp;
+    private attackExp;
+
+    private buildLevel;
+    private healLevel;
+    private attackLevel;
+
     private final int ID;
     private Team team;
     private RobotType type;
@@ -50,8 +58,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
         this.ID = id;
         this.team = team;
-        this.type = type;
         this.location = loc;
+        
         switch (this.type) {
             case HEADQUARTERS:
                 this.inventory = new Inventory();
@@ -65,6 +73,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 break;
         }
         this.health = this.type.health;
+
+        this.buildExp = 0
+        this.healExp = 0;
+        this.attackExp = 0;
+
+        this.buildLevel = 0;
+        this.healLevel = 0;
+        this.attackLevel = 0;
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -109,6 +125,30 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public int getHealth() {
         return health;
+    }
+
+    public int getBuildLevel(){
+        return buildLevel;
+    }
+
+    public int getHealLevel(){
+        return healLevel;
+    }
+
+    public int getAttackLevel(){
+        return attackLevel;
+    }
+
+    public int getBuildExp(){
+        return buildExp;
+    }
+
+    public int getHealExp(){
+        return healExp;
+    }
+
+    public int getAttackExp(){
+        return attackExp;
     }
 
     public int getResource(ResourceType r) {
