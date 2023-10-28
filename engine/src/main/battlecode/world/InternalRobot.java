@@ -184,6 +184,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return flag != null;
     }
 
+    public Flag getFlag() {
+        return flag;
+    }
+
     public void removeFlag() {
         this.flag = null;
     }
