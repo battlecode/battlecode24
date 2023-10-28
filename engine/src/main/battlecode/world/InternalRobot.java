@@ -14,13 +14,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private final RobotControllerImpl controller;
     protected final GameWorld gameWorld;
 
-    private buildExp;
-    private healExp;
-    private attackExp;
+    private int buildExp;
+    private int healExp;
+    private int attackExp;
 
-    private buildLevel;
-    private healLevel;
-    private attackLevel;
+    private int buildLevel;
+    private int healLevel;
+    private int attackLevel;
 
     private final int ID;
     private Team team;
