@@ -35,7 +35,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * An rng based on the world seed.
      */
     private static Random random;
-
+    
     /**
      * Create a new RobotControllerImpl
      *
@@ -1105,6 +1105,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, -1*(headquarters.getID()*2 + anchor.getAccelerationIndex()) - 1);
     }
+
+ 
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 

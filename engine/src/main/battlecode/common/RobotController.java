@@ -473,11 +473,11 @@ public strictfp interface RobotController {
     MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
-     * Returns the location of all nearby flags that are visible to the duck. 
-     * If radiusSquared is greater than the duck's vision radius, use the 
-     * duck's vision radius instead.
+     * Returns the location of all nearby flags that are visible to the robot. 
+     * If radiusSquared is greater than the robot's vision radius, use the 
+     * robot's vision radius instead.
      * 
-     * @param center the center of the search area (duck's current position)
+     * @param center the center of the search area (robot's current position)
      * @param radiusSquared squared radius of all locations to be returned
      * @return all locations containing flags
      * 

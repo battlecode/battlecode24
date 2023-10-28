@@ -20,7 +20,7 @@ public class TeamInfo {
     private int[] breadCounts; 
     private int[][] sharedArrays; 
     private int[] totalFlagsCaptured;
-    private int[] currentFlagsCaptured;
+    //private int[] currentFlagsCaptured;
 
     // for reporting round statistics to client
     //private int[] oldElixirCounts;
@@ -39,7 +39,7 @@ public class TeamInfo {
         this.breadCounts = new int[2];
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
         this.totalFlagsCaptured = new int[2];
-        this.currentFlagsCaptured = new int[2];
+        //this.currentFlagsCaptured = new int[2];
         //this.oldElixirCounts = new int[2];
         //this.oldManaCounts = new int[2];
         this.oldBreadCounts = new int[2];
@@ -182,11 +182,11 @@ public class TeamInfo {
 
     private void checkWin (Team team){ 
         int islandsOwned = numIslandsOccupied(team);
-        if (((float)islandsOwned)/gameWorld.getAllIslands().length < GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
+        if (this.totalFlagsCaptured[team.ordinal()] < GameConstants.NUMBER_FLAGS) {
             throw new InternalError("Reporting incorrect win");
         }
         this.gameWorld.gameStats.setWinner(team);
-        this.gameWorld.gameStats.setDominationFactor(DominationFactor.CONQUEST);
+        this.gameWorld.gameStats.setDominationFactor(DominationFactor.CAPTURE);
     }
 
     /**
@@ -195,19 +195,22 @@ public class TeamInfo {
      */
     public void captureFlag(Team team) {
         this.totalFlagsCaptured[team.ordinal()]++;
-        this.currentFlagsCaptured[team.ordinal()]++;
-        if (((float)this.currentFlagsCaptured[team.ordinal()])/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
-            checkWin(team); // Do an extra check to make sure the win is correct
+        if (this.totalFlagsCaptured[team.ordinal()] >= GameConstants.NUMBER_FLAGS){
+            checkWin(team);
         }
+        //this.currentFlagsCaptured[team.ordinal()]++;
+        // if (((float)this.currentFlagsCaptured[team.ordinal()])/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
+        //     checkWin(team); // Do an extra check to make sure the win is correct
+        // }
     }
 
     /**
      * Decrements the current anchors placed counter for the team
      * @param team the team to query
      */
-    public void removeAnchor(Team team) {
-        this.currentFlagsCaptured[team.ordinal()]--;
-    }
+    // public void removeAnchor(Team team) {
+    //     this.currentFlagsCaptured[team.ordinal()]--;
+    // }
 
     /**
      * Sets an index in the team's shared array to a given value.
