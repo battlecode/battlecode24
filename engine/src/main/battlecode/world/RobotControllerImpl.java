@@ -756,6 +756,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
     }
 
+    private void assertCanAquaform(TrapType trap, MapLocation loc) throws GameActionException{
+        assertNotNull(trap);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getResourceAmount() < trap.buildcost){
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
+        }
+        for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
+        }
+        //can this be used to check for enemy traps??
+        if (this.gameWorld.hasTrap(loc)){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
+        }
+    }
+
+    @Override
+    public boolean canAquaform(TrapType trap, MapLocation loc){
+        try{
+            assertCanAquaform(trap, loc);
+            return true;
+        }
+        catch (GameActionException e){
+            return false;
+        }
+    }
+
+    @Override
+    public void aquaform(TrapType trap, MapLocation loc) throws GameActionException{
+        assertCanAquaform(trap, loc);
+        Trap toPlace = Trap(loc, trap, this.getTeam());
+        this.gameWorld.placeTrap(loc, toPlace);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
+        this.robot.addResourceAmount(-1*(trap.buildcost));
+        //TODO: implement cooldown multiplier based on skill level
+        this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-COOLDOWNMULTIPLIER));
+    }
+
     // *****************************
     // **** COMBAT UNIT METHODS **** 
     // *****************************

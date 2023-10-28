@@ -30,6 +30,7 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] clouds;
     private ArrayList<Trap>[] trapTriggers;
+    private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
     private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
@@ -328,27 +329,47 @@ public strictfp class GameWorld {
     // ****** TRAP METHODS **************
     // ***********************************
     
+    public boolean hasTrap(MapLocation loc){
+        return !(this.trapLocations[locationToIndex(loc)] == null);
+    }
+
     public void placeTrap(MapLocation loc, Trap trap){
+        this.trapLocations[locationToIndex(loc)] = trap;
         //should we be able to trigger traps we are diagonally next to?
-        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
+        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);
         }
     }
 
-    public void triggerTrap(Trap trap){
+    public void triggerTrap(Trap trap, boolean entered){
         MapLocation loc = trap.getLocation();
-        switch(trap.getType()){
-            //TODO: fill in
+        TrapType type = trap.getType();
+        switch(type){
             case TrapType.STUN:
+                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, trap.enterRadius, trap.getTeam().opponent())){
+                    rob.setMovementCooldownTurns(40);
+                    rob.setActionCooldownTurns(40);
+                }
                 break;
-            case TrapType.EXPLODE:
+            case TrapType.EXPLOSIVE:
+                int rad = type.interactRadius;
+                int dmg = type.enterDamage;
+                if (entered){
+                    rad = type.enterRadius;
+                    dmg = type.enterDamage;
+                }
+                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, rad, trap.getTeam().opponent())){
+                    rob.addHealth(-1*dmg);
+                }
                 break;
             case TrapType.WATER:
+                //how are we implementing water?
                 break;
         }
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
             this.trapTriggers[locationToIndex(adjLoc)].remove(trap);
         }
+        this.trapLocations[locationToIndex(loc)] = null;
     }
 
     public void addBoost(MapLocation center, Team team){
