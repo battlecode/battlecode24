@@ -428,8 +428,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *********************************
     
     private int getDamage() {
-        assert(this.type == RobotType.LAUNCHER);
-        return this.type.damage;
+        return SkillType.ATTACK.skillEffect * SkillType.getSkillEffect(this.getAttackLevel) 
     }
 
     private int locationToInt(MapLocation loc) {
@@ -443,14 +442,71 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void attack(MapLocation loc) {
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null || bot.getTeam() == this.getTeam() || bot.getType() == RobotType.HEADQUARTERS) {
-            // If robot is null, of your team, or a hq do no damage, otherwise do damage
+        if (bot == null || bot.getTeam() == this.getTeam()) {
+            // If robot is null or of your team, no damage; otherwise do damage
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, -locationToInt(loc) - 1);
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
+            this.getAttackExp += 1;
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
         }
+    }
+
+
+    private int getHeal() {
+        return SkillType.HEAL.skillEffect * SkillType.getSkillEffect(this.getHealLevel) 
+    }
+
+    private int getHeal() {
+        return SkillType.HEAL.skillEffect * SkillType.getSkillEffect(this.getHealLevel)
+    }
+    /**
+     * Heals unit at another location.
+     * 
+     * @param loc the location of the bot
+     */
+    public void heal(MapLocation loc){
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth == bot.getMaxHealth) {
+            // If robot is null, not of your team, or is of full health, do not heal; otherwise heal
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, -locationToInt(loc) - 1);
+        } else {
+            int healAmt = getHeal();
+            bot.addHealth(healAmt);
+            this.getHealExp += 1;
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
+        }
+    }
+
+    /**
+     * Builds trap at location.
+     * 
+     * @param building the type of trap
+     * @param loc the location for the trap
+     */
+    public void aquaform(TrapType building, MapLocation loc){
+            this.getBuildExp += 1;
+            this.addResourceAmount(ResourceType.BREAD, -building.buildCost)
+            this.gameWorld.getMatchMaker().addTrap(getID(), building, loc);
+    }
+
+    /**
+     * Fills location with land
+     */
+    public void fill(MapLocation loc){
+        this.getBuildExp += 1;
+        this.addResourceAmount(ResourceType.BREAD, -1)
+        this.gameWorld.getMatchMaker().removeWater(getID(), building, loc);
+    }
+
+    /**
+     * Digs and creates water at location
+     */
+    public void dig(MapLocation loc){
+        this.getBuildExp += 1;
+        this.addResourceAmount(esourceType.BREAD, -2)
+        this.gameWorld.getMatchMaker().addWater(getID(), loc);
     }
 
     // *********************************
