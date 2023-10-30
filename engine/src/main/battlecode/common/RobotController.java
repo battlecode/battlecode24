@@ -1189,29 +1189,14 @@ public strictfp interface RobotController {
      */
     int readSharedArray(int index) throws GameActionException;
 
-    /**
-     * Test whether this robot can write to the shared array.
-     * 
-     * A robot can write to the shared array when it is within range
-     * of a signal amplifier, a planted reality anchor, or a headquarter.
-     * 
-     * @param index the index in the team's shared array, 0-indexed
-     * @param value the value to set that index to
-     * @return whether it is possible to write to the shared array
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canWriteSharedArray(int index, int value);
-
     /** 
-     * Sets the team's array value at a specified index if the robot is allowed
-     * to write to the array. No change occurs if the index or value is invalid
-     * or if the robot is not able to write to the array (see canWriteSharedArray).
+     * Sets the team's array value at a specified index. 
+     * No change occurs if the index or value is invalid.
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
-     * @throws GameActionException if the index is invalid, the value
-     *         is out of bounds, or the robot cannot write to the array.
+     * @throws GameActionException if the index is invalid or the value
+     * is out of bounds.
      *
      * @battlecode.doc.costlymethod
      */

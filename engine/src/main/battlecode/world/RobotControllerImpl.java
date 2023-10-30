@@ -1222,9 +1222,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanWriteSharedArray(int index, int value) throws GameActionException{
         assertValidIndex(index);
         assertValidValue(value);
-        if (!this.gameWorld.inRangeForAmplification(this.robot)) {
-            throw new GameActionException(CANT_DO_THAT, "You cannot write to the shared array");
-        }
     }
 
     @Override
@@ -1240,8 +1237,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanWriteSharedArray(index, value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
-
-
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
