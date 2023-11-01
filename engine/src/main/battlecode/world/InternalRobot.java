@@ -18,10 +18,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int healExp;
     private int attackExp;
 
-    private int buildLevel;
-    private int healLevel;
-    private int attackLevel;
-
     private final int ID;
     private Team team;
     private RobotType type;
@@ -78,10 +74,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.healExp = 0;
         this.attackExp = 0;
 
-        this.buildLevel = 0;
-        this.healLevel = 0;
-        this.attackLevel = 0;
-
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
         this.bytecodesUsed = 0;
@@ -128,15 +120,33 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public int getBuildLevel(){
-        return buildLevel;
+        SkillType skill = SkillType.BUILD;
+        for(int i = 0; i < 5; i++){
+            if (this.buildExp < skill.getExperience(i+1)){
+                return i;
+            }
+        }
+        return 6;
     }
 
     public int getHealLevel(){
-        return healLevel;
+        SkillType skill = SkillType.HEAL;
+        for(int i = 0; i < 5; i++){
+            if (this.healExp < skill.getExperience(i+1)){
+                return i;
+            }
+        }
+        return 6;
     }
 
     public int getAttackLevel(){
-        return attackLevel;
+        SkillType skill = SkillType.ATTACK;
+        for(int i = 0; i < 5; i++){
+            if (this.attackExp < skill.getExperience(i+1)){
+                return i;
+            }
+        }
+        return 6;
     }
 
     public int getBuildExp(){
@@ -415,7 +425,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
         int oldHealth = this.health;
         this.health += healthAmount;
-        this.health = Math.min(this.health, this.type.getMaxHealth());
+        this.health = Math.min(this.health, this.type.health);
         if (this.health <= 0) {
             this.gameWorld.destroyRobot(this.ID);
         } else if (this.health != oldHealth) {
@@ -428,7 +438,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *********************************
     
     private int getDamage() {
-        return SkillType.ATTACK.skillEffect * SkillType.getSkillEffect(this.getAttackLevel) 
+        return SkillType.ATTACK.skillEffect * SkillType.ATTACK.getSkillEffect(this.getAttackLevel());
     }
 
     private int locationToInt(MapLocation loc) {
@@ -448,18 +458,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
-            this.getAttackExp += 1;
+            if(this.getBuildLevel() < 4 && this.getHealLevel() < 4){
+                this.attackExp += 1;
+            }
             this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
         }
     }
 
 
     private int getHeal() {
-        return SkillType.HEAL.skillEffect * SkillType.getSkillEffect(this.getHealLevel) 
-    }
-
-    private int getHeal() {
-        return SkillType.HEAL.skillEffect * SkillType.getSkillEffect(this.getHealLevel)
+        return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getHealLevel()); 
     }
     /**
      * Heals unit at another location.
@@ -468,13 +476,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void heal(MapLocation loc){
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth == bot.getMaxHealth) {
+        if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth() == bot.type.health) {
             // If robot is null, not of your team, or is of full health, do not heal; otherwise heal
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, -locationToInt(loc) - 1);
         } else {
             int healAmt = getHeal();
             bot.addHealth(healAmt);
-            this.getHealExp += 1;
+            if(this.getBuildLevel() < 4 && this.getAttackLevel() < 4){
+                this.healExp += 1;
+            }
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
         }
     }
@@ -486,27 +496,33 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the location for the trap
      */
     public void aquaform(TrapType building, MapLocation loc){
-            this.getBuildExp += 1;
-            this.addResourceAmount(ResourceType.BREAD, -building.buildCost)
-            this.gameWorld.getMatchMaker().addTrap(getID(), building, loc);
+            if(this.getHealLevel() < 4 && this.getAttackLevel() < 4){
+                this.buildExp += 1;
+            }
+            // this.addResourceAmount(ResourceType.BREAD, -building.buildCost)
+            // this.gameWorld.getMatchMaker().addTrap(getID(), building, loc);
     }
 
     /**
      * Fills location with land
      */
     public void fill(MapLocation loc){
-        this.getBuildExp += 1;
-        this.addResourceAmount(ResourceType.BREAD, -1)
-        this.gameWorld.getMatchMaker().removeWater(getID(), building, loc);
+        if(this.getHealLevel() < 4 && this.getAttackLevel() < 4){
+            this.buildExp += 1;
+        }
+        // this.addResourceAmount(ResourceType.BREAD, -1)
+        // this.gameWorld.getMatchMaker().removeWater(getID(), building, loc);
     }
 
     /**
      * Digs and creates water at location
      */
     public void dig(MapLocation loc){
-        this.getBuildExp += 1;
-        this.addResourceAmount(esourceType.BREAD, -2)
-        this.gameWorld.getMatchMaker().addWater(getID(), loc);
+        if(this.getHealLevel() < 4 && this.getAttackLevel() < 4){
+            this.buildExp += 1;
+        }
+        // this.addResourceAmount(resourceType.BREAD, -2)
+        // this.gameWorld.getMatchMaker().addWater(getID(), loc);
     }
 
     // *********************************
