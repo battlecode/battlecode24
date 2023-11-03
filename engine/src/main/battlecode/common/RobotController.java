@@ -1171,7 +1171,7 @@ public strictfp interface RobotController {
      */
     boolean canDropFlag(MapLocation loc);
     
-    void dropFlag(MapLocation loc);
+    void dropFlag(MapLocation loc) throws GameActionException;
 
 
     // ***********************************

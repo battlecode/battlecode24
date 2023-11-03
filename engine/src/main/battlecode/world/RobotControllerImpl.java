@@ -589,7 +589,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanDropFlag
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        if (!robot.hasFlag())
+            throw new GameActionException(CANT_DO_THAT, 
+                "This robot is not holding a flag.");
+        
+        if(!this.gameWorld.isPassable(loc))
+        throw new GameActionException(CANT_DO_THAT, 
+                "A flag can't be placed at this location.");
+
+        // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
     @Override
@@ -600,7 +610,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    @Override
+    public void dropFlag(MapLocation loc) throws GameActionException{
+        assertCanDropFlag(loc);
+        this.gameWorld.addFlag(loc, robot.getFlag());
+        robot.removeFlag();
+
+    }
+
     private void assertCanPickUpFlag(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        if(robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Robot is already holding flag.");
+        }
         // TODO implement assertCanPickUpFlag
     }
 
