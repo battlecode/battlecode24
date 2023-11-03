@@ -480,7 +480,27 @@ public strictfp interface RobotController {
      */
     MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
-    MapLocation[] senseFlagLocations(); 
+    /**
+     * Returns the location of all nearby flags that are visible to the robot. 
+     * If radiusSquared is greater than the robot's vision radius, use the 
+     * robot's vision radius instead.
+     * 
+     * @param center the center of the search area (robot's current position)
+     * @param radiusSquared squared radius of all locations to be returned
+     * @return all locations containing flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared); 
+
+    /**
+     * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
+     * 
+     * @returns all location ranges containing invisible flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseBroadcastFlagLocations();
 
     /**
      * Sense well at location.
@@ -1171,6 +1191,13 @@ public strictfp interface RobotController {
      */
     boolean canDropFlag(MapLocation loc);
     
+    /**
+     * Places a flag at the current location on the map.
+     *
+     * @param loc location on the map 
+     * 
+     * @battlecode.doc.costlymethod
+     **/
     void dropFlag(MapLocation loc);
 
 
@@ -1221,8 +1248,26 @@ public strictfp interface RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
+    /**
+     * Tests whether you can buy an upgrade.
+     * 
+     * You can buy the upgrade if you have enough points and 
+     * haven't bought the upgrade before. 
+     * 
+     * @param ug the global upgrade
+     * @return whether it is valid for you to buy the upgrade
+     * 
+     * @battlecode.doc.costlymethod
+     **/
     boolean canBuyGlobal(GlobalUpgrade ug);
 
+    /**
+     * Purchase the global upgrade and applies the affect to the game.
+     * 
+     * @param ug the global upgrade 
+     * 
+     * @battlecode.doc.costlymethod
+     **/
     void buyGlobal(GlobalUpgrade ug);
 
     /**
