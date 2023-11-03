@@ -681,8 +681,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanFill
         assertCanActLocation(loc);
+        assertIsActionReady();
+        if (!this.gameWorld.getWater(loc))
+            throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
+        if (this.robot.getResourceAmount() < GameConstants.FILL_COST)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
     }
 
     @Override
@@ -693,6 +697,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    public void fill(MapLocation loc) throws GameActionException{
+        assertCanFill(loc);
+        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN));
+        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
+        this.gameWorld.setLand(loc);
+    }
+
     private void assertCanDig(MapLocation loc) throws GameActionException {
         assertCanActLocation(loc);
         assertIsActionReady();
@@ -700,7 +712,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (getResourceAmount() < GameConstants.DIG_COST)
+        if (this.robot.getResourceAmount() < GameConstants.DIG_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
