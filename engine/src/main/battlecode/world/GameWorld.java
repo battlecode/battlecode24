@@ -29,6 +29,7 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private boolean[] walls;
     private boolean[] clouds;
+    private boolean[] water;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
@@ -284,6 +285,18 @@ public strictfp class GameWorld {
             return false;
         }
         return this.clouds[idx];
+    }
+
+    public boolean getWater(MapLocation loc) {
+        return this.water[locationToIndex(loc)];
+    }
+
+    public void setWater(MapLocation loc) {
+        this.water[locationToIndex(loc)] = true;
+    }
+
+    public void setLand(MapLocation loc) {
+        this.water[locationToIndex(loc)] = false;
     }
 
     public Direction getCurrent(MapLocation loc) {
