@@ -304,7 +304,7 @@ public strictfp class GameWorld {
     }
 
     public boolean isPassable(MapLocation loc) {
-        return !this.walls[locationToIndex(loc)];
+        return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
 
     public Well getWell(MapLocation loc) {
