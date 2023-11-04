@@ -449,7 +449,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public MapLocation[] senseBroadcastFlagLocations() {
+        List<MapLocation> currentBroadcastLocations = new ArrayList<MapLocation>();
+        for(Flag x: gameWorld.getAllFlags()) {
+            if(!canSenseLocation(x.getLoc())) {
+                currentBroadcastLocations.add(x.getBroadcastLoc());
+            }
+        }
 
+        return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
+        
     }
 
     @Override

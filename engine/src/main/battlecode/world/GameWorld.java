@@ -305,6 +305,10 @@ public strictfp class GameWorld {
         }
     }
 
+    public Flag[] getAllFlags() {
+        return allFlags;
+    }
+
     public void addFlag(MapLocation loc, Flag flag) {
         placedFlags[locationToIndex(loc)].add(flag);
         flag.setLoc(loc);
