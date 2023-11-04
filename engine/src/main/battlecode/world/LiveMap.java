@@ -42,6 +42,11 @@ public strictfp class LiveMap {
     private final boolean[] cloudArray;
 
     /**
+     * Whether each square is water.
+     */
+    private boolean[] waterArray;
+
+    /**
      * Direction ID of current on each square.
      */
     private int[] currentArray;
@@ -97,6 +102,7 @@ public strictfp class LiveMap {
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.wallArray = new boolean[width * height];
         this.cloudArray = new boolean[width * height];
+        this.waterArray = new boolean[width * height];
         this.currentArray = new int[width * height];
         this.islandArray = new int[width * height];
         this.resourceArray = new int[width * height];
@@ -331,6 +337,22 @@ public strictfp class LiveMap {
         return cloudArray;
     }
 
+    public boolean[] getWaterArray() {
+        return waterArray;
+    }
+
+    public boolean getWater(MapLocation loc) {
+        return waterArray[locationToIndex(loc)];
+    }
+
+    public void setWater(MapLocation loc) {
+        waterArray[locationToIndex(loc)] = true;
+    }
+
+    public void setLand(MapLocation loc) {
+        waterArray[locationToIndex(loc)] = false;
+    }
+
     /**
      * @return the current array of the map
      */
@@ -351,6 +373,25 @@ public strictfp class LiveMap {
      */
     public int[] getResourceArray() {
         return resourceArray;
+    }
+
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - getOrigin().x + (loc.y - getOrigin().y) * getWidth();
+    }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx % getWidth() + getOrigin().x,
+                               idx / getWidth() + getOrigin().y);
     }
 
     @Override

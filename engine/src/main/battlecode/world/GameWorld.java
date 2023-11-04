@@ -330,7 +330,7 @@ public strictfp class GameWorld {
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
-        return loc.x - this.gameMap.getOrigin().x + (loc.y - this.gameMap.getOrigin().y) * this.gameMap.getWidth();
+        return this.gameMap.locationToIndex(loc);
     }
 
     /**
@@ -339,8 +339,7 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
-                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
+        return gameMap.indexToLocation(idx);
     }
 
     // ***********************************
