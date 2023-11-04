@@ -445,6 +445,35 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        List<MapLocation> validSensedFlagLocs = new ArrayList<>();
+        
+        for (MapLocation loc : allLocations) {
+            // Can't actually sense location based on radius squared
+            if (!getLocation().isWithinDistanceSquared(loc, GameConstants.VISION_RADIUS)) {
+                continue;
+            }
+            if(gameWorld.hasFlag(loc)) validSensedFlagLocs.add(loc);
+        }
+        return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
+    }
+
+    @Override
+    public MapLocation[] senseBroadcastFlagLocations() {
+        List<MapLocation> currentBroadcastLocations = new ArrayList<MapLocation>();
+        for(Flag x: gameWorld.getAllFlags()) {
+            if(!canSenseLocation(x.getLoc())) {
+                currentBroadcastLocations.add(x.getBroadcastLoc());
+            }
+        }
+        return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
+    }
+
+    @Override
     public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
@@ -591,7 +620,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanDropFlag
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        if (!robot.hasFlag())
+            throw new GameActionException(CANT_DO_THAT, 
+                "This robot is not holding a flag.");
+        
+        if(!this.gameWorld.isPassable(loc))
+        throw new GameActionException(CANT_DO_THAT, 
+                "A flag can't be placed at this location.");
+
+        // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
     @Override
@@ -602,16 +641,39 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    private void assertCanPickUpFlag(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanPickUpFlag
+    @Override
+    public void dropFlag(MapLocation loc) throws GameActionException{
+        assertCanDropFlag(loc);
+        this.gameWorld.addFlag(loc, robot.getFlag());
+        robot.removeFlag();
+
+    }
+
+    private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        if(robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
+        }
+        if(this.gameWorld.getFlags(loc) == null) {
+            throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
+        }
     }
 
     @Override
     public boolean canPickupFlag(MapLocation loc) {
         try {
-            assertCanPickUpFlag(loc);
+            assertCanPickupFlag(loc);
             return true;
         } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void pickupFlag(MapLocation loc) throws GameActionException {
+        assertCanPickupFlag(loc);
+        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
+        this.gameWorld.removeFlag(loc, tempflag);
+        robot.addFlag(tempflag);
     }
 
     private void assertCanSpawn(MapLocation loc) throws GameActionException {

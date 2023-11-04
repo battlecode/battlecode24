@@ -344,6 +344,26 @@ public strictfp class GameWorld {
         }
     }
 
+    public Flag[] getAllFlags() {
+        return allFlags;
+    }
+
+    public void addFlag(MapLocation loc, Flag flag) {
+        placedFlags[locationToIndex(loc)].add(flag);
+        flag.setLoc(loc);
+    }
+
+    public ArrayList<Flag> getFlags(MapLocation loc) {
+        return placedFlags[locationToIndex(loc)];
+    }
+
+    public void removeFlag(MapLocation loc, Flag flag){
+        placedFlags[locationToIndex(loc)].remove(flag);
+    }
+
+    public boolean hasFlag(MapLocation loc) {
+        return placedFlags[locationToIndex(loc)].size() > 0;
+    }
 
     /**
      * Helper method that converts a location into an index.
