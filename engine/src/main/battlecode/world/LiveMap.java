@@ -47,6 +47,11 @@ public strictfp class LiveMap {
     private boolean[] waterArray;
 
     /**
+     * Whether each square is a spawn zone.
+     */
+    private boolean[] spawnZoneArray;
+
+    /**
      * Direction ID of current on each square.
      */
     private int[] currentArray;
@@ -100,12 +105,16 @@ public strictfp class LiveMap {
         this.mapName = mapName;
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.wallArray = new boolean[width * height];
-        this.cloudArray = new boolean[width * height];
-        this.waterArray = new boolean[width * height];
-        this.currentArray = new int[width * height];
-        this.islandArray = new int[width * height];
-        this.resourceArray = new int[width * height];
+
+        int numSquares = width * height;
+
+        this.wallArray = new boolean[numSquares];
+        this.cloudArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.spawnZoneArray = new boolean[numSquares];
+        this.currentArray = new int[numSquares];
+        this.islandArray = new int[numSquares];
+        this.resourceArray = new int[numSquares];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -339,6 +348,10 @@ public strictfp class LiveMap {
 
     public boolean[] getWaterArray() {
         return waterArray;
+    }
+
+    public boolean[] getSpawnZoneArray() {
+        return spawnZoneArray;
     }
 
     public boolean getWater(MapLocation loc) {

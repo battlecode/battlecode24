@@ -30,6 +30,7 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] clouds;
     private boolean[] water;
+    private boolean[] spawnZones;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
@@ -64,6 +65,8 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.walls = gm.getWallArray();
         this.clouds = gm.getCloudArray();
+        this.water = gm.getWaterArray();
+        this.spawnZones = gm.getSpawnZoneArray();
         this.islandIds = gm.getIslandArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currents = new Direction[gm.getWidth() * gm.getHeight()];
@@ -297,6 +300,10 @@ public strictfp class GameWorld {
 
     public void setLand(MapLocation loc) {
         this.water[locationToIndex(loc)] = false;
+    }
+
+    public boolean getSpawnZone(MapLocation loc) {
+        return this.spawnZones[locationToIndex(loc)];
     }
 
     public Direction getCurrent(MapLocation loc) {
