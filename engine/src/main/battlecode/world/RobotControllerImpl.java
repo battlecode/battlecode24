@@ -443,6 +443,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) {
+        
+    }
+
+    @Override
+    public MapLocation[] senseBroadcastFlagLocations() {
+
+    }
+
+    @Override
     public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);

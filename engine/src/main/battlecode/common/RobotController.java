@@ -1198,7 +1198,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    void dropFlag(MapLocation loc);
+    void dropFlag(MapLocation loc) throws GameActionException;
 
 
     // ***********************************
