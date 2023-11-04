@@ -628,21 +628,31 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     }
 
-    private void assertCanPickUpFlag(MapLocation loc) throws GameActionException {
+    private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
         if(robot.hasFlag()) {
-            throw new GameActionException(CANT_DO_THAT, "Robot is already holding flag.");
+            throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
-        // TODO implement assertCanPickUpFlag
+        if(this.gameWorld.getFlags(loc) == null) {
+            throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
+        }
     }
 
     @Override
     public boolean canPickupFlag(MapLocation loc) {
         try {
-            assertCanPickUpFlag(loc);
+            assertCanPickupFlag(loc);
             return true;
         } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void pickupFlag(MapLocation loc) throws GameActionException {
+        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
+        assertCanPickupFlag(loc);
+        this.gameWorld.removeFlag(loc, tempflag);
+        robot.addFlag(tempflag);
     }
 
     private void assertCanSpawn(MapLocation loc) throws GameActionException {

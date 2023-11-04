@@ -1175,7 +1175,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void pickupFlag(MapLocation loc);
+    void pickupFlag(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether robot can drop a flag at the current location.
