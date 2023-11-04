@@ -37,7 +37,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * An rng based on the world seed.
      */
     private static Random random;
-
+    
     /**
      * Create a new RobotControllerImpl
      *
@@ -1256,6 +1256,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, -1*(headquarters.getID()*2 + anchor.getAccelerationIndex()) - 1);
     }
 
+ 
+
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 
     // ***********************************
@@ -1280,9 +1282,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanWriteSharedArray(int index, int value) throws GameActionException{
         assertValidIndex(index);
         assertValidValue(value);
-        if (!this.gameWorld.inRangeForAmplification(this.robot)) {
-            throw new GameActionException(CANT_DO_THAT, "You cannot write to the shared array");
-        }
     }
 
     @Override
@@ -1298,8 +1297,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanWriteSharedArray(index, value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
-
-
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

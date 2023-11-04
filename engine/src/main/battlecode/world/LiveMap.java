@@ -45,6 +45,12 @@ public strictfp class LiveMap {
      * Whether each square is water.
      */
     private boolean[] waterArray;
+    
+
+    /**
+     * Whether each square is a dam.
+     */
+    private boolean[] damArray;
 
     /**
      * Whether each square is a spawn zone.
@@ -115,6 +121,8 @@ public strictfp class LiveMap {
         this.currentArray = new int[numSquares];
         this.islandArray = new int[numSquares];
         this.resourceArray = new int[numSquares];
+        this.damArray = new boolean[numSquares];
+
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -368,6 +376,9 @@ public strictfp class LiveMap {
         waterArray[locationToIndex(loc)] = true;
     }
 
+    public boolean[] getDamArray(){
+        return damArray;
+    }
     public void setLand(MapLocation loc) {
         waterArray[locationToIndex(loc)] = false;
     }
@@ -435,6 +446,7 @@ public strictfp class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
+                    ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
                     ", cloudArray=" + Arrays.toString(cloudArray) +
                     ", currentArray=" + Arrays.toString(currentArray) +

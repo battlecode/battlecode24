@@ -56,6 +56,9 @@ public class GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
+    /** The number of flags a player starts with. */
+    public static final int NUMBER_FLAGS = 3;
+
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
 
@@ -178,4 +181,7 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    /** The end of the setup rounds in the game */
+    public static final int SETUP_ROUNDS = 200;
 }

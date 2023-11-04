@@ -30,6 +30,7 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] clouds;
     private boolean[] water;
+    private boolean[] dams;
     private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
@@ -67,6 +68,7 @@ public strictfp class GameWorld {
         this.clouds = gm.getCloudArray();
         this.water = gm.getWaterArray();
         this.spawnZones = gm.getSpawnZoneArray();
+        this.dams = gm.getDamArray();
         this.islandIds = gm.getIslandArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currents = new Direction[gm.getWidth() * gm.getHeight()];
@@ -320,6 +322,9 @@ public strictfp class GameWorld {
     }
 
     public boolean isPassable(MapLocation loc) {
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && !this.dams[locationToIndex(loc)];
+        }
         return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
 
@@ -356,6 +361,18 @@ public strictfp class GameWorld {
      */
     public MapLocation indexToLocation(int idx) {
         return gameMap.indexToLocation(idx);
+    }
+
+    // ***********************************
+    // ****** DAM METHODS **************
+    // ***********************************
+    public boolean getDam(MapLocation loc){
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return dams[locationToIndex(loc)];
+        }
+        else {
+            return false;
+        }
     }
 
     // ***********************************
