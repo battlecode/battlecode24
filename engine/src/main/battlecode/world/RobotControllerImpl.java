@@ -9,6 +9,8 @@ import battlecode.schema.Action;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.naming.InsufficientResourcesException;
+
 /**
  * The actual implementation of RobotController. Its methods *must* be called
  * from a player thread.
@@ -640,20 +642,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** AQUAFORMING METHODS ********
     // ***********************************
 
-    private void assertCanAquaform(BuildingType bt, MapLocation loc) throws GameActionException {
-        // TODO implement assertCanAquaform
+    private void assertCanAquaform(TrapType trap, MapLocation loc) throws GameActionException{
+        assertNotNull(trap);
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (getResourceAmount() < trap.buildCost){
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
+        }
+        for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
+        }
+        //can this be used to check for enemy traps??
+        if (this.gameWorld.hasTrap(loc)){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
+        }
     }
 
     @Override
-    public boolean canAquaform(BuildingType bt, MapLocation loc) {
-        try {
-            assertCanAquaform(bt, loc);
+    public boolean canAquaform(TrapType trap, MapLocation loc){
+        try{
+            assertCanAquaform(trap, loc);
             return true;
-        } catch (GameActionException e) { return false; }
+        }
+        catch (GameActionException e){
+            return false;
+        }
+    }
+
+    @Override
+    public void aquaform(TrapType trap, MapLocation loc) throws GameActionException{
+        assertCanAquaform(trap, loc);
+        Trap toPlace = new Trap(loc, trap, this.getTeam());
+        this.gameWorld.placeTrap(loc, toPlace);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
+        this.robot.addResourceAmount(-1*(trap.buildCost));
+        //TODO: implement cooldown multiplier based on skill level
+        this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-COOLDOWNMULTIPLIER));
     }
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanFill
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (!this.gameWorld.getWater(loc))
+            throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
+        if (this.robot.getResourceAmount() < GameConstants.FILL_COST)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
     }
 
     @Override
@@ -664,8 +697,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    public void fill(MapLocation loc) throws GameActionException{
+        assertCanFill(loc);
+        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN));
+        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
+        this.gameWorld.setLand(loc);
+    }
+
     private void assertCanDig(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanDig
+        assertCanActLocation(loc);
+        assertIsActionReady();
+        if (this.gameWorld.getWater(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
+        if (this.gameWorld.getWall(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
+        if (isLocationOccupied(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
+        if (this.robot.getResourceAmount() < GameConstants.DIG_COST)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
+        if (this.gameWorld.hasFlag(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
     }
 
     @Override
@@ -676,6 +728,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    @Override
+    public void dig(MapLocation loc){
+        assertCanDig(loc);
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
+        this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, DIG_INDEX);
+        this.gameWorld.setWater(loc);
+    }
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
