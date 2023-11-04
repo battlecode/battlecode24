@@ -30,6 +30,8 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] clouds;
     private boolean[] water;
+    private boolean[] dams;
+    private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
@@ -64,6 +66,9 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.walls = gm.getWallArray();
         this.clouds = gm.getCloudArray();
+        this.water = gm.getWaterArray();
+        this.spawnZones = gm.getSpawnZoneArray();
+        this.dams = gm.getDamArray();
         this.islandIds = gm.getIslandArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currents = new Direction[gm.getWidth() * gm.getHeight()];
@@ -299,12 +304,28 @@ public strictfp class GameWorld {
         this.water[locationToIndex(loc)] = false;
     }
 
+    /**
+     * Checks if a given location is a spawn zone.
+     * Returns 0 if not, 1 if it is a Team A spawn zone,
+     * and 2 if it is a Team B spawn zone.
+     * 
+     * @param loc the location to check
+     * @return 0 if the location is not a spawn zone,
+     * 1 or 2 if it is a Team A or Team B spawn zone respectively
+     */
+    public int getSpawnZone(MapLocation loc) {
+        return this.spawnZones[locationToIndex(loc)];
+    }
+
     public Direction getCurrent(MapLocation loc) {
         return this.currents[locationToIndex(loc)];
     }
 
     public boolean isPassable(MapLocation loc) {
-        return !this.walls[locationToIndex(loc)];
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && !this.dams[locationToIndex(loc)];
+        }
+        return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
 
     public Well getWell(MapLocation loc) {
@@ -330,7 +351,7 @@ public strictfp class GameWorld {
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
-        return loc.x - this.gameMap.getOrigin().x + (loc.y - this.gameMap.getOrigin().y) * this.gameMap.getWidth();
+        return this.gameMap.locationToIndex(loc);
     }
 
     /**
@@ -339,8 +360,19 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
-                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
+        return gameMap.indexToLocation(idx);
+    }
+
+    // ***********************************
+    // ****** DAM METHODS **************
+    // ***********************************
+    public boolean getDam(MapLocation loc){
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return dams[locationToIndex(loc)];
+        }
+        else {
+            return false;
+        }
     }
 
     // ***********************************

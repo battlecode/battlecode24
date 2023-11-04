@@ -181,4 +181,7 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    /** The end of the setup rounds in the game */
+    public static final int SETUP_ROUNDS = 200;
 }
