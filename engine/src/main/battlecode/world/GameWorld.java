@@ -323,7 +323,7 @@ public strictfp class GameWorld {
 
     public boolean isPassable(MapLocation loc) {
         if (currentRound <= GameConstants.SETUP_ROUNDS){
-            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && this.dams[locationToIndex(loc)];
+            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && !this.dams[locationToIndex(loc)];
         }
         return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
