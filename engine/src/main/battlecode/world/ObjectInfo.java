@@ -151,7 +151,7 @@ public strictfp class ObjectInfo {
     // *** ADDING OBJECTS *********
     // ****************************
 
-    public void spawnRobot(InternalRobot robot) {
+    public void createRobot(InternalRobot robot) {
         incrementRobotCount(robot.getTeam());
         incrementRobotTypeCount(robot.getTeam(), robot.getType());
 

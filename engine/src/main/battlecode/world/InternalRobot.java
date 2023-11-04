@@ -20,6 +20,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private MapLocation location;
     protected Inventory inventory;
     private int health;
+    private boolean spawned;
 
     private long controlBits;
     private int currentBytecodeLimit;
@@ -45,26 +46,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param team the team of the robot
      */
     @SuppressWarnings("unchecked")
-    public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
+    public InternalRobot(GameWorld gw, int id, Team team) {
         this.gameWorld = gw;
 
         this.ID = id;
         this.team = team;
-        this.type = type;
-        this.location = loc;
-        switch (this.type) {
-            case HEADQUARTERS:
-                this.inventory = new Inventory();
-                // Add resources at start of game
-                break;
-            case CARRIER:
-                this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
-                break;
-            default:
-                this.inventory = new Inventory(0);
-                break;
-        }
-        this.health = this.type.health;
+        this.location = null;
+        this.health = GameConstants.DEFAULT_HEALTH;
+        this.spawned = false;
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -73,6 +62,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive = 0;
         this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
         this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        this.spawnCooldownTurns = 0;
 
         this.indicatorString = "";
 
@@ -216,6 +206,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // **********************************
     // ****** CHECK METHODS *************
     // **********************************
+
+    /**
+     * Returns whether the robot can spawn, based on cooldowns.
+     */
+    public boolean canSpawnCooldown() {
+        return this.spawnCooldownTurns < GameConstants.SPAWN_LIMIT;
+    }
 
     /**
      * Returns whether the robot can perform actions, based on cooldowns.
@@ -377,7 +374,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.health += healthAmount;
         this.health = Math.min(this.health, this.type.getMaxHealth());
         if (this.health <= 0) {
-            this.gameWorld.destroyRobot(this.ID);
+            this.gameWorld.despawnRobot(this.ID);
         } else if (this.health != oldHealth) {
             this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
@@ -386,6 +383,24 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
+
+    /**
+     * Spawns the robot at the location provided
+     * 
+     * @param loc the new location of the robot
+     */
+    public void spawn(MapLocation loc) {
+        this.spawned = true;
+        this.location = loc;
+        this.gameWorld.addRobot(loc, this);
+        this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
+        addMovementCooldownTurns();
+        addActionCooldownTurns();
+    }
+
+    public boolean isSpawned() {
+        return this.spawned;
+    }
     
     private int getDamage() {
         assert(this.type == RobotType.LAUNCHER);
@@ -425,6 +440,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void processBeginningOfTurn() {
         this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+        this.spawnCooldownTurns = Math.max(0, this.spawnCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
@@ -472,7 +488,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void die_exception() {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIE_EXCEPTION, -1);
-        this.gameWorld.destroyRobot(getID());
+        this.gameWorld.despawnRobot(getID());
     }
 
     // *****************************************
