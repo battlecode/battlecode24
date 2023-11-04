@@ -120,22 +120,22 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public int getExp(SkillType skill){
-        if skill == SkillType.BUILD
+        if(skill == SkillType.BUILD)
             return buildExp;
-        if skill == SkillType.HEAL
+        if(skill == SkillType.HEAL)
             return healExp;
-        if skill == SkillType.ATTACK
+        if(skill == SkillType.ATTACK)
             return attackExp;
     }
 
     public int getLevel(SkillType skill){
-        exp = this.getExp(skill)
+        exp = this.getExp(skill);
         for(int i = 0; i < 5; i++){
             if (exp < skill.getExperience(i+1)){
                 return i;
             }
         }
-        return 6
+        return 6;
     }
 
     public int getResource(ResourceType r) {
@@ -476,6 +476,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
                 this.buildExp += 1;
             }
+            // TO DO
             // this.addResourceAmount(ResourceType.BREAD, -building.buildCost)
             // this.gameWorld.getMatchMaker().addTrap(getID(), building, loc);
     }
@@ -487,6 +488,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
             this.buildExp += 1;
         }
+        // TO DO
         // this.addResourceAmount(ResourceType.BREAD, -1)
         // this.gameWorld.getMatchMaker().removeWater(getID(), building, loc);
     }
@@ -498,6 +500,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
             this.buildExp += 1;
         }
+        // TO DO
         // this.addResourceAmount(resourceType.BREAD, -2)
         // this.gameWorld.getMatchMaker().addWater(getID(), loc);
     }
