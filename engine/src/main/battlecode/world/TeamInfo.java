@@ -167,8 +167,9 @@ public class TeamInfo {
                 if (amount != 0)
                     throw new IllegalArgumentException("Can't add no resource");
                 break;
-                */
+                
         }
+        */
     }
 
     private int numIslandsOccupied(Team team){

@@ -18,7 +18,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private Team team;
     private RobotType type;
     private MapLocation location;
-    protected Inventory inventory;
     private int health;
 
     private long controlBits;
@@ -45,25 +44,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param team the team of the robot
      */
     @SuppressWarnings("unchecked")
-    public InternalRobot(GameWorld gw, int id, RobotType type, MapLocation loc, Team team) {
+    public InternalRobot(GameWorld gw, int id, MapLocation loc, Team team) {
         this.gameWorld = gw;
 
         this.ID = id;
         this.team = team;
         this.type = type;
         this.location = loc;
-        switch (this.type) {
-            case HEADQUARTERS:
-                this.inventory = new Inventory();
-                // Add resources at start of game
-                break;
-            case CARRIER:
-                this.inventory = new Inventory(GameConstants.CARRIER_CAPACITY);
-                break;
-            default:
-                this.inventory = new Inventory(0);
-                break;
-        }
+        
         this.health = this.type.health;
 
         this.controlBits = 0;
@@ -112,37 +100,20 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public int getResource(ResourceType r) {
-        return this.inventory.getResource(r);
+        return this.gameWorld.getTeamInfo().getBread(this.team);
     }
 
-    public boolean canAdd(int amount) {
-        assert(this.getType() == RobotType.CARRIER);
-        return this.inventory.canAdd(amount);
-    }
-    
-    private void addResourceChangeAction(ResourceType rType, int amount) {
-        switch (rType) {
-            case ADAMANTIUM:
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ADAMANTIUM, amount);
-                break;
-            case MANA:
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_MANA, amount);
-                break;
-            case ELIXIR:
-                this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_ELIXIR, amount);
-                break;
-            case NO_RESOURCE:
-                if (amount != 0) 
-                    throw new IllegalArgumentException("No resource should have value of 0 but has value of " + amount);
-                break;
-        }
+    private void addResourceChangeAction(int amount) {
+        // TO DO: add change_bread to Action
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_BREAD, amount);
     }
 
-    public void addResourceAmount(ResourceType rType, int amount) {
-        this.gameWorld.getTeamInfo().addResource(rType, this.team, amount);
-        this.inventory.addResource(rType, amount);
-        addResourceChangeAction(rType, amount);
+    public void addResourceAmount(int amount) {
+        this.gameWorld.getTeamInfo().addResource(this.team, amount);
+        addResourceChangeAction(amount);
     }
+  
+// ---------------------------------------------
 
     public int getNumAnchors(Anchor anchor) {
         return this.inventory.getNumAnchors(anchor);
