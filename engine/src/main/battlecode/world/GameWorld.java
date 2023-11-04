@@ -91,7 +91,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robot = initialBodies[i];
             MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            createRobot(robot.ID, robot.type, newLocation, robot.team);
+            createRobot(robot.ID, robot.team);
         }
         this.teamInfo = new TeamInfo(this);
 
@@ -812,10 +812,8 @@ public strictfp class GameWorld {
     // *********************************
 
     public int createRobot(int ID, Team team) {
-        InternalRobot robot;
+        InternalRobot robot = new InternalRobot(this, ID, team);
         objectInfo.createRobot(robot);
-        addRobot(location, robot);
-
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
         return ID;
@@ -832,10 +830,8 @@ public strictfp class GameWorld {
 
     public void despawnRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        robot.location = null;
-        robot.spawned = false;
+        robot.despawn();
         removeRobot(robot.getLocation());
-
         matchMaker.addDied(id);
     }
 

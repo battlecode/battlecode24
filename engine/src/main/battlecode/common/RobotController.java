@@ -779,7 +779,7 @@ public strictfp interface RobotController {
      * 
      * @param loc the location to spawn the robot
      */
-    void spawn(MapLocation loc);
+    void spawn(MapLocation loc) throws GameActionException;
 
     // ***********************************
     // *********** BUILDING **************

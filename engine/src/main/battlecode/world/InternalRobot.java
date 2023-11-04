@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.Action;
+import java.util.Objects;
 
 /**
  * The representation of a robot used by the server.
@@ -392,10 +393,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void spawn(MapLocation loc) {
         this.spawned = true;
         this.location = loc;
-        this.gameWorld.addRobot(loc, this);
-        this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
         addMovementCooldownTurns();
         addActionCooldownTurns();
+    }
+
+    public void despawn() {
+        this.spawned = false;
+        this.location = null;
     }
 
     public boolean isSpawned() {

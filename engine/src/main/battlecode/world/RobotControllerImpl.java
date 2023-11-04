@@ -720,6 +720,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void spawn(MapLocation loc) throws GameActionException {
         assertCanSpawn(loc);
+        this.gameWorld.addRobot(loc, robot);
+        this.gameWorld.getObjectInfo().addRobotIndex(robot, loc);
         this.robot.spawn(loc);
     }
 
