@@ -364,7 +364,7 @@ public strictfp class GameWorld {
         TrapType type = trap.getType();
         switch(type){
             case STUN:
-                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, trap.enterRadius, trap.getTeam().opponent())){
+                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, type.enterRadius, trap.getTeam().opponent())){
                     rob.setMovementCooldownTurns(40);
                     rob.setActionCooldownTurns(40);
                 }
