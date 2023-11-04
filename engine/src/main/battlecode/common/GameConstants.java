@@ -123,6 +123,8 @@ public class GameConstants {
     /** The number of cooldown turns reduced per turn. */
     public static final int COOLDOWNS_PER_TURN = 10;
 
+    public static final int VISION_RADIUS = 20;
+
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************

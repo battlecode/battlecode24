@@ -443,8 +443,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) {
-
+    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
+        assertNotNull(center);
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        List<MapLocation> validSensedFlagLocs = new ArrayList<>();
+        
+        for (MapLocation loc : allLocations) {
+            // Can't actually sense location based on radius squared
+            if (!getLocation().isWithinDistanceSquared(loc, GameConstants.VISION_RADIUS)) {
+                continue;
+            }
+            if(gameWorld.hasFlag(loc)) validSensedFlagLocs.add(loc);
+        }
+        return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
     }
 
     @Override
@@ -455,9 +468,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 currentBroadcastLocations.add(x.getBroadcastLoc());
             }
         }
-
         return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
-        
     }
 
     @Override

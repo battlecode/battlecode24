@@ -491,7 +491,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared); 
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
 
     /**
      * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
