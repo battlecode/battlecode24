@@ -363,13 +363,13 @@ public strictfp class GameWorld {
         MapLocation loc = trap.getLocation();
         TrapType type = trap.getType();
         switch(type){
-            case TrapType.STUN:
+            case STUN:
                 for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, trap.enterRadius, trap.getTeam().opponent())){
                     rob.setMovementCooldownTurns(40);
                     rob.setActionCooldownTurns(40);
                 }
                 break;
-            case TrapType.EXPLOSIVE:
+            case EXPLOSIVE:
                 int rad = type.interactRadius;
                 int dmg = type.enterDamage;
                 if (entered){
@@ -380,8 +380,12 @@ public strictfp class GameWorld {
                     rob.addHealth(-1*dmg);
                 }
                 break;
-            case TrapType.WATER:
-                //how are we implementing water?
+            case WATER:
+                for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.enterRadius)){
+                    if (getRobot(adjLoc) != null || !isPassable(adjLoc))
+                        continue;
+                    setWater(adjLoc);
+                }
                 break;
         }
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
