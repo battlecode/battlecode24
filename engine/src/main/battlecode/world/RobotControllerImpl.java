@@ -444,7 +444,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) {
-        
+
     }
 
     @Override
@@ -649,8 +649,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public void pickupFlag(MapLocation loc) throws GameActionException {
-        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
         assertCanPickupFlag(loc);
+        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
     }
