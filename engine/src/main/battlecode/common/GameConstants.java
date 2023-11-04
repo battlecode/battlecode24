@@ -68,6 +68,9 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
+    /** The total number of robots a team has (both despawned or spawned). */
+    public static final int ROBOT_CAPACITY = 50;
+
     /** The initial amount of mana each team starts with in each headquarter. */
     public static final int INITIAL_MN_AMOUNT = 200;
 
