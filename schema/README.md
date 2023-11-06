@@ -7,9 +7,14 @@ This repository contains the [Flatbuffers](https://google.github.io/flatbuffers/
 Download flatc: https://github.com/google/flatbuffers/releases
 Make sure it matches the version of our flatbuffers packages
 
+Run `npm run build-and-distribute` to update the schema files in the client and engine
+
+Alternatively:
 Run `npm run build` to generate the Java and TypeScript files.
 Run `npm run fix-schema` in the client to reimport this package
+Run `npm run copy-to-engine` here to copy the java files over to engine
 
+As far as I know, everything else below is out of date.
 
 
 

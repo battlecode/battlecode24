@@ -7,6 +7,8 @@
   "types": "ts/index.ts",
   "scripts": {
     "test": "true",
+    "build-and-distribute": "npm run build && npm run copy-to-engine && cd ../client2 && npm run fix-schema",
+    "copy-to-engine": "rm -R ../engine/src/main/battlecode/schema/ && mkdir ../engine/src/main/battlecode/schema && cp java/battlecode/schema/* ../engine/src/main/battlecode/schema/",
     "build": "flatc --ts -o ts battlecode.fbs && flatc --java -o java battlecode.fbs"
   },
   "repository": {
