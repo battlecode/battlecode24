@@ -223,7 +223,7 @@ export class Body {
     }
 
     public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = this.getInterpPos(interpFactor)
+        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
@@ -234,10 +234,6 @@ export class Body {
 
     public onHoverInfo(): string {
         return Object.getPrototypeOf(this).constructor.robotName
-    }
-
-    public getInterpPos(interpFactor: number): Vector {
-        return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
     }
 
     public copy(): Body {
