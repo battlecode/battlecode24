@@ -30,7 +30,7 @@ function getChartData(appContext: AppContext, property: string): any[] {
         })
     )
 
-    return values[0].map((value, index) => {
+    return values[0].slice(0, match.currentTurn.turnNumber).map((value, index) => {
         return {
             round: index + 1,
             red: value,
