@@ -8,7 +8,8 @@ export interface AppState {
     activeGame: Game | undefined
     activeMatch: Match | undefined
     tournament: Tournament | undefined
-    updatesPerSecond: number
+    updatesPerSecond: number,
+    paused: boolean
 }
 
 const DEFAULT_APP_STATE: AppState = {
@@ -16,7 +17,8 @@ const DEFAULT_APP_STATE: AppState = {
     activeGame: undefined,
     activeMatch: undefined,
     tournament: undefined,
-    updatesPerSecond: 0
+    updatesPerSecond: 0,
+    paused: true
 }
 
 export interface AppContext {

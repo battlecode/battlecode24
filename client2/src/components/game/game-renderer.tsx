@@ -19,7 +19,7 @@ export const GameRenderer: React.FC = () => {
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
 
     const appContext = useAppContext()
-    const { activeGame, activeMatch, updatesPerSecond } = appContext.state
+    const { activeGame, activeMatch } = appContext.state
 
     const [tooltipCanvas, setTooltipCanvas] = React.useState<HTMLCanvasElement>()
 
