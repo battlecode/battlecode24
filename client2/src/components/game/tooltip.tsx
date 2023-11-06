@@ -81,19 +81,47 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     const drawBodyTooltip = (match: Match, ctx: CanvasRenderingContext2D, body: Body, isClicked: boolean) => {
         ctx.beginPath();
-        ctx.strokeStyle = "blue"
+        ctx.strokeStyle = "blue";
         ctx.lineWidth = 1 / match.map.width;
         ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.actionRadius), 0, 360);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.strokeStyle = "red"
+        ctx.strokeStyle = "red";
         ctx.lineWidth = 1 / match.map.width;
         ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.visionRadius), 0, 360);
         ctx.stroke();
 
         if (isClicked) {
-            console.log(body.prevSquares);
+            let alphaValue = 1;
+            let radius = cst.TOOLTIP_PATH_INIT_R;
+            let lastPos: Vector = {x: -1, y: -1};
+
+            for (const prevPos of body.prevSquares.slice().reverse()) {
+                const color =  `rgba(255, 255, 255, ${alphaValue})`;
+
+                ctx.beginPath();
+                ctx.fillStyle = color;
+
+                ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360);
+
+                alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY;
+                radius *= cst.TOOLTIP_PATH_DECAY_R;
+                ctx.fill();
+
+                if (lastPos.x != -1 && lastPos.y != -1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = radius / 2;
+
+                    ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5));
+                    ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5));
+
+                    ctx.stroke();
+                }
+
+                lastPos = prevPos;
+            }
         }
     }
 
@@ -114,7 +142,8 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         if (clickedBody) {
             drawBodyTooltip(match, ctx, clickedBody, true);
         }
-    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBody, tileLeft, tileTop]);
+    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBody, tileLeft, tileTop,
+        appContext.state.activeMatch?.currentTurn.turnNumber]);
 
     useEffect(() => {
         setClickedRobot(undefined);
