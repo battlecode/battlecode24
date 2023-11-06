@@ -2,10 +2,12 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Action } from '../../battlecode/schema/action';
-import { RGBTable } from '../../battlecode/schema/r-g-b-table';
-import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table';
-import { VecTable } from '../../battlecode/schema/vec-table';
+import { Action } from '../../battlecode/schema/action.js';
+import { BuildActionType } from '../../battlecode/schema/build-action-type.js';
+import { CommTable } from '../../battlecode/schema/comm-table.js';
+import { RGBTable } from '../../battlecode/schema/rgbtable.js';
+import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table.js';
+import { VecTable } from '../../battlecode/schema/vec-table.js';
 
 
 /**
@@ -17,7 +19,7 @@ import { VecTable } from '../../battlecode/schema/vec-table';
 export class Round {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):Round {
+  __init(i:number, bb:flatbuffers.ByteBuffer):Round {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -35,124 +37,222 @@ static getSizePrefixedRootAsRound(bb:flatbuffers.ByteBuffer, obj?:Round):Round {
 /**
  * The IDs of teams in the Game.
  */
-teamIDs(index: number):number|null {
+teamIds(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-teamIDsLength():number {
+teamIdsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-teamIDsArray():Int32Array|null {
+teamIdsArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 /**
- * The total amount of Ad change of this team, this round
+ * The total amount of resource change of this team, this round
  */
-teamAdChanges(index: number):number|null {
+teamResourceAmounts(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-teamAdChangesLength():number {
+teamResourceAmountsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-teamAdChangesArray():Int32Array|null {
+teamResourceAmountsArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-/**
- * The total amount of Mn change of this team, this round
- */
-teamMnChanges(index: number):number|null {
+teamCommunication(obj?:CommTable):CommTable|null {
   const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? (obj || new CommTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-teamMnChangesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-teamMnChangesArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The total amount of Ex change of this team, this round
- */
-teamExChanges(index: number):number|null {
+robotIds(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-teamExChangesLength():number {
+robotIdsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-teamExChangesArray():Int32Array|null {
+robotIdsArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-/**
- * The IDs of bodies that moved.
- */
-movedIDs(index: number):number|null {
+robotLocs(obj?:VecTable):VecTable|null {
   const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-movedIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-movedIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The new locations of bodies that have moved.
- */
-movedLocs(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+robotMoveCooldowns(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+robotMoveCooldownsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+robotMoveCooldownsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+robotActionCooldowns(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+robotActionCooldownsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+robotActionCooldownsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+robotHealths(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+robotHealthsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+robotHealthsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+attacksPerformed(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+attacksPerformedLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+attacksPerformedArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+attackLevels(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+attackLevelsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+attackLevelsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+buildsPerformed(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+buildsPerformedLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+buildsPerformedArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+buildLevels(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+buildLevelsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+buildLevelsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+healsPerformed(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+healsPerformedLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+healsPerformedArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+healLevels(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+healLevelsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+healLevelsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 30);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 /**
  * New bodies.
  */
 spawnedBodies(obj?:SpawnedBodyTable):SpawnedBodyTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? (obj || new SpawnedBodyTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 /**
  * The IDs of bodies that died.
  */
-diedIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+diedIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-diedIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+diedIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-diedIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+diedIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -160,36 +260,36 @@ diedIDsArray():Int32Array|null {
  * The IDs of robots that performed actions.
  * IDs may repeat.
  */
-actionIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+actionIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-actionIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+actionIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-actionIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+actionIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 /**
- * The actions performed. These actions allow us to track how much soup or dirt a body carries.
+ * The actions performed. These actions allow us to track many things about the current state.
  */
 actions(index: number):Action|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 actionsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 actionsArray():Int8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -197,169 +297,115 @@ actionsArray():Int8Array|null {
  * The 'targets' of the performed actions. Actions without targets may have any value
  */
 actionTargets(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 actionTargetsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 actionTargetsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-/**
- * The IDs of all islands
- */
-islandIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-islandIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-islandIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The number of turns the opposing team has been occupying each island
- */
-islandTurnoverTurns(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-islandTurnoverTurnsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-islandTurnoverTurnsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The teamID for the owners of each island. 
- */
-islandOwnership(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-islandOwnershipLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-islandOwnershipArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The locations of the resources wells being given resources
- */
-resourceWellLocs(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 32);
+claimedResourcePiles(obj?:VecTable):VecTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-/**
- * The change in adamantium stored in the well
- */
-wellAdamantiumChange(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+trapIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-wellAdamantiumChangeLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+trapIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-wellAdamantiumChangeArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+trapIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-/**
- * The change in mana stored in the well
- */
-wellManaChange(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+trapAddedLocations(obj?:VecTable):VecTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 46);
+  return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+trapAddedTypes(index: number):BuildActionType|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+trapAddedTypesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+trapAddedTypesArray():Int8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+trapAddedTeams(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+trapAddedTeamsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+trapAddedTeamsArray():Int8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
+trapTriggeredIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-wellManaChangeLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+trapTriggeredIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-wellManaChangeArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+trapTriggeredIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
-/**
- * The change in elixir stored in the well
- */
-wellElixirChange(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+digLocations(obj?:VecTable):VecTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-wellElixirChangeLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-wellElixirChangeArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The ID for the new resource this well now contains
- */
-resourceID(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-resourceIDLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-resourceIDArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+fillLocations(obj?:VecTable):VecTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 /**
  * The IDs of the robots who changed their indicator strings
  */
-indicatorStringIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+indicatorStringIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-indicatorStringIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+indicatorStringIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-indicatorStringIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+indicatorStringIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -369,30 +415,30 @@ indicatorStringIDsArray():Int32Array|null {
 indicatorStrings(index: number):string
 indicatorStrings(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
 indicatorStrings(index: number,optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.__string(this.bb!.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
 }
 
 indicatorStringsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 60);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 /**
  * The IDs of bodies that set indicator dots
  */
-indicatorDotIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+indicatorDotIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 62);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-indicatorDotIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+indicatorDotIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 62);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-indicatorDotIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+indicatorDotIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 62);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -400,33 +446,33 @@ indicatorDotIDsArray():Int32Array|null {
  * The location of the indicator dots
  */
 indicatorDotLocs(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 64);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 /**
  * The RGB values of the indicator dots
  */
-indicatorDotRGBs(obj?:RGBTable):RGBTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+indicatorDotRgbs(obj?:RGBTable):RGBTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 66);
   return offset ? (obj || new RGBTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 /**
  * The IDs of bodies that set indicator lines
  */
-indicatorLineIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+indicatorLineIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-indicatorLineIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+indicatorLineIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-indicatorLineIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+indicatorLineIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 68);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -434,7 +480,7 @@ indicatorLineIDsArray():Int32Array|null {
  * The start location of the indicator lines
  */
 indicatorLineStartLocs(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 70);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
@@ -442,15 +488,15 @@ indicatorLineStartLocs(obj?:VecTable):VecTable|null {
  * The end location of the indicator lines
  */
 indicatorLineEndLocs(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 72);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 /**
  * The RGB values of the indicator lines
  */
-indicatorLineRGBs(obj?:RGBTable):RGBTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 58);
+indicatorLineRgbs(obj?:RGBTable):RGBTable|null {
+  const offset = this.bb!.__offset(this.bb_pos, 74);
   return offset ? (obj || new RGBTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
@@ -459,26 +505,26 @@ indicatorLineRGBs(obj?:RGBTable):RGBTable|null {
  * created by the MatchHeader, can be thought to have index 0.)
  * It should increase by one for each following round.
  */
-roundID():number {
-  const offset = this.bb!.__offset(this.bb_pos, 60);
+roundId():number {
+  const offset = this.bb!.__offset(this.bb_pos, 76);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 /**
  * The IDs of player bodies.
  */
-bytecodeIDs(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 62);
+bytecodeIds(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-bytecodeIDsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 62);
+bytecodeIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-bytecodeIDsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 62);
+bytecodeIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 78);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -486,34 +532,34 @@ bytecodeIDsArray():Int32Array|null {
  * The bytecodes used by the player bodies.
  */
 bytecodesUsed(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 64);
+  const offset = this.bb!.__offset(this.bb_pos, 80);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 bytecodesUsedLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 64);
+  const offset = this.bb!.__offset(this.bb_pos, 80);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 bytecodesUsedArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 64);
+  const offset = this.bb!.__offset(this.bb_pos, 80);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 static startRound(builder:flatbuffers.Builder) {
-  builder.startObject(31);
+  builder.startObject(39);
 }
 
-static addTeamIDs(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, teamIDsOffset, 0);
+static addTeamIds(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, teamIdsOffset, 0);
 }
 
-static createTeamIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createTeamIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTeamIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTeamIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -521,20 +567,20 @@ static createTeamIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array
   return builder.endVector();
 }
 
-static startTeamIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addTeamAdChanges(builder:flatbuffers.Builder, teamAdChangesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, teamAdChangesOffset, 0);
+static addTeamResourceAmounts(builder:flatbuffers.Builder, teamResourceAmountsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, teamResourceAmountsOffset, 0);
 }
 
-static createTeamAdChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createTeamResourceAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamAdChangesVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamAdChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTeamResourceAmountsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTeamResourceAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -542,20 +588,24 @@ static createTeamAdChangesVector(builder:flatbuffers.Builder, data:number[]|Int3
   return builder.endVector();
 }
 
-static startTeamAdChangesVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamResourceAmountsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addTeamMnChanges(builder:flatbuffers.Builder, teamMnChangesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, teamMnChangesOffset, 0);
+static addTeamCommunication(builder:flatbuffers.Builder, teamCommunicationOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, teamCommunicationOffset, 0);
 }
 
-static createTeamMnChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static addRobotIds(builder:flatbuffers.Builder, robotIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, robotIdsOffset, 0);
+}
+
+static createRobotIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamMnChangesVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamMnChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createRobotIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createRobotIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -563,20 +613,24 @@ static createTeamMnChangesVector(builder:flatbuffers.Builder, data:number[]|Int3
   return builder.endVector();
 }
 
-static startTeamMnChangesVector(builder:flatbuffers.Builder, numElems:number) {
+static startRobotIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addTeamExChanges(builder:flatbuffers.Builder, teamExChangesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, teamExChangesOffset, 0);
+static addRobotLocs(builder:flatbuffers.Builder, robotLocsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, robotLocsOffset, 0);
 }
 
-static createTeamExChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static addRobotMoveCooldowns(builder:flatbuffers.Builder, robotMoveCooldownsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(5, robotMoveCooldownsOffset, 0);
+}
+
+static createRobotMoveCooldownsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamExChangesVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamExChangesVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createRobotMoveCooldownsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createRobotMoveCooldownsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -584,20 +638,20 @@ static createTeamExChangesVector(builder:flatbuffers.Builder, data:number[]|Int3
   return builder.endVector();
 }
 
-static startTeamExChangesVector(builder:flatbuffers.Builder, numElems:number) {
+static startRobotMoveCooldownsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addMovedIDs(builder:flatbuffers.Builder, movedIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, movedIDsOffset, 0);
+static addRobotActionCooldowns(builder:flatbuffers.Builder, robotActionCooldownsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, robotActionCooldownsOffset, 0);
 }
 
-static createMovedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createRobotActionCooldownsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createMovedIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createMovedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createRobotActionCooldownsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createRobotActionCooldownsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -605,28 +659,171 @@ static createMovedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Arra
   return builder.endVector();
 }
 
-static startMovedIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startRobotActionCooldownsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addMovedLocs(builder:flatbuffers.Builder, movedLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, movedLocsOffset, 0);
+static addRobotHealths(builder:flatbuffers.Builder, robotHealthsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, robotHealthsOffset, 0);
+}
+
+static createRobotHealthsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createRobotHealthsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createRobotHealthsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startRobotHealthsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addAttacksPerformed(builder:flatbuffers.Builder, attacksPerformedOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(8, attacksPerformedOffset, 0);
+}
+
+static createAttacksPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createAttacksPerformedVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createAttacksPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startAttacksPerformedVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addAttackLevels(builder:flatbuffers.Builder, attackLevelsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(9, attackLevelsOffset, 0);
+}
+
+static createAttackLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createAttackLevelsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createAttackLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startAttackLevelsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addBuildsPerformed(builder:flatbuffers.Builder, buildsPerformedOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, buildsPerformedOffset, 0);
+}
+
+static createBuildsPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createBuildsPerformedVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createBuildsPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startBuildsPerformedVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addBuildLevels(builder:flatbuffers.Builder, buildLevelsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, buildLevelsOffset, 0);
+}
+
+static createBuildLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createBuildLevelsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createBuildLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startBuildLevelsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addHealsPerformed(builder:flatbuffers.Builder, healsPerformedOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(12, healsPerformedOffset, 0);
+}
+
+static createHealsPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createHealsPerformedVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createHealsPerformedVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startHealsPerformedVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addHealLevels(builder:flatbuffers.Builder, healLevelsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, healLevelsOffset, 0);
+}
+
+static createHealLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createHealLevelsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createHealLevelsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startHealLevelsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
 }
 
 static addSpawnedBodies(builder:flatbuffers.Builder, spawnedBodiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, spawnedBodiesOffset, 0);
+  builder.addFieldOffset(14, spawnedBodiesOffset, 0);
 }
 
-static addDiedIDs(builder:flatbuffers.Builder, diedIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, diedIDsOffset, 0);
+static addDiedIds(builder:flatbuffers.Builder, diedIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(15, diedIdsOffset, 0);
 }
 
-static createDiedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createDiedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createDiedIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createDiedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createDiedIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createDiedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -634,20 +831,20 @@ static createDiedIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array
   return builder.endVector();
 }
 
-static startDiedIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startDiedIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addActionIDs(builder:flatbuffers.Builder, actionIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, actionIDsOffset, 0);
+static addActionIds(builder:flatbuffers.Builder, actionIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(16, actionIdsOffset, 0);
 }
 
-static createActionIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createActionIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createActionIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createActionIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createActionIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createActionIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -655,12 +852,12 @@ static createActionIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Arr
   return builder.endVector();
 }
 
-static startActionIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startActionIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addActions(builder:flatbuffers.Builder, actionsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, actionsOffset, 0);
+  builder.addFieldOffset(17, actionsOffset, 0);
 }
 
 static createActionsVector(builder:flatbuffers.Builder, data:Action[]):flatbuffers.Offset {
@@ -676,7 +873,7 @@ static startActionsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActionTargets(builder:flatbuffers.Builder, actionTargetsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, actionTargetsOffset, 0);
+  builder.addFieldOffset(18, actionTargetsOffset, 0);
 }
 
 static createActionTargetsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -696,16 +893,20 @@ static startActionTargetsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addIslandIDs(builder:flatbuffers.Builder, islandIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(11, islandIDsOffset, 0);
+static addClaimedResourcePiles(builder:flatbuffers.Builder, claimedResourcePilesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(19, claimedResourcePilesOffset, 0);
 }
 
-static createIslandIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static addTrapIds(builder:flatbuffers.Builder, trapIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(20, trapIdsOffset, 0);
+}
+
+static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createIslandIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIslandIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -713,20 +914,61 @@ static createIslandIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Arr
   return builder.endVector();
 }
 
-static startIslandIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTrapIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addIslandTurnoverTurns(builder:flatbuffers.Builder, islandTurnoverTurnsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, islandTurnoverTurnsOffset, 0);
+static addTrapAddedLocations(builder:flatbuffers.Builder, trapAddedLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(21, trapAddedLocationsOffset, 0);
 }
 
-static createIslandTurnoverTurnsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static addTrapAddedTypes(builder:flatbuffers.Builder, trapAddedTypesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(22, trapAddedTypesOffset, 0);
+}
+
+static createTrapAddedTypesVector(builder:flatbuffers.Builder, data:BuildActionType[]):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTrapAddedTypesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addTrapAddedTeams(builder:flatbuffers.Builder, trapAddedTeamsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(23, trapAddedTeamsOffset, 0);
+}
+
+static createTrapAddedTeamsVector(builder:flatbuffers.Builder, data:number[]|Int8Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createIslandTurnoverTurnsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIslandTurnoverTurnsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTrapAddedTeamsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTrapAddedTeamsVector(builder:flatbuffers.Builder, data:number[]|Int8Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startTrapAddedTeamsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
+static addTrapTriggeredIds(builder:flatbuffers.Builder, trapTriggeredIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(24, trapTriggeredIdsOffset, 0);
+}
+
+static createTrapTriggeredIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createTrapTriggeredIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTrapTriggeredIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -734,20 +976,28 @@ static createIslandTurnoverTurnsVector(builder:flatbuffers.Builder, data:number[
   return builder.endVector();
 }
 
-static startIslandTurnoverTurnsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTrapTriggeredIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addIslandOwnership(builder:flatbuffers.Builder, islandOwnershipOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, islandOwnershipOffset, 0);
+static addDigLocations(builder:flatbuffers.Builder, digLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(25, digLocationsOffset, 0);
 }
 
-static createIslandOwnershipVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static addFillLocations(builder:flatbuffers.Builder, fillLocationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, fillLocationsOffset, 0);
+}
+
+static addIndicatorStringIds(builder:flatbuffers.Builder, indicatorStringIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(27, indicatorStringIdsOffset, 0);
+}
+
+static createIndicatorStringIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createIslandOwnershipVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIslandOwnershipVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createIndicatorStringIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createIndicatorStringIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -755,121 +1005,12 @@ static createIslandOwnershipVector(builder:flatbuffers.Builder, data:number[]|In
   return builder.endVector();
 }
 
-static startIslandOwnershipVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addResourceWellLocs(builder:flatbuffers.Builder, resourceWellLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(14, resourceWellLocsOffset, 0);
-}
-
-static addWellAdamantiumChange(builder:flatbuffers.Builder, wellAdamantiumChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(15, wellAdamantiumChangeOffset, 0);
-}
-
-static createWellAdamantiumChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createWellAdamantiumChangeVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createWellAdamantiumChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startWellAdamantiumChangeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addWellManaChange(builder:flatbuffers.Builder, wellManaChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(16, wellManaChangeOffset, 0);
-}
-
-static createWellManaChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createWellManaChangeVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createWellManaChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startWellManaChangeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addWellElixirChange(builder:flatbuffers.Builder, wellElixirChangeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, wellElixirChangeOffset, 0);
-}
-
-static createWellElixirChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createWellElixirChangeVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createWellElixirChangeVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startWellElixirChangeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addResourceID(builder:flatbuffers.Builder, resourceIDOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(18, resourceIDOffset, 0);
-}
-
-static createResourceIDVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createResourceIDVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createResourceIDVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startResourceIDVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addIndicatorStringIDs(builder:flatbuffers.Builder, indicatorStringIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, indicatorStringIDsOffset, 0);
-}
-
-static createIndicatorStringIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createIndicatorStringIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIndicatorStringIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startIndicatorStringIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startIndicatorStringIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addIndicatorStrings(builder:flatbuffers.Builder, indicatorStringsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, indicatorStringsOffset, 0);
+  builder.addFieldOffset(28, indicatorStringsOffset, 0);
 }
 
 static createIndicatorStringsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -884,16 +1025,16 @@ static startIndicatorStringsVector(builder:flatbuffers.Builder, numElems:number)
   builder.startVector(4, numElems, 4);
 }
 
-static addIndicatorDotIDs(builder:flatbuffers.Builder, indicatorDotIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(21, indicatorDotIDsOffset, 0);
+static addIndicatorDotIds(builder:flatbuffers.Builder, indicatorDotIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(29, indicatorDotIdsOffset, 0);
 }
 
-static createIndicatorDotIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createIndicatorDotIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createIndicatorDotIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIndicatorDotIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createIndicatorDotIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createIndicatorDotIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -901,28 +1042,28 @@ static createIndicatorDotIDsVector(builder:flatbuffers.Builder, data:number[]|In
   return builder.endVector();
 }
 
-static startIndicatorDotIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startIndicatorDotIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addIndicatorDotLocs(builder:flatbuffers.Builder, indicatorDotLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(22, indicatorDotLocsOffset, 0);
+  builder.addFieldOffset(30, indicatorDotLocsOffset, 0);
 }
 
-static addIndicatorDotRGBs(builder:flatbuffers.Builder, indicatorDotRGBsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(23, indicatorDotRGBsOffset, 0);
+static addIndicatorDotRgbs(builder:flatbuffers.Builder, indicatorDotRgbsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(31, indicatorDotRgbsOffset, 0);
 }
 
-static addIndicatorLineIDs(builder:flatbuffers.Builder, indicatorLineIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(24, indicatorLineIDsOffset, 0);
+static addIndicatorLineIds(builder:flatbuffers.Builder, indicatorLineIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(32, indicatorLineIdsOffset, 0);
 }
 
-static createIndicatorLineIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createIndicatorLineIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createIndicatorLineIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createIndicatorLineIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createIndicatorLineIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createIndicatorLineIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -930,36 +1071,36 @@ static createIndicatorLineIDsVector(builder:flatbuffers.Builder, data:number[]|I
   return builder.endVector();
 }
 
-static startIndicatorLineIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startIndicatorLineIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addIndicatorLineStartLocs(builder:flatbuffers.Builder, indicatorLineStartLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(25, indicatorLineStartLocsOffset, 0);
+  builder.addFieldOffset(33, indicatorLineStartLocsOffset, 0);
 }
 
 static addIndicatorLineEndLocs(builder:flatbuffers.Builder, indicatorLineEndLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, indicatorLineEndLocsOffset, 0);
+  builder.addFieldOffset(34, indicatorLineEndLocsOffset, 0);
 }
 
-static addIndicatorLineRGBs(builder:flatbuffers.Builder, indicatorLineRGBsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(27, indicatorLineRGBsOffset, 0);
+static addIndicatorLineRgbs(builder:flatbuffers.Builder, indicatorLineRgbsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(35, indicatorLineRgbsOffset, 0);
 }
 
-static addRoundID(builder:flatbuffers.Builder, roundID:number) {
-  builder.addFieldInt32(28, roundID, 0);
+static addRoundId(builder:flatbuffers.Builder, roundId:number) {
+  builder.addFieldInt32(36, roundId, 0);
 }
 
-static addBytecodeIDs(builder:flatbuffers.Builder, bytecodeIDsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(29, bytecodeIDsOffset, 0);
+static addBytecodeIds(builder:flatbuffers.Builder, bytecodeIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(37, bytecodeIdsOffset, 0);
 }
 
-static createBytecodeIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createBytecodeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createBytecodeIDsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createBytecodeIDsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createBytecodeIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createBytecodeIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -967,12 +1108,12 @@ static createBytecodeIDsVector(builder:flatbuffers.Builder, data:number[]|Int32A
   return builder.endVector();
 }
 
-static startBytecodeIDsVector(builder:flatbuffers.Builder, numElems:number) {
+static startBytecodeIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addBytecodesUsed(builder:flatbuffers.Builder, bytecodesUsedOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(30, bytecodesUsedOffset, 0);
+  builder.addFieldOffset(38, bytecodesUsedOffset, 0);
 }
 
 static createBytecodesUsedVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;

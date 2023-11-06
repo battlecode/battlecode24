@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { ProfilerProfile } from '../../battlecode/schema/profiler-profile';
+import { ProfilerProfile } from '../../battlecode/schema/profiler-profile.js';
 
 
 /**
@@ -12,7 +12,7 @@ import { ProfilerProfile } from '../../battlecode/schema/profiler-profile';
 export class ProfilerFile {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerFile {
+  __init(i:number, bb:flatbuffers.ByteBuffer):ProfilerFile {
   this.bb_pos = i;
   this.bb = bb;
   return this;

@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/battlecode/battlecode-schema#readme",
   "dependencies": {
-    "flatbuffers": "^1.11.0",
-    "@types/flatbuffers": "^1.9.1"
+    "@types/flatbuffers": "^1.10.2",
+    "flatbuffers": "^23.5.26"
   }
 }

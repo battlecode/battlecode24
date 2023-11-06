@@ -5,7 +5,7 @@ import * as flatbuffers from 'flatbuffers';
 export class Constants {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):Constants {
+  __init(i:number, bb:flatbuffers.ByteBuffer):Constants {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -20,35 +20,80 @@ static getSizePrefixedRootAsConstants(bb:flatbuffers.ByteBuffer, obj?:Constants)
   return (obj || new Constants()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-increasePeriod():number {
+setupPhaseLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-AdAdditiveIncease():number {
+flagMinDistance():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-MnAdditiveIncease():number {
+globalUpgradeRoundDelay():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
+passiveResourceRate():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+robotBaseHealth():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+jailedRounds():number {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+visionRadius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 16);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+actionRadius():number {
+  const offset = this.bb!.__offset(this.bb_pos, 18);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startConstants(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(8);
 }
 
-static addIncreasePeriod(builder:flatbuffers.Builder, increasePeriod:number) {
-  builder.addFieldInt32(0, increasePeriod, 0);
+static addSetupPhaseLength(builder:flatbuffers.Builder, setupPhaseLength:number) {
+  builder.addFieldInt32(0, setupPhaseLength, 0);
 }
 
-static addAdAdditiveIncease(builder:flatbuffers.Builder, AdAdditiveIncease:number) {
-  builder.addFieldInt32(1, AdAdditiveIncease, 0);
+static addFlagMinDistance(builder:flatbuffers.Builder, flagMinDistance:number) {
+  builder.addFieldInt32(1, flagMinDistance, 0);
 }
 
-static addMnAdditiveIncease(builder:flatbuffers.Builder, MnAdditiveIncease:number) {
-  builder.addFieldInt32(2, MnAdditiveIncease, 0);
+static addGlobalUpgradeRoundDelay(builder:flatbuffers.Builder, globalUpgradeRoundDelay:number) {
+  builder.addFieldInt32(2, globalUpgradeRoundDelay, 0);
+}
+
+static addPassiveResourceRate(builder:flatbuffers.Builder, passiveResourceRate:number) {
+  builder.addFieldInt32(3, passiveResourceRate, 0);
+}
+
+static addRobotBaseHealth(builder:flatbuffers.Builder, robotBaseHealth:number) {
+  builder.addFieldInt32(4, robotBaseHealth, 0);
+}
+
+static addJailedRounds(builder:flatbuffers.Builder, jailedRounds:number) {
+  builder.addFieldInt32(5, jailedRounds, 0);
+}
+
+static addVisionRadius(builder:flatbuffers.Builder, visionRadius:number) {
+  builder.addFieldInt32(6, visionRadius, 0);
+}
+
+static addActionRadius(builder:flatbuffers.Builder, actionRadius:number) {
+  builder.addFieldInt32(7, actionRadius, 0);
 }
 
 static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -56,11 +101,16 @@ static endConstants(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createConstants(builder:flatbuffers.Builder, increasePeriod:number, AdAdditiveIncease:number, MnAdditiveIncease:number):flatbuffers.Offset {
+static createConstants(builder:flatbuffers.Builder, setupPhaseLength:number, flagMinDistance:number, globalUpgradeRoundDelay:number, passiveResourceRate:number, robotBaseHealth:number, jailedRounds:number, visionRadius:number, actionRadius:number):flatbuffers.Offset {
   Constants.startConstants(builder);
-  Constants.addIncreasePeriod(builder, increasePeriod);
-  Constants.addAdAdditiveIncease(builder, AdAdditiveIncease);
-  Constants.addMnAdditiveIncease(builder, MnAdditiveIncease);
+  Constants.addSetupPhaseLength(builder, setupPhaseLength);
+  Constants.addFlagMinDistance(builder, flagMinDistance);
+  Constants.addGlobalUpgradeRoundDelay(builder, globalUpgradeRoundDelay);
+  Constants.addPassiveResourceRate(builder, passiveResourceRate);
+  Constants.addRobotBaseHealth(builder, robotBaseHealth);
+  Constants.addJailedRounds(builder, jailedRounds);
+  Constants.addVisionRadius(builder, visionRadius);
+  Constants.addActionRadius(builder, actionRadius);
   return Constants.endConstants(builder);
 }
 }

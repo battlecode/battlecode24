@@ -1,6 +1,26 @@
 # Battlecode Schema
 This repository contains the [Flatbuffers](https://google.github.io/flatbuffers/) schema files that describe the wire format of Battlecode matches.
 
+
+### 2023 instructions
+
+Download flatc: https://github.com/google/flatbuffers/releases
+Make sure it matches the version of our flatbuffers packages
+
+Run `npm run build` to generate the Java and TypeScript files.
+Run `npm run fix-schema` in the client to reimport this package
+
+
+
+
+
+
+
+
+
+
+
+
 ### Spec
 
 ##### Match Files
