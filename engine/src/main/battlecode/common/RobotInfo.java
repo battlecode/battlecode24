@@ -39,12 +39,11 @@ public class RobotInfo {
      */
     public final MapLocation location;
 
-    public RobotInfo(int ID, Team team, RobotType type, Inventory inventory, int health, MapLocation location) {
+    public RobotInfo(int ID, Team team, RobotType type, int health, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
-        this.inventory = inventory.copy();
         this.health = health;
         this.location = location;
     }

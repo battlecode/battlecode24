@@ -99,7 +99,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return health;
     }
 
-    public int getResource(ResourceType r) {
+    public int getResource() {
         return this.gameWorld.getTeamInfo().getBread(this.team);
     }
 
@@ -111,38 +111,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addResourceAmount(int amount) {
         this.gameWorld.getTeamInfo().addResource(this.team, amount);
         addResourceChangeAction(amount);
-    }
-  
-// ---------------------------------------------
-
-    public int getNumAnchors(Anchor anchor) {
-        return this.inventory.getNumAnchors(anchor);
-    }
-
-    public boolean holdingAnchor() {
-        return this.inventory.getTotalAnchors() > 0;
-    }
-
-    public Anchor getTypeAnchor() {
-        if (getNumAnchors(Anchor.STANDARD) > 0) {
-            return Anchor.STANDARD;
-        } else if (getNumAnchors(Anchor.ACCELERATING) > 0) {
-            return Anchor.ACCELERATING;
-        } else {
-            return null;
-        }
-    }
-
-    public boolean canAddAnchor() {
-        return this.inventory.canAdd(GameConstants.ANCHOR_WEIGHT);
-    }
-
-    public void addAnchor(Anchor anchor) {
-        this.inventory.addAnchor(anchor);
-    }
-
-    public void releaseAnchor(Anchor anchor) {
-        this.inventory.releaseAnchor(anchor);
     }
 
     public long getControlBits() {
@@ -169,18 +137,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
-                && cachedRobotInfo.type == type
-                && cachedRobotInfo.getNumAnchors(Anchor.STANDARD) == inventory.getNumAnchors(Anchor.STANDARD)
-                && cachedRobotInfo.getNumAnchors(Anchor.ACCELERATING) == inventory.getNumAnchors(Anchor.ACCELERATING)
-                && cachedRobotInfo.getResourceAmount(ResourceType.ADAMANTIUM) == inventory.getResource(ResourceType.ADAMANTIUM)
-                && cachedRobotInfo.getResourceAmount(ResourceType.MANA) == inventory.getResource(ResourceType.MANA)
-                && cachedRobotInfo.getResourceAmount(ResourceType.ELIXIR) == inventory.getResource(ResourceType.ELIXIR)
+                && cachedRobotInfo.type == type 
+                && cachedRobotInfo.getResourceAmount() == this.getResource()
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, inventory.copy(), health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location);
         return this.cachedRobotInfo;
     }
 
@@ -414,8 +378,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             }
             if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0) {
                 // Add resources to team
-                this.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.PASSIVE_AD_INCREASE);
-                this.addResourceAmount(ResourceType.MANA, GameConstants.PASSIVE_MN_INCREASE);
+                this.addResourceAmount(GameConstants.PASSIVE_AD_INCREASE);
+                this.addResourceAmount(GameConstants.PASSIVE_MN_INCREASE);
             }
         }
 
