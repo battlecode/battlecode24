@@ -7,12 +7,10 @@ import { Button, BrightButton, SmallButton } from '../../button'
 import { NumInput, Select } from '../../forms'
 import { useAppContext } from '../../../app-context'
 import Match from '../../../playback/Match'
-import { EventType, useListenEvent } from '../../../app-events'
+import { EventType, publishEvent, useListenEvent } from '../../../app-events'
 import { MapEditorBrush } from './MapEditorBrush'
-import { loadFileAsMap, saveMapToFile } from './MapGenerator'
-
-const MIN_MAP_SIZE = 20
-const MAX_MAP_SIZE = 60
+import { exportMap, loadFileAsMap } from './MapGenerator'
+import { MAP_SIZE_RANGE } from '../../../constants'
 
 type MapParams = {
     width: number
@@ -37,8 +35,10 @@ export const MapEditorPage: React.FC = () => {
         (context.state.activeMatch.currentTurn.map.isEmpty() && context.state.activeMatch.currentTurn.bodies.isEmpty())
 
     const applyBrush = (point: { x: number; y: number }) => {
-        if (openBrush) openBrush.apply(point.x, point.y, openBrush.fields)
+        if (!openBrush) return
 
+        openBrush.apply(point.x, point.y, openBrush.fields)
+        publishEvent(EventType.INITIAL_RENDER, {})
         setCleared(mapEmpty())
     }
 
@@ -68,11 +68,11 @@ export const MapEditorPage: React.FC = () => {
     }, [mapParams])
 
     const changeWidth = (newWidth: number) => {
-        newWidth = Math.max(MIN_MAP_SIZE, Math.min(MAX_MAP_SIZE, newWidth))
+        newWidth = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newWidth))
         setMapParams({ ...mapParams, width: newWidth, imported: undefined })
     }
     const changeHeight = (newHeight: number) => {
-        newHeight = Math.max(MIN_MAP_SIZE, Math.min(MAX_MAP_SIZE, newHeight))
+        newHeight = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newHeight))
         setMapParams({ ...mapParams, height: newHeight, imported: undefined })
     }
     const changeSymmetry = (symmetry: string) => {
@@ -96,21 +96,6 @@ export const MapEditorPage: React.FC = () => {
         if (!confirm('Are you sure you want to clear the map?')) return
         setCleared(true)
         setMapParams({ ...mapParams, imported: undefined })
-    }
-
-    const exportMap = () => {
-        if (
-            !context.state.activeMatch?.currentTurn ||
-            (context.state.activeMatch.currentTurn.map.isEmpty() &&
-                context.state.activeMatch.currentTurn.bodies.isEmpty())
-        ) {
-            alert('Map is empty')
-            return
-        }
-        let name = prompt('Enter a name for this map')
-        if (!name) return
-        context.state.activeGame!.currentMatch!.currentTurn!.map.staticMap.name = name ?? 'Untitled'
-        saveMapToFile(context.state.activeGame!.currentMatch!.currentTurn, name)
     }
 
     return (
@@ -138,15 +123,15 @@ export const MapEditorPage: React.FC = () => {
                         <NumInput
                             value={mapParams.width}
                             changeValue={changeWidth}
-                            min={MIN_MAP_SIZE}
-                            max={MAX_MAP_SIZE}
+                            min={MAP_SIZE_RANGE.min}
+                            max={MAP_SIZE_RANGE.max}
                         />
                         <span className="ml-3 mr-2 text-sm">Height: </span>
                         <NumInput
                             value={mapParams.height}
                             changeValue={changeHeight}
-                            min={MIN_MAP_SIZE}
-                            max={MAX_MAP_SIZE}
+                            min={MAP_SIZE_RANGE.min}
+                            max={MAP_SIZE_RANGE.max}
                         />
                     </div>
                     <div className="flex flex-row mt-3 items-center justify-center">
@@ -160,7 +145,14 @@ export const MapEditorPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-row mt-8">
-                    <BrightButton onClick={exportMap}>Export</BrightButton>
+                    <BrightButton
+                        onClick={() => {
+                            if (!context.state.activeMatch?.currentTurn) return
+                            exportMap(context.state.activeMatch.currentTurn)
+                        }}
+                    >
+                        Export
+                    </BrightButton>
                     <Button onClick={() => inputRef.current?.click()}>Import</Button>
                 </div>
             </div>

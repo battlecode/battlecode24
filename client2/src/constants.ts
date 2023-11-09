@@ -26,16 +26,21 @@ export const TEAM_NAMES = ['Red', 'Blue']
  * Renderer constants
  */
 export const TILE_RESOLUTION: number = 50 // Pixels per axis per tile
-export const TOOLTIP_PATH_LENGTH = 8;
-export const TOOLTIP_PATH_INIT_R = 0.2;
-export const TOOLTIP_PATH_DECAY_R = 0.9;
-export const TOOLTIP_PATH_DECAY_OPACITY = 0.95;
+export const TOOLTIP_PATH_LENGTH = 8
+export const TOOLTIP_PATH_INIT_R = 0.2
+export const TOOLTIP_PATH_DECAY_R = 0.9
+export const TOOLTIP_PATH_DECAY_OPACITY = 0.95
 
 // currently just used to get the file names from the resource id
 export const RESOURCE_NAMES: Record<number, string> = {
     1: 'adamantium',
     2: 'mana',
     3: 'elixir'
+}
+
+export const MAP_SIZE_RANGE = {
+    min: 20,
+    max: 60
 }
 
 export const SPEC_VERSION = '0.0.1'
