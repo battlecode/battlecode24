@@ -17,11 +17,11 @@ const CANVAS_Z_INDICES = [0, 1, 2]
 export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
+    const [mapCanvas, setMapCanvas] = React.useState<HTMLCanvasElement>()
+    const [overlayCanvas, setOverlayCanvas] = React.useState<HTMLCanvasElement>()
 
     const appContext = useAppContext()
     const { activeGame, activeMatch } = appContext.state
-
-    const [tooltipCanvas, setTooltipCanvas] = React.useState<HTMLCanvasElement>()
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
@@ -66,6 +66,7 @@ export const GameRenderer: React.FC = () => {
             y: match.currentTurn.map.height
         })
         updateCanvasDimensions(CanvasType.DYNAMIC, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
+        updateCanvasDimensions(CanvasType.OVERLAY, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
 
         // Redraw static background
         match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
@@ -144,14 +145,18 @@ export const GameRenderer: React.FC = () => {
                             className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
                             style={{
                                 transform: 'translate(-50%, -50%)',
-                                zIndex: CANVAS_Z_INDICES[idx]
+                                zIndex: CANVAS_Z_INDICES[idx],
+                                cursor: 'pointer'
                             }}
                             key={`canv${ct}`}
                             ref={(ref) => {
                                 canvases.current[ct] = ref
                                 // TODO: there's def a better way to do this but idk how rn
-                                if (ct == CanvasType.OVERLAY && ref && tooltipCanvas !== ref) {
-                                    setTooltipCanvas(ref)
+                                if (ct == CanvasType.BACKGROUND && ref && mapCanvas !== ref) {
+                                    setMapCanvas(ref)
+                                }
+                                if (ct == CanvasType.OVERLAY && ref && mapCanvas !== ref) {
+                                    setOverlayCanvas(ref)
                                 }
                             }}
                             onClick={onCanvasClick}
@@ -175,7 +180,7 @@ export const GameRenderer: React.FC = () => {
                             }}
                         />
                     ))}
-                    <Tooltip canvas={tooltipCanvas} wrapperRef={wrapperRef} />
+                    <Tooltip mapCanvas={mapCanvas} overlayCanvas={overlayCanvas} wrapperRef={wrapperRef} />
                 </div>
             )}
         </div>

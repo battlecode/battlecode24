@@ -1,39 +1,43 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import * as cst from '../../constants'
 import { useMousePosition } from '../../util/mouse-pos'
 import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
+import { Body } from '../../playback/Bodies'
+import { Vector } from '../../playback/Vector'
+import Match from '../../playback/Match'
 
 type TooltipProps = {
-    canvas: HTMLCanvasElement | undefined
+    mapCanvas: HTMLCanvasElement | undefined
+    overlayCanvas: HTMLCanvasElement | undefined
     wrapperRef: React.MutableRefObject<HTMLElement | null>
 }
 
-const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
+const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const mousePos = useMousePosition()
     const appContext = useAppContext()
 
     const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    useListenEvent(EventType.RENDER, forceUpdate)
 
-    const [clickedRobotId, setClickedRobotId] = React.useState<number>()
+    const [clickedBodyID, setClickedBodyID] = React.useState<number>(-1)
 
     let canvasAbsLeft = 0,
         canvasAbsTop = 0
-    let tileCol = -1,
-        tileRow = -1
     let tileLeft = 0,
         tileTop = 0
     let tileWidth = 0,
         tileHeight = 0
+    let tileCol = -1,
+        tileRow = -1
 
-    if (canvas && wrapperRef.current) {
-        const canvasBoundingBox = canvas.getBoundingClientRect()
+    if (mapCanvas && wrapperRef.current) {
+        const canvasBoundingBox = mapCanvas.getBoundingClientRect()
         const wrapperBoundingBox = wrapperRef.current.getBoundingClientRect()
 
-        const scalingFactorX = canvas.width / canvasBoundingBox.width
-        const scalingFactorY = canvas.height / canvasBoundingBox.height
+        const scalingFactorX = mapCanvas.width / canvasBoundingBox.width
+        const scalingFactorY = mapCanvas.height / canvasBoundingBox.height
 
         const localX = (mousePos.x - canvasBoundingBox.left) * scalingFactorX
         const localY = (mousePos.y - canvasBoundingBox.top) * scalingFactorY
@@ -50,20 +54,116 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
         tileHeight = cst.TILE_RESOLUTION / scalingFactorY
     }
 
-    function onClick() {
-        if (clickedRobotId) {
-            setClickedRobotId(undefined)
-            return
-        }
-
-        setClickedRobotId(0)
+    function getHoveredBody() {
+        return appContext.state?.activeMatch?.map
+            ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
+              tileCol,
+              appContext.state.activeMatch.map.dimension.height - 1 - tileRow
+            )
+        : undefined
     }
 
-    if (!canvas || !wrapperRef.current) {
+    function onClick(e: Event) {
+        const hoveredBody = getHoveredBody()
+        setClickedBodyID(hoveredBody?.id ?? -1)
+    }
+
+    useEffect(() => {
+        if (overlayCanvas) {
+            overlayCanvas.addEventListener('click', onClick)
+            return () => {
+                overlayCanvas.removeEventListener('click', onClick)
+            }
+        }
+    }, [overlayCanvas, mousePos])
+
+    const hoveredBody = getHoveredBody()
+
+    const drawBodyTooltip = (match: Match, ctx: CanvasRenderingContext2D, body: Body, isClicked: boolean) => {
+        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn);
+        const coords = {
+            x: interpolatedCoords.x + 0.5,
+            y: match.map.height - (interpolatedCoords.y + 0.5)
+        }
+
+        ctx.beginPath();
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 1 / match.map.width;
+        ctx.arc(coords.x, coords.y, Math.sqrt(body.actionRadius), 0, 360);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 1 / match.map.width;
+        ctx.arc(coords.x, coords.y, Math.sqrt(body.visionRadius), 0, 360);
+        ctx.stroke();
+
+        if (isClicked) {
+            let alphaValue = 1;
+            let radius = cst.TOOLTIP_PATH_INIT_R;
+            let lastPos: Vector = {x: -1, y: -1};
+
+            for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
+                const color =  `rgba(255, 255, 255, ${alphaValue})`;
+
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360);
+                ctx.fill();
+
+                alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY;
+                radius *= cst.TOOLTIP_PATH_DECAY_R;
+
+                if (lastPos.x != -1 && lastPos.y != -1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = radius / 2;
+
+                    ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5));
+                    ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5));
+
+                    ctx.stroke();
+                }
+
+                lastPos = prevPos;
+            }
+        }
+    }
+
+    // draw tooltip stuff to overlay canvas
+    useEffect(() => {
+        const match = appContext.state.activeMatch;
+        if (!match || !overlayCanvas) return
+
+        const ctx = overlayCanvas.getContext('2d')
+        if (!ctx) return
+
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+        if (hoveredBody) {
+            drawBodyTooltip(match, ctx, hoveredBody, false);
+        }
+
+        if (clickedBodyID != -1) {
+            if (!match.currentTurn.bodies.hasId(clickedBodyID)) {
+               setClickedBodyID(-1);
+            } else {
+                const clickedBody = match.currentTurn.bodies.getById(clickedBodyID);
+                drawBodyTooltip(match, ctx, clickedBody, true);
+            }
+        }
+    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBodyID, tileLeft, tileTop,
+        appContext.state.activeMatch?.currentTurn.turnNumber, appContext.state.activeMatch?.getInterpolationFactor()]);
+
+    useEffect(() => {
+        setClickedBodyID(-1);
+    }, [appContext.state.activeMatch])
+
+    if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
         return <Fragment />
     }
 
-    const canvasBoundingBox = canvas.getBoundingClientRect()
+    const canvasBoundingBox = mapCanvas.getBoundingClientRect()
     const hoverVisible = !(
         mousePos.x < canvasBoundingBox.left ||
         mousePos.x > canvasBoundingBox.right ||
@@ -71,50 +171,47 @@ const Tooltip = ({ canvas, wrapperRef }: TooltipProps) => {
         mousePos.y > canvasBoundingBox.bottom
     )
 
-    // get hovered robot details
-    const hoveredBody = appContext.state?.activeMatch?.map
-        ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
-              tileCol,
-              appContext.state.activeMatch.map.dimension.height - 1 - tileRow
-          )
-        : undefined
+    const clickedBody = 
+        appContext?.state.activeMatch?.currentTurn.bodies.hasId(clickedBodyID) ?
+        appContext?.state.activeMatch?.currentTurn.bodies.getById(clickedBodyID) : 
+        undefined;
 
     return (
         <Fragment>
             {hoverVisible && (
                 <Fragment>
                     <div
-                        className="absolute border-2 border-black z-10 cursor-pointer"
+                        className="absolute border-2 border-black/70 z-10 cursor-pointer"
                         style={{
                             left: tileLeft + 'px',
                             top: tileTop + 'px',
                             width: tileWidth + 'px',
-                            height: tileHeight + 'px'
+                            height: tileHeight + 'px',
+                            pointerEvents: 'none'
                         }}
-                        onClick={onClick}
                     />
                     {hoveredBody && (
                         <div
                             className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
                             style={{
                                 left: tileLeft + tileWidth * 0.75 + 'px',
-                                top: tileTop + tileHeight * 0.75 + 'px'
+                                top: tileTop + tileHeight * 0.75 + 'px',
                             }}
                         >
-                            {hoveredBody.onHoverInfo()}
+                            {hoveredBody.onHoverInfo().map((v) => <p>{v}</p>)}
                         </div>
                     )}
                 </Fragment>
             )}
-            {clickedRobotId && (
+            {clickedBody !== undefined && (
                 <div
-                    className="absolute bg-black z-20"
+                    className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-md"
                     style={{
-                        left: canvasAbsLeft + tileWidth * 0.75 + 'px',
-                        top: canvasAbsTop + tileHeight * 0.75 + 'px'
+                        left: overlayCanvas.clientLeft + tileWidth * 0.5 + 'px',
+                        top: overlayCanvas.clientTop + tileHeight * 0.5 + 'px'
                     }}
                 >
-                    test
+                    {clickedBody.onHoverInfo().map((v) => <p>{v}</p>)}
                 </div>
             )}
         </Fragment>

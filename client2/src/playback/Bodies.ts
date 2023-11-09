@@ -12,6 +12,7 @@ import {
 } from '../components/sidebar/map-editor/MapEditorBrush'
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
+import { TOOLTIP_PATH_LENGTH } from '../constants'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -71,7 +72,12 @@ export default class Bodies {
         // since the first call is really only necessary for bodies that die, so there is potential for
         // optimization.
         this.updateBodyPositions(delta, false)
-        if (nextDelta) this.updateBodyPositions(nextDelta, true)
+        if (nextDelta) {
+            this.updateBodyPositions(nextDelta, true)
+            for (const body of this.bodies) {
+                body[1].addToPrevSquares();
+            }
+        }
 
         scopedCallback()
 
@@ -122,6 +128,10 @@ export default class Bodies {
 
     getById(id: number): Body {
         return this.bodies.get(id) ?? assert.fail(`Body with id ${id} not found in bodies`)
+    }
+
+    hasId(id: number): boolean {
+        return this.bodies.has(id);
     }
 
     getByLocation(x: number, y: number): Body | undefined {
@@ -204,10 +214,14 @@ export default class Bodies {
 }
 
 export class Body {
-    static robotName: string
+    public robotName: string = ""
+    public actionRadius: number = 0
+    public visionRadius: number = 0
     public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
     public nextPos: Vector
     protected imgPath: string = ''
+    protected nextPos: Vector
+    public prevSquares: Vector[]
     constructor(
         public pos: Vector,
         public hp: number,
@@ -217,9 +231,10 @@ export class Body {
         public elixir: number = 0,
         public mana: number = 0,
         public anchor: number = 0,
-        public bytecodesUsed: number = 0
+        public bytecodesUsed: number = 0,
     ) {
         this.nextPos = this.pos
+        this.prevSquares = [this.pos]
     }
 
     public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
@@ -232,8 +247,21 @@ export class Body {
         )
     }
 
-    public onHoverInfo(): string {
-        return Object.getPrototypeOf(this).constructor.robotName
+    public getInterpolatedCoords(turn: Turn): Vector {
+        return renderUtils.getInterpolatedCoords(
+            this.pos,
+            this.nextPos,
+            turn.match.getInterpolationFactor()
+        )
+    }
+
+    public onHoverInfo(): string[] {
+        return [
+            this.robotName,
+            `ID: ${this.id}`,
+            `Location: (${this.pos.x}, ${this.pos.y})`,
+            `Bytecodes Used: ${this.bytecodesUsed}`,
+        ];
     }
 
     public copy(): Body {
@@ -242,8 +270,16 @@ export class Body {
     }
 
     public moveTo(pos: Vector): void {
+
         this.pos = this.nextPos
         this.nextPos = pos
+    }
+
+    public addToPrevSquares(): void {
+        this.prevSquares.push(this.pos);
+        if (this.prevSquares.length > TOOLTIP_PATH_LENGTH) {
+            this.prevSquares.splice(0, 1);
+        }
     }
 
     public clearResources(): void {
@@ -256,69 +292,81 @@ export class Body {
 
 export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
-        static robotName = 'Headquarters'
+        public robotName = 'Headquarters'
+        public actionRadius = 8
+        public visionRadius = 34
         public type = schema.BodyType.HEADQUARTERS
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_headquarters_smaller.png`
         }
-        onHoverInfo(): string {
-            return 'Headquarters'
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     },
     [schema.BodyType.LAUNCHER]: class Launcher extends Body {
-        static robotName = 'Launcher'
+        public robotName = 'Launcher'
+        public actionRadius = 16
+        public visionRadius = 20
         public type = schema.BodyType.LAUNCHER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_launcher_smaller.png`
         }
-        onHoverInfo(): string {
-            return Launcher.robotName
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     },
     [schema.BodyType.CARRIER]: class Carrier extends Body {
-        static robotName = 'Carrier'
+        public robotName = 'Carrier'
+        public actionRadius = 9
+        public visionRadius = 20
         public type = schema.BodyType.CARRIER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_carrier_smaller.png`
         }
-        onHoverInfo(): string {
-            return `Carrier ${this.pos.x} ${this.pos.y} ${this.team.color} ${this.id}`
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     },
     [schema.BodyType.BOOSTER]: class Booster extends Body {
-        static robotName = 'Booster'
+        public robotName = 'Booster'
+        public actionRadius = 0
+        public visionRadius = 20
         public type = schema.BodyType.BOOSTER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_booster_smaller.png`
         }
-        onHoverInfo(): string {
-            return Booster.robotName
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     },
     [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
-        static robotName = 'Destabilizer'
+        public robotName = 'Destabilizer'
+        public actionRadius = 13
+        public visionRadius = 20
         public type = schema.BodyType.DESTABILIZER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
         }
-        onHoverInfo(): string {
-            return Destabilizer.robotName
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     },
     [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
-        static robotName = 'Amplifier'
+        public robotName = 'Amplifier'
+        public actionRadius = 0
+        public visionRadius = 34
         public type = schema.BodyType.AMPLIFIER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
             this.imgPath = `robots/${team.color}_amplifier_smaller.png`
         }
-        onHoverInfo(): string {
-            return Amplifier.robotName
+        onHoverInfo(): string[] {
+            return super.onHoverInfo();
         }
     }
 }
