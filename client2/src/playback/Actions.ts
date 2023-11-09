@@ -1,8 +1,10 @@
 import Turn from './Turn'
 import { schema } from 'battlecode-schema'
 import assert from 'assert'
-import Bodies from './Bodies'
-import TurnStat from './TurnStat'
+import * as renderUtils from '../util/RenderUtil'
+import * as vectorUtils from './Vector'
+import { Dimension } from './Map'
+import { Team } from './Game'
 
 export default class Actions {
     actions: Action[] = []
@@ -38,9 +40,9 @@ export default class Actions {
         return newActions
     }
 
-    draw(turn: Turn, ctx: CanvasRenderingContext2D) {
+    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D) {
         for (const action of this.actions) {
-            action.draw(turn, ctx)
+            action.draw(mapDimension, interpFactor, ctx)
         }
     }
 }
@@ -55,7 +57,7 @@ export class Action {
      * @param stat if provided, this action will mutate the stat to reflect the action
      */
     apply(turn: Turn): void {}
-    draw(turn: Turn, ctx: CanvasRenderingContext2D) {}
+    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D) {}
     copy(): Action {
         // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
         return Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this))
@@ -107,25 +109,84 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             const body = turn.bodies.getById(this.robotID)
             assert(body.type === schema.BodyType.CARRIER, 'Cannot throw from non-carrier')
             body.clearResources()
-
-            // if attacking bot, turn location from target bot id into target bot location
-            if (this.target >= 0) {
-                const targetBody = turn.bodies.getById(this.target)
-                this.target = turn.map.locationToIndex(targetBody.pos.x, targetBody.pos.y)
-            } else {
-                this.target = -this.target - 1
-            }
         }
-        draw(turn: Turn, ctx: CanvasRenderingContext2D) {
-            const targetLoc = turn.map.indexToLocation(this.target)
+        draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D) {
+            //const targetLoc = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.LAUNCH_ATTACK]: class Launch extends Action {
+        private drawLocationStart?: vectorUtils.InterpVector
+        private drawLocationEnd?: vectorUtils.InterpVector
+        private drawTeam?: Team
+
         apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID)
             assert(body.type === schema.BodyType.LAUNCHER, 'Cannot launch from non-launcher')
+
+            this.drawTeam = body.team
+            this.drawLocationStart = { start: body.pos, end: body.nextPos }
+
+            // Target is negative when it represents a miss (map location hit). Otherwise,
+            // the attack hit a bot so we must transform the target into the bot's location
+            if (this.target >= 0) {
+                const targetBody = turn.bodies.getById(this.target)
+                this.drawLocationEnd = { start: targetBody.pos, end: targetBody.nextPos }
+            } else {
+                const location = turn.map.indexToLocation(-this.target - 1)
+                this.drawLocationEnd = { start: location, end: location }
+            }
+        }
+        draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D) {
+            // Compute true start and end points of the projectile
+            const interpStart = renderUtils.getInterpolatedCoords(
+                this.drawLocationStart!.start,
+                this.drawLocationStart!.end,
+                interpFactor
+            )
+            const interpEnd = renderUtils.getInterpolatedCoords(
+                this.drawLocationEnd!.start,
+                this.drawLocationEnd!.end,
+                interpFactor
+            )
+
+            // Compute the start and end points for the animation projectile
+            const dir = vectorUtils.vectorSub(interpEnd, interpStart)
+            const len = vectorUtils.vectorLength(dir)
+            vectorUtils.vectorMultiplyInPlace(dir, 1 / len)
+            const projectileStart = vectorUtils.vectorAdd(
+                interpStart,
+                vectorUtils.vectorMultiply(dir, len * interpFactor)
+            )
+            const projectileEnd = vectorUtils.vectorAdd(
+                interpStart,
+                vectorUtils.vectorMultiply(dir, len * Math.min(interpFactor + 0.2, 1.0))
+            )
+
+            // True direction
+            renderUtils.renderLine(
+                ctx,
+                renderUtils.getRenderCoords(interpStart.x, interpStart.y, mapDimension),
+                renderUtils.getRenderCoords(interpEnd.x, interpEnd.y, mapDimension),
+                this.drawTeam!,
+                0.05,
+                0.1,
+                true
+            )
+
+            // Projectile animation
+            renderUtils.renderLine(
+                ctx,
+                renderUtils.getRenderCoords(projectileStart.x, projectileStart.y, mapDimension),
+                renderUtils.getRenderCoords(projectileEnd.x, projectileEnd.y, mapDimension),
+                this.drawTeam!,
+                0.05,
+                1.0,
+                false
+            )
         }
     },
+
+    // Unused (not visualized)
     [schema.Action.SPAWN_UNIT]: Action,
     [schema.Action.PICK_UP_ANCHOR]: Action,
     [schema.Action.PLACE_ANCHOR]: Action,
