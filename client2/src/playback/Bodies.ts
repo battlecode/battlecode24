@@ -285,7 +285,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
         public robotName = 'Headquarters'
         public actionRadius = 8
-        public visionRadius = 25
+        public visionRadius = 34
         public type = schema.BodyType.HEADQUARTERS
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
@@ -297,6 +297,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     },
     [schema.BodyType.LAUNCHER]: class Launcher extends Body {
         public robotName = 'Launcher'
+        public actionRadius = 16
+        public visionRadius = 20
         public type = schema.BodyType.LAUNCHER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
@@ -308,6 +310,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     },
     [schema.BodyType.CARRIER]: class Carrier extends Body {
         public robotName = 'Carrier'
+        public actionRadius = 9
+        public visionRadius = 20
         public type = schema.BodyType.CARRIER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
@@ -319,6 +323,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     },
     [schema.BodyType.BOOSTER]: class Booster extends Body {
         public robotName = 'Booster'
+        public actionRadius = 0
+        public visionRadius = 20
         public type = schema.BodyType.BOOSTER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
@@ -330,6 +336,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     },
     [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
         public robotName = 'Destabilizer'
+        public actionRadius = 13
+        public visionRadius = 20
         public type = schema.BodyType.DESTABILIZER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
@@ -341,6 +349,8 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     },
     [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
         public robotName = 'Amplifier'
+        public actionRadius = 0
+        public visionRadius = 34
         public type = schema.BodyType.AMPLIFIER
         constructor(pos: Vector, hp: number, team: Team, id: number) {
             super(pos, hp, team, id)
