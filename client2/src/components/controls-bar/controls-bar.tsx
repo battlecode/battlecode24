@@ -20,7 +20,11 @@ export const ControlsBar: React.FC = () => {
 
     const changePaused = (paused: boolean) => {
         if (!matchLoaded) return
-        setAppState({ ...appState, paused: paused, updatesPerSecond: (appState.updatesPerSecond == 0 && !paused) ? 1 : appState.updatesPerSecond })
+        setAppState({
+            ...appState,
+            paused: paused,
+            updatesPerSecond: appState.updatesPerSecond == 0 && !paused ? 1 : appState.updatesPerSecond
+        })
     }
 
     const multiplyUpdatesPerSecond = (multiplier: number) => {
@@ -83,6 +87,8 @@ export const ControlsBar: React.FC = () => {
         })
     }
 
+    const currentUPSBuffer = React.useRef<number[]>([])
+
     React.useEffect(() => {
         if (!matchLoaded) return
         if (appState.paused) {
@@ -97,7 +103,14 @@ export const ControlsBar: React.FC = () => {
         const updatesPerInterval = SIMULATION_UPDATE_INTERVAL_MS / msPerUpdate
         const simStepsPerInterval = updatesPerInterval * MAX_SIMULATION_STEPS
         const stepInterval = setInterval(() => {
+            const prevTurn = appState.activeGame!.currentMatch!.currentTurn.turnNumber
             appState.activeGame!.currentMatch!.stepSimulation(simStepsPerInterval)
+
+            if (prevTurn != appState.activeGame!.currentMatch!.currentTurn.turnNumber) {
+                currentUPSBuffer.current.push(Date.now())
+                while (currentUPSBuffer.current.length > 0 && currentUPSBuffer.current[0] < Date.now() - 1000)
+                    currentUPSBuffer.current.shift()
+            }
         }, SIMULATION_UPDATE_INTERVAL_MS)
 
         return () => {
@@ -157,7 +170,7 @@ export const ControlsBar: React.FC = () => {
                     ' flex bg-darkHighlight text-white p-1.5 rounded-t-md z-10 gap-1.5 relative'
                 }
             >
-                <ControlsBarTimeline />
+                <ControlsBarTimeline currentUPS={currentUPSBuffer.current.length} />
                 <ControlsBarButton
                     icon={<ControlIcons.ReverseIcon />}
                     tooltip="Reverse"
