@@ -21,7 +21,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
-    const [clickedBody, setClickedRobot] = React.useState<Body | undefined>(undefined)
+    const [clickedBodyID, setClickedBodyID] = React.useState<number>(-1)
 
     let canvasAbsLeft = 0,
         canvasAbsTop = 0
@@ -65,7 +65,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     function onClick(e: Event) {
         const hoveredBody = getHoveredBody()
-        setClickedRobot(hoveredBody)
+        setClickedBodyID(hoveredBody?.id ?? -1)
     }
 
     useEffect(() => {
@@ -93,6 +93,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         ctx.stroke();
 
         if (isClicked) {
+            console.log(body.prevSquares);
             let alphaValue = 1;
             let radius = cst.TOOLTIP_PATH_INIT_R;
             let lastPos: Vector = {x: -1, y: -1};
@@ -139,27 +140,20 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
             drawBodyTooltip(match, ctx, hoveredBody, false);
         }
 
-        if (clickedBody) {
-            drawBodyTooltip(match, ctx, clickedBody, true);
+        if (clickedBodyID != -1) {
+            if (!match.currentTurn.bodies.hasId(clickedBodyID)) {
+               setClickedBodyID(-1);
+            } else {
+                const clickedBody = match.currentTurn.bodies.getById(clickedBodyID);
+                drawBodyTooltip(match, ctx, clickedBody, true);
+            }
         }
-    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBody, tileLeft, tileTop,
+    }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBodyID, tileLeft, tileTop,
         appContext.state.activeMatch?.currentTurn.turnNumber]);
 
     useEffect(() => {
-        setClickedRobot(undefined);
+        setClickedBodyID(-1);
     }, [appContext.state.activeMatch])
-
-    useListenEvent(EventType.TURN_PROGRESS, () => {
-        const match = appContext.state.activeMatch;
-        if (!match) return;
-
-        if (clickedBody) {
-            if (!match.currentTurn.bodies.hasId(clickedBody.id)) {
-                // TODO maybe show death info instead (i.e. turn it died on, last location, maybe even show it on the map)
-                setClickedRobot(undefined);
-            }
-        }
-    });
 
     if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
         return <Fragment />
@@ -172,6 +166,11 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         mousePos.y < canvasBoundingBox.top ||
         mousePos.y > canvasBoundingBox.bottom
     )
+
+    const clickedBody = 
+        appContext?.state.activeMatch?.currentTurn.bodies.hasId(clickedBodyID) ?
+        appContext?.state.activeMatch?.currentTurn.bodies.getById(clickedBodyID) : 
+        undefined;
 
     return (
         <Fragment>
