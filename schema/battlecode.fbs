@@ -1,145 +1,134 @@
 namespace battlecode.schema;
 
-/// A vector in two-dimensional space. Discrete space, of course.
-/// Defaults to the 0 vector.
 struct Vec {
     x: int = 0;
     y: int = 0;
 }
 
-/// A table of vectors.
 table VecTable {
     xs: [int];
     ys: [int];
 }
 
-/// A table of RGB values.
-table RGBTable {
-    red: [int];
-    green: [int];
-    blue: [int];
-}
-
-/// The possible types of things that can exist.
-enum BodyType : byte {
-    HEADQUARTERS,
-    CARRIER,
-    LAUNCHER,
-    AMPLIFIER,
-    DESTABILIZER,
-    BOOSTER
-}
-
-/// A list of new bodies to be placed on the map.
-table SpawnedBodyTable {
-    /// The numeric ID of the new bodies.
-    /// Will never be negative.
-    /// There will only be one body with a particular ID at a time.
-    /// So, there will never be two robots with the same ID, or a robot and
-    /// a building with the same ID.
-    robotIDs: [int];
-    /// The teams of the new bodies.
-    teamIDs: [byte];
-    /// The types of the new bodies.
-    types: [BodyType];
-    /// The locations of the bodies.
-    locs: VecTable;
-}
-
-/// The map a round is played on.
-table GameMap {
-    /// The name of a map.
+table TeamData {
     name: string;
-    /// The bottom corner of the map.
-    minCorner: Vec;
-    /// The top corner of the map.
-    maxCorner: Vec;
-    /// The map symmetry: 0 for rotation, 1 for horizontal, 2 for vertical.
-    symmetry: int;
-    /// The bodies on the map.
-    bodies: SpawnedBodyTable;
-    /// The random seed of the map.
-    randomSeed: int;
-    /// The walls on the map.
-    walls: [bool];
-    /// The clouds on the map.
-    clouds: [bool];
-    /// The currents on the map.
-    currents: [int];
-    /// The island each square on the map belongs to.
-    islands: [int];
-    /// The resource type each square is.
-    resources: [int];
-
+    packageName: string;
+    teamID: byte;
 }
 
-/// Actions that can be performed.
-/// Purely aesthetic; have no actual effect on simulation.
-/// (Although the simulation may want to track the 'parents' of
-/// particular robots.)
-/// Actions may have 'targets', which are the units on which
-/// the actions were performed.
+enum SepcializationType: byte {
+    ATTACK,
+    BUILD,
+    HEAL
+}
+
+table SpecializationMetadata {
+    type: SepcializationType;
+    level: int;
+    actionCost: int;
+    actionJailedPenalty: int;
+    cooldownReduction: int;
+    damageIncrease: int;
+    healIncrease: int;
+}
+
+enum BuildActionType: byte {
+    EXPLOSIVE_TRAP,
+    WATER_TRAP,
+    STUN_TRAP,
+    DIG,
+    FILL
+}
+
+table BuildActionMetadata {
+    type: BuildActionType;
+    cost: int;
+    buildCooldown: int;
+}
+
+table Constants {
+    setupPhaseLength: int;
+    flagMinDistance: int;
+    globalUpgradeRoundDelay: int;
+    passiveResourceRate: int;
+    robotBaseHealth: int;
+    jailedRounds: int;
+    visionRadius: int;
+    actionRadius: int;
+}
+
+table GlobalUpgradeType: byte {
+    ACTION_UPGRADE,
+    HEALING_UPGRADE,
+    CAPTURING_UPGRADE
+}
+
+table GlobalUpgradeMetadata {
+    type: GlobalUpgradeType;
+    upgradeAmount: int;
+}
+
+// A list of new bodies to be placed on the map.
+table SpawnedBodyTable {
+    robotIDs: [int];
+    teamIDs: [byte];
+    locs: VecTable;
+    attacksPerformed: [int];
+    attackLevels: [int];
+    buildsPerformed: [int];
+    buildLevels: [int];
+    healsPerformed: [int];
+    healLevels: [int];
+    holdingFlag: [bool];
+}
+
+table GameMap {
+    name: string;
+    symmetry: int; // The map symmetry: 0 for rotation, 1 for horizontal, 2 for vertical.
+    bodies: SpawnedBodyTable;
+    randomSeed: int;
+    walls: [bool];
+    water: [bool];
+    divider: [bool];
+    spawnLocations: VecTable; // first three are for team 0 and second three are for team 1
+    resourcePiles: VecTable;
+    resourcePileAmounts: [int];
+}
+
 enum Action : byte {
-    /// Target: ID for direction in which attack occurs
-    LAUNCH_ATTACK,
-    /// Target: ID for direction in which attack occurs
-    THROW_ATTACK,
-    /// Target: ID of robot spawned
-    SPAWN_UNIT,
-    /// Target: location mined, x + y * width
-    PICK_UP_RESOURCE,
-    /// Target: location to place resource, x + y * width
-    PLACE_RESOURCE,
-    /// Target: location destabilization is centralized at, x + y * width
-    DESTABILIZE,
-    /// Target: location destabilization damage is centralized at, x + y * width
-    DESTABILIZE_DAMAGE,
-    /// Target: location boost is centralized at, x + y * width
-    BOOST,
-    /// Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
-    BUILD_ANCHOR,
-    /// Target: (Robot id picked up from)*2 + (ANCHOR type, 0 or non-accelerating, 1 for accelerating)
-    PICK_UP_ANCHOR,
-    /// Target: island id for the island the anchor is being placed on
-    PLACE_ANCHOR,
-    /// Target: change in health (can be negative)
-    CHANGE_HEALTH,
-    /// Target: change in adamantium (can be negative)
-    CHANGE_ADAMANTIUM,
-    /// Target: change in mana (can be negative)
-    CHANGE_MANA,
-    /// Target: change in elixir (can be negative)
-    CHANGE_ELIXIR,
+    // Target: ID of hit robot
+    ATTACK,
+    // Target: ID of healed robot
+    HEAL,
+    // Target: x + y * width of dig location
+    DIG,
+    // Target: x + y * width of fill location
+    FILL,
+    // Target: x + y * width of explosive trap location
+    EXPLOSIVE_TRAP,
+    // Target: x + y * width of water trap location
+    WATER_TRAP,
+    // Target: x + y * width of stun trap location
+    STUN_TRAP,
+    // Target: flag id
+    PICKUP_FLAG,
+    // Target: flag id
+    DROP_FLAG,
+
+    // Target: none
+    
+
+    // Target: GlobalUpgradeType id
+    GLOBAL_UPGRADE,
+
     /// Dies due to an uncaught exception
     /// Target: none
     DIE_EXCEPTION,
 }
 
-// Metadata
-/// Metadata about all bodies of a particular type.
-table BodyTypeMetadata {
-    type: BodyType;
-    buildCostAd: int;
-    buildCostMn: int;
-    buildCostEx: int;
-    actionCooldown: int;
-    movementCooldown: int;
-    health: int;
-    actionRadiusSquared: int;
-    visionRadiusSquared: int;
-    bytecodeLimit: int;
-}
 
-/// Data relevant to a particular team.
-table TeamData {
-    /// The name of the team.
-    name: string;
-    /// The java package the team uses.
-    packageName: string;
-    /// The ID of the team this data pertains to.
-    teamID: byte;
-}
 
+//========================================================================================
 // Profiler tables
 
 /// These tables are set-up so that they match closely with speedscope's file format documented at
@@ -173,6 +162,8 @@ table ProfilerFile {
     /// The recorded profiles, one per robot.
     profiles: [ProfilerProfile];
 }
+//========================================================================================
+
 
 /// Events
 
@@ -197,25 +188,14 @@ union Event {
     GameFooter
 }
 
-table Constants {
-    // number of rounds for passive resource increase
-    increasePeriod: int;
-    // amounts of Ad added every increasePeriod rounds
-    AdAdditiveIncrease: int;
-    // amounts of Mn added every increasePeriod rounds
-    MnAdditiveIncrease: int;
-}
-
-
 /// The first event sent in the game. Contains all metadata about the game.
 table GameHeader {
-    /// The version of the spec this game complies with.
     specVersion: string;
-    /// The teams participating in the game.
     teams: [TeamData];
-    /// Information about all body types in the game.
-    bodyTypeMetadata: [BodyTypeMetadata];
-    //game constants
+
+    specializationMetadata: [SpecializationMetadata];
+    buildActionMetadata: [BuildActionMetadata];
+    globalUpgradeMetadata: [GlobalUpgradeMetadata];
     constants: Constants;
 }
 
@@ -227,9 +207,7 @@ table GameFooter {
 
 /// Sent to start a match.
 table MatchHeader {
-    /// The map the match was played on.
     map: GameMap;
-    /// The maximum number of rounds in this match.
     maxRounds: int;
 }
 
@@ -250,17 +228,21 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
-    /// The total amount of Ad change of this team, this round
-    teamAdChanges: [int];
-    /// The total amount of Mn change of this team, this round
-    teamMnChanges: [int];
-    /// The total amount of Ex change of this team, this round
-    teamExChanges: [int];
+    /// The total amount of resource change of this team, this round
+    teamResourceAmounts: [int];
+    teamCommunicationArrays: [[int]];
 
-    /// The IDs of bodies that moved.
-    movedIDs: [int];
-    /// The new locations of bodies that have moved.
-    movedLocs: VecTable;
+    robotIDs: [int];
+    robotLocs: VecTable;
+    robotMoveCooldowns: [int];
+    robotActionCooldowns: [int];
+    robotHealths: [int];
+    attacksPerformed: [int];
+    attackLevels: [int];
+    buildsPerformed: [int];
+    buildLevels: [int];
+    healsPerformed: [int];
+    healLevels: [int];
 
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
@@ -276,25 +258,17 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have any value
     actionTargets: [int];
 
-    /// The IDs of all islands
-    islandIDs: [int];
-    /// The number of turns the opposing team has been occupying each island
-    islandTurnoverTurns: [int];
-    /// The teamID for the owners of each island. 
-    islandOwnership: [int];
+    claimedResourcePiles: VecTable;
 
-    /// The locations of the resources wells being given resources as x + y*width
-    resourceWellLocs: [int];
-    /// The adamantium stored in the well
-    wellAdamantiumValues: [int];
-    /// The mana stored in the well
-    wellManaValues: [int];
-    /// The elixir stored in the well
-    wellElixirValues: [int];
-    /// The ID for the resource this well contains
-    resourceID: [int];
-    /// The acceleration ID for this resource well: 1 is accelerated, 0 is not
-    wellAccelerationID: [int];
+    trapIDs: [int];
+    trapAddedLocations: VecTable;
+    trapAddedTypes: [BuildActionType];
+    trapAddedTeams: [byte];
+
+    trapTriggeredIDs: [int];
+
+    digLocations: VecTable;
+    fillLocations: VecTable;
 
     /// The IDs of the robots who changed their indicator strings
     indicatorStringIDs: [int];

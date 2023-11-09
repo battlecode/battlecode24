@@ -6,7 +6,8 @@ export enum PageType {
     RUNNER = "Runner",
     PROFILER = "Profiler",
     MAP_EDITOR = "Map Editor",
-    HELP = "Help"
+    HELP = "Help",
+    TOURNAMENT = "Tournament",
 }
 
 function updateSearchParams(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams, key: string, value: any) {

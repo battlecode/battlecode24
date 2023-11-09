@@ -22,7 +22,7 @@ export default class Match {
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],
-        private readonly maxTurn: number,
+        public readonly maxTurn: number,
         public readonly winner: Team,
         public readonly map: StaticMap,
         firstBodies: Bodies,
@@ -30,7 +30,7 @@ export default class Match {
     ) {
         this.currentTurn = new Turn(this, 0, new CurrentMap(map), firstBodies, new Actions(), firstStats)
         this.snapshots = [this.currentTurn.copy()]
-        this.stats = [this.currentTurn.stat]
+        this.stats = [this.snapshots[0].stat]
     }
 
     /**
@@ -69,12 +69,14 @@ export default class Match {
             firstStats
         )
 
-        const maxTurn = header.maxRounds()
+        // header.maxRounds() is always 2000
 
         const deltas = turns
         deltas.forEach((delta, i) =>
             assert(delta.roundID() === i + 1, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`)
         )
+
+        const maxTurn = deltas.length
 
         return new Match(game, deltas, maxTurn, winner, map, firstBodies, firstStats)
     }
@@ -84,6 +86,13 @@ export default class Match {
      */
     public getInterpolationFactor(): number {
         return (Math.abs(this.currentSimulationStep) % MAX_SIMULATION_STEPS) / MAX_SIMULATION_STEPS
+    }
+
+    /**
+     * Force a rerender by publishing a RENDER event
+     */
+    public rerender(): void {
+        publishEvent(EventType.RENDER, {})
     }
 
     /**
@@ -98,7 +107,7 @@ export default class Match {
 
         // jumpToTurn will call render if the turn number changes so we shouldn't
         // do it again
-        if (prevTurn == this.currentTurn.turnNumber) publishEvent(EventType.RENDER, {})
+        if (prevTurn == this.currentTurn.turnNumber) this.rerender()
     }
 
     /**
@@ -165,6 +174,6 @@ export default class Match {
 
         this.currentTurn = updatingTurn
         publishEvent(EventType.TURN_PROGRESS, {})
-        publishEvent(EventType.RENDER, {})
+        this.rerender()
     }
 }

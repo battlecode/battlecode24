@@ -55,6 +55,9 @@ export default class TurnStat {
      * Mutates this stat to reflect the given delta.
      */
     applyDelta(turn: Turn, delta: schema.Round): void {
+        assert(!this.completed, 'Cannot apply delta to completed turn')
+        assert(turn.turnNumber === delta.roundID(), `Wrong turn ID: is ${delta.roundID()}, should be ${turn.turnNumber}`)
+        
         for (var i = 0; i < delta.teamIDsLength(); i++) {
             const team = this.game.teams[(delta.teamIDs(i) ?? assert.fail('teamID not found in round')) - 1]
             assert(team != undefined, `team ${i} not found in game.teams in turn`)
@@ -73,6 +76,7 @@ export default class TurnStat {
             teamStat.elixirMined = 0
         }
 
+        const time = Date.now()
         const average = (array: number[]) => (array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0)
         for (const team of this.game.teams) {
             if (turn.turnNumber % 10 == 0) {
@@ -92,6 +96,9 @@ export default class TurnStat {
                 teamStat.elixirIncomeAverageDatapoint = average(elixirMinedHist)
             }
         }
+        const timems = Date.now() - time
+        if (timems > 1) console.log(`took ${timems}ms to calculate income averages`)
+
         this.completed = true
     }
 

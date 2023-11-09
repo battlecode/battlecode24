@@ -152,7 +152,9 @@ export default class Bodies {
     }
 
     draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
-        for (const body of this.bodies.values()) body.draw(turn, ctx)
+        for (const body of this.bodies.values()) {
+            body.draw(turn, ctx)
+        }
     }
 
     getNextID(): number {

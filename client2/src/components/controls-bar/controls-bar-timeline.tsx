@@ -1,14 +1,8 @@
 import React, { useRef } from 'react'
-import * as ControlIcons from '../../icons/controls'
-import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
-import { useForceUpdate } from '../../util/react-util'
-import { useListenEvent, EventType } from '../../app-events'
 
 export const ControlsBarTimeline: React.FC = () => {
     const appContext = useAppContext()
-    const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     let down = useRef(false)
     const timelineHover = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -25,10 +19,13 @@ export const ControlsBarTimeline: React.FC = () => {
         down.current = false
     }
 
+    // TODO: should have a defined constant somewhere else
+    const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
+
     const timelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
-        const turn = Math.floor((x / 350) * 2000)
+        const turn = Math.floor((x / 350) * maxTurn)
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
     }
 
@@ -42,12 +39,12 @@ export const ControlsBarTimeline: React.FC = () => {
             </div>
         )
 
-    const turn = () => appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
-    const turnPercentage = () => (1 - turn() / 2000) * 100 + '%'
+    const turn = appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
+    const turnPercentage = () => (1 - turn / maxTurn) * 100 + '%'
     return (
         <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
-            <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs select-none">
-                Turn: <b>{turn()}</b>/2000
+            <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
+                Turn: <b>{turn}</b>/{maxTurn} &nbsp; {appContext.state.updatesPerSecond} UPS
             </p>
             <div className="absolute bg-white/10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
             <div
