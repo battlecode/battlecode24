@@ -218,9 +218,8 @@ export class Body {
     public actionRadius: number = 0
     public visionRadius: number = 0
     public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
-    public nextPos: Vector
     protected imgPath: string = ''
-    protected nextPos: Vector
+    public nextPos: Vector
     public prevSquares: Vector[]
     constructor(
         public pos: Vector,

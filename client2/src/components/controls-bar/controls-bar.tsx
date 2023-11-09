@@ -175,7 +175,7 @@ export const ControlsBar: React.FC = () => {
                     onClick={() => stepTurn(-1)}
                     disabled={atStart}
                 />
-                {appState.updatesPerSecond == 0 ? (
+                {appState.paused ? (
                     <ControlsBarButton
                         icon={<ControlIcons.PlaybackPlayIcon />}
                         tooltip="Play"
