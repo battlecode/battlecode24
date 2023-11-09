@@ -72,9 +72,11 @@ export default class Bodies {
         // since the first call is really only necessary for bodies that die, so there is potential for
         // optimization.
         this.updateBodyPositions(delta, false)
-        if (nextDelta) this.updateBodyPositions(nextDelta, true)
-        for (const body of this.bodies) {
-            body[1].addToPrevSquares();
+        if (nextDelta) {
+            this.updateBodyPositions(nextDelta, true)
+            for (const body of this.bodies) {
+                body[1].addToPrevSquares();
+            }
         }
 
         scopedCallback()
@@ -233,16 +235,21 @@ export class Body {
     }
 
     public draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = renderUtils.getInterpolatedCoords(
-            this.pos,
-            this.nextPos,
-            turn.match.getInterpolationFactor()
-        )
+        const interpCoords = this.getInterpolatedCoords(turn);
+
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
             renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, turn.map.staticMap.dimension),
             1
+        )
+    }
+
+    public getInterpolatedCoords(turn: Turn): Vector {
+        return renderUtils.getInterpolatedCoords(
+            this.pos,
+            this.nextPos,
+            turn.match.getInterpolationFactor()
         )
     }
 

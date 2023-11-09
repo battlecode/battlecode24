@@ -19,7 +19,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const appContext = useAppContext()
 
     const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    useListenEvent(EventType.RENDER, forceUpdate)
 
     const [clickedBodyID, setClickedBodyID] = React.useState<number>(-1)
 
@@ -80,35 +80,39 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     const hoveredBody = getHoveredBody()
 
     const drawBodyTooltip = (match: Match, ctx: CanvasRenderingContext2D, body: Body, isClicked: boolean) => {
+        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn);
+        const coords = {
+            x: interpolatedCoords.x + 0.5,
+            y: match.map.height - (interpolatedCoords.y + 0.5)
+        }
+
         ctx.beginPath();
         ctx.strokeStyle = "blue";
         ctx.lineWidth = 1 / match.map.width;
-        ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.actionRadius), 0, 360);
+        ctx.arc(coords.x, coords.y, Math.sqrt(body.actionRadius), 0, 360);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.strokeStyle = "red";
         ctx.lineWidth = 1 / match.map.width;
-        ctx.arc(body.pos.x + 0.5, match.map.height - (body.pos.y + 0.5), Math.sqrt(body.visionRadius), 0, 360);
+        ctx.arc(coords.x, coords.y, Math.sqrt(body.visionRadius), 0, 360);
         ctx.stroke();
 
         if (isClicked) {
-            console.log(body.prevSquares);
             let alphaValue = 1;
             let radius = cst.TOOLTIP_PATH_INIT_R;
             let lastPos: Vector = {x: -1, y: -1};
 
-            for (const prevPos of body.prevSquares.slice().reverse()) {
+            for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
                 const color =  `rgba(255, 255, 255, ${alphaValue})`;
 
                 ctx.beginPath();
                 ctx.fillStyle = color;
-
                 ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360);
+                ctx.fill();
 
                 alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY;
                 radius *= cst.TOOLTIP_PATH_DECAY_R;
-                ctx.fill();
 
                 if (lastPos.x != -1 && lastPos.y != -1) {
                     ctx.beginPath();
@@ -149,7 +153,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
             }
         }
     }, [appContext.state.activeMatch, overlayCanvas, hoveredBody, clickedBodyID, tileLeft, tileTop,
-        appContext.state.activeMatch?.currentTurn.turnNumber]);
+        appContext.state.activeMatch?.currentTurn.turnNumber, appContext.state.activeMatch?.getInterpolationFactor()]);
 
     useEffect(() => {
         setClickedBodyID(-1);
