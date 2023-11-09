@@ -1,4 +1,5 @@
 import * as cst from '../constants'
+import { Team } from '../playback/Game'
 import { Dimension } from '../playback/Map'
 import { Vector } from '../playback/Vector'
 
@@ -131,6 +132,53 @@ export const renderTileArrow = (ctx: CanvasRenderingContext2D, coords: Vector, d
     ctx.lineTo(x - dir[0] * len * 0.7 - right[0], y - dir[1] * len * 0.7 - right[1])
     ctx.closePath()
     ctx.fill()
+}
+
+// Render a centered line from start to end with an optional arrow to indicate direction
+export const renderLine = (
+    ctx: CanvasRenderingContext2D,
+    start: Vector,
+    end: Vector,
+    team: Team,
+    lineWidth: number,
+    opacity: number,
+    renderArrow: boolean
+) => {
+    const alpha = ctx.globalAlpha
+    ctx.globalAlpha = opacity
+    ctx.beginPath()
+
+    // Create an offset for the rendered objects such that the lines are centered
+    // with a slight offset based on the team (assumes there are two teams) so that
+    // both lines are visible if two are rendered at the same point
+    const xShift = (team.id - 1.5) * 0.15 + 0.5
+    const yShift = (team.id - 1.5) * 0.15 + 0.5
+
+    // Line
+    ctx.moveTo(start.x + xShift, start.y + yShift)
+    ctx.lineTo(end.x + xShift, end.y + yShift)
+    ctx.strokeStyle = team.color
+    ctx.lineWidth = lineWidth
+    ctx.stroke()
+
+    // Arrow
+    if (renderArrow) {
+        const midX = (start.x + end.x) * 0.5 + xShift
+        const midY = (start.y + end.y) * 0.5 + yShift
+        let dirVec = { x: end.x - start.x, y: end.y - start.y }
+        const dirVecMag = Math.sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y)
+        dirVec = { x: dirVec.x / dirVecMag, y: dirVec.y / dirVecMag }
+        const rightVec = { x: dirVec.y, y: -dirVec.x }
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x - rightVec.x) * 0.1, midY + (-dirVec.y - rightVec.y) * 0.1)
+        ctx.stroke()
+        ctx.moveTo(midX, midY)
+        ctx.lineTo(midX + (-dirVec.x + rightVec.x) * 0.1, midY + (-dirVec.y + rightVec.y) * 0.1)
+        ctx.stroke()
+    }
+
+    ctx.closePath()
+    ctx.globalAlpha = alpha
 }
 
 // Draws an image at (x, y) such that it is centered in a SIZE*SIZE grid of cells

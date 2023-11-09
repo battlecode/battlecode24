@@ -10,7 +10,7 @@ import {
     MapEditorBrushField,
     MapEditorBrushFieldType
 } from '../components/sidebar/map-editor/MapEditorBrush'
-import { StaticMap } from './Map'
+import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { TOOLTIP_PATH_LENGTH } from '../constants'
 
@@ -151,9 +151,9 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
+    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
         for (const body of this.bodies.values()) {
-            body.draw(turn, ctx)
+            body.draw(mapDimension, interpFactor, ctx)
         }
     }
 
@@ -218,6 +218,7 @@ export class Body {
     public actionRadius: number = 0
     public visionRadius: number = 0
     public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
+    public nextPos: Vector
     protected imgPath: string = ''
     protected nextPos: Vector
     public prevSquares: Vector[]
@@ -236,13 +237,12 @@ export class Body {
         this.prevSquares = [this.pos]
     }
 
-    public draw(turn: Turn, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = this.getInterpolatedCoords(turn);
-
+    public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
+        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, turn.map.staticMap.dimension),
+            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, mapDimension),
             1
         )
     }
