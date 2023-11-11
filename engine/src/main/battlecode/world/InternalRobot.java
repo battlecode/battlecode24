@@ -393,8 +393,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void spawn(MapLocation loc) {
         this.spawned = true;
         this.location = loc;
-        addMovementCooldownTurns();
-        addActionCooldownTurns();
     }
 
     public void despawn() {

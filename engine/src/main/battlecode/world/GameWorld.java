@@ -85,14 +85,6 @@ public strictfp class GameWorld {
 
         this.controlProvider.matchStarted(this);
 
-        // Add the robots contained in the LiveMap to this world.
-        RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
-
-        for (int i = 0; i < initialBodies.length; i++) {
-            RobotInfo robot = initialBodies[i];
-            MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            createRobot(robot.ID, robot.team);
-        }
         this.teamInfo = new TeamInfo(this);
 
         // Create all robots in their despawned states
