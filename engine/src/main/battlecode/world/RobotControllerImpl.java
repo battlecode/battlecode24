@@ -802,7 +802,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
 
+    private void assertIsSpawned() throws GameActionException {
+        if (!this.robot.isSpawned()) {
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is not spawned in.");
+        }
+    }
+
+    @Override
+    private boolean isSpawned() {
+        try {
+            assertIsSpawned();
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
     private void assertIsActionReady() throws GameActionException {
+        assertIsSpawned();
         if (!this.robot.canActCooldown())
             throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
@@ -822,6 +838,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertIsMovementReady() throws GameActionException {
+        assertIsSpawned();
         if (!this.robot.canMoveCooldown())
             throw new GameActionException(IS_NOT_READY,
                     "This robot's movement cooldown has not expired.");
@@ -881,29 +898,25 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    private void assertCanBuildRobot(RobotType type, MapLocation loc) throws GameActionException {
-        assertNotNull(type);
-        assertCanActLocation(loc);
-        assertIsActionReady();
-
-        if (getType() != RobotType.HEADQUARTERS)
+    private void assertCanSpawn(MapLocation loc) throws GameActionException {
+        if (isSpawned())
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot build. Only headquarters can build.");
-        if (type == RobotType.HEADQUARTERS) {
-            throw new GameActionException(CANT_DO_THAT, "Headquarters cannot be built");
-        }
-        for (ResourceType rType : ResourceType.values()) {
-            if (rType == ResourceType.NO_RESOURCE)
-                continue;
-            if (getResourceAmount(rType) < type.getBuildCost(rType)) {
-                throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                        "Insufficient amount of " + rType);
-            }
-        }
+                    "Robot cannot call spawn when already spawned in.");
+
+        if (!this.robot.canSpawnCooldown())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Robot is not ready to be spawned.");
+
+        // TODO: Implement spawn locations
+        if (!this.gameWorld.isSpawnLocation(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot spawn in a non-spawn location; " + loc + " is not a spawn location");
+
         if (isLocationOccupied(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
         }
+
         if (!sensePassability(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to " + loc + "; It has a wall.");
@@ -911,25 +924,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canBuildRobot(RobotType type, MapLocation loc) {
+    public boolean canSpawn(MapLocation loc) {
         try {
-            assertCanBuildRobot(type, loc);
+            assertCanSpawn(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
     @Override
-    public void buildRobot(RobotType type, MapLocation loc) throws GameActionException {
-        assertCanBuildRobot(type, loc);
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
-        Team team = getTeam();
-        for (ResourceType rType : ResourceType.values()) {
-            if (rType == ResourceType.NO_RESOURCE)
-                continue;
-            this.robot.addResourceAmount(rType, -1*type.getBuildCost(rType));
-        }
-        int newId = this.gameWorld.spawnRobot(type, loc, team);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, newId);
+    public void spawn(MapLocation loc) throws GameActionException {
+        assertCanSpawn(loc);
+        this.gameWorld.addRobot(loc, robot);
+        this.gameWorld.getObjectInfo().addRobotIndex(robot, loc);
+        this.robot.spawn(loc);
     }
 
     private void assertCanBuildAnchor(Anchor anchor) throws GameActionException {
