@@ -238,12 +238,12 @@ table MatchFooter {
 /// of-structs.
 table Round {
     /// The IDs of teams in the Game.
-    teamIDs: [int];
+    teamIds: [int];
     /// The total amount of resource change of this team, this round
     teamResourceAmounts: [int];
     teamCommunication: CommTable;
 
-    robotIDs: [int];
+    robotIds: [int];
     robotLocs: VecTable;
     robotMoveCooldowns: [int];
     robotActionCooldowns: [int];
@@ -259,11 +259,11 @@ table Round {
     spawnedBodies: SpawnedBodyTable;
 
     /// The IDs of bodies that died.
-    diedIDs: [int];
+    diedIds: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
-    actionIDs: [int];
+    actionIds: [int];
     /// The actions performed. These actions allow us to track many things about the current state.
     actions: [Action];
     /// The 'targets' of the performed actions. Actions without targets may have any value
@@ -271,30 +271,30 @@ table Round {
 
     claimedResourcePiles: VecTable;
 
-    trapIDs: [int];
+    trapIds: [int];
     trapAddedLocations: VecTable;
     trapAddedTypes: [BuildActionType];
     trapAddedTeams: [byte];
 
-    trapTriggeredIDs: [int];
+    trapTriggeredIds: [int];
 
     digLocations: VecTable;
     fillLocations: VecTable;
 
     /// The IDs of the robots who changed their indicator strings
-    indicatorStringIDs: [int];
+    indicatorStringIds: [int];
     /// The messages of the robots who changed their indicator strings
     indicatorStrings: [string];
 
     /// The IDs of bodies that set indicator dots
-    indicatorDotIDs: [int];
+    indicatorDotIds: [int];
     /// The location of the indicator dots
     indicatorDotLocs: VecTable;
     /// The RGB values of the indicator dots
     indicatorDotRGBs: RGBTable;
 
     /// The IDs of bodies that set indicator lines
-    indicatorLineIDs: [int];
+    indicatorLineIds: [int];
     /// The start location of the indicator lines
     indicatorLineStartLocs: VecTable;
     /// The end location of the indicator lines
@@ -307,10 +307,10 @@ table Round {
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)
     /// It should increase by one for each following round.
-    roundID: int;
+    roundId: int;
 
     /// The IDs of player bodies.
-    bytecodeIDs: [int];
+    bytecodeIds: [int];
     /// The bytecodes used by the player bodies.
     bytecodesUsed: [int];
 }

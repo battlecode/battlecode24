@@ -39,12 +39,12 @@ export default class Bodies {
     }
 
     updateBodyPositions(delta: schema.Round, allowNullBodies: boolean) {
-        const movedLocs = delta.movedLocs()
+        const movedLocs = delta.robotLocs()
         if (!movedLocs) return
-        const movedIds = delta.movedIDsArray() ?? assert.fail('movedIDsArray not found in round')
+        const movedIds = delta.robotIdsArray() ?? assert.fail('movedIDsArray not found in round')
         const xsArray = movedLocs.xsArray() ?? assert.fail('movedLocs.xsArray not found in round')
         const ysArray = movedLocs.ysArray() ?? assert.fail('movedLocs.ysArray not found in round')
-        for (let i = 0; i < delta.movedIDsLength(); i++) {
+        for (let i = 0; i < delta.robotIdsLength(); i++) {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
@@ -81,11 +81,13 @@ export default class Bodies {
 
         scopedCallback()
 
-        const diedIds = delta.diedIDsArray() ?? assert.fail('diedIDsArray not found in round')
-        if (delta.diedIDsLength() > 0) {
-            for (let i = 0; i < delta.diedIDsLength(); i++) {
+        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIdsArray not found in round')
+
+		/*
+        if (delta.diedIdsLength() > 0) {
+            for (let i = 0; i < delta.diedIdsLength(); i++) {
                 const diedBody =
-                    this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIDs(i)} not found in bodies`)
+                    this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
                 if (!turn.stat.completed) {
                     const teamStat =
                         turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
@@ -95,18 +97,19 @@ export default class Bodies {
                 assert(this.bodies.delete(diedBody.id))
             }
         }
+		*/
     }
 
     private insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
-        var teams = bodies.teamIDsArray() ?? assert.fail('Initial body teams not found in header')
+        /*var teams = bodies.teamIdsArray() ?? assert.fail('Initial body teams not found in header')
         var types = bodies.typesArray() ?? assert.fail('Initial body types not found in header')
 
         const locs = bodies.locs() ?? assert.fail('Initial body locations not found in header')
         const xsArray = locs.xsArray() ?? assert.fail('Initial body x locations not found in header')
         const ysArray = locs.ysArray() ?? assert.fail('Initial body y locations not found in header')
-        const idsArray = bodies.robotIDsArray() ?? assert.fail('Initial body IDs not found in header')
+        const idsArray = bodies.robotIdsArray() ?? assert.fail('Initial body IDs not found in header')
 
-        for (let i = 0; i < bodies.robotIDsLength(); i++) {
+        for (let i = 0; i < bodies.robotIdsLength(); i++) {
             const id = idsArray[i]
             const bodyClass =
                 BODY_DEFINITIONS[types[i]] ?? assert.fail(`Body type ${types[i]} not found in BODY_DEFINITIONS`)
@@ -123,7 +126,7 @@ export default class Bodies {
                 teamStat.robots[types[i]] += 1
                 teamStat.total_hp[types[i]] += health
             }
-        }
+        }*/
     }
 
     getById(id: number): Body {
@@ -161,10 +164,9 @@ export default class Bodies {
         return Math.max(-1, ...this.bodies.keys()) + 1
     }
 
-    getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
+    getBodyAtLocation(x: number, y: number, team?: Team): Body | undefined {
         let found_body: Body | undefined = undefined
         this.bodies.forEach((body, id) => {
-            if (type && body.type !== type) return
             if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) found_body = body
         })
         return found_body
@@ -181,21 +183,18 @@ export default class Bodies {
     toSpawnedBodyTable(builder: flatbuffers.Builder): number {
         const robotIDs: Uint8Array = new Uint8Array(this.bodies.size)
         const teamIDs: Uint8Array = new Uint8Array(this.bodies.size)
-        const types: schema.BodyType[] = []
         const xs: Uint8Array = new Uint8Array(this.bodies.size)
         const ys: Uint8Array = new Uint8Array(this.bodies.size)
 
         Array.from(this.bodies.values()).forEach((body, i) => {
             robotIDs[i] = body.id
             teamIDs[i] = body.team.id
-            types[i] = body.type
             xs[i] = body.pos.x
             ys[i] = body.pos.y
         })
 
-        const robotIDsVector = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs)
-        const teamIDsVector = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs)
-        const typesVector = schema.SpawnedBodyTable.createTypesVector(builder, types)
+        const robotIDsVector = schema.SpawnedBodyTable.createRobotIdsVector(builder, robotIDs)
+        const teamIDsVector = schema.SpawnedBodyTable.createTeamIdsVector(builder, teamIDs)
 
         const xsTable = schema.VecTable.createXsVector(builder, xs)
         const ysTable = schema.VecTable.createYsVector(builder, ys)
@@ -205,9 +204,8 @@ export default class Bodies {
         const locsVecTable = schema.VecTable.endVecTable(builder)
 
         schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
-        schema.SpawnedBodyTable.addRobotIDs(builder, robotIDsVector)
-        schema.SpawnedBodyTable.addTeamIDs(builder, teamIDsVector)
-        schema.SpawnedBodyTable.addTypes(builder, typesVector)
+        schema.SpawnedBodyTable.addRobotIds(builder, robotIDsVector)
+        schema.SpawnedBodyTable.addTeamIds(builder, teamIDsVector)
         schema.SpawnedBodyTable.addLocs(builder, locsVecTable)
         return schema.SpawnedBodyTable.endSpawnedBodyTable(builder)
     }
@@ -217,7 +215,6 @@ export class Body {
     public robotName: string = ""
     public actionRadius: number = 0
     public visionRadius: number = 0
-    public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
     protected imgPath: string = ''
     public nextPos: Vector
     public prevSquares: Vector[]
@@ -289,7 +286,8 @@ export class Body {
     }
 }
 
-export const BODY_DEFINITIONS: Record<number, typeof Body> = {
+export const BODY_DEFINITIONS: Record<number, typeof Body> = {}
+/*export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
         public robotName = 'Headquarters'
         public actionRadius = 8
@@ -368,7 +366,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             return super.onHoverInfo();
         }
     }
-}
+}*/
 
 export class ArchonBrush extends MapEditorBrush {
     public readonly name = 'Archons'
@@ -388,6 +386,7 @@ export class ArchonBrush extends MapEditorBrush {
     }
 
     public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+		/*
         const symmetryPoint = this.map.applySymmetry({ x: x, y: y })
         if (symmetryPoint.x == x && symmetryPoint.y == y) return // dont allow the case where the archon is on the symmetry line
 
@@ -423,5 +422,6 @@ export class ArchonBrush extends MapEditorBrush {
                 this.bodies.bodies.delete(otherArchon.id)
             }
         }
+		*/
     }
 }

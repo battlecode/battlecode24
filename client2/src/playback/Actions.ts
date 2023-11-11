@@ -23,7 +23,7 @@ export default class Actions {
         if (delta.actionsLength() > 0) {
             for (let i = 0; i < delta.actionsLength(); i++) {
                 const action = delta.actions(i) ?? assert.fail('actions not found in round')
-                const robotID = delta.actionIDs(i) ?? assert.fail('actionIDs not found in round')
+                const robotID = delta.actionIds(i) ?? assert.fail('actionIDs not found in round')
                 const target = delta.actionTargets(i) ?? assert.fail('actionTargets not found in round')
                 const actionClass =
                     ACTION_DEFINITIONS[action] ?? assert.fail(`Action ${action} not found in ACTION_DEFINITIONS`)
@@ -64,7 +64,11 @@ export class Action {
     }
 }
 
-export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
+export const ACTION_DEFINITIONS: Record<number, typeof Action> = { }
+
+/*
+export const ACTION_DEFINITIONS: Record<number, typeof Action> = { 
+
     [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
         apply(turn: Turn): void {
             console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`)
@@ -197,3 +201,5 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
     [schema.Action.PICK_UP_RESOURCE]: Action,
     [schema.Action.PLACE_RESOURCE]: Action
 }
+
+*/
