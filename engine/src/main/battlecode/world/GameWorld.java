@@ -75,7 +75,6 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
@@ -137,6 +136,24 @@ public strictfp class GameWorld {
         for (int i = 0; i < trapTriggers.length; i++){
             this.trapTriggers[i] = new ArrayList<Trap>();
         }
+
+        //initialize flags
+        this.allFlags = new Flag[GameConstants.NUMBER_FLAGS * 2];
+        this.placedFlags = new ArrayList[gm.getWidth() * gm.getHeight()];
+
+        for (int i = 0; i < placedFlags.length; i++)
+            placedFlags[i] = new ArrayList<>();
+
+        int flagIdx = 0;
+        for (int i = 0; i < gm.getFlagArray().length; i++) {
+            int flagVal = gm.getFlagArray()[i];
+            if(flagVal == 0) continue;
+            Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i));
+            allFlags[flagIdx] = flag;
+            placedFlags[i].add(flag);
+            flagIdx++;
+        }
+
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
@@ -386,7 +403,7 @@ public strictfp class GameWorld {
     // ***********************************
     // ****** DAM METHODS **************
     // ***********************************
-    
+
     public boolean getDam(MapLocation loc){
         if (currentRound <= GameConstants.SETUP_ROUNDS){
             return dams[locationToIndex(loc)];
@@ -800,6 +817,18 @@ public strictfp class GameWorld {
         }
 
         if(currentRound == GameConstants.SETUP_ROUNDS) processEndOfSetupPhase();
+
+        //Reset dropped flags if necessary
+        if (!isSetupPhase()) {
+            for(Flag flag : allFlags) {
+                if(!flag.isPickedUp() && flag.getLoc() != flag.getStartLoc()){ 
+                    if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS)
+                        moveFlagSetStartLoc(flag, flag.getStartLoc());
+                    else
+                        flag.incrementDroppedRounds();
+                }
+            }
+        }
         
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){

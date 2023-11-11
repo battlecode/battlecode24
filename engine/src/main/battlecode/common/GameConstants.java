@@ -176,6 +176,7 @@ public class GameConstants {
     /** Constants for flags */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+    public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

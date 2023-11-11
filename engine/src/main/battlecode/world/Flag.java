@@ -15,9 +15,12 @@ public class Flag {
 
     private InternalRobot carryingRobot;
 
+    private int droppedRounds;
+
     public Flag(Team team, MapLocation startLoc){
         this.team = team;
         this.startLoc = startLoc;
+        loc = startLoc;
         broadcastLoc = startLoc;
     }
 
@@ -55,11 +58,21 @@ public class Flag {
 
     public void pickUp(InternalRobot robot) {
         carryingRobot = robot;
+        droppedRounds = 0;
         loc = carryingRobot.getLocation();
     }
 
     public void drop() {
         carryingRobot = null;
+        droppedRounds = 0;
+    }
+
+    public int getDroppedRounds() {
+        return droppedRounds;
+    }
+
+    public void incrementDroppedRounds() {
+        droppedRounds += 1;
     }
 
 }
