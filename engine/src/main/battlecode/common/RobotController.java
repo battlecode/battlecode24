@@ -491,7 +491,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared); 
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
 
     /**
      * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
@@ -848,13 +848,13 @@ public strictfp interface RobotController {
      * Check if a location can be modified
      * 
      * @param building TrapType of trap to build at that location
-     * @param loc location to aquaform
+     * @param loc location to build on
      * 
      * @return true if trap can be built at loc
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean canAquaform(TrapType building, MapLocation loc);
+    boolean canBuild(TrapType building, MapLocation loc);
 
     /**
      * Build a trap at a location
@@ -865,7 +865,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void aquaform(TrapType building, MapLocation loc) throws GameActionException;;
+    void build(TrapType building, MapLocation loc) throws GameActionException;;
 
     /**
      * Builds a robot of the given type in the given location.
@@ -1175,7 +1175,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void pickupFlag(MapLocation loc);
+    void pickupFlag(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether robot can drop a flag at the current location.
@@ -1198,7 +1198,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    void dropFlag(MapLocation loc);
+    void dropFlag(MapLocation loc) throws GameActionException;
 
 
     // ***********************************

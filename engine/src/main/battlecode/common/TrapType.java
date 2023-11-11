@@ -1,7 +1,7 @@
 package battlecode.common;
 
 /**
- * Enumerates possible traps that can be built by aquaforming.
+ * Enumerates possible traps that can be built.
  */
 
 public enum TrapType {

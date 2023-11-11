@@ -28,6 +28,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int actionCooldownTurns;
     private int movementCooldownTurns;
 
+    private Flag flag;
+
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
      */
@@ -111,6 +113,25 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addResourceAmount(int amount) {
         this.gameWorld.getTeamInfo().addResource(this.team, amount);
         addResourceChangeAction(amount);
+    }
+    public boolean canAddFlag() {
+        return flag == null;
+    }
+
+    public void addFlag(Flag flag) {
+        this.flag = flag;
+    }
+
+    public boolean hasFlag() {
+        return flag != null;
+    }
+
+    public Flag getFlag() {
+        return flag;
+    }
+
+    public void removeFlag() {
+        this.flag = null;
     }
 
     public long getControlBits() {
