@@ -167,8 +167,8 @@ public class TeamInfo {
                 if (amount != 0)
                     throw new IllegalArgumentException("Can't add no resource");
                 break;
-                */
-        }
+                
+        }*/
     }
 
     private int numIslandsOccupied(Team team){
@@ -202,6 +202,41 @@ public class TeamInfo {
         // if (((float)this.currentFlagsCaptured[team.ordinal()])/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
         //     checkWin(team); // Do an extra check to make sure the win is correct
         // }
+    }
+
+    /**
+     * Counts number of tier 3 units.
+     * @param team to query
+     * @return number of level 3 units
+     */
+    public int getTierThree(Team team){
+        Collection<InternalRobot> robots = ObjectInfo.robots();
+
+        int sum = 0;
+        for (int i = 0; i < robots.length; i++){
+            if (robots[i].getLevel() == 2){
+                sum++;
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * Counts number of tier 2 units.
+     * @param team to query
+     * @return number of level 2 units
+     */
+    public int getTierTwo(Team team){
+        // Cannot make a static reference to the non-static method robots() from the type ObjectInfo
+        Collection<InternalRobot> robots = ObjectInfo.robots();
+
+        int sum = 0;
+        for (InternalRobot r: robots){
+            if (r.getLevel() == 2){
+                sum++;
+            }
+        }
+        return sum;
     }
 
     /**
