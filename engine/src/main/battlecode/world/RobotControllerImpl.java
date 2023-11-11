@@ -701,10 +701,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
-    // ****** AQUAFORMING METHODS ********
+    // ****** BUILDING METHODS ********
     // ***********************************
 
-    private void assertCanAquaform(TrapType trap, MapLocation loc) throws GameActionException{
+    private void assertCanBuild(TrapType trap, MapLocation loc) throws GameActionException{
         assertNotNull(trap);
         assertCanActLocation(loc);
         assertIsActionReady();
@@ -721,9 +721,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canAquaform(TrapType trap, MapLocation loc){
+    public boolean canBuild(TrapType trap, MapLocation loc){
         try{
-            assertCanAquaform(trap, loc);
+            assertCanBuild(trap, loc);
             return true;
         }
         catch (GameActionException e){
@@ -732,8 +732,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void aquaform(TrapType trap, MapLocation loc) throws GameActionException{
-        assertCanAquaform(trap, loc);
+    public void build(TrapType trap, MapLocation loc) throws GameActionException{
+        assertCanBuild(trap, loc);
         Trap toPlace = new Trap(loc, trap, this.getTeam());
         this.gameWorld.placeTrap(loc, toPlace);
         //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
