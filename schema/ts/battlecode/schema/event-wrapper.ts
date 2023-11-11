@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Event, unionToEvent, unionListToEvent } from '../../battlecode/schema/event';
+import { Event, unionToEvent, unionListToEvent } from '../../battlecode/schema/event.js';
 
 
 /**
@@ -11,7 +11,7 @@ import { Event, unionToEvent, unionListToEvent } from '../../battlecode/schema/e
 export class EventWrapper {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):EventWrapper {
+  __init(i:number, bb:flatbuffers.ByteBuffer):EventWrapper {
   this.bb_pos = i;
   this.bb = bb;
   return this;

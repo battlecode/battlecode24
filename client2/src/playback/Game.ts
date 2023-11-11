@@ -140,7 +140,7 @@ export class Team {
             wins: 0,
             elo: 0
         }
-        const id = team.teamID() ?? assert.fail('Team id is missing')
+        const id = team.teamId() ?? assert.fail('Team id is missing')
         const packageName = team.packageName() ?? assert.fail('Team package name is missing')
         const color = id === 1 ? 'red' : 'blue'
         return new Team(name, stats, id, packageName, color)

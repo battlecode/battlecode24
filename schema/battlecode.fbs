@@ -10,10 +10,21 @@ table VecTable {
     ys: [int];
 }
 
+table RGBTable {
+    red: [int];
+    green: [int];
+    blue: [int];
+}
+
 table TeamData {
     name: string;
     packageName: string;
     teamID: byte;
+}
+
+table CommTable {
+    team1: [int];
+    team2: [int];
 }
 
 enum SepcializationType: byte {
@@ -57,7 +68,7 @@ table Constants {
     actionRadius: int;
 }
 
-table GlobalUpgradeType: byte {
+enum GlobalUpgradeType: byte {
     ACTION_UPGRADE,
     HEALING_UPGRADE,
     CAPTURING_UPGRADE
@@ -230,7 +241,7 @@ table Round {
     teamIDs: [int];
     /// The total amount of resource change of this team, this round
     teamResourceAmounts: [int];
-    teamCommunicationArrays: [[int]];
+    teamCommunication: CommTable;
 
     robotIDs: [int];
     robotLocs: VecTable;

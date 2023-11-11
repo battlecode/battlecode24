@@ -56,10 +56,10 @@ export default class TurnStat {
      */
     applyDelta(turn: Turn, delta: schema.Round): void {
         assert(!this.completed, 'Cannot apply delta to completed turn')
-        assert(turn.turnNumber === delta.roundID(), `Wrong turn ID: is ${delta.roundID()}, should be ${turn.turnNumber}`)
+        assert(turn.turnNumber === delta.roundId(), `Wrong turn ID: is ${delta.roundId()}, should be ${turn.turnNumber}`)
         
-        for (var i = 0; i < delta.teamIDsLength(); i++) {
-            const team = this.game.teams[(delta.teamIDs(i) ?? assert.fail('teamID not found in round')) - 1]
+        for (var i = 0; i < delta.teamIdsLength(); i++) {
+            const team = this.game.teams[(delta.teamIds(i) ?? assert.fail('teamID not found in round')) - 1]
             assert(team != undefined, `team ${i} not found in game.teams in turn`)
             const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in turn`)
 

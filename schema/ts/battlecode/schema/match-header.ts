@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { GameMap } from '../../battlecode/schema/game-map';
+import { GameMap } from '../../battlecode/schema/game-map.js';
 
 
 /**
@@ -11,7 +11,7 @@ import { GameMap } from '../../battlecode/schema/game-map';
 export class MatchHeader {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):MatchHeader {
+  __init(i:number, bb:flatbuffers.ByteBuffer):MatchHeader {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -26,17 +26,11 @@ static getSizePrefixedRootAsMatchHeader(bb:flatbuffers.ByteBuffer, obj?:MatchHea
   return (obj || new MatchHeader()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-/**
- * The map the match was played on.
- */
 map(obj?:GameMap):GameMap|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? (obj || new GameMap()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-/**
- * The maximum number of rounds in this match.
- */
 maxRounds():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
