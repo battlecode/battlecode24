@@ -163,6 +163,12 @@ public class GameConstants {
     public static final int MAX_DESTABILIZE_STACKS = 2;
     public static final int MAX_ANCHOR_STACKS = 1;
 
+    /** Constants for dig and fill costs and cooldowns. */
+    public static final int DIG_COST = 2;
+    public static final int DIG_COOLDOWN = 20;
+    public static final int FILL_COST = 1;
+    public static final int FILL_COOLDOWN = 20;
+
     /** Constants for well rates. */
     public static final int WELL_STANDARD_RATE = 1;
     public static final int WELL_ACCELERATED_RATE = 3;
@@ -180,4 +186,7 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    /** The end of the setup rounds in the game */
+    public static final int SETUP_ROUNDS = 200;
 }
