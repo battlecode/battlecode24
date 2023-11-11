@@ -46,7 +46,7 @@ public strictfp class GameWorld {
     private Direction[] currents;
     
     //List of all flags, not indexed by location
-    private Flag[] allFlags;
+    private ArrayList<Flag> allFlags;
     //List of flags on each tile, indexed by location
     private ArrayList<Flag>[] placedFlags;
 
@@ -138,20 +138,18 @@ public strictfp class GameWorld {
         }
 
         //initialize flags
-        this.allFlags = new Flag[GameConstants.NUMBER_FLAGS * 2];
+        this.allFlags = new ArrayList<Flag>();
         this.placedFlags = new ArrayList[gm.getWidth() * gm.getHeight()];
 
         for (int i = 0; i < placedFlags.length; i++)
             placedFlags[i] = new ArrayList<>();
-
-        int flagIdx = 0;
+        
         for (int i = 0; i < gm.getFlagArray().length; i++) {
             int flagVal = gm.getFlagArray()[i];
             if(flagVal == 0) continue;
             Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i));
-            allFlags[flagIdx] = flag;
+            allFlags.add(flag);
             placedFlags[i].add(flag);
-            flagIdx++;
         }
 
         //indices are: map position, team, boost/destabilize/anchor lists
@@ -361,7 +359,7 @@ public strictfp class GameWorld {
         }
     }
 
-    public Flag[] getAllFlags() {
+    public ArrayList<Flag> getAllFlags() {
         return allFlags;
     }
 

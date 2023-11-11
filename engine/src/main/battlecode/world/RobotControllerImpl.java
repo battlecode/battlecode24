@@ -9,8 +9,6 @@ import battlecode.schema.Action;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.naming.InsufficientResourcesException;
-
 /**
  * The actual implementation of RobotController. Its methods *must* be called
  * from a player thread.
@@ -449,11 +447,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> validSensedFlagLocs = new ArrayList<>();
-        Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
-        for (Flag flag : allFlagsInRadius) {
-            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS))
-                validSensedFlagLocs.add(flag.getLoc());
+        
+        for (MapLocation loc : allLocations) {
+            // Can't actually sense location based on radius squared
+            if (!getLocation().isWithinDistanceSquared(loc, GameConstants.VISION_RADIUS)) {
+                continue;
+            }
+            if(gameWorld.hasFlag(loc)) validSensedFlagLocs.add(loc);
         }
         return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
     }
@@ -623,17 +625,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 "This robot is not holding a flag.");
         
         if(!this.gameWorld.isPassable(loc))
-            throw new GameActionException(CANT_DO_THAT, 
-                    "A flag can't be placed at this location.");
+        throw new GameActionException(CANT_DO_THAT, 
+                "A flag can't be placed at this location.");
 
-        if(this.gameWorld.isSetupPhase()) {
-            Flag[] flags = this.gameWorld.getAllFlagsWithinRadiusSquared(loc, GameConstants.MIN_FLAG_SPACING_SQUARED);
-            for (Flag flag : flags) {
-                if(flag.getTeam() == this.robot.getTeam()) 
-                    throw new GameActionException(CANT_DO_THAT, 
-                            "Flag placement is too close to another flag.");
-            }
-        }
         // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
@@ -707,51 +701,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** AQUAFORMING METHODS ********
     // ***********************************
 
-    private void assertCanAquaform(TrapType trap, MapLocation loc) throws GameActionException{
-        assertNotNull(trap);
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (getResourceAmount() < trap.buildCost){
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
-        }
-        for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
-            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
-        }
-        //can this be used to check for enemy traps??
-        if (this.gameWorld.hasTrap(loc)){
-            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
-        }
+    private void assertCanAquaform(BuildingType bt, MapLocation loc) throws GameActionException {
+        // TODO implement assertCanAquaform
     }
 
     @Override
-    public boolean canAquaform(TrapType trap, MapLocation loc){
-        try{
-            assertCanAquaform(trap, loc);
+    public boolean canAquaform(BuildingType bt, MapLocation loc) {
+        try {
+            assertCanAquaform(bt, loc);
             return true;
-        }
-        catch (GameActionException e){
-            return false;
-        }
-    }
-
-    @Override
-    public void aquaform(TrapType trap, MapLocation loc) throws GameActionException{
-        assertCanAquaform(trap, loc);
-        Trap toPlace = new Trap(loc, trap, this.getTeam());
-        this.gameWorld.placeTrap(loc, toPlace);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
-        this.robot.addResourceAmount(-1*(trap.buildCost));
-        //TODO: implement cooldown multiplier based on skill level
-        this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-COOLDOWNMULTIPLIER));
+        } catch (GameActionException e) { return false; }
     }
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (!this.gameWorld.getWater(loc))
-            throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (this.robot.getResourceAmount() < GameConstants.FILL_COST)
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
+        // TODO implement assertCanFill
     }
 
     @Override
@@ -762,27 +725,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    public void fill(MapLocation loc) throws GameActionException{
-        assertCanFill(loc);
-        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN));
-        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
-        this.gameWorld.setLand(loc);
-    }
-
     private void assertCanDig(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (this.gameWorld.getWater(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
-        if (this.gameWorld.getWall(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
-        if (isLocationOccupied(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (this.robot.getResourceAmount() < GameConstants.DIG_COST)
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
-        if (this.gameWorld.hasFlag(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
+        // TODO implement assertCanDig
     }
 
     @Override
@@ -793,14 +737,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
-    @Override
-    public void dig(MapLocation loc){
-        assertCanDig(loc);
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
-        this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, DIG_INDEX);
-        this.gameWorld.setWater(loc);
-    }
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
@@ -876,8 +812,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
         MapLocation nextLoc = adjacentLocation(dir);
+        Team[] allSpawnZones = {null, Team.A, Team.B};
         this.robot.setLocation(nextLoc);
         this.robot.addMovementCooldownTurns();
+
+        if (this.robot.hasFlag() && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
+            this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
+            robot.getFlag().setLoc(null);
+            gameWorld.getAllFlags().remove(robot.getFlag());
+            this.robot.removeFlag();
+        }
     }
 
     // ***********************************
@@ -1349,6 +1293,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanWriteSharedArray(int index, int value) throws GameActionException{
         assertValidIndex(index);
         assertValidValue(value);
+        if (!this.gameWorld.inRangeForAmplification(this.robot)) {
+            throw new GameActionException(CANT_DO_THAT, "You cannot write to the shared array");
+        }
     }
 
     @Override
@@ -1364,6 +1311,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanWriteSharedArray(index, value);
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
+
+
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
