@@ -56,7 +56,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     function getHoveredBody() {
         return appContext.state?.activeMatch?.map
-            ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
+            ? appContext.state.activeMatch?.currentTurn.bodies.getBodyAtLocation(
                   tileCol,
                   appContext.state.activeMatch.map.dimension.height - 1 - tileRow
               )
