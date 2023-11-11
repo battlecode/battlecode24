@@ -29,11 +29,7 @@ public enum DominationFactor {
      */
     MORE_FLAGS_PICKED, 
     /**
-     * Win by completing more of a randomly chosen task (tiebreak 5).
-     */
-    RANDOM_TASK,
-    /**
-     * Win by coinflip (tiebreak 6).
+     * Win by coinflip (tiebreak 5).
      */
     WON_BY_DUBIOUS_REASONS,
     /**
