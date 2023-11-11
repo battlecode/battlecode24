@@ -29,6 +29,11 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private boolean[] walls;
     private boolean[] clouds;
+    private boolean[] water;
+    private boolean[] dams;
+    private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
+    private ArrayList<Trap>[] trapTriggers;
+    private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
     private double[][] cooldownMultipliers;
     private InternalRobot[][] robots;
@@ -61,6 +66,9 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.walls = gm.getWallArray();
         this.clouds = gm.getCloudArray();
+        this.water = gm.getWaterArray();
+        this.spawnZones = gm.getSpawnZoneArray();
+        this.dams = gm.getDamArray();
         this.islandIds = gm.getIslandArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currents = new Direction[gm.getWidth() * gm.getHeight()];
@@ -123,7 +131,10 @@ public strictfp class GameWorld {
                 this.wells[i] = new Well(loc, rType);
             }
         }
-
+        this.trapTriggers = new ArrayList[gm.getWidth()*gm.getHeight()];
+        for (int i = 0; i < trapTriggers.length; i++){
+            this.trapTriggers[i] = new ArrayList<Trap>();
+        }
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
@@ -170,24 +181,17 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                objectInfo.eachDynamicBodyByExecOrder((body) -> {
-                    if (body instanceof InternalRobot) {
-                        InternalRobot hq = (InternalRobot) body;
-                        if (hq.getType() != RobotType.HEADQUARTERS) {
-                            throw new RuntimeException("Robots must be headquarters in round 1");
-                        }
-                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
-                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        return true;
-                    } else {
-                        throw new RuntimeException("non-robot body registered as dynamic");
-                    }
-                });
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
+            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
+                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
+                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
+            }
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -281,12 +285,40 @@ public strictfp class GameWorld {
         return this.clouds[idx];
     }
 
+    public boolean getWater(MapLocation loc) {
+        return this.water[locationToIndex(loc)];
+    }
+
+    public void setWater(MapLocation loc) {
+        this.water[locationToIndex(loc)] = true;
+    }
+
+    public void setLand(MapLocation loc) {
+        this.water[locationToIndex(loc)] = false;
+    }
+
+    /**
+     * Checks if a given location is a spawn zone.
+     * Returns 0 if not, 1 if it is a Team A spawn zone,
+     * and 2 if it is a Team B spawn zone.
+     * 
+     * @param loc the location to check
+     * @return 0 if the location is not a spawn zone,
+     * 1 or 2 if it is a Team A or Team B spawn zone respectively
+     */
+    public int getSpawnZone(MapLocation loc) {
+        return this.spawnZones[locationToIndex(loc)];
+    }
+
     public Direction getCurrent(MapLocation loc) {
         return this.currents[locationToIndex(loc)];
     }
 
     public boolean isPassable(MapLocation loc) {
-        return !this.walls[locationToIndex(loc)];
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && !this.dams[locationToIndex(loc)];
+        }
+        return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
 
     public Well getWell(MapLocation loc) {
@@ -305,6 +337,26 @@ public strictfp class GameWorld {
         }
     }
 
+    public Flag[] getAllFlags() {
+        return allFlags;
+    }
+
+    public void addFlag(MapLocation loc, Flag flag) {
+        placedFlags[locationToIndex(loc)].add(flag);
+        flag.setLoc(loc);
+    }
+
+    public ArrayList<Flag> getFlags(MapLocation loc) {
+        return placedFlags[locationToIndex(loc)];
+    }
+
+    public void removeFlag(MapLocation loc, Flag flag){
+        placedFlags[locationToIndex(loc)].remove(flag);
+    }
+
+    public boolean hasFlag(MapLocation loc) {
+        return placedFlags[locationToIndex(loc)].size() > 0;
+    }
 
     /**
      * Helper method that converts a location into an index.
@@ -312,7 +364,7 @@ public strictfp class GameWorld {
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
-        return loc.x - this.gameMap.getOrigin().x + (loc.y - this.gameMap.getOrigin().y) * this.gameMap.getWidth();
+        return this.gameMap.locationToIndex(loc);
     }
 
     /**
@@ -321,14 +373,72 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
-                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
+        return gameMap.indexToLocation(idx);
     }
 
     // ***********************************
-    // ****** BOOST METHODS **************
+    // ****** DAM METHODS **************
+    // ***********************************
+    public boolean getDam(MapLocation loc){
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return dams[locationToIndex(loc)];
+        }
+        else {
+            return false;
+        }
+    }
+
+    // ***********************************
+    // ****** TRAP METHODS **************
     // ***********************************
     
+    public boolean hasTrap(MapLocation loc){
+        return !(this.trapLocations[locationToIndex(loc)] == null);
+    }
+
+    public void placeTrap(MapLocation loc, Trap trap){
+        this.trapLocations[locationToIndex(loc)] = trap;
+        //should we be able to trigger traps we are diagonally next to?
+        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){
+            this.trapTriggers[locationToIndex(adjLoc)].add(trap);
+        }
+    }
+
+    public void triggerTrap(Trap trap, boolean entered){
+        MapLocation loc = trap.getLocation();
+        TrapType type = trap.getType();
+        switch(type){
+            case STUN:
+                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, type.enterRadius, trap.getTeam().opponent())){
+                    rob.setMovementCooldownTurns(40);
+                    rob.setActionCooldownTurns(40);
+                }
+                break;
+            case EXPLOSIVE:
+                int rad = type.interactRadius;
+                int dmg = type.enterDamage;
+                if (entered){
+                    rad = type.enterRadius;
+                    dmg = type.enterDamage;
+                }
+                for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, rad, trap.getTeam().opponent())){
+                    rob.addHealth(-1*dmg);
+                }
+                break;
+            case WATER:
+                for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.enterRadius)){
+                    if (getRobot(adjLoc) != null || !isPassable(adjLoc))
+                        continue;
+                    setWater(adjLoc);
+                }
+                break;
+        }
+        for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, 2)){
+            this.trapTriggers[locationToIndex(adjLoc)].remove(trap);
+        }
+        this.trapLocations[locationToIndex(loc)] = null;
+    }
+
     public void addBoost(MapLocation center, Team team){
         int lastRound = getCurrentRound() + GameConstants.BOOSTER_DURATION;
         int radiusSquared = GameConstants.BOOSTER_RADIUS_SQUARED;
@@ -869,42 +979,6 @@ public strictfp class GameWorld {
         }
         return this.wells[locationToIndex(loc)] != null;
     }
-
-    /*
-     * Checks to see if a robot is within range of certain objects and is thus able
-     * to write to the shared array
-     */
-    public boolean inRangeForAmplification(InternalRobot bot) {
-        if (bot.getType() == RobotType.HEADQUARTERS || bot.getType() == RobotType.AMPLIFIER) {
-            // These bots can always communicate
-            return true;
-        }
-        MapLocation loc = bot.getLocation();
-        int maxInterestRadius = Math.max(GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER, GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER);
-        for(InternalRobot otherRobot: this.getAllRobotsWithinRadiusSquared(bot.getLocation(), maxInterestRadius, bot.getTeam())){
-            int maxDistance = 0;
-            if (otherRobot.equals(bot))
-                continue;
-            if (otherRobot.getType() == RobotType.AMPLIFIER) {
-                maxDistance = GameConstants.DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER;
-            } else if (otherRobot.getType() == RobotType.HEADQUARTERS) {
-                maxDistance = GameConstants.DISTANCE_SQUARED_FROM_HEADQUARTER;
-            }
-            int distance = otherRobot.getLocation().distanceSquaredTo(loc);
-            if (distance <= maxDistance) {
-                return true;
-            }
-        }
-        for(Island island: getAllIslands()) {
-            if (island.getTeam() == bot.getTeam()) {
-                int distance = island.minDistTo(loc);
-                if (distance <= GameConstants.DISTANCE_SQUARED_FROM_ISLAND)
-                    return true;
-            }
-        }
-        return false;
-    }
-
 
     public Island[] getAllIslands(){
         return islandIdToIsland.values().toArray(new Island[islandIdToIsland.size()]);

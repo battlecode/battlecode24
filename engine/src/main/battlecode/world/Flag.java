@@ -30,7 +30,7 @@ public class Flag {
         return loc;
     }
 
-    public void setLoc(MapLocation startLoc){
+    public void setLoc(MapLocation loc){
         this.loc = loc;
     }
 

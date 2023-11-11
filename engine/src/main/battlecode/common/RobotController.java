@@ -480,7 +480,27 @@ public strictfp interface RobotController {
      */
     MapLocation[] senseNearbyCloudLocations(MapLocation center, int radiusSquared) throws GameActionException;
 
-    MapLocation[] senseFlagLocations(); 
+    /**
+     * Returns the location of all nearby flags that are visible to the robot. 
+     * If radiusSquared is greater than the robot's vision radius, use the 
+     * robot's vision radius instead.
+     * 
+     * @param center the center of the search area (robot's current position)
+     * @param radiusSquared squared radius of all locations to be returned
+     * @return all locations containing flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
+
+    /**
+     * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
+     * 
+     * @returns all location ranges containing invisible flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseBroadcastFlagLocations();
 
     /**
      * Sense well at location.
@@ -828,13 +848,13 @@ public strictfp interface RobotController {
      * Check if a location can be modified
      * 
      * @param building TrapType of trap to build at that location
-     * @param loc location to aquaform
+     * @param loc location to build on
      * 
      * @return true if trap can be built at loc
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean canAquaform(TrapType building, MapLocation loc);
+    boolean canBuild(TrapType building, MapLocation loc);
 
     /**
      * Build a trap at a location
@@ -845,7 +865,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void aquaform(TrapType building, MapLocation loc) throws GameActionException;;
+    void build(TrapType building, MapLocation loc) throws GameActionException;;
 
     /**
      * Builds a robot of the given type in the given location.
@@ -1155,7 +1175,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void pickupFlag(MapLocation loc);
+    void pickupFlag(MapLocation loc) throws GameActionException;
 
     /**
      * Tests whether robot can drop a flag at the current location.
@@ -1171,7 +1191,14 @@ public strictfp interface RobotController {
      */
     boolean canDropFlag(MapLocation loc);
     
-    void dropFlag(MapLocation loc);
+    /**
+     * Places a flag at the current location on the map.
+     *
+     * @param loc location on the map 
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    void dropFlag(MapLocation loc) throws GameActionException;
 
 
     // ***********************************
@@ -1189,29 +1216,14 @@ public strictfp interface RobotController {
      */
     int readSharedArray(int index) throws GameActionException;
 
-    /**
-     * Test whether this robot can write to the shared array.
-     * 
-     * A robot can write to the shared array when it is within range
-     * of a signal amplifier, a planted reality anchor, or a headquarter.
-     * 
-     * @param index the index in the team's shared array, 0-indexed
-     * @param value the value to set that index to
-     * @return whether it is possible to write to the shared array
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canWriteSharedArray(int index, int value);
-
     /** 
-     * Sets the team's array value at a specified index if the robot is allowed
-     * to write to the array. No change occurs if the index or value is invalid
-     * or if the robot is not able to write to the array (see canWriteSharedArray).
+     * Sets the team's array value at a specified index. 
+     * No change occurs if the index or value is invalid.
      *
      * @param index the index in the team's shared array, 0-indexed
      * @param value the value to set that index to
-     * @throws GameActionException if the index is invalid, the value
-     *         is out of bounds, or the robot cannot write to the array.
+     * @throws GameActionException if the index is invalid or the value
+     * is out of bounds.
      *
      * @battlecode.doc.costlymethod
      */
@@ -1221,8 +1233,26 @@ public strictfp interface RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
+    /**
+     * Tests whether you can buy an upgrade.
+     * 
+     * You can buy the upgrade if you have enough points and 
+     * haven't bought the upgrade before. 
+     * 
+     * @param ug the global upgrade
+     * @return whether it is valid for you to buy the upgrade
+     * 
+     * @battlecode.doc.costlymethod
+     **/
     boolean canBuyGlobal(GlobalUpgrade ug);
 
+    /**
+     * Purchase the global upgrade and applies the affect to the game.
+     * 
+     * @param ug the global upgrade 
+     * 
+     * @battlecode.doc.costlymethod
+     **/
     void buyGlobal(GlobalUpgrade ug);
 
     /**
