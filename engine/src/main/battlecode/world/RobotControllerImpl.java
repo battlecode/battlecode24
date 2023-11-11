@@ -447,15 +447,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-        MapLocation[] allLocations = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> validSensedFlagLocs = new ArrayList<>();
-        
-        for (MapLocation loc : allLocations) {
-            // Can't actually sense location based on radius squared
-            if (!getLocation().isWithinDistanceSquared(loc, GameConstants.VISION_RADIUS)) {
-                continue;
-            }
-            if(gameWorld.hasFlag(loc)) validSensedFlagLocs.add(loc);
+        Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
+        for (Flag flag : allFlagsInRadius) {
+            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS))
+                validSensedFlagLocs.add(flag.getLoc());
         }
         return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
     }
@@ -625,9 +621,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 "This robot is not holding a flag.");
         
         if(!this.gameWorld.isPassable(loc))
-        throw new GameActionException(CANT_DO_THAT, 
-                "A flag can't be placed at this location.");
+            throw new GameActionException(CANT_DO_THAT, 
+                    "A flag can't be placed at this location.");
 
+        if(this.gameWorld.isSetupPhase()) {
+            Flag[] flags = this.gameWorld.getAllFlagsWithinRadiusSquared(loc, GameConstants.MIN_FLAG_SPACING_SQUARED);
+            for (Flag flag : flags) {
+                if(flag.getTeam() == this.robot.getTeam()) 
+                    throw new GameActionException(CANT_DO_THAT, 
+                            "Flag placement is too close to another flag.");
+            }
+        }
         // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
@@ -644,7 +648,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanDropFlag(loc);
         this.gameWorld.addFlag(loc, robot.getFlag());
         robot.removeFlag();
-
     }
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {

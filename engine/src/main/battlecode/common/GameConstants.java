@@ -52,6 +52,9 @@ public class GameConstants {
     /** The maximum percentage of the map that can be wells of a certain type. */
     public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
 
+    /** The minimum distance between ally flags in the initial map and at the end of the seutp phase */
+    public static final int MIN_FLAG_SPACING_SQUARED = 36;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************

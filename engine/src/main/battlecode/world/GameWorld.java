@@ -286,7 +286,10 @@ public strictfp class GameWorld {
     }
 
     public boolean isPassable(MapLocation loc) {
-        return !this.walls[locationToIndex(loc)];
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
+            return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)] && !this.dams[locationToIndex(loc)];
+        }
+        return !this.walls[locationToIndex(loc)] && !this.water[locationToIndex(loc)];
     }
 
     public Well getWell(MapLocation loc) {
@@ -346,7 +349,20 @@ public strictfp class GameWorld {
     }
 
     // ***********************************
-    // ****** BOOST METHODS **************
+    // ****** DAM METHODS **************
+    // ***********************************
+    
+    public boolean getDam(MapLocation loc){
+        if (isSetupPhase()){
+            return dams[locationToIndex(loc)];
+        }
+        else {
+            return false;
+        }
+    }
+
+    // ***********************************
+    // ****** TRAP METHODS **************
     // ***********************************
     
     public void addBoost(MapLocation center, Team team){
@@ -473,6 +489,14 @@ public strictfp class GameWorld {
             if (getWell(newLocation) != null)
                 returnWells.add(getWell(newLocation));
         return returnWells.toArray(new Well[returnWells.size()]);
+    }
+
+    public Flag[] getAllFlagsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Flag> returnFlags = new ArrayList<Flag>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getFlags(newLocation) != null)
+                returnFlags.addAll(getFlags(newLocation));
+        return returnFlags.toArray(new Flag[returnFlags.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
@@ -692,6 +716,8 @@ public strictfp class GameWorld {
             island.advanceTurn();
             this.matchMaker.addIslandInfo(island);
         }
+
+        if(currentRound == GameConstants.SETUP_ROUNDS) processEndOfSetupPhase();
         
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){
@@ -756,6 +782,42 @@ public strictfp class GameWorld {
 
         if (gameStats.getWinner() != null)
             running = false;
+    }
+
+    private void processEndOfSetupPhase() {
+        ArrayList<Flag> teamAFlags = new ArrayList<>();
+        ArrayList<Flag> teamBFlags = new ArrayList<>();
+        for (Flag flag : allFlags) {
+            if(flag.getTeam() == Team.A) teamAFlags.add(flag);
+            else teamBFlags.add(flag);
+        }
+        confirmFlagPlacements(teamAFlags);
+        confirmFlagPlacements(teamBFlags);
+    }
+
+    private void confirmFlagPlacements(ArrayList<Flag> teamFlags) {
+        boolean validPlacements = true;
+        for(int i = 0; i < teamFlags.size(); i++){
+            for(int j = i + 1; j < teamFlags.size(); j++){
+                Flag a = teamFlags.get(i), b = teamFlags.get(j);
+                if(a.getLoc().distanceSquaredTo(b.getLoc()) < GameConstants.MIN_FLAG_SPACING_SQUARED) {
+                    validPlacements = false;
+                    break;
+                }
+            }
+        }
+        if(validPlacements)
+            for(Flag flag : teamFlags) moveFlagSetStartLoc(flag, flag.getLoc());
+        else
+            for(Flag flag : teamFlags) moveFlagSetStartLoc(flag, flag.getStartLoc());
+    }
+
+    private void moveFlagSetStartLoc(Flag flag, MapLocation location){
+        flag.drop();
+        addFlag(location, flag);
+        flag.setStartLoc(location);
+        if(water[locationToIndex(location)]) 
+            water[locationToIndex(location)] = false;
     }
 
     private void addToNotMoving(InternalRobot robot, HashMap<MapLocation, List<InternalRobot>> forecastedLocToRobot, Set<InternalRobot> notMoving, Set<MapLocation> visited) {
@@ -934,5 +996,8 @@ public strictfp class GameWorld {
         return islandIdToIsland.values().toArray(new Island[islandIdToIsland.size()]);
     }
 
+    public boolean isSetupPhase() {
+        return currentRound <= GameConstants.SETUP_ROUNDS;
+    }
     
 }
