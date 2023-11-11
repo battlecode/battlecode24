@@ -71,19 +71,13 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of mana each team starts with in each headquarter. */
-    public static final int INITIAL_MN_AMOUNT = 200;
+    /** The initial amount of bread each team starts with. */
+    public static final int INITIAL_BREAD_AMOUNT = 200;
 
-    /** The initial amount of adamantium each team starts with in each headquarter. */
-    public static final int INITIAL_AD_AMOUNT = 200;
+    /** The amount of bread each team gains per turn. */
+    public static final int PASSIVE_BREAD_INCREASE = 6;
 
-    /** The amount of adamantium each headquarter on a team gains per turn. */
-    public static final int PASSIVE_AD_INCREASE = 6;
-
-    /** The amount of mana each headquarter on a team gains per turn. */
-    public static final int PASSIVE_MN_INCREASE = 6;
-
-    /** The number of rounds between adding resources to headquarters. */
+    /** The number of rounds between adding resources to teams. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */

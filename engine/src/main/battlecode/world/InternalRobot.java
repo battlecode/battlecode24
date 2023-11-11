@@ -371,19 +371,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive++;
     }
 
-    public void processEndOfRound(int roundNum) {
-        if (this.getType() == RobotType.HEADQUARTERS) {
-            for (InternalRobot robot : this.gameWorld.getAllRobotsWithinRadiusSquared(this.getLocation(), RobotType.HEADQUARTERS.actionRadiusSquared, this.team.opponent())) {
-                robot.addHealth(-RobotType.HEADQUARTERS.damage);
-            }
-            if (roundNum % GameConstants.PASSIVE_INCREASE_ROUNDS == 0) {
-                // Add resources to team
-                this.addResourceAmount(GameConstants.PASSIVE_AD_INCREASE);
-                this.addResourceAmount(GameConstants.PASSIVE_MN_INCREASE);
-            }
-        }
-
-    }
 
     // *********************************
     // ****** BYTECODE METHODS *********
