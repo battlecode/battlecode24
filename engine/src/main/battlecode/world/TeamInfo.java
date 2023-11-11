@@ -3,6 +3,7 @@ package battlecode.world;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
+import battlecode.common.SkillType;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -18,6 +19,8 @@ public class TeamInfo {
     // private int[] elixirCounts;
     // private int[] manaCounts;
     private int[] breadCounts; 
+    private int[] tierThree;
+    private int[] tierTwo;
     private int[][] sharedArrays; 
     private int[] totalFlagsCaptured;
     //private int[] currentFlagsCaptured;
@@ -43,6 +46,8 @@ public class TeamInfo {
         //this.oldElixirCounts = new int[2];
         //this.oldManaCounts = new int[2];
         this.oldBreadCounts = new int[2];
+        this.tierThree = new int[2];
+        this.tierTwo = new int[2];
     }
     
     // *********************************
@@ -210,15 +215,18 @@ public class TeamInfo {
      * @return number of level 3 units
      */
     public int getTierThree(Team team){
-        Collection<InternalRobot> robots = ObjectInfo.robots();
-
-        int sum = 0;
-        for (int i = 0; i < robots.length; i++){
-            if (robots[i].getLevel() == 2){
-                sum++;
+        ArrayList<InternalRobot> robots = new ArrayList<InternalRobot>();
+        SkillType[] skills = {SkillType.HEAL, SkillType.ATTACK, SkillType.BUILD};
+        gameWorld.getObjectInfo().eachRobot((robot)->{
+            for (SkillType s: skills){
+                if (robot.getLevel(s) >= 3){
+                    robots.add(robot);
+                    return true;
+                }
             }
-        }
-        return sum;
+            return true;
+        });
+        return robots.size();
     }
 
     /**
@@ -227,16 +235,23 @@ public class TeamInfo {
      * @return number of level 2 units
      */
     public int getTierTwo(Team team){
-        // Cannot make a static reference to the non-static method robots() from the type ObjectInfo
-        Collection<InternalRobot> robots = ObjectInfo.robots();
-
-        int sum = 0;
-        for (InternalRobot r: robots){
-            if (r.getLevel() == 2){
-                sum++;
+        ArrayList<InternalRobot> robots = new ArrayList<InternalRobot>();
+        SkillType[] skills = {SkillType.HEAL, SkillType.ATTACK, SkillType.BUILD};
+        gameWorld.getObjectInfo().eachRobot((robot)->{
+            for (SkillType s: skills){
+                if (robot.getLevel(s) >= 3){
+                    return true;
+                }
             }
-        }
-        return sum;
+            for (SkillType s: skills){
+                if (robot.getLevel(s) == 2){
+                    robots.add(robot);
+                    return true;
+                }
+            }
+            return true;
+        });
+        return robots.size();
     }
 
     /**
