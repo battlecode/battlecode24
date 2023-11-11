@@ -183,24 +183,17 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                objectInfo.eachDynamicBodyByExecOrder((body) -> {
-                    if (body instanceof InternalRobot) {
-                        InternalRobot hq = (InternalRobot) body;
-                        if (hq.getType() != RobotType.HEADQUARTERS) {
-                            throw new RuntimeException("Robots must be headquarters in round 1");
-                        }
-                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
-                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        return true;
-                    } else {
-                        throw new RuntimeException("non-robot body registered as dynamic");
-                    }
-                });
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
+            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
+                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
+                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
+            }
             this.processEndOfRound();
 
             if (!this.isRunning()) {
