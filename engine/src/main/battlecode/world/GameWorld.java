@@ -386,21 +386,9 @@ public strictfp class GameWorld {
     // ***********************************
     // ****** DAM METHODS **************
     // ***********************************
-    public boolean getDam(MapLocation loc){
-        if (currentRound <= GameConstants.SETUP_ROUNDS){
-            return dams[locationToIndex(loc)];
-        }
-        else {
-            return false;
-        }
-    }
-
-    // ***********************************
-    // ****** TRAP METHODS **************
-    // ***********************************
     
     public boolean getDam(MapLocation loc){
-        if (isSetupPhase()){
+        if (currentRound <= GameConstants.SETUP_ROUNDS){
             return dams[locationToIndex(loc)];
         }
         else {
