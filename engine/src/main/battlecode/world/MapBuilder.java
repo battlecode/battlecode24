@@ -5,6 +5,7 @@ import battlecode.common.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.*;
 
 /**
  * Build and validate maps easily.
@@ -22,6 +23,7 @@ public class MapBuilder {
     private int[] currentArray;
     private int[] islandArray;
     private int[] resourceArray;
+    private int[] spawnZoneArray;
 
     private int idCounter;
 
@@ -41,11 +43,15 @@ public class MapBuilder {
         // default values
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.idCounter = 0;
-        this.wallArray = new boolean[width * height];
-        this.cloudArray = new boolean[width * height];
-        this.currentArray = new int[width * height];
-        this.islandArray = new int[width * height];
-        this.resourceArray = new int[width * height];
+        
+        int numSquares = width * height;
+
+        this.wallArray = new boolean[numSquares];
+        this.cloudArray = new boolean[numSquares];
+        this.currentArray = new int[numSquares];
+        this.islandArray = new int[numSquares];
+        this.resourceArray = new int[numSquares];
+        this.spawnZoneArray = new int[numSquares];
     }
 
     // ********************
@@ -109,6 +115,10 @@ public class MapBuilder {
 
     public void setResource(int x, int y, int value) {
         this.resourceArray[locationToIndex(x, y)] = value;
+    }
+
+    public void setSpawnZone(int x, int y, int value) {
+        this.spawnZoneArray[locationToIndex(x, y)] = value;
     }
 
     public void setSymmetry(MapSymmetry symmetry) {
@@ -334,6 +344,89 @@ public class MapBuilder {
 
             }
         }
+
+        assertSpawnZonesAreValid();
+    }
+
+    private boolean isTeamNumber(int team) {
+        return team == 0 || team == 1;
+    }
+
+    private int getOpposingTeamNumber(int team) {
+        switch (team) {
+            case 0:
+                return 1;
+            case 1:
+                return 0;
+            default:
+                throw new RuntimeException("Argument of MapBuilder.getOpposingTeamNumber must be a valid team number, was " + team + ".");
+        }
+    }
+
+    // WARNING: POSSIBLY BUGGY
+    private void assertSpawnZonesAreValid() {
+        int numSquares = this.width * this.height;
+        boolean[] alreadyChecked = new boolean[numSquares];
+
+        for (int i = 0; i < numSquares; i++) {
+            int team = this.spawnZoneArray[i];
+
+            // if the square is actually a spawn zone
+            if (isTeamNumber(team)) {
+                boolean bad = floodFillMap(indexToLocation(i),
+                    (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
+                    (loc) -> this.wallArray[locationToIndex(loc)],
+                    alreadyChecked);
+
+                if (bad) {
+                    throw new RuntimeException("Two spawn zones for opposing teams can reach each other.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs a flood fill algorithm to check if a predicate is true for any squares
+     * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
+     * 
+     * @param checkForBad the predicate to check for each reachable square
+     * @param checkForWall a predicate that checks if the given square has a wall
+     * @param action an action that is performed when scanning each square (might be called multiple times per square)
+     * @return if checkForBad returns true for any reachable squares
+     */
+    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+        Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+        queue.add(startLoc);
+
+        while (!queue.isEmpty()) {
+            MapLocation loc = queue.remove();
+            int idx = locationToIndex(loc);
+
+            if (alreadyChecked[idx]) {
+                continue;
+            }
+
+            alreadyChecked[idx] = true;
+
+            if (!checkForWall.test(loc)) {
+                if (checkForBad.test(loc)) {
+                    return true;
+                }
+
+                for (Direction dir : Direction.allDirections()) {
+                    if (dir != Direction.CENTER) {
+                        MapLocation newLoc = loc.add(dir);
+                        int newIdx = locationToIndex(newLoc);
+
+                        if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                            queue.add(newLoc);
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     public boolean onTheMap(MapLocation loc) {

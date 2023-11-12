@@ -131,14 +131,13 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns the amount of the specified resource that this robot is holding
+     * Returns the amount of bread that this robot is holding.
      *
-     * @param rType the resource type the query is about
-     * @return the amount of rType resource this robot is holding
+     * @return the amount of bread this robot is holding
      *
      * @battlecode.doc.costlymethod
      */
-    int getResourceAmount(ResourceType rType);
+    int getBreadAmount();
 
     /**
      * Returns type of anchor being held by carrier
