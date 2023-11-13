@@ -232,8 +232,8 @@ export const ControlsBar: React.FC = () => {
                 {appState.tournament && (
                     <>
                         <ControlsBarButton
-                            icon={<ControlIcons.NextRound />}
-                            tooltip="Next Round"
+                            icon={<ControlIcons.NextMatch />}
+                            tooltip="Next Match"
                             onClick={nextMatch}
                             disabled={!hasNextMatch}
                         />
