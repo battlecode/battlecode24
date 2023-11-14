@@ -17,7 +17,7 @@ const DEFAULT_APP_STATE: AppState = {
     activeGame: undefined,
     activeMatch: undefined,
     tournament: undefined,
-    updatesPerSecond: 0,
+    updatesPerSecond: 1,
     paused: true
 }
 
