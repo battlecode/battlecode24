@@ -128,7 +128,7 @@ export const ControlsBar: React.FC = () => {
 
         if (keyboard.keyCode === 'KeyC') setMinimized(!minimized)
 
-        if (appState.updatesPerSecond === 0) {
+        if (appState.paused) {
             // Paused
             if (keyboard.keyCode === 'ArrowRight') stepTurn(1)
             if (keyboard.keyCode === 'ArrowLeft') stepTurn(-1)
