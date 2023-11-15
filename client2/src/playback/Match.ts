@@ -12,7 +12,7 @@ import { publishEvent, EventType } from '../app-events'
 const SNAPSHOT_EVERY = 50
 
 // Amount of simulation steps before the turn counter is progressed
-export const MAX_SIMULATION_STEPS = 500
+const MAX_SIMULATION_STEPS = 500
 
 export default class Match {
     public currentTurn: Turn
@@ -98,9 +98,10 @@ export default class Match {
     /**
      * Change the simulation step to the current step + delta. If the step reaches the max simulation steps, the turn counter is increased accordingly
      */
-    public stepSimulation(delta: number): void {
+    public stepSimulation(delta_updates: number): void {
         assert(this.game.playable, "Can't step simulation when not playing")
 
+        const delta = delta_updates * MAX_SIMULATION_STEPS
         this.currentSimulationStep += delta
 
         if (this.currentTurn.turnNumber == this.maxTurn && delta > 0) {
