@@ -39,20 +39,26 @@ export const ControlsBar: React.FC = () => {
 
     const stepTurn = (delta: number) => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.stepTurn(delta)
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.stepTurn(delta, false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const jumpToTurn = (turn: number) => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.jumpToTurn(turn)
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.jumpToTurn(turn, false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const jumpToEnd = () => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.jumpToEnd()
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.jumpToEnd(false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const nextMatch = () => {
