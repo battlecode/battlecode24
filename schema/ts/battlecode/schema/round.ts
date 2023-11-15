@@ -2,12 +2,12 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Action } from '../../battlecode/schema/action.js';
-import { BuildActionType } from '../../battlecode/schema/build-action-type.js';
-import { CommTable } from '../../battlecode/schema/comm-table.js';
-import { RGBTable } from '../../battlecode/schema/rgbtable.js';
-import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table.js';
-import { VecTable } from '../../battlecode/schema/vec-table.js';
+import { Action } from '../../battlecode/schema/action';
+import { BuildActionType } from '../../battlecode/schema/build-action-type';
+import { CommTable } from '../../battlecode/schema/comm-table';
+import { RGBTable } from '../../battlecode/schema/rgbtable';
+import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table';
+import { VecTable } from '../../battlecode/schema/vec-table';
 
 
 /**
@@ -53,7 +53,7 @@ teamIdsArray():Int32Array|null {
 }
 
 /**
- * The total amount of resource change of this team, this round
+ * The total amount of resource this round per team
  */
 teamResourceAmounts(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);

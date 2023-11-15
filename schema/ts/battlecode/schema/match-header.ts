@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { GameMap } from '../../battlecode/schema/game-map.js';
+import { GameMap } from '../../battlecode/schema/game-map';
 
 
 /**

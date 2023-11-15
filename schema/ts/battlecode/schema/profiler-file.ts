@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { ProfilerProfile } from '../../battlecode/schema/profiler-profile.js';
+import { ProfilerProfile } from '../../battlecode/schema/profiler-profile';
 
 
 /**

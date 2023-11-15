@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { BuildActionType } from '../../battlecode/schema/build-action-type.js';
+import { BuildActionType } from '../../battlecode/schema/build-action-type';
 
 
 export class BuildActionMetadata {

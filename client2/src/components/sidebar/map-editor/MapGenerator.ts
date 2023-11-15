@@ -39,8 +39,7 @@ function mapToFile(currentMap: CurrentMap, initialBodies: Bodies): Uint8Array {
 
     schema.GameMap.startGameMap(builder)
     schema.GameMap.addName(builder, name)
-    schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0))
-    schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, currentMap.width, currentMap.height))
+    schema.GameMap.addSize(builder, schema.Vec.createVec(builder, currentMap.width, currentMap.height))
     schema.GameMap.addSymmetry(builder, currentMap.staticMap.symmetry)
     schema.GameMap.addBodies(builder, initialBodiesTable)
     schema.GameMap.addRandomSeed(builder, Math.round(Math.random() * 1000))

@@ -1,4 +1,4 @@
-import { schema } from 'battlecode-schema'
+import { flatbuffers, schema } from 'battlecode-schema'
 import assert from 'assert'
 import Game, { Team } from './Game'
 import Turn from './Turn'
@@ -25,6 +25,8 @@ export default class Bodies {
     ) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
 
+        // Don't think we can have initial bodies this year so no need to verify
+        /*
         if (mapToVerify) {
             for (let i = 0; i < mapToVerify.width * mapToVerify.height; i++) {
                 if (mapToVerify.walls[i] == 1 || mapToVerify.initialResources[i] > 0) {
@@ -36,6 +38,7 @@ export default class Bodies {
                 }
             }
         }
+        */
     }
 
     updateBodyPositions(delta: schema.Round, allowNullBodies: boolean) {
@@ -75,7 +78,7 @@ export default class Bodies {
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
             for (const body of this.bodies) {
-                body[1].addToPrevSquares();
+                body[1].addToPrevSquares()
             }
         }
 
@@ -83,7 +86,7 @@ export default class Bodies {
 
         const diedIds = delta.diedIdsArray() ?? assert.fail('diedIdsArray not found in round')
 
-		/*
+        /*
         if (delta.diedIdsLength() > 0) {
             for (let i = 0; i < delta.diedIdsLength(); i++) {
                 const diedBody =
@@ -134,7 +137,7 @@ export default class Bodies {
     }
 
     hasId(id: number): boolean {
-        return this.bodies.has(id);
+        return this.bodies.has(id)
     }
 
     getByLocation(x: number, y: number): Body | undefined {
@@ -212,7 +215,7 @@ export default class Bodies {
 }
 
 export class Body {
-    public robotName: string = ""
+    public robotName: string = ''
     public actionRadius: number = 0
     public visionRadius: number = 0
     protected imgPath: string = ''
@@ -227,7 +230,7 @@ export class Body {
         public elixir: number = 0,
         public mana: number = 0,
         public anchor: number = 0,
-        public bytecodesUsed: number = 0,
+        public bytecodesUsed: number = 0
     ) {
         this.nextPos = this.pos
         this.prevSquares = [this.pos]
@@ -244,11 +247,7 @@ export class Body {
     }
 
     public getInterpolatedCoords(turn: Turn): Vector {
-        return renderUtils.getInterpolatedCoords(
-            this.pos,
-            this.nextPos,
-            turn.match.getInterpolationFactor()
-        )
+        return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, turn.match.getInterpolationFactor())
     }
 
     public onHoverInfo(): string[] {
@@ -256,8 +255,8 @@ export class Body {
             this.robotName,
             `ID: ${this.id}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
-            `Bytecodes Used: ${this.bytecodesUsed}`,
-        ];
+            `Bytecodes Used: ${this.bytecodesUsed}`
+        ]
     }
 
     public copy(): Body {
@@ -266,15 +265,14 @@ export class Body {
     }
 
     public moveTo(pos: Vector): void {
-
         this.pos = this.nextPos
         this.nextPos = pos
     }
 
     public addToPrevSquares(): void {
-        this.prevSquares.push(this.pos);
+        this.prevSquares.push(this.pos)
         if (this.prevSquares.length > TOOLTIP_PATH_LENGTH) {
-            this.prevSquares.splice(0, 1);
+            this.prevSquares.splice(0, 1)
         }
     }
 
@@ -386,7 +384,7 @@ export class ArchonBrush extends MapEditorBrush {
     }
 
     public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-		/*
+        /*
         const symmetryPoint = this.map.applySymmetry({ x: x, y: y })
         if (symmetryPoint.x == x && symmetryPoint.y == y) return // dont allow the case where the archon is on the symmetry line
 

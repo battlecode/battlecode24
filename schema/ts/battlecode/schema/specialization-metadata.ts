@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { SepcializationType } from '../../battlecode/schema/sepcialization-type.js';
+import { SepcializationType } from '../../battlecode/schema/sepcialization-type';
 
 
 export class SpecializationMetadata {

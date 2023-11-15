@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { ProfilerEvent } from '../../battlecode/schema/profiler-event.js';
+import { ProfilerEvent } from '../../battlecode/schema/profiler-event';
 
 
 /**

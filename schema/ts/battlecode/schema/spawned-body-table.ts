@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { VecTable } from '../../battlecode/schema/vec-table.js';
+import { VecTable } from '../../battlecode/schema/vec-table';
 
 
 export class SpawnedBodyTable {

@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { GlobalUpgradeType } from '../../battlecode/schema/global-upgrade-type.js';
+import { GlobalUpgradeType } from '../../battlecode/schema/global-upgrade-type';
 
 
 export class GlobalUpgradeMetadata {

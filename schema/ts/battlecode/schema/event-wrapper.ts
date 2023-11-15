@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Event, unionToEvent, unionListToEvent } from '../../battlecode/schema/event.js';
+import { Event, unionToEvent, unionListToEvent } from '../../battlecode/schema/event';
 
 
 /**

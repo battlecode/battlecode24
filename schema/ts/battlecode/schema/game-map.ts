@@ -2,8 +2,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table.js';
-import { VecTable } from '../../battlecode/schema/vec-table.js';
+import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table';
+import { Vec } from '../../battlecode/schema/vec';
+import { VecTable } from '../../battlecode/schema/vec-table';
 
 
 export class GameMap {
@@ -31,113 +32,122 @@ name(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-symmetry():number {
+size(obj?:Vec):Vec|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new Vec()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
+symmetry():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 bodies(obj?:SpawnedBodyTable):SpawnedBodyTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? (obj || new SpawnedBodyTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 randomSeed():number {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 walls(index: number):boolean|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? !!this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : false;
 }
 
 wallsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 wallsArray():Int8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 water(index: number):boolean|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? !!this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : false;
 }
 
 waterLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 waterArray():Int8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 divider(index: number):boolean|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? !!this.bb!.readInt8(this.bb!.__vector(this.bb_pos + offset) + index) : false;
 }
 
 dividerLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 dividerArray():Int8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? new Int8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 spawnLocations(obj?:VecTable):VecTable|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
-}
-
-resourcePiles(obj?:VecTable):VecTable|null {
   const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-resourcePileAmounts(index: number):number|null {
+resourcePiles(obj?:VecTable):VecTable|null {
   const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
+resourcePileAmounts(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 resourcePileAmountsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 resourcePileAmountsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 static startGameMap(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(11);
 }
 
 static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
   builder.addFieldOffset(0, nameOffset, 0);
 }
 
+static addSize(builder:flatbuffers.Builder, sizeOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(1, sizeOffset, 0);
+}
+
 static addSymmetry(builder:flatbuffers.Builder, symmetry:number) {
-  builder.addFieldInt32(1, symmetry, 0);
+  builder.addFieldInt32(2, symmetry, 0);
 }
 
 static addBodies(builder:flatbuffers.Builder, bodiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, bodiesOffset, 0);
+  builder.addFieldOffset(3, bodiesOffset, 0);
 }
 
 static addRandomSeed(builder:flatbuffers.Builder, randomSeed:number) {
-  builder.addFieldInt32(3, randomSeed, 0);
+  builder.addFieldInt32(4, randomSeed, 0);
 }
 
 static addWalls(builder:flatbuffers.Builder, wallsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, wallsOffset, 0);
+  builder.addFieldOffset(5, wallsOffset, 0);
 }
 
 static createWallsVector(builder:flatbuffers.Builder, data:boolean[]):flatbuffers.Offset {
@@ -153,7 +163,7 @@ static startWallsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addWater(builder:flatbuffers.Builder, waterOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, waterOffset, 0);
+  builder.addFieldOffset(6, waterOffset, 0);
 }
 
 static createWaterVector(builder:flatbuffers.Builder, data:boolean[]):flatbuffers.Offset {
@@ -169,7 +179,7 @@ static startWaterVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addDivider(builder:flatbuffers.Builder, dividerOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, dividerOffset, 0);
+  builder.addFieldOffset(7, dividerOffset, 0);
 }
 
 static createDividerVector(builder:flatbuffers.Builder, data:boolean[]):flatbuffers.Offset {
@@ -185,15 +195,15 @@ static startDividerVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addSpawnLocations(builder:flatbuffers.Builder, spawnLocationsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, spawnLocationsOffset, 0);
+  builder.addFieldOffset(8, spawnLocationsOffset, 0);
 }
 
 static addResourcePiles(builder:flatbuffers.Builder, resourcePilesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, resourcePilesOffset, 0);
+  builder.addFieldOffset(9, resourcePilesOffset, 0);
 }
 
 static addResourcePileAmounts(builder:flatbuffers.Builder, resourcePileAmountsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, resourcePileAmountsOffset, 0);
+  builder.addFieldOffset(10, resourcePileAmountsOffset, 0);
 }
 
 static createResourcePileAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;

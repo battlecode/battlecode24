@@ -2,11 +2,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { BuildActionMetadata } from '../../battlecode/schema/build-action-metadata.js';
-import { Constants } from '../../battlecode/schema/constants.js';
-import { GlobalUpgradeMetadata } from '../../battlecode/schema/global-upgrade-metadata.js';
-import { SpecializationMetadata } from '../../battlecode/schema/specialization-metadata.js';
-import { TeamData } from '../../battlecode/schema/team-data.js';
+import { BuildActionMetadata } from '../../battlecode/schema/build-action-metadata';
+import { Constants } from '../../battlecode/schema/constants';
+import { GlobalUpgradeMetadata } from '../../battlecode/schema/global-upgrade-metadata';
+import { SpecializationMetadata } from '../../battlecode/schema/specialization-metadata';
+import { TeamData } from '../../battlecode/schema/team-data';
 
 
 /**

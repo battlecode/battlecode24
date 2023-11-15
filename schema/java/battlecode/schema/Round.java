@@ -43,7 +43,7 @@ public final class Round extends Table {
   public ByteBuffer teamIdsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
   public ByteBuffer teamIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
   /**
-   * The total amount of resource change of this team, this round
+   * The total amount of resource this round per team
    */
   public int teamResourceAmounts(int j) { int o = __offset(6); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int teamResourceAmountsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }

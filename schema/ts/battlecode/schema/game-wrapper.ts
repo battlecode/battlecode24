@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EventWrapper } from '../../battlecode/schema/event-wrapper.js';
+import { EventWrapper } from '../../battlecode/schema/event-wrapper';
 
 
 /**

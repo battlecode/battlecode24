@@ -12,10 +12,12 @@ export default class Game {
     public readonly teams: [Team, Team]
     public readonly winner: Team
 
-    //metadata
+    // Metadata
     private readonly specVersion: string
     private readonly constants: schema.Constants
-    public readonly typeMetadata: schema.BodyTypeMetadata[] = []
+    public readonly specializationMetadata: schema.SpecializationMetadata[] = []
+    public readonly buildActionMetadata: schema.BuildActionMetadata[] = []
+    public readonly globalUpgradeMetadata: schema.GlobalUpgradeMetadata[] = []
 
     /**
      * Whether this game is playable (not currently being made in the map editor)
@@ -63,10 +65,17 @@ export default class Game {
             Team.fromSchema(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
         ]
 
-        const bodyCount = gameHeader.bodyTypeMetadataLength()
-        for (let i = 0; i < bodyCount; i++) {
-            const bodyData = gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
-            this.typeMetadata[bodyData.type()] = bodyData
+        for (let i = 0; i < gameHeader.specializationMetadataLength(); i++) {
+            const data = gameHeader.specializationMetadata(i) ?? assert.fail('SpecializationMetadata was null')
+            this.specializationMetadata[data.type()] = data
+        }
+        for (let i = 0; i < gameHeader.buildActionMetadataLength(); i++) {
+            const data = gameHeader.buildActionMetadata(i) ?? assert.fail('BuildActionMetadata was null')
+            this.buildActionMetadata[data.type()] = data
+        }
+        for (let i = 0; i < gameHeader.globalUpgradeMetadataLength(); i++) {
+            const data = gameHeader.globalUpgradeMetadata(i) ?? assert.fail('GlobalUpgradeMetadata was null')
+            this.globalUpgradeMetadata[data.type()] = data
         }
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
 
