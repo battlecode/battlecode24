@@ -4,7 +4,6 @@ import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
 import { useKeyboard } from '../../util/keyboard'
 import { ControlsBarTimeline } from './controls-bar-timeline'
-import { MAX_SIMULATION_STEPS } from '../../playback/Match'
 import { EventType, useListenEvent } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import Tooltip from '../tooltip'
@@ -107,10 +106,9 @@ export const ControlsBar: React.FC = () => {
 
         const msPerUpdate = 1000 / appState.updatesPerSecond
         const updatesPerInterval = SIMULATION_UPDATE_INTERVAL_MS / msPerUpdate
-        const simStepsPerInterval = updatesPerInterval * MAX_SIMULATION_STEPS
         const stepInterval = setInterval(() => {
             const prevTurn = appState.activeGame!.currentMatch!.currentTurn.turnNumber
-            appState.activeGame!.currentMatch!.stepSimulation(simStepsPerInterval)
+            appState.activeGame!.currentMatch!.stepSimulation(updatesPerInterval)
 
             if (prevTurn != appState.activeGame!.currentMatch!.currentTurn.turnNumber) {
                 currentUPSBuffer.current.push(Date.now())
