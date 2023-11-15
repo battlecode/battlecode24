@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
@@ -42,7 +42,18 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
 
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    const target_update_ms = 1000 / 15 // 15 fps
+    const delayedUpdate = useRef<NodeJS.Timeout | undefined>(undefined)
+    const lastUpdateTime = useRef<number>(0)
+    useListenEvent(EventType.TURN_PROGRESS, () => {
+        if (delayedUpdate.current !== undefined) clearTimeout(delayedUpdate.current)
+        if (Date.now() - lastUpdateTime.current < target_update_ms) {
+            delayedUpdate.current = setTimeout(forceUpdate, target_update_ms - (Date.now() - lastUpdateTime.current))
+        } else {
+            lastUpdateTime.current = Date.now()
+            forceUpdate()
+        }
+    })
 
     return (
         <div className="mt-2 px-2 w-full">
