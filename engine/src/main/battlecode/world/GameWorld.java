@@ -90,17 +90,15 @@ public strictfp class GameWorld {
         this.rand = new Random(this.gameMap.getSeed());
         this.matchMaker = matchMaker;
 
-        controlProvider.matchStarted(this);
+        this.controlProvider.matchStarted(this);
 
-        // Add the robots contained in the LiveMap to this world.
-        RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
-
-        for (int i = 0; i < initialBodies.length; i++) {
-            RobotInfo robot = initialBodies[i];
-            MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            spawnRobot(robot.ID, robot.type, newLocation, robot.team);
-        }
         this.teamInfo = new TeamInfo(this);
+
+        // Create all robots in their despawned states
+        for (int i = 0; i < GameConstants.ROBOT_CAPACITY; i++) {
+            createRobot(Team.A);
+            createRobot(Team.B);
+        }
 
         this.islandIdToIsland = new HashMap<>();
         HashMap<Integer, List<MapLocation>> islandIdToLocations = new HashMap<>();
@@ -200,24 +198,17 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                objectInfo.eachDynamicBodyByExecOrder((body) -> {
-                    if (body instanceof InternalRobot) {
-                        InternalRobot hq = (InternalRobot) body;
-                        if (hq.getType() != RobotType.HEADQUARTERS) {
-                            throw new RuntimeException("Robots must be headquarters in round 1");
-                        }
-                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
-                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        return true;
-                    } else {
-                        throw new RuntimeException("non-robot body registered as dynamic");
-                    }
-                });
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
+            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
+                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
+                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
+            }
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -252,8 +243,10 @@ public strictfp class GameWorld {
 
         // If the robot terminates but the death signal has not yet
         // been visited:
+
+        // NOTE: changed this from destroy to despawn; double check that this change is correct
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            destroyRobot(robot.getID());
+            despawnRobot(robot.getID());
         return true;
     }
 
@@ -978,7 +971,7 @@ public strictfp class GameWorld {
                 continue;
             } else {
                 this.objectInfo.clearRobotIndex(robot);
-                this.removeRobot(robot.getLocation());
+                removeRobot(robot.getLocation());
                 movingRobots.add(robot);
             }
         }
@@ -996,38 +989,34 @@ public strictfp class GameWorld {
     // ****** SPAWNING *****************
     // *********************************
 
-    public int spawnRobot(int ID, RobotType type, MapLocation location, Team team) {
-        InternalRobot robot;
-        switch (type) {
-            case CARRIER:
-                robot = new InternalCarrier(this, ID, type, location, team);
-                break;
-            default:
-                robot = new InternalRobot(this, ID, type, location, team);
-                break;
-        }
-        objectInfo.spawnRobot(robot);
-        addRobot(location, robot);
-
+    public int createRobot(int ID, Team team) {
+        InternalRobot robot = new InternalRobot(this, ID, team);
+        objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
         return ID;
     }
 
-    public int spawnRobot(RobotType type, MapLocation location, Team team) {
+    public int createRobot(Team team) {
         int ID = idGenerator.nextID();
-        return spawnRobot(ID, type, location, team);
+        return createRobot(ID, team);
     }
 
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
 
-    public void destroyRobot(int id) {
-        destroyRobot(id, true);
+    public void despawnRobot(int id) {
+        InternalRobot robot = objectInfo.getRobotByID(id);
+        robot.despawn();
+        removeRobot(robot.getLocation());
+        matchMaker.addDied(id);
     }
 
-    public void destroyRobot(int id, boolean checkArchonDeath) {
+    /**
+     * Permanently destroy a robot; left for internal purposes.
+     */
+    private void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         RobotType type = robot.getType();
         Team team = robot.getTeam();
