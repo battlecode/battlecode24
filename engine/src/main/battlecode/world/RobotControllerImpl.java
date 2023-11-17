@@ -894,6 +894,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanMove(dir);
         MapLocation nextLoc = adjacentLocation(dir);
         this.robot.setLocation(nextLoc);
+
+        amtBread = this.gameWorld.getBreadAmount(nextLoc);
+        this.robot.addResourceAmount(amtBread);
+        this.gameWorld.removeBread(nextLoc);
         this.robot.addMovementCooldownTurns();
     }
 
