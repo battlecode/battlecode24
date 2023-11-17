@@ -410,6 +410,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
+    public void killedPenalty(){
+        this.buildExp -= SkillType.BUILD.getPenalty(this.getLevel(SkillType.BUILD));
+        this.attackExp -= SkillType.ATTACK.getPenalty(this.getLevel(SkillType.ATTACK));
+        this.healExp -= SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
+    }
+
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
