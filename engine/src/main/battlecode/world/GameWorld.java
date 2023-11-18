@@ -775,6 +775,106 @@ public strictfp class GameWorld {
     }
 
     /**
+     * @return whether a team has more flags
+     */
+    public boolean setWinnerIfMoreFlags(){
+        int[] totalFlagsCaptured = new int[2];
+
+        // consider team reserves
+        totalFlagsCaptured[Team.A.ordinal()] += this.teamInfo.getFlagsCaptured(Team.A);
+        totalFlagsCaptured[Team.B.ordinal()] += this.teamInfo.getFlagsCaptured(Team.B);
+        
+        if (totalFlagsCaptured[Team.A.ordinal()] > totalFlagsCaptured[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        } else if (totalFlagsCaptured[Team.B.ordinal()] > totalFlagsCaptured[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more tier three units
+     */
+    public boolean setWinnerIfMoreTierThree(){
+        int[] totalTierThree = new int[2];
+
+        // consider team reserves
+        totalTierThree[Team.A.ordinal()] += this.teamInfo.getTierThree(Team.A);
+        totalTierThree[Team.B.ordinal()] += this.teamInfo.getTierThree(Team.B);
+        
+        if (totalTierThree[Team.A.ordinal()] > totalTierThree[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.TIER_THREE);
+            return true;
+        } else if (totalTierThree[Team.B.ordinal()] > totalTierThree[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.TIER_THREE);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more tier two units
+     */
+    public boolean setWinnerIfMoreTierTwo(){
+        int[] totalTierTwo = new int[2];
+
+        // consider team reserves
+        totalTierTwo[Team.A.ordinal()] += this.teamInfo.getTierTwo(Team.A);
+        totalTierTwo[Team.B.ordinal()] += this.teamInfo.getTierTwo(Team.B);
+        
+        if (totalTierTwo[Team.A.ordinal()] > totalTierTwo[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.TIER_TWO);
+            return true;
+        } else if (totalTierTwo[Team.B.ordinal()] > totalTierTwo[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.TIER_TWO);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more bread
+     */
+    public boolean setWinnerIfMoreBread(){
+        int[] totalBreadValues = new int[2];
+
+        // consider team reserves
+        totalBreadValues[Team.A.ordinal()] += this.teamInfo.getBread(Team.A);
+        totalBreadValues[Team.B.ordinal()] += this.teamInfo.getBread(Team.B);
+        
+        if (totalBreadValues[Team.A.ordinal()] > totalBreadValues[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_BREAD);
+            return true;
+        } else if (totalBreadValues[Team.B.ordinal()] > totalBreadValues[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_BREAD);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more flags picked up (but not sucessfully retrieved)
+     */
+    public boolean setWinnerIfMoreFlagsPickedUp(){
+        int[] totalFlagsPickedUp = new int[2];
+
+        // consider team reserves
+        totalFlagsPickedUp[Team.A.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.A);
+        totalFlagsPickedUp[Team.B.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.B);
+        
+        if (totalFlagsPickedUp[Team.A.ordinal()] > totalFlagsPickedUp[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        } else if (totalFlagsPickedUp[Team.B.ordinal()] > totalFlagsPickedUp[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Sets a winner arbitrarily. Hopefully this is actually random.
      */
     public void setWinnerArbitrary() {
@@ -791,11 +891,17 @@ public strictfp class GameWorld {
     public void checkEndOfMatch() {
         if (timeLimitReached() && gameStats.getWinner() == null) {
 
-            if (setWinnerIfMoreSkyIslands())      return;
-            if (setWinnerIfMoreRealityAnchors())  return;
-            if (setWinnerIfMoreElixirValue())     return;
-            if (setWinnerIfMoreManaValue())       return;
-            if (setWinnerIfMoreAdamantiumValue()) return;
+            //if (setWinnerIfMoreSkyIslands())      return;
+            //if (setWinnerIfMoreRealityAnchors())  return;
+            //if (setWinnerIfMoreElixirValue())     return;
+            //if (setWinnerIfMoreManaValue())       return;
+            //if (setWinnerIfMoreAdamantiumValue()) return;
+
+            if (setWinnerIfMoreFlags()) return;
+            if (setWinnerIfMoreTierThree()) return;
+            if (setWinnerIfMoreTierTwo()) return;
+            if (setWinnerIfMoreBread()) return;
+            if (setWinnerIfMoreFlagsPickedUp()) return;
 
             setWinnerArbitrary();
         }
