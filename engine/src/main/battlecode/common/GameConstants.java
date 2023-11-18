@@ -113,6 +113,9 @@ public class GameConstants {
     /** The intercept of the function to determine movement cooldown for carriers */
     public static final int CARRIER_MOVEMENT_INTERCEPT = 5;
 
+    /** The minimum distance required between two spawn zones of the same team */
+    public static final int SPAWN_ZONE_DISTANCE = 36;
+
     // *********************************
     // ****** COOLDOWNS ****************
     // *********************************

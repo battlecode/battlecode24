@@ -346,6 +346,7 @@ public class MapBuilder {
         }
 
         assertSpawnZonesAreValid();
+        assertSpawnZoneDistances();
     }
 
     private boolean isTeamNumber(int team) {
@@ -387,6 +388,36 @@ public class MapBuilder {
         }
     }
 
+
+    private void assertSpawnZoneDistances() {
+        ArrayList<Integer> team1 = new ArrayList<Integer>();
+        ArrayList<Integer> team2 = new ArrayList<Integer>();
+
+        for(int i = 0; i < spawnZoneArray.length; i ++){
+            if (spawnZoneArray[i] == 0){
+                team1.add(i);
+            }
+            else if (spawnZoneArray[i] == 1){
+                team2.add(i);
+            }
+        }
+
+        for(int a = 0; a < team1.size(); a ++){
+            for(int b = 1; b < team1.size(); b ++){
+                if (indexToLocation(a).distanceSquaredTo(indexToLocation(b)) < GameConstants.SPAWN_ZONE_DISTANCE){
+                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                }
+            }
+        }
+
+        for(int c = 0; c < team1.size(); c ++){
+            for(int d = 1; d < team1.size(); d ++){
+                if (indexToLocation(c).distanceSquaredTo(indexToLocation(d)) < GameConstants.SPAWN_ZONE_DISTANCE){
+                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                }
+            }
+        }
+    }
     /**
      * Performs a flood fill algorithm to check if a predicate is true for any squares
      * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
