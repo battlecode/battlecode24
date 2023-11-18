@@ -53,6 +53,7 @@ public strictfp class LiveMap {
 
     /**
      * Whether each square is a spawn zone.
+     * 0 = Team A, 1 = Team B, -1 = not spawn zone
      */
     private MapLocation[] spawnZones;
 
@@ -67,9 +68,9 @@ public strictfp class LiveMap {
     private int[] islandArray;
 
     /**
-     * Resource ID of current on each square.
+     * Amount of bread on each square.
      */
-    private int[] resourceArray;
+    private int[] breadArray;
 
     /**
      * The random seed contained in the map file.
@@ -119,7 +120,7 @@ public strictfp class LiveMap {
         this.spawnZoneArray = new int[numSquares];
         this.currentArray = new int[numSquares];
         this.islandArray = new int[numSquares];
-        this.resourceArray = new int[numSquares];
+        this.breadArray = new int[numSquares];
         this.damArray = new boolean[numSquares];
 
         // invariant: bodies is sorted by id
@@ -138,7 +139,7 @@ public strictfp class LiveMap {
                    boolean[] cloudArray,
                    int[] currentArray,
                    int[] islandArray,
-                   int[] resourceArray) {
+                   int[] breadArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -163,10 +164,10 @@ public strictfp class LiveMap {
         for (int i = 0; i < islandArray.length; i++) {
             this.islandArray[i] = islandArray[i];
         }
-        this.resourceArray = new int[
-            resourceArray.length];
-        for (int i = 0; i < resourceArray.length; i++) {
-            this.resourceArray[i] = resourceArray[i];
+        this.breadArray = new int[
+            breadArray.length];
+        for (int i = 0; i < breadArray.length; i++) {
+            this.breadArray[i] = breadArray[i];
         }
 
         // invariant: bodies is sorted by id
@@ -180,7 +181,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.wallArray, gm.cloudArray, gm.currentArray, gm.islandArray, gm.resourceArray);
+             gm.initialBodies, gm.wallArray, gm.cloudArray, gm.currentArray, gm.islandArray, gm.breadArray);
     }
 
     @Override
@@ -206,7 +207,7 @@ public strictfp class LiveMap {
         if (!Arrays.equals(this.cloudArray, other.cloudArray)) return false;
         if (!Arrays.equals(this.currentArray, other.currentArray)) return false;
         if (!Arrays.equals(this.islandArray, other.islandArray)) return false;
-        if (!Arrays.equals(this.resourceArray, other.resourceArray)) return false;
+        if (!Arrays.equals(this.breadArray, other.breadArray)) return false;
         return true;
     }
 
@@ -222,7 +223,7 @@ public strictfp class LiveMap {
         result = 31 * result + Arrays.hashCode(cloudArray);
         result = 31 * result + Arrays.hashCode(currentArray);
         result = 31 * result + Arrays.hashCode(islandArray);
-        result = 31 * result + Arrays.hashCode(resourceArray);
+        result = 31 * result + Arrays.hashCode(breadArray);
         result = 31 * result + Arrays.hashCode(initialBodies);
         return result;
     }
@@ -401,10 +402,10 @@ public strictfp class LiveMap {
 
     
     /**
-     * @return the resource id array of the map
+     * @return the array which stores how much bread is on each location.
      */
-    public int[] getResourceArray() {
-        return resourceArray;
+    public int[] getBreadArray() {
+        return breadArray;
     }
 
     /**
@@ -450,11 +451,11 @@ public strictfp class LiveMap {
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
-                    ", cloudArray=" + Arrays.toString(cloudArray) +
+                    /* ", cloudArray=" + Arrays.toString(cloudArray) +
                     ", currentArray=" + Arrays.toString(currentArray) +
-                    ", islandArray=" + Arrays.toString(islandArray) +
-                    ", resouceArray=" + Arrays.toString(resourceArray) +
-                    "}"; 
+                    ", islandArray=" + Arrays.toString(islandArray) + */
+                    ", breadArray=" + Arrays.toString(breadArray) +
+                    "}";
         }
     }
 }

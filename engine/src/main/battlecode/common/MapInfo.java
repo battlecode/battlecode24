@@ -17,7 +17,7 @@ public class MapInfo {
 
     private boolean isWall;
 
-    private boolean isSpawnZone;
+    private int spawnZone; // 0 = Team A, 1 = Team B, -1 = not a spawn zone
 
     private boolean isWater;
 
@@ -34,12 +34,12 @@ public class MapInfo {
 
     // private int[][] turnsLeft; // [Team.A, Team.B][Booster, Destabilizer]
 
-    public MapInfo(MapLocation loc, /*boolean hasCloud,*/ boolean isPassable, boolean isWall, boolean isSpawnZone, boolean isWater, int breadAmount, TrapType trapType/*, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft*/){
+    public MapInfo(MapLocation loc, /*boolean hasCloud,*/ boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int breadAmount, TrapType trapType/*, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft*/){
         this.loc = loc;
         // this.hasCloud = hasCloud;
         this.isPassable = isPassable;
         this.isWall = isWall;
-        this.isSpawnZone = isSpawnZone;
+        this.spawnZone = spawnZone;
         this.isWater = isWater;
         this.breadAmount = breadAmount;
         this.trapType = trapType;
@@ -106,7 +106,18 @@ public class MapInfo {
      * @battlecode.doc.costlymethod
      */
     public boolean isSpawnZone() {
-        return isSpawnZone;
+        return spawnZone >= 0;
+    }
+
+    /**
+     * Returns 0 if this square is a Team A spawn zone,
+     * 1 if this square is a Team B spawn zone, and
+     * -1 if this square is not a spawn zone.
+     * 
+     * @return 0 or 1 if the square is a Team A or B spawn zone, respectively; -1 otherwise
+     */
+    public int getSpawnZoneTeam() {
+        return spawnZone;
     }
 
     /**
@@ -230,7 +241,8 @@ public class MapInfo {
                 // ", cloud=" +  this.hasCloud +
                 (isWall ? ", wall" : "") +
                 (isWater ? ", water" : "") +
-                (isSpawnZone ? ", spawn zone" : "") +
+                (spawnZone == 0 ? ", team A spawn zone" : "") +
+                (spawnZone == 1 ? ", team B spawn zone" : "") +
                 (breadAmount == 0 ? "" : ", bread=" + breadAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 // ", cooldownMultipliers=" +  Arrays.toString(this.cooldownMultipliers) +
