@@ -716,19 +716,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * 
      * @param loc the location of the bot
      */
-    public void heal(MapLocation loc){
+    public void heal(MapLocation loc) throws GameActionException{
+        assertCanHeal(loc);
         InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth() == GameConstants.DEFAULT_HEALTH) {
-            // If robot is null, not of your team, or is of full health, do not heal; otherwise heal
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, -locationToInt(loc) - 1);
-        } else {
-            int healAmt = this.robot.getHeal();
-            bot.addHealth(healAmt);
-            if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-                this.robot.incrementSkill(SkillType.HEAL);
-            }
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
+        int healAmt = this.robot.getHeal();
+        bot.addHealth(healAmt);
+        if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
+            this.robot.incrementSkill(SkillType.HEAL);
         }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
     }
 
     // ***********************************
