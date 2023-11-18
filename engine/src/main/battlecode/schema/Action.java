@@ -2,83 +2,26 @@
 
 package battlecode.schema;
 
-/**
- * Actions that can be performed.
- * Purely aesthetic; have no actual effect on simulation.
- * (Although the simulation may want to track the 'parents' of
- * particular robots.)
- * Actions may have 'targets', which are the units on which
- * the actions were performed.
- */
+@SuppressWarnings("unused")
 public final class Action {
   private Action() { }
-  /**
-   * Target: ID for direction in which attack occurs
-   */
-  public static final byte LAUNCH_ATTACK = 0;
-  /**
-   * Target: ID for direction in which attack occurs
-   */
-  public static final byte THROW_ATTACK = 1;
-  /**
-   * Target: ID of robot spawned
-   */
-  public static final byte SPAWN_UNIT = 2;
-  /**
-   * Target: location mined, x + y * width
-   */
-  public static final byte PICK_UP_RESOURCE = 3;
-  /**
-   * Target: location to place resource, x + y * width
-   */
-  public static final byte PLACE_RESOURCE = 4;
-  /**
-   * Target: location destabilization is centralized at, x + y * width
-   */
-  public static final byte DESTABILIZE = 5;
-  /**
-   * Target: location destabilization damage is centralized at, x + y * width
-   */
-  public static final byte DESTABILIZE_DAMAGE = 6;
-  /**
-   * Target: location boost is centralized at, x + y * width
-   */
-  public static final byte BOOST = 7;
-  /**
-   * Target: ANCHOR type, 0 or non-accelerating, 1 for accelerating
-   */
-  public static final byte BUILD_ANCHOR = 8;
-  /**
-   * Target: (Robot id picked up from)*2 + (ANCHOR type, 0 or non-accelerating, 1 for accelerating)
-   */
-  public static final byte PICK_UP_ANCHOR = 9;
-  /**
-   * Target: island id for the island the anchor is being placed on
-   */
-  public static final byte PLACE_ANCHOR = 10;
-  /**
-   * Target: change in health (can be negative)
-   */
-  public static final byte CHANGE_HEALTH = 11;
-  /**
-   * Target: change in adamantium (can be negative)
-   */
-  public static final byte CHANGE_ADAMANTIUM = 12;
-  /**
-   * Target: change in mana (can be negative)
-   */
-  public static final byte CHANGE_MANA = 13;
-  /**
-   * Target: change in elixir (can be negative)
-   */
-  public static final byte CHANGE_ELIXIR = 14;
+  public static final byte ATTACK = 0;
+  public static final byte HEAL = 1;
+  public static final byte DIG = 2;
+  public static final byte FILL = 3;
+  public static final byte EXPLOSIVE_TRAP = 4;
+  public static final byte WATER_TRAP = 5;
+  public static final byte STUN_TRAP = 6;
+  public static final byte PICKUP_FLAG = 7;
+  public static final byte DROP_FLAG = 8;
+  public static final byte GLOBAL_UPGRADE = 9;
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  public static final byte DIE_EXCEPTION = 15;
+  public static final byte DIE_EXCEPTION = 10;
 
-  public static final String[] names = { "LAUNCH_ATTACK", "THROW_ATTACK", "SPAWN_UNIT", "PICK_UP_RESOURCE", "PLACE_RESOURCE", "DESTABILIZE", "DESTABILIZE_DAMAGE", "BOOST", "BUILD_ANCHOR", "PICK_UP_ANCHOR", "PLACE_ANCHOR", "CHANGE_HEALTH", "CHANGE_ADAMANTIUM", "CHANGE_MANA", "CHANGE_ELIXIR", "DIE_EXCEPTION", };
+  public static final String[] names = { "ATTACK", "HEAL", "DIG", "FILL", "EXPLOSIVE_TRAP", "WATER_TRAP", "STUN_TRAP", "PICKUP_FLAG", "DROP_FLAG", "GLOBAL_UPGRADE", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }

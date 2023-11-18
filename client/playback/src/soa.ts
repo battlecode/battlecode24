@@ -109,7 +109,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
   constructor(fields: Schema & ValidSchema, primary: keyof Schema) {
     if (!hasOwnProperty(fields, String(primary))) {
       // redundant unless somebody gets cocky
-      throw new Error(`Primary key must exist, '${primary}' not found`);
+      throw new Error(`Primary key must exist, '${String(primary)}' not found`);
     }
 
     this.arrays = Object.create(null);
