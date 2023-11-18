@@ -70,60 +70,6 @@ public strictfp interface RobotController {
     int getID();
 
     /**
-     * Returns the build experience points of this robot.
-     *
-     * @return the build experience of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getBuildExp();
-
-    /**
-     * Returns the heal experience points of this robot.
-     *
-     * @return the heal experience of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getHealExp();
-
-    /**
-     * Returns the attack experience points of this robot.
-     *
-     * @return the attack experience of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getAttackExp();
-
-    /**
-     * Returns the build experience points of this robot.
-     *
-     * @return the build level of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getBuildLevel();
-
-    /**
-     * Returns the heal experience points of this robot.
-     *
-     * @return the heal level of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getHealLevel();
-
-    /**
-     * Returns the attack experience points of this robot.
-     *
-     * @return the attack level of this robot
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getAttackLevel();
-
-    /**
      * Returns this robot's Team.
      *
      * @return this robot's Team
@@ -131,6 +77,15 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     Team getTeam();
+
+    /**
+     * Returns this robot's type.
+     * 
+     * @return this robot's type
+     *
+     * @battlecode.doc.costlymethod
+     */
+    RobotType getType();
 
     /**
      * Returns the robot's current experience in the specified skill.
@@ -340,28 +295,6 @@ public strictfp interface RobotController {
     boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Returns the location of all nearby flags that are visible to the robot. 
-     * If radiusSquared is greater than the robot's vision radius, use the 
-     * robot's vision radius instead.
-     * 
-     * @param center the center of the search area (robot's current position)
-     * @param radiusSquared squared radius of all locations to be returned
-     * @return all locations containing flags
-     * 
-     * @battlecode.doc.costlymethod
-     **/
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
-
-    /**
-     * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
-     * 
-     * @returns all location ranges containing invisible flags
-     * 
-     * @battlecode.doc.costlymethod
-     **/
-    MapLocation[] senseBroadcastFlagLocations();
-
-    /**
      * Sense the map info at a location 
      * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
      *
@@ -455,6 +388,15 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
+
+    /**
+     * Checks whether a robot is spawned.
+     * 
+     * @return whether or no a specific robot instance is spawned.
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean isSpawned();
 
     /**
      * Tests whether the robot can act.
@@ -568,7 +510,7 @@ public strictfp interface RobotController {
      * 
      * @param loc the location to spawn the robot
      */
-    void spawn(MapLocation loc) throws GameActionException;
+    void spawn(MapLocation loc);
 
     // ***********************************
     // *********** BUILDING **************
@@ -617,7 +559,7 @@ public strictfp interface RobotController {
      * Check if a location can be modified
      * 
      * @param building TrapType of trap to build at that location
-     * @param loc location to build on
+     * @param loc location to aquaform
      * 
      * @return true if trap can be built at loc
      * 
@@ -698,129 +640,10 @@ public strictfp interface RobotController {
      */
     void heal(MapLocation loc);
 
-    // ***********************************
-    // ******** BOOSTERS METHODS *********
-    // ***********************************
-
-    /**
-     * Tests whether this robot is able to boost
-     * 
-     * Checks that the robot can boost other units. Also checks that there are no 
-     * cooldown turns remaining.
-     *
-     * @return whether it is possible for this robot to boost
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canBoost();
-
-
-    /** 
-     * Boosts at a given location.
-     *
-     * @throws GameActionException if conditions for boosting are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void boost() throws GameActionException;
-
-    // ***********************************
-    // ****** DESTABILIZER METHODS *******
-    // ***********************************
-
-    /**
-     * Tests whether this robot is able to destabilize
-     * 
-     * Checks that the robot can destabilize other units. Also checks that there are no 
-     * cooldown turns remaining and the location is within range to act upon.
-     *
-     * @param loc the location at which the destabilizing attack will be centered
-     * @return whether it is possible for this robot to destabilize
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canDestabilize(MapLocation loc);
-
-
-    /** 
-     * Destabilizes at a given location.
-     *
-     * @param loc the location at which the destabilizing attack will be centered
-     * @throws GameActionException if conditions for destabilizing are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void destabilize(MapLocation loc) throws GameActionException;
-
 
     // ***************************
-    // ***** CARRIER METHODS *****
+    // ******* FLAG METHODS ******
     // ***************************
-
-    /**
-     * Tests whether the robot can collect resource from a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid well location, 
-     * and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can collect the amount (amount does not exceed
-     * current well rate, carrier has sufficient capacity).
-     *
-     * @param loc target location to collect 
-     * @param amount amount to be collected, -1 to collect max possible
-     * @return whether it is possible to collect amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canCollectResource(MapLocation loc, int amount);
-
-    /** 
-     * Collect resource from the given location. 
-     *
-     * @param loc target well location
-     * @param amount amount to collect, -1 to collect max possible
-     * @throws GameActionException if conditions for collecting are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void collectResource(MapLocation loc, int amount) throws GameActionException;
-
-    /**
-     * Tests whether the robot can transfer resource to a given location.
-     * 
-     * Checks that the robot is a Carrier, the given location is a valid HQ
-     * or well location, and there are no cooldown turns remaining. 
-     * 
-     * Valid locations must be the current location or adjacent to the current 
-     * location. 
-     * 
-     * Checks that carrier can transfer the amount (donor has sufficient 
-     * resource). Wells can only be transferred to. 
-     *
-     * @param loc target location to transfer to
-     * @param rType type of resource to transfer
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @return whether it is possible to transfer amount to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canTransferResource(MapLocation loc, ResourceType rType, int amount);
-
-    /** 
-     * Transfers resource to given location. Transferred material is 
-     * limited by carrier capacity. 
-     * 
-     * @param loc target location to transfer to/from
-     * @param rType type of resource to transfer
-     * @param amount amount to be transferred (negative = from loc, positive = to)
-     * @throws GameActionException if conditions for transferring are not satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void transferResource(MapLocation loc, ResourceType rType, int amount) throws GameActionException;
 
     /**
      * Tests whether robot can pickup a flag at the current location.
@@ -883,6 +706,13 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int readSharedArray(int index) throws GameActionException;
+
+    /**
+     * Checks if a team can write to their array of shared information.
+     * 
+     * @battlecode.doc.costlymethod 
+     */
+    void canWriteSharedArray();
 
     /** 
      * Sets the team's array value at a specified index. 
