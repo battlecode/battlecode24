@@ -125,6 +125,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getBreadAmount() {
+        return this.robot.getResourceAmount();
+    }
+
+    @Override
+    public Anchor getAnchor() throws GameActionException {
+        if (this.getType() != RobotType.CARRIER) {
+            throw new GameActionException(CANT_DO_THAT, "getAnchor can only be called with carrier, use getNumAnchors for headquarters");
+        }
+        return this.robot.getTypeAnchor();  
+    }
+
+    @Override
+    public int getNumAnchors(Anchor anchor) {
+        if (anchor == null) {
+            return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
+        }
+        return this.robot.getNumAnchors(anchor);  
+    }
+
+    @Override
     public int getWeight() {
         int resourceAmount = this.getResourceAmount(ResourceType.ADAMANTIUM) + this.getResourceAmount(ResourceType.MANA) + this.getResourceAmount(ResourceType.ELIXIR);
         int anchorAmount = this.getNumAnchors(null);
@@ -354,7 +375,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
     }
 
-    @Override
+    /* @Override
     public WellInfo senseWell(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
@@ -411,9 +432,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedWells.add(well.getWellInfo());
         }
         return validSensedWells.toArray(new WellInfo[validSensedWells.size()]);
-    }
+    } */
 
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
+        GameWorld gw = this.gameWorld;
+
+        //TODO need to check team of trap at location so that you can't sense enemy traps
+
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
+            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), gw.getTrapType(loc));
+
+        return currentLocInfo;
+
+        /* // Old stuff
         double[] cooldownMultipliers = new double[2];
         int[][] numActiveElements = new int[2][2];
         int[][] turnsLeft = new int[2][2];
@@ -431,9 +462,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
-        // TODO update this method
-        // MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
-        return null;
+        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        return currentLocInfo; */
     }
 
     @Override
@@ -816,7 +846,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.spawn(loc);
     }
 
-    private void assertCanBuildAnchor(Anchor anchor) throws GameActionException {
+    /* private void assertCanBuildAnchor(Anchor anchor) throws GameActionException {
         assertNotNull(anchor);
         assertIsActionReady();
         if (getType() != RobotType.HEADQUARTERS)
@@ -852,7 +882,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         this.robot.addAnchor(anchor);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_ANCHOR, anchor.getAccelerationIndex());
-    }
+    } */
 
     // *****************************
     // **** COMBAT UNIT METHODS **** 
@@ -1070,7 +1100,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_RESOURCE, locationToInt(loc));
     }
 
-    private void assertCanPlaceAnchor() throws GameActionException {
+    /* private void assertCanPlaceAnchor() throws GameActionException {
         assertIsActionReady();
         if (getType() != RobotType.CARRIER)
         throw new GameActionException(CANT_DO_THAT,
@@ -1202,9 +1232,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.releaseAnchor(anchor);
         this.robot.addActionCooldownTurns(getType().actionCooldown);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UP_ANCHOR, -1*(headquarters.getID()*2 + anchor.getAccelerationIndex()) - 1);
-    }
-
- 
+    } */
 
     // ***********************************
     // ****** COMMUNICATION METHODS ****** 

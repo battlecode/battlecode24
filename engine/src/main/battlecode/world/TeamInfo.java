@@ -3,6 +3,7 @@ package battlecode.world;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
+import battlecode.common.SkillType;
 import battlecode.common.Team;
 import java.util.*;
 import static battlecode.common.GameActionExceptionType.*;
@@ -18,6 +19,8 @@ public class TeamInfo {
     // private int[] elixirCounts;
     // private int[] manaCounts;
     private int[] breadCounts; 
+    private int[] tierThree;
+    private int[] tierTwo;
     private int[][] sharedArrays; 
     private int[] totalFlagsCaptured;
     //private int[] currentFlagsCaptured;
@@ -43,6 +46,8 @@ public class TeamInfo {
         //this.oldElixirCounts = new int[2];
         //this.oldManaCounts = new int[2];
         this.oldBreadCounts = new int[2];
+        this.tierThree = new int[2];
+        this.tierTwo = new int[2];
     }
     
     // *********************************
@@ -167,7 +172,6 @@ public class TeamInfo {
                 if (amount != 0)
                     throw new IllegalArgumentException("Can't add no resource");
                 break;
-                
         }
         */
     }
@@ -203,6 +207,51 @@ public class TeamInfo {
         // if (((float)this.currentFlagsCaptured[team.ordinal()])/gameWorld.getAllIslands().length >= GameConstants.WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED) {
         //     checkWin(team); // Do an extra check to make sure the win is correct
         // }
+    }
+
+    /**
+     * Counts number of tier 3 units.
+     * @param team to query
+     * @return number of level 3 units
+     */
+    public int getTierThree(Team team){
+        ArrayList<InternalRobot> robots = new ArrayList<InternalRobot>();
+        SkillType[] skills = {SkillType.HEAL, SkillType.ATTACK, SkillType.BUILD};
+        gameWorld.getObjectInfo().eachRobot((robot)->{
+            for (SkillType s: skills){
+                if (robot.getLevel(s) >= 3){
+                    robots.add(robot);
+                    return true;
+                }
+            }
+            return true;
+        });
+        return robots.size();
+    }
+
+    /**
+     * Counts number of tier 2 units.
+     * @param team to query
+     * @return number of level 2 units
+     */
+    public int getTierTwo(Team team){
+        ArrayList<InternalRobot> robots = new ArrayList<InternalRobot>();
+        SkillType[] skills = {SkillType.HEAL, SkillType.ATTACK, SkillType.BUILD};
+        gameWorld.getObjectInfo().eachRobot((robot)->{
+            for (SkillType s: skills){
+                if (robot.getLevel(s) >= 3){
+                    return true;
+                }
+            }
+            for (SkillType s: skills){
+                if (robot.getLevel(s) == 2){
+                    robots.add(robot);
+                    return true;
+                }
+            }
+            return true;
+        });
+        return robots.size();
     }
 
     /**

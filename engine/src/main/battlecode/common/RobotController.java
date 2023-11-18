@@ -79,6 +79,60 @@ public strictfp interface RobotController {
     int getID();
 
     /**
+     * Returns the build experience points of this robot.
+     *
+     * @return the build experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getBuildExp();
+
+    /**
+     * Returns the heal experience points of this robot.
+     *
+     * @return the heal experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealExp();
+
+    /**
+     * Returns the attack experience points of this robot.
+     *
+     * @return the attack experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackExp();
+
+    /**
+     * Returns the build experience points of this robot.
+     *
+     * @return the build level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getBuildLevel();
+
+    /**
+     * Returns the heal experience points of this robot.
+     *
+     * @return the heal level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealLevel();
+
+    /**
+     * Returns the attack experience points of this robot.
+     *
+     * @return the attack level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackLevel();
+
+    /**
      * Returns this robot's Team.
      *
      * @return this robot's Team
@@ -131,14 +185,13 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns the amount of the specified resource that this robot is holding
+     * Returns the amount of bread that this robot is holding.
      *
-     * @param rType the resource type the query is about
-     * @return the amount of rType resource this robot is holding
+     * @return the amount of bread this robot is holding
      *
      * @battlecode.doc.costlymethod
      */
-    int getResourceAmount(ResourceType rType);
+    int getBreadAmount();
 
     /**
      * Returns type of anchor being held by carrier

@@ -31,7 +31,8 @@ public strictfp class GameWorld {
     private boolean[] clouds;
     private boolean[] water;
     private boolean[] dams;
-    private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
+    private int[] spawnZones; // Team A = 0, Team B = 1, not spawn zone = -1
+    private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
     private ArrayList<Integer>[][][] boosts;
@@ -69,6 +70,7 @@ public strictfp class GameWorld {
         this.water = gm.getWaterArray();
         this.spawnZones = gm.getSpawnZoneArray();
         this.dams = gm.getDamArray();
+        this.breadAmounts = gm.getBreadArray();
         this.islandIds = gm.getIslandArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currents = new Direction[gm.getWidth() * gm.getHeight()];
@@ -78,12 +80,12 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
-        //Initialize currents
+        /* //Initialize currents
         int[] gmCurrents = gm.getCurrentArray();
         Arrays.fill(this.currents, Direction.CENTER);
         for(int i = 0; i < currents.length; i++) {
             this.currents[i] = Direction.DIRECTION_ORDER[gmCurrents[i]];
-        }
+        } */
         this.profilerCollections = new HashMap<>();
 
         this.controlProvider = cp;
@@ -100,7 +102,7 @@ public strictfp class GameWorld {
             createRobot(Team.B);
         }
 
-        this.islandIdToIsland = new HashMap<>();
+        /* this.islandIdToIsland = new HashMap<>();
         HashMap<Integer, List<MapLocation>> islandIdToLocations = new HashMap<>();
         // Populate idToIsland map
         for (int idx = 0; idx < islandIds.length; idx++) {
@@ -115,12 +117,12 @@ public strictfp class GameWorld {
         for (int key : islandIdToLocations.keySet()) {
             Island newIsland = new Island(this, key, islandIdToLocations.get(key));
             this.islandIdToIsland.put(key, newIsland);            
-        }
+        } */
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
         
-        this.wells = new Well[gm.getWidth()*gm.getHeight()];
+        /* this.wells = new Well[gm.getWidth()*gm.getHeight()];
         for(int i = 0; i < gm.getResourceArray().length; i++){
             MapLocation loc = indexToLocation(i);
             ResourceType rType = ResourceType.values()[gm.getResourceArray()[i]];
@@ -129,11 +131,13 @@ public strictfp class GameWorld {
             } else {
                 this.wells[i] = new Well(loc, rType);
             }
-        }
+        } */
+
         this.trapTriggers = new ArrayList[gm.getWidth()*gm.getHeight()];
         for (int i = 0; i < trapTriggers.length; i++){
             this.trapTriggers[i] = new ArrayList<Trap>();
         }
+
 
         //initialize flags
         this.allFlags = new Flag[GameConstants.NUMBER_FLAGS * 2];
@@ -151,8 +155,7 @@ public strictfp class GameWorld {
             placedFlags[i].add(flag);
             flagIdx++;
         }
-
-        //indices are: map position, team, boost/destabilize/anchor lists
+      
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
             for (int j = 0; j < boosts[0].length; j++)
@@ -171,8 +174,7 @@ public strictfp class GameWorld {
                 cooldownMultipliers[locationToIndex(loc)][0] = Math.round(cooldownMultipliers[locationToIndex(loc)][0] * 100.0)/100.0;
                 cooldownMultipliers[locationToIndex(loc)][1] = Math.round(cooldownMultipliers[locationToIndex(loc)][1] * 100.0)/100.0; 
             }
-        }
-
+        } */
     }
 
     /**
@@ -314,14 +316,22 @@ public strictfp class GameWorld {
         this.water[locationToIndex(loc)] = false;
     }
 
+    public int getBreadAmount(MapLocation loc) {
+        return this.breadAmounts[locationToIndex(loc)];
+    }
+
+    public void removeBread(MapLocation loc) {
+        this.breadAmounts[locationToIndex(loc)] = 0;
+    }
+
     /**
      * Checks if a given location is a spawn zone.
-     * Returns 0 if not, 1 if it is a Team A spawn zone,
-     * and 2 if it is a Team B spawn zone.
+     * Returns -1 if not, 0 if it is a Team A spawn zone,
+     * and 1 if it is a Team B spawn zone.
      * 
      * @param loc the location to check
-     * @return 0 if the location is not a spawn zone,
-     * 1 or 2 if it is a Team A or Team B spawn zone respectively
+     * @return -1 if the location is not a spawn zone,
+     * 0 or 1 if it is a Team A or Team B spawn zone respectively
      */
     public int getSpawnZone(MapLocation loc) {
         return this.spawnZones[locationToIndex(loc)];
@@ -410,6 +420,10 @@ public strictfp class GameWorld {
     // ****** TRAP METHODS **************
     // ***********************************
     
+    public TrapType getTrapType(MapLocation loc) {
+        return this.trapLocations[locationToIndex(loc)].getType();
+    }
+
     public boolean hasTrap(MapLocation loc){
         return !(this.trapLocations[locationToIndex(loc)] == null);
     }
@@ -678,6 +692,207 @@ public strictfp class GameWorld {
     }
 
     /**
+     * @return whether a team has more sky islands captured
+     */
+    public boolean setWinnerIfMoreSkyIslands() {
+        int skyIslandCountA = 0;
+        int skyIslandCountB = 0;
+        for(Island island : islandIdToIsland.values()) {
+            if (island == null) {
+                continue;
+            }
+            if(island.teamOwning == Team.A) skyIslandCountA++;
+            else if(island.teamOwning == Team.B) skyIslandCountB++;
+        }
+
+        if (skyIslandCountA > skyIslandCountB) {
+            setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
+            return true;
+        } else if (skyIslandCountA < skyIslandCountB) {
+            setWinner(Team.B, DominationFactor.MORE_SKY_ISLANDS);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more reality anchors placed
+     */
+    public boolean setWinnerIfMoreRealityAnchors() {
+        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
+        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
+        
+        if (realityAnchorCountA > realityAnchorCountB) {
+            setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
+            return true;
+        } else if (realityAnchorCountA < realityAnchorCountB) {
+            setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net elixir value
+     */
+    public boolean setWinnerIfMoreElixirValue() {
+        int[] totalElixirValues = new int[2];
+
+        // consider team reserves
+        totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
+        totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
+        
+        if (totalElixirValues[Team.A.ordinal()] > totalElixirValues[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            return true;
+        } else if (totalElixirValues[Team.B.ordinal()] > totalElixirValues[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net mana value
+     */
+    public boolean setWinnerIfMoreManaValue() {
+        int[] totalManaValues = new int[2];
+
+        // consider team reserves
+        totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
+        totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
+        
+        if (totalManaValues[Team.A.ordinal()] > totalManaValues[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        } else if (totalManaValues[Team.B.ordinal()] > totalManaValues[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has a greater net adamantium value
+     */
+    public boolean setWinnerIfMoreAdamantiumValue() {
+        int[] totalAdamantiumValues = new int[2];
+
+        // consider team reserves
+        totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
+        totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
+        
+        if (totalAdamantiumValues[Team.A.ordinal()] > totalAdamantiumValues[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            return true;
+        } else if (totalAdamantiumValues[Team.B.ordinal()] > totalAdamantiumValues[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more flags
+     */
+    public boolean setWinnerIfMoreFlags(){
+        int[] totalFlagsCaptured = new int[2];
+
+        // consider team reserves
+        totalFlagsCaptured[Team.A.ordinal()] += this.teamInfo.getFlagsCaptured(Team.A);
+        totalFlagsCaptured[Team.B.ordinal()] += this.teamInfo.getFlagsCaptured(Team.B);
+        
+        if (totalFlagsCaptured[Team.A.ordinal()] > totalFlagsCaptured[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        } else if (totalFlagsCaptured[Team.B.ordinal()] > totalFlagsCaptured[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more tier three units
+     */
+    public boolean setWinnerIfMoreTierThree(){
+        int[] totalTierThree = new int[2];
+
+        // consider team reserves
+        totalTierThree[Team.A.ordinal()] += this.teamInfo.getTierThree(Team.A);
+        totalTierThree[Team.B.ordinal()] += this.teamInfo.getTierThree(Team.B);
+        
+        if (totalTierThree[Team.A.ordinal()] > totalTierThree[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.TIER_THREE);
+            return true;
+        } else if (totalTierThree[Team.B.ordinal()] > totalTierThree[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.TIER_THREE);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more tier two units
+     */
+    public boolean setWinnerIfMoreTierTwo(){
+        int[] totalTierTwo = new int[2];
+
+        // consider team reserves
+        totalTierTwo[Team.A.ordinal()] += this.teamInfo.getTierTwo(Team.A);
+        totalTierTwo[Team.B.ordinal()] += this.teamInfo.getTierTwo(Team.B);
+        
+        if (totalTierTwo[Team.A.ordinal()] > totalTierTwo[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.TIER_TWO);
+            return true;
+        } else if (totalTierTwo[Team.B.ordinal()] > totalTierTwo[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.TIER_TWO);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more bread
+     */
+    public boolean setWinnerIfMoreBread(){
+        int[] totalBreadValues = new int[2];
+
+        // consider team reserves
+        totalBreadValues[Team.A.ordinal()] += this.teamInfo.getBread(Team.A);
+        totalBreadValues[Team.B.ordinal()] += this.teamInfo.getBread(Team.B);
+        
+        if (totalBreadValues[Team.A.ordinal()] > totalBreadValues[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_BREAD);
+            return true;
+        } else if (totalBreadValues[Team.B.ordinal()] > totalBreadValues[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_BREAD);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return whether a team has more flags picked up (but not sucessfully retrieved)
+     */
+    public boolean setWinnerIfMoreFlagsPickedUp(){
+        int[] totalFlagsPickedUp = new int[2];
+
+        // consider team reserves
+        totalFlagsPickedUp[Team.A.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.A);
+        totalFlagsPickedUp[Team.B.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.B);
+        
+        if (totalFlagsPickedUp[Team.A.ordinal()] > totalFlagsPickedUp[Team.B.ordinal()]) {
+            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        } else if (totalFlagsPickedUp[Team.B.ordinal()] > totalFlagsPickedUp[Team.A.ordinal()]) {
+            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Sets a winner arbitrarily. Hopefully this is actually random.
      */
     public void setWinnerArbitrary() {
@@ -686,6 +901,28 @@ public strictfp class GameWorld {
 
     public boolean timeLimitReached() {
         return currentRound >= this.gameMap.getRounds();
+    }
+
+    /**
+     * Checks end of match and then decides winner based on tiebreak conditions
+     */
+    public void checkEndOfMatch() {
+        if (timeLimitReached() && gameStats.getWinner() == null) {
+
+            //if (setWinnerIfMoreSkyIslands())      return;
+            //if (setWinnerIfMoreRealityAnchors())  return;
+            //if (setWinnerIfMoreElixirValue())     return;
+            //if (setWinnerIfMoreManaValue())       return;
+            //if (setWinnerIfMoreAdamantiumValue()) return;
+
+            if (setWinnerIfMoreFlags()) return;
+            if (setWinnerIfMoreTierThree()) return;
+            if (setWinnerIfMoreTierTwo()) return;
+            if (setWinnerIfMoreBread()) return;
+            if (setWinnerIfMoreFlagsPickedUp()) return;
+
+            setWinnerArbitrary();
+        }
     }
 
     public void processEndOfRound() {

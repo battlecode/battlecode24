@@ -2,14 +2,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-/**
- * A vector in two-dimensional space. Discrete space, of course.
- * Defaults to the 0 vector.
- */
 export class Vec {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):Vec {
+  __init(i:number, bb:flatbuffers.ByteBuffer):Vec {
   this.bb_pos = i;
   this.bb = bb;
   return this;
