@@ -75,7 +75,6 @@ public strictfp class GameWorld {
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
-
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
 
@@ -91,17 +90,15 @@ public strictfp class GameWorld {
         this.rand = new Random(this.gameMap.getSeed());
         this.matchMaker = matchMaker;
 
-        controlProvider.matchStarted(this);
+        this.controlProvider.matchStarted(this);
 
-        // Add the robots contained in the LiveMap to this world.
-        RobotInfo[] initialBodies = this.gameMap.getInitialBodies();
-
-        for (int i = 0; i < initialBodies.length; i++) {
-            RobotInfo robot = initialBodies[i];
-            MapLocation newLocation = robot.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            spawnRobot(robot.ID, robot.type, newLocation, robot.team);
-        }
         this.teamInfo = new TeamInfo(this);
+
+        // Create all robots in their despawned states
+        for (int i = 0; i < GameConstants.ROBOT_CAPACITY; i++) {
+            createRobot(Team.A);
+            createRobot(Team.B);
+        }
 
         this.islandIdToIsland = new HashMap<>();
         HashMap<Integer, List<MapLocation>> islandIdToLocations = new HashMap<>();
@@ -137,6 +134,24 @@ public strictfp class GameWorld {
         for (int i = 0; i < trapTriggers.length; i++){
             this.trapTriggers[i] = new ArrayList<Trap>();
         }
+
+        //initialize flags
+        this.allFlags = new Flag[GameConstants.NUMBER_FLAGS * 2];
+        this.placedFlags = new ArrayList[gm.getWidth() * gm.getHeight()];
+
+        for (int i = 0; i < placedFlags.length; i++)
+            placedFlags[i] = new ArrayList<>();
+
+        int flagIdx = 0;
+        for (int i = 0; i < gm.getFlagArray().length; i++) {
+            int flagVal = gm.getFlagArray()[i];
+            if(flagVal == 0) continue;
+            Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i));
+            allFlags[flagIdx] = flag;
+            placedFlags[i].add(flag);
+            flagIdx++;
+        }
+
         //indices are: map position, team, boost/destabilize/anchor lists
         this.boosts = new ArrayList[gm.getWidth()*gm.getHeight()][2][3];
         for (int i = 0; i < boosts.length; i++){ 
@@ -183,24 +198,17 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                objectInfo.eachDynamicBodyByExecOrder((body) -> {
-                    if (body instanceof InternalRobot) {
-                        InternalRobot hq = (InternalRobot) body;
-                        if (hq.getType() != RobotType.HEADQUARTERS) {
-                            throw new RuntimeException("Robots must be headquarters in round 1");
-                        }
-                        hq.addResourceAmount(ResourceType.ADAMANTIUM, GameConstants.INITIAL_AD_AMOUNT);
-                        hq.addResourceAmount(ResourceType.MANA, GameConstants.INITIAL_MN_AMOUNT);
-                        return true;
-                    } else {
-                        throw new RuntimeException("non-robot body registered as dynamic");
-                    }
-                });
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
+            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
+                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
+                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
+            }
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -235,8 +243,10 @@ public strictfp class GameWorld {
 
         // If the robot terminates but the death signal has not yet
         // been visited:
+
+        // NOTE: changed this from destroy to despawn; double check that this change is correct
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            destroyRobot(robot.getID());
+            despawnRobot(robot.getID());
         return true;
     }
 
@@ -386,6 +396,7 @@ public strictfp class GameWorld {
     // ***********************************
     // ****** DAM METHODS **************
     // ***********************************
+
     public boolean getDam(MapLocation loc){
         if (currentRound <= GameConstants.SETUP_ROUNDS){
             return dams[locationToIndex(loc)];
@@ -570,6 +581,14 @@ public strictfp class GameWorld {
             if (getWell(newLocation) != null)
                 returnWells.add(getWell(newLocation));
         return returnWells.toArray(new Well[returnWells.size()]);
+    }
+
+    public Flag[] getAllFlagsWithinRadiusSquared(MapLocation center, int radiusSquared) {
+        ArrayList<Flag> returnFlags = new ArrayList<Flag>();
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
+            if (getFlags(newLocation) != null)
+                returnFlags.addAll(getFlags(newLocation));
+        return returnFlags.toArray(new Flag[returnFlags.size()]);
     }
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
@@ -895,6 +914,20 @@ public strictfp class GameWorld {
             island.advanceTurn();
             this.matchMaker.addIslandInfo(island);
         }
+
+        if(currentRound == GameConstants.SETUP_ROUNDS) processEndOfSetupPhase();
+
+        //Reset dropped flags if necessary
+        if (!isSetupPhase()) {
+            for(Flag flag : allFlags) {
+                if(!flag.isPickedUp() && flag.getLoc() != flag.getStartLoc()){ 
+                    if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS)
+                        moveFlagSetStartLoc(flag, flag.getStartLoc());
+                    else
+                        flag.incrementDroppedRounds();
+                }
+            }
+        }
         
         //end any boosts that have finished their duration
         for (MapLocation loc : getAllLocations()){
@@ -961,6 +994,42 @@ public strictfp class GameWorld {
             running = false;
     }
 
+    private void processEndOfSetupPhase() {
+        ArrayList<Flag> teamAFlags = new ArrayList<>();
+        ArrayList<Flag> teamBFlags = new ArrayList<>();
+        for (Flag flag : allFlags) {
+            if(flag.getTeam() == Team.A) teamAFlags.add(flag);
+            else teamBFlags.add(flag);
+        }
+        confirmFlagPlacements(teamAFlags);
+        confirmFlagPlacements(teamBFlags);
+    }
+
+    private void confirmFlagPlacements(ArrayList<Flag> teamFlags) {
+        boolean validPlacements = true;
+        for(int i = 0; i < teamFlags.size(); i++){
+            for(int j = i + 1; j < teamFlags.size(); j++){
+                Flag a = teamFlags.get(i), b = teamFlags.get(j);
+                if(a.getLoc().distanceSquaredTo(b.getLoc()) < GameConstants.MIN_FLAG_SPACING_SQUARED) {
+                    validPlacements = false;
+                    break;
+                }
+            }
+        }
+        if(validPlacements)
+            for(Flag flag : teamFlags) moveFlagSetStartLoc(flag, flag.getLoc());
+        else
+            for(Flag flag : teamFlags) moveFlagSetStartLoc(flag, flag.getStartLoc());
+    }
+
+    private void moveFlagSetStartLoc(Flag flag, MapLocation location){
+        flag.drop();
+        addFlag(location, flag);
+        flag.setStartLoc(location);
+        if(water[locationToIndex(location)]) 
+            water[locationToIndex(location)] = false;
+    }
+
     private void addToNotMoving(InternalRobot robot, HashMap<MapLocation, List<InternalRobot>> forecastedLocToRobot, Set<InternalRobot> notMoving, Set<MapLocation> visited) {
         MapLocation origLocation = robot.getLocation();
         if (visited.contains(origLocation)) {
@@ -1008,7 +1077,7 @@ public strictfp class GameWorld {
                 continue;
             } else {
                 this.objectInfo.clearRobotIndex(robot);
-                this.removeRobot(robot.getLocation());
+                removeRobot(robot.getLocation());
                 movingRobots.add(robot);
             }
         }
@@ -1026,38 +1095,34 @@ public strictfp class GameWorld {
     // ****** SPAWNING *****************
     // *********************************
 
-    public int spawnRobot(int ID, RobotType type, MapLocation location, Team team) {
-        InternalRobot robot;
-        switch (type) {
-            case CARRIER:
-                robot = new InternalCarrier(this, ID, type, location, team);
-                break;
-            default:
-                robot = new InternalRobot(this, ID, type, location, team);
-                break;
-        }
-        objectInfo.spawnRobot(robot);
-        addRobot(location, robot);
-
+    public int createRobot(int ID, Team team) {
+        InternalRobot robot = new InternalRobot(this, ID, team);
+        objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
         return ID;
     }
 
-    public int spawnRobot(RobotType type, MapLocation location, Team team) {
+    public int createRobot(Team team) {
         int ID = idGenerator.nextID();
-        return spawnRobot(ID, type, location, team);
+        return createRobot(ID, team);
     }
 
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
 
-    public void destroyRobot(int id) {
-        destroyRobot(id, true);
+    public void despawnRobot(int id) {
+        InternalRobot robot = objectInfo.getRobotByID(id);
+        robot.despawn();
+        removeRobot(robot.getLocation());
+        matchMaker.addDied(id);
     }
 
-    public void destroyRobot(int id, boolean checkArchonDeath) {
+    /**
+     * Permanently destroy a robot; left for internal purposes.
+     */
+    private void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         RobotType type = robot.getType();
         Team team = robot.getTeam();
@@ -1101,5 +1166,8 @@ public strictfp class GameWorld {
         return islandIdToIsland.values().toArray(new Island[islandIdToIsland.size()]);
     }
 
+    public boolean isSetupPhase() {
+        return currentRound <= GameConstants.SETUP_ROUNDS;
+    }
     
 }

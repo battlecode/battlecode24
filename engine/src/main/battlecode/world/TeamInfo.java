@@ -87,9 +87,9 @@ public class TeamInfo {
     }
 
     /**
-     * Get the total number of anchors placed by the team over the game
+     * Get the total number of flags captured by the team over the game
      * @param team the team to query
-     * @return the total anchors placed
+     * @return the total flags captured
      */
     public int getFlagsCaptured(Team team) {
         return this.totalFlagsCaptured[team.ordinal()];
@@ -172,8 +172,8 @@ public class TeamInfo {
                 if (amount != 0)
                     throw new IllegalArgumentException("Can't add no resource");
                 break;
-                
-        }*/
+        }
+        */
     }
 
     private int numIslandsOccupied(Team team){
