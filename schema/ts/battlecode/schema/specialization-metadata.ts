@@ -2,7 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { SepcializationType } from '../../battlecode/schema/sepcialization-type';
+import { SpecializationType } from '../../battlecode/schema/specialization-type';
 
 
 export class SpecializationMetadata {
@@ -23,9 +23,9 @@ static getSizePrefixedRootAsSpecializationMetadata(bb:flatbuffers.ByteBuffer, ob
   return (obj || new SpecializationMetadata()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-type():SepcializationType {
+type():SpecializationType {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : SepcializationType.ATTACK;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : SpecializationType.ATTACK;
 }
 
 level():number {
@@ -62,8 +62,8 @@ static startSpecializationMetadata(builder:flatbuffers.Builder) {
   builder.startObject(7);
 }
 
-static addType(builder:flatbuffers.Builder, type:SepcializationType) {
-  builder.addFieldInt8(0, type, SepcializationType.ATTACK);
+static addType(builder:flatbuffers.Builder, type:SpecializationType) {
+  builder.addFieldInt8(0, type, SpecializationType.ATTACK);
 }
 
 static addLevel(builder:flatbuffers.Builder, level:number) {
@@ -95,7 +95,7 @@ static endSpecializationMetadata(builder:flatbuffers.Builder):flatbuffers.Offset
   return offset;
 }
 
-static createSpecializationMetadata(builder:flatbuffers.Builder, type:SepcializationType, level:number, actionCost:number, actionJailedPenalty:number, cooldownReduction:number, damageIncrease:number, healIncrease:number):flatbuffers.Offset {
+static createSpecializationMetadata(builder:flatbuffers.Builder, type:SpecializationType, level:number, actionCost:number, actionJailedPenalty:number, cooldownReduction:number, damageIncrease:number, healIncrease:number):flatbuffers.Offset {
   SpecializationMetadata.startSpecializationMetadata(builder);
   SpecializationMetadata.addType(builder, type);
   SpecializationMetadata.addLevel(builder, level);

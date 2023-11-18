@@ -27,14 +27,14 @@ table CommTable {
     team2: [int];
 }
 
-enum SepcializationType: byte {
+enum SpecializationType: byte {
     ATTACK,
     BUILD,
     HEAL
 }
 
 table SpecializationMetadata {
-    type: SepcializationType;
+    type: SpecializationType;
     level: int;
     actionCost: int;
     actionJailedPenalty: int;
