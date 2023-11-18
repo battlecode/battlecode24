@@ -62,6 +62,9 @@ public class GameConstants {
     /** The number of flags a player starts with. */
     public static final int NUMBER_FLAGS = 3;
 
+    /** health each robot starts with */
+    public static final int DEFAULT_HEALTH = 100;
+
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
 

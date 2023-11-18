@@ -14,21 +14,21 @@ public enum TrapType {
      * 
      * @battlecode.doc.traptype
      */
-    EXPLOSIVE (25, 0, 13, 9, 75, 50, false, 0, true),
+    EXPLOSIVE (25, 0, 13, 9, 75, 50, false, 5, true, 0),
 
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
      * 
      * @battlecode.doc.traptype
      */
-    WATER (10, 1, 9, 0, 0, 0, true, 0, true),
+    WATER (10, 1, 9, 0, 0, 0, true, 5, true, 0),
 
     /**
      * When an opponent enters, all opponent robots movement and action cooldowns are set to 40.
      * 
      * @battlecode.doc.traptype
      */
-    STUN (10, 1, 13, 0, 0, 0, false, 40, true);
+    STUN (10, 1, 13, 0, 0, 0, false, 5, true, 40);
 
     /**
      * Bread cost of each trap
@@ -79,7 +79,12 @@ public enum TrapType {
      */
     public final boolean isInvisible;
 
-    TrapType(int buildCost, int triggerRadius, int enterRadius, int interactRadius, int enterDamage, int interactDamage, boolean doesDig, int actionCooldownIncrease, boolean isInvisible){
+    /**
+     * Cooldown for opponents
+     */
+    public final int opponentCooldown;
+
+    TrapType(int buildCost, int triggerRadius, int enterRadius, int interactRadius, int enterDamage, int interactDamage, boolean doesDig, int actionCooldownIncrease, boolean isInvisible, int opponentCooldown){
         this.buildCost = buildCost;
         this.triggerRadius = triggerRadius;
         this.enterRadius = enterRadius;
@@ -89,5 +94,6 @@ public enum TrapType {
         this.doesDig = doesDig;
         this.actionCooldownIncrease = actionCooldownIncrease;
         this.isInvisible = isInvisible;
+        this.opponentCooldown = opponentCooldown;
     }
 }
