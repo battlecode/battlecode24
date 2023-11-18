@@ -55,7 +55,7 @@ public strictfp class LiveMap {
      * Whether each square is a spawn zone.
      * 0 = Team A, 1 = Team B, -1 = not spawn zone
      */
-    private int[] spawnZoneArray;
+    private MapLocation[] spawnZones;
 
     /**
      * Direction ID of current on each square.
@@ -355,6 +355,10 @@ public strictfp class LiveMap {
 
     public boolean[] getWaterArray() {
         return waterArray;
+    }
+
+    public int[] getFlagArray() {
+        return flagArray;
     }
 
     /**

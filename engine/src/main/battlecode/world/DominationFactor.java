@@ -13,13 +13,17 @@ public enum DominationFactor {
      */
     MORE_FLAG_CAPTURES, 
     /**
-     * Win by having a greater sum of levels across all units (including robots in jail) (tiebreak 2).
+     * Win by having more tier three units (including robots in jail) (tiebreak 2).
      */
-    SUM_LEVELS,
+    TIER_THREE,
     /**
-     * Win by killing more enemy units (tiebreak 3).
+     * Win by having more tier two units (including robots in jail) (tiebreak 2).
      */
-    MORE_ENEMIES_KILLED,
+    TIER_TWO,
+    /**
+     * Win by having more break (tiebreak 3)
+     */
+    MORE_BREAD,
     /**
      * Win by picking up more flags (even if not retrieved successfully) (tiebreak 4).
      */
