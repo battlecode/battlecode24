@@ -83,7 +83,7 @@ public class Island {
         this.anchorPlanted = toPlace;
         this.anchorHealth = toPlace.totalHealth;
         if (!prevOwnedIsland) {
-            this.gw.getTeamInfo().placeAnchor(placingTeam);
+        //    this.gw.getTeamInfo().placeAnchor(placingTeam);
         }
     }
 
@@ -102,7 +102,7 @@ public class Island {
         int diffPctOccupied = (100*(numOccupied[teamOwning.ordinal()] - numOccupied[teamOwning.opponent().ordinal()]))/(locations.length);
         this.anchorHealth = Math.min(this.anchorPlanted.totalHealth, this.anchorHealth + diffPctOccupied);
         if (this.anchorHealth <= 0) {
-            this.gw.getTeamInfo().removeAnchor(this.teamOwning);
+       //     this.gw.getTeamInfo().removeAnchor(this.teamOwning);
             if (this.anchorPlanted == Anchor.ACCELERATING) {
                 this.gw.removeBoostFromAnchor(this);
             }

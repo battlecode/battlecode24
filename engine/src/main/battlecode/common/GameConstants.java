@@ -59,6 +59,12 @@ public class GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
+    /** The health that a robot has by default. */
+    public static final int DEFAULT_HEALTH = 100;
+
+    /** The max number of robots a team can spawn. */
+    public static final int SPAWN_LIMIT = 50;
+
     /** The number of flags a player starts with. */
     public static final int NUMBER_FLAGS = 3;
 

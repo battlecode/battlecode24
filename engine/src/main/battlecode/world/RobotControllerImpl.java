@@ -129,26 +129,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getHealth();
     }
 
+    //TODO: change to bread
     @Override
     public int getResourceAmount(ResourceType rType) {
         return this.robot.getResource(rType);  
     }
 
-    @Override
-    public Anchor getAnchor() throws GameActionException {
-        if (this.getType() != RobotType.CARRIER) {
-            throw new GameActionException(CANT_DO_THAT, "getAnchor can only be called with carrier, use getNumAnchors for headquarters");
-        }
-        return this.robot.getTypeAnchor();  
-    }
+    // @Override
+    // public Anchor getAnchor() throws GameActionException {
+    //     if (this.getType() != RobotType.CARRIER) {
+    //         throw new GameActionException(CANT_DO_THAT, "getAnchor can only be called with carrier, use getNumAnchors for headquarters");
+    //     }
+    //     return this.robot.getTypeAnchor();  
+    // }
 
-    @Override
-    public int getNumAnchors(Anchor anchor) {
-        if (anchor == null) {
-            return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
-        }
-        return this.robot.getNumAnchors(anchor);  
-    }
+    // @Override
+    // public int getNumAnchors(Anchor anchor) {
+    //     if (anchor == null) {
+    //         return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
+    //     }
+    //     return this.robot.getNumAnchors(anchor);  
+    // }
 
     @Override
     public int getWeight() {
@@ -1359,6 +1360,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    //TODO: add can write shared array again to RobotController
     public boolean canWriteSharedArray(int index, int value){
         try {
             assertCanWriteSharedArray(index, value);
@@ -1382,6 +1384,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    //TODO: either change this to despawn or implement destroy robot
     public void resign() {
         Team team = getTeam();
         gameWorld.getObjectInfo().eachRobot((robot) -> {

@@ -77,7 +77,7 @@ public class MapBuilder {
                 id,
                 team,
                 RobotType.HEADQUARTERS,
-                new Inventory(),
+              //  new Inventory(),
                 RobotType.HEADQUARTERS.health,
                 loc
         ));

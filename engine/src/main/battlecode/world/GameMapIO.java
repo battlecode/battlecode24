@@ -347,10 +347,10 @@ public final strictfp class GameMapIO {
                 if (teamsReversed) {
                     bodyTeam = bodyTeam.opponent();
                 }
-                if (bodyType == RobotType.HEADQUARTERS) {
-                    Inventory headquarterInventory = new Inventory();
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, headquarterInventory, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
-                }
+                // if (bodyType == RobotType.HEADQUARTERS) {
+                //   //  Inventory headquarterInventory = new Inventory();
+                //     initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
+                // }
                 // ignore robots that are not headquarters, TODO throw error?
             }
         }

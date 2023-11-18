@@ -29,6 +29,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int roundsAlive;
     private int actionCooldownTurns;
     private int movementCooldownTurns;
+    private int spawnCooldownTurns;
 
     private Flag flag;
 
@@ -163,7 +164,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type 
-                && cachedRobotInfo.getResourceAmount() == this.getResource()
+       //         && cachedRobotInfo.getResourceAmount() == this.getResource()
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
@@ -297,6 +298,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
 
+
+    //TODO: update deprecated action/movement cooldown calculations
     private int getBaseMovementCooldown() {
         if (this.getType() == RobotType.CARRIER) {
             int cooldownAmount = (int)(Math.floor((GameConstants.CARRIER_MOVEMENT_SLOPE*this.inventory.getWeight()))) + GameConstants.CARRIER_MOVEMENT_INTERCEPT;
