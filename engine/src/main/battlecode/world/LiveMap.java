@@ -45,11 +45,6 @@ public strictfp class LiveMap {
      * Whether each square is water.
      */
     private boolean[] waterArray;
-    
-    /**
-     * Whether each square is a flag (0 for no flag, 1 for team A, 2 for team B)
-     */
-    private int[] flagArray;
 
     /**
      * Whether each square is a dam.
@@ -59,7 +54,7 @@ public strictfp class LiveMap {
     /**
      * Whether each square is a spawn zone.
      */
-    private int[] spawnZoneArray;
+    private MapLocation[] spawnZones;
 
     /**
      * Direction ID of current on each square.
@@ -126,8 +121,6 @@ public strictfp class LiveMap {
         this.islandArray = new int[numSquares];
         this.resourceArray = new int[numSquares];
         this.damArray = new boolean[numSquares];
-        this.flagArray = new int[numSquares];
-
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
