@@ -91,11 +91,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getIslandCount() {
-        return this.gameWorld.getAllIslands().length;
-    }
-
-    @Override
     public int getRobotCount() {
         return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -282,29 +277,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanSenseLocation(loc);
         return this.gameWorld.isPassable(loc);
     }
-    
-    @Override
-    public int senseIsland(MapLocation loc) throws GameActionException {
-        assertCanSenseLocation(loc);
-        Island island = this.gameWorld.getIsland(loc);
-        return island == null ? -1 : island.ID;
-    }
-
-    @Override
-    public int[] senseNearbyIslands() {
-        Island[] allSensedIslands = gameWorld.getAllIslandsWithinVision(this.robot, getType().visionRadiusSquared);
-        Set<Integer> islandIdsSet = new HashSet<>();
-        for(int i = 0; i < allSensedIslands.length; i++) {
-            islandIdsSet.add(allSensedIslands[i].ID);
-        }
-        int[] islandIds = new int[islandIdsSet.size()];
-        int i = 0;
-        for (Integer id : islandIdsSet) {
-            islandIds[i] = id;
-            i++;
-        }
-        return islandIds;
-    }
 
     @Override
     public MapLocation[] senseNearbyIslandLocations(int idx) throws GameActionException {
@@ -315,72 +287,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation[] senseNearbyIslandLocations(int radiusSquared, int idx) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
         return senseNearbyIslandLocations(getLocation(), radiusSquared, idx);
-    }
-
-    @Override
-    public MapLocation[] senseNearbyIslandLocations(MapLocation center, int radiusSquared, int idx) throws GameActionException {
-        assertNotNull(center);
-        assertRadiusNonNegative(radiusSquared);
-
-        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
-
-        Island island = gameWorld.getIsland(idx);
-        if (island == null) {
-            throw new GameActionException(CANT_SENSE_THAT, "Not a valid island id");
-        }
-
-        ArrayList<MapLocation> islandLocs = new ArrayList<>();
-        for(MapLocation loc : island.locations) {
-            if (canSenseLocation(loc) && center.distanceSquaredTo(loc) <= actualRadiusSquared) {
-                islandLocs.add(loc);
-            }
-        }
-        return islandLocs.toArray(new MapLocation[islandLocs.size()]);
-    }
-
-    private boolean canSenseIsland(Island island) {
-        return Arrays.stream(island.locations).anyMatch(loc -> canSenseLocation(loc));
-    }
-
-    @Override
-    public Team senseTeamOccupyingIsland(int islandIdx) throws GameActionException {
-        Island island = gameWorld.getIsland(islandIdx);
-        if (island == null || !canSenseIsland(island)) {
-            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
-        }
-
-        return island.teamOwning;
-    }
-
-    @Override
-    public int senseAnchorPlantedHealth(int islandIdx) throws GameActionException {
-        Island island = gameWorld.getIsland(islandIdx);
-        if (island == null || !canSenseIsland(island)) {
-            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
-        }
-        return island.anchorHealth;
-    }
-
-    @Override
-    public Anchor senseAnchor(int islandIdx) throws GameActionException {
-        Island island = gameWorld.getIsland(islandIdx);
-        if (island == null || !canSenseIsland(island)) {
-            throw new GameActionException(CANT_SENSE_THAT, "Cannot sense an island with that id");
-        }
-        return island.anchorPlanted;
-    }
-
-    @Override
-    public boolean senseCloud(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        int visionRadius = this.getType().visionRadiusSquared;
-        if (this.gameWorld.getCloud(this.getLocation())) {
-            visionRadius = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
-        }
-        if (this.getLocation().distanceSquaredTo(loc) > visionRadius) {
-            throw new GameActionException(CANT_DO_THAT, "This location cannot be sensed");
-        }
-        return this.gameWorld.getCloud(loc);
     }
 
     @Override
@@ -525,6 +431,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
+        // TODO update this method
         // MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
         return null;
     }
@@ -658,18 +565,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         robot.addFlag(tempflag);
     }
 
-    private void assertCanSpawn(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanSpawn
-    }
-
-    @Override
-    public boolean canSpawn(MapLocation loc) {
-        try {
-            assertCanSpawn(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
     private void assertCanHeal(MapLocation loc) throws GameActionException {
         // TODO implement assertCanHeal
     }
@@ -792,7 +687,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    private boolean isSpawned() {
+    public boolean isSpawned() {
         try {
             assertIsSpawned();
             return true;

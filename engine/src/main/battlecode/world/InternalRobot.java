@@ -296,22 +296,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location, this.team);
         setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
     }
-
-    private int getBaseMovementCooldown() {
-        if (this.getType() == RobotType.CARRIER) {
-            int cooldownAmount = (int)(Math.floor((GameConstants.CARRIER_MOVEMENT_SLOPE*this.inventory.getWeight()))) + GameConstants.CARRIER_MOVEMENT_INTERCEPT;
-            return cooldownAmount;
-        } else {
-            return this.getType().movementCooldown;
-        }
-    }
     
     /**
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        int newMovementCooldownTurns = this.gameWorld.getCooldownWithMultiplier(getBaseMovementCooldown(), this.location, this.team);
-        setMovementCooldownTurns(this.movementCooldownTurns + newMovementCooldownTurns);
+        setMovementCooldownTurns(this.movementCooldownTurns + this.gameWorld.getMovementCooldown(team));
     }
 
     /**
