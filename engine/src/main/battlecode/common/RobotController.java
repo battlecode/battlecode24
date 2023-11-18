@@ -79,6 +79,60 @@ public strictfp interface RobotController {
     int getID();
 
     /**
+     * Returns the build experience points of this robot.
+     *
+     * @return the build experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getBuildExp();
+
+    /**
+     * Returns the heal experience points of this robot.
+     *
+     * @return the heal experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealExp();
+
+    /**
+     * Returns the attack experience points of this robot.
+     *
+     * @return the attack experience of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackExp();
+
+    /**
+     * Returns the build experience points of this robot.
+     *
+     * @return the build level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getBuildLevel();
+
+    /**
+     * Returns the heal experience points of this robot.
+     *
+     * @return the heal level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealLevel();
+
+    /**
+     * Returns the attack experience points of this robot.
+     *
+     * @return the attack level of this robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackLevel();
+
+    /**
      * Returns this robot's Team.
      *
      * @return this robot's Team
