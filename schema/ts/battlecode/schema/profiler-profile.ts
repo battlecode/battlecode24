@@ -11,7 +11,7 @@ import { ProfilerEvent } from '../../battlecode/schema/profiler-event';
 export class ProfilerProfile {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerProfile {
+  __init(i:number, bb:flatbuffers.ByteBuffer):ProfilerProfile {
   this.bb_pos = i;
   this.bb = bb;
   return this;

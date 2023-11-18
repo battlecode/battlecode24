@@ -3,10 +3,13 @@
   "version": "2022.0.0",
   "private": "true",
   "description": "flatbuffers parser for battlecode match files",
-  "main": "ts/index.ts",
+  "main": "js/index.js",
+  "types": "ts/index.ts",
   "scripts": {
     "test": "true",
-    "build": "flatc --ts -o ts battlecode.fbs && flatc --java -o java battlecode.fbs"
+    "build-and-distribute": "npm run build && npm run copy-to-engine && cd ../client2 && npm run fix-schema",
+    "copy-to-engine": "rm -R ../engine/src/main/battlecode/schema/ && mkdir ../engine/src/main/battlecode/schema && cp java/battlecode/schema/* ../engine/src/main/battlecode/schema/",
+    "build": "flatc --ts --ts-no-import-ext -o ts battlecode.fbs && flatc --java -o java battlecode.fbs"
   },
   "repository": {
     "type": "git",
@@ -22,7 +25,7 @@
   },
   "homepage": "https://github.com/battlecode/battlecode-schema#readme",
   "dependencies": {
-    "flatbuffers": "^1.11.0",
-    "@types/flatbuffers": "^1.9.1"
+    "@types/flatbuffers": "^1.10.2",
+    "flatbuffers": "^23.5.26"
   }
 }

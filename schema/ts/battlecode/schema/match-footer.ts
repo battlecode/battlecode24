@@ -11,7 +11,7 @@ import { ProfilerFile } from '../../battlecode/schema/profiler-file';
 export class MatchFooter {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):MatchFooter {
+  __init(i:number, bb:flatbuffers.ByteBuffer):MatchFooter {
   this.bb_pos = i;
   this.bb = bb;
   return this;

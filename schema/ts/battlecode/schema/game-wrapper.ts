@@ -16,7 +16,7 @@ import { EventWrapper } from '../../battlecode/schema/event-wrapper';
 export class GameWrapper {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):GameWrapper {
+  __init(i:number, bb:flatbuffers.ByteBuffer):GameWrapper {
   this.bb_pos = i;
   this.bb = bb;
   return this;
