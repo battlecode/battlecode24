@@ -615,7 +615,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(trap);
         assertCanActLocation(loc);
         assertIsActionReady();
-        if (getResourceAmount() < trap.buildCost){
+        if (this.gameWorld.getTeamInfo().getBread(getTeam()) < trap.buildCost){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
         }
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
@@ -654,7 +654,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (this.robot.getResourceAmount() < GameConstants.FILL_COST)
+        if (this.gameWorld.getTeamInfo().getBread(getTeam()) < GameConstants.FILL_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
     }
 

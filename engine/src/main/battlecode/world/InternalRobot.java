@@ -120,10 +120,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return healExp;
         if(skill == SkillType.ATTACK)
             return attackExp;
+        return -1;
     }
 
     public int getLevel(SkillType skill){
-        exp = this.getExp(skill);
+        int exp = this.getExp(skill);
         for(int i = 0; i < 5; i++){
             if (exp < skill.getExperience(i+1)){
                 return i;
@@ -419,14 +420,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null || bot.getTeam() == this.getTeam()) {
             // If robot is null or of your team, no damage; otherwise do damage
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, -locationToInt(loc) - 1);
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.ATTACK, -locationToInt(loc) - 1);
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
             if(this.getLevel(SkillType.BUILD) < 4 && this.getLevel(SkillType.HEAL) < 4){
                 this.attackExp += 1;
             }
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.LAUNCH_ATTACK, bot.getID());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
     }
 
@@ -443,14 +444,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         InternalRobot bot = this.gameWorld.getRobot(loc);
         if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth() == bot.type.health) {
             // If robot is null, not of your team, or is of full health, do not heal; otherwise heal
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, -locationToInt(loc) - 1);
+            this.getGameWorld().getMatchMaker().addAction(getID(), Action.HEAL, -locationToInt(loc) - 1);
         } else {
             int healAmt = getHeal();
             bot.addHealth(healAmt);
             if(this.getLevel(SkillType.BUILD) < 4 && this.getLevel(SkillType.ATTACK) < 4){
                 this.healExp += 1;
             }
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL, bot.getID());
         }
     }
 
