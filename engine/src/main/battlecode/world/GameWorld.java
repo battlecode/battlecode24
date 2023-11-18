@@ -420,8 +420,8 @@ public strictfp class GameWorld {
     // ****** TRAP METHODS **************
     // ***********************************
     
-    public TrapType getTrapType(MapLocation loc) {
-        return this.trapLocations[locationToIndex(loc)].getType();
+    public Trap getTrap(MapLocation loc) {
+        return this.trapLocations[locationToIndex(loc)];
     }
 
     public boolean hasTrap(MapLocation loc){

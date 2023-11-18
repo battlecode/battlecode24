@@ -439,8 +439,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         //TODO need to check team of trap at location so that you can't sense enemy traps
 
+        Trap trap = gw.getTrap(loc);
+        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
         MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
-            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), gw.getTrapType(loc));
+            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
 
         return currentLocInfo;
 
