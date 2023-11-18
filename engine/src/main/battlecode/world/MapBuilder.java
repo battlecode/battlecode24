@@ -372,6 +372,8 @@ public class MapBuilder {
             int team = this.spawnZoneArray[i];
 
             // if the square is actually a spawn zone
+
+            //TODO need to include dam in reachability check
             if (isTeamNumber(team)) {
                 boolean bad = floodFillMap(indexToLocation(i),
                     (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),

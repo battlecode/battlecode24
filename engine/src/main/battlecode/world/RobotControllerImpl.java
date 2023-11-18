@@ -531,6 +531,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
 
+        //TODO need to check team of trap at location so that you can't sense enemy traps
+
         MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
             gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), gw.getTrapType(loc));
 
