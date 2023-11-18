@@ -13,13 +13,15 @@ public class Flag {
 
     private MapLocation broadcastLoc;
 
-    private boolean pickedUp;
+    private InternalRobot carryingRobot;
+
+    private int droppedRounds;
 
     public Flag(Team team, MapLocation startLoc){
         this.team = team;
         this.startLoc = startLoc;
+        loc = startLoc;
         broadcastLoc = startLoc;
-        pickedUp = false;
     }
 
     public Team getTeam() {
@@ -30,7 +32,7 @@ public class Flag {
         return loc;
     }
 
-    public void setLoc(MapLocation startLoc){
+    public void setLoc(MapLocation loc){
         this.loc = loc;
     }
 
@@ -51,11 +53,26 @@ public class Flag {
     }
 
     public boolean isPickedUp(){
-        return pickedUp;
+        return carryingRobot != null;
     }
 
-    public void setPickedUp(boolean pickedUp) {
-        this.pickedUp = pickedUp;
+    public void pickUp(InternalRobot robot) {
+        carryingRobot = robot;
+        droppedRounds = 0;
+        loc = carryingRobot.getLocation();
+    }
+
+    public void drop() {
+        carryingRobot = null;
+        droppedRounds = 0;
+    }
+
+    public int getDroppedRounds() {
+        return droppedRounds;
+    }
+
+    public void incrementDroppedRounds() {
+        droppedRounds += 1;
     }
 
 }

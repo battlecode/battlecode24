@@ -52,9 +52,15 @@ public class GameConstants {
     /** The maximum percentage of the map that can be wells of a certain type. */
     public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
 
+    /** The minimum distance between ally flags in the initial map and at the end of the seutp phase */
+    public static final int MIN_FLAG_SPACING_SQUARED = 36;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
+
+    /** The number of flags a player starts with. */
+    public static final int NUMBER_FLAGS = 3;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
@@ -68,19 +74,16 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of mana each team starts with in each headquarter. */
-    public static final int INITIAL_MN_AMOUNT = 200;
+    /** The total number of robots a team has (both despawned or spawned). */
+    public static final int ROBOT_CAPACITY = 50;
 
-    /** The initial amount of adamantium each team starts with in each headquarter. */
-    public static final int INITIAL_AD_AMOUNT = 200;
+    /** The initial amount of bread each team starts with. */
+    public static final int INITIAL_BREAD_AMOUNT = 200;
 
-    /** The amount of adamantium each headquarter on a team gains per turn. */
-    public static final int PASSIVE_AD_INCREASE = 6;
+    /** The amount of bread each team gains per turn. */
+    public static final int PASSIVE_BREAD_INCREASE = 6;
 
-    /** The amount of mana each headquarter on a team gains per turn. */
-    public static final int PASSIVE_MN_INCREASE = 6;
-
-    /** The number of rounds between adding resources to headquarters. */
+    /** The number of rounds between adding resources to teams. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
     /** The amount of adamantium or mana needed to upgrade a well to elixir */
@@ -120,6 +123,8 @@ public class GameConstants {
     /** The number of cooldown turns reduced per turn. */
     public static final int COOLDOWNS_PER_TURN = 10;
 
+    public static final int VISION_RADIUS = 20;
+
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
@@ -155,6 +160,12 @@ public class GameConstants {
     public static final int MAX_DESTABILIZE_STACKS = 2;
     public static final int MAX_ANCHOR_STACKS = 1;
 
+    /** Constants for dig and fill costs and cooldowns. */
+    public static final int DIG_COST = 2;
+    public static final int DIG_COOLDOWN = 20;
+    public static final int FILL_COST = 1;
+    public static final int FILL_COOLDOWN = 20;
+
     /** Constants for well rates. */
     public static final int WELL_STANDARD_RATE = 1;
     public static final int WELL_ACCELERATED_RATE = 3;
@@ -162,6 +173,7 @@ public class GameConstants {
     /** Constants for flags */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+    public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -172,4 +184,7 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    /** The end of the setup rounds in the game */
+    public static final int SETUP_ROUNDS = 200;
 }

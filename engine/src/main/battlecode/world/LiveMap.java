@@ -42,6 +42,21 @@ public strictfp class LiveMap {
     private final boolean[] cloudArray;
 
     /**
+     * Whether each square is water.
+     */
+    private boolean[] waterArray;
+
+    /**
+     * Whether each square is a dam.
+     */
+    private boolean[] damArray;
+
+    /**
+     * Whether each square is a spawn zone.
+     */
+    private MapLocation[] spawnZones;
+
+    /**
      * Direction ID of current on each square.
      */
     private int[] currentArray;
@@ -95,11 +110,17 @@ public strictfp class LiveMap {
         this.mapName = mapName;
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.wallArray = new boolean[width * height];
-        this.cloudArray = new boolean[width * height];
-        this.currentArray = new int[width * height];
-        this.islandArray = new int[width * height];
-        this.resourceArray = new int[width * height];
+
+        int numSquares = width * height;
+
+        this.wallArray = new boolean[numSquares];
+        this.cloudArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.spawnZoneArray = new int[numSquares];
+        this.currentArray = new int[numSquares];
+        this.islandArray = new int[numSquares];
+        this.resourceArray = new int[numSquares];
+        this.damArray = new boolean[numSquares];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -331,6 +352,39 @@ public strictfp class LiveMap {
         return cloudArray;
     }
 
+    public boolean[] getWaterArray() {
+        return waterArray;
+    }
+
+    public int[] getFlagArray() {
+        return flagArray;
+    }
+
+    /**
+     * Returns the array indicating where the spawn zones are.
+     * In this array: 0 = not spawn zone, 1 = Team A spawn zone, 2 = Team B spawn zone
+     * 
+     * @return the array of spawn zones
+     */
+    public int[] getSpawnZoneArray() {
+        return spawnZoneArray;
+    }
+
+    public boolean getWater(MapLocation loc) {
+        return waterArray[locationToIndex(loc)];
+    }
+
+    public void setWater(MapLocation loc) {
+        waterArray[locationToIndex(loc)] = true;
+    }
+
+    public boolean[] getDamArray(){
+        return damArray;
+    }
+    public void setLand(MapLocation loc) {
+        waterArray[locationToIndex(loc)] = false;
+    }
+
     /**
      * @return the current array of the map
      */
@@ -351,6 +405,25 @@ public strictfp class LiveMap {
      */
     public int[] getResourceArray() {
         return resourceArray;
+    }
+
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - getOrigin().x + (loc.y - getOrigin().y) * getWidth();
+    }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx % getWidth() + getOrigin().x,
+                               idx / getWidth() + getOrigin().y);
     }
 
     @Override
@@ -375,6 +448,7 @@ public strictfp class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
+                    ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
                     ", cloudArray=" + Arrays.toString(cloudArray) +
                     ", currentArray=" + Arrays.toString(currentArray) +
