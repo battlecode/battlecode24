@@ -539,6 +539,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation nextLoc = adjacentLocation(dir);
         Team[] allSpawnZones = {null, Team.A, Team.B};
         this.robot.setLocation(nextLoc);
+
+        int amtBread = this.gameWorld.getBreadAmount(nextLoc);
+        if(amtBread != 0) this.robot.addResourceAmount(amtBread);
+        this.gameWorld.removeBread(nextLoc);
         this.robot.addMovementCooldownTurns();
 
         if (this.robot.hasFlag() && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
