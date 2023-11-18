@@ -129,6 +129,8 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
+    public static final int ROBOT_HEALTH = 50;
+
     /** The number of game rounds between applying movement due to currents */
     public static final int CURRENT_STRENGTH = 1;
 

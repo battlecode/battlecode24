@@ -29,6 +29,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int roundsAlive;
     private int actionCooldownTurns;
     private int movementCooldownTurns;
+    private int spawnCooldownTurns;
 
     private Flag flag;
 
@@ -54,7 +55,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.ID = id;
         this.team = team;
         this.location = null;
-        this.health = GameConstants.DEFAULT_HEALTH;
+        this.health = GameConstants.ROBOT_HEALTH;
         this.spawned = false;
 
         this.controlBits = 0;
@@ -163,7 +164,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.type == type 
-                && cachedRobotInfo.getResourceAmount() == this.getResource()
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
@@ -181,7 +181,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Returns whether the robot can spawn, based on cooldowns.
      */
     public boolean canSpawnCooldown() {
-        return this.spawnCooldownTurns < GameConstants.SPAWN_LIMIT;
+        return this.spawnCooldownTurns < GameConstants.COOLDOWN_LIMIT;
     }
 
     /**

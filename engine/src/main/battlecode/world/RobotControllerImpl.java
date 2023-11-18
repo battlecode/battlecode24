@@ -40,7 +40,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     
     /**
      * Create a new RobotControllerImpl
-     *
+     * 
      * @param gameWorld the relevant world
      * @param robot the relevant robot
      */
@@ -127,27 +127,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int getHealth() {
         return this.robot.getHealth();
-    }
-
-    @Override
-    public int getResourceAmount(ResourceType rType) {
-        return this.robot.getResource(rType);  
-    }
-
-    @Override
-    public Anchor getAnchor() throws GameActionException {
-        if (this.getType() != RobotType.CARRIER) {
-            throw new GameActionException(CANT_DO_THAT, "getAnchor can only be called with carrier, use getNumAnchors for headquarters");
-        }
-        return this.robot.getTypeAnchor();  
-    }
-
-    @Override
-    public int getNumAnchors(Anchor anchor) {
-        if (anchor == null) {
-            return this.robot.getNumAnchors(Anchor.STANDARD) + this.robot.getNumAnchors(Anchor.ACCELERATING);
-        }
-        return this.robot.getNumAnchors(anchor);  
     }
 
     @Override
@@ -546,8 +525,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             int oldestDestabilize = gameWorld.getOldestDestabilize(loc, team);
             turnsLeft[team.ordinal()][DESTABILIZE_INDEX] = oldestDestabilize == -1 ? -1 : oldestDestabilize - getRoundNum();
         }
-        MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
-        return currentLocInfo;
+        // MapInfo currentLocInfo = new MapInfo(loc, gameWorld.getCloud(loc), !gameWorld.getWall(loc), cooldownMultipliers, gameWorld.getCurrent(loc), numActiveElements, turnsLeft);
+        return null;
     }
 
     @Override

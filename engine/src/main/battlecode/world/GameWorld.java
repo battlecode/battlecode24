@@ -674,107 +674,6 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return whether a team has more sky islands captured
-     */
-    public boolean setWinnerIfMoreSkyIslands() {
-        int skyIslandCountA = 0;
-        int skyIslandCountB = 0;
-        for(Island island : islandIdToIsland.values()) {
-            if (island == null) {
-                continue;
-            }
-            if(island.teamOwning == Team.A) skyIslandCountA++;
-            else if(island.teamOwning == Team.B) skyIslandCountB++;
-        }
-
-        if (skyIslandCountA > skyIslandCountB) {
-            setWinner(Team.A, DominationFactor.MORE_SKY_ISLANDS);
-            return true;
-        } else if (skyIslandCountA < skyIslandCountB) {
-            setWinner(Team.B, DominationFactor.MORE_SKY_ISLANDS);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a team has more reality anchors placed
-     */
-    public boolean setWinnerIfMoreRealityAnchors() {
-        int realityAnchorCountA = teamInfo.getAnchorsPlaced(Team.A);
-        int realityAnchorCountB = teamInfo.getAnchorsPlaced(Team.B);
-        
-        if (realityAnchorCountA > realityAnchorCountB) {
-            setWinner(Team.A, DominationFactor.MORE_REALITY_ANCHORS);
-            return true;
-        } else if (realityAnchorCountA < realityAnchorCountB) {
-            setWinner(Team.B, DominationFactor.MORE_REALITY_ANCHORS);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a team has a greater net elixir value
-     */
-    public boolean setWinnerIfMoreElixirValue() {
-        int[] totalElixirValues = new int[2];
-
-        // consider team reserves
-        totalElixirValues[Team.A.ordinal()] += this.teamInfo.getElixir(Team.A);
-        totalElixirValues[Team.B.ordinal()] += this.teamInfo.getElixir(Team.B);
-        
-        if (totalElixirValues[Team.A.ordinal()] > totalElixirValues[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.MORE_ELIXIR_NET_WORTH);
-            return true;
-        } else if (totalElixirValues[Team.B.ordinal()] > totalElixirValues[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.MORE_ELIXIR_NET_WORTH);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a team has a greater net mana value
-     */
-    public boolean setWinnerIfMoreManaValue() {
-        int[] totalManaValues = new int[2];
-
-        // consider team reserves
-        totalManaValues[Team.A.ordinal()] += this.teamInfo.getMana(Team.A);
-        totalManaValues[Team.B.ordinal()] += this.teamInfo.getMana(Team.B);
-        
-        if (totalManaValues[Team.A.ordinal()] > totalManaValues[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.MORE_MANA_NET_WORTH);
-            return true;
-        } else if (totalManaValues[Team.B.ordinal()] > totalManaValues[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.MORE_MANA_NET_WORTH);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a team has a greater net adamantium value
-     */
-    public boolean setWinnerIfMoreAdamantiumValue() {
-        int[] totalAdamantiumValues = new int[2];
-
-        // consider team reserves
-        totalAdamantiumValues[Team.A.ordinal()] += this.teamInfo.getAdamantium(Team.A);
-        totalAdamantiumValues[Team.B.ordinal()] += this.teamInfo.getAdamantium(Team.B);
-        
-        if (totalAdamantiumValues[Team.A.ordinal()] > totalAdamantiumValues[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
-            return true;
-        } else if (totalAdamantiumValues[Team.B.ordinal()] > totalAdamantiumValues[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.MORE_ADAMANTIUM_NET_WORTH);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Sets a winner arbitrarily. Hopefully this is actually random.
      */
     public void setWinnerArbitrary() {
@@ -783,22 +682,6 @@ public strictfp class GameWorld {
 
     public boolean timeLimitReached() {
         return currentRound >= this.gameMap.getRounds();
-    }
-
-    /**
-     * Checks end of match and then decides winner based on tiebreak conditions
-     */
-    public void checkEndOfMatch() {
-        if (timeLimitReached() && gameStats.getWinner() == null) {
-
-            if (setWinnerIfMoreSkyIslands())      return;
-            if (setWinnerIfMoreRealityAnchors())  return;
-            if (setWinnerIfMoreElixirValue())     return;
-            if (setWinnerIfMoreManaValue())       return;
-            if (setWinnerIfMoreAdamantiumValue()) return;
-
-            setWinnerArbitrary();
-        }
     }
 
     public void processEndOfRound() {
