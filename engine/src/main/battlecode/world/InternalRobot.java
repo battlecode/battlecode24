@@ -119,10 +119,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return healExp;
         if(skill == SkillType.ATTACK)
             return attackExp;
+        return 0;
     }
 
     public int getLevel(SkillType skill){
-        exp = this.getExp(skill);
+        int exp = this.getExp(skill);
         for(int i = 0; i < 5; i++){
             if (exp < skill.getExperience(i+1)){
                 return i;
@@ -389,6 +390,18 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         else this.healExp -= SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
     }
 
+    /**
+     * increment exp for a robot
+     */
+    public void incrementSkill(SkillType skill){
+        if(skill == SkillType.BUILD)
+            this.buildExp ++;
+        if(skill == SkillType.HEAL)
+            this.healExp ++;
+        if(skill == SkillType.ATTACK)
+            this.attackExp ++;
+    }
+
     // *********************************
     // ****** ACTION METHODS *********
     // *********************************
@@ -441,67 +454,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
 
-    private int getHeal() {
+    public int getHeal() {
         return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
     }
-    /**
-     * Heals unit at another location.
-     * 
-     * @param loc the location of the bot
-     */
-    public void heal(MapLocation loc){
-        InternalRobot bot = this.gameWorld.getRobot(loc);
-        if (bot == null || bot.getTeam() != this.getTeam() || bot.getHealth() == bot.type.health) {
-            // If robot is null, not of your team, or is of full health, do not heal; otherwise heal
-            this.getGameWorld().getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, -locationToInt(loc) - 1);
-        } else {
-            int healAmt = getHeal();
-            bot.addHealth(healAmt);
-            if(this.getLevel(SkillType.BUILD) < 4 && this.getLevel(SkillType.ATTACK) < 4){
-                this.healExp += 1;
-            }
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
-        }
-    }
 
-    /**
-     * Builds trap at location.
-     * 
-     * @param building the type of trap
-     * @param loc the location for the trap
-     */
-    public void aquaform(TrapType building, MapLocation loc){
-            if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
-                this.buildExp += 1;
-            }
-            // TO DO
-            // this.addResourceAmount(ResourceType.BREAD, -building.buildCost)
-            // this.gameWorld.getMatchMaker().addTrap(getID(), building, loc);
-    }
 
-    /**
-     * Fills location with land
-     */
-    public void fill(MapLocation loc){
-        if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
-            this.buildExp += 1;
-        }
-        // TO DO
-        // this.addResourceAmount(ResourceType.BREAD, -1)
-        // this.gameWorld.getMatchMaker().removeWater(getID(), building, loc);
-    }
-
-    /**
-     * Digs and creates water at location
-     */
-    public void dig(MapLocation loc){
-        if(this.getLevel(SkillType.HEAL) < 4 && this.getLevel(SkillType.ATTACK) < 4){
-            this.buildExp += 1;
-        }
-        // TO DO
-        // this.addResourceAmount(resourceType.BREAD, -2)
-        // this.gameWorld.getMatchMaker().addWater(getID(), loc);
-    }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********
