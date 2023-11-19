@@ -435,7 +435,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanHeal(MapLocation loc) throws GameActionException {
-        // TODO implement assertCanHeal
+        assertNotNull(loc);
+        assertCanActLocation(loc);
+        if(this.gameWorld.getRobot(loc) == null) {
+            throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
+        }
+        if(this.gameWorld.getRobot(loc).getTeam() != this.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "The robot at this location is the other team.");
+        }
+        if(this.gameWorld.getRobot(loc).getHealth() == GameConstants.DEFAULT_HEALTH) {
+            throw new GameActionException(CANT_DO_THAT, "The robot at this location is at full health.");
+        }
     }
 
     @Override
@@ -446,6 +456,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    /**
+     * Heals unit at another location.
+     * 
+     * @param loc the location of the bot
+     */
+    public void heal(MapLocation loc) throws GameActionException{
+        assertCanHeal(loc);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        int healAmt = this.robot.getHeal();
+        bot.addHealth(healAmt);
+        if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
+            this.robot.incrementSkill(SkillType.HEAL);
+        }
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
+    }
+
     // ***********************************
     // ****** BUILDING METHODS ********
     // ***********************************
@@ -454,7 +480,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(trap);
         assertCanActLocation(loc);
         assertIsActionReady();
-        if (this.gameWorld.getTeamInfo().getBread(getTeam()) < trap.buildCost){
+        if (this.robot.getResourceAmount() < trap.buildCost){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
         }
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
@@ -484,9 +510,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.placeTrap(loc, toPlace);
         //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
         this.robot.addResourceAmount(-1*(trap.buildCost));
-        //TODO: implement cooldown multiplier based on skill level
-        this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-COOLDOWNMULTIPLIER));
+        this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
+
+        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
+            this.robot.incrementSkill(SkillType.BUILD);
+        }
     }
+
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
         assertCanActLocation(loc);
@@ -508,10 +538,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
-        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN));
+        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN)*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
         this.gameWorld.setLand(loc);
+
+        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
+            this.robot.incrementSkill(SkillType.BUILD);
+        }
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
@@ -540,10 +574,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void dig(MapLocation loc){
         assertCanDig(loc);
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, DIG_INDEX);
         this.gameWorld.setWater(loc);
+        
+        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
+            this.robot.incrementSkill(SkillType.BUILD);
+        }
+
     }
 
     // ***********************************
@@ -749,6 +788,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return true;
         } catch (GameActionException e) { return false; }
     }
+    
 
     @Override
     public void dropFlag(MapLocation loc) throws GameActionException{

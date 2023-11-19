@@ -625,7 +625,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    void heal(MapLocation loc);
+    void heal(MapLocation loc) throws GameActionException;
 
 
     // ***************************

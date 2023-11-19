@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.GameConstants;
+import battlecode.common.GlobalUpgrade;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 import battlecode.common.SkillType;
@@ -22,6 +23,8 @@ public class TeamInfo {
     private int[] totalFlagsCaptured;
 
     private int[] oldBreadCounts;
+    private boolean[][] globalUpgrades;
+    private int[] globalUpgradePoints;
 
     /**
      * Create a new representation of TeamInfo
@@ -36,6 +39,8 @@ public class TeamInfo {
         this.oldBreadCounts = new int[2];
         this.tierThree = new int[2];
         this.tierTwo = new int[2];
+        this.globalUpgrades = new boolean[2][4];
+        this.globalUpgradePoints = new int[2];
     }
     
     // *********************************
@@ -72,9 +77,99 @@ public class TeamInfo {
         return this.sharedArrays[team.ordinal()][index];
     }
 
+    /**
+     * return copy of global upgrades array
+     * 
+     * @param team the team to query
+     * @return the boolean array of upgrades
+     * */
+    public boolean[] getGlobalUpgrades(Team team) {
+        return this.globalUpgrades[team.ordinal()].clone();
+    }
+
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
+
+    /**
+     * Increase the number of global upgrade points
+     * @param team to query
+     */
+    public void incrementGlobalUpgradePoints(Team team){
+        this.globalUpgradePoints[team.ordinal()] ++;
+    }
+
+    /**
+     * Select a global upgrade to make
+     * @param team
+     * @param upgrade
+     * @return if upgrade successful
+     */
+    public boolean makeGlobalUpgrade(Team team, GlobalUpgrade upgrade){
+        if(this.globalUpgradePoints[team.ordinal()] > 0){
+            if (upgrade == GlobalUpgrade.ACTION && !this.globalUpgrades[team.ordinal()][0]) {
+                this.globalUpgrades[team.ordinal()][0] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.CAPTURING && !this.globalUpgrades[team.ordinal()][1]) {
+                this.globalUpgrades[team.ordinal()][1] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.HEALING && !this.globalUpgrades[team.ordinal()][2]) {
+                this.globalUpgrades[team.ordinal()][2] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.SPEED && !this.globalUpgrades[team.ordinal()][3]) {
+                this.globalUpgrades[team.ordinal()][3] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Increase the number of global upgrade points
+     * @param team to query
+     */
+    public void incrementGlobalUpgradePoints(Team team){
+        this.globalUpgradePoints[team.ordinal()] ++;
+    }
+
+    /**
+     * Select a global upgrade to make
+     * @param team
+     * @param upgrade
+     * @return if upgrade successful
+     */
+    public boolean makeGlobalUpgrade(Team team, GlobalUpgrade upgrade){
+        if(this.globalUpgradePoints[team.ordinal()] > 0){
+            if (upgrade == GlobalUpgrade.ACTION && !this.globalUpgrades[team.ordinal()][0]) {
+                this.globalUpgrades[team.ordinal()][0] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.CAPTURING && !this.globalUpgrades[team.ordinal()][1]) {
+                this.globalUpgrades[team.ordinal()][1] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.HEALING && !this.globalUpgrades[team.ordinal()][2]) {
+                this.globalUpgrades[team.ordinal()][2] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+            if (upgrade == GlobalUpgrade.SPEED && !this.globalUpgrades[team.ordinal()][3]) {
+                this.globalUpgrades[team.ordinal()][3] = true;
+                this.globalUpgradePoints[team.ordinal()] --;
+                return true;
+            }
+        }
+        return false;
+    }
 
     
     /**
