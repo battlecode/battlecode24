@@ -418,8 +418,8 @@ public strictfp class GameWorld {
     // ****** TRAP METHODS **************
     // ***********************************
     
-    public TrapType getTrapType(MapLocation loc) {
-        return this.trapLocations[locationToIndex(loc)].getType();
+    public Trap getTrap(MapLocation loc) {
+        return this.trapLocations[locationToIndex(loc)];
     }
 
     public boolean hasTrap(MapLocation loc){
@@ -650,6 +650,10 @@ public strictfp class GameWorld {
      */
     public int getCooldownWithMultiplier(int cooldown, MapLocation location, Team team) {
         return (int) Math.round(cooldown*cooldownMultipliers[locationToIndex(location)][team.ordinal()]);
+    }
+
+    public int getMovementCooldown(Team team) {
+        //TODO return correct movement cooldown based on global upgrades
     }
 
     // *********************************
@@ -1143,9 +1147,6 @@ public strictfp class GameWorld {
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
-        for (ResourceType rType : ResourceType.values()) {
-            robot.addResourceAmount(rType, -1*robot.getResource(rType));
-        }
         matchMaker.addDied(id);
     }
 

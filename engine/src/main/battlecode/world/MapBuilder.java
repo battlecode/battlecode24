@@ -72,31 +72,6 @@ public class MapBuilder {
         return loc.x + loc.y * width;
     }
 
-    public void addHeadquarter(int id, Team team, MapLocation loc) {
-        // check if something already exists here, if so shout
-        for (RobotInfo r : bodies) {
-            if (r.location.equals(loc)) {
-                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
-            }
-        }
-        bodies.add(new RobotInfo(
-                id,
-                team,
-                RobotType.HEADQUARTERS,
-                new Inventory(),
-                RobotType.HEADQUARTERS.health,
-                loc
-        ));
-    }
-
-    public void addHeadquarter(int x, int y, Team team) {
-        addHeadquarter(
-                idCounter++,
-                team,
-                new MapLocation(x, y)
-        );
-    }
-
     public void setWall(int x, int y, boolean value) {
         this.wallArray[locationToIndex(x, y)] = value;
     }
@@ -161,16 +136,6 @@ public class MapBuilder {
 
     public MapLocation symmetryLocation(MapLocation p) {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
-    }
-
-    /**
-     * Add team A Headquarters to (x,y) and team B Headquarters to symmetric position.
-     * @param x x position
-     * @param y y position
-     */
-    public void addSymmetricHeadquarter(int x, int y) {
-        addHeadquarter(x, y, Team.A);
-        addHeadquarter(symmetricX(x), symmetricY(y), Team.B);
     }
 
     public void setSymmetricWalls(int x, int y, boolean value) {

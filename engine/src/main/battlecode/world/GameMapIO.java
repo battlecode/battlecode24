@@ -242,8 +242,6 @@ public final strictfp class GameMapIO {
             }
 
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
-            SpawnedBodyTable bodyTable = raw.bodies();
-            initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies, teamsReversed);
 
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
@@ -335,24 +333,5 @@ public final strictfp class GameMapIO {
         // *** HELPER METHODS *********
         // ****************************
 
-        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies, boolean teamsReversed) {
-            VecTable locs = bodyTable.locs();
-            for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
-                // all initial bodies should be headquarters
-                RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
-                int bodyID = bodyTable.robotIDs(i);
-                int bodyX = locs.xs(i);
-                int bodyY = locs.ys(i);
-                Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-                if (teamsReversed) {
-                    bodyTeam = bodyTeam.opponent();
-                }
-                if (bodyType == RobotType.HEADQUARTERS) {
-                    Inventory headquarterInventory = new Inventory();
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, headquarterInventory, RobotType.HEADQUARTERS.health, new MapLocation(bodyX, bodyY)));
-                }
-                // ignore robots that are not headquarters, TODO throw error?
-            }
-        }
     }
 }

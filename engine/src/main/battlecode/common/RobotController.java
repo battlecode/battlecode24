@@ -505,6 +505,13 @@ public strictfp interface RobotController {
     boolean canSpawn(MapLocation loc);
 
     /**
+     * Checks if the robot is currently spawned
+     * 
+     * @return whether the robot is spawned
+     */
+    boolean isSpawned();
+
+    /**
      * Spawns the robot at the given location. If spawning is not possible
      * at this location, throws an error.
      * 
