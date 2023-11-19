@@ -79,15 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type.
-     * 
-     * @return this robot's type
-     *
-     * @battlecode.doc.costlymethod
-     */
-    RobotType getType();
-
-    /**
      * Returns the robot's current experience in the specified skill.
      * 
      * @param skill the skill that we want to get the robot's experience in
@@ -122,9 +113,9 @@ public strictfp interface RobotController {
     int getHealth();
 
     /**
-     * Returns the amount of bread that this robot is holding.
+     * Returns the amount of bread that this robot's team has.
      *
-     * @return the amount of bread this robot is holding
+     * @return the amount of bread this robot's team has.
      *
      * @battlecode.doc.costlymethod
      */
@@ -360,6 +351,28 @@ public strictfp interface RobotController {
     MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
+     * Returns the location of all nearby flags that are visible to the robot. 
+     * If radiusSquared is greater than the robot's vision radius, use the 
+     * robot's vision radius instead.
+     * 
+     * @param center the center of the search area (robot's current position)
+     * @param radiusSquared squared radius of all locations to be returned
+     * @return all locations containing flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
+
+    /**
+     * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
+     * 
+     * @returns all location ranges containing invisible flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    MapLocation[] senseBroadcastFlagLocations();
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
@@ -471,27 +484,6 @@ public strictfp interface RobotController {
     void move(Direction dir) throws GameActionException;
 
     // ***********************************
-    // ****** BUILDING/SPAWNING **********
-    // ***********************************
-
-    /**
-     * Tests whether the robot can build a robot of the given type in the
-     * given location. Checks that the robot is of a type that can build,
-     * that the robot can build the desired type, that the target location is
-     * on the map, that the target location is not occupied, that the robot has
-     * the amount of resources it's trying to spend, and that there are no
-     * cooldown turns remaining.
-     *
-     * @param type the type of robot to build
-     * @param loc the location to spawn the robot
-     * @return whether it is possible to build a robot of the given type in the
-     * given direction
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canBuildRobot(RobotType type, MapLocation loc);
-
-    // ***********************************
     // *********** SPAWNING **************
     // ***********************************
 
@@ -517,7 +509,7 @@ public strictfp interface RobotController {
      * 
      * @param loc the location to spawn the robot
      */
-    void spawn(MapLocation loc);
+    void spawn(MapLocation loc) throws GameActionException;
 
     // ***********************************
     // *********** BUILDING **************
@@ -584,18 +576,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void build(TrapType building, MapLocation loc) throws GameActionException;;
-
-    /**
-     * Builds a robot of the given type in the given location.
-     *
-     * @param type the type of robot to build
-     * @param loc the location to spawn the unit
-     * @throws GameActionException if the conditions of <code>canBuildRobot</code>
-     * are not all satisfied
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void buildRobot(RobotType type, MapLocation loc) throws GameActionException;
 
     // ****************************
     // ***** ATTACK METHODS ***** 

@@ -505,6 +505,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         } catch (GameActionException e) { return false; }
     }
 
+    @Override
+    public void fill(MapLocation loc) throws GameActionException{
+        assertCanFill(loc);
+        this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN));
+        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
+        this.gameWorld.setLand(loc);
+    }
+
     private void assertCanDig(MapLocation loc) throws GameActionException {
         assertCanActLocation(loc);
         assertIsActionReady();
@@ -526,6 +535,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
             assertCanDig(loc);
             return true;
         } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void dig(MapLocation loc){
+        assertCanDig(loc);
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
+        this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
+        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, DIG_INDEX);
+        this.gameWorld.setWater(loc);
     }
 
     // ***********************************
@@ -790,9 +808,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanWriteSharedArray(int index, int value) throws GameActionException{
         assertValidIndex(index);
         assertValidValue(value);
-        if (!this.gameWorld.inRangeForAmplification(this.robot)) {
-            throw new GameActionException(CANT_DO_THAT, "You cannot write to the shared array");
-        }
     }
 
     @Override
