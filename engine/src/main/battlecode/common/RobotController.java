@@ -497,13 +497,6 @@ public strictfp interface RobotController {
     boolean canSpawn(MapLocation loc);
 
     /**
-     * Checks if the robot is currently spawned
-     * 
-     * @return whether the robot is spawned
-     */
-    boolean isSpawned();
-
-    /**
      * Spawns the robot at the given location. If spawning is not possible
      * at this location, throws an error.
      * 
@@ -697,9 +690,11 @@ public strictfp interface RobotController {
     /**
      * Checks if a team can write to their array of shared information.
      * 
+     * @param index the index in the team's shared array, 0-indexed
+     * @param value the value to set that index to
      * @battlecode.doc.costlymethod 
      */
-    void canWriteSharedArray();
+    boolean canWriteSharedArray(int index, int value);
 
     /** 
      * Sets the team's array value at a specified index. 

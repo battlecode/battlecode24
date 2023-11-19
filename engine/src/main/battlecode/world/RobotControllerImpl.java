@@ -118,7 +118,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
     @Override
     public int getBreadAmount() {
-        return this.gameWorld.getTeamInfo().getBread(this.team);
+        return this.gameWorld.getTeamInfo().getBread(getTeam());
     }
 
     private InternalRobot getRobotByID(int id) {
@@ -244,7 +244,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
@@ -272,7 +272,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
         List<MapLocation> validSensedFlagLocs = new ArrayList<>();
         Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
         for (Flag flag : allFlagsInRadius) {
@@ -336,7 +336,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
         MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapInfo> validSensedMapInfo = new ArrayList<>();
         for (MapLocation mapLoc : allSensedLocs) {
@@ -359,7 +359,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? getType().visionRadiusSquared : Math.min(radiusSquared, getType().visionRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
         MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
@@ -368,71 +368,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** MAP LOCATION METHODS *******
     // ***********************************
-
-    private void assertCanDropFlag(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanActLocation(loc);
-        if (!robot.hasFlag())
-            throw new GameActionException(CANT_DO_THAT, 
-                "This robot is not holding a flag.");
-        
-        if(!this.gameWorld.isPassable(loc))
-            throw new GameActionException(CANT_DO_THAT, 
-                    "A flag can't be placed at this location.");
-
-        if(this.gameWorld.isSetupPhase()) {
-            Flag[] flags = this.gameWorld.getAllFlagsWithinRadiusSquared(loc, GameConstants.MIN_FLAG_SPACING_SQUARED);
-            for (Flag flag : flags) {
-                if(flag.getTeam() == this.robot.getTeam()) 
-                    throw new GameActionException(CANT_DO_THAT, 
-                            "Flag placement is too close to another flag.");
-            }
-        }
-        // TODO decide whether flags can be placed on traps, and if so create the code for the check
-    }
-
-    @Override
-    public boolean canDropFlag(MapLocation loc) {
-        try {
-            assertCanDropFlag(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-
-    @Override
-    public void dropFlag(MapLocation loc) throws GameActionException{
-        assertCanDropFlag(loc);
-        this.gameWorld.addFlag(loc, robot.getFlag());
-        robot.removeFlag();
-    }
-
-    private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanActLocation(loc);
-        if(robot.hasFlag()) {
-            throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
-        }
-        if(this.gameWorld.getFlags(loc) == null) {
-            throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
-        }
-    }
-
-    @Override
-    public boolean canPickupFlag(MapLocation loc) {
-        try {
-            assertCanPickupFlag(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public void pickupFlag(MapLocation loc) throws GameActionException {
-        assertCanPickupFlag(loc);
-        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
-        this.gameWorld.removeFlag(loc, tempflag);
-        robot.addFlag(tempflag);
-    }
 
     private void assertCanHeal(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
@@ -480,14 +415,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(trap);
         assertCanActLocation(loc);
         assertIsActionReady();
-        if (this.robot.getResourceAmount() < trap.buildCost){
+        if (getBreadAmount() < trap.buildCost){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
         }
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
         }
-        if (trap == TrapType.NONE)
-            throw new GameActionException(CANT_DO_THAT, "Cannot build a trap of type 'none'");
         //TODO: can this be used to check for enemy traps??
         //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
         if (this.gameWorld.hasTrap(loc)){
@@ -528,7 +461,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (this.gameWorld.getTeamInfo().getBread(getTeam()) < GameConstants.FILL_COST)
+        if (getBreadAmount() < GameConstants.FILL_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
     }
 
@@ -563,7 +496,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (this.gameWorld.getTeamInfo().getBread(getTeam()) < GameConstants.DIG_COST)
+        if (getBreadAmount() < GameConstants.DIG_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
@@ -659,8 +592,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertIsMovementReady();
         MapLocation loc = adjacentLocation(dir);
-        if (this.getType() == RobotType.HEADQUARTERS)
-            throw new GameActionException(CANT_DO_THAT, "Headquarters can't move");
         if (!onTheMap(loc))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only move to locations on the map; " + loc + " is not on the map.");
@@ -713,10 +644,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not ready to be spawned.");
 
-        // TODO: Implement spawn locations
-        if (!this.gameWorld.isSpawnLocation(loc))
+        if (this.gameWorld.getSpawnZone(loc) != getTeam().ordinal())
             throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot spawn in a non-spawn location; " + loc + " is not a spawn location");
+                    "Cannot spawn in a non-spawn location; " + loc + " is not a spawn location for your team");
 
         if (isLocationOccupied(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
@@ -766,7 +696,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
-        this.robot.addActionCooldownTurns(getType().actionCooldown);
+        this.robot.addActionCooldownTurns(GameConstants.ATTACK_COOLDOWN);
         this.robot.attack(loc);
     }
 

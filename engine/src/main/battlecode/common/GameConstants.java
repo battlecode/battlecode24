@@ -81,7 +81,8 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    public static final int ROBOT_HEALTH = 50;
+    /** Constants for attacking. */
+    public static final int ATTACK_COOLDOWN = 20;
 
     /** Constants for dig and fill costs and cooldowns. */
     public static final int DIG_COST = 2;
