@@ -118,7 +118,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
     @Override
     public int getBreadAmount() {
-        return this.robot.getResourceAmount();
+        return this.gameWorld.getTeamInfo().getBread(this.team);
     }
 
     private InternalRobot getRobotByID(int id) {
@@ -469,7 +469,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.HEAL);
         }
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, bot.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL, bot.getID());
     }
 
     // ***********************************
@@ -486,7 +486,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
         }
-        //can this be used to check for enemy traps??
+        if (trap == TrapType.NONE)
+            throw new GameActionException(CANT_DO_THAT, "Cannot build a trap of type 'none'");
+        //TODO: can this be used to check for enemy traps??
+        //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
         if (this.gameWorld.hasTrap(loc)){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
         }
@@ -508,7 +511,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuild(trap, loc);
         Trap toPlace = new Trap(loc, trap, this.getTeam());
         this.gameWorld.placeTrap(loc, toPlace);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD_TRAP, trapIndex)
+        //TODO: figure out action ids to pass to schema
+        //also build action doesn't exist
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD, -1);
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
 
@@ -540,7 +545,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanFill(loc);
         this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN)*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, FILL_INDEX);
+        //action id
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, -1);
         this.gameWorld.setLand(loc);
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -574,11 +580,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void dig(MapLocation loc){
         assertCanDig(loc);
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
+        //TODO: add conversion to percentage + rounding  to cooldowns
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
-        //this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, DIG_INDEX);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, -1);
         this.gameWorld.setWater(loc);
-        
+
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
         }
