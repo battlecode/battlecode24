@@ -25,7 +25,7 @@ export default class Bodies {
     ) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
 
-        // Don't think we can have initial bodies this year so no need to verify
+        // We have initial bodies this year, but we don't know how spawn zones work quite yet
         /*
         if (mapToVerify) {
             for (let i = 0; i < mapToVerify.width * mapToVerify.height; i++) {
@@ -86,7 +86,6 @@ export default class Bodies {
 
         const diedIds = delta.diedIdsArray() ?? assert.fail('diedIdsArray not found in round')
 
-        /*
         if (delta.diedIdsLength() > 0) {
             for (let i = 0; i < delta.diedIdsLength(); i++) {
                 const diedBody =
@@ -94,19 +93,16 @@ export default class Bodies {
                 if (!turn.stat.completed) {
                     const teamStat =
                         turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
-                    teamStat.robots[diedBody.type] -= 1
-                    teamStat.total_hp[diedBody.type] -= diedBody.hp
+                    teamStat.robots -= 1
+                    teamStat.total_hp -= diedBody.hp
                 }
                 assert(this.bodies.delete(diedBody.id))
             }
         }
-		*/
     }
 
     private insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
-        /*var teams = bodies.teamIdsArray() ?? assert.fail('Initial body teams not found in header')
-        var types = bodies.typesArray() ?? assert.fail('Initial body types not found in header')
-
+        const teams = bodies.teamIdsArray() ?? assert.fail('Initial body teams not found in header')
         const locs = bodies.locs() ?? assert.fail('Initial body locations not found in header')
         const xsArray = locs.xsArray() ?? assert.fail('Initial body x locations not found in header')
         const ysArray = locs.ysArray() ?? assert.fail('Initial body y locations not found in header')
@@ -115,8 +111,8 @@ export default class Bodies {
         for (let i = 0; i < bodies.robotIdsLength(); i++) {
             const id = idsArray[i]
             const bodyClass =
-                BODY_DEFINITIONS[types[i]] ?? assert.fail(`Body type ${types[i]} not found in BODY_DEFINITIONS`)
-            const health = this.game.playable ? this.game.typeMetadata[types[i]].health() : 1
+                BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
+            const health = this.game.playable ? 1 : 1 // TODO: I can't find health constant
 
             this.bodies.set(
                 id,
@@ -126,10 +122,10 @@ export default class Bodies {
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots[types[i]] += 1
-                teamStat.total_hp[types[i]] += health
+                teamStat.robots += 1
+                teamStat.total_hp += health
             }
-        }*/
+        }
     }
 
     getById(id: number): Body {
@@ -284,87 +280,41 @@ export class Body {
     }
 }
 
-export const BODY_DEFINITIONS: Record<number, typeof Body> = {}
-/*export const BODY_DEFINITIONS: Record<number, typeof Body> = {
-    [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
-        public robotName = 'Headquarters'
-        public actionRadius = 8
-        public visionRadius = 34
-        public type = schema.BodyType.HEADQUARTERS
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_headquarters_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.LAUNCHER]: class Launcher extends Body {
-        public robotName = 'Launcher'
-        public actionRadius = 16
-        public visionRadius = 20
-        public type = schema.BodyType.LAUNCHER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_launcher_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.CARRIER]: class Carrier extends Body {
-        public robotName = 'Carrier'
-        public actionRadius = 9
-        public visionRadius = 20
-        public type = schema.BodyType.CARRIER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_carrier_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.BOOSTER]: class Booster extends Body {
-        public robotName = 'Booster'
-        public actionRadius = 0
-        public visionRadius = 20
-        public type = schema.BodyType.BOOSTER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_booster_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
-        public robotName = 'Destabilizer'
-        public actionRadius = 13
-        public visionRadius = 20
-        public type = schema.BodyType.DESTABILIZER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
-        public robotName = 'Amplifier'
-        public actionRadius = 0
-        public visionRadius = 34
-        public type = schema.BodyType.AMPLIFIER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_amplifier_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    }
-}*/
+export const BODY_DEFINITIONS: Record<number, typeof Body> = {
+
+
+	// For future games, this dictionary translate schema values of robot
+	// types to their respective class, such as this:
+	// 
+	// [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
+	// 	public robotName = 'Headquarters'
+	// 	public actionRadius = 8
+	// 	public visionRadius = 34
+	// 	public type = schema.BodyType.HEADQUARTERS
+	// 	constructor(pos: Vector, hp: number, team: Team, id: number) {
+	// 		super(pos, hp, team, id)
+	// 		this.imgPath = `robots/${team.color}_headquarters_smaller.png`
+	//	}
+	//	onHoverInfo(): string[] {
+	// 		return super.onHoverInfo();
+	// 	}
+	// },
+	//
+	// This game has no types or headquarters to speak of, so there is only
+	// one type pointed to by 0:
+	
+	0: class Robot extends Body {
+		constructor(pos: Vector, hp: number, team: Team, id: number) {
+		    super(pos, hp, team, id)
+
+		    // TODO: Make this point to robot ducks or alligator
+		    // depending on color
+		    this.imgPath = `robots/${team.color}_robot.png`
+		}
+
+	}
+	
+}
 
 export class ArchonBrush extends MapEditorBrush {
     public readonly name = 'Archons'

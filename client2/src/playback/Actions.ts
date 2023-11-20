@@ -64,16 +64,96 @@ export class Action {
     }
 }
 
-export const ACTION_DEFINITIONS: Record<number, typeof Action> = { }
-
-/*
 export const ACTION_DEFINITIONS: Record<number, typeof Action> = { 
-
     [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
         apply(turn: Turn): void {
             console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`)
         }
     },
+    [schema.Action.HEAL]: class Heal extends Action {
+        apply(turn: Turn): void {
+            const body = turn.bodies.getById(this.robotID)
+            //if (!turn.stat.completed) turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target
+            //body.hp += this.target
+			
+			// Implementation Questions: 
+			// How much do you heal by?
+        }
+    },
+    [schema.Action.DIG]: class Dig extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.FILL]: class Fill extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.EXPLOSIVE_TRAP]: class ExplosiveTrap extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.WATER_TRAP]: class WaterTrap extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.STUN_TRAP]: class StunTrap extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.PICKUP_FLAG]: class PickupFlag extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.DROP_FLAG]: class DropFlag extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    },
+    [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {
+        apply(turn: Turn): void {
+			// To dicuss
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+export const ACTION_DEFINITIONS: Record<number, typeof Action> = { 
     [schema.Action.CHANGE_HEALTH]: class ChangeHealth extends Action {
         apply(turn: Turn): void {
             const body = turn.bodies.getById(this.robotID)
