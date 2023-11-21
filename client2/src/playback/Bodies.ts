@@ -13,6 +13,7 @@ import {
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { TOOLTIP_PATH_LENGTH } from '../constants'
+import Match from './Match'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -48,6 +49,7 @@ export default class Bodies {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
+            assert(!body?.dead, `Moved body ${id} is dead`)
             assert.equal(allowNullBodies || !!body, true, `Moved body ${id} not found in bodies`)
 
             if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
@@ -57,10 +59,13 @@ export default class Bodies {
     /**
      * Applies a delta to the bodies array. Because of update order, bodies will first
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
-     * Afterwards, diedBodies will be deleted, so any methods which reference bodies should
-     * most likely be inside scopedCallback()
      */
-    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null, scopedCallback: () => void): void {
+    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null): void {
+        // remove all that are dead
+        for (const body of this.bodies.values()) {
+            if (body.dead) this.bodies.delete(body.id)
+        }
+
         const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
 
@@ -75,11 +80,9 @@ export default class Bodies {
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
             for (const body of this.bodies) {
-                body[1].addToPrevSquares();
+                body[1].addToPrevSquares()
             }
         }
-
-        scopedCallback()
 
         const diedIds = delta.diedIDsArray() ?? assert.fail('diedIDsArray not found in round')
         if (delta.diedIDsLength() > 0) {
@@ -92,7 +95,7 @@ export default class Bodies {
                     teamStat.robots[diedBody.type] -= 1
                     teamStat.total_hp[diedBody.type] -= diedBody.hp
                 }
-                assert(this.bodies.delete(diedBody.id))
+                diedBody.dead = true
             }
         }
     }
@@ -131,16 +134,7 @@ export default class Bodies {
     }
 
     hasId(id: number): boolean {
-        return this.bodies.has(id);
-    }
-
-    getByLocation(x: number, y: number): Body | undefined {
-        for (const body of this.bodies.values()) {
-            if (body.pos.x == x && body.pos.y == y) {
-                return body
-            }
-        }
-        return undefined
+        return this.bodies.has(id)
     }
 
     copy(): Bodies {
@@ -151,9 +145,9 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
+    draw(match: Match, ctx: CanvasRenderingContext2D): void {
         for (const body of this.bodies.values()) {
-            body.draw(mapDimension, interpFactor, ctx)
+            body.draw(match, ctx)
         }
     }
 
@@ -162,12 +156,15 @@ export default class Bodies {
     }
 
     getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
-        let found_body: Body | undefined = undefined
-        this.bodies.forEach((body, id) => {
-            if (type && body.type !== type) return
-            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) found_body = body
-        })
-        return found_body
+        let found_dead_body: Body | undefined = undefined
+        for (const body of this.bodies.values()) {
+            if (type && body.type !== type) continue
+            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) {
+                if (body.dead) found_dead_body = body
+                else return body
+            }
+        }
+        return found_dead_body
     }
 
     isEmpty(): boolean {
@@ -214,13 +211,14 @@ export default class Bodies {
 }
 
 export class Body {
-    public robotName: string = ""
+    public robotName: string = ''
     public actionRadius: number = 0
     public visionRadius: number = 0
     public type: schema.BodyType = 0 //this is dumb, maybe should figure out how to make this an abstract field
     protected imgPath: string = ''
     public nextPos: Vector
     public prevSquares: Vector[]
+    public dead: boolean = false
     constructor(
         public pos: Vector,
         public hp: number,
@@ -230,37 +228,35 @@ export class Body {
         public elixir: number = 0,
         public mana: number = 0,
         public anchor: number = 0,
-        public bytecodesUsed: number = 0,
+        public bytecodesUsed: number = 0
     ) {
         this.nextPos = this.pos
         this.prevSquares = [this.pos]
     }
 
-    public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
+    public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
+        if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, mapDimension),
+            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, match.currentTurn.map.staticMap.dimension),
             1
         )
+        ctx.globalAlpha = 1
     }
 
     public getInterpolatedCoords(turn: Turn): Vector {
-        return renderUtils.getInterpolatedCoords(
-            this.pos,
-            this.nextPos,
-            turn.match.getInterpolationFactor()
-        )
+        return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, turn.match.getInterpolationFactor())
     }
 
     public onHoverInfo(): string[] {
         return [
-            this.robotName,
+            (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
-            `Bytecodes Used: ${this.bytecodesUsed}`,
-        ];
+            `Bytecodes Used: ${this.bytecodesUsed}`
+        ]
     }
 
     public copy(): Body {
@@ -269,15 +265,14 @@ export class Body {
     }
 
     public moveTo(pos: Vector): void {
-
         this.pos = this.nextPos
         this.nextPos = pos
     }
 
     public addToPrevSquares(): void {
-        this.prevSquares.push(this.pos);
+        this.prevSquares.push(this.pos)
         if (this.prevSquares.length > TOOLTIP_PATH_LENGTH) {
-            this.prevSquares.splice(0, 1);
+            this.prevSquares.splice(0, 1)
         }
     }
 
@@ -300,7 +295,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_headquarters_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     },
     [schema.BodyType.LAUNCHER]: class Launcher extends Body {
@@ -313,7 +308,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_launcher_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     },
     [schema.BodyType.CARRIER]: class Carrier extends Body {
@@ -326,7 +321,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_carrier_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     },
     [schema.BodyType.BOOSTER]: class Booster extends Body {
@@ -339,7 +334,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_booster_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     },
     [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
@@ -352,7 +347,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     },
     [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
@@ -365,7 +360,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             this.imgPath = `robots/${team.color}_amplifier_smaller.png`
         }
         onHoverInfo(): string[] {
-            return super.onHoverInfo();
+            return super.onHoverInfo()
         }
     }
 }
@@ -383,7 +378,10 @@ export class ArchonBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
+    constructor(
+        private readonly bodies: Bodies,
+        private readonly map: StaticMap
+    ) {
         super()
     }
 

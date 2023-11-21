@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
-interface DataPoint {
-    round: number
+export interface DataPoint {
+    turn: number
     blue: number
     red: number
 }
@@ -36,12 +36,12 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
 
         const xScale = d3
             .scaleLinear()
-            .domain([0, d3.max(data, (d) => d.round)!])
+            .domain([1, d3.max(data, (d) => d.turn)!])
             .range([margin.left, width - margin.right])
 
         const yScale = d3
             .scaleLinear()
-            .domain([0, d3.max(data, (d) => Math.max(d.red, d.blue))!])
+            .domain([1, d3.max(data, (d) => Math.max(d.red, d.blue))!])
             .range([height - margin.bottom, margin.top])
 
         // This function returns a function that draws a SVG line between every
@@ -50,7 +50,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
         const lineGenerator = (dScaleFunc: (dataPoint: DataPoint) => any) => {
             return d3
                 .line<DataPoint>()
-                .x((d) => xScale(d.round))
+                .x((d) => xScale(d.turn))
                 .y(dScaleFunc)
                 .curve(d3.curveMonotoneX)
         }
@@ -96,17 +96,17 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
                 return
             }
 
-            const sortedData = data.map((d) => d.round)
-            const maxRound = d3.max(data, (d) => d.round)!
+            const sortedData = data.map((d) => d.turn)
+            const maxTurn = d3.max(data, (d) => d.turn)!
             const i = d3.bisectCenter(
                 sortedData,
-                ((d3.pointer(event)[0] - margin.left) / (width - margin.left - margin.right)) * maxRound
+                ((d3.pointer(event)[0] - margin.left) / (width - margin.left - margin.right)) * maxTurn
             )
 
             tooltip.style('display', null)
             tooltip.attr(
                 'transform',
-                `translate(${xScale(data[i].round)},${yScale(Math.max(data[i].blue, data[i].red))})`
+                `translate(${xScale(data[i].turn)},${yScale(Math.max(data[i].blue, data[i].red))})`
             )
 
             const path = tooltip.selectAll('path').data([,]).join('path').attr('fill', 'white').attr('stroke', 'black')
@@ -118,7 +118,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
                 .call((text) =>
                     text
                         .selectAll('tspan')
-                        .data(['Round: ' + data[i].round, 'Blue: ' + data[i].blue, 'Red: ' + data[i].red])
+                        .data(['Turn: ' + data[i].turn, 'Blue: ' + data[i].blue, 'Red: ' + data[i].red])
                         .join('tspan')
                         .attr('x', 0)
                         .attr('y', (_, i) => `${i * 1.1}em`)
@@ -139,7 +139,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
             }
 
             // Snap tooltip line to data point
-            const dataPointX = (data[i].round / maxRound) * (width - margin.right - margin.left) + margin.left
+            const dataPointX = xScale(data[i].turn)
             tooltipLine
                 .attr('x1', dataPointX)
                 .attr('y1', margin.top)
