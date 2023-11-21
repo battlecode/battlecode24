@@ -34,7 +34,7 @@ export const QueuedGame: React.FC<Props> = (props) => {
     }
 
     return (
-        <div className="relative mr-auto rounded-md bg-gray-100 border-gray-500 border mb-4 p-3 w-full shadow-md">
+        <div className="relative mr-auto rounded-md bg-lightCard border-gray-500 border mb-4 p-3 w-full shadow-md">
             <div className="text-xs whitespace mb-2">
                 <span className="font-bold text-team0">{props.game.teams[0].name}</span>
                 <span className="mx-1.5">vs</span>
@@ -44,16 +44,17 @@ export const QueuedGame: React.FC<Props> = (props) => {
                 <p
                     key={i}
                     className={
-                        'leading-4 rounded-sm border-gray-500 border my-1.5 py-1 px-2 bg-light hover:bg-lightHighlight cursor-pointer ' +
+                        'leading-4 rounded-sm border-gray-500 border my-1.5 py-1 px-2 ' +
+                        'bg-light hover:bg-lightHighlight cursor-pointer ' +
                         (context.state.activeMatch === match ? 'bg-medHighlight hover:bg-medHighlight' : '')
                     }
                     onClick={() => setMatch(match)}
                 >
-                    <span className="text-xxs">{match.map.name}</span>
+                    <span className="text-xxs font-bold">{match.map.name}</span>
                     {!isTournamentMode && (
                         <span className="text-xxs leading-tight">
                             <span className="mx-1">-</span>
-                            <span className={`text-team${match.winner.id - 1}`}>{match.winner.name}</span>
+                            <span className={`font-bold text-team${match.winner.id - 1}`}>{match.winner.name}</span>
                             <span>{` wins after ${match.maxTurn} rounds`}</span>
                         </span>
                     )}
