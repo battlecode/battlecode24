@@ -44,6 +44,7 @@ module.exports = {
                 light: '#faf9fe',
                 lightHighlight: '#eeeeee',
                 medHighlight: '#d0d0d0',
+                lightCard: '#f7f7f7',
 
                 team0: '#D53E43',
                 team1: '#407496'

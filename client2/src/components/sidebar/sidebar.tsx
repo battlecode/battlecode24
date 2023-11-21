@@ -139,11 +139,11 @@ export const Sidebar: React.FC = () => {
                     </div>
                     {open && (
                         <>
-                            <div className="flex flex-row flex-wrap justify-between">
+                            <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div
-                                        className={"w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-gray-200 border-b-2 " + 
-                                            (page == sidebarButton.page ? "border-gray-800" : "border-gray-300")}
+                                        className={"w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 " + 
+                                            (page == sidebarButton.page ? "border-gray-800" : "border-gray-200")}
                                         onClick={() => setPage(sidebarButton.page)}
                                     >
                                         {sidebarButton.name}
