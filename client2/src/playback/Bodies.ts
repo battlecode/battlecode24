@@ -112,7 +112,7 @@ export default class Bodies {
             const id = idsArray[i]
             const bodyClass =
                 BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
-            const health = this.game.playable ? 1 : 1 // TODO: I can't find health constant
+            const health = this.game.playable ? this.game.constants.robotBaseHealth() : 1 
 
             this.bodies.set(
                 id,

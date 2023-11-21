@@ -14,7 +14,7 @@ export default class Game {
 
     // Metadata
     private readonly specVersion: string
-    private readonly constants: schema.Constants
+    public readonly constants: schema.Constants
     public readonly specializationMetadata: schema.SpecializationMetadata[] = []
     public readonly buildActionMetadata: schema.BuildActionMetadata[] = []
     public readonly globalUpgradeMetadata: schema.GlobalUpgradeMetadata[] = []
