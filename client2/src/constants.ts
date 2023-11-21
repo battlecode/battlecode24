@@ -14,6 +14,7 @@ export const DIRECTIONS: Record<number, Array<number>> = {
     8: [-1, 1]
 }
 
+export const SERVER_MAPS: string[] = []
 /*
  * Color constants (defined in tailwind.config.js as well)
  */
