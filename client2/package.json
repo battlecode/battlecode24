@@ -9,10 +9,13 @@
         "watch": "set NODE_ENV=development && webpack serve --config webpack.config.js --mode development --env dev",
         "prod-watch": "set NODE_ENV=production && webpack serve --config webpack.config.js --mode production",
         "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production",
+        "build-dev": "set NODE_ENV=development && webpack build --config webpack.config.js --mode development --env dev",
         "tauri": "tauri",
+        "clean": "rimraf dist",
         "electron-watch": "concurrently --kill-others \"npm run watch\" \"wait-on http://localhost:3000 && electron .\"",
         "electron-pack": "electron-builder build --publish never",
-        "electron-build": "npm run build && npm run electron-pack"
+        "electron-build": "npm run build-dev && npm run electron-pack",
+        "electron-build-prod": "npm run build && npm run electron-pack"
     },
     "build": {
         "appId": "battlecode-client",
@@ -29,9 +32,19 @@
             "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
             "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
             "!**/{appveyor.yml,.travis.yml,circle.yml}",
-            "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+            "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+            "icons/*"
         ],
-        "includeSubNodeModules": true
+        "includeSubNodeModules": true,
+        "mac": {
+            "icon": "icons/icon.icns"
+        },
+        "win": {
+            "icon": "icons/icon.ico"
+        },
+        "linux": {
+            "icon": "icons/icon.png"
+        }
     },
     "repository": {
         "type": "git",
@@ -59,8 +72,8 @@
         "react-icons": "^4.8.0",
         "react-router-dom": "^6.13.0",
         "recharts": "^2.6.2"
-      },
-      "devDependencies": {
+    },
+    "devDependencies": {
         "@tauri-apps/cli": "^1.4.0",
         "@types/pako": "^2.0.0",
         "@types/react": "^18.2.5",

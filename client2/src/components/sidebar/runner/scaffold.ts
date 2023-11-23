@@ -1,71 +1,60 @@
 import { useEffect, useRef, useState } from 'react'
 import { BATTLECODE_YEAR, SERVER_MAPS } from '../../../constants'
+import { NativeProcess, nativeAPI } from './native-api-wrapper'
 
-export enum ScaffoldState {
-    Connected = 'connected',
-    NonElectron = 'non-electron',
-    Disconnected = 'disconnected'
-}
 type Scaffold = {
     maps: Set<string>
-    players: string[]
+    players: Set<string>
     runMatch: (
         teamA: string,
         teamB: string,
-        maps: string[],
+        maps: Set<string>,
         onStart: (cmd: string) => void,
         onErr: (err: Error) => void,
         onExitNoError: () => void,
         onStdout: (data: string) => void,
         onStderr: (data: string) => void
     ) => void
-    running: boolean
     killMatch: () => void
 }
 
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
-const path = process.env.ELECTRON ? window.electronAPI.path : undefined
-const fs = process.env.ELECTRON ? window.electronAPI.fs : undefined
-const child_process = process.env.ELECTRON ? window.electronAPI.child_process : undefined
 
-export function useScaffold(): [ScaffoldState, Scaffold | undefined, () => void, boolean] {
+export function useScaffold(): [Scaffold | undefined, () => void, boolean, boolean] {
     const [scaffold, setScaffold] = useState<Scaffold | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
-    const [state, setState] = useState<ScaffoldState>(ScaffoldState.NonElectron)
+    const [running, setRunning] = useState<boolean>(false)
 
-    const procs = useRef<any[]>([])
+    const procs = useRef<NativeProcess[]>([])
 
     function killProcs() {
         procs.current.forEach(function (proc) {
             proc.kill()
         })
-        setScaffold({
-            ...scaffold!,
-            running: false
-        })
+        setRunning(false)
     }
 
     async function makeScaffold(scaffoldPath: string) {
         setLoading(false)
 
-        const wrapperPath = path!.join(scaffoldPath, GRADLE_WRAPPER)
-        if (!fs!.existsSync(wrapperPath)) {
-            setState(ScaffoldState.Disconnected)
+        if (!nativeAPI) throw new Error('Native API not available')
+
+        const wrapperPath = nativeAPI.path.join(scaffoldPath, GRADLE_WRAPPER)
+        if (!nativeAPI.fs.existsSync(wrapperPath)) {
             throw new Error(`Can't find gradle wrapper: ${wrapperPath}`)
         }
 
-        const mapPath = path!.join(scaffoldPath, 'maps')
-        if (!fs!.existsSync(mapPath)) {
-            fs!.mkdirSync(mapPath)
+        const mapPath = nativeAPI.path.join(scaffoldPath, 'maps')
+        if (!nativeAPI.fs.existsSync(mapPath)) {
+            nativeAPI.fs.mkdirSync(mapPath)
         }
 
-        let sourcePath = path!.join(scaffoldPath, 'src')
-        if (!fs!.existsSync(sourcePath)) {
-            sourcePath = path!.join(scaffoldPath, 'example-bots', 'src', 'main')
+        let sourcePath = nativeAPI.path.join(scaffoldPath, 'src')
+        if (!nativeAPI.fs.existsSync(sourcePath)) {
+            sourcePath = nativeAPI.path.join(scaffoldPath, 'example-bots', 'src', 'main')
 
-            if (!fs!.existsSync(sourcePath)) {
-                setState(ScaffoldState.Disconnected)
+            if (!nativeAPI.fs.existsSync(sourcePath)) {
                 throw new Error(`Can't find source path: ${sourcePath}`)
             }
 
@@ -76,8 +65,10 @@ export function useScaffold(): [ScaffoldState, Scaffold | undefined, () => void,
                 setScaffold({
                     maps,
                     players,
-                    runMatch: (teamA, teamB, maps, onStart, onErr, onExitNoError, onStdout, onStderr) => {
+                    runMatch: (teamA, teamB, selectedMaps, onStart, onErr, onExitNoError, onStdout, onStderr) => {
                         {
+                            if (!nativeAPI) throw new Error('Native API not available')
+
                             const options = [
                                 `run`,
                                 `-x`,
@@ -85,94 +76,85 @@ export function useScaffold(): [ScaffoldState, Scaffold | undefined, () => void,
                                 `-PwaitForClient=true`,
                                 `-PteamA=${teamA}`,
                                 `-PteamB=${teamB}`,
-                                `-Pmaps=${maps.join(',')}`,
+                                `-Pmaps=${[...selectedMaps].join(',')}`,
                                 `-PvalidateMaps=false`,
                                 `-PenableProfiler=${false}`
                             ]
-                            const proc = child_process!.spawn(wrapperPath, options, { cwd: scaffoldPath })
+
+                            const proc = nativeAPI.child_process.spawn(wrapperPath, options, { cwd: scaffoldPath })
+
                             onStart(wrapperPath + ' ' + options.join('\n'))
-                            const decoder = new TextDecoder()
-                            proc.stdout.on('data', (data) => onStdout(decoder.decode(data)))
-                            proc.stderr.on('data', (data) => onStderr(decoder.decode(data)))
-                            proc.on('close', (code) => {
+                            proc.onStdout((data) => onStdout(data))
+                            proc.onStderr((data) => onStderr(data))
+                            proc.onClose((code) => {
+                                setRunning(false)
                                 if (code === 0) onExitNoError()
                                 else onErr(new Error(`Non-zero exit code: ${code}`))
                             })
-                            proc.on('error', (err) => {
+                            proc.onError((err) => {
                                 onErr(err)
                             })
-                            // proc.on('pid-message', function (event, arg) {
-                            //     console.log('Main:', arg)
-                            //     this.pids.push(arg)
-                            // })
                             procs.current.push(proc)
 
-                            setScaffold({
-                                ...scaffold!,
-                                running: true
-                            })
+                            setRunning(true)
                         }
                     },
-                    running: false,
                     killMatch: killProcs
                 })
-                setState(ScaffoldState.Connected)
             })
         }
     }
 
     async function manuallySetupScaffold() {
-        if (!process.env.ELECTRON) return
-        setState(ScaffoldState.Disconnected)
+        if (!nativeAPI) return
         setLoading(true)
 
-        const result = await window.electronAPI.openScaffoldDirectory()
-        if (!result.canceled && result.filePaths.length > 0) makeScaffold(result.filePaths[0])
+        const path = await nativeAPI.openScaffoldDirectory()
+        if (path) makeScaffold(path)
     }
 
     useEffect(() => {
-        if (!process.env.ELECTRON) return
+        if (!nativeAPI) return
 
-        window.electronAPI.onBeforeAppQuit(function () {
+        nativeAPI.onBeforeAppQuit(function () {
             if (scaffold) scaffold.killMatch()
         })
 
-        setState(ScaffoldState.Disconnected)
         const scaffoldPath = findDefaultScaffoldPath()
         if (!scaffoldPath) return
 
         makeScaffold(scaffoldPath)
     }, [])
 
-    return [state, scaffold, manuallySetupScaffold, loading]
+    return [scaffold, manuallySetupScaffold, loading, running]
 }
 
 function findDefaultScaffoldPath() {
-    if (!process.env.ELECTRON) return null
+    if (!nativeAPI) return null
 
-    const appPath = window.electronAPI.getRootPath()
-
-    console.log('app path: ' + appPath)
+    const appPath = nativeAPI.getRootPath()
 
     // npm run electron in client, if battlecode21-scaffold is located in same level as battlecode21
-    const fromDev = path!.join(
-        path!.dirname(path!.dirname(path!.dirname(appPath))),
+    const fromDev = nativeAPI.path.join(
+        nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))),
         'battlecode' + (BATTLECODE_YEAR % 100) + '-scaffold'
     )
     // scaffold/client/Battlecode Client[.exe]
-    const fromWin = path!.dirname(path!.dirname(appPath))
+    const fromWin = nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))
     // scaffold/client/resources/app.asar
-    const from3 = path!.dirname(path!.dirname(path!.dirname(appPath)))
+    const from3 = nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath)))
     // scaffold/Battlecode Client.app/Contents/Resources/app.asar
-    const fromMac = path!.dirname(path!.dirname(path!.dirname(path!.dirname(path!.dirname(appPath)))))
+    const fromMac = nativeAPI.path.dirname(
+        nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))))
+    )
 
-    if (fs!.existsSync(path!.join(fromDev, GRADLE_WRAPPER))) {
+    if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromDev, GRADLE_WRAPPER))) {
         return fromDev
-    } else if (fs!.existsSync(path!.join(from3, GRADLE_WRAPPER))) {
+    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(from3, GRADLE_WRAPPER))) {
         return from3
-    } else if (fs!.existsSync(path!.join(fromWin, GRADLE_WRAPPER))) {
+    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromWin, GRADLE_WRAPPER))) {
         return fromWin
-    } else if (fs!.existsSync(path!.join(fromMac, GRADLE_WRAPPER))) {
+    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromMac, GRADLE_WRAPPER))) {
         return fromMac
     }
     return null
@@ -181,27 +163,28 @@ function findDefaultScaffoldPath() {
 /**
  * Asynchronously get a list of available players in the scaffold.
  */
-function getPlayers(sourcePath: string): Promise<string[]> {
+function getPlayers(sourcePath: string): Promise<Set<string>> {
     return new Promise((resolve, reject) => {
-        walk(sourcePath, (err, files) => {
+        walk(sourcePath, (files, err) => {
             if (err) reject(err)
-            if (!files) resolve([])
-
+            if (!files) resolve(new Set([]))
             return resolve(
-                files!
-                    .filter(
-                        (file) =>
-                            file.endsWith(path!.sep + 'RobotPlayer.java') ||
-                            file.endsWith(path!.sep + 'RobotPlayer.kt') ||
-                            file.endsWith(path!.sep + 'RobotPlayer.scala')
-                    )
-                    .map((file) => {
-                        const relPath = path!.relative(sourcePath, file)
-                        return relPath
-                            .replace(/.RobotPlayer\.[^/.]+$/, '')
-                            .replace(new RegExp(WINDOWS ? '\\\\' : '/', 'g'), '.')
-                            .replace(new RegExp('/', 'g'), '.')
-                    })
+                new Set(
+                    files!
+                        .filter(
+                            (file) =>
+                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.java') ||
+                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.kt') ||
+                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.scala')
+                        )
+                        .map((file) => {
+                            const relPath = nativeAPI!.path.relative(sourcePath, file)
+                            return relPath
+                                .replace(/.RobotPlayer\.[^/.]+$/, '')
+                                .replace(new RegExp(WINDOWS ? '\\\\' : '/', 'g'), '.')
+                                .replace(new RegExp('/', 'g'), '.')
+                        })
+                )
             )
         })
     })
@@ -214,14 +197,12 @@ function getPlayers(sourcePath: string): Promise<string[]> {
 function getMaps(mapPath: string): Promise<Set<string>> {
     const mapExtension = '.map' + (BATTLECODE_YEAR % 100)
     return new Promise((resolve, reject) => {
-        fs!.stat(mapPath, (err: NodeJS.ErrnoException | null, stat: { isDirectory: () => any }) => {
+        nativeAPI!.fs.stat(mapPath, (stat: { isDirectory: () => any }, err?: Error) => {
             if (err != null || !stat || !stat.isDirectory()) {
                 return resolve(new Set(SERVER_MAPS))
             }
-
-            fs!.readdir(mapPath, (err: NodeJS.ErrnoException | null, files: string[] | undefined) => {
+            nativeAPI!.fs.readdir(mapPath, (files: string[] | undefined, err?: Error) => {
                 if (err) reject(err)
-
                 return resolve(
                     new Set(
                         files
@@ -235,42 +216,39 @@ function getMaps(mapPath: string): Promise<Set<string>> {
     })
 }
 
-function walk(dir: string, done: (err: Error | null, paths?: string[]) => void) {
+function walk(dir: string, done: (paths?: string[], err?: Error) => void) {
     var results = new Array<string>()
-    fs!.readdir(dir, (err: NodeJS.ErrnoException | null, list: string[]) => {
-        if (err) return done(err)
+    nativeAPI!.fs.readdir(dir, (list: string[], err?: Error) => {
+        if (err) return done([], err)
         var errored = false
         var pending = list.length
-        if (!pending) return done(null, results)
+        if (!pending) return done(results)
         list.forEach((file: string) => {
-            file = path!.resolve(dir, file)
-            fs!.stat(
-                file,
-                (err: NodeJS.ErrnoException | null, stat: { isDirectory: () => any; isSymbolicLink: () => any }) => {
-                    if (errored) return
-                    if (err) {
-                        errored = true
-                        return done(err)
-                    }
-
-                    if (stat && stat.isDirectory() && !stat.isSymbolicLink()) {
-                        walk(file, (err, res) => {
-                            if (errored) return
-                            if (err) {
-                                errored = true
-                                return done(err)
-                            }
-
-                            results = results.concat(res as string[])
-                            if (!--pending) done(null, results)
-                        })
-                    } else {
-                        if (errored) return
-                        results.push(file)
-                        if (!--pending) done(null, results)
-                    }
+            file = nativeAPI!.path.resolve(dir, file)
+            nativeAPI!.fs.stat(file, (stat: { isDirectory: () => any; isSymbolicLink: () => any }, err?: Error) => {
+                if (errored) return
+                if (err) {
+                    errored = true
+                    return done([], err)
                 }
-            )
+
+                if (stat && stat.isDirectory() && !stat.isSymbolicLink()) {
+                    walk(file, (res, err) => {
+                        if (errored) return
+                        if (err) {
+                            errored = true
+                            return done([], err)
+                        }
+
+                        results = results.concat(res as string[])
+                        if (!--pending) done(results)
+                    })
+                } else {
+                    if (errored) return
+                    results.push(file)
+                    if (!--pending) done(results)
+                }
+            })
         })
     })
 }

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { useAppContext } from '../../../app-context'
-import { useScaffold, ScaffoldState } from './scaffold'
+import { useScaffold } from './scaffold'
 import { Button } from '../../button'
+import { nativeAPI } from './native-api-wrapper'
 
 export const RunnerPage: React.FC = () => {
     const context = useAppContext()
-    const [scaffoldState, scaffold, manuallySetupScaffold, scaffoldLoading] = useScaffold()
+    const [scaffold, manuallySetupScaffold, scaffoldLoading, matchRunning] = useScaffold()
 
     const [teamA, setTeamA] = useState<string | undefined>(undefined)
     const [teamB, setTeamB] = useState<string | undefined>(undefined)
@@ -22,7 +23,7 @@ export const RunnerPage: React.FC = () => {
         scaffold.runMatch(
             teamA,
             teamB,
-            [...maps],
+            maps,
             () => {},
             () => {},
             () => {},
@@ -32,11 +33,11 @@ export const RunnerPage: React.FC = () => {
     }
 
     // if instance of non-electron scaffold, then we need to connect to the server
-    if (scaffoldState === ScaffoldState.NonElectron) return <>Run the client locally to use the runner</>
+    if (!nativeAPI) return <>Run the client locally to use the runner</>
 
     return (
         <div className={'flex flex-col ' + scaffoldLoading ? 'opacity-50 pointer-events-none' : ''}>
-            {scaffoldState === ScaffoldState.Disconnected || !scaffold ? (
+            {!scaffold ? (
                 <>
                     <Button onClick={manuallySetupScaffold}>Setup Scaffold</Button>
                 </>
@@ -51,7 +52,7 @@ export const RunnerPage: React.FC = () => {
                         onDeselect={(m) => setMaps((prev) => new Set([...prev].filter((x) => x !== m)))}
                     />
 
-                    {!scaffold.running ? (
+                    {!matchRunning ? (
                         <Button onClick={runGame}>Run Game</Button>
                     ) : (
                         <Button onClick={scaffold.killMatch}>Kill Game</Button>
