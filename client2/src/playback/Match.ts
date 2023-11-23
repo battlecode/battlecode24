@@ -57,7 +57,7 @@ export default class Match {
         turns: schema.Round[],
         footer: schema.MatchFooter
     ) {
-        const winner = game.teams[footer.winner()]
+        const winner = game.teams[footer.winner() - 1]
 
         const mapData = header.map() ?? assert.fail('Map data not found in header')
         const map = StaticMap.fromSchema(mapData)
