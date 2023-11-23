@@ -23,8 +23,6 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
     const svgRef = useRef<SVGSVGElement | null>(null)
 
     useEffect(() => {
-        if (data.length === 0) return
-
         // The topleft of this container is the origin of everything. Nothing
         // can be drawn outside this container.
         const svg = d3
@@ -86,6 +84,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
         const tooltip = svg.append('g')
 
         function pointerMoved(event: MouseEvent) {
+            if (data.length === 0) return
             if (
                 d3.pointer(event)[0] < margin.left ||
                 d3.pointer(event)[0] > width - margin.right ||
