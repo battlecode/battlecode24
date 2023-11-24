@@ -175,7 +175,7 @@ export const Console: React.FC<Props> = ({ lines }) => {
     useEffect(() => {
         if (consoleRef.current) {
             const { scrollHeight, clientHeight, scrollTop } = consoleRef.current
-            const isScrolledToBottom = scrollHeight - clientHeight <= scrollTop + 1
+            const isScrolledToBottom = scrollHeight - clientHeight <= scrollTop + 40
 
             if (isScrolledToBottom) {
                 consoleRef.current.scrollTop = consoleRef.current.scrollHeight
