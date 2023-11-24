@@ -1,254 +1,201 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BATTLECODE_YEAR, SERVER_MAPS } from '../../../constants'
-import { NativeProcess, nativeAPI } from './native-api-wrapper'
-
-type Scaffold = {
-    maps: Set<string>
-    players: Set<string>
-    runMatch: (
-        teamA: string,
-        teamB: string,
-        maps: Set<string>,
-        onStart: (cmd: string) => void,
-        onErr: (err: Error) => void,
-        onExitNoError: () => void,
-        onStdout: (data: string) => void,
-        onStderr: (data: string) => void
-    ) => void
-    killMatch: () => void
-}
+import { NativeAPI, nativeAPI } from './native-api-wrapper'
+import { ConsoleLine } from './runner'
 
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
 
-export function useScaffold(): [Scaffold | undefined, () => void, boolean, boolean] {
-    const [scaffold, setScaffold] = useState<Scaffold | undefined>(undefined)
+type Scaffold = [
+    setup: boolean,
+    availableMaps: Set<string>,
+    availablePlayers: Set<string>,
+    manuallySetupScaffold: () => Promise<void>,
+    scaffoldLoading: boolean,
+    runMatch: (teamA: string, teamB: string, selectedMaps: Set<string>) => Promise<void>,
+    killMatch: (() => Promise<void>) | undefined,
+    console: ConsoleLine[]
+]
+
+export function useScaffold(): Scaffold {
+    const [availableMaps, setAvailableMaps] = useState<Set<string>>(new Set())
+    const [availablePlayers, setAvailablePlayers] = useState<Set<string>>(new Set())
     const [loading, setLoading] = useState<boolean>(true)
-    const [running, setRunning] = useState<boolean>(false)
-
-    const procs = useRef<NativeProcess[]>([])
-
-    function killProcs() {
-        procs.current.forEach(function (proc) {
-            proc.kill()
-        })
-        setRunning(false)
-    }
-
-    async function makeScaffold(scaffoldPath: string) {
-        setLoading(false)
-
-        if (!nativeAPI) throw new Error('Native API not available')
-
-        const wrapperPath = nativeAPI.path.join(scaffoldPath, GRADLE_WRAPPER)
-        if (!nativeAPI.fs.existsSync(wrapperPath)) {
-            throw new Error(`Can't find gradle wrapper: ${wrapperPath}`)
-        }
-
-        const mapPath = nativeAPI.path.join(scaffoldPath, 'maps')
-        if (!nativeAPI.fs.existsSync(mapPath)) {
-            nativeAPI.fs.mkdirSync(mapPath)
-        }
-
-        let sourcePath = nativeAPI.path.join(scaffoldPath, 'src')
-        if (!nativeAPI.fs.existsSync(sourcePath)) {
-            sourcePath = nativeAPI.path.join(scaffoldPath, 'example-bots', 'src', 'main')
-
-            if (!nativeAPI.fs.existsSync(sourcePath)) {
-                throw new Error(`Can't find source path: ${sourcePath}`)
-            }
-
-            const players = getPlayers(sourcePath)
-            const maps = getMaps(mapPath)
-
-            Promise.all([players, maps]).then(([players, maps]) => {
-                setScaffold({
-                    maps,
-                    players,
-                    runMatch: (teamA, teamB, selectedMaps, onStart, onErr, onExitNoError, onStdout, onStderr) => {
-                        {
-                            if (!nativeAPI) throw new Error('Native API not available')
-
-                            const options = [
-                                `run`,
-                                `-x`,
-                                `unpackClient`,
-                                `-PwaitForClient=true`,
-                                `-PteamA=${teamA}`,
-                                `-PteamB=${teamB}`,
-                                `-Pmaps=${[...selectedMaps].join(',')}`,
-                                `-PvalidateMaps=false`,
-                                `-PenableProfiler=${false}`
-                            ]
-
-                            const proc = nativeAPI.child_process.spawn(wrapperPath, options, { cwd: scaffoldPath })
-
-                            onStart(wrapperPath + ' ' + options.join('\n'))
-                            proc.onStdout((data) => onStdout(data))
-                            proc.onStderr((data) => onStderr(data))
-                            proc.onClose((code) => {
-                                setRunning(false)
-                                if (code === 0) onExitNoError()
-                                else onErr(new Error(`Non-zero exit code: ${code}`))
-                            })
-                            proc.onError((err) => {
-                                onErr(err)
-                            })
-                            procs.current.push(proc)
-
-                            setRunning(true)
-                        }
-                    },
-                    killMatch: killProcs
-                })
-            })
-        }
-    }
+    const [scaffoldPath, setScaffoldPath] = useState<string | undefined>(undefined)
+    const [matchPID, setMatchPID] = useState<number | undefined>(undefined)
+    const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
+    const log = (line: ConsoleLine) =>
+        setConsoleLines((prev) => (prev.length > 10000 ? [...prev.slice(1), line] : [...prev, line]))
 
     async function manuallySetupScaffold() {
         if (!nativeAPI) return
         setLoading(true)
-
         const path = await nativeAPI.openScaffoldDirectory()
-        if (path) makeScaffold(path)
+        setLoading(false)
+        setScaffoldPath(path)
+    }
+
+    async function runMatch(teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
+        if (matchPID || !scaffoldPath) return
+        setMatchPID(await dispatchMatch(teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!))
+    }
+
+    async function killMatch(): Promise<void> {
+        if (!matchPID) return
+        await nativeAPI!.child_process.kill(matchPID)
+        setMatchPID(undefined)
     }
 
     useEffect(() => {
-        if (!nativeAPI) return
+        if (!nativeAPI) {
+            setLoading(false)
+            return
+        }
 
-        nativeAPI.onBeforeAppQuit(function () {
-            if (scaffold) scaffold.killMatch()
+        findDefaultScaffoldPath(nativeAPI).then((path) => {
+            setLoading(false)
+            setScaffoldPath(path)
         })
 
-        const scaffoldPath = findDefaultScaffoldPath()
-        if (!scaffoldPath) return
-
-        makeScaffold(scaffoldPath)
+        nativeAPI.child_process.onStdout((pid: number, data: string) => {
+            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
+            log({ content: data, type: 'output' })
+        })
+        nativeAPI.child_process.onStderr((pid: number, data: string) => {
+            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
+            log({ content: data, type: 'error' })
+        })
+        nativeAPI.child_process.onExit((pid: number, code: number) => {
+            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
+            log({ content: `Exited with code ${code}`, type: 'bold' })
+            setMatchPID(undefined)
+        })
     }, [])
 
-    return [scaffold, manuallySetupScaffold, loading, running]
+    useEffect(() => {
+        if (!nativeAPI || !scaffoldPath) return
+        setLoading(true)
+
+        fetchData(nativeAPI, scaffoldPath).then(([players, maps]) => {
+            setAvailablePlayers(players)
+            setAvailableMaps(maps)
+            setLoading(false)
+        })
+    }, [scaffoldPath])
+
+    return [
+        !!scaffoldPath,
+        availableMaps,
+        availablePlayers,
+        manuallySetupScaffold,
+        loading,
+        runMatch,
+        matchPID ? killMatch : undefined,
+        consoleLines
+    ]
 }
 
-function findDefaultScaffoldPath() {
-    if (!nativeAPI) return null
+async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
+    const path = nativeAPI.path
+    const fs = nativeAPI.fs
 
-    const appPath = nativeAPI.getRootPath()
+    const wrapperPath = await path.join(scaffoldPath, GRADLE_WRAPPER)
+    if (!(await fs.exists(wrapperPath))) throw new Error(`Can't find gradle wrapper: ${wrapperPath}`)
+
+    const mapPath = await path.join(scaffoldPath, 'maps')
+    if (!(await fs.exists(mapPath))) await fs.mkdir(mapPath)
+
+    let sourcePath = await path.join(scaffoldPath, 'src')
+    if (!(await fs.exists(sourcePath))) {
+        sourcePath = await path.join(scaffoldPath, 'example-bots', 'src', 'main')
+
+        if (!(await fs.exists(sourcePath))) {
+            throw new Error(`Can't find source path: ${sourcePath}`)
+        }
+    }
+
+    const playerFiles = await fs.getFiles(sourcePath, true)
+    const sep = await path.getSeperator()
+    const players = new Set(
+        await Promise.all(
+            playerFiles
+                .filter(
+                    (file) =>
+                        file.endsWith(sep + 'RobotPlayer.java') ||
+                        file.endsWith(sep + 'RobotPlayer.kt') ||
+                        file.endsWith(sep + 'RobotPlayer.scala')
+                )
+                .map(async (file) => {
+                    const relPath = await path.relative(sourcePath, file)
+                    return relPath
+                        .replace(/.RobotPlayer\.[^/.]+$/, '')
+                        .replace(new RegExp(WINDOWS ? '\\\\' : '/', 'g'), '.')
+                        .replace(new RegExp('/', 'g'), '.')
+                })
+        )
+    )
+
+    const mapExtension = '.map' + (BATTLECODE_YEAR % 100)
+    const mapFiles = await fs.getFiles(mapPath)
+    const maps = new Set(
+        mapFiles
+            .filter((file) => file.endsWith(mapExtension))
+            .map((file) => file.substring(0, file.length - mapExtension.length))
+            .concat(Array.from(SERVER_MAPS))
+    )
+
+    return [players, maps]
+}
+
+async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | undefined> {
+    const appPath = await nativeAPI.getRootPath()
+    const path = nativeAPI.path
+    const fs = nativeAPI.fs
 
     // npm run electron in client, if battlecode21-scaffold is located in same level as battlecode21
-    const fromDev = nativeAPI.path.join(
-        nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))),
+    const fromDev = await nativeAPI.path.join(
+        await path.dirname(await path.dirname(await path.dirname(appPath))),
         'battlecode' + (BATTLECODE_YEAR % 100) + '-scaffold'
     )
     // scaffold/client/Battlecode Client[.exe]
-    const fromWin = nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))
+    const fromWin = await path.dirname(await path.dirname(appPath))
     // scaffold/client/resources/app.asar
-    const from3 = nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath)))
+    const from3 = await path.dirname(await path.dirname(await path.dirname(appPath)))
     // scaffold/Battlecode Client.app/Contents/Resources/app.asar
-    const fromMac = nativeAPI.path.dirname(
-        nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(nativeAPI.path.dirname(appPath))))
+    const fromMac = await path.dirname(
+        await path.dirname(await path.dirname(await path.dirname(await path.dirname(appPath))))
     )
 
-    if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromDev, GRADLE_WRAPPER))) {
+    if (await fs.exists(await path.join(fromDev, GRADLE_WRAPPER))) {
         return fromDev
-    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(from3, GRADLE_WRAPPER))) {
+    } else if (await fs.exists(await path.join(from3, GRADLE_WRAPPER))) {
         return from3
-    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromWin, GRADLE_WRAPPER))) {
+    } else if (await fs.exists(await path.join(fromWin, GRADLE_WRAPPER))) {
         return fromWin
-    } else if (nativeAPI.fs.existsSync(nativeAPI.path.join(fromMac, GRADLE_WRAPPER))) {
+    } else if (await fs.exists(await path.join(fromMac, GRADLE_WRAPPER))) {
         return fromMac
     }
-    return null
+    return undefined
 }
 
-/**
- * Asynchronously get a list of available players in the scaffold.
- */
-function getPlayers(sourcePath: string): Promise<Set<string>> {
-    return new Promise((resolve, reject) => {
-        walk(sourcePath, (files, err) => {
-            if (err) reject(err)
-            if (!files) resolve(new Set([]))
-            return resolve(
-                new Set(
-                    files!
-                        .filter(
-                            (file) =>
-                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.java') ||
-                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.kt') ||
-                                file.endsWith(nativeAPI!.path.sep + 'RobotPlayer.scala')
-                        )
-                        .map((file) => {
-                            const relPath = nativeAPI!.path.relative(sourcePath, file)
-                            return relPath
-                                .replace(/.RobotPlayer\.[^/.]+$/, '')
-                                .replace(new RegExp(WINDOWS ? '\\\\' : '/', 'g'), '.')
-                                .replace(new RegExp('/', 'g'), '.')
-                        })
-                )
-            )
-        })
-    })
-}
-
-/**
- * Asynchronously get a list of map paths.
- */
-
-function getMaps(mapPath: string): Promise<Set<string>> {
-    const mapExtension = '.map' + (BATTLECODE_YEAR % 100)
-    return new Promise((resolve, reject) => {
-        nativeAPI!.fs.stat(mapPath, (stat: { isDirectory: () => any }, err?: Error) => {
-            if (err != null || !stat || !stat.isDirectory()) {
-                return resolve(new Set(SERVER_MAPS))
-            }
-            nativeAPI!.fs.readdir(mapPath, (files: string[] | undefined, err?: Error) => {
-                if (err) reject(err)
-                return resolve(
-                    new Set(
-                        files
-                            ?.filter((file: string) => file.endsWith(mapExtension))
-                            .map((file: string) => file.substring(0, file.length - mapExtension.length))
-                            .concat(Array.from(SERVER_MAPS)) ?? []
-                    )
-                )
-            })
-        })
-    })
-}
-
-function walk(dir: string, done: (paths?: string[], err?: Error) => void) {
-    var results = new Array<string>()
-    nativeAPI!.fs.readdir(dir, (list: string[], err?: Error) => {
-        if (err) return done([], err)
-        var errored = false
-        var pending = list.length
-        if (!pending) return done(results)
-        list.forEach((file: string) => {
-            file = nativeAPI!.path.resolve(dir, file)
-            nativeAPI!.fs.stat(file, (stat: { isDirectory: () => any; isSymbolicLink: () => any }, err?: Error) => {
-                if (errored) return
-                if (err) {
-                    errored = true
-                    return done([], err)
-                }
-
-                if (stat && stat.isDirectory() && !stat.isSymbolicLink()) {
-                    walk(file, (res, err) => {
-                        if (errored) return
-                        if (err) {
-                            errored = true
-                            return done([], err)
-                        }
-
-                        results = results.concat(res as string[])
-                        if (!--pending) done(results)
-                    })
-                } else {
-                    if (errored) return
-                    results.push(file)
-                    if (!--pending) done(results)
-                }
-            })
-        })
-    })
+async function dispatchMatch(
+    teamA: string,
+    teamB: string,
+    selectedMaps: Set<string>,
+    nativeAPI: NativeAPI,
+    scaffoldPath: string
+): Promise<number> {
+    const wrapperPath = await nativeAPI.path.join(scaffoldPath, GRADLE_WRAPPER)
+    const options = [
+        `run`,
+        `-x`,
+        `unpackClient`,
+        `-PwaitForClient=true`,
+        `-PteamA=${teamA}`,
+        `-PteamB=${teamB}`,
+        `-Pmaps=${[...selectedMaps].join(',')}`,
+        `-PvalidateMaps=false`,
+        `-PenableProfiler=${false}`
+    ]
+    return await nativeAPI.child_process.spawn(wrapperPath, options, { cwd: scaffoldPath })
 }

@@ -8,26 +8,25 @@ export interface NativeProcess {
 
 export type NativeAPI = {
     openScaffoldDirectory: () => Promise<string | undefined>
-    getRootPath: () => string
-    onBeforeAppQuit: (callback: () => void) => void
+    getRootPath: () => Promise<string>
     path: {
-        join: (...args: string[]) => string
-        relative: (from: string, to: string) => string
-        dirname: (dir: string) => string
-        resolve: (...args: string[]) => string
-        sep: string
+        join: (...args: string[]) => Promise<string>
+        relative: (from: string, to: string) => Promise<string>
+        dirname: (dir: string) => Promise<string>
+        resolve: (...args: string[]) => Promise<string>
+        getSeperator: () => Promise<string>
     }
     fs: {
-        existsSync: (arg: string) => boolean
-        mkdirSync: (arg: string) => void
-        stat: (
-            arg: string,
-            callback: (stats: { isDirectory: () => any; isSymbolicLink: () => any }, err?: Error) => void
-        ) => void
-        readdir: (arg: string, callback: (files: string[], err?: Error) => void) => void
+        exists: (arg: string) => Promise<boolean>
+        mkdir: (arg: string) => Promise<void>
+        getFiles: (path: string, recursive?: boolean) => Promise<string[]>
     }
     child_process: {
-        spawn: (command: string, args: string[] | undefined, options: any) => NativeProcess
+        spawn: (command: string, args: string[] | undefined, options: any) => Promise<number>
+        kill: (pid: number) => Promise<void>
+        onStdout: (callback: (pid: number, data: string) => void) => void
+        onStderr: (callback: (pid: number, data: string) => void) => void
+        onExit: (callback: (pid: number, code: number) => void) => void
     }
 }
 
@@ -42,13 +41,14 @@ if (window.electronAPI) {
 
 // verify that native api is setup if available
 if (nativeAPI) {
-    const requiredFunctions = ['openScaffoldDirectory', 'getRootPath', 'onBeforeAppQuit', 'path', 'fs', 'child_process']
-    for (const func of requiredFunctions) {
+    Object.keys(nativeAPI).forEach(function (key) {
         // @ts-ignore
-        if (!nativeAPI[func]) {
-            throw new Error(`Native API missing function: ${func}`)
+        if (!nativeAPI[key]) {
+            throw new Error(`Native API missing property: ${key}`)
         }
-    }
+    })
+
+    console.log('Native API available and verified')
 }
 
 export { nativeAPI }

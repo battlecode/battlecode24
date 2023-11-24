@@ -1,35 +1,27 @@
 import React, { useState } from 'react'
-import { useAppContext } from '../../../app-context'
 import { useScaffold } from './scaffold'
 import { Button } from '../../button'
 import { nativeAPI } from './native-api-wrapper'
 
 export const RunnerPage: React.FC = () => {
-    const context = useAppContext()
-    const [scaffold, manuallySetupScaffold, scaffoldLoading, matchRunning] = useScaffold()
+    const [
+        setup,
+        availableMaps,
+        availablePlayers,
+        manuallySetupScaffold,
+        scaffoldLoading,
+        runMatch,
+        killMatch,
+        console
+    ] = useScaffold()
 
     const [teamA, setTeamA] = useState<string | undefined>(undefined)
     const [teamB, setTeamB] = useState<string | undefined>(undefined)
     const [maps, setMaps] = useState<Set<string>>(new Set())
 
-    const [availableTeams, setAvailableTeams] = useState<string[]>([])
-    const [availableMaps, setAvailableMaps] = useState<string[]>([])
-
     const runGame = () => {
-        if (!teamA || !teamB) return
-        if (maps.size === 0) return
-        if (!scaffold) return
-
-        scaffold.runMatch(
-            teamA,
-            teamB,
-            maps,
-            () => {},
-            () => {},
-            () => {},
-            () => {},
-            () => {}
-        )
+        if (!teamA || !teamB || maps.size === 0 || !runMatch) return
+        runMatch(teamA, teamB, maps)
     }
 
     // if instance of non-electron scaffold, then we need to connect to the server
@@ -37,14 +29,14 @@ export const RunnerPage: React.FC = () => {
 
     return (
         <div className={'flex flex-col ' + scaffoldLoading ? 'opacity-50 pointer-events-none' : ''}>
-            {!scaffold ? (
+            {!setup ? (
                 <>
                     <Button onClick={manuallySetupScaffold}>Setup Scaffold</Button>
                 </>
             ) : (
                 <>
-                    <TeamSelector team={teamA} options={availableTeams} onChange={(t) => setTeamA(t)} />
-                    <TeamSelector team={teamB} options={availableTeams} onChange={(t) => setTeamB(t)} />
+                    <TeamSelector team={teamA} options={availablePlayers} onChange={(t) => setTeamA(t)} />
+                    <TeamSelector team={teamB} options={availablePlayers} onChange={(t) => setTeamB(t)} />
                     <MapSelector
                         maps={maps}
                         availableMaps={availableMaps}
@@ -52,29 +44,33 @@ export const RunnerPage: React.FC = () => {
                         onDeselect={(m) => setMaps((prev) => new Set([...prev].filter((x) => x !== m)))}
                     />
 
-                    {!matchRunning ? (
-                        <Button onClick={runGame}>Run Game</Button>
+                    {!killMatch ? (
+                        <Button onClick={runGame} disabled={!teamA || !teamB || maps.size == 0}>
+                            Run Game
+                        </Button>
                     ) : (
-                        <Button onClick={scaffold.killMatch}>Kill Game</Button>
+                        <Button onClick={killMatch}>Kill Game</Button>
                     )}
 
-                    <Console />
+                    <Console lines={console} />
                 </>
             )}
         </div>
     )
 }
 
-const TeamSelector: React.FC<{ team: string | undefined; options: string[]; onChange: (team: string) => void }> = ({
-    team,
-    options,
-    onChange
-}) => {
+interface TeamSelectorProps {
+    team: string | undefined
+    options: Set<string>
+    onChange: (team: string) => void
+}
+
+const TeamSelector: React.FC<TeamSelectorProps> = ({ team, options, onChange }) => {
     return (
         <div className="flex flex-col">
             <label>Team</label>
             <select value={team} onChange={(e) => onChange(e.target.value)}>
-                {options.map((t) => (
+                {[...options].map((t) => (
                     <option key={t} value={t}>
                         {t}
                     </option>
@@ -84,17 +80,19 @@ const TeamSelector: React.FC<{ team: string | undefined; options: string[]; onCh
     )
 }
 
-const MapSelector: React.FC<{
+interface MapSelectorProps {
     maps: Set<string>
-    availableMaps: string[]
+    availableMaps: Set<string>
     onSelect: (map: string) => void
     onDeselect: (map: string) => void
-}> = ({ maps, availableMaps, onSelect, onDeselect }) => {
+}
+
+const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect, onDeselect }) => {
     return (
         <div className="flex flex-col">
             <label>Maps</label>
             <div className="flex flex-row">
-                {availableMaps.map((m) => (
+                {[...availableMaps].map((m) => (
                     <div key={m} className="flex flex-col">
                         <input
                             type="checkbox"
@@ -109,11 +107,34 @@ const MapSelector: React.FC<{
     )
 }
 
-const Console: React.FC = () => {
+export type ConsoleLine = { content: string; type: 'output' | 'error' | 'bold' }
+
+type Props = {
+    lines: ConsoleLine[]
+}
+
+export const Console: React.FC<Props> = ({ lines }) => {
+    const getLineClass = (line: ConsoleLine) => {
+        switch (line.type) {
+            case 'output':
+                return ''
+            case 'error':
+                return 'text-red-500'
+            case 'bold':
+                return 'font-bold'
+        }
+    }
+
     return (
         <div className="flex flex-col">
             <label>Console</label>
-            <textarea className="flex-grow" />
+            <textarea className="flex-grow">
+                {lines.map((line, index) => (
+                    <span key={index} className={getLineClass(line)}>
+                        {line.content}
+                    </span>
+                ))}
+            </textarea>
         </div>
     )
 }
