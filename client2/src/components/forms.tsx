@@ -3,12 +3,13 @@ import React, { PropsWithChildren } from 'react'
 interface SelectProps {
     value?: string | number
     onChange: (value: string) => void
+    className?: string
 }
 
 export const Select: React.FC<PropsWithChildren<SelectProps>> = (props) => {
     return (
         <select
-            className="border border-black py-1 px-1 rounded-md"
+            className={props.className + ' border border-black py-1 px-1 rounded-md'}
             value={props.value}
             onChange={(e) => props.onChange(e.target.value)}
         >

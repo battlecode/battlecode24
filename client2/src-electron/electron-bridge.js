@@ -7,7 +7,6 @@ const electronAPI = {
         join: (...args) => ipcRenderer.invoke('electronAPI', 'path.join', ...args),
         relative: (...args) => ipcRenderer.invoke('electronAPI', 'path.relative', ...args),
         dirname: (...args) => ipcRenderer.invoke('electronAPI', 'path.dirname', ...args),
-        resolve: (...args) => ipcRenderer.invoke('electronAPI', 'path.resolve', ...args),
         getSeperator: (...args) => ipcRenderer.invoke('electronAPI', 'path.sep', ...args),
     },
     fs: {
@@ -16,11 +15,11 @@ const electronAPI = {
         getFiles: (...args) => ipcRenderer.invoke('electronAPI', 'fs.getFiles', ...args),
     },
     child_process: {
-        spawn: (...args) => ipcRenderer.invoke('electronAPI', 'spawn', ...args),
-        kill: (...args) => ipcRenderer.invoke('electronAPI', 'kill', ...args),
-        onStdOut: (callback) => ipcRenderer.on('child_process.stdout', callback),
-        onStdErr: (callback) => ipcRenderer.on('child_process.stderr', callback),
-        onExit: (callback) => ipcRenderer.on('child_process.exit', callback),
+        spawn: (...args) => ipcRenderer.invoke('electronAPI', 'child_process.spawn', ...args),
+        kill: (...args) => ipcRenderer.invoke('electronAPI', 'child_process.kill', ...args),
+        onStdout: (callback) => ipcRenderer.on('child_process.stdout', (event, data) => { callback(data); }),
+        onStderr: (callback) => ipcRenderer.on('child_process.stderr', (event, data) => { callback(data); }),
+        onExit: (callback) => ipcRenderer.on('child_process.exit', (event, data) => { callback(data); }),
     },
 };
 

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BATTLECODE_YEAR, SERVER_MAPS } from '../../../constants'
 import { NativeAPI, nativeAPI } from './native-api-wrapper'
 import { ConsoleLine } from './runner'
+import { useForceUpdate } from '../../../util/react-util'
 
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
@@ -22,7 +23,8 @@ export function useScaffold(): Scaffold {
     const [availablePlayers, setAvailablePlayers] = useState<Set<string>>(new Set())
     const [loading, setLoading] = useState<boolean>(true)
     const [scaffoldPath, setScaffoldPath] = useState<string | undefined>(undefined)
-    const [matchPID, setMatchPID] = useState<number | undefined>(undefined)
+    const matchPID = useRef<number | undefined>(undefined)
+    const forceUpdate = useForceUpdate()
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
     const log = (line: ConsoleLine) =>
         setConsoleLines((prev) => (prev.length > 10000 ? [...prev.slice(1), line] : [...prev, line]))
@@ -36,14 +38,18 @@ export function useScaffold(): Scaffold {
     }
 
     async function runMatch(teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
-        if (matchPID || !scaffoldPath) return
-        setMatchPID(await dispatchMatch(teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!))
+        if (matchPID.current || !scaffoldPath) return
+        setConsoleLines([])
+        const newPID = await dispatchMatch(teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
+        matchPID.current = newPID
+        forceUpdate()
     }
 
     async function killMatch(): Promise<void> {
-        if (!matchPID) return
-        await nativeAPI!.child_process.kill(matchPID)
-        setMatchPID(undefined)
+        if (!matchPID.current) return
+        await nativeAPI!.child_process.kill(matchPID.current)
+        matchPID.current = undefined
+        forceUpdate()
     }
 
     useEffect(() => {
@@ -57,18 +63,22 @@ export function useScaffold(): Scaffold {
             setScaffoldPath(path)
         })
 
-        nativeAPI.child_process.onStdout((pid: number, data: string) => {
-            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
+        nativeAPI.child_process.onStdout(({ pid, data }) => {
+            if (pid !== matchPID.current)
+                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
             log({ content: data, type: 'output' })
         })
-        nativeAPI.child_process.onStderr((pid: number, data: string) => {
-            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
+        nativeAPI.child_process.onStderr(({ pid, data }) => {
+            if (pid !== matchPID.current)
+                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
             log({ content: data, type: 'error' })
         })
-        nativeAPI.child_process.onExit((pid: number, code: number) => {
-            if (pid !== matchPID) throw new Error(`Unknown pid: ${pid}`)
-            log({ content: `Exited with code ${code}`, type: 'bold' })
-            setMatchPID(undefined)
+        nativeAPI.child_process.onExit(({ pid, code, signal }) => {
+            if (pid !== matchPID.current)
+                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
+            log({ content: `Exited with code ${code} | ${JSON.stringify(signal)}`, type: 'bold' })
+            matchPID.current = undefined
+            forceUpdate()
         })
     }, [])
 
@@ -90,7 +100,7 @@ export function useScaffold(): Scaffold {
         manuallySetupScaffold,
         loading,
         runMatch,
-        matchPID ? killMatch : undefined,
+        matchPID.current ? killMatch : undefined,
         consoleLines
     ]
 }
@@ -144,10 +154,15 @@ async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
             .concat(Array.from(SERVER_MAPS))
     )
 
+    localStorage.setItem('scaffoldPath', scaffoldPath)
+
     return [players, maps]
 }
 
 async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | undefined> {
+    const localPath = localStorage.getItem('scaffoldPath')
+    if (localPath) return localPath
+
     const appPath = await nativeAPI.getRootPath()
     const path = nativeAPI.path
     const fs = nativeAPI.fs
@@ -185,17 +200,16 @@ async function dispatchMatch(
     nativeAPI: NativeAPI,
     scaffoldPath: string
 ): Promise<number> {
-    const wrapperPath = await nativeAPI.path.join(scaffoldPath, GRADLE_WRAPPER)
     const options = [
         `run`,
         `-x`,
         `unpackClient`,
-        `-PwaitForClient=true`,
+        // `-PwaitForClient=true`,
         `-PteamA=${teamA}`,
         `-PteamB=${teamB}`,
         `-Pmaps=${[...selectedMaps].join(',')}`,
         `-PvalidateMaps=false`,
         `-PenableProfiler=${false}`
     ]
-    return await nativeAPI.child_process.spawn(wrapperPath, options, { cwd: scaffoldPath })
+    return await nativeAPI.child_process.spawn(scaffoldPath, options)
 }

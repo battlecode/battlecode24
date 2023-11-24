@@ -70,13 +70,18 @@ function killAllProcesses() {
     }
 }
 
+
+const WINDOWS = process.env.ELECTRON && process.platform === 'win32';
+const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew';
+
 ipcMain.handle('electronAPI', async (event, operation, ...args) => {
     switch (operation) {
         case 'openScaffoldDirectory':
-            return await dialog.showOpenDialog({
+            const result = await dialog.showOpenDialog({
                 title: 'Please select your battlecode-scaffold directory.',
                 properties: ['openDirectory']
             });
+            return result.canceled ? undefined : result.filePaths[0];
         case 'getRootPath':
             return app.getAppPath();
         case 'path.join':
@@ -85,8 +90,6 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
             return path.relative(...args);
         case 'path.dirname':
             return path.dirname(args[0]);
-        case 'path.resolve':
-            return path.resolve(...args);
         case 'path.sep':
             return path.sep;
         case 'fs.existsSync':
@@ -96,26 +99,29 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
         case 'fs.getFiles':
             return getFiles(args[0], args[1]);
         case 'child_process.spawn':
-            const child = child_process.spawn(...args);
+            const scaffoldPath = args[0];
+            const flags = args[1];
+            const wrapperPath = path.join(scaffoldPath, GRADLE_WRAPPER);
+            const child = child_process.spawn(wrapperPath, flags, { cwd: scaffoldPath });
+            
             processes.set(child.pid, child);
             child.stdout.on('data', (data) => {
-                event.sender.send('child_process.stdout', { pid, data: data.toString() });
+                event.sender.send('child_process.stdout', { pid: child.pid, data: data.toString() });
             });
             child.stderr.on('data', (data) => {
-                event.sender.send('child_process.stderr', { pid, data: data.toString() });
+                event.sender.send('child_process.stderr', { pid: child.pid, data: data.toString() });
             });
-            child.on('exit', (code) => {
+            child.on('exit', (code, signal) => {
                 processes.delete(child.pid);
-                event.sender.send('child_process.exit', { pid, code });
+                event.sender.send('child_process.exit', { pid: child.pid, code, signal });
             });
             return child.pid;
-            
         case 'child_process.kill':
             const pid = args[0];
             if (processes.has(pid))
                 processes.get(pid).kill();
             return;
         default:
-            throw new Error('Invalid ipc API operation');
+            throw new Error('Invalid ipc API operation: ' + operation);
     }
 });

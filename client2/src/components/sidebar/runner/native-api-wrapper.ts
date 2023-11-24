@@ -13,7 +13,6 @@ export type NativeAPI = {
         join: (...args: string[]) => Promise<string>
         relative: (from: string, to: string) => Promise<string>
         dirname: (dir: string) => Promise<string>
-        resolve: (...args: string[]) => Promise<string>
         getSeperator: () => Promise<string>
     }
     fs: {
@@ -22,11 +21,11 @@ export type NativeAPI = {
         getFiles: (path: string, recursive?: boolean) => Promise<string[]>
     }
     child_process: {
-        spawn: (command: string, args: string[] | undefined, options: any) => Promise<number>
+        spawn: (scaffoldPath: string, args: string[]) => Promise<number>
         kill: (pid: number) => Promise<void>
-        onStdout: (callback: (pid: number, data: string) => void) => void
-        onStderr: (callback: (pid: number, data: string) => void) => void
-        onExit: (callback: (pid: number, code: number) => void) => void
+        onStdout: (callback: (x: { pid: number; data: string }) => void) => void
+        onStderr: (callback: (x: { pid: number; data: string }) => void) => void
+        onExit: (callback: (x: { pid: number; code: number | null; signal: NodeJS.Signals | null }) => void) => void
     }
 }
 
@@ -37,6 +36,13 @@ let nativeAPI: NativeAPI | undefined = undefined
 if (window.electronAPI) {
     // @ts-ignore
     nativeAPI = window.electronAPI as NativeAPI
+}
+
+// attempt to connect to tauri
+// @ts-ignore
+if (window.tauriAPI) {
+    // @ts-ignore
+    nativeAPI = window.tauriAPI as NativeAPI
 }
 
 // verify that native api is setup if available
