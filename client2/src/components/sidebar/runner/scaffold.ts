@@ -3,6 +3,9 @@ import { BATTLECODE_YEAR, SERVER_MAPS } from '../../../constants'
 import { NativeAPI, nativeAPI } from './native-api-wrapper'
 import { ConsoleLine } from './runner'
 import { useForceUpdate } from '../../../util/react-util'
+import WebSocketListener from './websocket'
+import { useAppContext } from '../../../app-context'
+import { app } from 'electron'
 
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
@@ -19,6 +22,7 @@ type Scaffold = [
 ]
 
 export function useScaffold(): Scaffold {
+    const appContext = useAppContext()
     const [availableMaps, setAvailableMaps] = useState<Set<string>>(new Set())
     const [availablePlayers, setAvailablePlayers] = useState<Set<string>>(new Set())
     const [loading, setLoading] = useState<boolean>(true)
@@ -28,6 +32,8 @@ export function useScaffold(): Scaffold {
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
     const log = (line: ConsoleLine) =>
         setConsoleLines((prev) => (prev.length > 10000 ? [...prev.slice(1), line] : [...prev, line]))
+
+    const [webSocketListener, setWebSocketListener] = useState<WebSocketListener | undefined>()
 
     async function manuallySetupScaffold() {
         if (!nativeAPI) return
@@ -80,6 +86,18 @@ export function useScaffold(): Scaffold {
             matchPID.current = undefined
             forceUpdate()
         })
+
+        setWebSocketListener(
+            new WebSocketListener((game) => {
+                game.currentMatch = game.matches[0]
+                appContext.setState({
+                    ...appContext.state,
+                    queue: appContext.state.queue.concat([game]),
+                    activeGame: game,
+                    activeMatch: game.currentMatch
+                })
+            })
+        )
     }, [])
 
     useEffect(() => {
@@ -204,7 +222,7 @@ async function dispatchMatch(
         `run`,
         `-x`,
         `unpackClient`,
-        // `-PwaitForClient=true`,
+        `-PwaitForClient=true`,
         `-PteamA=${teamA}`,
         `-PteamB=${teamB}`,
         `-Pmaps=${[...selectedMaps].join(',')}`,
