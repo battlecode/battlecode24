@@ -130,47 +130,6 @@ public class TeamInfo {
         }
         return false;
     }
-
-    /**
-     * Increase the number of global upgrade points
-     * @param team to query
-     */
-    public void incrementGlobalUpgradePoints(Team team){
-        this.globalUpgradePoints[team.ordinal()] ++;
-    }
-
-    /**
-     * Select a global upgrade to make
-     * @param team
-     * @param upgrade
-     * @return if upgrade successful
-     */
-    public boolean makeGlobalUpgrade(Team team, GlobalUpgrade upgrade){
-        if(this.globalUpgradePoints[team.ordinal()] > 0){
-            if (upgrade == GlobalUpgrade.ACTION && !this.globalUpgrades[team.ordinal()][0]) {
-                this.globalUpgrades[team.ordinal()][0] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
-                return true;
-            }
-            if (upgrade == GlobalUpgrade.CAPTURING && !this.globalUpgrades[team.ordinal()][1]) {
-                this.globalUpgrades[team.ordinal()][1] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
-                return true;
-            }
-            if (upgrade == GlobalUpgrade.HEALING && !this.globalUpgrades[team.ordinal()][2]) {
-                this.globalUpgrades[team.ordinal()][2] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
-                return true;
-            }
-            if (upgrade == GlobalUpgrade.SPEED && !this.globalUpgrades[team.ordinal()][3]) {
-                this.globalUpgrades[team.ordinal()][3] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
-                return true;
-            }
-        }
-        return false;
-    }
-
     
     /**
      * Add to the amount of bread. If amount is negative, subtract from bread instead.

@@ -330,6 +330,10 @@ public strictfp class GameWorld {
         return !(this.trapLocations[locationToIndex(loc)] == null);
     }
 
+    public ArrayList<Trap> getTrapTriggers(MapLocation loc) {
+        return this.trapTriggers[locationToIndex(loc)];
+    }
+
     public void placeTrap(MapLocation loc, Trap trap){
         this.trapLocations[locationToIndex(loc)] = trap;
         //should we be able to trigger traps we are diagonally next to?
@@ -454,6 +458,7 @@ public strictfp class GameWorld {
 
     public int getMovementCooldown(Team team) {
         //TODO return correct movement cooldown based on global upgrades
+        return 10;
     }
 
     // *********************************

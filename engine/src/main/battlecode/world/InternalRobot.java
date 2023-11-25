@@ -60,7 +60,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.team = team;
 
         this.location = null;
-        this.health = GameConstants.ROBOT_HEALTH;
+        this.health = GameConstants.DEFAULT_HEALTH;
         this.spawned = false;
 
         this.buildExp = 0;
@@ -137,15 +137,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.gameWorld.getTeamInfo().getBread(this.team);
     }
 
-    private void addResourceChangeAction(int amount) {
-        // TO DO: add change_bread to Action
+    public void addResourceAmount(int amount) {
+        this.gameWorld.getTeamInfo().addBread(this.team, amount);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_BREAD, amount);
     }
 
-    public void addResourceAmount(int amount) {
-        this.gameWorld.getTeamInfo().addResource(this.team, amount);
-        addResourceChangeAction(amount);
-    }
     public boolean canAddFlag() {
         return flag == null;
     }
@@ -265,11 +261,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        int visionRadiusSquared = getVisionRadiusSquared();
-        if (this.gameWorld.getCloud(toSense) || this.gameWorld.getCloud(this.getLocation())) {
-            visionRadiusSquared = GameConstants.CLOUD_VISION_RADIUS_SQUARED;
-        }
-        return this.location.distanceSquaredTo(toSense) <= visionRadiusSquared;
+        return this.location.distanceSquaredTo(toSense) <= getVisionRadiusSquared();
     }
 
     /**
@@ -322,8 +314,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int newActionCooldownTurns = this.gameWorld.getCooldownWithMultiplier(numActionCooldownToAdd, this.location, this.team);
-        setActionCooldownTurns(this.actionCooldownTurns + newActionCooldownTurns);
+        setActionCooldownTurns(this.actionCooldownTurns + numActionCooldownToAdd);
     }
     
     /**

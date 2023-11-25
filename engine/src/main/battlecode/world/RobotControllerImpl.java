@@ -511,10 +511,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void dig(MapLocation loc){
+    public void dig(MapLocation loc) throws GameActionException{
         assertCanDig(loc);
         //TODO: add conversion to percentage + rounding  to cooldowns
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
+        this.robot.addActionCooldownTurns((int) (GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, -1);
         this.gameWorld.setWater(loc);
@@ -624,8 +624,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addMovementCooldownTurns();
 
         // trap trigger methods
-        for(Trap trap:this.gameWorld.hasTrapTrigger(nextLoc)){
-            if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc == trap)) {
+        for(Trap trap:this.gameWorld.getTrapTriggers(nextLoc)){
+            if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
                 this.gameWorld.triggerTrap(trap, true);
             } else {
                 this.gameWorld.triggerTrap(trap, false);
