@@ -31,7 +31,6 @@ export const Sidebar: React.FC = () => {
     const keyboard = useKeyboard()
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
-    const [expanded, setExpanded] = React.useState(false)
 
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
@@ -61,38 +60,23 @@ export const Sidebar: React.FC = () => {
         }
     }
 
-    // If you find a better way of doing this, change this. Skip going through
-    // map and help tab, it's annoying for competitors.
+    // Skip going through map and help tab, it's annoying for competitors.
+    const hotkeyPageLoop = tournamentMode
+        ? [PageType.GAME, PageType.QUEUE, PageType.TOURNAMENT]
+        : [PageType.GAME, PageType.QUEUE, PageType.RUNNER, PageType.PROFILER]
     const getNextPage = (currentPage: PageType, previous: boolean) => {
-        switch (currentPage) {
-            default:
-                return currentPage
-            case PageType.GAME:
-                return previous ? PageType.PROFILER : PageType.QUEUE
-            case PageType.QUEUE:
-                return previous ? PageType.GAME : PageType.RUNNER
-            case PageType.RUNNER:
-                return previous ? PageType.QUEUE : PageType.PROFILER
-            case PageType.PROFILER:
-                return previous ? PageType.RUNNER : PageType.GAME
-        }
+        const index = hotkeyPageLoop.indexOf(currentPage)
+        if (index === -1) return currentPage
+        const nextIndex = (index + (previous ? -1 : 1) + hotkeyPageLoop.length) % hotkeyPageLoop.length
+        return hotkeyPageLoop[nextIndex]
     }
 
-    const updatePage = (newPage: PageType) => {
-        setPage(newPage)
-    }
-
-    // Minimize the sidebar buttons when a new one has been selected
     React.useEffect(() => {
-        setExpanded(false)
-    }, [page])
+        if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, false))
 
-    React.useEffect(() => {
-        if (keyboard.keyCode === 'Backquote') updatePage(getNextPage(page, false))
+        if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
 
-        if (keyboard.keyCode === 'ShiftLeft') updatePage(PageType.QUEUE)
-
-        if (keyboard.keyCode === 'Digit1') updatePage(getNextPage(page, true))
+        if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, true))
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
@@ -142,8 +126,10 @@ export const Sidebar: React.FC = () => {
                             <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div
-                                        className={"w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 " + 
-                                            (page == sidebarButton.page ? "border-gray-800" : "border-gray-200")}
+                                        className={
+                                            'w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 ' +
+                                            (page == sidebarButton.page ? 'border-gray-800' : 'border-gray-200')
+                                        }
                                         onClick={() => setPage(sidebarButton.page)}
                                     >
                                         {sidebarButton.name}

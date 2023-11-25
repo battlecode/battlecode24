@@ -1,0 +1,58 @@
+[
+    {
+        "id": 1,
+        "teams": ["Team 1", "Team 2"],
+        "dependsOn": null,
+        "round": 1,
+        "winnerIndex": 1,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 2,
+        "teams": ["Team 3", "Team 4"],
+        "dependsOn": null,
+        "round": 1,
+        "winnerIndex": 0,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 3,
+        "teams": ["Team 5", "Team 6"],
+        "dependsOn": null,
+        "round": 1,
+        "winnerIndex": 0,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 4,
+        "teams": ["Team 7", "Team 8"],
+        "dependsOn": null,
+        "round": 1,
+        "winnerIndex": 0,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 5,
+        "teams": ["Team 2", "Team 3"],
+        "dependsOn": [1, 2],
+        "round": 2,
+        "winnerIndex": 1,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 6,
+        "teams": ["Team 7", "Team 8"],
+        "dependsOn": [3, 4],
+        "round": 2,
+        "winnerIndex": 0,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    },
+    {
+        "id": 7,
+        "teams": ["Team 3", "Team 7"],
+        "dependsOn": [5, 6],
+        "round": 3,
+        "winnerIndex": 1,
+        "gameFile": "https://storage.googleapis.com/mitbattlecode-production-secure/episode/bc23/replays/e9947ecd-3273-43b9-9448-e6c634835350.bc23"
+    }
+]
