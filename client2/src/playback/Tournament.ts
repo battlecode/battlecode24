@@ -9,12 +9,13 @@ export default class Tournament {
     constructor(tournament_json: string) {
         const tournament_json_parsed = JSON.parse(tournament_json)
         this.games = new Map(
-            tournament_json_parsed.map((game: any) => {
+            tournament_json_parsed.map((game: any): [number, TournamentGame] => {
                 return [
                     game.id,
                     {
+                        id: game.id,
                         teams: game.teams,
-                        dependsOn: null,
+                        dependsOn: undefined,
                         winnerIndex: game.winnerIndex,
                         round: game.round,
                         viewed: false,
@@ -54,7 +55,8 @@ export type TournamentGame = {
     id: number
     teams: [string, string]
     dependsOn?: [TournamentGame, TournamentGame]
-    winner: 0 | 1
+    round: number
+    winnerIndex: 0 | 1
     viewed: boolean
     gameFile: string
 }

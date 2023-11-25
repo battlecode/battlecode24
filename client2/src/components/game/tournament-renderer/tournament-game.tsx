@@ -1,13 +1,11 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
-import { EventType, publishEvent, useListenEvent } from '../../../app-events'
-import * as cst from '../../../constants'
-import assert from 'assert'
-import Tooltip from '../tooltip'
-import { Button } from '../../button'
+import Tooltip from '../../tooltip'
 import { TournamentGame } from '../../../playback/Tournament'
 import Game from '../../../playback/Game'
 import { PageType, usePage } from '../../../app-search-params'
+import { Pressable } from 'react-zoomable-ui'
+import { Crown } from '../../../icons/crown'
 
 interface Props {
     game: TournamentGame
@@ -19,64 +17,127 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
     const [page, setPage] = usePage()
     const appContext = useAppContext()
 
-    const onClick = loadingGame
-        ? () => {}
-        : () => {
-              setLoadingGame(true)
+    const playable = !game.dependsOn || game.dependsOn.every((g) => g.viewed)
 
-              fetch(game.gameFile).then((response) => {
-                  response.arrayBuffer().then((buffer) => {
-                      if (buffer.byteLength === 0) {
-                          alert('Error: Game file is empty.')
-                          setLoadingGame(false)
-                          return
-                      }
-                      const loadedGame = Game.loadFullGameRaw(buffer)
-                      appContext.setState({
-                          ...appContext.state,
-                          activeGame: loadedGame,
-                          activeMatch: loadedGame.currentMatch,
-                          queue: appContext.state.queue.concat([loadedGame])
-                      })
-                      game.viewed = true
-                      setPage(PageType.GAME)
-                      setLoadingGame(false)
-                  })
-              })
-          }
+    const onClick = () => {
+        if (loadingGame || !playable) return
+
+        setLoadingGame(true)
+        fetch(game.gameFile).then((response) => {
+            response.arrayBuffer().then((buffer) => {
+                if (buffer.byteLength === 0) {
+                    alert('Error: Game file is empty.')
+                    setLoadingGame(false)
+                    return
+                }
+                const loadedGame = Game.loadFullGameRaw(buffer)
+                appContext.setState({
+                    ...appContext.state,
+                    activeGame: loadedGame,
+                    activeMatch: loadedGame.currentMatch,
+                    queue: appContext.state.queue.concat([loadedGame])
+                })
+                game.viewed = true
+                setPage(PageType.GAME)
+                setLoadingGame(false)
+            })
+        })
+    }
 
     return (
-        <div
+        <Pressable
             className={
-                'bg-orange-500 p-3 m-4 rounded-lg shadow-md d-flex flex-col cursor-pointer relative ' +
-                (loadingGame ? 'opacity-50' : '')
+                'pt-4 px-2 pb-2 mx-2 my-4 rounded d-flex flex-col relative border-2 border-white min-w-[80px] max-w-[120px] ' +
+                (loadingGame ? 'opacity-50' : '') +
+                ' ' +
+                (playable ? 'bg-blueLight hover:bg-blueLighter cursor-pointer' : 'bg-blueDark')
             }
-            onClick={onClick}
+            onTap={onClick}
         >
-            {lines && (
-                <svg
-                    width={lines.dx * 2}
-                    height={lines.dy}
-                    style={{
-                        position: 'absolute',
-                        zIndex: -1,
-                        left: '50%',
-                        top: '100%',
-                        transform: 'translateX(-50%)'
-                    }}
-                >
-                    {/* down 40% */}
-                    <line x1="50%" y1="0%" x2="50%" y2="40%" stroke="white" strokeWidth="2" />
-                    {/* left and right */}
-                    <line x1="50%" y1="40%" x2="0%" y2="40%" stroke="white" strokeWidth="2" />
-                    <line x1="50%" y1="40%" x2="100%" y2="40%" stroke="white" strokeWidth="2" />
-                    {/* down 60% */}
-                    <line x1="0%" y1="40%" x2="0%" y2="100%" stroke="white" strokeWidth="4" />
-                    <line x1="100%" y1="40%" x2="100%" y2="100%" stroke="white" strokeWidth="4" />
-                </svg>
-            )}
-            <div className={game.viewed && game.winner === 0 ? 'font-bold' : ''}>{game.teams[0]}</div>
-            <div className={(game.viewed && game.winner === 1 ? 'font-bold' : '') + ' pt-2'}>{game.teams[1]}</div>
+            {lines && <GameChildrenLines lines={lines} />}
+
+            <GameNumber number={game.id} />
+            <GameTeam game={game} teamIdx={0} />
+            <div className="ml-0.5 text-xxxs">vs</div>
+            <GameTeam game={game} teamIdx={1} />
+        </Pressable>
+    )
+}
+
+const GameTeam: React.FC<{ game: TournamentGame; teamIdx: number }> = ({ game, teamIdx }) => {
+    const dependsOn = game.dependsOn && game.dependsOn[teamIdx]
+    if (dependsOn && dependsOn.teams[dependsOn.winnerIndex] !== game.teams[teamIdx])
+        throw new Error(
+            `dependsOn winner does not match game teams at game ${game.id}, ${
+                dependsOn.teams[dependsOn.winnerIndex]
+            } !== ${game.teams[teamIdx]}`
+        )
+
+    const gameBelowViewed = !dependsOn || dependsOn.viewed
+    const shownTeamName = game.viewed || gameBelowViewed ? game.teams[teamIdx] : '???'
+    const teamWon = game.viewed && game.winnerIndex == teamIdx
+    const teamLost = game.viewed && game.winnerIndex != teamIdx
+
+    const nameClass = (shownTeamName.length > 150 ? 'text-xxxs' : 'text-xxs') + (teamWon ? ' font-bold' : '')
+
+    return (
+        <div className="w-full">
+            <Tooltip
+                text={shownTeamName}
+                wrapperClass={'w-full'}
+                bg={'bg-white'}
+                color={'text-black-800'}
+                size={'text-xxs'}
+                delay={400}
+            >
+                <div className={'whitespace-nowrap overflow-hidden w-full flex flex-row items-center'}>
+                    <span
+                        className={
+                            nameClass + ' min-w-0 text-ellipsis overflow-hidden ' + (teamLost ? 'line-through' : '')
+                        }
+                    >
+                        {shownTeamName}
+                    </span>
+                    {teamWon && (
+                        <span className="text-xxs pb-[2.5px] ml-1">
+                            <Crown />
+                        </span>
+                    )}
+                </div>
+            </Tooltip>
         </div>
+    )
+}
+
+const GameNumber: React.FC<{ number: number }> = ({ number }) => {
+    return (
+        <div className="absolute top-[-1px] left-[-1px] bg-white rounded-tl-sm rounded-br px-0.5 h-[12px] text-xxs flex items-center justify-center">
+            {number}
+        </div>
+    )
+}
+
+const GameChildrenLines: React.FC<{ lines: { dx: number; dy: number } }> = ({ lines }) => {
+    return (
+        <svg
+            width={lines.dx * 2}
+            height={lines.dy}
+            style={{
+                position: 'absolute',
+                zIndex: -1,
+                left: '50%',
+                top: '100%',
+                transform: 'translateX(-50%)'
+            }}
+        >
+            {/* down 40% */}
+            <line x1="50%" y1="0%" x2="50%" y2="40%" stroke="white" strokeWidth="2" />
+            {/* left and right */}
+            <line x1="50%" y1="40%" x2="0%" y2="40%" stroke="white" strokeWidth="2" />
+            <line x1="50%" y1="40%" x2="100%" y2="40%" stroke="white" strokeWidth="2" />
+            {/* down 60% */}
+            <line x1="0%" y1="40%" x2="0%" y2="100%" stroke="white" strokeWidth="4" />
+            <line x1="100%" y1="40%" x2="100%" y2="100%" stroke="white" strokeWidth="4" />
+        </svg>
     )
 }
