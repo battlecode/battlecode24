@@ -1,7 +1,5 @@
 package battlecode.common;
 
-import battlecode.world.Inventory;
-
 /**
  * RobotInfo stores basic information that was 'sensed' of another Robot. This
  * info is ephemeral and there is no guarantee any of it will remain the same
@@ -20,11 +18,6 @@ public class RobotInfo {
     public final Team team;
 
     /**
-     * The type of the robot.
-     */
-    public final RobotType type;
-
-    /**
      * The health of the robot.
      */
     public final int health;
@@ -34,11 +27,10 @@ public class RobotInfo {
      */
     public final MapLocation location;
 
-    public RobotInfo(int ID, Team team, RobotType type, int health, MapLocation location) {
+    public RobotInfo(int ID, Team team, int health, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
-        this.type = type;
         this.health = health;
         this.location = location;
     }
@@ -59,15 +51,6 @@ public class RobotInfo {
      */
     public Team getTeam() {
         return team;
-    }
-
-    /**
-     * Returns the type of this robot.
-     *
-     * @return the type of this robot
-     */
-    public RobotType getType() {
-        return type;
     }
 
     /**
@@ -97,7 +80,6 @@ public class RobotInfo {
 
         if (ID != robotInfo.ID) return false;
         if (team != robotInfo.team) return false;
-        if (type != robotInfo.type) return false;
         if (health != robotInfo.health) return false;
         return location.equals(robotInfo.location);
     }
@@ -107,7 +89,6 @@ public class RobotInfo {
         int result;
         result = ID;
         result = 31 * result + team.hashCode();
-        result = 31 * result + type.ordinal();
         result = 31 * result + health;
         result = 31 * result + location.hashCode();
         return result;
@@ -118,7 +99,6 @@ public class RobotInfo {
         return "RobotInfo{" +
                 "ID=" + ID +
                 ", team=" + team +
-                ", type=" + type +
                 ", health=" + health +
                 ", location=" + location +
                 '}';

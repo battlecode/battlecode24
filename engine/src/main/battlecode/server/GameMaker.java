@@ -246,7 +246,7 @@ public strictfp class GameMaker {
             TeamData.startTeamData(builder);
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);
-            TeamData.addTeamID(builder, TeamMapping.id(Team.A));
+            TeamData.addTeamId(builder, TeamMapping.id(Team.A));
 
             int teamAOffset = TeamData.endTeamData(builder);
 
@@ -255,7 +255,7 @@ public strictfp class GameMaker {
             TeamData.startTeamData(builder);
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);
-            TeamData.addTeamID(builder, TeamMapping.id(Team.B));
+            TeamData.addTeamId(builder, TeamMapping.id(Team.B));
             int teamBOffset = TeamData.endTeamData(builder);
             int[] teamsVec = {teamAOffset, teamBOffset};
 
@@ -267,6 +267,16 @@ public strictfp class GameMaker {
             // Constants.addMnAdditiveIncrease(builder, GameConstants.PASSIVE_AD_INCREASE);
             // Constants.addAdAdditiveIncrease(builder, GameConstants.PASSIVE_MN_INCREASE);
             // TODO keep track of da bread
+
+            Constants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
+            Constants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
+            Constants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
+            Constants.addPassiveResourceRate(builder, GameConstants.PASSIVE_BREAD_INCREASE);
+            Constants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
+            Constants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
+            Constants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
+            Constants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
+
             int constantsOffset = Constants.endConstants(builder);
 
             GameHeader.startGameHeader(builder);

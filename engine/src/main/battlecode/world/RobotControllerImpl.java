@@ -244,7 +244,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
@@ -272,11 +272,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         List<MapLocation> validSensedFlagLocs = new ArrayList<>();
         Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
         for (Flag flag : allFlagsInRadius) {
-            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS))
+            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS_SQUARED))
                 validSensedFlagLocs.add(flag.getLoc());
         }
         return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
@@ -336,7 +336,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapInfo> validSensedMapInfo = new ArrayList<>();
         for (MapLocation mapLoc : allSensedLocs) {
@@ -359,7 +359,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS : Math.min(radiusSquared, GameConstants.VISION_RADIUS);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);

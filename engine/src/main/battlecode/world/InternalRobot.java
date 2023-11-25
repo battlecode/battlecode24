@@ -21,7 +21,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     private final int ID;
     private Team team;
-    private RobotType type;
     private MapLocation location;
     private int health;
     private boolean spawned;
@@ -68,7 +67,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.attackExp = 0;
 
         this.controlBits = 0;
-        this.currentBytecodeLimit = type.bytecodeLimit;
+        this.currentBytecodeLimit = GameConstants.BYTECODE_LIMIT;
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
@@ -99,10 +98,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public Team getTeam() {
         return team;
-    }
-
-    public RobotType getType() {
-        return type;
     }
 
     public MapLocation getLocation() {
@@ -188,13 +183,12 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
-                && cachedRobotInfo.type == type 
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location);
         return this.cachedRobotInfo;
     }
 
@@ -227,7 +221,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Returns the robot's action radius squared.
      */
     public int getActionRadiusSquared() {
-        return this.type.actionRadiusSquared;
+        return GameConstants.ACTION_RADIUS_SQUARED;
     }
 
     /**
@@ -252,7 +246,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Returns the robot's vision radius squared.
      */
     public int getVisionRadiusSquared() {
-        return this.type.visionRadiusSquared;
+        return GameConstants.VISION_RADIUS_SQUARED;
     }
 
     /**
@@ -348,12 +342,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        if (this.getType() == RobotType.HEADQUARTERS) {
-            return; // Can't damage headquarters
-        }
         int oldHealth = this.health;
         this.health += healthAmount;
-        this.health = Math.min(this.health, this.type.health);
+        this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
         } else if (this.health != oldHealth) {
@@ -400,6 +391,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void despawn() {
         this.spawned = false;
         this.location = null;
+        this.spawnCooldownTurns = GameConstants.COOLDOWNS_PER_TURN * GameConstants.JAILED_ROUNDS;
     }
 
     public boolean isSpawned() {
@@ -454,7 +446,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.spawnCooldownTurns = Math.max(0, this.spawnCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
-        this.currentBytecodeLimit = getType().bytecodeLimit;
+        this.currentBytecodeLimit = GameConstants.BYTECODE_LIMIT;
     }
 
     public void processEndOfTurn() {
@@ -508,7 +500,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     @Override
     public String toString() {
-        return String.format("%s:%s#%d", getTeam(), getType(), getID());
+        return String.format("%s#%d", getTeam(), getID());
     }
 
     @Override
