@@ -482,6 +482,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, -1);
         this.gameWorld.setLand(loc);
 
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+        }
+
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
         }
@@ -518,6 +522,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, -1);
         this.gameWorld.setWater(loc);
+
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+        }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
