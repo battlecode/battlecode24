@@ -488,6 +488,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
         }
+
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+        }
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
