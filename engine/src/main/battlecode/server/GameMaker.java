@@ -4,6 +4,8 @@ import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.ResourceType;
 import battlecode.common.RobotType;
+import battlecode.common.SkillType;
+import battlecode.common.TrapType;
 import battlecode.common.Team;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.profiler.ProfilerCollection;
@@ -260,14 +262,10 @@ public strictfp class GameMaker {
             int[] teamsVec = {teamAOffset, teamBOffset};
 
             int teamsOffset = GameHeader.createTeamsVector(builder, teamsVec);
-            int bodyTypeMetadataOffset = makeBodyTypeMetadata(builder);
+            int specializationMetadataOffset = makeSpecializationMetadata(builder);
+            int buildActionMetadataOffset = makeBuildActionMetadata(builder);
 
             Constants.startConstants(builder);
-            Constants.addIncreasePeriod(builder, GameConstants.PASSIVE_INCREASE_ROUNDS);
-            // Constants.addMnAdditiveIncrease(builder, GameConstants.PASSIVE_AD_INCREASE);
-            // Constants.addAdAdditiveIncrease(builder, GameConstants.PASSIVE_MN_INCREASE);
-            // TODO keep track of da bread
-
             Constants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
             Constants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
             Constants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
@@ -276,13 +274,14 @@ public strictfp class GameMaker {
             Constants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
             Constants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
             Constants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
-
             int constantsOffset = Constants.endConstants(builder);
 
             GameHeader.startGameHeader(builder);
             GameHeader.addSpecVersion(builder, specVersionOffset);
             GameHeader.addTeams(builder, teamsOffset);
-            GameHeader.addBodyTypeMetadata(builder, bodyTypeMetadataOffset);
+            GameHeader.addSpecializationMetadata(builder, specializationMetadataOffset);
+            GameHeader.addBuildActionMetadata(builder, buildActionMetadataOffset);
+            //TODO global upgrade metadata
             GameHeader.addConstants(builder, constantsOffset);
             int gameHeaderOffset = GameHeader.endGameHeader(builder);
 
@@ -290,27 +289,56 @@ public strictfp class GameMaker {
         });
     }
 
-    public int makeBodyTypeMetadata(FlatBufferBuilder builder) {
-        TIntArrayList bodyTypeMetadataOffsets = new TIntArrayList();
+    public int makeSpecializationMetadata(FlatBufferBuilder builder) {
+        TIntArrayList specializationMetadataOffsets = new TIntArrayList();
 
-        // Add robot metadata
-        for (RobotType type : RobotType.values()) {
-            BodyTypeMetadata.startBodyTypeMetadata(builder);
-            BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
-            BodyTypeMetadata.addBuildCostAd(builder, type.buildCostAdamantium);
-            BodyTypeMetadata.addBuildCostMn(builder, type.buildCostMana);
-            BodyTypeMetadata.addBuildCostEx(builder, type.buildCostElixir);
-            BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            BodyTypeMetadata.addMovementCooldown(builder, type.movementCooldown);
-            BodyTypeMetadata.addHealth(builder, type.health);
-            BodyTypeMetadata.addActionRadiusSquared(builder, type.actionRadiusSquared);
-            BodyTypeMetadata.addVisionRadiusSquared(builder, type.visionRadiusSquared);
-            BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
-            bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
+        for(SkillType type : SkillType.values()) {
+            for(int l = 0; l <= 6; l++) {
+                SpecializationMetadata.startSpecializationMetadata(builder);
+                SpecializationMetadata.addType(builder, skillTypeToSpecializationType(type));
+                SpecializationMetadata.addLevel(builder, l);
+                //TODO not sure what "action cost" is in schema. No cost for building or healing, build cost depends on trap type but not level.
+                SpecializationMetadata.addActionJailedPenalty(builder, type.getPenalty(l));
+                SpecializationMetadata.addCooldownReduction(builder, type.getCooldown(l));
+                int effect = type.getSkillEffect(l);
+                if(type == SkillType.ATTACK) {
+                    SpecializationMetadata.addDamageIncrease(builder, effect);
+                    SpecializationMetadata.addHealIncrease(builder, 0);
+                }
+                else if(type == SkillType.BUILD) {
+                    SpecializationMetadata.addDamageIncrease(builder, 0);
+                    SpecializationMetadata.addHealIncrease(builder, 0);
+                }
+                else if(type == SkillType.HEAL) {
+                    SpecializationMetadata.addDamageIncrease(builder, 0);
+                    SpecializationMetadata.addHealIncrease(builder, effect);
+                }
+                specializationMetadataOffsets.add(SpecializationMetadata.endSpecializationMetadata(builder));
+            }
         }
+        return GameHeader.createSpecializationMetadataVector(builder, specializationMetadataOffsets.toArray());
+    }
 
-        // Make and return BodyTypeMetadata Vector offset
-        return GameHeader.createBodyTypeMetadataVector(builder, bodyTypeMetadataOffsets.toArray());
+    public int makeBuildActionMetadata(FlatBufferBuilder builder) {
+        TIntArrayList buildActionMetadataOffsets = new TIntArrayList();
+        for(TrapType type : TrapType.values()) {
+            BuildActionMetadata.startBuildActionMetadata(builder);
+            BuildActionMetadata.addType(builder, trapTypeToBuildActionType(type));
+            BuildActionMetadata.addCost(builder, type.buildCost);
+            BuildActionMetadata.addBuildCooldown(builder, type.actionCooldownIncrease);
+            buildActionMetadataOffsets.add(BuildActionMetadata.endBuildActionMetadata(builder));
+        }
+        BuildActionMetadata.startBuildActionMetadata(builder);
+        BuildActionMetadata.addType(builder, BuildActionType.DIG);
+        BuildActionMetadata.addCost(builder, GameConstants.DIG_COST);
+        BuildActionMetadata.addBuildCooldown(builder, GameConstants.DIG_COOLDOWN);
+        buildActionMetadataOffsets.add(BuildActionMetadata.endBuildActionMetadata(builder));
+        BuildActionMetadata.startBuildActionMetadata(builder);
+        BuildActionMetadata.addType(builder, BuildActionType.FILL);
+        BuildActionMetadata.addCost(builder, GameConstants.FILL_COST);
+        BuildActionMetadata.addBuildCooldown(builder, GameConstants.FILL_COOLDOWN);
+        buildActionMetadataOffsets.add(BuildActionMetadata.endBuildActionMetadata(builder));
+        return GameHeader.createBuildActionMetadataVector(builder, buildActionMetadataOffsets.toArray());
     }
 
     private byte robotTypeToBodyType(RobotType type) {
@@ -320,6 +348,20 @@ public strictfp class GameMaker {
         if (type == RobotType.CARRIER) return BodyType.CARRIER;
         if (type == RobotType.DESTABILIZER) return BodyType.DESTABILIZER;
         if (type == RobotType.LAUNCHER) return BodyType.LAUNCHER;
+        return Byte.MIN_VALUE;
+    }
+
+    private byte skillTypeToSpecializationType(SkillType type) {
+        if (type == SkillType.ATTACK) return SpecializationType.ATTACK;
+        if (type == SkillType.BUILD) return SpecializationType.BUILD;
+        if (type == SkillType.HEAL) return SpecializationType.HEAL;
+        return Byte.MIN_VALUE;
+    }
+
+    private byte trapTypeToBuildActionType(TrapType type) {
+        if (type == TrapType.EXPLOSIVE) return BuildActionType.EXPLOSIVE_TRAP;
+        if (type == TrapType.WATER) return BuildActionType.WATER_TRAP;
+        if (type == TrapType.STUN) return BuildActionType.STUN_TRAP;
         return Byte.MIN_VALUE;
     }
 
