@@ -37,11 +37,6 @@ public strictfp class LiveMap {
     private boolean[] wallArray;
 
     /**
-     * Whether each square is a cloud.
-     */
-    private final boolean[] cloudArray;
-
-    /**
      * Whether each square is water.
      */
     private boolean[] waterArray;
@@ -52,25 +47,19 @@ public strictfp class LiveMap {
     private boolean[] damArray;
 
     /**
-     * Whether each square is a spawn zone.
-     * 0 = Team A, 1 = Team B, -1 = not spawn zone
-     */
-    private MapLocation[] spawnZones;
-
-    /**
-     * Direction ID of current on each square.
-     */
-    private int[] currentArray;
-
-    /**
-     * Island ID of current on each square.
-     */
-    private int[] islandArray;
-
-    /**
      * Amount of bread on each square.
      */
     private int[] breadArray;
+
+    /**
+     * An integer representing the team ID of the spawn zone on a square.
+     */
+    private int[] spawnZoneArray;
+
+    /**
+     * An integer representing which flag if any is at the current tile.
+     */
+    private int[] flagArray;
 
     /**
      * The random seed contained in the map file.
@@ -115,13 +104,11 @@ public strictfp class LiveMap {
         int numSquares = width * height;
 
         this.wallArray = new boolean[numSquares];
-        this.cloudArray = new boolean[numSquares];
         this.waterArray = new boolean[numSquares];
         this.spawnZoneArray = new int[numSquares];
-        this.currentArray = new int[numSquares];
-        this.islandArray = new int[numSquares];
         this.breadArray = new int[numSquares];
         this.damArray = new boolean[numSquares];
+        this.flagArray = new int[numSquares];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -136,10 +123,11 @@ public strictfp class LiveMap {
                    MapSymmetry symmetry,
                    RobotInfo[] initialBodies,
                    boolean[] wallArray,
-                   boolean[] cloudArray,
-                   int[] currentArray,
-                   int[] islandArray,
-                   int[] breadArray) {
+                   boolean[] waterArray,
+                   boolean[] damArray,
+                   int[] breadArray,
+                   int[] spawnZoneArray,
+                   int[] flagArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -152,24 +140,27 @@ public strictfp class LiveMap {
         for (int i = 0; i < wallArray.length; i++) {
             this.wallArray[i] = wallArray[i];
         }
-        this.cloudArray = new boolean[cloudArray.length];
-        for (int i = 0; i < cloudArray.length; i++) {
-            this.cloudArray[i] = cloudArray[i];
+        this.waterArray = new boolean[waterArray.length];
+        for (int i = 0; i < waterArray.length; i++){
+            this.waterArray[i] = waterArray[i];
         }
-        this.currentArray = new int[currentArray.length];
-        for (int i = 0; i < currentArray.length; i++) {
-            this.currentArray[i] = currentArray[i];
-        }
-        this.islandArray = new int[islandArray.length];
-        for (int i = 0; i < islandArray.length; i++) {
-            this.islandArray[i] = islandArray[i];
+        this.damArray = new boolean[damArray.length];
+        for (int i = 0; i < damArray.length; i++){
+            this.damArray[i] = damArray[i];
         }
         this.breadArray = new int[
             breadArray.length];
         for (int i = 0; i < breadArray.length; i++) {
             this.breadArray[i] = breadArray[i];
         }
-
+        this.spawnZoneArray = new int[spawnZoneArray.length];
+        for (int i = 0; i < spawnZoneArray.length; i++){
+            this.spawnZoneArray[i] = spawnZoneArray[i];
+        }
+        this.flagArray = new int[flagArray.length];
+        for (int i = 0; i < flagArray.length; i++){
+            this.flagArray[i] = flagArray[i];
+        }
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
@@ -181,7 +172,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.wallArray, gm.cloudArray, gm.currentArray, gm.islandArray, gm.breadArray);
+             gm.initialBodies, gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray, gm.flagArray);
     }
 
     @Override
@@ -204,10 +195,11 @@ public strictfp class LiveMap {
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
         if (!Arrays.equals(this.wallArray, other.wallArray)) return false;
-        if (!Arrays.equals(this.cloudArray, other.cloudArray)) return false;
-        if (!Arrays.equals(this.currentArray, other.currentArray)) return false;
-        if (!Arrays.equals(this.islandArray, other.islandArray)) return false;
+        if (!Arrays.equals(this.waterArray, other.waterArray)) return false;
+        if (!Arrays.equals(this.damArray, other.damArray)) return false;
         if (!Arrays.equals(this.breadArray, other.breadArray)) return false;
+        if (!Arrays.equals(this.spawnZoneArray, other.spawnZoneArray)) return false;
+        if (!Arrays.equals(this.flagArray, other.flagArray)) return false;
         return true;
     }
 
@@ -220,10 +212,11 @@ public strictfp class LiveMap {
         result = 31 * result + rounds;
         result = 31 * result + mapName.hashCode();
         result = 31 * result + Arrays.hashCode(wallArray);
-        result = 31 * result + Arrays.hashCode(cloudArray);
-        result = 31 * result + Arrays.hashCode(currentArray);
-        result = 31 * result + Arrays.hashCode(islandArray);
+        result = 31 * result + Arrays.hashCode(waterArray);
+        result = 31 * result + Arrays.hashCode(damArray);
         result = 31 * result + Arrays.hashCode(breadArray);
+        result = 31 * result + Arrays.hashCode(spawnZoneArray);
+        result = 31 * result + Arrays.hashCode(flagArray);
         result = 31 * result + Arrays.hashCode(initialBodies);
         return result;
     }
@@ -346,12 +339,6 @@ public strictfp class LiveMap {
         return wallArray;
     }
 
-    /**
-     * @return the cloud array of the map
-     */
-    public boolean[] getCloudArray() {
-        return cloudArray;
-    }
 
     public boolean[] getWaterArray() {
         return waterArray;
@@ -371,35 +358,9 @@ public strictfp class LiveMap {
         return spawnZoneArray;
     }
 
-    public boolean getWater(MapLocation loc) {
-        return waterArray[locationToIndex(loc)];
-    }
-
-    public void setWater(MapLocation loc) {
-        waterArray[locationToIndex(loc)] = true;
-    }
-
     public boolean[] getDamArray(){
         return damArray;
     }
-    public void setLand(MapLocation loc) {
-        waterArray[locationToIndex(loc)] = false;
-    }
-
-    /**
-     * @return the current array of the map
-     */
-    public int[] getCurrentArray() {
-        return currentArray;
-    }
-
-    /**
-     * @return the island id array of the map
-     */
-    public int[] getIslandArray() {
-        return islandArray;
-    }
-
     
     /**
      * @return the array which stores how much bread is on each location.
@@ -451,9 +412,9 @@ public strictfp class LiveMap {
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
-                    /* ", cloudArray=" + Arrays.toString(cloudArray) +
-                    ", currentArray=" + Arrays.toString(currentArray) +
-                    ", islandArray=" + Arrays.toString(islandArray) + */
+                    ", waterArray=" + Arrays.toString(waterArray) + 
+                    ", flagArray=" + Arrays.toString(flagArray) +
+                    ", spawnZoneArray=" + Arrays.toString(spawnZoneArray) + 
                     ", breadArray=" + Arrays.toString(breadArray) +
                     "}";
         }
