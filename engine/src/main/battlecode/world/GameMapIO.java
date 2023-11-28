@@ -261,40 +261,32 @@ public final strictfp class GameMapIO {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
             boolean[] wallArray = gameMap.getWallArray();
-            boolean[] cloudArray = gameMap.getCloudArray();
-            int[] currentArray = gameMap.getCurrentArray();
-            int[] islandArray = gameMap.getIslandArray();
-            int[] resourceArray = gameMap.getResourceArray();
+            boolean[] waterArray = gameMap.getWaterArray();
+            boolean[] damArray = gameMap.getDamArray();
+            int[] breadArray = gameMap.getBreadArray();
+            int[] flagArray = gameMap.getFlagArray();
+            int[] spawnZoneArray = gameMap.getSpawnZoneArray();
 
 
             // Make body tables
-            ArrayList<Integer> bodyIDs = new ArrayList<>();
-            ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
-            ArrayList<Byte> bodyTypes = new ArrayList<>();
-            ArrayList<Integer> bodyLocsXs = new ArrayList<>();
-            ArrayList<Integer> bodyLocsYs = new ArrayList<>();
             ArrayList<Boolean> wallArrayList = new ArrayList<>();
-            ArrayList<Boolean> cloudArrayList = new ArrayList<>();
-            ArrayList<Integer> currentArrayList = new ArrayList<>();
-            ArrayList<Integer> islandArrayList = new ArrayList<>();
-            ArrayList<Integer> resourceArrayList = new ArrayList<>();
+            ArrayList<Boolean> waterArrayList = new ArrayList<>();
+            ArrayList<Boolean> damArrayList = new ArrayList<>();
+            ArrayList<Integer> breadArrayList = new ArrayList<>();
+            ArrayList<Integer> flagArrayList = new ArrayList<>();
+            ArrayList<Integer> spawnZoneArrayList = new ArrayList<>();
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
                 wallArrayList.add(wallArray[i]);
-                cloudArrayList.add(cloudArray[i]);
-                currentArrayList.add(currentArray[i]);
-                islandArrayList.add(islandArray[i]);
-                resourceArrayList.add(resourceArray[i]);
+                waterArrayList.add(waterArray[i]);
+                damArrayList.add(damArray[i]);
+                breadArrayList.add(breadArray[i]);
+                flagArrayList.add(flagArray[i]);
+                spawnZoneArrayList.add(spawnZoneArray[i]);
             }
 
-            for (RobotInfo robot : gameMap.getInitialBodies()) {
-                bodyIDs.add(robot.ID);
-                bodyTeamIDs.add(TeamMapping.id(robot.team));
-                bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                bodyLocsXs.add(robot.location.x);
-                bodyLocsYs.add(robot.location.y);
-            }
 
+            //not sure if this is needed without initial bodies
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
             int teamIDs = SpawnedBodyTable.createTeamIDsVector(builder, ArrayUtils.toPrimitive(bodyTeamIDs.toArray(new Byte[bodyTeamIDs.size()])));
             int types = SpawnedBodyTable.createTypesVector(builder, ArrayUtils.toPrimitive(bodyTypes.toArray(new Byte[bodyTypes.size()])));

@@ -76,12 +76,6 @@ public strictfp class LiveMap {
      */
     private final String mapName;
 
-    /**
-     * The bodies to spawn on the map; MapLocations are in world space -
-     * i.e. in game correct MapLocations that need to have the origin
-     * subtracted from them to be used to index into the map arrays.
-     */
-    private final RobotInfo[] initialBodies; // contains nothing
 
     
 
@@ -90,8 +84,7 @@ public strictfp class LiveMap {
                    MapLocation origin,
                    int seed,
                    int rounds,
-                   String mapName,
-                   RobotInfo[] initialBodies) {
+                   String mapName) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -99,8 +92,7 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.symmetry = MapSymmetry.ROTATIONAL;
-        this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-
+        
         int numSquares = width * height;
 
         this.wallArray = new boolean[numSquares];
@@ -111,7 +103,7 @@ public strictfp class LiveMap {
         this.flagArray = new int[numSquares];
 
         // invariant: bodies is sorted by id
-        Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+      //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
 
     public LiveMap(int width,
@@ -121,7 +113,6 @@ public strictfp class LiveMap {
                    int rounds,
                    String mapName,
                    MapSymmetry symmetry,
-                   RobotInfo[] initialBodies,
                    boolean[] wallArray,
                    boolean[] waterArray,
                    boolean[] damArray,
@@ -135,7 +126,7 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.symmetry = symmetry;
-        this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
+       // this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.wallArray = new boolean[wallArray.length];
         for (int i = 0; i < wallArray.length; i++) {
             this.wallArray[i] = wallArray[i];
@@ -162,7 +153,7 @@ public strictfp class LiveMap {
             this.flagArray[i] = flagArray[i];
         }
         // invariant: bodies is sorted by id
-        Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+      //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
 
     /**
@@ -172,7 +163,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray, gm.flagArray);
+         gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray, gm.flagArray);
     }
 
     @Override
@@ -217,7 +208,6 @@ public strictfp class LiveMap {
         result = 31 * result + Arrays.hashCode(breadArray);
         result = 31 * result + Arrays.hashCode(spawnZoneArray);
         result = 31 * result + Arrays.hashCode(flagArray);
-        result = 31 * result + Arrays.hashCode(initialBodies);
         return result;
     }
 
@@ -295,16 +285,6 @@ public strictfp class LiveMap {
                 onTheMap(loc.translate(radius, 0)) &&
                 onTheMap(loc.translate(0, -radius)) &&
                 onTheMap(loc.translate(0, radius)));
-    }
-
-    /**
-     * Get a list of the initial bodies on the map.
-     *
-     * @return the list of starting bodies on the map.
-     *         MUST NOT BE MODIFIED.
-     */
-    public RobotInfo[] getInitialBodies() {
-        return initialBodies;
     }
 
     /**
@@ -398,7 +378,6 @@ public strictfp class LiveMap {
                     ", seed=" + seed +
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
-                    ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", len=" + Integer.toString(wallArray.length) +
                     "}";
         } else {
@@ -409,7 +388,6 @@ public strictfp class LiveMap {
                     ", seed=" + seed +
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
-                    ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
                     ", waterArray=" + Arrays.toString(waterArray) + 
