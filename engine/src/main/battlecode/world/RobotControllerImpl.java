@@ -112,6 +112,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
+
+    @Override
+    public int getExperience(SkillType skill){
+        return this.robot.getExp(skill);
+    }
+
+    @Override
+    public int getLevel(SkillType skill){
+        return this.robot.getLevel(skill);
+    }
  
     @Override
     public int getHealth() {
@@ -832,6 +842,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
+
+    @Override
+    public boolean canBuyGlobal(GlobalUpgrade ug){
+        return true;
+    }
 
     @Override
     public void disintegrate() {
