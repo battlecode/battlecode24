@@ -153,7 +153,7 @@ public strictfp class ObjectInfo {
 
     public void createRobot(InternalRobot robot) {
         incrementRobotCount(robot.getTeam());
-        incrementRobotTypeCount(robot.getTeam(), robot.getType());
+        //incrementRobotTypeCount(robot.getTeam(), robot.getType());
 
         int id = robot.getID();
         gameRobotsByID.put(id, robot);
@@ -180,7 +180,7 @@ public strictfp class ObjectInfo {
         InternalRobot robot = getRobotByID(id);
 
         decrementRobotCount(robot.getTeam());
-        decrementRobotTypeCount(robot.getTeam(), robot.getType());
+        //decrementRobotTypeCount(robot.getTeam(), robot.getType());
 
         MapLocation loc = robot.getLocation();
         gameRobotsByID.remove(id);
