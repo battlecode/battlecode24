@@ -857,6 +857,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public void buyGlobal(GlobalUpgrade up) {
+        
+    }
+
+    @Override
     public void disintegrate() {
         throw new RobotDeathException();
     }
