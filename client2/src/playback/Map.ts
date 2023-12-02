@@ -319,6 +319,14 @@ export class StaticMap {
                     })
                 }
 
+                // Render rounded (clipped) divider
+                if (this.divider[schemaIdx]) {
+                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.divider, (scale) => {
+                        ctx.fillStyle = '#000000'
+                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                    })
+                }
+
                 // Draw grid
                 const showGrid = true
                 if (showGrid) {

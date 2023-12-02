@@ -80,6 +80,11 @@ export class DividerBrush extends SymmetricMapEditorBrush {
         should_add: {
             type: MapEditorBrushFieldType.ADD_REMOVE,
             value: true
+        },
+        radius: {
+            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
+            value: 1,
+            label: 'Radius'
         }
     }
 
@@ -88,7 +93,8 @@ export class DividerBrush extends SymmetricMapEditorBrush {
     }
 
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        applyInRadius(this.map, x, y, 1, (idx) => {
+		const radius: number = fields.radius.value - 1
+        applyInRadius(this.map, x, y, radius, (idx) => {
             this.map.divider[idx] = fields.should_add.value ? 1 : 0
         })
     }
