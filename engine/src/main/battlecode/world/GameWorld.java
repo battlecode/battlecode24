@@ -643,7 +643,7 @@ public strictfp class GameWorld {
         this.teamInfo.processEndOfRound();
 
         objectInfo.eachRobot((robot) -> {
-            matchMaker.addMoved(robot.getID(), robot.getLocation());
+            matchMaker.addRobot(robot);
             return true;
         });
 

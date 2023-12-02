@@ -432,7 +432,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
     }
 
+    public int getBuildExp() {
+        return this.buildExp;
+    }
 
+    public int getHealExp() {
+        return this.healExp;
+    }
+
+    public int getAttackExp() {
+        return this.attackExp;
+    }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********

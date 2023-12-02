@@ -244,17 +244,17 @@ table Round {
     teamResourceAmounts: [int]; //done
     teamCommunication: CommTable; //done
 
-    robotIds: [int];
-    robotLocs: VecTable;
-    robotMoveCooldowns: [int];
-    robotActionCooldowns: [int];
-    robotHealths: [int];
-    attacksPerformed: [int];
-    attackLevels: [int];
-    buildsPerformed: [int];
-    buildLevels: [int];
-    healsPerformed: [int];
-    healLevels: [int];
+    robotIds: [int]; //done
+    robotLocs: VecTable; //done
+    robotMoveCooldowns: [int]; //done
+    robotActionCooldowns: [int]; //done
+    robotHealths: [int]; //done
+    attacksPerformed: [int]; //done
+    attackLevels: [int]; //done
+    buildsPerformed: [int]; //done
+    buildLevels: [int]; //done
+    healsPerformed: [int]; //done
+    healLevels: [int]; //done
 
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
