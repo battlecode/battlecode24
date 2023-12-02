@@ -431,6 +431,13 @@ public strictfp class GameMaker {
         private TByteArrayList trapAddedTypes;
         private TByteArrayList trapAddedTeams;
 
+        private TIntArrayList trapTriggeredIds;
+
+        private TIntArrayList digLocsX;
+        private TIntArrayList digLocsY;
+        private TIntArrayList fillLocsX;
+        private TIntArrayList fillLocsY;
+
         private TIntArrayList indicatorStringIDs;
         private ArrayList<String> indicatorStrings;
 
@@ -499,6 +506,11 @@ public strictfp class GameMaker {
             this.trapAddedY = new TIntArrayList();
             this.trapAddedTypes = new TByteArrayList();
             this.trapAddedTeams = new TByteArrayList();
+            this.trapTriggeredIds = new TIntArrayList();
+            this.digLocsX = new TIntArrayList();
+            this.digLocsY = new TIntArrayList();
+            this.fillLocsX = new TIntArrayList();
+            this.fillLocsY = new TIntArrayList();
             this.indicatorStringIDs = new TIntArrayList();
             this.indicatorStrings = new ArrayList<>();
             this.indicatorDotIDs = new TIntArrayList();
@@ -656,6 +668,11 @@ public strictfp class GameMaker {
                 int trapAddedTypesP = Round.createTrapAddedTypesVector(builder, trapAddedTypes.toArray());
                 int trapAddedTeamsP = Round.createTrapAddedTeamsVector(builder, trapAddedTeams.toArray());
 
+                int trapTriggeredIdsP = Round.createTrapTriggeredIdsVector(builder, trapTriggeredIds.toArray());
+
+                int digLocsP = createVecTable(builder, digLocsX, digLocsY);
+                int fillLocsP = createVecTable(builder, fillLocsX, fillLocsY);
+
                 // The indicator strings that were set
                 int indicatorStringIDsP = Round.createIndicatorStringIDsVector(builder, indicatorStringIDs.toArray());
                 TIntArrayList indicatorStringsIntList = new TIntArrayList();
@@ -716,6 +733,9 @@ public strictfp class GameMaker {
                 Round.addTrapAddedLocations(builder, trapAddedLocsP);
                 Round.addTrapAddedTypes(builder, trapAddedTypesP);
                 Round.addTrapAddedTeams(builder, trapAddedTeamsP);
+                Round.addTrapTriggeredIds(builder, trapTriggeredIdsP);
+                Round.addDigLocations(builder, digLocsP);
+                Round.addFillLocations(builder, fillLocsP);
                 Round.addIndicatorStringIDs(builder, indicatorStringIDsP);
                 Round.addIndicatorStrings(builder, indicatorStringsP);
                 Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
@@ -779,6 +799,20 @@ public strictfp class GameMaker {
             trapAddedY.add(loc.y);
             trapAddedTypes.add(FlatHelpers.getBuildActionFromTrapType(trap.getType()));
             trapAddedTeams.add(TeamMapping.id(trap.getTeam()));
+        }
+
+        public void addTriggeredTrap(int id) {
+            trapTriggeredIds.add(id);
+        }
+
+        public void addDigLocation(MapLocation loc) {
+            digLocsX.add(loc.x);
+            digLocsY.add(loc.y);
+        }
+
+        public void addFillLocation(MapLocation loc) {
+            fillLocsX.add(loc.x);
+            fillLocsY.add(loc.y);
         }
 
         public void addWell(Well well, int location) {
@@ -890,6 +924,11 @@ public strictfp class GameMaker {
             trapAddedY.clear();
             trapAddedTypes.clear();
             trapAddedTeams.clear();
+            trapTriggeredIds.clear();
+            digLocsX.clear();
+            digLocsY.clear();
+            fillLocsX.clear();
+            fillLocsY.clear();
             indicatorStringIDs.clear();
             indicatorStrings.clear();
             indicatorDotIDs.clear();

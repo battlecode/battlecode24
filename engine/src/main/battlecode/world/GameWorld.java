@@ -339,7 +339,7 @@ public strictfp class GameWorld {
     public void placeTrap(MapLocation loc, TrapType type, Team team){
         Trap trap = new Trap(loc, type, team, trapId);
         trapId++;
-        matchMaker.add
+        matchMaker.addTrap(trap);
         this.trapLocations[locationToIndex(loc)] = trap;
         //should we be able to trigger traps we are diagonally next to?
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){
@@ -380,6 +380,7 @@ public strictfp class GameWorld {
             this.trapTriggers[locationToIndex(adjLoc)].remove(trap);
         }
         this.trapLocations[locationToIndex(loc)] = null;
+        matchMaker.addTriggeredTrap(trap.getId());
     }
 
     // ***********************************

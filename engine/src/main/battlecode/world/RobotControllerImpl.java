@@ -478,6 +478,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         //action id
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addFillLocation(loc);
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
@@ -519,6 +520,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns((int) (GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addDigLocation(loc);
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){

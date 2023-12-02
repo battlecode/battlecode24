@@ -277,10 +277,10 @@ table Round {
     trapAddedTypes: [BuildActionType]; //done
     trapAddedTeams: [byte]; //done
 
-    trapTriggeredIds: [int];
+    trapTriggeredIds: [int]; //done
 
-    digLocations: VecTable;
-    fillLocations: VecTable;
+    digLocations: VecTable; //done
+    fillLocations: VecTable; //done
 
     /// The IDs of the robots who changed their indicator strings
     indicatorStringIds: [int];
