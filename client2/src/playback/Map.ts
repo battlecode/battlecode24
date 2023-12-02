@@ -311,6 +311,14 @@ export class StaticMap {
                     })
                 }
 
+                // Render rounded (clipped) water
+                if (this.initialWater[schemaIdx]) {
+                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.initialWater, (scale) => {
+                        ctx.fillStyle = '#335c69'
+                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                    })
+                }
+
                 // Draw grid
                 const showGrid = true
                 if (showGrid) {

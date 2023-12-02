@@ -69,8 +69,7 @@ export class WaterBrush extends SymmetricMapEditorBrush {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            const is_water: boolean = fields.is_water.value
-            this.map.initialWater[idx] = is_water ? 1 : 0
+            this.map.initialWater[idx] = fields.should_add.value ? 1 : 0
         })
     }
 }
