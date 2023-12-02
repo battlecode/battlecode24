@@ -32,7 +32,7 @@ export const GamePage: React.FC = () => {
             <UnitsTable team={1} />
 
             <SectionHeader
-                title='Stats'
+                title="Stats"
                 open={showStats}
                 onClick={() => setShowStats(!showStats)}
                 containerClassName="mt-5"
@@ -40,9 +40,11 @@ export const GamePage: React.FC = () => {
             >
                 {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                     them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+                {/*
                 <ResourceGraph active={showStats} property="adamantium" propertyDisplayName='Adamantium'/>
                 <ResourceGraph active={showStats} property="mana" propertyDisplayName='Mana'/>
                 <ResourceGraph active={showStats} property="elixir" propertyDisplayName='Elixir'/>
+                */}
             </SectionHeader>
         </div>
     )

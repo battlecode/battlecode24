@@ -4,7 +4,7 @@ import { Vector } from './Vector'
 import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
-import { WallsBrush } from './Brushes'
+import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
 
 export type Dimension = {
     minCorner: Vector
@@ -342,6 +342,12 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [new WallsBrush(this)]
+        return [
+            new WallsBrush(this),
+            new WaterBrush(this),
+            new DividerBrush(this),
+            new SpawnZoneBrush(this),
+            new ResourcePileBrush(this)
+        ]
     }
 }

@@ -30,7 +30,7 @@ export abstract class SymmetricMapEditorBrush extends MapEditorBrush {
 
 export interface MapEditorBrushField {
     type: MapEditorBrushFieldType
-    value: any
+    value?: any
     label?: string
     options?: { value: any; label: string }[]
     min?: number

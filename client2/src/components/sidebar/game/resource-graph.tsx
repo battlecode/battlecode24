@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import React from 'react'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
@@ -24,7 +23,7 @@ function getChartData(appContext: AppContext, property: string): DataPoint[] {
     const values = [0, 1].map((index) =>
         match.stats.map((turnStat) => {
             const teamStat = turnStat.getTeamStat(match.game.teams[index])
-            assert(hasKey(teamStat, property))
+            assert(hasKey(teamStat, property), `TeamStat missing property '${property}' when rendering chart`)
             return teamStat[property]
         })
     )
@@ -47,16 +46,12 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     return (
         <div className="mt-2 px-2 w-full">
             <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
-            {/* <ResponsiveContainer aspect={1.5} width="100%" className="text-xs"> */}
-            {/* <div className="App"> */}
             <D3LineChart
                 data={getChartData(appContext, props.property)}
                 width={300 + 40} // Add 40 so that tooltip is visible outside of SVG container
                 height={300}
                 margin={{ top: 20, right: 20 + 20, bottom: 30, left: 40 + 20 }}
             />
-            {/* </div> */}
-            {/* </ResponsiveContainer> */}
         </div>
     )
 }

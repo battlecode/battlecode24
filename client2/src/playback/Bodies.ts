@@ -171,7 +171,7 @@ export default class Bodies {
     }
 
     getEditorBrushes(map: StaticMap): MapEditorBrush[] {
-        return [new ArchonBrush(this, map)]
+        return []
     }
 
     toSpawnedBodyTable(builder: flatbuffers.Builder): number {
@@ -307,63 +307,5 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             // depending on color
             this.imgPath = `robots/${team.color}_robot.png`
         }
-    }
-}
-
-export class ArchonBrush extends MapEditorBrush {
-    public readonly name = 'Archons'
-    public readonly fields = {
-        is_archon: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        team: {
-            type: MapEditorBrushFieldType.TEAM,
-            value: 0
-        }
-    }
-
-    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
-        super()
-    }
-
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        /*
-        const symmetryPoint = this.map.applySymmetry({ x: x, y: y })
-        if (symmetryPoint.x == x && symmetryPoint.y == y) return // dont allow the case where the archon is on the symmetry line
-
-        const is_archon: boolean = fields.is_archon.value
-
-        if (is_archon) {
-            if (this.bodies.getBodyAtLocation(x, y)) return
-
-            const team = this.bodies.game.teams[fields.team.value]
-            const otherTeam = this.bodies.game.teams[(fields.team.value + 1) % 2]
-
-            const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
-            const archon = new archonClass({ x, y }, 1, team, this.bodies.getNextID())
-            this.bodies.bodies.set(archon.id, archon)
-            const otherArchon = new archonClass(
-                { x: symmetryPoint.x, y: symmetryPoint.y },
-                1,
-                otherTeam,
-                this.bodies.getNextID()
-            )
-            this.bodies.bodies.set(otherArchon.id, otherArchon)
-        } else {
-            let archon = this.bodies.getBodyAtLocation(x, y, undefined, schema.BodyType.HEADQUARTERS)
-            let otherArchon = this.bodies.getBodyAtLocation(
-                symmetryPoint.x,
-                symmetryPoint.y,
-                undefined,
-                schema.BodyType.HEADQUARTERS
-            )
-            if (archon || otherArchon) {
-                assert(archon && otherArchon, 'Archon and otherArchon should both be defined or both be undefined')
-                this.bodies.bodies.delete(archon.id)
-                this.bodies.bodies.delete(otherArchon.id)
-            }
-        }
-		*/
     }
 }
