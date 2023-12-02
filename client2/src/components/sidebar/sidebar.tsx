@@ -15,6 +15,7 @@ import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
 import { TournamentPage } from './tournament/tournament'
+import { useScaffold } from './runner/scaffold';
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -29,6 +30,9 @@ export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
     const keyboard = useKeyboard()
+
+    // scaffold is created at this level so it is never re-created
+    const scaffold = useScaffold()
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
@@ -49,7 +53,7 @@ export const Sidebar: React.FC = () => {
             case PageType.QUEUE:
                 return <QueuePage />
             case PageType.RUNNER:
-                return <RunnerPage />
+                return <RunnerPage scaffold={scaffold}/>
             case PageType.PROFILER:
                 return <ProfilerPage />
             case PageType.MAP_EDITOR:
