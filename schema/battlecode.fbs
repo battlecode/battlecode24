@@ -264,18 +264,18 @@ table Round {
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
-    actionIds: [int];
+    actionIds: [int]; //done
     /// The actions performed. These actions allow us to track many things about the current state.
-    actions: [Action];
+    actions: [Action]; //done
     /// The 'targets' of the performed actions. Actions without targets may have any value
-    actionTargets: [int];
+    actionTargets: [int]; //done
 
     claimedResourcePiles: VecTable;
 
-    trapAddedIds: [int];
-    trapAddedLocations: VecTable;
-    trapAddedTypes: [BuildActionType];
-    trapAddedTeams: [byte];
+    trapAddedIds: [int]; //done
+    trapAddedLocations: VecTable; //done
+    trapAddedTypes: [BuildActionType]; //done
+    trapAddedTeams: [byte]; //done
 
     trapTriggeredIds: [int];
 

@@ -6,14 +6,19 @@ import battlecode.common.Team;
 import battlecode.common.TrapType;
 
 public class Trap{
+    private int id;
     private TrapType type;
     private MapLocation loc;
     private Team owningTeam;
 
-    public Trap(MapLocation loc, TrapType type, Team team){
+    public Trap(MapLocation loc, TrapType type, Team team, int id){
         this.loc = loc;
         this.type = type;
         this.owningTeam = team;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Team getTeam(){

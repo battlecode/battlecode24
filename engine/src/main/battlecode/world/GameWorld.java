@@ -33,6 +33,7 @@ public strictfp class GameWorld {
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
+    private int trapId;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -59,6 +60,7 @@ public strictfp class GameWorld {
         this.breadAmounts = gm.getBreadArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
+        this.trapId = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
         this.gameMap = gm;
@@ -100,7 +102,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < gm.getFlagArray().length; i++) {
             int flagVal = gm.getFlagArray()[i];
             if(flagVal == 0) continue;
-            Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i));
+            Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i), i);
             allFlags.add(flag);
             placedFlags[i].add(flag);
         }
@@ -334,7 +336,10 @@ public strictfp class GameWorld {
         return this.trapTriggers[locationToIndex(loc)];
     }
 
-    public void placeTrap(MapLocation loc, Trap trap){
+    public void placeTrap(MapLocation loc, TrapType type, Team team){
+        Trap trap = new Trap(loc, type, team, trapId);
+        trapId++;
+        matchMaker.add
         this.trapLocations[locationToIndex(loc)] = trap;
         //should we be able to trigger traps we are diagonally next to?
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){

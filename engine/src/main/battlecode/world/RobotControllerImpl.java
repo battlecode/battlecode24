@@ -5,6 +5,7 @@ import battlecode.common.*;
 import static battlecode.common.GameActionExceptionType.*;
 import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
+import battlecode.util.FlatHelpers;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -442,11 +443,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void build(TrapType trap, MapLocation loc) throws GameActionException{
         assertCanBuild(trap, loc);
-        Trap toPlace = new Trap(loc, trap, this.getTeam());
-        this.gameWorld.placeTrap(loc, toPlace);
-        //TODO: figure out action ids to pass to schema
-        //also build action doesn't exist
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.BUILD, -1);
+        this.gameWorld.placeTrap(loc, trap, this.getTeam());
+        this.gameWorld.getMatchMaker().addAction(getID(), FlatHelpers.getTrapActionFromTrapType(trap), locationToInt(loc));
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns(trap.actionCooldownIncrease*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
 
@@ -479,7 +477,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns((GameConstants.FILL_COOLDOWN)*(1-SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD))));
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         //action id
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
@@ -520,7 +518,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         //TODO: add conversion to percentage + rounding  to cooldowns
         this.robot.addActionCooldownTurns((int) (GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
@@ -748,8 +746,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void dropFlag(MapLocation loc) throws GameActionException{
         assertCanDropFlag(loc);
-        this.gameWorld.addFlag(loc, robot.getFlag());
-        robot.removeFlag();
+        Flag flag = robot.getFlag();
+        this.gameWorld.addFlag(loc, flag);
+        this.gameWorld.getMatchMaker().addAction(robot.getID(), Action.DROP_FLAG, flag.getId());
+        robot.removeFlag();   
     }
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
@@ -777,6 +777,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Flag tempflag = this.gameWorld.getFlags(loc).get(0);
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
+        gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
     }
 
     // ***********************************

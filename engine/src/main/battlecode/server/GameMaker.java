@@ -425,6 +425,12 @@ public strictfp class GameMaker {
         private TIntArrayList resourceWellID;
         private TIntArrayList wellAccelerationID;
 
+        private TIntArrayList trapAddedIds;
+        private TIntArrayList trapAddedX;
+        private TIntArrayList trapAddedY;
+        private TByteArrayList trapAddedTypes;
+        private TByteArrayList trapAddedTeams;
+
         private TIntArrayList indicatorStringIDs;
         private ArrayList<String> indicatorStrings;
 
@@ -488,6 +494,11 @@ public strictfp class GameMaker {
             this.resourceWellExValue = new TIntArrayList();
             this.resourceWellID = new TIntArrayList();
             this.wellAccelerationID = new TIntArrayList();
+            this.trapAddedIds = new TIntArrayList();
+            this.trapAddedX =  new TIntArrayList();
+            this.trapAddedY = new TIntArrayList();
+            this.trapAddedTypes = new TByteArrayList();
+            this.trapAddedTeams = new TByteArrayList();
             this.indicatorStringIDs = new TIntArrayList();
             this.indicatorStrings = new ArrayList<>();
             this.indicatorDotIDs = new TIntArrayList();
@@ -640,6 +651,11 @@ public strictfp class GameMaker {
                 int resourceWellIDsP = Round.createResourceIDVector(builder, resourceWellID.toArray());
                 int wellAccelerationIDsP = Round.createWellAccelerationIDVector(builder, wellAccelerationID.toArray());
 
+                int trapAddedIdsP = Round.createTrapAddedIdsVector(builder, trapAddedIds.toArray());
+                int trapAddedLocsP = createVecTable(builder, trapAddedX, trapAddedY);
+                int trapAddedTypesP = Round.createTrapAddedTypesVector(builder, trapAddedTypes.toArray());
+                int trapAddedTeamsP = Round.createTrapAddedTeamsVector(builder, trapAddedTeams.toArray());
+
                 // The indicator strings that were set
                 int indicatorStringIDsP = Round.createIndicatorStringIDsVector(builder, indicatorStringIDs.toArray());
                 TIntArrayList indicatorStringsIntList = new TIntArrayList();
@@ -696,6 +712,10 @@ public strictfp class GameMaker {
                 Round.addWellElixirValues(builder, resourceWellExValueP);
                 Round.addResourceID(builder, resourceWellIDsP);
                 Round.addWellAccelerationID(builder, wellAccelerationIDsP);
+                Round.addTrapAddedIds(builder, trapAddedIdsP);
+                Round.addTrapAddedLocations(builder, trapAddedLocsP);
+                Round.addTrapAddedTypes(builder, trapAddedTypesP);
+                Round.addTrapAddedTeams(builder, trapAddedTeamsP);
                 Round.addIndicatorStringIDs(builder, indicatorStringIDsP);
                 Round.addIndicatorStrings(builder, indicatorStringsP);
                 Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
@@ -750,6 +770,15 @@ public strictfp class GameMaker {
             actionIds.add(userID);
             actions.add(action);
             actionTargets.add(targetID);
+        }
+
+        public void addTrap(Trap trap) {
+            trapAddedIds.add(trap.getId());
+            MapLocation loc = trap.getLocation();
+            trapAddedX.add(loc.x);
+            trapAddedY.add(loc.y);
+            trapAddedTypes.add(FlatHelpers.getBuildActionFromTrapType(trap.getType()));
+            trapAddedTeams.add(TeamMapping.id(trap.getTeam()));
         }
 
         public void addWell(Well well, int location) {
@@ -856,6 +885,11 @@ public strictfp class GameMaker {
             resourceWellExValue.clear();
             resourceWellID.clear();
             wellAccelerationID.clear();
+            trapAddedIds.clear();
+            trapAddedX.clear();
+            trapAddedY.clear();
+            trapAddedTypes.clear();
+            trapAddedTeams.clear();
             indicatorStringIDs.clear();
             indicatorStrings.clear();
             indicatorDotIDs.clear();

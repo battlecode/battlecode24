@@ -5,6 +5,8 @@ import battlecode.common.Team;
 
 public class Flag {
     
+    private int id;
+
     private Team team;
 
     private MapLocation loc;
@@ -17,11 +19,16 @@ public class Flag {
 
     private int droppedRounds;
 
-    public Flag(Team team, MapLocation startLoc){
+    public Flag(Team team, MapLocation startLoc, int id){
         this.team = team;
         this.startLoc = startLoc;
+        this.id = id;
         loc = startLoc;
         broadcastLoc = startLoc;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Team getTeam() {
