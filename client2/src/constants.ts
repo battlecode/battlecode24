@@ -32,6 +32,7 @@ export const TEAM_BLUE = '#407496'
 export const TEAM_RED = '#D53E43'
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
 export const TEAM_NAMES = ['Red', 'Blue']
+export const GAMEAREA_BACKGROUND = 'grey'
 
 /*
  * Renderer constants

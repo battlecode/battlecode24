@@ -290,7 +290,7 @@ export class StaticMap {
 
     draw(ctx: CanvasRenderingContext2D) {
         // Fill background
-        ctx.fillStyle = '#BAAD99'
+        ctx.fillStyle = '#28683e'
         ctx.fillRect(
             this.dimension.minCorner.x,
             this.dimension.minCorner.y,
@@ -306,7 +306,7 @@ export class StaticMap {
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
                     renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, (scale) => {
-                        ctx.fillStyle = '#333333'
+                        ctx.fillStyle = 'grey'
                         ctx.fillRect(coords.x, coords.y, scale, scale)
                     })
                 }
@@ -314,7 +314,7 @@ export class StaticMap {
                 // Render rounded (clipped) water
                 if (this.initialWater[schemaIdx]) {
                     renderUtils.renderRounded(ctx, i, j, this.dimension, this.initialWater, (scale) => {
-                        ctx.fillStyle = '#335c69'
+                        ctx.fillStyle = '#2b58a5'
                         ctx.fillRect(coords.x, coords.y, scale, scale)
                     })
                 }
