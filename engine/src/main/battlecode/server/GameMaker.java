@@ -401,9 +401,10 @@ public strictfp class GameMaker {
         private TIntArrayList spawnedBodiesLocsXs; //For locs
         private TIntArrayList spawnedBodiesLocsYs; //For locs
 
-        private TIntArrayList diedIDs; // ints
+        private TIntArrayList spawnedIds;
+        private TIntArrayList diedIds; // ints
 
-        private TIntArrayList actionIDs; // ints
+        private TIntArrayList actionIds; // ints
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
 
@@ -469,8 +470,9 @@ public strictfp class GameMaker {
             this.spawnedBodiesTypes = new TByteArrayList();
             this.spawnedBodiesLocsXs = new TIntArrayList();
             this.spawnedBodiesLocsYs = new TIntArrayList();
-            this.diedIDs = new TIntArrayList();
-            this.actionIDs = new TIntArrayList();
+            this.spawnedIds = new TIntArrayList();
+            this.diedIds = new TIntArrayList();
+            this.actionIds = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
@@ -617,11 +619,11 @@ public strictfp class GameMaker {
                 int healsPerformedP = Round.createAttacksPerformedVector(builder, healsPerformed.toArray());
                 int healLevelsP = Round.createHealLevelsVector(builder, healLevels.toArray());
 
-                // The bodies that died
-                int diedIDsP = Round.createDiedIDsVector(builder, diedIDs.toArray());
+                int spawnedIdsP = Round.createSpawnedIdsVector(builder, spawnedIds.toArray());
+                int diedIdsP = Round.createDiedIdsVector(builder, diedIds.toArray());
 
                 // The actions that happened
-                int actionIDsP = Round.createActionIDsVector(builder, actionIDs.toArray());
+                int actionIdsP = Round.createActionIdsVector(builder, actionIds.toArray());
                 int actionsP = Round.createActionsVector(builder, actions.toArray());
                 int actionTargetsP = Round.createActionTargetsVector(builder, actionTargets.toArray());
 
@@ -680,8 +682,9 @@ public strictfp class GameMaker {
                 Round.addHealsPerformed(builder, healsPerformedP);
                 Round.addHealLevels(builder, healLevelsP);
                 Round.addSpawnedBodies(builder, spawnedBodiesP);
-                Round.addDiedIDs(builder, diedIDsP);
-                Round.addActionIDs(builder, actionIDsP);
+                Round.addSpawnedIds(builder, spawnedIdsP);
+                Round.addDiedIds(builder, diedIdsP);
+                Round.addActionIds(builder, actionIdsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
                 Round.addIslandIDs(builder, islandIDsP);
@@ -735,12 +738,16 @@ public strictfp class GameMaker {
             healLevels.add(robot.getLevel(SkillType.HEAL));
         }
 
+        public void addSpawned(int id) {
+            spawnedIds.add(id);
+        }
+
         public void addDied(int id) {
-            diedIDs.add(id);
+            diedIds.add(id);
         }
 
         public void addAction(int userID, byte action, int targetID) {
-            actionIDs.add(userID);
+            actionIds.add(userID);
             actions.add(action);
             actionTargets.add(targetID);
         }
@@ -831,8 +838,9 @@ public strictfp class GameMaker {
             spawnedBodiesTypes.clear();
             spawnedBodiesLocsXs.clear();
             spawnedBodiesLocsYs.clear();
-            diedIDs.clear();
-            actionIDs.clear();
+            spawnedIds.clear();
+            diedIds.clear();
+            actionIds.clear();
             actions.clear();
             actionTargets.clear();
             teamIDs.clear();

@@ -257,10 +257,10 @@ table Round {
     healLevels: [int]; //done
 
     /// New bodies.
-    spawnedBodies: SpawnedBodyTable;
+    spawnedIds: [int]; //done
 
     /// The IDs of bodies that died.
-    diedIds: [int];
+    diedIds: [int]; //done
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
@@ -272,7 +272,7 @@ table Round {
 
     claimedResourcePiles: VecTable;
 
-    trapIds: [int];
+    trapAddedIds: [int];
     trapAddedLocations: VecTable;
     trapAddedTypes: [BuildActionType];
     trapAddedTeams: [byte];

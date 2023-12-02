@@ -6,7 +6,6 @@ import { Action } from '../../battlecode/schema/action';
 import { BuildActionType } from '../../battlecode/schema/build-action-type';
 import { CommTable } from '../../battlecode/schema/comm-table';
 import { RGBTable } from '../../battlecode/schema/rgbtable';
-import { SpawnedBodyTable } from '../../battlecode/schema/spawned-body-table';
 import { VecTable } from '../../battlecode/schema/vec-table';
 
 
@@ -233,9 +232,19 @@ healLevelsArray():Int32Array|null {
 /**
  * New bodies.
  */
-spawnedBodies(obj?:SpawnedBodyTable):SpawnedBodyTable|null {
+spawnedIds(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 32);
-  return offset ? (obj || new SpawnedBodyTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+}
+
+spawnedIdsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+spawnedIdsArray():Int32Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 32);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 /**
@@ -316,17 +325,17 @@ claimedResourcePiles(obj?:VecTable):VecTable|null {
   return offset ? (obj || new VecTable()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
-trapIds(index: number):number|null {
+trapAddedIds(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-trapIdsLength():number {
+trapAddedIdsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-trapIdsArray():Int32Array|null {
+trapAddedIdsArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
@@ -810,8 +819,25 @@ static startHealLevelsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addSpawnedBodies(builder:flatbuffers.Builder, spawnedBodiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(14, spawnedBodiesOffset, 0);
+static addSpawnedIds(builder:flatbuffers.Builder, spawnedIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(14, spawnedIdsOffset, 0);
+}
+
+static createSpawnedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+/**
+ * @deprecated This Uint8Array overload will be removed in the future.
+ */
+static createSpawnedIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createSpawnedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSpawnedIdsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
 }
 
 static addDiedIds(builder:flatbuffers.Builder, diedIdsOffset:flatbuffers.Offset) {
@@ -897,16 +923,16 @@ static addClaimedResourcePiles(builder:flatbuffers.Builder, claimedResourcePiles
   builder.addFieldOffset(19, claimedResourcePilesOffset, 0);
 }
 
-static addTrapIds(builder:flatbuffers.Builder, trapIdsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, trapIdsOffset, 0);
+static addTrapAddedIds(builder:flatbuffers.Builder, trapAddedIdsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(20, trapAddedIdsOffset, 0);
 }
 
-static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createTrapAddedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTrapAddedIdsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTrapAddedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -914,7 +940,7 @@ static createTrapIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array
   return builder.endVector();
 }
 
-static startTrapIdsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTrapAddedIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
