@@ -401,9 +401,9 @@ public strictfp class GameMaker {
 
         // Round statistics
         private TIntArrayList teamIDs;
-        private TIntArrayList teamMnChanges;
-        private TIntArrayList teamAdChanges;
-        private TIntArrayList teamExChanges;
+        private TIntArrayList teamBreadAmounts;
+        private TIntArrayList teamAComm;
+        private TIntArrayList teamBComm;
 
         private TIntArrayList islandIDs;
         private TIntArrayList islandTurnoverTurns;
@@ -458,9 +458,9 @@ public strictfp class GameMaker {
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
-            this.teamMnChanges = new TIntArrayList();
-            this.teamAdChanges = new TIntArrayList();
-            this.teamExChanges = new TIntArrayList();
+            this.teamBreadAmounts = new TIntArrayList();
+            this.teamAComm = new TIntArrayList();
+            this.teamBComm = new TIntArrayList();
             this.islandIDs = new TIntArrayList();
             this.islandTurnoverTurns = new TIntArrayList();
             this.islandOwnership = new TIntArrayList();
@@ -580,11 +580,14 @@ public strictfp class GameMaker {
                 int spawnedBodiesP = SpawnedBodyTable.endSpawnedBodyTable(builder);
 
                 // Round statistics
-                int teamIDsP = Round.createTeamIDsVector(builder, teamIDs.toArray());
-                int teamAdChangesP = Round.createTeamAdChangesVector(builder, teamAdChanges.toArray());
-                int teamMnChangesP = Round.createTeamMnChangesVector(builder, teamMnChanges.toArray());
-                int teamExChangesP = Round.createTeamExChangesVector(builder, teamExChanges.toArray());
-
+                int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toArray());
+                int teamBreadAmountsP = Round.createTeamResourceAmountsVector(builder, teamBreadAmounts.toArray());
+                CommTable.startCommTable(builder);
+                int teamACommVector = CommTable.createTeam1Vector(builder, teamAComm.toArray());
+                int teamBCommVector = CommTable.createTeam2Vector(builder, teamBComm.toArray());
+                CommTable.addTeam1(builder, teamACommVector);
+                CommTable.addTeam2(builder, teamBCommVector);
+                int teamCommunicationP = CommTable.endCommTable(builder);
 
                 // The bodies that moved
                 int movedIDsP = Round.createMovedIDsVector(builder, movedIDs.toArray());
@@ -635,7 +638,9 @@ public strictfp class GameMaker {
                 int bytecodesUsedP = Round.createBytecodesUsedVector(builder, bytecodesUsed.toArray());
 
                 Round.startRound(builder);
-                Round.addTeamIDs(builder, teamIDsP);
+                Round.addTeamIds(builder, teamIDsP);
+                Round.addTeamCommunication(builder, teamCommunicationP);
+                Round.addTeamResourceAmounts(builder, teamBreadAmountsP);
                 Round.addTeamAdChanges(builder, teamAdChangesP);
                 Round.addTeamMnChanges(builder, teamMnChangesP);
                 Round.addTeamExChanges(builder, teamExChangesP);
@@ -712,11 +717,11 @@ public strictfp class GameMaker {
             islandOwnership.add(island.getTeamInt());
         }
 
-        public void addTeamInfo(Team team, int adChange, int mnChange, int exChange) {
+        public void addTeamInfo(Team team, int breadAmount, int[] sharedArray) {
             teamIDs.add(TeamMapping.id(team));
-            teamAdChanges.add(adChange);
-            teamMnChanges.add(mnChange);
-            teamExChanges.add(exChange);
+            teamBreadAmounts.add(breadAmount);
+            if(team == Team.A) teamAComm = new TIntArrayList(sharedArray);
+            else if(team == Team.B) teamBComm = new TIntArrayList(sharedArray);
         }
 
         public void addIndicatorString(int id, String string) {
@@ -780,9 +785,9 @@ public strictfp class GameMaker {
             actions.clear();
             actionTargets.clear();
             teamIDs.clear();
-            teamAdChanges.clear();
-            teamMnChanges.clear();
-            teamExChanges.clear();
+            teamBreadAmounts.clear();
+            teamAComm.clear();
+            teamBComm.clear();
             islandIDs.clear();
             islandTurnoverTurns.clear();
             islandOwnership.clear();

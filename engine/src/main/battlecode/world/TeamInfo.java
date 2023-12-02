@@ -229,5 +229,8 @@ public class TeamInfo {
         this.oldBreadCounts[1] = this.breadCounts[1];
     }
 
+    public int[] getSharedArray(Team team) {
+        return this.sharedArrays[team.ordinal()];
+    }
 
 }

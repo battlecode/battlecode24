@@ -392,6 +392,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.spawned = false;
         this.location = null;
         this.spawnCooldownTurns = GameConstants.COOLDOWNS_PER_TURN * GameConstants.JAILED_ROUNDS;
+        jailedPenalty();
     }
 
     public boolean isSpawned() {

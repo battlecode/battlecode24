@@ -239,10 +239,10 @@ table MatchFooter {
 /// of-structs.
 table Round {
     /// The IDs of teams in the Game.
-    teamIds: [int];
+    teamIds: [int]; //done
     /// The total amount of resource this round per team
-    teamResourceAmounts: [int];
-    teamCommunication: CommTable;
+    teamResourceAmounts: [int]; //done
+    teamCommunication: CommTable; //done
 
     robotIds: [int];
     robotLocs: VecTable;
