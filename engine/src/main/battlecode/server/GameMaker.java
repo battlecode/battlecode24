@@ -341,16 +341,6 @@ public strictfp class GameMaker {
         return GameHeader.createBuildActionMetadataVector(builder, buildActionMetadataOffsets.toArray());
     }
 
-    private byte robotTypeToBodyType(RobotType type) {
-        if (type == RobotType.HEADQUARTERS) return BodyType.HEADQUARTERS;
-        if (type == RobotType.AMPLIFIER) return BodyType.AMPLIFIER;
-        if (type == RobotType.BOOSTER) return BodyType.BOOSTER;
-        if (type == RobotType.CARRIER) return BodyType.CARRIER;
-        if (type == RobotType.DESTABILIZER) return BodyType.DESTABILIZER;
-        if (type == RobotType.LAUNCHER) return BodyType.LAUNCHER;
-        return Byte.MIN_VALUE;
-    }
-
     private byte skillTypeToSpecializationType(SkillType type) {
         if (type == SkillType.ATTACK) return SpecializationType.ATTACK;
         if (type == SkillType.BUILD) return SpecializationType.BUILD;
@@ -394,13 +384,6 @@ public strictfp class GameMaker {
         private TIntArrayList healsPerformed;
         private TIntArrayList healLevels;
 
-        // SpawnedBodyTable for spawnedBodies
-        private TIntArrayList spawnedBodiesRobotIDs;
-        private TByteArrayList spawnedBodiesTeamIDs;
-        private TByteArrayList spawnedBodiesTypes;
-        private TIntArrayList spawnedBodiesLocsXs; //For locs
-        private TIntArrayList spawnedBodiesLocsYs; //For locs
-
         private TIntArrayList spawnedIds;
         private TIntArrayList diedIds; // ints
 
@@ -413,17 +396,6 @@ public strictfp class GameMaker {
         private TIntArrayList teamBreadAmounts;
         private TIntArrayList teamAComm;
         private TIntArrayList teamBComm;
-
-        private TIntArrayList islandIDs;
-        private TIntArrayList islandTurnoverTurns;
-        private TIntArrayList islandOwnership;
-
-        private TIntArrayList resourceWellLocs;
-        private TIntArrayList resourceWellAdValue;
-        private TIntArrayList resourceWellMnValue;
-        private TIntArrayList resourceWellExValue;
-        private TIntArrayList resourceWellID;
-        private TIntArrayList wellAccelerationID;
 
         private TIntArrayList trapAddedIds;
         private TIntArrayList trapAddedX;
@@ -438,11 +410,11 @@ public strictfp class GameMaker {
         private TIntArrayList fillLocsX;
         private TIntArrayList fillLocsY;
 
-        private TIntArrayList indicatorStringIDs;
+        private TIntArrayList indicatorStringIds;
         private ArrayList<String> indicatorStrings;
 
         // Indicator dots with locations and RGB values
-        private TIntArrayList indicatorDotIDs;
+        private TIntArrayList indicatorDotIds;
         private TIntArrayList indicatorDotLocsX;
         private TIntArrayList indicatorDotLocsY;
         private TIntArrayList indicatorDotRGBsRed;
@@ -450,7 +422,7 @@ public strictfp class GameMaker {
         private TIntArrayList indicatorDotRGBsBlue;
 
         // Indicator lines with locations and RGB values
-        private TIntArrayList indicatorLineIDs;
+        private TIntArrayList indicatorLineIds;
         private TIntArrayList indicatorLineStartLocsX;
         private TIntArrayList indicatorLineStartLocsY;
         private TIntArrayList indicatorLineEndLocsX;
@@ -460,7 +432,7 @@ public strictfp class GameMaker {
         private TIntArrayList indicatorLineRGBsBlue;
 
         // Robot IDs and their bytecode usage
-        private TIntArrayList bytecodeIDs;
+        private TIntArrayList bytecodeIds;
         private TIntArrayList bytecodesUsed;
 
         // Used to write logs.
@@ -478,11 +450,6 @@ public strictfp class GameMaker {
             this.buildLevels = new TIntArrayList();
             this.healsPerformed = new TIntArrayList();
             this.healLevels = new TIntArrayList();
-            this.spawnedBodiesRobotIDs = new TIntArrayList();
-            this.spawnedBodiesTeamIDs = new TByteArrayList();
-            this.spawnedBodiesTypes = new TByteArrayList();
-            this.spawnedBodiesLocsXs = new TIntArrayList();
-            this.spawnedBodiesLocsYs = new TIntArrayList();
             this.spawnedIds = new TIntArrayList();
             this.diedIds = new TIntArrayList();
             this.actionIds = new TIntArrayList();
@@ -492,15 +459,6 @@ public strictfp class GameMaker {
             this.teamBreadAmounts = new TIntArrayList();
             this.teamAComm = new TIntArrayList();
             this.teamBComm = new TIntArrayList();
-            this.islandIDs = new TIntArrayList();
-            this.islandTurnoverTurns = new TIntArrayList();
-            this.islandOwnership = new TIntArrayList();
-            this.resourceWellLocs = new TIntArrayList();
-            this.resourceWellAdValue = new TIntArrayList();
-            this.resourceWellMnValue = new TIntArrayList();
-            this.resourceWellExValue = new TIntArrayList();
-            this.resourceWellID = new TIntArrayList();
-            this.wellAccelerationID = new TIntArrayList();
             this.trapAddedIds = new TIntArrayList();
             this.trapAddedX =  new TIntArrayList();
             this.trapAddedY = new TIntArrayList();
@@ -511,15 +469,15 @@ public strictfp class GameMaker {
             this.digLocsY = new TIntArrayList();
             this.fillLocsX = new TIntArrayList();
             this.fillLocsY = new TIntArrayList();
-            this.indicatorStringIDs = new TIntArrayList();
+            this.indicatorStringIds = new TIntArrayList();
             this.indicatorStrings = new ArrayList<>();
-            this.indicatorDotIDs = new TIntArrayList();
+            this.indicatorDotIds = new TIntArrayList();
             this.indicatorDotLocsX = new TIntArrayList();
             this.indicatorDotLocsY = new TIntArrayList();
             this.indicatorDotRGBsRed = new TIntArrayList();
             this.indicatorDotRGBsBlue = new TIntArrayList();
             this.indicatorDotRGBsGreen = new TIntArrayList();
-            this.indicatorLineIDs = new TIntArrayList();
+            this.indicatorLineIds = new TIntArrayList();
             this.indicatorLineStartLocsX = new TIntArrayList();
             this.indicatorLineStartLocsY = new TIntArrayList();
             this.indicatorLineEndLocsX = new TIntArrayList();
@@ -527,7 +485,7 @@ public strictfp class GameMaker {
             this.indicatorLineRGBsRed = new TIntArrayList();
             this.indicatorLineRGBsBlue = new TIntArrayList();
             this.indicatorLineRGBsGreen = new TIntArrayList();
-            this.bytecodeIDs = new TIntArrayList();
+            this.bytecodeIds = new TIntArrayList();
             this.bytecodesUsed = new TIntArrayList();
             this.logger = new ByteArrayOutputStream();
         }
@@ -608,17 +566,6 @@ public strictfp class GameMaker {
             this.logger.reset();
 
             createEvent((builder) -> {
-                // The bodies that spawned
-                int spawnedBodiesLocsP = createVecTable(builder, spawnedBodiesLocsXs, spawnedBodiesLocsYs);
-                int spawnedBodiesRobotIDsP = SpawnedBodyTable.createRobotIDsVector(builder, spawnedBodiesRobotIDs.toArray());
-                int spawnedBodiesTeamIDsP = SpawnedBodyTable.createTeamIDsVector(builder, spawnedBodiesTeamIDs.toArray());
-                int spawnedBodiesTypesP = SpawnedBodyTable.createTypesVector(builder, spawnedBodiesTypes.toArray());
-                SpawnedBodyTable.startSpawnedBodyTable(builder);
-                SpawnedBodyTable.addLocs(builder, spawnedBodiesLocsP);
-                SpawnedBodyTable.addRobotIDs(builder, spawnedBodiesRobotIDsP);
-                SpawnedBodyTable.addTeamIDs(builder, spawnedBodiesTeamIDsP);
-                SpawnedBodyTable.addTypes(builder, spawnedBodiesTypesP);
-                int spawnedBodiesP = SpawnedBodyTable.endSpawnedBodyTable(builder);
 
                 // Round statistics
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toArray());
@@ -650,19 +597,6 @@ public strictfp class GameMaker {
                 int actionsP = Round.createActionsVector(builder, actions.toArray());
                 int actionTargetsP = Round.createActionTargetsVector(builder, actionTargets.toArray());
 
-                // The information about islands
-                int islandIDsP = Round.createIslandIDsVector(builder, islandIDs.toArray());
-                int islandTurnoverTurnsP = Round.createIslandTurnoverTurnsVector(builder, islandTurnoverTurns.toArray());
-                int islandOwnershipP = Round.createIslandOwnershipVector(builder, islandOwnership.toArray());     
-
-                // The information about wells
-                int resourceWellLocsP = Round.createResourceWellLocsVector(builder, resourceWellLocs.toArray());
-                int resourceWellAdValueP = Round.createWellAdamantiumValuesVector(builder, resourceWellAdValue.toArray());
-                int resourceWellMnValueP = Round.createWellManaValuesVector(builder, resourceWellMnValue.toArray());
-                int resourceWellExValueP = Round.createWellElixirValuesVector(builder, resourceWellExValue.toArray());
-                int resourceWellIDsP = Round.createResourceIDVector(builder, resourceWellID.toArray());
-                int wellAccelerationIDsP = Round.createWellAccelerationIDVector(builder, wellAccelerationID.toArray());
-
                 int trapAddedIdsP = Round.createTrapAddedIdsVector(builder, trapAddedIds.toArray());
                 int trapAddedLocsP = createVecTable(builder, trapAddedX, trapAddedY);
                 int trapAddedTypesP = Round.createTrapAddedTypesVector(builder, trapAddedTypes.toArray());
@@ -674,7 +608,7 @@ public strictfp class GameMaker {
                 int fillLocsP = createVecTable(builder, fillLocsX, fillLocsY);
 
                 // The indicator strings that were set
-                int indicatorStringIDsP = Round.createIndicatorStringIDsVector(builder, indicatorStringIDs.toArray());
+                int indicatorStringIDsP = Round.createIndicatorStringIdsVector(builder, indicatorStringIds.toArray());
                 TIntArrayList indicatorStringsIntList = new TIntArrayList();
                 for (String s : indicatorStrings) {
                     indicatorStringsIntList.add(builder.createString(s));
@@ -682,27 +616,24 @@ public strictfp class GameMaker {
                 int indicatorStringsP = Round.createIndicatorStringsVector(builder, indicatorStringsIntList.toArray());
 
                 // The indicator dots that were set
-                int indicatorDotIDsP = Round.createIndicatorDotIDsVector(builder, indicatorDotIDs.toArray());
+                int indicatorDotIDsP = Round.createIndicatorDotIdsVector(builder, indicatorDotIds.toArray());
                 int indicatorDotLocsP = createVecTable(builder, indicatorDotLocsX, indicatorDotLocsY);
                 int indicatorDotRGBsP = createRGBTable(builder, indicatorDotRGBsRed, indicatorDotRGBsGreen, indicatorDotRGBsBlue);
 
                 // The indicator lines that were set
-                int indicatorLineIDsP = Round.createIndicatorLineIDsVector(builder, indicatorLineIDs.toArray());
+                int indicatorLineIDsP = Round.createIndicatorLineIdsVector(builder, indicatorLineIds.toArray());
                 int indicatorLineStartLocsP = createVecTable(builder, indicatorLineStartLocsX, indicatorLineStartLocsY);
                 int indicatorLineEndLocsP = createVecTable(builder, indicatorLineEndLocsX, indicatorLineEndLocsY);
                 int indicatorLineRGBsP = createRGBTable(builder, indicatorLineRGBsRed, indicatorLineRGBsGreen, indicatorLineRGBsBlue);
 
                 // The bytecode usage
-                int bytecodeIDsP = Round.createBytecodeIDsVector(builder, bytecodeIDs.toArray());
+                int bytecodeIDsP = Round.createBytecodeIdsVector(builder, bytecodeIds.toArray());
                 int bytecodesUsedP = Round.createBytecodesUsedVector(builder, bytecodesUsed.toArray());
 
                 Round.startRound(builder);
                 Round.addTeamIds(builder, teamIDsP);
                 Round.addTeamCommunication(builder, teamCommunicationP);
                 Round.addTeamResourceAmounts(builder, teamBreadAmountsP);
-                Round.addTeamAdChanges(builder, teamAdChangesP);
-                Round.addTeamMnChanges(builder, teamMnChangesP);
-                Round.addTeamExChanges(builder, teamExChangesP);
                 Round.addRobotIds(builder, robotIDsP);
                 Round.addRobotLocs(builder, robotLocsP);
                 Round.addRobotMoveCooldowns(builder, robotMoveCooldownsP);
@@ -714,21 +645,11 @@ public strictfp class GameMaker {
                 Round.addBuildLevels(builder, buildLevelsP);
                 Round.addHealsPerformed(builder, healsPerformedP);
                 Round.addHealLevels(builder, healLevelsP);
-                Round.addSpawnedBodies(builder, spawnedBodiesP);
                 Round.addSpawnedIds(builder, spawnedIdsP);
                 Round.addDiedIds(builder, diedIdsP);
                 Round.addActionIds(builder, actionIdsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
-                Round.addIslandIDs(builder, islandIDsP);
-                Round.addIslandTurnoverTurns(builder, islandTurnoverTurnsP);
-                Round.addIslandOwnership(builder, islandOwnershipP);
-                Round.addResourceWellLocs(builder, resourceWellLocsP);
-                Round.addWellAdamantiumValues(builder, resourceWellAdValueP);
-                Round.addWellManaValues(builder, resourceWellMnValueP);
-                Round.addWellElixirValues(builder, resourceWellExValueP);
-                Round.addResourceID(builder, resourceWellIDsP);
-                Round.addWellAccelerationID(builder, wellAccelerationIDsP);
                 Round.addTrapAddedIds(builder, trapAddedIdsP);
                 Round.addTrapAddedLocations(builder, trapAddedLocsP);
                 Round.addTrapAddedTypes(builder, trapAddedTypesP);
@@ -736,17 +657,17 @@ public strictfp class GameMaker {
                 Round.addTrapTriggeredIds(builder, trapTriggeredIdsP);
                 Round.addDigLocations(builder, digLocsP);
                 Round.addFillLocations(builder, fillLocsP);
-                Round.addIndicatorStringIDs(builder, indicatorStringIDsP);
+                Round.addIndicatorStringIds(builder, indicatorStringIDsP);
                 Round.addIndicatorStrings(builder, indicatorStringsP);
-                Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
+                Round.addIndicatorDotIds(builder, indicatorDotIDsP);
                 Round.addIndicatorDotLocs(builder, indicatorDotLocsP);
-                Round.addIndicatorDotRGBs(builder, indicatorDotRGBsP);
-                Round.addIndicatorLineIDs(builder, indicatorLineIDsP);
+                Round.addIndicatorDotRgbs(builder, indicatorDotRGBsP);
+                Round.addIndicatorLineIds(builder, indicatorLineIDsP);
                 Round.addIndicatorLineStartLocs(builder, indicatorLineStartLocsP);
                 Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsP);
-                Round.addIndicatorLineRGBs(builder, indicatorLineRGBsP);
-                Round.addRoundID(builder, roundNum);
-                Round.addBytecodeIDs(builder, bytecodeIDsP);
+                Round.addIndicatorLineRgbs(builder, indicatorLineRGBsP);
+                Round.addRoundId(builder, roundNum);
+                Round.addBytecodeIds(builder, bytecodeIDsP);
                 Round.addBytecodesUsed(builder, bytecodesUsedP);
                 int round = Round.endRound(builder);
                 return EventWrapper.createEventWrapper(builder, Event.Round, round);
@@ -815,21 +736,6 @@ public strictfp class GameMaker {
             fillLocsY.add(loc.y);
         }
 
-        public void addWell(Well well, int location) {
-            resourceWellLocs.add(location);
-            resourceWellAdValue.add(well.getResource(ResourceType.ADAMANTIUM));
-            resourceWellMnValue.add(well.getResource(ResourceType.MANA));
-            resourceWellExValue.add(well.getResource(ResourceType.ELIXIR));
-            resourceWellID.add(well.getResourceType().resourceID);
-            wellAccelerationID.add(well.accelerationId());
-        }
-
-        public void addIslandInfo(Island island) {
-            islandIDs.add(island.getID());
-            islandTurnoverTurns.add(island.getHealth());
-            islandOwnership.add(island.getTeamInt());
-        }
-
         public void addTeamInfo(Team team, int breadAmount, int[] sharedArray) {
             teamIDs.add(TeamMapping.id(team));
             teamBreadAmounts.add(breadAmount);
@@ -841,7 +747,7 @@ public strictfp class GameMaker {
             if (!showIndicators) {
                 return;
             }
-            indicatorStringIDs.add(id);
+            indicatorStringIds.add(id);
             indicatorStrings.add(string);
         }
 
@@ -849,7 +755,7 @@ public strictfp class GameMaker {
             if (!showIndicators) {
                 return;
             }
-            indicatorDotIDs.add(id);
+            indicatorDotIds.add(id);
             indicatorDotLocsX.add(loc.x);
             indicatorDotLocsY.add(loc.y);
             indicatorDotRGBsRed.add(red);
@@ -861,7 +767,7 @@ public strictfp class GameMaker {
             if (!showIndicators) {
                 return;
             }
-            indicatorLineIDs.add(id);
+            indicatorLineIds.add(id);
             indicatorLineStartLocsX.add(startLoc.x);
             indicatorLineStartLocsY.add(startLoc.y);
             indicatorLineEndLocsX.add(endLoc.x);
@@ -872,16 +778,8 @@ public strictfp class GameMaker {
         }
 
         public void addBytecodes(int id, int bytecodes) {
-            bytecodeIDs.add(id);
+            bytecodeIds.add(id);
             bytecodesUsed.add(bytecodes);
-        }
-
-        public void addSpawnedRobot(InternalRobot robot) {
-            spawnedBodiesRobotIDs.add(robot.getID());
-            spawnedBodiesLocsXs.add(robot.getLocation().x);
-            spawnedBodiesLocsYs.add(robot.getLocation().y);
-            spawnedBodiesTeamIDs.add(TeamMapping.id(robot.getTeam()));
-            spawnedBodiesTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.getType()));
         }
 
         private void clearData() {
@@ -896,11 +794,6 @@ public strictfp class GameMaker {
             buildLevels.clear();
             healsPerformed.clear();
             healLevels.clear();
-            spawnedBodiesRobotIDs.clear();
-            spawnedBodiesTeamIDs.clear();
-            spawnedBodiesTypes.clear();
-            spawnedBodiesLocsXs.clear();
-            spawnedBodiesLocsYs.clear();
             spawnedIds.clear();
             diedIds.clear();
             actionIds.clear();
@@ -910,15 +803,6 @@ public strictfp class GameMaker {
             teamBreadAmounts.clear();
             teamAComm.clear();
             teamBComm.clear();
-            islandIDs.clear();
-            islandTurnoverTurns.clear();
-            islandOwnership.clear();
-            resourceWellLocs.clear();
-            resourceWellAdValue.clear();
-            resourceWellMnValue.clear();
-            resourceWellExValue.clear();
-            resourceWellID.clear();
-            wellAccelerationID.clear();
             trapAddedIds.clear();
             trapAddedX.clear();
             trapAddedY.clear();
@@ -929,15 +813,15 @@ public strictfp class GameMaker {
             digLocsY.clear();
             fillLocsX.clear();
             fillLocsY.clear();
-            indicatorStringIDs.clear();
+            indicatorStringIds.clear();
             indicatorStrings.clear();
-            indicatorDotIDs.clear();
+            indicatorDotIds.clear();
             indicatorDotLocsX.clear();
             indicatorDotLocsY.clear();
             indicatorDotRGBsRed.clear();
             indicatorDotRGBsBlue.clear();
             indicatorDotRGBsGreen.clear();
-            indicatorLineIDs.clear();
+            indicatorLineIds.clear();
             indicatorLineStartLocsX.clear();
             indicatorLineStartLocsY.clear();
             indicatorLineEndLocsX.clear();
@@ -945,7 +829,7 @@ public strictfp class GameMaker {
             indicatorLineRGBsRed.clear();
             indicatorLineRGBsBlue.clear();
             indicatorLineRGBsGreen.clear();
-            bytecodeIDs.clear();
+            bytecodeIds.clear();
             bytecodesUsed.clear();
         }
     }

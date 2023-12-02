@@ -181,8 +181,7 @@ public class SandboxedRobotPlayer {
                 // Run the robot!
                 loadAndRunPlayer(teamName, PLAYER_CLASS_NAME);
                 // If we get here, we've returned from the 'run' method. Tell the user.
-                System.out.println(robotController.getTeam().toString() + "'s "
-                        + robotController.getType().toString() + " " +
+                System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " at location " + robotController.getLocation().toString()
                         + " froze in round " +robotController.getRoundNum() +
                         " because it returned from its run() method!");
@@ -422,7 +421,6 @@ public class SandboxedRobotPlayer {
         if (systemOut instanceof RoboPrintStream) {
             ((RoboPrintStream) systemOut).updateHeader(
                         robotController.getTeam(),
-                        robotController.getType(),
                         robotController.getID(),
                         robotController.getRoundNum()
             );
