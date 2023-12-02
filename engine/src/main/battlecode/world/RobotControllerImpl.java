@@ -531,7 +531,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void dig(MapLocation loc) throws GameActionException{
         assertCanDig(loc);
         //TODO: add conversion to percentage + rounding  to cooldowns
-        this.robot.addActionCooldownTurns((int) (GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
         this.gameWorld.getMatchMaker().addDigLocation(loc);
