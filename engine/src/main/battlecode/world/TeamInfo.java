@@ -21,6 +21,7 @@ public class TeamInfo {
     private int[] tierTwo;
     private int[][] sharedArrays; 
     private int[] totalFlagsCaptured;
+    private int[] totalFlagsPickedUp;
 
     private int[] oldBreadCounts;
     private boolean[][] globalUpgrades;
@@ -162,6 +163,25 @@ public class TeamInfo {
         if (this.totalFlagsCaptured[team.ordinal()] >= GameConstants.NUMBER_FLAGS){
             checkWin(team);
         }
+    }
+
+    /**
+     * Increment number of flags picked up by 1
+     * @param team the team to query
+     */
+    public void pickupFlag(Team team){
+        if (!gameWorld.isSetupPhase()){
+            totalFlagsPickedUp[team.ordinal()]++;
+        }
+    }
+
+    /**
+     * Return total number of flags picked up
+     * @param team
+     * @return # of flags picked up
+     */
+    public int getFlagsPickedUp(Team team){
+        return totalFlagsPickedUp[team.ordinal()];
     }
 
     /**
