@@ -321,6 +321,31 @@ public strictfp class LiveMap {
         return spawnZoneArray;
     }
 
+    public int[][] getSpawnZoneCenters(){
+        //first 3 team A next 3 team B
+        int[][] spawnZoneCenters = new int[6][2];
+        int cur_A = 0;
+        int cur_B = 3;
+        for (int i = width; i < spawnZoneArray.length; i++){
+            if (spawnZoneArray[i] == 1 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 1
+            && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 1){
+                MapLocation center = indexToLocation(i);
+                spawnZoneCenters[cur_A][0] = center.x;
+                spawnZoneCenters[cur_A][1] = center.y;
+                cur_A += 1;
+            }
+            if (spawnZoneArray[i] == 0 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 0
+            && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 0){
+                MapLocation center = indexToLocation(i);
+                spawnZoneCenters[cur_B][0] = center.x;
+                spawnZoneCenters[cur_B][1] = center.y;
+                cur_B += 1;
+            }
+        }
+        return spawnZoneCenters;
+
+    } 
+
     public boolean[] getDamArray(){
         return damArray;
     }
