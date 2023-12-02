@@ -381,10 +381,18 @@ public strictfp class GameMaker {
      * There is only one of these per GameMaker.
      */
     public class MatchMaker {
-        private TIntArrayList movedIDs; // ints
-        // VecTable for movedLocs in Round
-        private TIntArrayList movedLocsX;
-        private TIntArrayList movedLocsY;
+        private TIntArrayList robotIds;
+        private TIntArrayList robotLocsX;
+        private TIntArrayList robotLocsY;
+        private TIntArrayList robotMoveCooldowns;
+        private TIntArrayList robotActionCooldowns;
+        private TIntArrayList robotHealths;
+        private TIntArrayList attacksPerformed;
+        private TIntArrayList attackLevels;
+        private TIntArrayList buildsPerformed;
+        private TIntArrayList buildLevels;
+        private TIntArrayList healsPerformed;
+        private TIntArrayList healLevels;
 
         // SpawnedBodyTable for spawnedBodies
         private TIntArrayList spawnedBodiesRobotIDs;
@@ -445,9 +453,17 @@ public strictfp class GameMaker {
         private final ByteArrayOutputStream logger;
 
         public MatchMaker() {
-            this.movedIDs = new TIntArrayList();
-            this.movedLocsX = new TIntArrayList();
-            this.movedLocsY = new TIntArrayList();
+            this.robotIds = new TIntArrayList();
+            this.robotLocsX = new TIntArrayList();
+            this.robotLocsY = new TIntArrayList();
+            this.robotMoveCooldowns = new TIntArrayList();
+            this.robotActionCooldowns = new TIntArrayList();
+            this.attacksPerformed = new TIntArrayList();
+            this.attackLevels = new TIntArrayList();
+            this.buildsPerformed = new TIntArrayList();
+            this.buildLevels = new TIntArrayList();
+            this.healsPerformed = new TIntArrayList();
+            this.healLevels = new TIntArrayList();
             this.spawnedBodiesRobotIDs = new TIntArrayList();
             this.spawnedBodiesTeamIDs = new TByteArrayList();
             this.spawnedBodiesTypes = new TByteArrayList();
@@ -589,9 +605,17 @@ public strictfp class GameMaker {
                 CommTable.addTeam2(builder, teamBCommVector);
                 int teamCommunicationP = CommTable.endCommTable(builder);
 
-                // The bodies that moved
-                int movedIDsP = Round.createMovedIDsVector(builder, movedIDs.toArray());
-                int movedLocsP = createVecTable(builder, movedLocsX, movedLocsY);
+                int robotIDsP = Round.createRobotIdsVector(builder, robotIds.toArray());
+                int robotLocsP = createVecTable(builder, robotLocsX, robotLocsY);
+                int robotMoveCooldownsP = Round.createRobotMoveCooldownsVector(builder, robotMoveCooldowns.toArray());
+                int robotActionCooldownsP = Round.createRobotActionCooldownsVector(builder, robotActionCooldowns.toArray());
+                int robotHealthsP = Round.createRobotHealthsVector(builder, robotHealths.toArray());
+                int attacksPerformedP = Round.createAttacksPerformedVector(builder, attacksPerformed.toArray());
+                int attackLevelsP = Round.createAttackLevelsVector(builder, attackLevels.toArray());
+                int buildsPerformedP = Round.createBuildsPerformedVector(builder, buildsPerformed.toArray());
+                int buildLevelsP = Round.createBuildLevelsVector(builder, buildLevels.toArray());
+                int healsPerformedP = Round.createAttacksPerformedVector(builder, healsPerformed.toArray());
+                int healLevelsP = Round.createHealLevelsVector(builder, healLevels.toArray());
 
                 // The bodies that died
                 int diedIDsP = Round.createDiedIDsVector(builder, diedIDs.toArray());
@@ -644,8 +668,17 @@ public strictfp class GameMaker {
                 Round.addTeamAdChanges(builder, teamAdChangesP);
                 Round.addTeamMnChanges(builder, teamMnChangesP);
                 Round.addTeamExChanges(builder, teamExChangesP);
-                Round.addMovedIDs(builder, movedIDsP);
-                Round.addMovedLocs(builder, movedLocsP);
+                Round.addRobotIds(builder, robotIDsP);
+                Round.addRobotLocs(builder, robotLocsP);
+                Round.addRobotMoveCooldowns(builder, robotMoveCooldownsP);
+                Round.addRobotActionCooldowns(builder, robotActionCooldownsP);
+                Round.addRobotHealths(builder, robotHealthsP);
+                Round.addAttacksPerformed(builder, attacksPerformedP);
+                Round.addAttackLevels(builder, attackLevelsP);
+                Round.addBuildsPerformed(builder, buildsPerformedP);
+                Round.addBuildLevels(builder, buildLevelsP);
+                Round.addHealsPerformed(builder, healsPerformedP);
+                Round.addHealLevels(builder, healLevelsP);
                 Round.addSpawnedBodies(builder, spawnedBodiesP);
                 Round.addDiedIDs(builder, diedIDsP);
                 Round.addActionIDs(builder, actionIDsP);
@@ -686,10 +719,20 @@ public strictfp class GameMaker {
             return logger;
         }
 
-        public void addMoved(int id, MapLocation newLocation) {
-            movedIDs.add(id);
-            movedLocsX.add(newLocation.x);
-            movedLocsY.add(newLocation.y);
+        public void addRobot(InternalRobot robot) {
+            robotIds.add(robot.getID());
+            MapLocation loc = robot.getLocation();
+            robotLocsX.add(loc.x);
+            robotLocsY.add(loc.y);
+            robotMoveCooldowns.add(robot.getMovementCooldownTurns());
+            robotActionCooldowns.add(robot.getActionCooldownTurns());
+            robotHealths.add(robot.getHealth());
+            attacksPerformed.add(robot.getAttackExp());
+            attackLevels.add(robot.getLevel(SkillType.ATTACK));
+            buildsPerformed.add(robot.getBuildExp());
+            buildLevels.add(robot.getLevel(SkillType.BUILD));
+            healsPerformed.add(robot.getHealExp());
+            healLevels.add(robot.getLevel(SkillType.HEAL));
         }
 
         public void addDied(int id) {
@@ -772,9 +815,17 @@ public strictfp class GameMaker {
         }
 
         private void clearData() {
-            movedIDs.clear();
-            movedLocsX.clear();
-            movedLocsY.clear();
+            robotIds.clear();
+            robotLocsX.clear();
+            robotLocsY.clear();
+            robotMoveCooldowns.clear();
+            robotActionCooldowns.clear();
+            attacksPerformed.clear();
+            attackLevels.clear();
+            buildsPerformed.clear();
+            buildLevels.clear();
+            healsPerformed.clear();
+            healLevels.clear();
             spawnedBodiesRobotIDs.clear();
             spawnedBodiesTeamIDs.clear();
             spawnedBodiesTypes.clear();
