@@ -57,11 +57,6 @@ public strictfp class LiveMap {
     private int[] spawnZoneArray;
 
     /**
-     * An integer representing which flag if any is at the current tile.
-     */
-    private int[] flagArray;
-
-    /**
      * The random seed contained in the map file.
      */
     private final int seed;
@@ -100,7 +95,6 @@ public strictfp class LiveMap {
         this.spawnZoneArray = new int[numSquares];
         this.breadArray = new int[numSquares];
         this.damArray = new boolean[numSquares];
-        this.flagArray = new int[numSquares];
 
         // invariant: bodies is sorted by id
       //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
@@ -117,8 +111,7 @@ public strictfp class LiveMap {
                    boolean[] waterArray,
                    boolean[] damArray,
                    int[] breadArray,
-                   int[] spawnZoneArray,
-                   int[] flagArray) {
+                   int[] spawnZoneArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -148,10 +141,6 @@ public strictfp class LiveMap {
         for (int i = 0; i < spawnZoneArray.length; i++){
             this.spawnZoneArray[i] = spawnZoneArray[i];
         }
-        this.flagArray = new int[flagArray.length];
-        for (int i = 0; i < flagArray.length; i++){
-            this.flagArray[i] = flagArray[i];
-        }
         // invariant: bodies is sorted by id
       //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
@@ -163,7 +152,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-         gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray, gm.flagArray);
+         gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray);
     }
 
     @Override
@@ -190,7 +179,6 @@ public strictfp class LiveMap {
         if (!Arrays.equals(this.damArray, other.damArray)) return false;
         if (!Arrays.equals(this.breadArray, other.breadArray)) return false;
         if (!Arrays.equals(this.spawnZoneArray, other.spawnZoneArray)) return false;
-        if (!Arrays.equals(this.flagArray, other.flagArray)) return false;
         return true;
     }
 
@@ -207,7 +195,6 @@ public strictfp class LiveMap {
         result = 31 * result + Arrays.hashCode(damArray);
         result = 31 * result + Arrays.hashCode(breadArray);
         result = 31 * result + Arrays.hashCode(spawnZoneArray);
-        result = 31 * result + Arrays.hashCode(flagArray);
         return result;
     }
 
@@ -324,10 +311,6 @@ public strictfp class LiveMap {
         return waterArray;
     }
 
-    public int[] getFlagArray() {
-        return flagArray;
-    }
-
     /**
      * Returns the array indicating where the spawn zones are.
      * In this array: 0 = not spawn zone, 1 = Team A spawn zone, 2 = Team B spawn zone
@@ -391,7 +374,6 @@ public strictfp class LiveMap {
                     ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
                     ", waterArray=" + Arrays.toString(waterArray) + 
-                    ", flagArray=" + Arrays.toString(flagArray) +
                     ", spawnZoneArray=" + Arrays.toString(spawnZoneArray) + 
                     ", breadArray=" + Arrays.toString(breadArray) +
                     "}";
