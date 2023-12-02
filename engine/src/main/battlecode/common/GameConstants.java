@@ -95,6 +95,9 @@ public class GameConstants {
     /** Constants for attacking. */
     public static final int ATTACK_COOLDOWN = 20;
 
+    /** Constants for healing. */
+    public static final int HEAL_COOLDOWN = 20;
+
     /** Constants for dig and fill costs and cooldowns. */
     public static final int DIG_COST = 2;
     public static final int DIG_COOLDOWN = 20;
