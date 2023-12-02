@@ -98,6 +98,30 @@ battlecode/common/RobotController/setIndicatorString                    0    tru
 battlecode/common/RobotController/boost                                 0    true
 battlecode/common/RobotController/destabilize                           0    true
 battlecode/common/RobotController/writeSharedArray                      75   true
+battlecode/common/RobotController/getExperience                         1    true
+battlecode/common/RobotController/getLevel                              1    true
+battlecode/common/RobotController/getBreadAmount                        5    true
+battlecode/common/RobotController/senseNearbyFlagLocations              50   true
+battlecode/common/RobotController/senseBroadcastFlagLocations           100  true
+battlecode/common/RobotController/isSpawned                             1    true
+battlecode/common/RobotController/canSpawn                              10   true
+battlecode/common/RobotController/spawn                                 0    true
+battlecode/common/RobotController/canDig                                10   true
+battlecode/common/RobotController/dig                                   0    true
+battlecode/common/RobotController/canFill                               10   true
+battlecode/common/RobotController/fill                                  0    true
+battlecode/common/RobotController/canBuild                              10   true
+battlecode/common/RobotController/build                                 0    true
+battlecode/common/RobotController/canHeal                               10   true
+battlecode/common/RobotController/heal                                  0    true
+battlecode/common/RobotController/canPickUpFlag                         10   true
+battlecode/common/RobotController/pickUpFlag                            0    true
+battlecode/common/RobotController/canDropFlag                           10   true
+battlecode/common/RobotController/dropFlag                              0    true
+battlecode/common/RobotController/canBuyGlobal                          10   true
+battlecode/common/RobotController/buyGlobal                             0    true
+
+
 battlecode/common/RobotType/canAttack                                   1    false
 battlecode/common/RobotType/canExtract                                  1    false
 battlecode/common/RobotType/canPlaceAnchor                              1    false
