@@ -432,6 +432,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
         }
+        if (trap.equals(TrapType.EXPLOSIVE)){
+            if (!this.gameWorld.isPassable(loc) && !this.gameWorld.getWater(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place explosive traps on land or water tiles");
+        }
+        else{
+            if (!this.gameWorld.isPassable(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
+        }
         //TODO: can this be used to check for enemy traps??
         //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
         if (this.gameWorld.hasTrap(loc)){
