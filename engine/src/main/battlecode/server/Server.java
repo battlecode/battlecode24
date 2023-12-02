@@ -227,20 +227,6 @@ public strictfp class Server implements Runnable {
                                idx / liveMap.getWidth());
     }
 
-    private void extendOut(LiveMap liveMap, MapLocation mapLocation, Set<MapLocation> seenLocations) {
-        int[] islandArray = liveMap.getIslandArray();
-        int currValue = islandArray[locationToIndex(liveMap, mapLocation)];
-        seenLocations.add(mapLocation);
-        for (Direction dir : Direction.cardinalDirections()) {
-            MapLocation newLocation = mapLocation.add(dir);
-            if (seenLocations.contains(newLocation)) {continue;}
-            if (!onTheMap(liveMap, newLocation)) {continue;}
-            if (islandArray[locationToIndex(liveMap, newLocation)] == currValue) {
-                extendOut(liveMap, newLocation, seenLocations);
-            }
-        }
-    }
-
     private void validateMapOnGuarantees(LiveMap liveMap) {
         // Check map dimensions
         if (liveMap.getWidth() > GameConstants.MAP_MAX_WIDTH) {
@@ -255,188 +241,12 @@ public strictfp class Server implements Runnable {
         if (liveMap.getHeight() < GameConstants.MAP_MIN_HEIGHT) {
             throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
         }
-        
-        RobotInfo[] robotArray = new RobotInfo[liveMap.getHeight()*liveMap.getWidth()];
-        int headquarterCount = 0;
-        for (RobotInfo robotInfo : liveMap.getInitialBodies()) {
-            if (robotInfo.type == RobotType.HEADQUARTERS) headquarterCount++;
-            else throw new RuntimeException("All initial robots should be headquarters");
-            MapLocation robotLocation = robotInfo.getLocation();
-            int idx = locationToIndex(liveMap, robotLocation);
-            if (robotArray[idx] != null) {
-                throw new RuntimeException("Multiple robots can not be in the same place");
-            }
-            robotArray[idx] = robotInfo;
-        }
 
-        // Check starting Headquarters
-        if (headquarterCount < GameConstants.MIN_STARTING_HEADQUARTERS * 2) {
-            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " BENEATH GameConstants.MIN_STARTING_HEADQUARTERS");
-        }
-        if (headquarterCount > GameConstants.MAX_STARTING_HEADQUARTERS * 8) {
-            throw new RuntimeException("HEADQUARTERS num of " + headquarterCount + " EXCEEDS GameConstants.MAX_STARTING_HEADQUARTERS");
-        }
-
-        //assert that walls are not on same location as resources/islands/currents/clouds
         for (int i = 0; i < liveMap.getWidth()*liveMap.getHeight(); i++){
-            if (liveMap.getWallArray()[i]){
-                if (liveMap.getCloudArray()[i])
-                    throw new RuntimeException("Walls cannot be on the same square as clouds");
-                if (liveMap.getResourceArray()[i] != 0)
-                    throw new RuntimeException("Walls cannot be on the same square as resources");
-                if (liveMap.getIslandArray()[i] != 0)
-                    throw new RuntimeException("Walls cannot be on an island");
-                if (liveMap.getCurrentArray()[i] != 0)
-                    throw new RuntimeException("Walls cannot be on the same square as currents");
-                if (robotArray[i] != null)
-                    throw new RuntimeException("Walls cannot be on the same square as headquarters");
-            }
-            //assert that clouds and currents cannot be on the same square
-            if (liveMap.getCloudArray()[i] && (liveMap.getCurrentArray()[i] != 0))
-                throw new RuntimeException("Clouds and currents cannot be on the same square");
-
-            //assert that wells are not on same square as headquarters
-            if ((liveMap.getResourceArray()[i] != 0) && (robotArray[i] != null))
-                throw new RuntimeException("Wells can't be on same square as headquarters");
-
-            //assert that wells are not on same square as currents
-            if ((liveMap.getResourceArray()[i] != 0) && (liveMap.getCurrentArray()[i] != 0))
-                throw new RuntimeException("Wells can't be on same square as currents");
-
-            //assert that currents are not on same square as headquarters
-            if (liveMap.getCurrentArray()[i] != 0 && robotArray[i] != null)
-                throw new RuntimeException("Currents can't be on same square as headquarters");
-        }
-
-        //assert that island guarantees are met (at least 4 islands, none of which are larger than 20 units, all connected)
-        Map<Integer, List<MapLocation>> islandToAreaMapping = new HashMap<>();
-        for (int i = 0; i < liveMap.getIslandArray().length; i++) {
-            int islandId = liveMap.getIslandArray()[i];
-            if (islandId == 0) {
-                continue; // No island
-            } else {
-                List<MapLocation> islandAreas = islandToAreaMapping.getOrDefault(islandId, new ArrayList<MapLocation>());
-                islandAreas.add(indexToLocation(liveMap, i));
-                islandToAreaMapping.put(islandId, islandAreas);
-            }
-        }
-        if (islandToAreaMapping.size() < GameConstants.MIN_NUMBER_ISLANDS) {
-            throw new RuntimeException("Islands num of " + islandToAreaMapping.size() + " BENEATH GameConstants.MIN_NUMBER_ISLANDS");
-        }
-        if (islandToAreaMapping.size() > GameConstants.MAX_NUMBER_ISLANDS) {
-            throw new RuntimeException("Islands num of " + islandToAreaMapping.size() + " ABOVE GameConstants.MAX_NUMBER_ISLANDS");
-        }
-        Set<MapLocation> seenIslands = new HashSet<>();
-        int sumIslandSquares = 0;
-        for (int islandId : islandToAreaMapping.keySet()) {
-            List<MapLocation> islandLocs = islandToAreaMapping.get(islandId);
-            if (islandLocs.size() > GameConstants.MAX_ISLAND_AREA) {
-                throw new RuntimeException("Island exceeds max allowable area");
-            }
-            sumIslandSquares += islandLocs.size();
-            extendOut(liveMap, islandLocs.get(0), seenIslands);
-        }
-        if (seenIslands.size() != sumIslandSquares) {
-            throw new RuntimeException("Islands are not continous");
-        }
-
-
-        //assert that at least one adamantium well is within range of each HQ
-        for (RobotInfo r : liveMap.getInitialBodies()){
-            int teamOrdinal = r.getTeam().ordinal();
-
-            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
-                liveMap.getOrigin(), 
-                liveMap.getWidth(), 
-                liveMap.getHeight(), 
-                r.getLocation(),
-                GameConstants.MIN_NEAREST_AD_DISTANCE);
-
-            boolean nearbyAdamantium = false;
-            for (MapLocation loc : visibleLocations){
-                if (ResourceType.values()[liveMap.getResourceArray()[locationToIndex(liveMap, loc)]] == ResourceType.ADAMANTIUM){
-                    nearbyAdamantium = true;
-                    break;
-                }
-            }
-            if (!nearbyAdamantium){
-                throw new RuntimeException("Each headquarter must have at least one adamantium well within GameConstants.MIN_NEAREST_AD_DISTANCE.");
-            }
-        } 
-
-        //assert that adamantium wells and mana well are close enough together
-        Set<MapLocation> adWells = new HashSet<>();
-        Set<MapLocation> mnWells = new HashSet<>();
-        for (int i = 0; i < liveMap.getWidth()*liveMap.getHeight(); i++){
-            int rType = liveMap.getResourceArray()[i];
-            assert(rType < ResourceType.values().length);
-            switch (ResourceType.values()[rType]) {
-                case ADAMANTIUM:
-                    adWells.add(indexToLocation(liveMap, i));
-                    break;
-                case MANA:
-                    mnWells.add(indexToLocation(liveMap, i));
-                    break;
-                case NO_RESOURCE:
-                    break;
-                default:
-                    throw new RuntimeException("Initial map can only have Adamantium and Mana wells");
-            }
-        }
-
-        for (MapLocation adWellLoc : adWells) {
-            boolean wellWithinRange = false;
-            for (MapLocation mnWellLoc : mnWells) {
-                if (adWellLoc.isWithinDistanceSquared(mnWellLoc, GameConstants.MAX_DISTANCE_BETWEEN_WELLS)) {
-                    wellWithinRange = true;
-                    break;
-                }
-            }
-            if (!wellWithinRange) {
-                throw new RuntimeException("Adamantium well at " + adWellLoc + " is not within range of any mana wells.");
-            }
-        }
-
-        for (MapLocation mnWellLoc : mnWells) {
-            boolean wellWithinRange = false;
-            for (MapLocation adWellLoc : adWells) {
-                if (mnWellLoc.isWithinDistanceSquared(adWellLoc, GameConstants.MAX_DISTANCE_BETWEEN_WELLS)) {
-                    wellWithinRange = true;
-                    break;
-                }
-            }
-            if (!wellWithinRange) {
-                throw new RuntimeException("Mana well at " + mnWellLoc + " is not within range of any adamantium wells.");
-            }
-        }
-
-        int maxNumWells = (int) (liveMap.getHeight()*liveMap.getWidth()*GameConstants.MAX_MAP_PERCENT_WELLS);
-        if (adWells.size() > maxNumWells) {
-            throw new RuntimeException("There are too many AD wells. It exceeds GameConstants.MAX_MAP_PERCENT_WELLS percent of the map.");
-        }
-        if (mnWells.size() > maxNumWells) {
-            throw new RuntimeException("There are too many MN wells. It exceeds GameConstants.MAX_MAP_PERCENT_WELLS percent of the map.");
-        }
-    
-        
-        //assert that no two currents end on the same square (avoid robot collisions)
-        HashSet<MapLocation> endingLocations = new HashSet<MapLocation>();
-        int[] currentArray = liveMap.getCurrentArray();
-        for (int i = 0; i < currentArray.length; i++){
-            if (currentArray[i] != 0){
-                MapLocation startLocation = indexToLocation(liveMap, i);
-                Direction currentDir = Direction.DIRECTION_ORDER[currentArray[i]];
-                MapLocation finalLocation = startLocation.add(currentDir);
-                if (!onTheMap(liveMap, finalLocation))
-                    throw new RuntimeException("Current directs robots outside of the bounds of the map");
-                if (liveMap.getWallArray()[locationToIndex(liveMap, finalLocation.x, finalLocation.y)])
-                    throw new RuntimeException("Current directs robots into wall");
-                boolean unique = endingLocations.add(finalLocation);
-                if (!unique)
-                    throw new RuntimeException("Two different currents direct robots to the same location: " + finalLocation);
-            }
+            //TODO check for multiple things existing on the same tile
         }
     }
+    
     private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
         return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
     }
@@ -609,23 +419,23 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case CONQUEST:
-                sb.append("The winning team won by capturing 75% of sky islands.");
+            case CAPTURE:
+                sb.append("The winning team captured all flags.");
                 break;
-            case MORE_SKY_ISLANDS:
-                sb.append("The winning team won by having more sky islands.");
+            case MORE_FLAG_CAPTURES:
+                sb.append("The winning team won on tiebreakers (captured more flags).");
                 break;
-            case MORE_REALITY_ANCHORS:
-                sb.append("The winning team won on tiebreakers (more reality anchors).");
+            case TIER_THREE:
+                sb.append("The winning team won on tiebreakers (more tier 3 units).");
                 break;
-            case MORE_ELIXIR_NET_WORTH:
-                sb.append("The winning team won on tiebreakers (more elixir net worth).");
+            case TIER_TWO:
+                sb.append("The winning team won on tiebreakers (more tier 2 units).");
                 break;
-            case MORE_MANA_NET_WORTH:
-                sb.append("The winning team won on tiebreakers (more mana net worth).");
+            case MORE_BREAD:
+                sb.append("The winning team won on tiebreakers (more bread)");
                 break;
-            case MORE_ADAMANTIUM_NET_WORTH:
-                sb.append("The winning team won on tiebreakers (more adamantium net worth).");
+            case MORE_FLAGS_PICKED:
+                sb.append("The winning team won on tiebreakers (more flags picked up).");
                 break;
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (coin flip).");

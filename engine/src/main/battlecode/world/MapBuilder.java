@@ -369,7 +369,7 @@ public class MapBuilder {
 
         for(int a = 0; a < team1.size(); a ++){
             for(int b = 1; b < team1.size(); b ++){
-                if (indexToLocation(team1.get(a)).distanceSquaredTo(indexToLocation(team1.get(b))) < GameConstants.SPAWN_ZONE_DISTANCE){
+                if (indexToLocation(team1.get(a)).distanceSquaredTo(indexToLocation(team1.get(b))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
                     throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
                 }
             }
@@ -377,7 +377,7 @@ public class MapBuilder {
 
         for(int c = 0; c < team2.size(); c ++){
             for(int d = 1; d < team2.size(); d ++){
-                if (indexToLocation(team2.get(c)).distanceSquaredTo(indexToLocation(team2.get(d))) < GameConstants.SPAWN_ZONE_DISTANCE){
+                if (indexToLocation(team2.get(c)).distanceSquaredTo(indexToLocation(team2.get(d))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
                     throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
                 }
             }
