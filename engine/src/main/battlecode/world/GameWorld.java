@@ -99,8 +99,19 @@ public strictfp class GameWorld {
         for (int i = 0; i < placedFlags.length; i++)
             placedFlags[i] = new ArrayList<>();
         
-        for (int i = 0; i < gm.getFlagArray().length; i++) {
-            int flagVal = gm.getFlagArray()[i];
+        int[] flagArray = new int[2*GameConstants.NUMBER_FLAGS];
+        int[][] spawnZoneCenters = gm.getSpawnZoneCenters();
+        for (int i = 0; i < spawnZoneCenters[0].length; i++){
+            MapLocation cur = new MapLocation(spawnZoneCenters[0][i], spawnZoneCenters[1][i]);
+            if (i < GameConstants.NUMBER_FLAGS){
+                flagArray[locationToIndex(cur)] = 1;
+            }
+            else{
+                flagArray[locationToIndex(cur)] = 2;
+            }
+        }
+        for (int i = 0; i < flagArray.length; i++) {
+            int flagVal = flagArray[i];
             if(flagVal == 0) continue;
             Flag flag = new Flag(flagVal == 1 ? Team.A : Team.B, indexToLocation(i), i);
             allFlags.add(flag);
@@ -727,7 +738,6 @@ public strictfp class GameWorld {
      */
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        RobotType type = robot.getType();
         Team team = robot.getTeam();
         removeRobot(robot.getLocation());
 
