@@ -37,8 +37,8 @@ public strictfp class ObjectInfo {
 
     private final TIntArrayList dynamicBodyExecOrder;
 
-    private Map<Team, Map<RobotType, Integer>> robotTypeCount = new EnumMap<>(
-            Team.class);
+    // private Map<Team, Map<RobotType, Integer>> robotTypeCount = new EnumMap<>(
+    //         Team.class);
     private int[] robotCount = new int[3];
 
     public ObjectInfo(LiveMap gm) {
@@ -54,21 +54,21 @@ public strictfp class ObjectInfo {
 
         robotIndex.init(null);
 
-        robotTypeCount.put(Team.A, new EnumMap<>(
-                RobotType.class));
-        robotTypeCount.put(Team.B, new EnumMap<>(
-                RobotType.class));
-        robotTypeCount.put(Team.NEUTRAL, new EnumMap<>(
-                RobotType.class));
+        // robotTypeCount.put(Team.A, new EnumMap<>(
+        //         RobotType.class));
+        // robotTypeCount.put(Team.B, new EnumMap<>(
+        //         RobotType.class));
+        // robotTypeCount.put(Team.NEUTRAL, new EnumMap<>(
+        //         RobotType.class));
     }
 
-    public int getRobotTypeCount(Team team, RobotType type) {
-        if (robotTypeCount.get(team).containsKey(type)) {
-            return robotTypeCount.get(team).get(type);
-        } else {
-            return 0;
-        }
-    }
+    // public int getRobotTypeCount(Team team, RobotType type) {
+    //     if (robotTypeCount.get(team).containsKey(type)) {
+    //         return robotTypeCount.get(team).get(type);
+    //     } else {
+    //         return 0;
+    //     }
+    // }
 
     /**
      * Apply an operation for every robot, ordered based on robot ID hash (effectively random).
@@ -216,19 +216,19 @@ public strictfp class ObjectInfo {
         robotCount[team.ordinal()]--;
     }
 
-    private void incrementRobotTypeCount(Team team, RobotType type) {
-        robotTypeCount.get(team);
-        if (robotTypeCount.get(team).containsKey(type)) {
-            robotTypeCount.get(team).put(type,
-                    robotTypeCount.get(team).get(type) + 1);
-        } else {
-            robotTypeCount.get(team).put(type, 1);
-        }
-    }
+    // private void incrementRobotTypeCount(Team team, RobotType type) {
+    //     robotTypeCount.get(team);
+    //     if (robotTypeCount.get(team).containsKey(type)) {
+    //         robotTypeCount.get(team).put(type,
+    //                 robotTypeCount.get(team).get(type) + 1);
+    //     } else {
+    //         robotTypeCount.get(team).put(type, 1);
+    //     }
+    // }
 
-    private void decrementRobotTypeCount(Team team, RobotType type) {
-        Integer currentCount = getRobotTypeCount(team, type);
-        robotTypeCount.get(team).put(type,currentCount - 1);
-    }
+    // private void decrementRobotTypeCount(Team team, RobotType type) {
+    //     Integer currentCount = getRobotTypeCount(team, type);
+    //     robotTypeCount.get(team).put(type,currentCount - 1);
+    // }
 
 }
