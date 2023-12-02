@@ -13,6 +13,7 @@ import {
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { TOOLTIP_PATH_LENGTH } from '../constants'
+import Match from './Match'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -51,6 +52,7 @@ export default class Bodies {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
+            assert(!body?.dead, `Moved body ${id} is dead`)
             assert.equal(allowNullBodies || !!body, true, `Moved body ${id} not found in bodies`)
 
             if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
@@ -60,10 +62,13 @@ export default class Bodies {
     /**
      * Applies a delta to the bodies array. Because of update order, bodies will first
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
-     * Afterwards, diedBodies will be deleted, so any methods which reference bodies should
-     * most likely be inside scopedCallback()
      */
-    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null, scopedCallback: () => void): void {
+    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null): void {
+        // remove all that are dead
+        for (const body of this.bodies.values()) {
+            if (body.dead) this.bodies.delete(body.id)
+        }
+
         const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
 
@@ -82,12 +87,9 @@ export default class Bodies {
             }
         }
 
-        scopedCallback()
-
-        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIdsArray not found in round')
-
-        if (delta.diedIdsLength() > 0) {
-            for (let i = 0; i < delta.diedIdsLength(); i++) {
+        const diedIds = delta.diedIDsArray() ?? assert.fail('diedIDsArray not found in round')
+        if (delta.diedIDsLength() > 0) {
+            for (let i = 0; i < delta.diedIDsLength(); i++) {
                 const diedBody =
                     this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
                 if (!turn.stat.completed) {
@@ -96,7 +98,7 @@ export default class Bodies {
                     teamStat.robots -= 1
                     teamStat.total_hp -= diedBody.hp
                 }
-                assert(this.bodies.delete(diedBody.id))
+                diedBody.dead = true
             }
         }
     }
@@ -136,15 +138,6 @@ export default class Bodies {
         return this.bodies.has(id)
     }
 
-    getByLocation(x: number, y: number): Body | undefined {
-        for (const body of this.bodies.values()) {
-            if (body.pos.x == x && body.pos.y == y) {
-                return body
-            }
-        }
-        return undefined
-    }
-
     copy(): Bodies {
         const newBodies = new Bodies(this.game)
         newBodies.bodies = new Map(this.bodies)
@@ -153,9 +146,9 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
+    draw(match: Match, ctx: CanvasRenderingContext2D): void {
         for (const body of this.bodies.values()) {
-            body.draw(mapDimension, interpFactor, ctx)
+            body.draw(match, ctx)
         }
     }
 
@@ -163,12 +156,16 @@ export default class Bodies {
         return Math.max(-1, ...this.bodies.keys()) + 1
     }
 
-    getBodyAtLocation(x: number, y: number, team?: Team): Body | undefined {
-        let found_body: Body | undefined = undefined
-        this.bodies.forEach((body, id) => {
-            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) found_body = body
-        })
-        return found_body
+    getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
+        let found_dead_body: Body | undefined = undefined
+        for (const body of this.bodies.values()) {
+            if (type && body.type !== type) continue
+            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) {
+                if (body.dead) found_dead_body = body
+                else return body
+            }
+        }
+        return found_dead_body
     }
 
     isEmpty(): boolean {
@@ -217,6 +214,7 @@ export class Body {
     protected imgPath: string = ''
     public nextPos: Vector
     public prevSquares: Vector[]
+    public dead: boolean = false
     constructor(
         public pos: Vector,
         public hp: number,
@@ -232,14 +230,16 @@ export class Body {
         this.prevSquares = [this.pos]
     }
 
-    public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
+    public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
+        if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, mapDimension),
+            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, match.currentTurn.map.staticMap.dimension),
             1
         )
+        ctx.globalAlpha = 1
     }
 
     public getInterpolatedCoords(turn: Turn): Vector {
@@ -248,7 +248,7 @@ export class Body {
 
     public onHoverInfo(): string[] {
         return [
-            this.robotName,
+            (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
             `Bytecodes Used: ${this.bytecodesUsed}`
@@ -329,7 +329,10 @@ export class ArchonBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
+    constructor(
+        private readonly bodies: Bodies,
+        private readonly map: StaticMap
+    ) {
         super()
     }
 

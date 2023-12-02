@@ -22,9 +22,26 @@ export function loadFileAsMap(file: File): Promise<Game> {
     })
 }
 
-export function saveMapToFile(turn: Turn, fileName: string) {
+export function exportMap(turn: Turn) {
+    if (!verifyMapGuarantees(turn)) return
+
+    let name = prompt('Enter a name for this map') ?? 'Untitled'
+    turn.map.staticMap.name = name
+    
     const data = mapToFile(turn.map, turn.bodies)
-    exportFile(data, fileName + `.map${BATTLECODE_YEAR % 100}`)
+    exportFile(data, name + `.map${BATTLECODE_YEAR % 100}`)
+}
+
+function verifyMapGuarantees(turn: Turn) {
+    if (turn.map.isEmpty() && turn.bodies.isEmpty()) {
+        alert('Map is empty')
+        return false
+    }
+    if (turn.map.staticMap.islands.length == 0) {
+        alert('Map must have at least one island')
+        return false
+    }
+    return true
 }
 
 /**

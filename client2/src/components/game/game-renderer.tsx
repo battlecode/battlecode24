@@ -50,10 +50,18 @@ export const GameRenderer: React.FC = () => {
         const ctx = getCanvasContext(CanvasType.DYNAMIC)!
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         map.draw(ctx)
-        currentTurn.bodies.draw(map.staticMap.dimension, match.getInterpolationFactor(), ctx)
-        currentTurn.actions.draw(map.staticMap.dimension, match.getInterpolationFactor(), ctx)
+        currentTurn.bodies.draw(match, ctx)
+        currentTurn.actions.draw(match, ctx)
     }, [activeMatch])
     useListenEvent(EventType.RENDER, render, [render])
+
+    const fullRender = () => {
+        const match = appContext.state.activeMatch
+        if (!match) return
+        match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
+        render();
+    }
+    useListenEvent(EventType.INITIAL_RENDER, fullRender, [fullRender])
 
     // We want to rerender if the match changes
     React.useEffect(() => {
@@ -68,9 +76,6 @@ export const GameRenderer: React.FC = () => {
         updateCanvasDimensions(CanvasType.DYNAMIC, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
         updateCanvasDimensions(CanvasType.OVERLAY, { x: match.currentTurn.map.width, y: match.currentTurn.map.height })
 
-        // Redraw static background
-        match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
-
         const noContextMenu = (e: MouseEvent) => {
             e.preventDefault()
         }
@@ -82,7 +87,7 @@ export const GameRenderer: React.FC = () => {
                 })
         }
 
-        publishEvent(EventType.RENDER, {})
+        publishEvent(EventType.INITIAL_RENDER, {})
 
         return () => {
             if (canvases.current) {

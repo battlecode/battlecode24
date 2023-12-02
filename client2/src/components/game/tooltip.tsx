@@ -23,6 +23,8 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     const [clickedBodyID, setClickedBodyID] = React.useState<number>(-1)
 
+    const enabled = appContext.state.activeGame?.playable
+
     let canvasAbsLeft = 0,
         canvasAbsTop = 0
     let tileLeft = 0,
@@ -56,7 +58,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
 
     function getHoveredBody() {
         return appContext.state?.activeMatch?.map
-            ? appContext.state.activeMatch?.currentTurn.bodies.getByLocation(
+            ? appContext.state.activeMatch?.currentTurn.bodies.getBodyAtLocation(
                   tileCol,
                   appContext.state.activeMatch.map.dimension.height - 1 - tileRow
               )
@@ -69,13 +71,13 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     }
 
     useEffect(() => {
-        if (overlayCanvas) {
+        if (overlayCanvas && enabled) {
             overlayCanvas.addEventListener('click', onClick)
             return () => {
                 overlayCanvas.removeEventListener('click', onClick)
             }
         }
-    }, [overlayCanvas, mousePos])
+    }, [overlayCanvas, mousePos, enabled])
 
     const hoveredBody = getHoveredBody()
 
@@ -133,7 +135,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
     // draw tooltip stuff to overlay canvas
     useEffect(() => {
         const match = appContext.state.activeMatch
-        if (!match || !overlayCanvas) return
+        if (!match || !overlayCanvas || !enabled) return
 
         const ctx = overlayCanvas.getContext('2d')
         if (!ctx) return
@@ -153,6 +155,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
             }
         }
     }, [
+        enabled,
         appContext.state.activeMatch,
         overlayCanvas,
         hoveredBody,
@@ -167,7 +170,7 @@ const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
         setClickedBodyID(-1)
     }, [appContext.state.activeMatch])
 
-    if (!mapCanvas || !overlayCanvas || !wrapperRef.current) {
+    if (!mapCanvas || !overlayCanvas || !wrapperRef.current || !enabled) {
         return <></>
     }
 
