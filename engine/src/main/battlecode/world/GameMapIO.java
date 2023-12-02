@@ -243,17 +243,15 @@ public final strictfp class GameMapIO {
                 damArray[i] = raw.divider(i);
                 breadArray[i] = raw.resourcePileAmounts(i);
             }
-            battlecode.schema.VecTable spawnZoneCenters = raw.spawnLocations();
-            IntVector centerXs = spawnZoneCenters.xsVector();
-            IntVector centerYs = spawnZoneCenters.ysVector();
+            battlecode.schema.VecTable spawnZoneCentersTable = raw.spawnLocations();
             for (int i = 0; i < 3; i++){
-                MapLocation cur = new MapLocation(centerXs.get(i), centerYs.get(i));
+                MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
                 for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
                     spawnZoneArray[loc.x + loc.y*width] = 1;
                 }
             }
             for (int i = 3; i < 6; i++){
-                MapLocation cur = new MapLocation(centerXs.get(i), centerYs.get(i));
+                MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
                 for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
                     spawnZoneArray[loc.x + loc.y*width] = 2;
                 }

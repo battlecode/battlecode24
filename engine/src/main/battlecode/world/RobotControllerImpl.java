@@ -434,6 +434,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
         }
+        if (trap.equals(TrapType.EXPLOSIVE)){
+            if (!this.gameWorld.isPassable(loc) && !this.gameWorld.getWater(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place explosive traps on land or water tiles");
+        }
+        else{
+            if (!this.gameWorld.isPassable(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
+        }
         //TODO: can this be used to check for enemy traps??
         //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
         if (this.gameWorld.hasTrap(loc)){
@@ -533,7 +541,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void dig(MapLocation loc) throws GameActionException{
         assertCanDig(loc);
         //TODO: add conversion to percentage + rounding  to cooldowns
-        this.robot.addActionCooldownTurns((int) (GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
         this.gameWorld.getMatchMaker().addDigLocation(loc);
@@ -848,6 +856,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean canBuyGlobal(GlobalUpgrade ug){
         return true;
+    }
+
+    @Override
+    public void buyGlobal(GlobalUpgrade up) {
+        
     }
 
     @Override
