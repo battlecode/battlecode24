@@ -235,7 +235,7 @@ export class StaticMap {
         const divider = new Int8Array(width * height)
         const spawnLocations: Vector[] = []
         const resourcePileLocations: Vector[] = []
-        const initialResourcePileAmounts = new Int32Array(width * height)
+        const initialResourcePileAmounts = new Int32Array()
         const initialWater = new Int8Array(width * height)
         return new StaticMap(
             name,
