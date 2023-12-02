@@ -27,7 +27,7 @@ export function exportMap(turn: Turn) {
 
     let name = prompt('Enter a name for this map') ?? 'Untitled'
     turn.map.staticMap.name = name
-    
+
     const data = mapToFile(turn.map, turn.bodies)
     exportFile(data, name + `.map${BATTLECODE_YEAR % 100}`)
 }
@@ -35,10 +35,6 @@ export function exportMap(turn: Turn) {
 function verifyMapGuarantees(turn: Turn) {
     if (turn.map.isEmpty() && turn.bodies.isEmpty()) {
         alert('Map is empty')
-        return false
-    }
-    if (turn.map.staticMap.islands.length == 0) {
-        alert('Map must have at least one island')
         return false
     }
     return true

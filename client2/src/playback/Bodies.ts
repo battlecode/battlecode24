@@ -87,9 +87,9 @@ export default class Bodies {
             }
         }
 
-        const diedIds = delta.diedIDsArray() ?? assert.fail('diedIDsArray not found in round')
-        if (delta.diedIDsLength() > 0) {
-            for (let i = 0; i < delta.diedIDsLength(); i++) {
+        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
+        if (delta.diedIdsLength() > 0) {
+            for (let i = 0; i < delta.diedIdsLength(); i++) {
                 const diedBody =
                     this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
                 if (!turn.stat.completed) {
@@ -112,9 +112,8 @@ export default class Bodies {
 
         for (let i = 0; i < bodies.robotIdsLength(); i++) {
             const id = idsArray[i]
-            const bodyClass =
-                BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
-            const health = this.game.playable ? this.game.constants.robotBaseHealth() : 1 
+            const bodyClass = BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
+            const health = this.game.playable ? this.game.constants.robotBaseHealth() : 1
 
             this.bodies.set(
                 id,
@@ -156,10 +155,9 @@ export default class Bodies {
         return Math.max(-1, ...this.bodies.keys()) + 1
     }
 
-    getBodyAtLocation(x: number, y: number, team?: Team, type?: schema.BodyType): Body | undefined {
+    getBodyAtLocation(x: number, y: number, team?: Team): Body | undefined {
         let found_dead_body: Body | undefined = undefined
         for (const body of this.bodies.values()) {
-            if (type && body.type !== type) continue
             if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) {
                 if (body.dead) found_dead_body = body
                 else return body
@@ -281,39 +279,35 @@ export class Body {
 }
 
 export const BODY_DEFINITIONS: Record<number, typeof Body> = {
+    // For future games, this dictionary translate schema values of robot
+    // types to their respective class, such as this:
+    //
+    // [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
+    // 	public robotName = 'Headquarters'
+    // 	public actionRadius = 8
+    // 	public visionRadius = 34
+    // 	public type = schema.BodyType.HEADQUARTERS
+    // 	constructor(pos: Vector, hp: number, team: Team, id: number) {
+    // 		super(pos, hp, team, id)
+    // 		this.imgPath = `robots/${team.color}_headquarters_smaller.png`
+    //	}
+    //	onHoverInfo(): string[] {
+    // 		return super.onHoverInfo();
+    // 	}
+    // },
+    //
+    // This game has no types or headquarters to speak of, so there is only
+    // one type pointed to by 0:
 
+    0: class Robot extends Body {
+        constructor(pos: Vector, hp: number, team: Team, id: number) {
+            super(pos, hp, team, id)
 
-	// For future games, this dictionary translate schema values of robot
-	// types to their respective class, such as this:
-	// 
-	// [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
-	// 	public robotName = 'Headquarters'
-	// 	public actionRadius = 8
-	// 	public visionRadius = 34
-	// 	public type = schema.BodyType.HEADQUARTERS
-	// 	constructor(pos: Vector, hp: number, team: Team, id: number) {
-	// 		super(pos, hp, team, id)
-	// 		this.imgPath = `robots/${team.color}_headquarters_smaller.png`
-	//	}
-	//	onHoverInfo(): string[] {
-	// 		return super.onHoverInfo();
-	// 	}
-	// },
-	//
-	// This game has no types or headquarters to speak of, so there is only
-	// one type pointed to by 0:
-	
-	0: class Robot extends Body {
-		constructor(pos: Vector, hp: number, team: Team, id: number) {
-		    super(pos, hp, team, id)
-
-		    // TODO: Make this point to robot ducks or alligator
-		    // depending on color
-		    this.imgPath = `robots/${team.color}_robot.png`
-		}
-
-	}
-	
+            // TODO: Make this point to robot ducks or alligator
+            // depending on color
+            this.imgPath = `robots/${team.color}_robot.png`
+        }
+    }
 }
 
 export class ArchonBrush extends MapEditorBrush {
@@ -329,10 +323,7 @@ export class ArchonBrush extends MapEditorBrush {
         }
     }
 
-    constructor(
-        private readonly bodies: Bodies,
-        private readonly map: StaticMap
-    ) {
+    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
         super()
     }
 
