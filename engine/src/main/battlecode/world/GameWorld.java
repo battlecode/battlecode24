@@ -643,9 +643,8 @@ public strictfp class GameWorld {
             }
         }
 
-        //TODO: create equivalent of below methods for new game
-        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getRoundAdamantiumChange(Team.A), this.teamInfo.getRoundManaChange(Team.A), this.teamInfo.getRoundElixirChange(Team.A));
-        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getRoundAdamantiumChange(Team.B), this.teamInfo.getRoundManaChange(Team.B), this.teamInfo.getRoundElixirChange(Team.B));
+        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getBread(Team.A), this.teamInfo.getSharedArray(Team.A));
+        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getBread(Team.B), this.teamInfo.getSharedArray(Team.B));
         this.teamInfo.processEndOfRound();
 
         objectInfo.eachRobot((robot) -> {
@@ -704,7 +703,6 @@ public strictfp class GameWorld {
         InternalRobot robot = new InternalRobot(this, ID, team);
         objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
-        matchMaker.addSpawnedRobot(robot);
         return ID;
     }
 

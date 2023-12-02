@@ -134,7 +134,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void addResourceAmount(int amount) {
         this.gameWorld.getTeamInfo().addBread(this.team, amount);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_BREAD, amount);
     }
 
     public boolean canAddFlag() {
@@ -342,13 +341,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        int oldHealth = this.health;
         this.health += healthAmount;
         this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
-        } else if (this.health != oldHealth) {
-            this.gameWorld.getMatchMaker().addAction(getID(), Action.CHANGE_HEALTH, this.health - oldHealth);
         }
     }
 

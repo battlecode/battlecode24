@@ -28,7 +28,7 @@ public enum TrapType {
      * 
      * @battlecode.doc.traptype
      */
-    STUN (10, 1, 13, 0, 0, 0, false, 5, true, 40);
+    STUN (10, 1, 13, 0, 0, 0, false, 5, true, 40),
 
     NONE (0, 0, 0, 0, 0, 0, false, 0, false, 0);
     /**
