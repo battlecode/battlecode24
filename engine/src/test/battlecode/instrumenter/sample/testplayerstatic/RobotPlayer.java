@@ -1,4 +1,4 @@
-package testplayerstatic;
+package battlecode.instrumenter.sample.testplayerstatic;
 
 import battlecode.common.Clock;
 import battlecode.common.RobotController;

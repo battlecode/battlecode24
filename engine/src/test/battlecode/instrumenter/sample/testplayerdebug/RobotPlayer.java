@@ -1,4 +1,4 @@
-package testplayerdebug;
+package battlecode.instrumenter.sample.testplayerdebug;
 
 import battlecode.common.RobotController;
 

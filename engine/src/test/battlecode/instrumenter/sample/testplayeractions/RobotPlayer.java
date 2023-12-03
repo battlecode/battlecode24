@@ -1,4 +1,4 @@
-package testplayeractions;
+package battlecode.instrumenter.sample.testplayeractions;
 
 import battlecode.common.*;
 
