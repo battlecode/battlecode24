@@ -57,7 +57,7 @@ table BuildActionMetadata {
     buildCooldown: int;
 }
 
-table Constants {
+table GameplayConstants {
     setupPhaseLength: int;
     flagMinDistance: int;
     globalUpgradeRoundDelay: int;
@@ -208,7 +208,7 @@ table GameHeader {
     specializationMetadata: [SpecializationMetadata];
     buildActionMetadata: [BuildActionMetadata];
     globalUpgradeMetadata: [GlobalUpgradeMetadata];
-    constants: Constants;
+    constants: GameplayConstants;
 }
 
 /// The final event sent in the game.

@@ -265,16 +265,16 @@ public strictfp class GameMaker {
             int specializationMetadataOffset = makeSpecializationMetadata(builder);
             int buildActionMetadataOffset = makeBuildActionMetadata(builder);
 
-            Constants.startConstants(builder);
-            Constants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
-            Constants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
-            Constants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
-            Constants.addPassiveResourceRate(builder, GameConstants.PASSIVE_BREAD_INCREASE);
-            Constants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
-            Constants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
-            Constants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
-            Constants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
-            int constantsOffset = Constants.endConstants(builder);
+            GameplayConstants.startGameplayConstants(builder);
+            GameplayConstants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
+            GameplayConstants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
+            GameplayConstants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
+            GameplayConstants.addPassiveResourceRate(builder, GameConstants.PASSIVE_BREAD_INCREASE);
+            GameplayConstants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
+            GameplayConstants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
+            GameplayConstants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
+            GameplayConstants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
+            int constantsOffset = GameplayConstants.endGameplayConstants(builder);
 
             GameHeader.startGameHeader(builder);
             GameHeader.addSpecVersion(builder, specVersionOffset);
