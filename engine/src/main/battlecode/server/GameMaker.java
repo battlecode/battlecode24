@@ -570,9 +570,9 @@ public strictfp class GameMaker {
                 // Round statistics
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toArray());
                 int teamBreadAmountsP = Round.createTeamResourceAmountsVector(builder, teamBreadAmounts.toArray());
-                CommTable.startCommTable(builder);
                 int teamACommVector = CommTable.createTeam1Vector(builder, teamAComm.toArray());
                 int teamBCommVector = CommTable.createTeam2Vector(builder, teamBComm.toArray());
+                CommTable.startCommTable(builder);
                 CommTable.addTeam1(builder, teamACommVector);
                 CommTable.addTeam2(builder, teamBCommVector);
                 int teamCommunicationP = CommTable.endCommTable(builder);

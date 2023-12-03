@@ -120,8 +120,6 @@ battlecode/common/RobotController/canDropFlag                           10   tru
 battlecode/common/RobotController/dropFlag                              0    true
 battlecode/common/RobotController/canBuyGlobal                          10   true
 battlecode/common/RobotController/buyGlobal                             0    true
-
-
 battlecode/common/RobotType/canAttack                                   1    false
 battlecode/common/RobotType/canExtract                                  1    false
 battlecode/common/RobotType/canPlaceAnchor                              1    false
