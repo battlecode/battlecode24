@@ -312,30 +312,29 @@ public final strictfp class GameMapIO {
             TIntArrayList breadLocationXsList = new TIntArrayList(breadLocationXs);
             TIntArrayList breadLocationYsList = new TIntArrayList(breadLocationYs);
 
-
-
             int wallArrayInt = battlecode.schema.GameMap.createWallsVector(builder, ArrayUtils.toPrimitive(wallArrayList.toArray(new Boolean[wallArrayList.size()])));
             int waterArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(waterArrayList.toArray(new Boolean [waterArrayList.size()])));
             int damArrayInt = battlecode.schema.GameMap.createDividerVector(builder, ArrayUtils.toPrimitive(damArrayList.toArray(new Boolean[damArrayList.size()])));
             int breadArrayInt = battlecode.schema.GameMap.createResourcePileAmountsVector(builder, ArrayUtils.toPrimitive(breadArrayList.toArray(new Integer[breadArrayList.size()])));
             
+            int spawnLocations = FlatHelpers.createVecTable(builder, spawnZoneCenterXs, spawnZoneCenterYs);
+            int resourcePiles = FlatHelpers.createVecTable(builder, breadLocationXsList, breadLocationYsList);
+
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
 
-
             //this might be backwards
             battlecode.schema.GameMap.addSize(builder, Vec.createVec(builder, gameMap.getWidth(), gameMap.getHeight()));
-
 
             battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
             battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
-            battlecode.schema.GameMap.addSpawnLocations(builder, FlatHelpers.createVecTable(builder, spawnZoneCenterXs, spawnZoneCenterYs));
+            battlecode.schema.GameMap.addSpawnLocations(builder, spawnLocations);
             battlecode.schema.GameMap.addWater(builder, waterArrayInt);
             battlecode.schema.GameMap.addDivider(builder, damArrayInt);
             battlecode.schema.GameMap.addResourcePileAmounts(builder, breadArrayInt);
-            battlecode.schema.GameMap.addResourcePiles(builder, FlatHelpers.createVecTable(builder, breadLocationXsList, breadLocationYsList));
+            battlecode.schema.GameMap.addResourcePiles(builder, resourcePiles);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
