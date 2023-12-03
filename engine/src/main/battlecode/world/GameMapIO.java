@@ -226,7 +226,8 @@ public final strictfp class GameMapIO {
             final int width = (int) (raw.size().x());
             final int height = (int) (raw.size().y());
             final MapLocation origin = new MapLocation(0,0);
-            final MapSymmetry symmetry = MapSymmetry.values()[raw.symmetry()];
+            final MapSymmetry symmetry = (MapSymmetry.values())[0];
+           // final MapSymmetry symmetry = MapSymmetry.values()[raw.symmetry()];
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();

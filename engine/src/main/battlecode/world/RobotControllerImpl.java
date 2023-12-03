@@ -411,7 +411,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanHeal(loc);
         InternalRobot bot = this.gameWorld.getRobot(loc);
         int healAmt = this.robot.getHeal();
-        this.robot.addActionCooldownTurns((int) (GameConstants.HEAL_COOLDOWN*(1+.01*SkillType.HEAL.getCooldown(this.robot.getLevel(SkillType.HEAL)))));
+        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.HEAL_COOLDOWN*(1+.01*SkillType.HEAL.getCooldown(this.robot.getLevel(SkillType.HEAL)))));
 
         bot.addHealth(healAmt);
         if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -466,7 +466,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.placeTrap(loc, trap, this.getTeam());
         this.gameWorld.getMatchMaker().addAction(getID(), FlatHelpers.getTrapActionFromTrapType(trap), locationToInt(loc));
         this.robot.addResourceAmount(-1*(trap.buildCost));
-        this.robot.addActionCooldownTurns((int) (trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
@@ -494,9 +494,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
-        this.robot.addActionCooldownTurns((int) ((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
-        //action id
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
         this.gameWorld.setLand(loc);
@@ -540,7 +539,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void dig(MapLocation loc) throws GameActionException{
         assertCanDig(loc);
-        //TODO: add conversion to percentage + rounding  to cooldowns
         this.robot.addActionCooldownTurns((int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
         this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
@@ -739,7 +737,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
-        this.robot.addActionCooldownTurns((int) (GameConstants.ATTACK_COOLDOWN*(1+.01*SkillType.ATTACK.getCooldown(this.robot.getLevel(SkillType.ATTACK)))));
+        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.ATTACK_COOLDOWN*(1+.01*SkillType.ATTACK.getCooldown(this.robot.getLevel(SkillType.ATTACK)))));
         this.robot.attack(loc);
     }
 
