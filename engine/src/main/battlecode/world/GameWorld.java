@@ -190,7 +190,9 @@ public strictfp class GameWorld {
         // been visited:
 
         // NOTE: changed this from destroy to despawn; double check that this change is correct
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
+        //probably an issue with robot code erroring out and getting terminated when not actually spawned?
+        //may need to differentiate between death causes and despawn/destroy appropriately
+        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null && robot.getLocation() != null)
             despawnRobot(robot.getID());
         return true;
     }
@@ -728,8 +730,8 @@ public strictfp class GameWorld {
 
     public void despawnRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        robot.despawn();
         removeRobot(robot.getLocation());
+        robot.despawn();
         matchMaker.addDied(id);
     }
 

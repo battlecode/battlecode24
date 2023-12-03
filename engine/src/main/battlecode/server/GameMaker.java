@@ -684,6 +684,7 @@ public strictfp class GameMaker {
         }
 
         public void addRobot(InternalRobot robot) {
+            if (robot.getLocation() == null) return;
             robotIds.add(robot.getID());
             MapLocation loc = robot.getLocation();
             robotLocsX.add(loc.x);
