@@ -681,15 +681,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation[] outputLocations = new MapLocation[27];
         c += 1;
         int i = 0;
-        for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), getMapHeight()*getMapWidth())){
+        for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), 10*getMapWidth()*getMapHeight()*getMapHeight()*getMapWidth())){
             //also I think we are being inconsistent with our 0-1 or 1-2 here
-            if (c == 1){
-                System.out.println(loc);
-                System.out.println(gameWorld.getSpawnZone(loc));
-            }
-            else{
-                break;
-            }
+            // if (c == 1){
+            //     System.out.println(loc);
+            //     System.out.println(gameWorld.getSpawnZone(loc));
+            // }
+            // else{
+            //     break;
+            // }
 
             if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
                 outputLocations[i] = loc;
@@ -715,16 +715,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_MOVE_THERE, "given location is not on the map");
         }
 
-        if (this.gameWorld.getSpawnZone(loc) != getTeam().ordinal())
+        if (this.gameWorld.getSpawnZone(loc) != getTeam().ordinal()+1)
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn in a non-spawn location; " + loc + " is not a spawn location for your team");
 
-        if (isLocationOccupied(loc)) {
+        if (this.gameWorld.getRobot(loc) != null){//isLocationOccupied(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
         }
 
-        if (!sensePassability(loc)) {
+        if (this.gameWorld.isPassable(loc)){//!sensePassability(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to " + loc + "; It has a wall.");
         }

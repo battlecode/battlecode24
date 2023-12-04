@@ -1,5 +1,6 @@
 package SpawnResignPlayer;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import battlecode.common.*;
@@ -11,16 +12,21 @@ public class RobotPlayer {
 
     public static void run(RobotController rc) throws GameActionException{
         //rc.resign();
+        while (true){
+
         if (rc.getRoundNum() == 1) System.out.println("game has started");
         if (rc.getRoundNum() == 500) rc.resign();
         if (!rc.isSpawned()){
+            MapLocation[] allySpawns = rc.getAllySpawnLocations();
+            System.out.println(Arrays.toString(allySpawns));
+            rc.resign();
             for (MapLocation loc : rc.getAllySpawnLocations()){
-                // if (rc.canSpawn(loc)){
-                //     rc.spawn(loc);
-                //     System.out.println(" i spawned in :)");
-                //     rc.resign();
-                //     break;
-                // }
+                if (rc.canSpawn(loc)){
+                    rc.spawn(loc);
+                    System.out.println(" i spawned in :)");
+                    rc.resign();
+                    break;
+                }
             }
         }
         else{
@@ -44,8 +50,10 @@ public class RobotPlayer {
             if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())) rc.attack(enemies[0].getLocation());
 
         }
+        Clock.yield();
+ 
 
 
-
+    }
     }
 }

@@ -29,7 +29,7 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] water;
     private boolean[] dams;
-    private int[] spawnZones; // Team A = 0, Team B = 1, not spawn zone = -1
+    private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
@@ -263,12 +263,12 @@ public strictfp class GameWorld {
 
     /**
      * Checks if a given location is a spawn zone.
-     * Returns -1 if not, 0 if it is a Team A spawn zone,
-     * and 1 if it is a Team B spawn zone.
+     * Returns 0 if not, 2 if it is a Team A spawn zone,
+     * and 2 if it is a Team B spawn zone.
      * 
      * @param loc the location to check
-     * @return -1 if the location is not a spawn zone,
-     * 0 or 1 if it is a Team A or Team B spawn zone respectively
+     * @return 0 if the location is not a spawn zone,
+     * 1 or 2 if it is a Team A or Team B spawn zone respectively
      */
     public int getSpawnZone(MapLocation loc) {
         return this.spawnZones[locationToIndex(loc)];
