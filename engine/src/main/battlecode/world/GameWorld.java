@@ -99,7 +99,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < placedFlags.length; i++)
             placedFlags[i] = new ArrayList<>();
         
-        int[] flagArray = new int[2*GameConstants.NUMBER_FLAGS];
+        int[] flagArray = new int[this.walls.length];
         int[][] spawnZoneCenters = gm.getSpawnZoneCenters();
         for (int i = 0; i < spawnZoneCenters[0].length; i++){
             MapLocation cur = new MapLocation(spawnZoneCenters[0][i], spawnZoneCenters[1][i]);
