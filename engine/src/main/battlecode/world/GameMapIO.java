@@ -253,19 +253,19 @@ public final strictfp class GameMapIO {
             }
 
             battlecode.schema.VecTable spawnZoneCentersTable = raw.spawnLocations();
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < 6; i++){
                 MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
-                System.out.println(cur);
+                //System.out.println(cur);
                 for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
-                    spawnZoneArray[loc.x + loc.y*width] = 1;
+                    spawnZoneArray[loc.x + loc.y*width] = (i % 2 == 0) ? 1 : 2;
                 }
             }
-            for (int i = 3; i < 6; i++){
-                MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
-                for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
-                    spawnZoneArray[loc.x + loc.y*width] = 2;
-                }
-            }
+            // for (int i = 3; i < 6; i++){
+            //     MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
+            //     for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
+            //         spawnZoneArray[loc.x + loc.y*width] = 2;
+            //     }
+            // }
 
           //  ArrayList<RobotInfo> initBodies = new ArrayList<>();
 

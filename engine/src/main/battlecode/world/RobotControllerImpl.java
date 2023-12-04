@@ -724,9 +724,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
         }
 
-        if (this.gameWorld.isPassable(loc)){//!sensePassability(loc)) {
+        if (!this.gameWorld.isPassable(loc)){//!sensePassability(loc)) {
             throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot spawn to " + loc + "; It has a wall.");
+                    "Cannot spawn to " + loc + "; It is not passable "); //+ gameWorld.getWall(loc) + " wall or " + gameWorld.getWater(loc) + " water  or " + gameWorld.getDam(loc) + " dam");
         }
     }
 
