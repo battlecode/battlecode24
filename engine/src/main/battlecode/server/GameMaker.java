@@ -444,6 +444,7 @@ public strictfp class GameMaker {
             this.robotLocsY = new TIntArrayList();
             this.robotMoveCooldowns = new TIntArrayList();
             this.robotActionCooldowns = new TIntArrayList();
+            this.robotHealths = new TIntArrayList();
             this.attacksPerformed = new TIntArrayList();
             this.attackLevels = new TIntArrayList();
             this.buildsPerformed = new TIntArrayList();
