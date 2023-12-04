@@ -242,8 +242,16 @@ public final strictfp class GameMapIO {
                 wallArray[i] = raw.walls(i);
                 waterArray[i] = raw.water(i);
                 damArray[i] = raw.divider(i);
-                breadArray[i] = raw.resourcePileAmounts(i);
+                //breadArray[i] = raw.resourcePileAmounts(i);
             }
+            battlecode.schema.VecTable resourcePiles = raw.resourcePiles();
+            int num_piles = resourcePiles.xsLength();
+            for (int i = 0; i < num_piles; i++){
+                MapLocation cur = new MapLocation(resourcePiles.xs(i), resourcePiles.ys(i));
+                int amt = raw.resourcePileAmounts(i);
+                breadArray[cur.x+cur.y*width] = amt;
+            }
+
             battlecode.schema.VecTable spawnZoneCentersTable = raw.spawnLocations();
             for (int i = 0; i < 3; i++){
                 MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
@@ -333,8 +341,8 @@ public final strictfp class GameMapIO {
             battlecode.schema.GameMap.addSpawnLocations(builder, spawnLocations);
             battlecode.schema.GameMap.addWater(builder, waterArrayInt);
             battlecode.schema.GameMap.addDivider(builder, damArrayInt);
-            battlecode.schema.GameMap.addResourcePileAmounts(builder, breadArrayInt);
             battlecode.schema.GameMap.addResourcePiles(builder, resourcePiles);
+            battlecode.schema.GameMap.addResourcePileAmounts(builder, breadArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
