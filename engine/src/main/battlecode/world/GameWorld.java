@@ -741,6 +741,7 @@ public strictfp class GameWorld {
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         Team team = robot.getTeam();
+        if (robot.getLocation() != null)
         removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);

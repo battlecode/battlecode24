@@ -19,6 +19,8 @@ public class MapBuilder {
     public int seed;
     private MapSymmetry symmetry;
     private boolean[] wallArray;
+    private boolean[] damArray;
+    private boolean[] waterArray;
     private boolean[] cloudArray;
     private int[] currentArray;
     private int[] islandArray;
@@ -47,11 +49,21 @@ public class MapBuilder {
         int numSquares = width * height;
 
         this.wallArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.damArray = new boolean[numSquares];
         this.cloudArray = new boolean[numSquares];
         this.currentArray = new int[numSquares];
         this.islandArray = new int[numSquares];
         this.resourceArray = new int[numSquares];
         this.spawnZoneArray = new int[numSquares];
+
+        //for testing purposes
+        for (int i = 0; i < numSquares; i++){
+            if (i % 2 == 0)
+            this.spawnZoneArray[i] = 1;
+            else
+            this.spawnZoneArray[i] = 2;
+        }
     }
 
     // ********************
@@ -177,8 +189,7 @@ public class MapBuilder {
     // ********************
 
     public LiveMap build() {
-        //todo: make actual map
-        return new LiveMap(width, height, origin, seed, height, name);
+        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, waterArray, damArray, resourceArray, spawnZoneArray);
     }
 
     /**

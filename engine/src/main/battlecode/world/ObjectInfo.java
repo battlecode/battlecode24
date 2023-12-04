@@ -186,6 +186,7 @@ public strictfp class ObjectInfo {
         MapLocation loc = robot.getLocation();
         gameRobotsByID.remove(id);
         dynamicBodyExecOrder.remove(id);
+        if (loc != null)
         robotIndex.delete(fromPoint(loc),id);
     }
     

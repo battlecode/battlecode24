@@ -488,6 +488,14 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
+     * Returns a MapLocation array of all locations with an ally spawn zone on them.
+     * A robot must spawn inside one of these spawn zones.
+     * 
+     * @return a list of locations with an ally spawn zone
+     */
+    MapLocation[] getAllySpawnLocations();
+
+    /**
      * Checks if the robot is allowed to spawn at the given location.
      * A robot can spawn only inside the spawn zones.
      * 

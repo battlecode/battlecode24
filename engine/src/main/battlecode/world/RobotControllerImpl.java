@@ -675,6 +675,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
+    public MapLocation[] getAllySpawnLocations(){
+        //this is a bashy implementation just to have something working
+        MapLocation[] outputLocations = new MapLocation[27];
+        int i = 0;
+        for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), getMapHeight()*getMapWidth())){
+            //also I think we are being inconsistent with our 0-1 or 1-2 here
+            if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
+                outputLocations[i] = loc;
+                i += 1;
+            }
+            if (i == 27) break;
+        }
+        return outputLocations;
+
+    }
+
     private void assertCanSpawn(MapLocation loc) throws GameActionException {
         if (isSpawned())
             throw new GameActionException(CANT_DO_THAT,
@@ -683,6 +699,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!this.robot.canSpawnCooldown())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is not ready to be spawned.");
+        
+        assertNotNull(loc);
+        if (!onTheMap(loc)){
+            throw new GameActionException(CANT_MOVE_THERE, "given location is not on the map");
+        }
 
         if (this.gameWorld.getSpawnZone(loc) != getTeam().ordinal())
             throw new GameActionException(CANT_MOVE_THERE,
