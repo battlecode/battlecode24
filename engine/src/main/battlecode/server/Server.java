@@ -263,9 +263,9 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
 
-        System.out.println("running runMatch in server");
-        MapTestBad.makeBad();
-        System.out.println("done making bad");
+        // System.out.println("running runMatch in server");
+        // MapTestBad.makeBad();
+        // System.out.println("done making bad");
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;

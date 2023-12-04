@@ -42,6 +42,7 @@ public class TeamInfo {
         this.tierTwo = new int[2];
         this.globalUpgrades = new boolean[2][4];
         this.globalUpgradePoints = new int[2];
+        this.totalFlagsPickedUp = new int[2];
     }
     
     // *********************************

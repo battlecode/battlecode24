@@ -675,12 +675,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
+    static int c = 0;
     public MapLocation[] getAllySpawnLocations(){
         //this is a bashy implementation just to have something working
         MapLocation[] outputLocations = new MapLocation[27];
+        c += 1;
         int i = 0;
         for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), getMapHeight()*getMapWidth())){
             //also I think we are being inconsistent with our 0-1 or 1-2 here
+            if (c == 1){
+                System.out.println(loc);
+                System.out.println(gameWorld.getSpawnZone(loc));
+            }
+            else{
+                break;
+            }
+
             if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
                 outputLocations[i] = loc;
                 i += 1;

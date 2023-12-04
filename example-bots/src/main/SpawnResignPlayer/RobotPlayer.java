@@ -10,17 +10,17 @@ public class RobotPlayer {
     static final Random rng = new Random(6147);
 
     public static void run(RobotController rc) throws GameActionException{
-        rc.resign();
+        //rc.resign();
         if (rc.getRoundNum() == 1) System.out.println("game has started");
         if (rc.getRoundNum() == 500) rc.resign();
         if (!rc.isSpawned()){
             for (MapLocation loc : rc.getAllySpawnLocations()){
-                if (rc.canSpawn(loc)){
-                    rc.spawn(loc);
-                    System.out.println(" i spawned in :)");
-                    rc.resign();
-                    break;
-                }
+                // if (rc.canSpawn(loc)){
+                //     rc.spawn(loc);
+                //     System.out.println(" i spawned in :)");
+                //     rc.resign();
+                //     break;
+                // }
             }
         }
         else{
