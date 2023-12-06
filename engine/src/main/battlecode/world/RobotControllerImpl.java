@@ -675,27 +675,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    static int c = 0;
     public MapLocation[] getAllySpawnLocations(){
+        //TODO: make more efficient implementation of this method. probably need to save array in gameworld
         //this is a bashy implementation just to have something working
         MapLocation[] outputLocations = new MapLocation[27];
-        c += 1;
         int i = 0;
         for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), 10*getMapWidth()*getMapHeight()*getMapHeight()*getMapWidth())){
-            //also I think we are being inconsistent with our 0-1 or 1-2 here
-            // if (c == 1){
-            //     System.out.println(loc);
-            //     System.out.println(gameWorld.getSpawnZone(loc));
-            // }
-            // else{
-            //     break;
-            // }
-
             if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
                 outputLocations[i] = loc;
                 i += 1;
             }
-            if (i == 27) break;
         }
         return outputLocations;
 
@@ -719,14 +708,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn in a non-spawn location; " + loc + " is not a spawn location for your team");
 
-        if (this.gameWorld.getRobot(loc) != null){//isLocationOccupied(loc)) {
+        if (this.gameWorld.getRobot(loc) != null){
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot spawn to an occupied location; " + loc + " is occupied.");
         }
 
-        if (!this.gameWorld.isPassable(loc)){//!sensePassability(loc)) {
+        if (!this.gameWorld.isPassable(loc)){
             throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot spawn to " + loc + "; It is not passable "); //+ gameWorld.getWall(loc) + " wall or " + gameWorld.getWater(loc) + " water  or " + gameWorld.getDam(loc) + " dam");
+                    "Cannot spawn to " + loc + "; It is not passable ");
         }
     }
 

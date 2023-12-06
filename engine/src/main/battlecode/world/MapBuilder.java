@@ -56,14 +56,6 @@ public class MapBuilder {
         this.islandArray = new int[numSquares];
         this.resourceArray = new int[numSquares];
         this.spawnZoneArray = new int[numSquares];
-
-        // //for testing purposes
-        // for (int i = 0; i < numSquares; i++){
-        //     if (i % 2 == 0)
-        //     this.spawnZoneArray[i] = 1;
-        //     else
-        //     this.spawnZoneArray[i] = 2;
-        // }
     }
 
     // ********************

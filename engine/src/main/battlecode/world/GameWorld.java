@@ -192,6 +192,7 @@ public strictfp class GameWorld {
         // NOTE: changed this from destroy to despawn; double check that this change is correct
         //probably an issue with robot code erroring out and getting terminated when not actually spawned?
         //may need to differentiate between death causes and despawn/destroy appropriately
+        //TODO: I think after destroy robot fix this should no longer check location and go back to destroying
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null && robot.getLocation() != null)
             despawnRobot(robot.getID());
         return true;
@@ -354,7 +355,6 @@ public strictfp class GameWorld {
         trapId++;
         matchMaker.addTrap(trap);
         this.trapLocations[locationToIndex(loc)] = trap;
-        //should we be able to trigger traps we are diagonally next to?
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);
         }

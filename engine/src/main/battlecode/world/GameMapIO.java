@@ -226,8 +226,7 @@ public final strictfp class GameMapIO {
             final int width = (int) (raw.size().x());
             final int height = (int) (raw.size().y());
             final MapLocation origin = new MapLocation(0,0);
-            final MapSymmetry symmetry = (MapSymmetry.values())[0];
-           // final MapSymmetry symmetry = MapSymmetry.values()[raw.symmetry()];
+            final MapSymmetry symmetry = MapSymmetry.values()[raw.symmetry()];
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
@@ -242,7 +241,6 @@ public final strictfp class GameMapIO {
                 wallArray[i] = raw.walls(i);
                 waterArray[i] = raw.water(i);
                 damArray[i] = raw.divider(i);
-                //breadArray[i] = raw.resourcePileAmounts(i);
             }
             battlecode.schema.VecTable resourcePiles = raw.resourcePiles();
             int num_piles = resourcePiles.xsLength();
@@ -255,18 +253,10 @@ public final strictfp class GameMapIO {
             battlecode.schema.VecTable spawnZoneCentersTable = raw.spawnLocations();
             for (int i = 0; i < 6; i++){
                 MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
-                //System.out.println(cur);
                 for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
                     spawnZoneArray[loc.x + loc.y*width] = (i % 2 == 0) ? 1 : 2;
                 }
             }
-            // for (int i = 3; i < 6; i++){
-            //     MapLocation cur = new MapLocation(spawnZoneCentersTable.xs(i), spawnZoneCentersTable.ys(i));
-            //     for (MapLocation loc : GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(origin, width, height, cur, 2)){
-            //         spawnZoneArray[loc.x + loc.y*width] = 2;
-            //     }
-            // }
-
           //  ArrayList<RobotInfo> initBodies = new ArrayList<>();
 
           //  RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
