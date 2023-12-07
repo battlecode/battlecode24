@@ -845,7 +845,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canBuyGlobal(GlobalUpgrade ug){
-        return true;
+        int i = -1;
+        if(ug == GlobalUpgrade.ACTION)
+            i = 0;
+        else if(ug == GlobalUpgrade.CAPTURING)
+            i=1;
+        else if(ug == GlobalUpgrade.HEALING)
+            i=2;
+        else if (ug == GlobalUpgrade.SPEED)
+            i=3;
+        
+        boolean hasBought = this.gameWorld.getTeamInfo().getGlobalUpgrades(getTeam())[i];
+        return !hasBought && this.gameWorld.getTeamInfo().getGlobalUpgradePoints(getTeam()) > 0;
+    }
+
+    @Override 
+    public void buyGlobal(GlobalUpgrade ug){
+        this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
     }
 
     @Override

@@ -423,9 +423,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-
     public int getHeal() {
-        return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
+        int base_heal = SkillType.HEAL.skillEffect;
+        //check for upgrade
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]){
+            base_heal += GlobalUpgrade.HEALING.baseHealChange;
+        }
+        return base_heal * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
     }
 
     public int getBuildExp() {
