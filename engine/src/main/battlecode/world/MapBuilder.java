@@ -245,7 +245,7 @@ public class MapBuilder {
             if (isTeamNumber(team)) {
                 boolean bad = floodFillMap(indexToLocation(i),
                     (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
-                    (loc) -> this.wallArray[locationToIndex(loc)],
+                    (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
                     alreadyChecked);
 
                 if (bad) {
