@@ -4,7 +4,6 @@ import Match from '../../../playback/Match'
 import { CurrentMap, StaticMap } from '../../../playback/Map'
 import Turn from '../../../playback/Turn'
 import Bodies from '../../../playback/Bodies'
-import { current } from 'tailwindcss/colors'
 import { BATTLECODE_YEAR } from '../../../constants'
 
 export function loadFileAsMap(file: File): Promise<Game> {

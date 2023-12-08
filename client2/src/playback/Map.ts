@@ -5,6 +5,7 @@ import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
+import { DIVIDER_COLOR, GRASS_COLOR, GRASS_LIGHT_COLOR, WALLS_COLOR, WATER_COLOR } from '../constants';
 
 export type Dimension = {
     minCorner: Vector
@@ -290,7 +291,7 @@ export class StaticMap {
 
     draw(ctx: CanvasRenderingContext2D) {
         // Fill background
-        ctx.fillStyle = '#28683e'
+        ctx.fillStyle = GRASS_LIGHT_COLOR
         ctx.fillRect(
             this.dimension.minCorner.x,
             this.dimension.minCorner.y,
@@ -306,7 +307,7 @@ export class StaticMap {
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
                     renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, (scale) => {
-                        ctx.fillStyle = 'grey'
+                        ctx.fillStyle = WALLS_COLOR
                         ctx.fillRect(coords.x, coords.y, scale, scale)
                     })
                 }
@@ -314,7 +315,7 @@ export class StaticMap {
                 // Render rounded (clipped) water
                 if (this.initialWater[schemaIdx]) {
                     renderUtils.renderRounded(ctx, i, j, this.dimension, this.initialWater, (scale) => {
-                        ctx.fillStyle = '#2b58a5'
+                        ctx.fillStyle = WATER_COLOR
                         ctx.fillRect(coords.x, coords.y, scale, scale)
                     })
                 }
@@ -322,9 +323,9 @@ export class StaticMap {
                 // Render rounded (clipped) divider
                 if (this.divider[schemaIdx]) {
                     renderUtils.renderRounded(ctx, i, j, this.dimension, this.divider, (scale) => {
-                        ctx.fillStyle = '#000000'
+                        ctx.fillStyle = DIVIDER_COLOR
                         ctx.fillRect(coords.x, coords.y, scale, scale)
-                    })
+                    }, true)
                 }
 
                 // Draw grid

@@ -25,7 +25,8 @@ export const get9SliceClipPath = (
     j: number,
     dims: Dimension,
     vals: number[] | Int8Array | Int32Array,
-    valFunc: (v: number | boolean) => boolean = (v) => (v ? true : false)
+    valFunc: (v: number | boolean) => boolean = (v) => (v ? true : false),
+    mergeWithOutside: boolean = false
 ): number[][] => {
     let edge = 0.07
     let bevel = 0.13
@@ -34,7 +35,9 @@ export const get9SliceClipPath = (
         let x = cst.DIRECTIONS[v][0] + i
         let y = cst.DIRECTIONS[v][1] + j
         neighbors.push(
-            x < 0 || y < 0 || x == dims.width || y == dims.height ? false : valFunc(vals[getSchemaIdx(x, y, dims)])
+            x < 0 || y < 0 || x == dims.width || y == dims.height
+                ? mergeWithOutside
+                : valFunc(vals[getSchemaIdx(x, y, dims)])
         )
     }
     let points: number[][] = []
@@ -100,10 +103,11 @@ export const renderRounded = (
     dims: Dimension,
     values: number[] | Int8Array | Int32Array,
     render: (scale: number) => void,
+    mergeWithOutside: boolean = false,
     renderScale: number = 1.01,
     valueCheck: (v: number | boolean) => boolean = (v) => !!v
 ) => {
-    const path = get9SliceClipPath(i, j, dims, values, valueCheck)
+    const path = get9SliceClipPath(i, j, dims, values, valueCheck, mergeWithOutside)
     const coords = getRenderCoords(i, j, dims)
     applyClipScaled(ctx, coords.x / renderScale, coords.y / renderScale, renderScale, path, () => render(renderScale))
 }

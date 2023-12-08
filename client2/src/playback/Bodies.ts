@@ -171,7 +171,7 @@ export default class Bodies {
     }
 
     getEditorBrushes(map: StaticMap): MapEditorBrush[] {
-        return []
+        return [new TestDuckBrush(this, map)]
     }
 
     toSpawnedBodyTable(builder: flatbuffers.Builder): number {
@@ -218,10 +218,9 @@ export class Body {
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
-        public adamantium: number = 0,
-        public elixir: number = 0,
-        public mana: number = 0,
-        public anchor: number = 0,
+        public healLevel: number = 0,
+        public attackLevel: number = 0,
+        public buildLevel: number = 0,
         public bytecodesUsed: number = 0
     ) {
         this.nextPos = this.pos
@@ -269,13 +268,6 @@ export class Body {
             this.prevSquares.splice(0, 1)
         }
     }
-
-    public clearResources(): void {
-        this.adamantium = 0
-        this.elixir = 0
-        this.mana = 0
-        this.anchor = 0
-    }
 }
 
 export const BODY_DEFINITIONS: Record<number, typeof Body> = {
@@ -299,13 +291,138 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     // This game has no types or headquarters to speak of, so there is only
     // one type pointed to by 0:
 
-    0: class Robot extends Body {
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
+    0: class Duck extends Body {
+        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+            this.imgPath = `robots/${this.team.name.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            super.draw(match, ctx)
 
-            // TODO: Make this point to robot ducks or alligator
-            // depending on color
-            this.imgPath = `robots/${team.color}_robot.png`
+            const levelIndicators: [string, number, [number, number]][] = [
+                ['attack', this.attackLevel, [-.35, .4]],
+                ['heal', this.healLevel, [0.0, .4]],
+                ['build', this.buildLevel, [0.35, .4]]
+            ]
+            const interpCoords = renderUtils.getInterpolatedCoords(
+                this.pos,
+                this.nextPos,
+                match.getInterpolationFactor()
+            )
+            for (const [image, level, [dx, dy]] of levelIndicators) {
+                this.drawPetals(match, ctx, image, level, interpCoords.x + dx, interpCoords.y + dy)
+            }
+        }
+
+        private drawPetals(
+            match: Match,
+            ctx: CanvasRenderingContext2D,
+            image: string,
+            level: number,
+            x: number,
+            y: number
+        ): void {
+            if (level == 0) return
+            const imgPath = `levels/${image}/${level}_64x64.png`
+            const img = getImageIfLoaded(imgPath)
+
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                ctx,
+                img,
+                renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension),
+                0.45
+            )
+        }
+
+        private getSpecialization(): string {
+            assert(this.attackLevel >= 0 && this.attackLevel <= 6, 'Attack level out of bounds')
+            assert(this.healLevel >= 0 && this.healLevel <= 6, 'Heal level out of bounds')
+            assert(this.buildLevel >= 0 && this.buildLevel <= 6, 'Build level out of bounds')
+            assert([this.attackLevel, this.healLevel, this.buildLevel].sort()[1] <= 3, 'Specialization level too high')
+            if (this.attackLevel > 3) return 'attack'
+            if (this.healLevel > 3) return 'heal'
+            if (this.buildLevel > 3) return 'build'
+            return 'base'
+        }
+    }
+}
+
+export class TestDuckBrush extends MapEditorBrush {
+    public readonly name = 'Ducks'
+    public readonly fields = {
+        is_duck: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        team: {
+            type: MapEditorBrushFieldType.TEAM,
+            value: 0
+        },
+        heal_level: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            options: [
+                { value: 0, label: '0' },
+                { value: 1, label: '1' },
+                { value: 2, label: '2' },
+                { value: 3, label: '3' },
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+                { value: 6, label: '6' }
+            ],
+            value: 1
+        },
+        attack_level: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            options: [
+                { value: 0, label: '0' },
+                { value: 1, label: '1' },
+                { value: 2, label: '2' },
+                { value: 3, label: '3' },
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+                { value: 6, label: '6' }
+            ],
+            value: 2
+        },
+        build_level: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            options: [
+                { value: 0, label: '0' },
+                { value: 1, label: '1' },
+                { value: 2, label: '2' },
+                { value: 3, label: '3' },
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+                { value: 6, label: '6' }
+            ],
+            value: 5
+        }
+    }
+
+    constructor(
+        private readonly bodies: Bodies,
+        private readonly map: StaticMap
+    ) {
+        super()
+    }
+
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const is_duck: boolean = fields.is_duck.value
+        if (is_duck) {
+            if (this.bodies.getBodyAtLocation(x, y)) return
+            const duckClass = BODY_DEFINITIONS[0]
+            const duck = new duckClass(
+                { x, y },
+                1,
+                this.bodies.game.teams[fields.team.value],
+                this.bodies.getNextID(),
+                fields.heal_level.value,
+                fields.attack_level.value,
+                fields.build_level.value
+            )
+            this.bodies.bodies.set(duck.id, duck)
+        } else {
+            let duck = this.bodies.getBodyAtLocation(x, y, undefined)
+            if (duck) {
+                this.bodies.bodies.delete(duck.id)
+            }
         }
     }
 }

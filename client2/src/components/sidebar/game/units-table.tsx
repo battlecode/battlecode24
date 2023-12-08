@@ -3,6 +3,7 @@ import { useAppContext } from '../../../app-context'
 import { useForceUpdate } from '../../../util/react-util'
 import { useListenEvent, EventType } from '../../../app-events'
 import { getImageIfLoaded, removeTriggerOnImageLoad, triggerOnImageLoad } from '../../../util/ImageLoader'
+import { TEAM_NAMES } from '../../../constants';
 
 interface UnitsIconProps {
     team: 0 | 1
@@ -10,8 +11,8 @@ interface UnitsIconProps {
 }
 
 const UnitsIcon: React.FC<UnitsIconProps> = (props: UnitsIconProps) => {
-    const color = props.team == 0 ? 'red' : 'blue'
-    const imagePath = `robots/${color}_${props.robotType}_smaller.png`
+    const color = TEAM_NAMES[props.team].toLowerCase()
+    const imagePath = `robots/${color}/${props.robotType}.png`
 
     const imageData = getImageIfLoaded(imagePath)
 
@@ -43,17 +44,15 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     const columns: Array<[string, React.ReactElement]> = [
-        ['Headquarters', <UnitsIcon team={props.team} robotType='headquarters' />],
-        ['Carrier', <UnitsIcon team={props.team} robotType='carrier'/>],
-        ['Launcher', <UnitsIcon team={props.team} robotType='launcher'/>],
-        ['Amplifier', <UnitsIcon team={props.team} robotType='amplifier'/>],
-        ['Destabilizer', <UnitsIcon team={props.team} robotType='destabilizer'/>],
-        ['Booster', <UnitsIcon team={props.team} robotType='booster'/>],
+        ['Base', <UnitsIcon team={props.team} robotType='base' />],
+        ['Attack', <UnitsIcon team={props.team} robotType='attack'/>],
+        ['Build', <UnitsIcon team={props.team} robotType='build'/>],
+        ['Heal', <UnitsIcon team={props.team} robotType='heal'/>],
     ]
 
     const data: Array<[string, Array<number>]> = [
-        ['Count', [0, 0, 0, 0, 0, 0]], // TODO: Decide what stats should be shown, including total robots
-        ['Σ(HP)', [0, 0, 0, 0, 0, 0]]
+        ['Count', [0, 0, 0, 0]], // TODO: Decide what stats should be shown, including total robots
+        ['Σ(HP)', [0, 0, 0, 0]]
     ]
 
     return (
