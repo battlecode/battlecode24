@@ -1,6 +1,5 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
-import { BATTLECODE_YEAR } from '../../../constants'
 import { Button } from '../../button'
 import { FiUpload } from 'react-icons/fi'
 import Tournament from '../../../playback/Tournament'
