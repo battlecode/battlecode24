@@ -484,7 +484,6 @@ public strictfp class GameWorld {
     
 
     public int getMovementCooldown(Team team) {
-        //TODO return correct movement cooldown based on global upgrades [no longer doing this upgrade?]
         return 10;
     }
 
