@@ -17,7 +17,7 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
     const [page, setPage] = usePage()
     const appContext = useAppContext()
 
-    const playable = !game.dependsOn || game.dependsOn.every((g) => g.viewed)
+    const playable = !game.dependsOn || game.dependsOn.every((g) => !g || g.viewed)
 
     const onClick = () => {
         if (loadingGame || !playable) return
@@ -54,8 +54,6 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
             }
             onTap={onClick}
         >
-            {lines && <GameChildrenLines lines={lines} />}
-
             <GameNumber number={game.id} />
             <GameTeam game={game} teamIdx={0} />
             <div className="ml-0.5 text-xxxs">vs</div>
@@ -65,7 +63,7 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
 }
 
 const GameTeam: React.FC<{ game: TournamentGame; teamIdx: number }> = ({ game, teamIdx }) => {
-    const dependsOn = game.dependsOn && game.dependsOn[teamIdx]
+    const dependsOn = game.dependsOn[teamIdx]
     if (dependsOn && dependsOn.teams[dependsOn.winnerIndex] !== game.teams[teamIdx])
         throw new Error(
             `dependsOn winner does not match game teams at game ${game.id}, ${
@@ -114,30 +112,5 @@ const GameNumber: React.FC<{ number: number }> = ({ number }) => {
         <div className="absolute top-[-1px] left-[-1px] bg-white rounded-tl-sm rounded-br px-0.5 h-[12px] text-xxs flex items-center justify-center">
             {number}
         </div>
-    )
-}
-
-const GameChildrenLines: React.FC<{ lines: { dx: number; dy: number } }> = ({ lines }) => {
-    return (
-        <svg
-            width={lines.dx * 2}
-            height={lines.dy}
-            style={{
-                position: 'absolute',
-                zIndex: -1,
-                left: '50%',
-                top: '100%',
-                transform: 'translateX(-50%)'
-            }}
-        >
-            {/* down 40% */}
-            <line x1="50%" y1="0%" x2="50%" y2="40%" stroke="white" strokeWidth="2" />
-            {/* left and right */}
-            <line x1="50%" y1="40%" x2="0%" y2="40%" stroke="white" strokeWidth="2" />
-            <line x1="50%" y1="40%" x2="100%" y2="40%" stroke="white" strokeWidth="2" />
-            {/* down 60% */}
-            <line x1="0%" y1="40%" x2="0%" y2="100%" stroke="white" strokeWidth="4" />
-            <line x1="100%" y1="40%" x2="100%" y2="100%" stroke="white" strokeWidth="4" />
-        </svg>
     )
 }

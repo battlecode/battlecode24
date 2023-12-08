@@ -1,83 +1,102 @@
 import assert from 'assert'
 
 export default class Tournament {
-    public readonly games: Map<number, TournamentGame>
-    public readonly gamesByRoundWinnersBracket: Map<number, TournamentGame[]>
-    public readonly gamesByRoundLosersBracket: Map<number, TournamentGame[]>
-    public readonly winnersBracketRounds: number
-    public readonly losersBracketRounds: number
+    private readonly games: TournamentGame[]
+    private readonly gamesByTeamID: Map<number, TournamentGame[]>
+    public readonly winnersBracketRoot: TournamentGame
+    public readonly losersBracketRoot: TournamentGame | undefined
 
-    constructor(tournament_json: string) {
-        const tournament_json_parsed = JSON.parse(tournament_json)
-        this.games = new Map(
-            tournament_json_parsed.map((game: any): [number, TournamentGame] => {
-                return [
-                    game.id,
-                    {
-                        id: game.id,
-                        teams: game.teams,
-                        dependsOn: undefined,
-                        winnerIndex: game.winnerIndex,
-                        round: game.round,
-                        viewed: false,
-                        gameFile: game.gameFile
-                    }
-                ]
-            })
-        )
-
-        this.gamesByRoundWinnersBracket = new Map<number, TournamentGame[]>()
-        this.gamesByRoundLosersBracket = new Map<number, TournamentGame[]>()
-
-        // load heirarchy structure
-        for (const game of tournament_json_parsed) {
-            const gameObj = this.games.get(game.id) || assert.fail(`Game ${game.id} not found`)
-            if (game.dependsOn) {
-                for (const id of game.dependsOn) {
-                    if (!this.games.has(id)) throw new Error(`Game ${game.id} depends on nonexistent game ${id}`)
+    constructor(raw_games: JsonTournamentGame[]) {
+        let nextID = -1
+        this.games = raw_games
+            .filter((game) => game.tournament_round.release_status === 2)
+            .map((game) => {
+                const team0 = game.participants.find((p) => p.player_index === 0)
+                const team1 = game.participants.find((p) => p.player_index === 1)
+                assert(team0 && team1, 'Missing team in round')
+                assert(team0.score != team1.score, 'Tie games not supported')
+                const winnerIndex = team0.score > team1.score ? 0 : 1
+                nextID++
+                return {
+                    id: nextID,
+                    teams: [team0.teamname, team1.teamname],
+                    teamIDs: [team0.team, team1.team],
+                    dependsOn: [undefined, undefined],
+                    winnerIndex: winnerIndex,
+                    round: game.tournament_round.external_id,
+                    viewed: true,
+                    gameFile: game.replay_url
                 }
-                gameObj.dependsOn = game.dependsOn.map((id: number) => this.games.get(id))
-            }
+            })
 
-            // sort into winners/losers bracket
-            const bracket = game.round < 0 ? this.gamesByRoundLosersBracket : this.gamesByRoundWinnersBracket
-            const round = Math.abs(game.round)
-            bracket.set(round, (bracket.get(round) || []).concat(gameObj))
-        }
-
-        // sort games within each round by id
-        for (const bracket of [this.gamesByRoundWinnersBracket, this.gamesByRoundLosersBracket]) {
-            for (const round of bracket.keys()) {
-                bracket.set(
-                    round,
-                    bracket.get(round)!.sort((a, b) => a.id - b.id)
-                )
-            }
-        }
-
-        //flip rounds to be positive, now that theyve been filtered into winners/losers
+        this.gamesByTeamID = new Map()
         for (const game of this.games.values()) {
-            game.round = Math.abs(game.round)
+            for (const teamID of game.teamIDs) {
+                if (!this.gamesByTeamID.has(teamID)) this.gamesByTeamID.set(teamID, [])
+                this.gamesByTeamID.get(teamID)!.push(game)
+            }
         }
 
-        //normalize loser ids to start at 0
-        const minLoserGameId = Math.min(...[...this.gamesByRoundLosersBracket.values()].map((games) => games[0].id))
-        for (const round of this.gamesByRoundLosersBracket.keys()) {
-            const games = this.gamesByRoundLosersBracket.get(round)!
-            for (const game of games) game.id -= minLoserGameId
+        const maxRound = Math.max(...this.games.map((g) => g.round))
+        const maxRoundGames = this.games.filter((g) => g.round === maxRound)
+        assert(maxRoundGames.length === 1, 'Multiple games in final round')
+        this.winnersBracketRoot = maxRoundGames[0]
+        this.setGameDependents(this.winnersBracketRoot)
+
+        const minRound = Math.min(...this.games.map((g) => g.round))
+        if (minRound < 0) {
+            const minRoundGames = this.games.filter((g) => g.round === minRound)
+            assert(minRoundGames.length === 1, 'Multiple games in final losers round')
+            this.losersBracketRoot = minRoundGames[0]
+            this.setGameDependents(this.losersBracketRoot)
         }
 
-        this.winnersBracketRounds = Math.max(...this.gamesByRoundWinnersBracket.keys()) || 0
-        this.losersBracketRounds = -Math.min(...this.gamesByRoundLosersBracket.keys()) || 0
+        console.log(this)
+    }
+
+    getTeamGameInRound(teamID: number, round: number): TournamentGame | undefined {
+        const games = this.gamesByTeamID.get(teamID)!.filter((g) => g.round === round)
+        assert(games.length === 1 || games.length === 0, 'Multiple games in round')
+        return games.length === 1 ? games[0] : undefined
+    }
+
+    setGameDependents(game: TournamentGame) {
+        assert(game.round != 0, '0th round shouldnt exist')
+
+        const dependentRound = game.round > 0 ? game.round - 1 : game.round + 1
+        game.dependsOn = [
+            this.getTeamGameInRound(game.teamIDs[0], dependentRound),
+            this.getTeamGameInRound(game.teamIDs[1], dependentRound)
+        ]
+
+        if (game.dependsOn[0]) this.setGameDependents(game.dependsOn[0])
+        if (game.dependsOn[1]) this.setGameDependents(game.dependsOn[1])
     }
 }
 
 export type TournamentGame = {
     id: number
     teams: [string, string]
-    dependsOn?: [TournamentGame, TournamentGame]
+    teamIDs: [number, number]
+    dependsOn: [TournamentGame | undefined, TournamentGame | undefined]
     round: number
     winnerIndex: 0 | 1
     viewed: boolean
     gameFile: string
+}
+
+export type JsonTournamentGame = {
+    tournament_round: {
+        external_id: number
+        tournament: string
+        name: string
+        release_status: number
+    }
+    participants: {
+        team: number
+        teamname: string
+        player_index: number
+        score: number
+    }[]
+    replay_url: string
 }

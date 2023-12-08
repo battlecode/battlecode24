@@ -10,11 +10,13 @@ import { HelpPage } from './help/help'
 import { MapEditorPage } from './map-editor/map-editor'
 import { ProfilerPage } from './profiler/profiler'
 import { RunnerPage } from './runner/runner'
-import { usePage, PageType, useSearchParamBool } from '../../app-search-params'
+import { usePage, PageType, useSearchParamBool, useSearchParamString } from '../../app-search-params'
 import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
 import { TournamentPage } from './tournament/tournament'
+import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
+import { useAppContext } from '../../app-context'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -29,13 +31,48 @@ export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
     const keyboard = useKeyboard()
+    const context = useAppContext()
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
 
     const minWidth = open ? 'min-w-[390px]' : 'min-w-[64px]'
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
+    // Tournament mode loading ====================================================================================================
     const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
+    const [loadingRemoteTournament, setLoadingRemoteTournament] = React.useState(false)
+    const [tournamentSource, setTournamentSource] = useSearchParamString(
+        'tournamentSource',
+        'https://api.battlecode.org/api/compete/bc23/match/tournament/?external_id_private=private_bc23highschool3_54378c83_4bfb_47b2_ae4a_0e711b0e167c&format=json'
+    )
+    const fetchTournamentPage = (tournamentSource: string, rawGames: JsonTournamentGame[]) => {
+        fetch(tournamentSource)
+            .then((response) => response.text())
+            .then((text) => {
+                const data = JSON.parse(text)
+                const newGames = data.results as JsonTournamentGame[]
+                rawGames.push(...newGames)
+
+                if (data.next) {
+                    fetchTournamentPage(data.next, rawGames)
+                } else {
+                    setLoadingRemoteTournament(false)
+                    console.log(rawGames)
+                    context.setState({
+                        ...context.state,
+                        tournament: new Tournament(rawGames)
+                    })
+                }
+            })
+    }
+    React.useEffect(() => {
+        if (tournamentSource) {
+            setLoadingRemoteTournament(true)
+            fetchTournamentPage(tournamentSource, [])
+            setPage(PageType.TOURNAMENT)
+        }
+    }, [tournamentSource])
+    // End tournament mode loading ====================================================================================================
 
     const renderPage = () => {
         if (!open) return undefined
@@ -56,7 +93,7 @@ export const Sidebar: React.FC = () => {
             case PageType.HELP:
                 return <HelpPage />
             case PageType.TOURNAMENT:
-                return <TournamentPage />
+                return <TournamentPage loadingRemoteTournament={loadingRemoteTournament} />
         }
     }
 
@@ -131,6 +168,7 @@ export const Sidebar: React.FC = () => {
                                             (page == sidebarButton.page ? 'border-gray-800' : 'border-gray-200')
                                         }
                                         onClick={() => setPage(sidebarButton.page)}
+                                        key={sidebarButton.page}
                                     >
                                         {sidebarButton.name}
                                     </div>
