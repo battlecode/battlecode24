@@ -12,7 +12,7 @@ import {
 } from '../components/sidebar/map-editor/MapEditorBrush'
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
-import { TOOLTIP_PATH_LENGTH } from '../constants'
+import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
 import Match from './Match'
 
 export default class Bodies {
@@ -294,41 +294,78 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     0: class Duck extends Body {
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
             this.imgPath = `robots/${this.team.name.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            if(this.imgPath == `robots/red/base_64x64.png`) {
+                this.imgPath = `traps/explosive_64x64.png`
+            }
             super.draw(match, ctx)
 
             const levelIndicators: [string, number, [number, number]][] = [
-                ['attack', this.attackLevel, [-.35, .4]],
-                ['heal', this.healLevel, [0.0, .4]],
-                ['build', this.buildLevel, [0.35, .4]]
+                [ATTACK_COLOR, this.attackLevel, [0.8, -0.5]],
+                [BUILD_COLOR, this.buildLevel, [0.5, -0.8]],
+                [HEAL_COLOR, this.healLevel, [0.2, -0.2]]
             ]
             const interpCoords = renderUtils.getInterpolatedCoords(
                 this.pos,
                 this.nextPos,
                 match.getInterpolationFactor()
             )
-            for (const [image, level, [dx, dy]] of levelIndicators) {
-                this.drawPetals(match, ctx, image, level, interpCoords.x + dx, interpCoords.y + dy)
+            for (const [color, level, [dx, dy]] of levelIndicators) {
+                this.drawPetals(match, ctx, color, level, interpCoords.x + dx, interpCoords.y + dy)
             }
         }
 
         private drawPetals(
             match: Match,
             ctx: CanvasRenderingContext2D,
-            image: string,
+            color: string,
             level: number,
             x: number,
             y: number
         ): void {
             if (level == 0) return
-            const imgPath = `levels/${image}/${level}_64x64.png`
-            const img = getImageIfLoaded(imgPath)
+            // const imgPath = `levels/${image}/${level}_64x64.png`
+            // const img = getImageIfLoaded(imgPath)
 
-            renderUtils.renderCenteredImageOrLoadingIndicator(
-                ctx,
-                img,
-                renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension),
-                0.45
-            )
+            const drawCoords = renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension)
+
+            ctx.fillStyle = color
+            ctx.strokeStyle = 'black'
+            ctx.beginPath()
+            ctx.moveTo(drawCoords.x, drawCoords.y)
+            for (let i = 0; i < level; i++) {
+                const petalWidthRads = (2 * Math.PI) / 12
+                const angle = i * petalWidthRads * 2
+                const petalLength = 0.15
+                ctx.bezierCurveTo(
+                    drawCoords.x + (petalLength * 1/3) * Math.cos(angle - petalWidthRads * 2.5),
+                    drawCoords.y + (petalLength * 1/3) * Math.sin(angle - petalWidthRads * 2.5),
+                    drawCoords.x + (petalLength * 2/3) * Math.cos(angle - petalWidthRads * 2.5 / 2),
+                    drawCoords.y + (petalLength * 2/3) * Math.sin(angle - petalWidthRads * 2.5 / 2),
+                    drawCoords.x + petalLength * Math.cos(angle),
+                    drawCoords.y + petalLength * Math.sin(angle)
+                );
+                ctx.bezierCurveTo(
+                    drawCoords.x + (petalLength * 2/3) * Math.cos(angle + petalWidthRads * 2.5 / 2),
+                    drawCoords.y + (petalLength * 2/3) * Math.sin(angle + petalWidthRads * 2.5 / 2),
+                    drawCoords.x + (petalLength * 1/3) * Math.cos(angle + petalWidthRads * 2.5),
+                    drawCoords.y + (petalLength * 1/3) * Math.sin(angle + petalWidthRads * 2.5),
+                    drawCoords.x,
+                    drawCoords.y
+                );
+            }
+            ctx.lineWidth = 0.05
+            ctx.globalAlpha = 0.5
+            ctx.stroke()
+            ctx.globalAlpha = .75
+            ctx.fill()
+            ctx.globalAlpha = 1
+
+            // renderUtils.renderCenteredImageOrLoadingIndicator(
+            //     ctx,
+            //     img,
+            //     renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension),
+            //     0.45
+            // )
         }
 
         private getSpecialization(): string {

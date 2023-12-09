@@ -5,7 +5,7 @@ import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
-import { DIVIDER_COLOR, GRASS_COLOR, GRASS_LIGHT_COLOR, WALLS_COLOR, WATER_COLOR } from '../constants';
+import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR } from '../constants';
 
 export type Dimension = {
     minCorner: Vector
@@ -291,7 +291,7 @@ export class StaticMap {
 
     draw(ctx: CanvasRenderingContext2D) {
         // Fill background
-        ctx.fillStyle = GRASS_LIGHT_COLOR
+        ctx.fillStyle = GRASS_COLOR
         ctx.fillRect(
             this.dimension.minCorner.x,
             this.dimension.minCorner.y,

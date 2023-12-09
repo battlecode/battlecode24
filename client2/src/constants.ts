@@ -32,13 +32,16 @@ export const TEAM_BLUE = '#407496'
 export const TEAM_RED = '#D53E43'
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
 export const TEAM_NAMES = ['Red', 'Blue']
-export const GAMEAREA_BACKGROUND = 'grey'
 
-export const WATER_COLOR = '#335c69'
-export const WALLS_COLOR = '#ffffff'
-export const DIVIDER_COLOR = '#000000'
-export const GRASS_COLOR = '#164325'
-export const GRASS_LIGHT_COLOR = '#28683e'
+export const WATER_COLOR = '#29B0D9'
+export const WALLS_COLOR = '#F0EAD2'
+export const DIVIDER_COLOR = '#FF5F15'
+export const GRASS_COLOR = '#3CCA6E'
+export const GAMEAREA_BACKGROUND = WATER_COLOR
+
+export const ATTACK_COLOR = '#db6b5c'
+export const BUILD_COLOR = '#c573c9'
+export const HEAL_COLOR = '#f2b804'
 /*
  * Renderer constants
  */
