@@ -5,7 +5,7 @@ import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
-import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR } from '../constants';
+import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS } from '../constants'
 
 export type Dimension = {
     minCorner: Vector
@@ -17,6 +17,14 @@ export type Dimension = {
 type ResourcePileData = {
     amount: number
 }
+
+type TrapData = {
+    location: Vector
+    type: schema.BuildActionType
+    team: number
+}
+
+type FlagData = {}
 
 type SchemaPacket = {
     wallsOffset: number
@@ -30,6 +38,8 @@ type SchemaPacket = {
 export class CurrentMap {
     public readonly staticMap: StaticMap
     public readonly resourcePileData: Map<number, ResourcePileData>
+    public readonly trapData: Map<number, TrapData>
+    public readonly flagData: Map<number, FlagData>
     public readonly water: Int8Array
 
     get width(): number {
@@ -38,27 +48,28 @@ export class CurrentMap {
     get height(): number {
         return this.staticMap.dimension.height
     }
+    get dimension(): Dimension {
+        return this.staticMap.dimension
+    }
 
     constructor(from: StaticMap | CurrentMap) {
+        this.resourcePileData = new Map()
+        this.trapData = new Map()
+        this.flagData = new Map()
         if (from instanceof StaticMap) {
             // Create current map from static map
 
             this.staticMap = from
-            this.resourcePileData = new Map()
+            this.trapData = new Map()
             this.water = new Int8Array(from.initialWater)
             for (let i = 0; i < from.initialResourcePileAmounts.length; i++) {
-                const id = renderUtils.getSchemaIdx(
-                    from.resourcePileLocations[i].x,
-                    from.resourcePileLocations[i].y,
-                    from.dimension
-                )
+                const id = this.locationToIndex(from.resourcePileLocations[i].x, from.resourcePileLocations[i].y)
                 this.resourcePileData.set(id, { amount: from.initialResourcePileAmounts[i] })
             }
         } else {
             // Create current map from current map (copy)
 
             this.staticMap = from.staticMap
-            this.resourcePileData = new Map()
             for (let [key, value] of from.resourcePileData) {
                 this.resourcePileData.set(key, { ...value })
             }
@@ -74,6 +85,10 @@ export class CurrentMap {
         return this.staticMap.locationToIndex(x, y)
     }
 
+    applySymmetry(point: Vector): Vector {
+        return this.staticMap.applySymmetry(point)
+    }
+
     copy(): CurrentMap {
         return new CurrentMap(this)
     }
@@ -85,27 +100,86 @@ export class CurrentMap {
         const claimedPiles = delta.claimedResourcePiles() ?? assert.fail(`Delta missing claimedResourcePiles`)
         const digLocations = delta.digLocations() ?? assert.fail(`Delta missing digLocations`)
         const fillLocations = delta.fillLocations() ?? assert.fail(`Delta missing fillLocations`)
-        for (let i = 0; i < claimedPiles.xsLength(); i++) {}
-        for (let i = 0; i < digLocations.xsLength(); i++) {}
-        for (let i = 0; i < fillLocations.xsLength(); i++) {}
-        for (let i = 0; i < delta.trapIdsLength(); i++) {}
-        for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {}
+        const trapAddedLocations = delta.trapAddedLocations() ?? assert.fail(`Delta missing trapAddedLocations`)
+        for (let i = 0; i < claimedPiles.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(claimedPiles.xs(i)!, claimedPiles.ys(i)!)
+            this.resourcePileData.get(schemaIdx)!.amount = 0
+        }
+        for (let i = 0; i < digLocations.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
+            this.water[schemaIdx] = 1
+        }
+        for (let i = 0; i < fillLocations.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
+            this.water[schemaIdx] = 0
+        }
+        for (let i = 0; i < delta.trapAddedIdsLength(); i++) {
+            const id = delta.trapAddedIds(i)!
+            const location = { x: trapAddedLocations.xs(i)!, y: trapAddedLocations.ys(i)! }
+            const type = delta.trapAddedTypes(i)!
+            const team = delta.trapAddedTeams(i)!
+            this.trapData.set(id, { location, type, team })
+        }
+        for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {
+            this.trapData.delete(delta.trapAddedIds(i)!)
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         const dimension = this.staticMap.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
-                const schemaIdx = renderUtils.getSchemaIdx(i, j, dimension)
+                const schemaIdx = this.locationToIndex(i, j)
                 const coords = renderUtils.getRenderCoords(i, j, dimension)
 
-                // TODO: render
+                // Render rounded (clipped) water
+                if (this.water[schemaIdx]) {
+                    renderUtils.renderRounded(
+                        ctx,
+                        i,
+                        j,
+                        this,
+                        this.water,
+                        () => {
+                            ctx.fillStyle = '#2b58a5'
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        },
+                        { x: true, y: false }
+                    )
+                }
+
+                // Render rounded (clipped) divider
+                // TODO: check divider game state
+                if (this.staticMap.divider[schemaIdx]) {
+                    renderUtils.renderRounded(
+                        ctx,
+                        i,
+                        j,
+                        this,
+                        this.staticMap.divider,
+                        () => {
+                            ctx.fillStyle = '#000000'
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        },
+                        { x: false, y: true }
+                    )
+                }
+
+                // Render resource piles
+                const foundPile = this.resourcePileData.get(schemaIdx)
+                if (foundPile && foundPile.amount > 0) {
+                    ctx.fillStyle = 'red'
+                    ctx.beginPath()
+                    ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.5, 0, 2 * Math.PI)
+                    ctx.fill()
+                    ctx.closePath()
+                }
             }
         }
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = []
+        const brushes: MapEditorBrush[] = [new WaterBrush(this), new ResourcePileBrush(this)]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 
@@ -270,13 +344,13 @@ export class StaticMap {
     locationToIndex(x: number, y: number): number {
         assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
         assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
-        return y * this.width + x
+        return Math.floor(y) * this.width + Math.floor(x)
     }
 
     /**
      * Returns a point representing the reflection of the given point following the map's symmetry.
      */
-    applySymmetry(point: { x: number; y: number }): { x: number; y: number } {
+    applySymmetry(point: Vector): Vector {
         switch (this.symmetry) {
             case Symmetry.VERTICAL:
                 return { x: this.width - point.x - 1, y: point.y }
@@ -299,33 +373,43 @@ export class StaticMap {
             this.dimension.height
         )
 
+        // Populate buffer with values where spawn zones should be rendered
+        const spawnZoneDrawAreas = Array(this.width * this.height).fill(0)
+        for (let i = 0; i < this.spawnLocations.length; i++) {
+            const pos = this.spawnLocations[i]
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    const target_x = pos.x + x
+                    const target_y = pos.y + y
+                    if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
+                        const target_idx = this.locationToIndex(target_x, target_y)
+                        // Team A: 1, Team B: 2
+                        spawnZoneDrawAreas[target_idx] = (i % 2) + 1
+                    }
+                }
+            }
+        }
+
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {
-                const schemaIdx = renderUtils.getSchemaIdx(i, j, this.dimension)
+                const schemaIdx = this.locationToIndex(i, j)
                 const coords = renderUtils.getRenderCoords(i, j, this.dimension)
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, (scale) => {
+                    renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
                         ctx.fillStyle = WALLS_COLOR
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                        ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                     })
                 }
-
-                // Render rounded (clipped) water
-                if (this.initialWater[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.initialWater, (scale) => {
-                        ctx.fillStyle = WATER_COLOR
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                // Render spawn zones
+                if (spawnZoneDrawAreas[schemaIdx]) {
+                    const color = TEAM_COLORS[spawnZoneDrawAreas[schemaIdx] - 1]
+                    renderUtils.renderRounded(ctx, i, j, this, spawnZoneDrawAreas, () => {
+                        //ctx.fillStyle = '#1f7f29'
+                        //ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        renderUtils.drawDiagonalLines(ctx, coords, 1.0, color) //'#1f7f29')
                     })
-                }
-
-                // Render rounded (clipped) divider
-                if (this.divider[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.divider, (scale) => {
-                        ctx.fillStyle = DIVIDER_COLOR
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
-                    }, true)
                 }
 
                 // Draw grid
@@ -359,12 +443,6 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [
-            new WallsBrush(this),
-            new WaterBrush(this),
-            new DividerBrush(this),
-            new SpawnZoneBrush(this),
-            new ResourcePileBrush(this)
-        ]
+        return [new WallsBrush(this), new DividerBrush(this), new SpawnZoneBrush(this)]
     }
 }

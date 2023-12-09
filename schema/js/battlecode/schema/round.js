@@ -260,15 +260,15 @@ var Round = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 42);
         return offset ? (obj || new vec_table_1.VecTable()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
     };
-    Round.prototype.trapIds = function (index) {
+    Round.prototype.trapAddedIds = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 44);
         return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
     };
-    Round.prototype.trapIdsLength = function () {
+    Round.prototype.trapAddedIdsLength = function () {
         var offset = this.bb.__offset(this.bb_pos, 44);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
-    Round.prototype.trapIdsArray = function () {
+    Round.prototype.trapAddedIdsArray = function () {
         var offset = this.bb.__offset(this.bb_pos, 44);
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
@@ -670,17 +670,17 @@ var Round = /** @class */ (function () {
     Round.addClaimedResourcePiles = function (builder, claimedResourcePilesOffset) {
         builder.addFieldOffset(19, claimedResourcePilesOffset, 0);
     };
-    Round.addTrapIds = function (builder, trapIdsOffset) {
-        builder.addFieldOffset(20, trapIdsOffset, 0);
+    Round.addTrapAddedIds = function (builder, trapAddedIdsOffset) {
+        builder.addFieldOffset(20, trapAddedIdsOffset, 0);
     };
-    Round.createTrapIdsVector = function (builder, data) {
+    Round.createTrapAddedIdsVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
         for (var i = data.length - 1; i >= 0; i--) {
             builder.addInt32(data[i]);
         }
         return builder.endVector();
     };
-    Round.startTrapIdsVector = function (builder, numElems) {
+    Round.startTrapAddedIdsVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
     Round.addTrapAddedLocations = function (builder, trapAddedLocationsOffset) {

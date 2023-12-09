@@ -41,7 +41,7 @@ var Event;
      * There should only be one GameFooter, at the end of the stream.
      */
     Event[Event["GameFooter"] = 5] = "GameFooter";
-})(Event = exports.Event || (exports.Event = {}));
+})(Event || (exports.Event = Event = {}));
 function unionToEvent(type, accessor) {
     switch (Event[type]) {
         case 'NONE': return null;

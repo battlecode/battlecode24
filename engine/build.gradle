@@ -42,7 +42,7 @@ dependencies {
     [group: 'org.ow2.asm', name: 'asm-tree', version: '5.0.4'],
 
     // Flatbuffers
-    [group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '1.11.0'],
+    [group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '23.5.26'],
 
     // Websockets
     [group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.3.0'],

@@ -91,9 +91,9 @@ export declare class Round {
     actionTargetsLength(): number;
     actionTargetsArray(): Int32Array | null;
     claimedResourcePiles(obj?: VecTable): VecTable | null;
-    trapIds(index: number): number | null;
-    trapIdsLength(): number;
-    trapIdsArray(): Int32Array | null;
+    trapAddedIds(index: number): number | null;
+    trapAddedIdsLength(): number;
+    trapAddedIdsArray(): Int32Array | null;
     trapAddedLocations(obj?: VecTable): VecTable | null;
     trapAddedTypes(index: number): BuildActionType | null;
     trapAddedTypesLength(): number;
@@ -281,13 +281,13 @@ export declare class Round {
     static createActionTargetsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
     static startActionTargetsVector(builder: flatbuffers.Builder, numElems: number): void;
     static addClaimedResourcePiles(builder: flatbuffers.Builder, claimedResourcePilesOffset: flatbuffers.Offset): void;
-    static addTrapIds(builder: flatbuffers.Builder, trapIdsOffset: flatbuffers.Offset): void;
-    static createTrapIdsVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
+    static addTrapAddedIds(builder: flatbuffers.Builder, trapAddedIdsOffset: flatbuffers.Offset): void;
+    static createTrapAddedIdsVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
     /**
      * @deprecated This Uint8Array overload will be removed in the future.
      */
-    static createTrapIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
-    static startTrapIdsVector(builder: flatbuffers.Builder, numElems: number): void;
+    static createTrapAddedIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
+    static startTrapAddedIdsVector(builder: flatbuffers.Builder, numElems: number): void;
     static addTrapAddedLocations(builder: flatbuffers.Builder, trapAddedLocationsOffset: flatbuffers.Offset): void;
     static addTrapAddedTypes(builder: flatbuffers.Builder, trapAddedTypesOffset: flatbuffers.Offset): void;
     static createTrapAddedTypesVector(builder: flatbuffers.Builder, data: BuildActionType[]): flatbuffers.Offset;

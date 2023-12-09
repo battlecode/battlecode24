@@ -1,4 +1,4 @@
-package testplayerarray;
+package battlecode.instrumenter.sample.testplayerarray;
 
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;

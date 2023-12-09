@@ -53,8 +53,8 @@ public final class GameHeader extends Table {
   public int globalUpgradeMetadataLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
   public battlecode.schema.GlobalUpgradeMetadata.Vector globalUpgradeMetadataVector() { return globalUpgradeMetadataVector(new battlecode.schema.GlobalUpgradeMetadata.Vector()); }
   public battlecode.schema.GlobalUpgradeMetadata.Vector globalUpgradeMetadataVector(battlecode.schema.GlobalUpgradeMetadata.Vector obj) { int o = __offset(12); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
-  public battlecode.schema.Constants constants() { return constants(new battlecode.schema.Constants()); }
-  public battlecode.schema.Constants constants(battlecode.schema.Constants obj) { int o = __offset(14); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public battlecode.schema.GameplayConstants constants() { return constants(new battlecode.schema.GameplayConstants()); }
+  public battlecode.schema.GameplayConstants constants(battlecode.schema.GameplayConstants obj) { int o = __offset(14); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
 
   public static int createGameHeader(FlatBufferBuilder builder,
       int specVersionOffset,

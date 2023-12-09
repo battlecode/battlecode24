@@ -19,4 +19,4 @@ var Action;
      * Target: none
      */
     Action[Action["DIE_EXCEPTION"] = 10] = "DIE_EXCEPTION";
-})(Action = exports.Action || (exports.Action = {}));
+})(Action || (exports.Action = Action = {}));

@@ -74,7 +74,7 @@ export default class Looper {
             teamNames.push(meta.teams[team].name)
             teamIDs.push(meta.teams[team].teamID)
         }
-        this.stats.initializeGame(teamNames, teamIDs)
+        this.stats.initializeGame(teamNames, teamIDs, match.current.mapStats.island_stats.size)
         const extraInfo = (this.mapinfo ? this.mapinfo + "\n" : "") + (this.conf.doingRotate ? " (Map rotated and flipped! Disable for new matches with 'Z'.)" : "")
         this.stats.setExtraInfo(extraInfo)
         if (!showTourneyUpload) this.stats.hideTourneyUpload()
@@ -359,6 +359,16 @@ export default class Looper {
         //         this.stats.addEC(world.bodies.arrays.team[i]);
         //     }
         // }
+
+        let t1_islands = 0
+        let t2_islands = 0
+        world.mapStats.island_stats.forEach(element => {
+            if(element.owner == 1)
+                t1_islands++
+            if(element.owner == 2)
+                t2_islands++
+        });
+        this.stats.setIslandCount(t1_islands, t2_islands)
 
         let teamAdamantium: number[] = []
         let teamMana: number[] = []

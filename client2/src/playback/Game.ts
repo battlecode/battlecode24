@@ -23,7 +23,7 @@ export default class Game {
 
     // Metadata
     private readonly specVersion: string
-    public readonly constants: schema.Constants
+    public readonly constants: schema.GameplayConstants
     public readonly specializationMetadata: schema.SpecializationMetadata[] = []
     public readonly buildActionMetadata: schema.BuildActionMetadata[] = []
     public readonly globalUpgradeMetadata: schema.GlobalUpgradeMetadata[] = []
@@ -53,7 +53,7 @@ export default class Game {
             ]
             this.winner = this.teams[0]
             this.specVersion = SPEC_VERSION
-            this.constants = new schema.Constants()
+            this.constants = new schema.GameplayConstants()
             this.id = nextID++
             this.playable = false
             return

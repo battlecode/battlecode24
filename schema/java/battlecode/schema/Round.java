@@ -159,12 +159,12 @@ public final class Round extends Table {
   public ByteBuffer actionTargetsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 40, 4); }
   public battlecode.schema.VecTable claimedResourcePiles() { return claimedResourcePiles(new battlecode.schema.VecTable()); }
   public battlecode.schema.VecTable claimedResourcePiles(battlecode.schema.VecTable obj) { int o = __offset(42); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
-  public int trapIds(int j) { int o = __offset(44); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int trapIdsLength() { int o = __offset(44); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector trapIdsVector() { return trapIdsVector(new IntVector()); }
-  public IntVector trapIdsVector(IntVector obj) { int o = __offset(44); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer trapIdsAsByteBuffer() { return __vector_as_bytebuffer(44, 4); }
-  public ByteBuffer trapIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 44, 4); }
+  public int trapAddedIds(int j) { int o = __offset(44); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int trapAddedIdsLength() { int o = __offset(44); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector trapAddedIdsVector() { return trapAddedIdsVector(new IntVector()); }
+  public IntVector trapAddedIdsVector(IntVector obj) { int o = __offset(44); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer trapAddedIdsAsByteBuffer() { return __vector_as_bytebuffer(44, 4); }
+  public ByteBuffer trapAddedIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 44, 4); }
   public battlecode.schema.VecTable trapAddedLocations() { return trapAddedLocations(new battlecode.schema.VecTable()); }
   public battlecode.schema.VecTable trapAddedLocations(battlecode.schema.VecTable obj) { int o = __offset(46); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   public byte trapAddedTypes(int j) { int o = __offset(48); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
@@ -294,7 +294,7 @@ public final class Round extends Table {
       int actionsOffset,
       int actionTargetsOffset,
       int claimedResourcePilesOffset,
-      int trapIdsOffset,
+      int trapAddedIdsOffset,
       int trapAddedLocationsOffset,
       int trapAddedTypesOffset,
       int trapAddedTeamsOffset,
@@ -332,7 +332,7 @@ public final class Round extends Table {
     Round.addTrapAddedTeams(builder, trapAddedTeamsOffset);
     Round.addTrapAddedTypes(builder, trapAddedTypesOffset);
     Round.addTrapAddedLocations(builder, trapAddedLocationsOffset);
-    Round.addTrapIds(builder, trapIdsOffset);
+    Round.addTrapAddedIds(builder, trapAddedIdsOffset);
     Round.addClaimedResourcePiles(builder, claimedResourcePilesOffset);
     Round.addActionTargets(builder, actionTargetsOffset);
     Round.addActions(builder, actionsOffset);
@@ -410,9 +410,9 @@ public final class Round extends Table {
   public static int createActionTargetsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startActionTargetsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addClaimedResourcePiles(FlatBufferBuilder builder, int claimedResourcePilesOffset) { builder.addOffset(19, claimedResourcePilesOffset, 0); }
-  public static void addTrapIds(FlatBufferBuilder builder, int trapIdsOffset) { builder.addOffset(20, trapIdsOffset, 0); }
-  public static int createTrapIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startTrapIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTrapAddedIds(FlatBufferBuilder builder, int trapAddedIdsOffset) { builder.addOffset(20, trapAddedIdsOffset, 0); }
+  public static int createTrapAddedIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTrapAddedIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addTrapAddedLocations(FlatBufferBuilder builder, int trapAddedLocationsOffset) { builder.addOffset(21, trapAddedLocationsOffset, 0); }
   public static void addTrapAddedTypes(FlatBufferBuilder builder, int trapAddedTypesOffset) { builder.addOffset(22, trapAddedTypesOffset, 0); }
   public static int createTrapAddedTypesVector(FlatBufferBuilder builder, byte[] data) { return builder.createByteVector(data); }

@@ -3,7 +3,7 @@
 import * as flatbuffers from 'flatbuffers';
 
 import { BuildActionMetadata } from '../../battlecode/schema/build-action-metadata';
-import { Constants } from '../../battlecode/schema/constants';
+import { GameplayConstants } from '../../battlecode/schema/gameplay-constants';
 import { GlobalUpgradeMetadata } from '../../battlecode/schema/global-upgrade-metadata';
 import { SpecializationMetadata } from '../../battlecode/schema/specialization-metadata';
 import { TeamData } from '../../battlecode/schema/team-data';
@@ -77,9 +77,9 @@ globalUpgradeMetadataLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-constants(obj?:Constants):Constants|null {
+constants(obj?:GameplayConstants):GameplayConstants|null {
   const offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? (obj || new Constants()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new GameplayConstants()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startGameHeader(builder:flatbuffers.Builder) {

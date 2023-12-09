@@ -1,6 +1,6 @@
 import * as flatbuffers from 'flatbuffers';
 import { BuildActionMetadata } from '../../battlecode/schema/build-action-metadata';
-import { Constants } from '../../battlecode/schema/constants';
+import { GameplayConstants } from '../../battlecode/schema/gameplay-constants';
 import { GlobalUpgradeMetadata } from '../../battlecode/schema/global-upgrade-metadata';
 import { SpecializationMetadata } from '../../battlecode/schema/specialization-metadata';
 import { TeamData } from '../../battlecode/schema/team-data';
@@ -23,7 +23,7 @@ export declare class GameHeader {
     buildActionMetadataLength(): number;
     globalUpgradeMetadata(index: number, obj?: GlobalUpgradeMetadata): GlobalUpgradeMetadata | null;
     globalUpgradeMetadataLength(): number;
-    constants(obj?: Constants): Constants | null;
+    constants(obj?: GameplayConstants): GameplayConstants | null;
     static startGameHeader(builder: flatbuffers.Builder): void;
     static addSpecVersion(builder: flatbuffers.Builder, specVersionOffset: flatbuffers.Offset): void;
     static addTeams(builder: flatbuffers.Builder, teamsOffset: flatbuffers.Offset): void;

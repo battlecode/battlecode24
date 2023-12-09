@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameHeader = void 0;
 var flatbuffers = require("flatbuffers");
 var build_action_metadata_1 = require("../../battlecode/schema/build-action-metadata");
-var constants_1 = require("../../battlecode/schema/constants");
+var gameplay_constants_1 = require("../../battlecode/schema/gameplay-constants");
 var global_upgrade_metadata_1 = require("../../battlecode/schema/global-upgrade-metadata");
 var specialization_metadata_1 = require("../../battlecode/schema/specialization-metadata");
 var team_data_1 = require("../../battlecode/schema/team-data");
@@ -66,7 +66,7 @@ var GameHeader = /** @class */ (function () {
     };
     GameHeader.prototype.constants = function (obj) {
         var offset = this.bb.__offset(this.bb_pos, 14);
-        return offset ? (obj || new constants_1.Constants()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+        return offset ? (obj || new gameplay_constants_1.GameplayConstants()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
     };
     GameHeader.startGameHeader = function (builder) {
         builder.startObject(6);
