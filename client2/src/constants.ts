@@ -33,7 +33,7 @@ export const TEAM_RED = '#D53E43'
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
 export const TEAM_NAMES = ['Red', 'Blue']
 
-export const WATER_COLOR = '#F0EAD2'
+export const WATER_COLOR = '#29B0D9'
 export const WALLS_COLOR = '#3B6B4C'
 export const DIVIDER_COLOR = '#FF5F15'
 export const GRASS_COLOR = '#3CCA6E'

@@ -1,11 +1,13 @@
 import { flatbuffers, schema } from 'battlecode-schema'
 import assert from 'assert'
-import { Vector } from './Vector'
-import * as renderUtils from '../util/RenderUtil'
+import { Vector, getEmptyVector } from './Vector'
+import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
 import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS } from '../constants'
+import * as renderUtils from '../util/RenderUtil'
+import { getImageIfLoaded } from '../util/ImageLoader'
 
 export type Dimension = {
     minCorner: Vector
@@ -24,7 +26,11 @@ type TrapData = {
     team: number
 }
 
-type FlagData = {}
+type FlagData = {
+    team: number
+    location: Vector
+    carrierId: number | null
+}
 
 type SchemaPacket = {
     wallsOffset: number
@@ -43,10 +49,10 @@ export class CurrentMap {
     public readonly water: Int8Array
 
     get width(): number {
-        return this.staticMap.dimension.width
+        return this.dimension.width
     }
     get height(): number {
-        return this.staticMap.dimension.height
+        return this.dimension.height
     }
     get dimension(): Dimension {
         return this.staticMap.dimension
@@ -66,12 +72,24 @@ export class CurrentMap {
                 const id = this.locationToIndex(from.resourcePileLocations[i].x, from.resourcePileLocations[i].y)
                 this.resourcePileData.set(id, { amount: from.initialResourcePileAmounts[i] })
             }
+            for (let i = 0; i < from.spawnLocations.length; i++) {
+                // Assign initial flag data, ids are same order as spawn zones
+                const team = i % 2
+                const location = from.spawnLocations[i]
+                this.flagData.set(i, { team, location, carrierId: null })
+            }
         } else {
             // Create current map from current map (copy)
 
             this.staticMap = from.staticMap
             for (let [key, value] of from.resourcePileData) {
                 this.resourcePileData.set(key, { ...value })
+            }
+            for (let [key, value] of from.trapData) {
+                this.trapData.set(key, { ...value })
+            }
+            for (let [key, value] of from.flagData) {
+                this.flagData.set(key, { ...value })
             }
             this.water = new Int8Array(from.water)
         }
@@ -125,8 +143,8 @@ export class CurrentMap {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        const dimension = this.staticMap.dimension
+    draw(match: Match, ctx: CanvasRenderingContext2D) {
+        const dimension = this.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
                 const schemaIdx = this.locationToIndex(i, j)
@@ -164,22 +182,43 @@ export class CurrentMap {
                         { x: false, y: true }
                     )
                 }
-
-                // Render resource piles
-                const foundPile = this.resourcePileData.get(schemaIdx)
-                if (foundPile && foundPile.amount > 0) {
-                    ctx.fillStyle = 'red'
-                    ctx.beginPath()
-                    ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.5, 0, 2 * Math.PI)
-                    ctx.fill()
-                    ctx.closePath()
-                }
             }
+        }
+
+        // Render flags
+        for (const flagId of this.flagData.keys()) {
+            const data = this.flagData.get(flagId)!
+            let loc: Vector = getEmptyVector()
+            if (data.carrierId) {
+                // Bot is carrying flag
+                loc = match.currentTurn.bodies.getById(data.carrierId).getInterpolatedCoords(match.currentTurn)
+            } else {
+                loc = data.location
+            }
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                ctx,
+                getImageIfLoaded('resources/bread_64x64.png'),
+                renderUtils.getRenderCoords(loc.x, loc.y, this.dimension),
+                1
+            )
+        }
+
+        // Render resource piles
+        for (const pileId of this.resourcePileData.keys()) {
+            const data = this.resourcePileData.get(pileId)!
+            if (data.amount == 0) continue
+            const loc = this.indexToLocation(pileId)
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+            ctx.fillStyle = 'red'
+            ctx.beginPath()
+            ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.5, 0, 2 * Math.PI)
+            ctx.fill()
+            ctx.closePath()
         }
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = [new WaterBrush(this), new ResourcePileBrush(this)]
+        const brushes: MapEditorBrush[] = [new WaterBrush(this), new ResourcePileBrush(this), new SpawnZoneBrush(this)]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 
@@ -441,6 +480,6 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [new WallsBrush(this), new DividerBrush(this), new SpawnZoneBrush(this)]
+        return [new WallsBrush(this), new DividerBrush(this)]
     }
 }

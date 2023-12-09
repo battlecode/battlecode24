@@ -49,7 +49,7 @@ export const GameRenderer: React.FC = () => {
 
         const ctx = getCanvasContext(CanvasType.DYNAMIC)!
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(ctx)
+        map.draw(match, ctx)
         currentTurn.bodies.draw(match, ctx)
         currentTurn.actions.draw(match, ctx)
     }, [activeMatch])
@@ -59,7 +59,7 @@ export const GameRenderer: React.FC = () => {
         const match = appContext.state.activeMatch
         if (!match) return
         match.currentTurn.map.staticMap.draw(getCanvasContext(CanvasType.BACKGROUND)!)
-        render();
+        render()
     }
     useListenEvent(EventType.INITIAL_RENDER, fullRender, [fullRender])
 
