@@ -1,5 +1,5 @@
 // Javac will move this into the correct package in the build output
-package instrumentertest;
+package battlecode.instrumenter.sample.instrumentertest;
 
 /**
  * Test loading of inner classes.

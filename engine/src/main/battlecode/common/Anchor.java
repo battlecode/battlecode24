@@ -13,12 +13,12 @@ public enum Anchor {
     /**
      * Standard anchors are built out of standard type anchors and only have 250 health. They also do not have any other affects.
      */
-    STANDARD       (250,    0,   0.0f, 100, 100, 0),
+    STANDARD       (250,    0,   0.0f, 1, 4, 80, 80, 0),
 
     /**
      * Accelerating anchors are built out of elixir (the strongest element) and have 750 health. They also power up nearby units of your team.
      */
-    ACCELERATING      (750,    4,   -0.15f, 0, 0, 300);
+    ACCELERATING      (750,    4,   -0.15f, 1, 6, 0, 0, 300);
 
     /**
      * How long this type of anchor takes to remove.
@@ -34,6 +34,16 @@ public enum Anchor {
      * The acceleration that this anchor causes on friendly nearby units within range.
      */
     public final float accelerationFactor;
+
+    /**
+     * The number of game rounds between applying healing due to anchor
+     */
+    public final int healingFrequency;
+
+    /**
+     * The amount that this anchor heals friendly robots standing on the island
+     */
+    public final int healingAmount;
 
     /**
      * The cost to build this anchor in mana.
@@ -67,10 +77,12 @@ public enum Anchor {
         return (this == STANDARD) ? 0 : 1;
     }
 
-    Anchor(int totalHealth, int unitsAffected, float accelerationFactor, int manaCost, int adamantiumCost, int elixirCost) {
+    Anchor(int totalHealth, int unitsAffected, float accelerationFactor, int healingFrequency, int healingAmount, int manaCost, int adamantiumCost, int elixirCost) {
         this.totalHealth     = totalHealth;
         this.unitsAffected       = unitsAffected;
         this.accelerationFactor    = accelerationFactor;
+        this.healingFrequency = healingFrequency;
+        this.healingAmount = healingAmount;
         this.manaCost = manaCost;
         this.adamantiumCost = adamantiumCost;
         this.elixirCost = elixirCost;

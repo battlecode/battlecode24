@@ -42,7 +42,6 @@ public class MapTestSmall {
 
     public static void makeSimple() throws IOException {
         MapBuilder mapBuilder = new MapBuilder(mapName, 20, 20, 0, 0, 30);
-        mapBuilder.addSymmetricHeadquarter(5, 5);
         Random random = new Random(6147);
 
         Set<MapLocation> usedSquares = new HashSet<>();

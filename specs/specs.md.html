@@ -17,7 +17,7 @@
 
 # Formal specification
 
-*This is the formal specification of the Battlecode 2023 game.* Current version: *1.2.4*
+*This is the formal specification of the Battlecode 2023 game.* Current version: *3.0.14*
 
 **Welcome to Battlecode 2023: Tempest.**
 
@@ -57,7 +57,7 @@ The magical winds contain time-bending properties that affect robots that pass t
 
 Time accelerating directional currents flow throughout the map, pushing robots in a specified direction. Robots in a current will be forced to move in the direction of the current at the end of the turn, applied after existing robot movement. Currents will usually appear together on the map in lines or other shapes. **Each current must flow into a different square.**
 
-Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a reduced vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similarly reduced vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
+Time decelerating clouds also appear throughout the map, obscuring vision and slowing down robots within them. When a robot moves into a cloud, it becomes obscured, preventing enemy robots from seeing it with its normal vision radius. Instead, a vision range of 4 units is applied to sense obscured robots. Obscured robots also receive impaired vision, giving them a similar vision range of 4 units. While obscured robots can avoid detection, they receive an increase of 20% on their movement and action cooldowns (moving and acting more slowly), stacking with other time-bending effects. Movements and action cooldowns are defined further down. **Clouds and currents cannot be on the same squares.** 
 
 **Note that all stacking of time-bending effects occurs additively.**
 
@@ -67,7 +67,7 @@ Certain areas of the map are designated as *sky islands*. Islands appear as grou
 
 There will be between 4 and 35 (inclusive) sky islands spread across the map, and each island is guaranteed to have an area of at most 20.  
 
-Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. 
+Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroyed, as they hold the dimensional tears connecting universes. Robots and reality anchors are created at headquarters. **Robots cannot move over headquarters**. A headquarter cannot be located on a current. At the end of each round, headquarters deal 4 damage to every enemy robot within action radius.
 
 *Resource wells* appear throughout the map and contain an infinite amount of a specific resource type. They cannot be moved or destroyed. No currents, headquarters, or impassable squares can be located on a well. **Robots can travel over wells.** 
 
@@ -75,13 +75,13 @@ Each team has 1-4 fixed *headquarters*. Headquarters cannot be moved or destroye
 
 The core resources are adamantium (Ad), mana (Mn), and elixir (Ex). Each headquarter has its own isolated stockpile of these resources, and constructing robots/reality anchors subtracts from this stockpile. Collecting and bringing back resources for your headquarters enables you to amass a larger and more powerful army of robots. **Resources are not automatically usable when a carrier collects them - they must be carried back to a headquarter.**
 
-There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each team will have one adamantium well located within immediately visible distance. All maps are guaranteed to have at least one adamantium well and one mana well. 
+There are resource wells scattered around the map, each of a specific resource type. Wells contain an infinite amount of their specified resource, which can be drawn from them by carrier robots located on the well or one of the 8 neighboring squares. Elixir wells do not naturally spawn. Each headquarter will have at least one adamantium well located within 100 units of them. All maps are guaranteed to have at least one adamantium well and one mana well. 
 
-Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 2 kg/action. If 2400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 6 kg/action. Alternatively, if 1000 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
+Wells will undergo a transformation if the proper conditions are met. By default, carriers can collect from wells at a rate of 1 kg/action. If 1400 kg of the same resource is thrown into the well (adamantium for an adamantium well, etc.), the well will upgrade, allowing carriers to draw from them at a higher rate of 3 kg/action. Alternatively, if 600 kg of the opposite resource is thrown into the well, the well will transform into an elixir well. Note that only adamantium and mana wells can transform into elixir wells, and the new elixir well will no longer produce its original resource. 
 
-For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 81 units of a Mana well and vice versa. 
+For any given map, wells of a specific type cannot constitute more than 4% of the map’s area. It is also guaranteed that all Adamantium wells will be located within 100 units of a Mana well and vice versa. 
 
-Every five rounds, each headquarter will naturally produce 2 kg of adamantium and 2 kg of mana, automatically adding these resources to its reserves. Both teams start the game with 200 kg of adamantium and 200 kg of mana in each headquarter. Resource costs for robot construction can be found in the in-depth section further below.
+Every 5 rounds, each headquarter will naturally produce 6 kg of adamantium and 6 kg of mana, automatically adding these resources to its reserves. Both teams start the game with 200 kg of adamantium and 200 kg of mana in each headquarter. Resource costs for robot construction can be found in the in-depth section further below.
 
 # Robots
 
@@ -107,19 +107,19 @@ Carriers are produced with 50 kg of Ad. Upon creation, their inventory is empty.
 
 Carriers are the only robots that can move resources and anchors and interact with resource wells, headquarters, and sky islands. The range and rate at which they can interact with these depends on the material and target – see the Resource Wells, Headquarters, and Reality Anchors sections for more info. 
 
-Carriers can also throw resources to attack. This attack strikes an enemy in the targeted location with damage proportional to the quantity of resources thrown. When throwing $m$ kg of resource, the damage dealt is $\left\lfloor\left(\frac{m}{5}\right)\right\rfloor$. This attack can hit obscured robots even if they are out of vision. The thrown resources fall into the void, lost forever.
+Carriers can also throw resources to attack. This attack strikes an enemy in the targeted location with damage proportional to the quantity of resources thrown. When throwing $m$ kg of resource, the damage dealt is $\left\lfloor\left(\frac{5m}{4}\right)\right\rfloor$. This attack can hit obscured robots even if they are out of vision. The thrown resources fall into the void, lost forever.
 
 ## Signal Amplifiers
 
-Signal amplifiers are produced with 40 kg of adamantium and 40 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
+Signal amplifiers are produced with 30 kg of adamantium and 15 kg of mana. They allow nearby team robots within 20 units (see our sensing/vision section for distance details) to write to their faction’s shared array. Robots not within range of a signal amplifier or other signal boosting square can read from their shared array but cannot write to the array.
 
 ## Launchers
 
-Launchers are produced with 60 kg of mana. They can deal damage to enemy robots by targeting a square within 16 units to attack. This attack can hit obscured robots even if they are out of vision. 
+Launchers are produced with 45 kg of mana. They can deal damage to enemy robots by targeting a square within 16 units to attack. This attack can hit obscured robots even if they are out of vision. 
 
 ## Temporal Destabilizers
 
-Temporal destabilizers are produced with 200 kg of elixir. Destabilizers can select a square within 13 units of them to attack. Once a square has been selected, destabilizers slow down time to all squares within 15 units of the square, applying an 10% increase on all base future robot cooldowns. This effect lasts for 5 turns, after which damage is dealt to all enemies in the affected area. This effect can stack up to 2 times (a max of 2 total destabilizers can impact a square). This attack can hit obscured robots even if they are out of vision. 
+Temporal destabilizers are produced with 200 kg of elixir. Destabilizers can select a square within 13 units of them to attack. Once a square has been selected, destabilizers slow down time to all squares within 15 units of the square, applying a 10% increase on all base future robot cooldowns. This effect lasts for 5 turns, after which damage is dealt to all enemies in the affected area. This effect can stack up to 2 times (a max of 2 total destabilizers can impact a square). This attack can hit obscured robots even if they are out of vision. 
 
 ## Temporal Boosters
 
@@ -131,9 +131,13 @@ Reality anchors are the devices used to control sky islands. Anchors are manufac
 
 Reality anchors are 40 kg, meaning that carriers cannot carry any other items when holding an anchor. There are two types of anchors: Standard Anchors and Accelerating Anchors.
 
-Standard Anchors are crafted with 100 kg of adamantium and 100 kg of mana. Accelerating Anchors function similarly to Standard Anchors, but decrease surrounding ally robot cooldowns by 15%. This decrease affects all ally robot within 4 units of the island. These anchors are crafted with 300 kg of elixir. The boosting effects take place once the anchor has been placed and **does not stack with itself**.
+Standard Anchors are crafted with 80 kg of adamantium and 80 kg of mana. Accelerating Anchors function similarly to Standard Anchors, but decrease surrounding ally robot cooldowns by 15%. This decrease affects all ally robot within 4 units of the island. These anchors are crafted with 300 kg of elixir. The boosting effects take place once the anchor has been placed and **does not stack with itself**.
 
 Standard anchors have a max health of 250 while accelerating anchors have a max health of 750. Once an anchor's health has been reduced to 0 the anchor is removed and the opposing team can place their own anchor on the island. At the end of each turn each anchor's health will change based on the occupancy of the island the anchor is planted on as follows: $\text{(% island occupied by placing team)} - \text{(% island occupied by opponent)}$. The health of an anchor can never increase past the initial max health of that type of anchor.
+
+Allied robots within 4 units of a controlled island get healed every round, at the end of the round. Standard Anchors heal 4 health, while Accelerating Anchors heal 6 health. Allied robots will not get healed on the turn that teams lose control of an island. Note that healing from controlled islands stacks.
+
+Teams can place an anchor on top of an island they already control, overriding their last anchor. The new anchor will be at full health, regardless of the health of the past anchor. The same anchor type does not need to be used to override. Note that overriding an anchor on an already controlled island does not contribute towards the total number of anchors placed tiebreaker described later on.
 
 # Communication
 
@@ -190,16 +194,16 @@ Attack and vision ranges are squared Euclidean distances. A vision range of 36 m
 
 |  | Headquarter | Carrier | Launcher | Destabilizer | Booster | Amplifier
 | --- | --- | --- | --- | --- | --- | --- |
-| Cost | N/A | 50 Ad | 60 Mn | 200 Ex | 150 Ex | 40 Ad, 40 Mn
-| Cooldown / action | 10 | 10 | 10 | 70 | 140 | N/A 
-| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 20 | 25 | 25 | 15
-| Health | N/A | 15 | 20 | 30 | 40 | 40
-| Attack | N/A | $\left\lfloor\left(\frac{m}{5}\right)\right\rfloor$ | 6 | 5 | N/A | N/A
+| Cost | N/A | 50 Ad | 45 Mn | 200 Ex | 150 Ex | 30 Ad, 15 Mn
+| Cooldown / action | 2 | 10 | 10 | 70 | 140 | N/A 
+| Cooldown / move | N/A | $\left\lfloor\left(5+\frac{3m}{8}\right)\right\rfloor$ | 20 | 20 | 25 | 15
+| Health | N/A | 150 | 200 | 300 | 400 | 120
+| Attack | 4 | $\left\lfloor\left(\frac{5m}{4}\right)\right\rfloor$ | 20 | 50 | N/A | N/A
 | Action radius | 9 | 9 | 16 | 13 | N/A | N/A
 | Vision radius | 34 | 20 | 20 | 20 | 20 | 34
-| Bytecode limit | 20,000 | 10,000 | 10,000 | 10,000 | 10,000 | 7,500
+| Bytecode limit | 20,000 | 12,500 | 10,000 | 10,000 | 10,000 | 10,000
 
-- Headquarter: the central headquarters. Can spawn robots, build anchors, and store materials. 
+- Headquarter: the central headquarters. Can spawn robots, build anchors, and store materials. Deals damage to all surrounding enemy robots at the end of each round.
 - Carrier: the material moving robot. Can extract resources from wells, carry resources and anchors, plant anchors, and throw resources. 
 - Launcher: the general-purpose attack robot. Can attack a single robot in a specified location. 
 - Destabilizer: the offensive time manipulator. Can debuff enemy robots and attack groups of them.
@@ -216,8 +220,8 @@ Every round each robot sequentially takes its turn. If a robot attempts to excee
 The per-turn bytecode limits for various robots are as follows:
 
 - Headquarter: 20,000
-- Carrier, Launcher, Destabilizer, Booster: 10,000
-- Amplifier: 7,500
+- Carrier: 12,500
+- Amplifier, Booster, Destabilizer, Launcher: 10,000
 
 
 Some standard functions such as the math library and sensing functions have fixed bytecode costs, available [here](https://github.com/battlecode/battlecode23/blob/master/engine/src/main/battlecode/instrumenter/bytecode/resources/MethodCosts.txt). More details on this at the end of the spec.
@@ -287,6 +291,157 @@ If something is unclear, direct your questions to our Discord where other people
 
 # Appendix: Changelog
 
+- Version 3.0.13 (February 2, 2023) 
+  - Previous cloud sensing fixed checked the incorrect location when determining radius: fixed
+
+- Version 3.0.12 (February 1, 2023) 
+  - Fixed sensing clouds within clouds to reduce vision radius
+  - Added Newbie/HS qualifier maps
+
+- Version 3.0.10 (January 31, 2023) 
+  - Released US Qualifier maps to public in client
+
+- Version 3.0.9 (January 31, 2023)
+  - Released US Qualifier maps to public in engine
+
+- Version 3.0.5 (January 29, 2023)
+  - Fix Repetition and Sakura maps
+
+- Version 3.0.4 (January 28, 2023)
+  - International qualifiers map release
+
+- Version 3.0.2 (January 26, 2023)
+  - Engine Fixes:
+    - Carriers should now be able to attack using a held anchor
+    - Wells can no longer be upgraded using the wrong resource 
+
+- Version 3.0.1 (January 25, 2023)
+  - Internal release for mystery tournament
+  - Fixed spec changelog formatting
+
+- Version 3.0.0 (January 24, 2023)
+  - Island/Anchor Buffs (island healing was too weak last patch, and very few teams found advantages in capturing and defending islands):
+    - Healing affects all robots within 4 radius squared of an island
+    - Healing per turn increased from 1, 2 --> 4, 6 for standard and accelerating anchors respectively
+    - Standard anchor cost reduced from 100 Ad, 100 Mn --> 80 Ad, 80 Mn
+  - Launcher Nerfs (early game launcher rushes were too strong, so we'll be decreasing their damage and increasing their quantity to allow for longer combat):
+    - Launcher damage decreased from 40 --> 20
+    - Launcher move cooldown reverted from 15 --> 20
+    - Launcher cost decreased from 60 Mn --> 45 Mn
+  - Amplifier Buffs (amplifiers saw little use outside of the finals, so we intend to decrease the resources lost from creating an amplifier)
+    - Amplifier cost decreased from 30 Ad, 30 Mn --> 30 Ad, 15 Mn
+  - Carrier Revert (carrier action cooldown changes were unintuitive, so we intend to revert them to their past cooldowns)
+    - Carrier cooldown reverted from 8 --> 10
+  - Well Buffs (upgrading and converting wells was difficult due to achieve due to their high costs)
+    - Elixir conversion cost decreased from 700 --> 600
+    - Well upgrade cost decreased from 1700 --> 1400
+
+
+- Version 2.0.6 (January 24, 2023)
+  - Renamed Checkmate2 in Sprint 2 maps
+
+- Version 2.0.5 (January 24, 2023)
+  - Fixed Checkmate in Sprint 2 maps
+
+- Version 2.0.4 (January 23, 2023)
+  - Adding Sprint 2 maps
+
+- Version 2.0.3 (January 20, 2023)
+  - Released additional maps with more clouds
+  - Client Fixes:
+    - Currents now display direction in map editor
+
+- Version 2.0.2 (January 19, 2023)
+  - Spec Fixes:
+    - Anchor healing frequency fixed
+    - Headquarter cooldown fixed in table
+    - Passive resource gain number fixed
+  - Engine Fixes:
+    - Fix bug in checking islands held win condition
+    - Carrier attacks correctly deduct resources from teamInfo
+
+- Version 2.0.1 (January 18, 2023)
+  - Balance Changes:
+    - Anchor healing frequency every 3 turns --> 1 turn
+    - Passive headquarter resource increase from 2 Ad, 2 Mn --> 6 Ad, 6 Mn
+
+- Version 2.0.0 (January 18, 2023) - Post Sprint 1 Rebalancing
+  - Balance Changes:
+    - All health and damage multiplied by 10 (except amplifier health)
+      - Amplifier health 40 --> 120
+    - Controlled islands heal ally robots 1 health every 3 rounds for standard anchors, 2 health every 3 rounds for accelerating anchors
+    - Headquarters do 4 damage to all enemy robots within action radius at the end of each round
+    - Carrier bytecode limit 10000 --> 12500, Amplifier bytecode limit 7500 --> 10000
+    - senseMapInfo bytecode cost 10 --> 5, senseNearbyMapInfos 200 --> 100, all MapInfo methods which previously cost 5 bytecode lowered to 2
+    - canAttack bytecode cost 10 --> 5, senseRobotAtLocation 25 --> 15
+    - Carrier maximum damage 80 --> 50
+    - Amplifier build cost 40 Ad, 40 Mn --> 30 Ad, 30 Mn
+    - Launcher damage 60 --> 30
+    - Launcher movement cooldown 20 --> 15
+    - GameConstants.WELL_STANDARD_RATE 2 --> 1
+    - GameConstants.WELL_ACCELERATED_RATE 6 --> 3
+    - Carrier action cooldown 10 --> 8
+    - Headquarter action cooldown 10 --> 2
+    - Change guarantee on adamantium wells: at least one well will be within 100 units of EACH HQ
+      - Modified AllElements, ArtistRendition and Pit maps to satisfy the new constraints
+    - Increase minimum opposite well distance from 81 --> 100
+    - GameConstants.UPGRADE_TO_ELIXIR 1000 --> 700
+    - GameConstants.UPGRADE_WELL_AMOUNT 2400 --> 1700
+  - Engine Fixes:
+    - Changed canAttack and attack to succeed but deal no damage to empty locations, friendly robots, and headquarters to prevent detecting obscured robots
+    - Removed carriers' held resources being counted twice for use in tiebreakers  
+    - Removed deprecated methods (senseCooldownMultiplier, senseDestabilizeTurns, senseBoostTurns)
+    - Fixed spec of onTheMap
+    - getAllLocationsWithinRadiusSquared now correctly supports -1
+
+- Version 1.3.7 (January 17, 2023)
+  - Display sprint 1 maps in client
+
+- Version 1.3.6 (January 17, 2023)
+  - Released sprint 1 maps
+  - Engine Fixes:
+    - Fixed assertion that is getting compiled out
+
+- Version 1.3.5 (January 17, 2023)
+  - Non-essential update for competitors but critical for infrastructure:
+    - Modify tournament mode in client for new infrastructure
+
+- Version 1.3.4 (January 17, 2023)
+  - Non-essential update for competitors but critical for infrastructure:
+    - Fix a broken release by starting afresh.
+
+- Version 1.3.3 (January 17, 2023)
+  - Engine Fixes:
+    - Fixed more bugs with boosts from accelerating anchors
+
+- Version 1.3.2 (January 16, 2023)
+  - Spec Fixes:
+    - Documented replacing ally anchor behaviors (actually this time)
+    - Fix README link
+  - Engine Fixes:
+    - Fixed bug where removing accelerating anchors caused exceptions
+    - Illegal robots no longer auto forfeit future games in series
+  - Client Fixes:
+    - Lower opacity of effects
+
+- Version 1.3.1 (January 15, 2023)
+  - Engine Fixes:
+    - Fixed headquarter colors being reversed when teams are reversed (from alternateOrder)
+    - Fixed issue in checking maps with islands on edges
+
+- Version 1.3.0 (January 15, 2023)
+  - Spec Fixes:
+    - Clarified that clouds change vision radius to 4 units
+  - Engine Fixes:
+    - Added check for islands being continuous for map to be valid (old maps may need to be recreated)
+    - Removed exception throw in onTheMap
+    - Fixed exception print in examplefuncsplayer
+    - Added senseCloud and senseNearbyCloudLocations methods which allow sensing of visible clouds
+    - Fixed destabilizer damage
+    - Fixed updating teamInfo counts for resources
+    - Added alternateOrder option to gradle, when enabled this option will mean if multiple consecutive maps are played then teams will swap turn order
+    - Changed error message to current version number :)
+
 - Version 1.2.4 (January 13, 2023)
   - Engine Fixes:
     - Fixed the spelling of getCooldownMultiplier
@@ -318,7 +473,7 @@ If something is unclear, direct your questions to our Discord where other people
     - Old maps now have continuous IDs
 
 - Version 1.2.0 (January 11, 2023)
-  - Game changes:
+  - Balance changes:
     - GameConstants.WELL_STANDARD_RATE 4 --> 2, reduces the standard max ouput rate of a well
     - GameConstants.WELL_ACCELERATED_RATE 10 --> 6, reduces the accelerated max output rate of a well
     - GameConstants.UPGRADE_TO_ELIXIR 1500 --> 1000, reduces the amount needed to upgrade a well to elixir

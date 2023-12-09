@@ -1,4 +1,4 @@
-package testplayerloopforever;
+package battlecode.instrumenter.sample.testplayerloopforever;
 
 import battlecode.common.RobotController;
 

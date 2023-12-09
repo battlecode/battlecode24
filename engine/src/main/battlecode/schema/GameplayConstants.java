@@ -20,12 +20,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
-public final class Constants extends Table {
+public final class GameplayConstants extends Table {
   public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
-  public static Constants getRootAsConstants(ByteBuffer _bb) { return getRootAsConstants(_bb, new Constants()); }
-  public static Constants getRootAsConstants(ByteBuffer _bb, Constants obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public static GameplayConstants getRootAsGameplayConstants(ByteBuffer _bb) { return getRootAsGameplayConstants(_bb, new GameplayConstants()); }
+  public static GameplayConstants getRootAsGameplayConstants(ByteBuffer _bb, GameplayConstants obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
-  public Constants __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public GameplayConstants __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int setupPhaseLength() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int flagMinDistance() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -36,7 +36,7 @@ public final class Constants extends Table {
   public int visionRadius() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int actionRadius() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
-  public static int createConstants(FlatBufferBuilder builder,
+  public static int createGameplayConstants(FlatBufferBuilder builder,
       int setupPhaseLength,
       int flagMinDistance,
       int globalUpgradeRoundDelay,
@@ -46,18 +46,18 @@ public final class Constants extends Table {
       int visionRadius,
       int actionRadius) {
     builder.startTable(8);
-    Constants.addActionRadius(builder, actionRadius);
-    Constants.addVisionRadius(builder, visionRadius);
-    Constants.addJailedRounds(builder, jailedRounds);
-    Constants.addRobotBaseHealth(builder, robotBaseHealth);
-    Constants.addPassiveResourceRate(builder, passiveResourceRate);
-    Constants.addGlobalUpgradeRoundDelay(builder, globalUpgradeRoundDelay);
-    Constants.addFlagMinDistance(builder, flagMinDistance);
-    Constants.addSetupPhaseLength(builder, setupPhaseLength);
-    return Constants.endConstants(builder);
+    GameplayConstants.addActionRadius(builder, actionRadius);
+    GameplayConstants.addVisionRadius(builder, visionRadius);
+    GameplayConstants.addJailedRounds(builder, jailedRounds);
+    GameplayConstants.addRobotBaseHealth(builder, robotBaseHealth);
+    GameplayConstants.addPassiveResourceRate(builder, passiveResourceRate);
+    GameplayConstants.addGlobalUpgradeRoundDelay(builder, globalUpgradeRoundDelay);
+    GameplayConstants.addFlagMinDistance(builder, flagMinDistance);
+    GameplayConstants.addSetupPhaseLength(builder, setupPhaseLength);
+    return GameplayConstants.endGameplayConstants(builder);
   }
 
-  public static void startConstants(FlatBufferBuilder builder) { builder.startTable(8); }
+  public static void startGameplayConstants(FlatBufferBuilder builder) { builder.startTable(8); }
   public static void addSetupPhaseLength(FlatBufferBuilder builder, int setupPhaseLength) { builder.addInt(0, setupPhaseLength, 0); }
   public static void addFlagMinDistance(FlatBufferBuilder builder, int flagMinDistance) { builder.addInt(1, flagMinDistance, 0); }
   public static void addGlobalUpgradeRoundDelay(FlatBufferBuilder builder, int globalUpgradeRoundDelay) { builder.addInt(2, globalUpgradeRoundDelay, 0); }
@@ -66,7 +66,7 @@ public final class Constants extends Table {
   public static void addJailedRounds(FlatBufferBuilder builder, int jailedRounds) { builder.addInt(5, jailedRounds, 0); }
   public static void addVisionRadius(FlatBufferBuilder builder, int visionRadius) { builder.addInt(6, visionRadius, 0); }
   public static void addActionRadius(FlatBufferBuilder builder, int actionRadius) { builder.addInt(7, actionRadius, 0); }
-  public static int endConstants(FlatBufferBuilder builder) {
+  public static int endGameplayConstants(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;
   }
@@ -74,8 +74,8 @@ public final class Constants extends Table {
   public static final class Vector extends BaseVector {
     public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
 
-    public Constants get(int j) { return get(new Constants(), j); }
-    public Constants get(Constants obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
+    public GameplayConstants get(int j) { return get(new GameplayConstants(), j); }
+    public GameplayConstants get(GameplayConstants obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

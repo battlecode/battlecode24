@@ -1,4 +1,4 @@
-package testplayerbytecode;
+package battlecode.instrumenter.sample.testplayerbytecode;
 
 import battlecode.common.RobotController;
 

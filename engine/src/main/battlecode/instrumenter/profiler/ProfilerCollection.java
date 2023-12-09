@@ -26,9 +26,9 @@ public class ProfilerCollection {
 
     private int recordedEvents = 0;
 
-    public Profiler createProfiler(int robotId, RobotType robotType) {
+    public Profiler createProfiler(int robotId) {
         // The name has to be display-friendly
-        String name = String.format("#%s (%s)", robotId, robotType.toString());
+        String name = String.format("#%s", robotId);
 
         Profiler profiler = new Profiler(this, name);
         profilers.add(profiler);

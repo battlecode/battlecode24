@@ -5,6 +5,7 @@ import battlecode.common.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.*;
 
 /**
  * Build and validate maps easily.
@@ -18,10 +19,13 @@ public class MapBuilder {
     public int seed;
     private MapSymmetry symmetry;
     private boolean[] wallArray;
+    private boolean[] damArray;
+    private boolean[] waterArray;
     private boolean[] cloudArray;
     private int[] currentArray;
     private int[] islandArray;
     private int[] resourceArray;
+    private int[] spawnZoneArray;
 
     private int idCounter;
 
@@ -41,11 +45,17 @@ public class MapBuilder {
         // default values
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.idCounter = 0;
-        this.wallArray = new boolean[width * height];
-        this.cloudArray = new boolean[width * height];
-        this.currentArray = new int[width * height];
-        this.islandArray = new int[width * height];
-        this.resourceArray = new int[width * height];
+        
+        int numSquares = width * height;
+
+        this.wallArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.damArray = new boolean[numSquares];
+        this.cloudArray = new boolean[numSquares];
+        this.currentArray = new int[numSquares];
+        this.islandArray = new int[numSquares];
+        this.resourceArray = new int[numSquares];
+        this.spawnZoneArray = new int[numSquares];
     }
 
     // ********************
@@ -66,31 +76,6 @@ public class MapBuilder {
         return loc.x + loc.y * width;
     }
 
-    public void addHeadquarter(int id, Team team, MapLocation loc) {
-        // check if something already exists here, if so shout
-        for (RobotInfo r : bodies) {
-            if (r.location.equals(loc)) {
-                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
-            }
-        }
-        bodies.add(new RobotInfo(
-                id,
-                team,
-                RobotType.HEADQUARTERS,
-                new Inventory(),
-                RobotType.HEADQUARTERS.health,
-                loc
-        ));
-    }
-
-    public void addHeadquarter(int x, int y, Team team) {
-        addHeadquarter(
-                idCounter++,
-                team,
-                new MapLocation(x, y)
-        );
-    }
-
     public void setWall(int x, int y, boolean value) {
         this.wallArray[locationToIndex(x, y)] = value;
     }
@@ -109,6 +94,10 @@ public class MapBuilder {
 
     public void setResource(int x, int y, int value) {
         this.resourceArray[locationToIndex(x, y)] = value;
+    }
+
+    public void setSpawnZone(int x, int y, int value) {
+        this.spawnZoneArray[locationToIndex(x, y)] = value;
     }
 
     public void setSymmetry(MapSymmetry symmetry) {
@@ -153,16 +142,6 @@ public class MapBuilder {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
     }
 
-    /**
-     * Add team A Headquarters to (x,y) and team B Headquarters to symmetric position.
-     * @param x x position
-     * @param y y position
-     */
-    public void addSymmetricHeadquarter(int x, int y) {
-        addHeadquarter(x, y, Team.A);
-        addHeadquarter(symmetricX(x), symmetricY(y), Team.B);
-    }
-
     public void setSymmetricWalls(int x, int y, boolean value) {
         this.wallArray[locationToIndex(x, y)] = value;
         this.wallArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
@@ -202,8 +181,7 @@ public class MapBuilder {
     // ********************
 
     public LiveMap build() {
-        return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
-                symmetry, bodies.toArray(new RobotInfo[bodies.size()]), wallArray, cloudArray, currentArray, islandArray, resourceArray);
+        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, waterArray, damArray, resourceArray, spawnZoneArray);
     }
 
     /**
@@ -224,116 +202,132 @@ public class MapBuilder {
     public void assertIsValid() {
         System.out.println("Validating " + name + "...");
 
-        // get robots
-        RobotInfo[] robots = new RobotInfo[width * height];
-        for (RobotInfo r : bodies) {
-            assert(r.getType() == RobotType.HEADQUARTERS);
-            if (robots[locationToIndex(r.location.x, r.location.y)] != null)
-                throw new RuntimeException("Two robots on the same square");
-            robots[locationToIndex(r.location.x, r.location.y)] = r;
-        }
-
         if (width < GameConstants.MAP_MIN_WIDTH || height < GameConstants.MAP_MIN_HEIGHT || 
             width > GameConstants.MAP_MAX_WIDTH || height > GameConstants.MAP_MAX_HEIGHT)
             throw new RuntimeException("The map size must be between " + GameConstants.MAP_MIN_WIDTH + "x" +
                                        GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
                                        GameConstants.MAP_MAX_HEIGHT + ", inclusive");
 
-        // checks between 1 and 4 Headquarters (inclusive) of each team
-        // only needs to check the Headquarters of Team A, because symmetry is checked
-        int numTeamARobots = 0;
-        for (RobotInfo r : bodies) {
-            if (r.getTeam() == Team.A) {
-                numTeamARobots++;
-            }
-        }
-        if (numTeamARobots < GameConstants.MIN_STARTING_HEADQUARTERS ||
-            numTeamARobots > GameConstants.MAX_STARTING_HEADQUARTERS) {
-            throw new RuntimeException("Map must have between " + GameConstants.MIN_STARTING_HEADQUARTERS +
-                                       " and " + GameConstants.MAX_STARTING_HEADQUARTERS + " starting Headquarters of each team");
-        }
-
-        //assert that walls are not on same location as resources/islands/currents/clouds
         for (int i = 0; i < this.width*this.height; i++){
-            if (this.wallArray[i]){
-                if (this.cloudArray[i])
-                    throw new RuntimeException("Walls cannot be on the same square as clouds");
-                if (this.resourceArray[i] != 0)
-                    throw new RuntimeException("Walls cannot be on the same square as resources");
-                if (this.islandArray[i] != 0)
-                    throw new RuntimeException("Walls cannot be on an island");
-                if (this.currentArray[i] != 0)
-                    throw new RuntimeException("Walls cannot be on the same square as currents");
-                if (robots[i] != null)
-                    throw new RuntimeException("Walls cannot be on the same square as headquarters");
-            }
-            //assert that clouds and currents cannot be on the same square
-            if (this.cloudArray[i] && this.currentArray[i] != 0)
-                throw new RuntimeException("Clouds and currents cannot be on the same square");
-
-            //assert that wells are not on same square as headquarters
-            if (this.resourceArray[i] != 0 && robots[i] != null)
-                throw new RuntimeException("Wells can't be on same square as headquarters");
-
-            //assert that currents are not on same square as headquarters
-            if (this.currentArray[i] != 0 && robots[i] != null)
-                throw new RuntimeException("Currents can't be on same square as headquarters");
-
-            //assert that currents are not on same square as wells
-            if (this.currentArray[i] != 0 && this.resourceArray[i] != 0)
-                throw new RuntimeException("Currents can't be on same square as wells");
-        }
-        
-        // assert rubble, lead, and headquarter symmetry
-        ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
-        if (!allMapSymmetries.contains(this.symmetry)) {
-            throw new RuntimeException("Headquarters, walls, clouds, currents, islands and resources must be symmetric");
+            //TODO check for multiple things existing on the same tile
         }
 
-       //assert that at least one resource well of each type is visible to each team
-        boolean[] hasVisibleAdamantium = new boolean[2];
-        boolean[] hasVisibleMana = new boolean[2];
-        for (RobotInfo r : bodies){
-            if (r.getType() != RobotType.HEADQUARTERS) continue;
-            int teamOrdinal = r.getTeam().ordinal();
-            if (hasVisibleAdamantium[teamOrdinal] && hasVisibleMana[teamOrdinal]) continue;
+        //assertSpawnZonesAreValid();
+       // assertSpawnZoneDistances();
+    }
 
-            MapLocation[] visibleLocations = GameWorld.getAllLocationsWithinRadiusSquaredWithoutMap(
-                this.origin, 
-                this.width, 
-                this.height, 
-                r.getLocation(),
-                r.getType().visionRadiusSquared);
-            for (MapLocation loc : visibleLocations){
-                if (this.resourceArray[locationToIndex(loc.x, loc.y)] == ResourceType.ADAMANTIUM.resourceID){
-                    hasVisibleAdamantium[teamOrdinal] = true;
-                }
-                else if (this.resourceArray[locationToIndex(loc.x, loc.y)] == ResourceType.MANA.resourceID){
-                    hasVisibleMana[teamOrdinal] = true;
+    private boolean isTeamNumber(int team) {
+        return team == 0 || team == 1;
+    }
+
+    private int getOpposingTeamNumber(int team) {
+        switch (team) {
+            case 0:
+                return 1;
+            case 1:
+                return 0;
+            default:
+                throw new RuntimeException("Argument of MapBuilder.getOpposingTeamNumber must be a valid team number, was " + team + ".");
+        }
+    }
+
+    // WARNING: POSSIBLY BUGGY
+    private void assertSpawnZonesAreValid() {
+        int numSquares = this.width * this.height;
+        boolean[] alreadyChecked = new boolean[numSquares];
+
+        for (int i = 0; i < numSquares; i++) {
+            int team = this.spawnZoneArray[i];
+
+            // if the square is actually a spawn zone
+
+            //TODO need to include dam in reachability check
+            if (isTeamNumber(team)) {
+                boolean bad = floodFillMap(indexToLocation(i),
+                    (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
+                    (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
+                    alreadyChecked);
+
+                if (bad) {
+                    throw new RuntimeException("Two spawn zones for opposing teams can reach each other.");
                 }
             }
-        } 
-        if (!(hasVisibleAdamantium[0] && hasVisibleAdamantium[1])){
-            throw new RuntimeException("Teams must have at least one adamantium well visible.");
         }
-        
-        //assert that no two currents end on the same square (avoid robot collisions)
-        HashSet<MapLocation> endingLocations = new HashSet<MapLocation>();
-        for (int i = 0; i < currentArray.length; i++){
-            if (currentArray[i] != 0){
-                MapLocation startLocation = indexToLocation(i);
-                Direction currentDir = Direction.DIRECTION_ORDER[currentArray[i]];
-                MapLocation finalLocation = startLocation.add(currentDir);
-                if (!onTheMap(finalLocation))
-                    throw new RuntimeException("Current directs robots outside of the bounds of the map");
-                if (this.wallArray[locationToIndex(finalLocation)])
-                    throw new RuntimeException("Current directs robots into wall");
-                boolean unique = endingLocations.add(finalLocation);
-                if (!unique)
-                    throw new RuntimeException("Two different currents direct robots to the same location.");
+    }
 
+
+    private void assertSpawnZoneDistances() {
+        ArrayList<Integer> team1 = new ArrayList<Integer>();
+        ArrayList<Integer> team2 = new ArrayList<Integer>();
+
+        for(int i = 0; i < spawnZoneArray.length; i ++){
+            if (spawnZoneArray[i] == 0){
+                team1.add(i);
+            }
+            else if (spawnZoneArray[i] == 1){
+                team2.add(i);
             }
         }
+
+        for(int a = 0; a < team1.size(); a ++){
+            for(int b = 1; b < team1.size(); b ++){
+                if (indexToLocation(team1.get(a)).distanceSquaredTo(indexToLocation(team1.get(b))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                }
+            }
+        }
+
+        for(int c = 0; c < team2.size(); c ++){
+            for(int d = 1; d < team2.size(); d ++){
+                if (indexToLocation(team2.get(c)).distanceSquaredTo(indexToLocation(team2.get(d))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                }
+            }
+        }
+    }
+    /**
+     * Performs a flood fill algorithm to check if a predicate is true for any squares
+     * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
+     * 
+     * @param checkForBad the predicate to check for each reachable square
+     * @param checkForWall a predicate that checks if the given square has a wall
+     * @param action an action that is performed when scanning each square (might be called multiple times per square)
+     * @return if checkForBad returns true for any reachable squares
+     */
+    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+        Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+        queue.add(startLoc);
+        //TODO: gave arrayindexoutofbounds -19 on line 319; probably need to check that the newlocation is within map bounds first
+
+        while (!queue.isEmpty()) {
+            MapLocation loc = queue.remove();
+            int idx = locationToIndex(loc);
+
+            if (alreadyChecked[idx]) {
+                continue;
+            }
+
+            alreadyChecked[idx] = true;
+
+            if (!checkForWall.test(loc)) {
+                if (checkForBad.test(loc)) {
+                    return true;
+                }
+
+                for (Direction dir : Direction.allDirections()) {
+                    if (dir != Direction.CENTER) {
+                        MapLocation newLoc = loc.add(dir);
+                        int newIdx = locationToIndex(newLoc);
+
+                        if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                            queue.add(newLoc);
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     public boolean onTheMap(MapLocation loc) {
@@ -357,7 +351,6 @@ public class MapBuilder {
             for (int y = 0; y < height; y++) {
                 MapLocation current = new MapLocation(x, y);
                 int curIdx = locationToIndex(current.x, current.y);
-                RobotInfo cri = robots[locationToIndex(current.x, current.y)];
                 for (int i = possible.size() - 1; i >= 0; i--) { // iterating backwards so we can remove in the loop
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
@@ -376,18 +369,6 @@ public class MapBuilder {
                     }
                     else if (resourceArray[curIdx] != resourceArray[symIdx]) {
                         possible.remove(symmetry);
-                    }
-                    else {
-                        RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
-                        if (cri != null || sri != null) {
-                            if (cri == null || sri == null) {
-                                possible.remove(symmetry);
-                            } else if (cri.getType() != sri.getType()) {
-                                possible.remove(symmetry);
-                            } else if (!symmetricTeams(cri.getTeam(), sri.getTeam())) {
-                                possible.remove(symmetry);
-                            }
-                        }
                     }
                 }
             }

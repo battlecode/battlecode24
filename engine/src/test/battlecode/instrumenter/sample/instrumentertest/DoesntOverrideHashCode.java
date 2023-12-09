@@ -1,4 +1,4 @@
-package instrumentertest;
+package battlecode.instrumenter.sample.instrumentertest;
 
 /**
  * Used to test hashCode instrumentation.

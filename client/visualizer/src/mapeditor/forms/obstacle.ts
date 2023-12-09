@@ -12,6 +12,7 @@ export default class ObstacleForm {
   readonly cloud: HTMLInputElement
   readonly current: HTMLInputElement
   readonly current_dir: HTMLInputElement
+  current_dir_name: HTMLOutputElement
   readonly none: HTMLInputElement
 
   // Callbacks on input change
@@ -30,6 +31,7 @@ export default class ObstacleForm {
     this.current = document.createElement("input")
     this.none = document.createElement("input")
     this.current_dir = document.createElement("input")
+    this.current_dir_name = document.createElement("output");
     this.cloud.type = "radio"
     this.cloud.name = "obstacle_type"
     this.cloud.checked = true
@@ -42,6 +44,7 @@ export default class ObstacleForm {
     this.current_dir.value = "1"
     this.current_dir.min = "1"
     this.current_dir.max = "8"
+    this.current_dir_name.value = "W"
     // Create the form
     this.div.appendChild(this.createForm())
     this.loadCallbacks()
@@ -67,6 +70,7 @@ export default class ObstacleForm {
     resources.appendChild(document.createTextNode("Current: "))
     resources.appendChild(this.current)
     resources.appendChild(this.current_dir)
+    resources.appendChild(this.current_dir_name)
     resources.appendChild(document.createElement("br"))
     resources.appendChild(document.createTextNode("None: "))
     resources.appendChild(this.none)
@@ -106,6 +110,9 @@ export default class ObstacleForm {
         this.current_dir.value = "8"
       if(parseInt(this.current_dir.value) < 1)
         this.current_dir.value = "1"
+      let directions = ["W", "NW", "N", "NE", "E", "SE", "S", "SW"];
+      let current_name = directions[parseInt(this.current_dir.value) - 1];
+      this.current_dir_name.value = current_name;
     }
   }
 

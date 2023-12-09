@@ -20,7 +20,6 @@ public class RoboPrintStream extends PrintStream {
 
     private boolean headerThisRound;
     private Team team;
-    private RobotType type;
     private int id;
     private int round;
 
@@ -234,9 +233,8 @@ public class RoboPrintStream extends PrintStream {
      * @param id
      * @param round
      */
-    public void updateHeader(Team team, RobotType type, int id, int round) {
+    public void updateHeader(Team team, int id, int round) {
         this.team = team;
-        this.type = type;
         this.id = id;
         this.round = round;
         this.headerThisRound = false;
@@ -244,7 +242,7 @@ public class RoboPrintStream extends PrintStream {
     }
 
     private String getHeader() {
-        String s = "[" + team + ":" + type + "#" + id + "@" + round + "] ";
+        String s = "[" + team + ": #" + id + "@" + round + "] ";
         real.increaseByteLimit(s.length());
         return s;
     }

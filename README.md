@@ -4,7 +4,7 @@
 
 ## Note, Competitors
 This is the development repo! You most likely won't need anything in here; do not clone this.
-Instead, follow the instructions [here](https://play.battlecode.org/getting-started) to get started.
+Instead, follow the instructions [here](https://play.battlecode.org/bc23/getting-started) to get started.
 
 ## Repository Structure
 

@@ -1,4 +1,4 @@
-package testplayersystemout;
+package battlecode.instrumenter.sample.testplayersystemout;
 
 import battlecode.common.RobotController;
 
