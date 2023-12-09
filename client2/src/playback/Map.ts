@@ -141,7 +141,7 @@ export class CurrentMap {
                         this,
                         this.water,
                         () => {
-                            ctx.fillStyle = '#2b58a5'
+                            ctx.fillStyle = WATER_COLOR
                             ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                         },
                         { x: true, y: false }
@@ -158,7 +158,7 @@ export class CurrentMap {
                         this,
                         this.staticMap.divider,
                         () => {
-                            ctx.fillStyle = '#000000'
+                            ctx.fillStyle = DIVIDER_COLOR
                             ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                         },
                         { x: false, y: true }
@@ -406,9 +406,7 @@ export class StaticMap {
                 if (spawnZoneDrawAreas[schemaIdx]) {
                     const color = TEAM_COLORS[spawnZoneDrawAreas[schemaIdx] - 1]
                     renderUtils.renderRounded(ctx, i, j, this, spawnZoneDrawAreas, () => {
-                        //ctx.fillStyle = '#1f7f29'
-                        //ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
-                        renderUtils.drawDiagonalLines(ctx, coords, 1.0, color) //'#1f7f29')
+                        renderUtils.drawDiagonalLines(ctx, coords, 1.0, color)
                     })
                 }
 
