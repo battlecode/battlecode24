@@ -7,4 +7,4 @@ var GlobalUpgradeType;
     GlobalUpgradeType[GlobalUpgradeType["ACTION_UPGRADE"] = 0] = "ACTION_UPGRADE";
     GlobalUpgradeType[GlobalUpgradeType["HEALING_UPGRADE"] = 1] = "HEALING_UPGRADE";
     GlobalUpgradeType[GlobalUpgradeType["CAPTURING_UPGRADE"] = 2] = "CAPTURING_UPGRADE";
-})(GlobalUpgradeType = exports.GlobalUpgradeType || (exports.GlobalUpgradeType = {}));
+})(GlobalUpgradeType || (exports.GlobalUpgradeType = GlobalUpgradeType = {}));

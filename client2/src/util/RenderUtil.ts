@@ -1,16 +1,12 @@
 import * as cst from '../constants'
 import { Team } from '../playback/Game'
-import { Dimension } from '../playback/Map'
+import { CurrentMap, Dimension, StaticMap } from '../playback/Map'
 import { Vector } from '../playback/Vector'
 
 export const getRenderCoords = (cellX: number, cellY: number, dims: Dimension) => {
     const cx = dims.minCorner.x + cellX
     const cy = dims.minCorner.y + dims.height - cellY - 1 // Y is flipped
     return { x: cx, y: cy }
-}
-
-export const getSchemaIdx = (cellX: number, cellY: number, dims: Dimension) => {
-    return Math.floor(cellY) * dims.width + Math.floor(cellX)
 }
 
 export const getInterpolatedCoords = (prev: Vector, cur: Vector, alpha: number) => {
@@ -23,7 +19,7 @@ export const getInterpolatedCoords = (prev: Vector, cur: Vector, alpha: number) 
 export const get9SliceClipPath = (
     i: number,
     j: number,
-    dims: Dimension,
+    map: StaticMap | CurrentMap,
     vals: number[] | Int8Array | Int32Array,
     valFunc: (v: number | boolean) => boolean = (v) => (v ? true : false)
 ): number[][] => {
@@ -34,7 +30,7 @@ export const get9SliceClipPath = (
         let x = cst.DIRECTIONS[v][0] + i
         let y = cst.DIRECTIONS[v][1] + j
         neighbors.push(
-            x < 0 || y < 0 || x == dims.width || y == dims.height ? false : valFunc(vals[getSchemaIdx(x, y, dims)])
+            x < 0 || y < 0 || x == map.width || y == map.height ? false : valFunc(vals[map.locationToIndex(x, y)])
         )
     }
     let points: number[][] = []
@@ -96,13 +92,13 @@ export const renderRounded = (
     ctx: CanvasRenderingContext2D,
     i: number,
     j: number,
-    dims: Dimension,
+    map: CurrentMap | StaticMap,
     values: any[] | Int8Array | Int32Array,
     render: () => void,
     valueCheck: (v: number | boolean) => boolean = (v) => !!v
 ) => {
-    const path = get9SliceClipPath(i, j, dims, values, valueCheck)
-    const coords = getRenderCoords(i, j, dims)
+    const path = get9SliceClipPath(i, j, map, values, valueCheck)
+    const coords = getRenderCoords(i, j, map.dimension)
     applyClip(ctx, coords.x, coords.y, path, () => render())
 }
 

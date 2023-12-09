@@ -7,4 +7,4 @@ var SpecializationType;
     SpecializationType[SpecializationType["ATTACK"] = 0] = "ATTACK";
     SpecializationType[SpecializationType["BUILD"] = 1] = "BUILD";
     SpecializationType[SpecializationType["HEAL"] = 2] = "HEAL";
-})(SpecializationType = exports.SpecializationType || (exports.SpecializationType = {}));
+})(SpecializationType || (exports.SpecializationType = SpecializationType = {}));

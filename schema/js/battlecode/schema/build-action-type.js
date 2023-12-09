@@ -9,4 +9,4 @@ var BuildActionType;
     BuildActionType[BuildActionType["STUN_TRAP"] = 2] = "STUN_TRAP";
     BuildActionType[BuildActionType["DIG"] = 3] = "DIG";
     BuildActionType[BuildActionType["FILL"] = 4] = "FILL";
-})(BuildActionType = exports.BuildActionType || (exports.BuildActionType = {}));
+})(BuildActionType || (exports.BuildActionType = BuildActionType = {}));
