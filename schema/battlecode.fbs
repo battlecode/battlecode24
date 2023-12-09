@@ -250,7 +250,7 @@ table Round {
     healLevels: [int]; //done
 
     /// New bodies.
-    spawnedIds: [int]; //done
+    spawnedBodies: [SpawnedBodyTable]
 
     /// The IDs of bodies that died.
     diedIds: [int]; //done
