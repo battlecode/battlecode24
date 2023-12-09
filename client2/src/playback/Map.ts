@@ -5,6 +5,7 @@ import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
+import { TEAM_COLORS } from '../constants'
 
 export type Dimension = {
     minCorner: Vector
@@ -73,6 +74,10 @@ export class CurrentMap {
         return this.staticMap.locationToIndex(x, y)
     }
 
+    applySymmetry(point: Vector): Vector {
+        return this.staticMap.applySymmetry(point)
+    }
+
     copy(): CurrentMap {
         return new CurrentMap(this)
     }
@@ -98,13 +103,38 @@ export class CurrentMap {
                 const schemaIdx = renderUtils.getSchemaIdx(i, j, dimension)
                 const coords = renderUtils.getRenderCoords(i, j, dimension)
 
-                // TODO: render
+                // Render rounded (clipped) water
+                if (this.water[schemaIdx]) {
+                    renderUtils.renderRounded(ctx, i, j, this.staticMap.dimension, this.water, () => {
+                        ctx.fillStyle = '#2b58a5'
+                        ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                    })
+                }
+
+                // Render rounded (clipped) divider
+                // TODO: check divider game state
+                if (this.staticMap.divider[schemaIdx]) {
+                    renderUtils.renderRounded(ctx, i, j, this.staticMap.dimension, this.staticMap.divider, () => {
+                        ctx.fillStyle = '#000000'
+                        ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                    })
+                }
+
+                // Render resource piles
+                const foundPile = this.resourcePileData.get(schemaIdx)
+                if (foundPile && foundPile.amount > 0) {
+                    ctx.fillStyle = 'red'
+                    ctx.beginPath()
+                    ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.5, 0, 2 * Math.PI)
+                    ctx.fill()
+                    ctx.closePath()
+                }
             }
         }
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = []
+        const brushes: MapEditorBrush[] = [new WaterBrush(this), new ResourcePileBrush(this)]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 
@@ -275,7 +305,7 @@ export class StaticMap {
     /**
      * Returns a point representing the reflection of the given point following the map's symmetry.
      */
-    applySymmetry(point: { x: number; y: number }): { x: number; y: number } {
+    applySymmetry(point: Vector): Vector {
         switch (this.symmetry) {
             case Symmetry.VERTICAL:
                 return { x: this.width - point.x - 1, y: point.y }
@@ -298,6 +328,23 @@ export class StaticMap {
             this.dimension.height
         )
 
+        // Populate buffer with values where spawn zones should be rendered
+        const spawnZoneDrawAreas = Array(this.width * this.height).fill(0)
+        for (let i = 0; i < this.spawnLocations.length; i++) {
+            const pos = this.spawnLocations[i]
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    const target_x = pos.x + x
+                    const target_y = pos.y + y
+                    if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
+                        const target_idx = this.locationToIndex(target_x, target_y)
+                        // Team A: 1, Team B: 2
+                        spawnZoneDrawAreas[target_idx] = (i % 2) + 1
+                    }
+                }
+            }
+        }
+
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {
                 const schemaIdx = renderUtils.getSchemaIdx(i, j, this.dimension)
@@ -305,25 +352,18 @@ export class StaticMap {
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, (scale) => {
+                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, () => {
                         ctx.fillStyle = 'grey'
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                        ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                     })
                 }
-
-                // Render rounded (clipped) water
-                if (this.initialWater[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.initialWater, (scale) => {
-                        ctx.fillStyle = '#2b58a5'
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
-                    })
-                }
-
-                // Render rounded (clipped) divider
-                if (this.divider[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.divider, (scale) => {
-                        ctx.fillStyle = '#000000'
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                // Render spawn zones
+                if (spawnZoneDrawAreas[schemaIdx]) {
+                    const color = TEAM_COLORS[spawnZoneDrawAreas[schemaIdx] - 1]
+                    renderUtils.renderRounded(ctx, i, j, this.dimension, spawnZoneDrawAreas, () => {
+                        //ctx.fillStyle = '#1f7f29'
+                        //ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        renderUtils.drawDiagonalLines(ctx, coords, 1.0, color) //'#1f7f29')
                     })
                 }
 
@@ -358,12 +398,6 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [
-            new WallsBrush(this),
-            new WaterBrush(this),
-            new DividerBrush(this),
-            new SpawnZoneBrush(this),
-            new ResourcePileBrush(this)
-        ]
+        return [new WallsBrush(this), new DividerBrush(this), new SpawnZoneBrush(this)]
     }
 }

@@ -1,4 +1,4 @@
-import { StaticMap } from '../../../playback/Map'
+import { StaticMap, CurrentMap } from '../../../playback/Map'
 
 export abstract class MapEditorBrush {
     abstract name: string
@@ -15,10 +15,10 @@ export abstract class MapEditorBrush {
 /**
  * A brush that applies the exact same operation to both the given point and its symmetric counterpart.
  */
-export abstract class SymmetricMapEditorBrush extends MapEditorBrush {
+export abstract class SymmetricMapEditorBrush<MapType extends CurrentMap | StaticMap> extends MapEditorBrush {
     abstract symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>): void
 
-    constructor(protected readonly map: StaticMap) {
+    constructor(protected readonly map: MapType) {
         super()
     }
     apply(x: number, y: number, fields: Record<string, MapEditorBrushField>): void {
@@ -30,7 +30,7 @@ export abstract class SymmetricMapEditorBrush extends MapEditorBrush {
 
 export interface MapEditorBrushField {
     type: MapEditorBrushFieldType
-    value?: any
+    value: any
     label?: string
     options?: { value: any; label: string }[]
     min?: number
