@@ -285,17 +285,26 @@ public class MapBuilder {
             }
         }
     }
+
     /**
      * Performs a flood fill algorithm to check if a predicate is true for any squares
      * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
      * 
+     * @param startLoc the starting location
      * @param checkForBad the predicate to check for each reachable square
      * @param checkForWall a predicate that checks if the given square has a wall
-     * @param action an action that is performed when scanning each square (might be called multiple times per square)
+     * @param alreadyChecked an array indexed by map location indices which has "true" at
+     * every location reachable from a spawn zone that has already been checked
+     * (WARNING: this array gets updated by floodFillMap)
      * @return if checkForBad returns true for any reachable squares
      */
     private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
         Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+
+        if (!onTheMap(startLoc)) {
+            throw new RuntimeException("Cannot call floodFillMap with startLocation off the map.");
+        }
+
         queue.add(startLoc);
         //TODO: gave arrayindexoutofbounds -19 on line 319; probably need to check that the newlocation is within map bounds first
 
@@ -317,10 +326,13 @@ public class MapBuilder {
                 for (Direction dir : Direction.allDirections()) {
                     if (dir != Direction.CENTER) {
                         MapLocation newLoc = loc.add(dir);
-                        int newIdx = locationToIndex(newLoc);
 
-                        if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
-                            queue.add(newLoc);
+                        if (onTheMap(newLoc)) {
+                            int newIdx = locationToIndex(newLoc);
+
+                            if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                                queue.add(newLoc);
+                            }
                         }
                     }
                 }
