@@ -343,6 +343,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         this.health += healthAmount;
         this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
+        System.out.println();
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
         }
