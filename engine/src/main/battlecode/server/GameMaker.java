@@ -173,7 +173,6 @@ public strictfp class GameMaker {
             GameWrapper.addMatchFooters(fileBuilder, matchFooters);
 
             fileBuilder.finish(GameWrapper.endGameWrapper(fileBuilder));
-
             byte[] rawBytes = fileBuilder.sizedByteArray();
 
             try {
