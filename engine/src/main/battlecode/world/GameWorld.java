@@ -431,6 +431,16 @@ public strictfp class GameWorld {
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
+    public InternalRobot[] getAllRobots(Team team) {
+        ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        for (MapLocation newLocation : getAllLocations()){
+            if (getRobot(newLocation) != null && (team == null || getRobot(newLocation).getTeam() == team)){
+            returnRobots.add(getRobot(newLocation));
+            }
+        }
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
     public Flag[] getAllFlagsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<Flag> returnFlags = new ArrayList<Flag>();
         for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
@@ -476,9 +486,18 @@ public strictfp class GameWorld {
     
 
     public int getMovementCooldown(Team team) {
-        //TODO return correct movement cooldown based on global upgrades
         return 10;
     }
+
+    public int getActionCooldown(Team team, SkillType skill){
+        if (this.teamInfo.getGlobalUpgrades(team)[0]){
+            return GlobalUpgrade.ACTION.cooldownReductionChange + skill.cooldown;
+        }
+        else{
+            return skill.cooldown;
+        }
+    }
+
 
     // *********************************
     // ****** GAMEPLAY *****************
@@ -648,7 +667,16 @@ public strictfp class GameWorld {
         if (!isSetupPhase()) {
             for(Flag flag : allFlags) {
                 if(!flag.isPickedUp() && flag.getLoc() != flag.getStartLoc()){ 
-                    if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS)
+                    Team this_team = flag.getTeam();
+                    Team opponent_team = this_team.opponent();
+                    int additional_delay = 0;
+                    
+                    //check if the opponent team has the additional flag return delay upgrade
+                    if(this.teamInfo.getGlobalUpgrades(opponent_team)[1]){
+                        additional_delay += GlobalUpgrade.CAPTURING.flagReturnDelayChange;
+                    }
+                    
+                    if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS + additional_delay)
                         moveFlagSetStartLoc(flag, flag.getStartLoc());
                     else
                         flag.incrementDroppedRounds();

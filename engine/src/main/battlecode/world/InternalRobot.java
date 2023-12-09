@@ -423,9 +423,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-
     public int getHeal() {
-        return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
+        int base_heal = SkillType.HEAL.skillEffect;
+        //check for upgrade
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]){
+            base_heal += GlobalUpgrade.HEALING.baseHealChange;
+        }
+        return base_heal * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
     }
 
     public int getBuildExp() {
@@ -451,6 +455,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void processBeginningOfTurn() {
         this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[0]) this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GlobalUpgrade.ACTION.cooldownReductionChange);
         this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.spawnCooldownTurns = Math.max(0, this.spawnCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.currentBytecodeLimit = GameConstants.BYTECODE_LIMIT;
