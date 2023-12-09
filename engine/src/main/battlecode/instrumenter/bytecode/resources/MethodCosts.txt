@@ -103,6 +103,7 @@ battlecode/common/RobotController/getLevel                              1    tru
 battlecode/common/RobotController/getBreadAmount                        5    true
 battlecode/common/RobotController/senseNearbyFlagLocations              50   true
 battlecode/common/RobotController/senseBroadcastFlagLocations           100  true
+battlecode/common/RobotController/getAllySpawnLocations                 20   true
 battlecode/common/RobotController/isSpawned                             1    true
 battlecode/common/RobotController/canSpawn                              10   true
 battlecode/common/RobotController/spawn                                 0    true
@@ -120,8 +121,6 @@ battlecode/common/RobotController/canDropFlag                           10   tru
 battlecode/common/RobotController/dropFlag                              0    true
 battlecode/common/RobotController/canBuyGlobal                          10   true
 battlecode/common/RobotController/buyGlobal                             0    true
-
-
 battlecode/common/RobotType/canAttack                                   1    false
 battlecode/common/RobotType/canExtract                                  1    false
 battlecode/common/RobotType/canPlaceAnchor                              1    false

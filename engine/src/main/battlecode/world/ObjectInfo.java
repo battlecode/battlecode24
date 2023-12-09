@@ -160,8 +160,9 @@ public strictfp class ObjectInfo {
 
         dynamicBodyExecOrder.add(id);
 
-        MapLocation loc = robot.getLocation();
-        robotIndex.add(fromPoint(loc),robot.getID());
+        //because initial loc is now null
+      //  MapLocation loc = robot.getLocation();
+       // robotIndex.add(fromPoint(loc),robot.getID());
     }
 
     // ****************************
@@ -185,6 +186,7 @@ public strictfp class ObjectInfo {
         MapLocation loc = robot.getLocation();
         gameRobotsByID.remove(id);
         dynamicBodyExecOrder.remove(id);
+        if (loc != null)
         robotIndex.delete(fromPoint(loc),id);
     }
     

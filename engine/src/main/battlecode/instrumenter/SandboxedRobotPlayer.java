@@ -181,10 +181,17 @@ public class SandboxedRobotPlayer {
                 // Run the robot!
                 loadAndRunPlayer(teamName, PLAYER_CLASS_NAME);
                 // If we get here, we've returned from the 'run' method. Tell the user.
+                if (robotController.getLocation() != null){
                 System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " at location " + robotController.getLocation().toString()
                         + " froze in round " +robotController.getRoundNum() +
+                        " because it returned from its run() method!"); }
+                else{
+                    System.out.println(robotController.getTeam().toString() + "'s " +
+                        robotController.getID() + " that has not spawned yet " 
+                        + " froze in round " +robotController.getRoundNum() +
                         " because it returned from its run() method!");
+                }
             } catch (final IllegalAccessException e) {
                 ErrorReporter.report(e, true);
             } catch (final InvocationTargetException e) {

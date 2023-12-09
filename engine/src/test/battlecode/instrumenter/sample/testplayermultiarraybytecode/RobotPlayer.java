@@ -1,4 +1,4 @@
-package testplayermultiarraybytecode;
+package battlecode.instrumenter.sample.testplayermultiarraybytecode;
 
 import battlecode.common.RobotController;
 import battlecode.common.Clock;

@@ -444,6 +444,7 @@ public strictfp class GameMaker {
             this.robotLocsY = new TIntArrayList();
             this.robotMoveCooldowns = new TIntArrayList();
             this.robotActionCooldowns = new TIntArrayList();
+            this.robotHealths = new TIntArrayList();
             this.attacksPerformed = new TIntArrayList();
             this.attackLevels = new TIntArrayList();
             this.buildsPerformed = new TIntArrayList();
@@ -570,9 +571,9 @@ public strictfp class GameMaker {
                 // Round statistics
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toArray());
                 int teamBreadAmountsP = Round.createTeamResourceAmountsVector(builder, teamBreadAmounts.toArray());
-                CommTable.startCommTable(builder);
                 int teamACommVector = CommTable.createTeam1Vector(builder, teamAComm.toArray());
                 int teamBCommVector = CommTable.createTeam2Vector(builder, teamBComm.toArray());
+                CommTable.startCommTable(builder);
                 CommTable.addTeam1(builder, teamACommVector);
                 CommTable.addTeam2(builder, teamBCommVector);
                 int teamCommunicationP = CommTable.endCommTable(builder);
@@ -684,6 +685,7 @@ public strictfp class GameMaker {
         }
 
         public void addRobot(InternalRobot robot) {
+            if (robot.getLocation() == null) return;
             robotIds.add(robot.getID());
             MapLocation loc = robot.getLocation();
             robotLocsX.add(loc.x);

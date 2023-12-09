@@ -102,7 +102,7 @@ table GameMap {
     walls: [bool];
     water: [bool];
     divider: [bool];
-    spawnLocations: VecTable; // first three are for team 0 and second three are for team 1
+    spawnLocations: VecTable; //alternates teams, starting with team 0
     resourcePiles: VecTable;
     resourcePileAmounts: [int];
 }

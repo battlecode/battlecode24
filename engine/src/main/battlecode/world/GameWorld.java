@@ -29,7 +29,7 @@ public strictfp class GameWorld {
     private boolean[] walls;
     private boolean[] water;
     private boolean[] dams;
-    private int[] spawnZones; // Team A = 0, Team B = 1, not spawn zone = -1
+    private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
@@ -99,7 +99,7 @@ public strictfp class GameWorld {
         for (int i = 0; i < placedFlags.length; i++)
             placedFlags[i] = new ArrayList<>();
         
-        int[] flagArray = new int[2*GameConstants.NUMBER_FLAGS];
+        int[] flagArray = new int[this.walls.length];
         int[][] spawnZoneCenters = gm.getSpawnZoneCenters();
         for (int i = 0; i < spawnZoneCenters[0].length; i++){
             MapLocation cur = new MapLocation(spawnZoneCenters[0][i], spawnZoneCenters[1][i]);
@@ -190,7 +190,10 @@ public strictfp class GameWorld {
         // been visited:
 
         // NOTE: changed this from destroy to despawn; double check that this change is correct
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
+        //probably an issue with robot code erroring out and getting terminated when not actually spawned?
+        //may need to differentiate between death causes and despawn/destroy appropriately
+        //TODO: I think after destroy robot fix this should no longer check location and go back to destroying
+        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null && robot.getLocation() != null)
             despawnRobot(robot.getID());
         return true;
     }
@@ -261,12 +264,12 @@ public strictfp class GameWorld {
 
     /**
      * Checks if a given location is a spawn zone.
-     * Returns -1 if not, 0 if it is a Team A spawn zone,
-     * and 1 if it is a Team B spawn zone.
+     * Returns 0 if not, 2 if it is a Team A spawn zone,
+     * and 2 if it is a Team B spawn zone.
      * 
      * @param loc the location to check
-     * @return -1 if the location is not a spawn zone,
-     * 0 or 1 if it is a Team A or Team B spawn zone respectively
+     * @return 0 if the location is not a spawn zone,
+     * 1 or 2 if it is a Team A or Team B spawn zone respectively
      */
     public int getSpawnZone(MapLocation loc) {
         return this.spawnZones[locationToIndex(loc)];
@@ -352,7 +355,6 @@ public strictfp class GameWorld {
         trapId++;
         matchMaker.addTrap(trap);
         this.trapLocations[locationToIndex(loc)] = trap;
-        //should we be able to trigger traps we are diagonally next to?
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, trap.getType().triggerRadius)){
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);
         }
@@ -728,8 +730,8 @@ public strictfp class GameWorld {
 
     public void despawnRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        robot.despawn();
         removeRobot(robot.getLocation());
+        robot.despawn();
         matchMaker.addDied(id);
     }
 
@@ -739,6 +741,7 @@ public strictfp class GameWorld {
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         Team team = robot.getTeam();
+        if (robot.getLocation() != null)
         removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);

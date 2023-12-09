@@ -1,5 +1,7 @@
 package battlecode.server;
 
+import battlecode.world.maps.*;
+
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
@@ -260,8 +262,14 @@ public strictfp class Server implements Runnable {
                           RobotControlProvider prov,
                           GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
+
+        // System.out.println("running runMatch in server");
+        // MapTestBad.makeBad();
+        // System.out.println("done making bad");
+
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
+
 
         try {
             loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")), teamsReversed);

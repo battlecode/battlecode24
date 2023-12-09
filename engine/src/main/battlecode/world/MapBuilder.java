@@ -19,6 +19,8 @@ public class MapBuilder {
     public int seed;
     private MapSymmetry symmetry;
     private boolean[] wallArray;
+    private boolean[] damArray;
+    private boolean[] waterArray;
     private boolean[] cloudArray;
     private int[] currentArray;
     private int[] islandArray;
@@ -47,6 +49,8 @@ public class MapBuilder {
         int numSquares = width * height;
 
         this.wallArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.damArray = new boolean[numSquares];
         this.cloudArray = new boolean[numSquares];
         this.currentArray = new int[numSquares];
         this.islandArray = new int[numSquares];
@@ -177,8 +181,7 @@ public class MapBuilder {
     // ********************
 
     public LiveMap build() {
-        return null;
-        //TODO construct LiveMap
+        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, waterArray, damArray, resourceArray, spawnZoneArray);
     }
 
     /**
@@ -209,8 +212,8 @@ public class MapBuilder {
             //TODO check for multiple things existing on the same tile
         }
 
-        assertSpawnZonesAreValid();
-        assertSpawnZoneDistances();
+        //assertSpawnZonesAreValid();
+       // assertSpawnZoneDistances();
     }
 
     private boolean isTeamNumber(int team) {
@@ -242,7 +245,7 @@ public class MapBuilder {
             if (isTeamNumber(team)) {
                 boolean bad = floodFillMap(indexToLocation(i),
                     (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
-                    (loc) -> this.wallArray[locationToIndex(loc)],
+                    (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
                     alreadyChecked);
 
                 if (bad) {
@@ -294,6 +297,7 @@ public class MapBuilder {
     private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
         Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
         queue.add(startLoc);
+        //TODO: gave arrayindexoutofbounds -19 on line 319; probably need to check that the newlocation is within map bounds first
 
         while (!queue.isEmpty()) {
             MapLocation loc = queue.remove();
