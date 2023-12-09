@@ -732,7 +732,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanSpawn(loc);
         this.gameWorld.addRobot(loc, robot);
         this.gameWorld.getObjectInfo().addRobotIndex(robot, loc);
-        this.gameWorld.getMatchMaker().addSpawned(getID());
+        this.gameWorld.getMatchMaker().addSpawned(this.robot.getID(), this.robot.getTeam(), this.robot.getLocation());
         this.robot.spawn(loc);
     }
 

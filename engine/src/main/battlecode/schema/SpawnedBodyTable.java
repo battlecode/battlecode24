@@ -41,75 +41,19 @@ public final class SpawnedBodyTable extends Table {
   public ByteBuffer teamIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
   public battlecode.schema.VecTable locs() { return locs(new battlecode.schema.VecTable()); }
   public battlecode.schema.VecTable locs(battlecode.schema.VecTable obj) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
-  public int attacksPerformed(int j) { int o = __offset(10); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int attacksPerformedLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector attacksPerformedVector() { return attacksPerformedVector(new IntVector()); }
-  public IntVector attacksPerformedVector(IntVector obj) { int o = __offset(10); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer attacksPerformedAsByteBuffer() { return __vector_as_bytebuffer(10, 4); }
-  public ByteBuffer attacksPerformedInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 10, 4); }
-  public int attackLevels(int j) { int o = __offset(12); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int attackLevelsLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector attackLevelsVector() { return attackLevelsVector(new IntVector()); }
-  public IntVector attackLevelsVector(IntVector obj) { int o = __offset(12); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer attackLevelsAsByteBuffer() { return __vector_as_bytebuffer(12, 4); }
-  public ByteBuffer attackLevelsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 12, 4); }
-  public int buildsPerformed(int j) { int o = __offset(14); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int buildsPerformedLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector buildsPerformedVector() { return buildsPerformedVector(new IntVector()); }
-  public IntVector buildsPerformedVector(IntVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer buildsPerformedAsByteBuffer() { return __vector_as_bytebuffer(14, 4); }
-  public ByteBuffer buildsPerformedInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 4); }
-  public int buildLevels(int j) { int o = __offset(16); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int buildLevelsLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector buildLevelsVector() { return buildLevelsVector(new IntVector()); }
-  public IntVector buildLevelsVector(IntVector obj) { int o = __offset(16); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer buildLevelsAsByteBuffer() { return __vector_as_bytebuffer(16, 4); }
-  public ByteBuffer buildLevelsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 4); }
-  public int healsPerformed(int j) { int o = __offset(18); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int healsPerformedLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector healsPerformedVector() { return healsPerformedVector(new IntVector()); }
-  public IntVector healsPerformedVector(IntVector obj) { int o = __offset(18); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer healsPerformedAsByteBuffer() { return __vector_as_bytebuffer(18, 4); }
-  public ByteBuffer healsPerformedInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 4); }
-  public int healLevels(int j) { int o = __offset(20); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int healLevelsLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector healLevelsVector() { return healLevelsVector(new IntVector()); }
-  public IntVector healLevelsVector(IntVector obj) { int o = __offset(20); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer healLevelsAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
-  public ByteBuffer healLevelsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
-  public boolean holdingFlag(int j) { int o = __offset(22); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
-  public int holdingFlagLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
-  public BooleanVector holdingFlagVector() { return holdingFlagVector(new BooleanVector()); }
-  public BooleanVector holdingFlagVector(BooleanVector obj) { int o = __offset(22); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer holdingFlagAsByteBuffer() { return __vector_as_bytebuffer(22, 1); }
-  public ByteBuffer holdingFlagInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 1); }
 
   public static int createSpawnedBodyTable(FlatBufferBuilder builder,
       int robotIdsOffset,
       int teamIdsOffset,
-      int locsOffset,
-      int attacksPerformedOffset,
-      int attackLevelsOffset,
-      int buildsPerformedOffset,
-      int buildLevelsOffset,
-      int healsPerformedOffset,
-      int healLevelsOffset,
-      int holdingFlagOffset) {
-    builder.startTable(10);
-    SpawnedBodyTable.addHoldingFlag(builder, holdingFlagOffset);
-    SpawnedBodyTable.addHealLevels(builder, healLevelsOffset);
-    SpawnedBodyTable.addHealsPerformed(builder, healsPerformedOffset);
-    SpawnedBodyTable.addBuildLevels(builder, buildLevelsOffset);
-    SpawnedBodyTable.addBuildsPerformed(builder, buildsPerformedOffset);
-    SpawnedBodyTable.addAttackLevels(builder, attackLevelsOffset);
-    SpawnedBodyTable.addAttacksPerformed(builder, attacksPerformedOffset);
+      int locsOffset) {
+    builder.startTable(3);
     SpawnedBodyTable.addLocs(builder, locsOffset);
     SpawnedBodyTable.addTeamIds(builder, teamIdsOffset);
     SpawnedBodyTable.addRobotIds(builder, robotIdsOffset);
     return SpawnedBodyTable.endSpawnedBodyTable(builder);
   }
 
-  public static void startSpawnedBodyTable(FlatBufferBuilder builder) { builder.startTable(10); }
+  public static void startSpawnedBodyTable(FlatBufferBuilder builder) { builder.startTable(3); }
   public static void addRobotIds(FlatBufferBuilder builder, int robotIdsOffset) { builder.addOffset(0, robotIdsOffset, 0); }
   public static int createRobotIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startRobotIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
@@ -118,27 +62,6 @@ public final class SpawnedBodyTable extends Table {
   public static int createTeamIdsVector(FlatBufferBuilder builder, ByteBuffer data) { return builder.createByteVector(data); }
   public static void startTeamIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static void addLocs(FlatBufferBuilder builder, int locsOffset) { builder.addOffset(2, locsOffset, 0); }
-  public static void addAttacksPerformed(FlatBufferBuilder builder, int attacksPerformedOffset) { builder.addOffset(3, attacksPerformedOffset, 0); }
-  public static int createAttacksPerformedVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startAttacksPerformedVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addAttackLevels(FlatBufferBuilder builder, int attackLevelsOffset) { builder.addOffset(4, attackLevelsOffset, 0); }
-  public static int createAttackLevelsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startAttackLevelsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addBuildsPerformed(FlatBufferBuilder builder, int buildsPerformedOffset) { builder.addOffset(5, buildsPerformedOffset, 0); }
-  public static int createBuildsPerformedVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startBuildsPerformedVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addBuildLevels(FlatBufferBuilder builder, int buildLevelsOffset) { builder.addOffset(6, buildLevelsOffset, 0); }
-  public static int createBuildLevelsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startBuildLevelsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addHealsPerformed(FlatBufferBuilder builder, int healsPerformedOffset) { builder.addOffset(7, healsPerformedOffset, 0); }
-  public static int createHealsPerformedVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startHealsPerformedVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addHealLevels(FlatBufferBuilder builder, int healLevelsOffset) { builder.addOffset(8, healLevelsOffset, 0); }
-  public static int createHealLevelsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startHealLevelsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addHoldingFlag(FlatBufferBuilder builder, int holdingFlagOffset) { builder.addOffset(9, holdingFlagOffset, 0); }
-  public static int createHoldingFlagVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
-  public static void startHoldingFlagVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static int endSpawnedBodyTable(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;
