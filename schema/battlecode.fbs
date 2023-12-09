@@ -84,13 +84,6 @@ table SpawnedBodyTable {
     robotIds: [int];
     teamIds: [byte];
     locs: VecTable;
-    attacksPerformed: [int];
-    attackLevels: [int];
-    buildsPerformed: [int];
-    buildLevels: [int];
-    healsPerformed: [int];
-    healLevels: [int];
-    holdingFlag: [bool];
 }
 
 table GameMap {
@@ -257,7 +250,7 @@ table Round {
     healLevels: [int]; //done
 
     /// New bodies.
-    spawnedIds: [int]; //done
+    spawnedBodies: SpawnedBodyTable;
 
     /// The IDs of bodies that died.
     diedIds: [int]; //done

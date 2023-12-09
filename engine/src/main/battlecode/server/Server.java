@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.management.RuntimeErrorException;
+
 /**
  * Runs matches. Specifically, this class forms a pipeline connecting match and
  * configuration parameters to the game engine and engine output to an abstract
@@ -246,6 +248,41 @@ public strictfp class Server implements Runnable {
 
         for (int i = 0; i < liveMap.getWidth()*liveMap.getHeight(); i++){
             //TODO check for multiple things existing on the same tile
+            if(liveMap.getWallArray()[i]) {
+                if (liveMap.getDamArray()[i]) {
+                    throw new RuntimeException("Walls can't be on the same squre as dams.");
+                }
+                if (liveMap.getWaterArray()[i]) {
+                    throw new RuntimeException("Walls can't be on the same square as water.");
+                }
+                if (liveMap.getBreadArray()[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as bread.");
+                }
+                if(liveMap.getSpawnZoneArray()[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as spawn zones.");
+                } 
+            }
+            if(liveMap.getDamArray()[i]) {
+                if(liveMap.getWaterArray()[i]) {
+                    throw new RuntimeException("Dams can't be on the same square as water.");
+                }
+                if(liveMap.getBreadArray()[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as bread.");
+                }
+                if(liveMap.getSpawnZoneArray()[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as spawn zones.");
+                }
+            }
+
+            if(liveMap.getWaterArray()[i]) {
+                if(liveMap.getBreadArray()[i] != 0) {
+                    throw new RuntimeException("Water can't be on the same square as bread.");
+                }
+                if(liveMap.getSpawnZoneArray()[i] != 0) {
+                    throw new RuntimeException("Water can't be on the same square as spawn zones.");
+                }
+            }
+
         }
     }
     

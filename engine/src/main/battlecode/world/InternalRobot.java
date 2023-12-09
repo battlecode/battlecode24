@@ -287,7 +287,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void setLocation(MapLocation loc) {
         this.gameWorld.moveRobot(getLocation(), loc);
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
-        flag.setLoc(loc);
+        if(flag != null) flag.setLoc(loc);
         this.location = loc;
     }
 
@@ -343,6 +343,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         this.health += healthAmount;
         this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
+        System.out.println();
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
         }
@@ -396,7 +397,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
     
     private int getDamage() {
-        return SkillType.ATTACK.skillEffect * SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK));
+        int damage = Math.round(SkillType.ATTACK.skillEffect * ((float) SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK)) / 100 + 1));
+        System.out.println(damage);
+        return damage;
     }
 
     private int locationToInt(MapLocation loc) {
@@ -423,9 +426,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-
     public int getHeal() {
-        return SkillType.HEAL.skillEffect * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
+        int base_heal = SkillType.HEAL.skillEffect;
+        //check for upgrade
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]){
+            base_heal += GlobalUpgrade.HEALING.baseHealChange;
+        }
+        return Math.round(base_heal * ((float) SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)) / 100 + 1)); 
     }
 
     public int getBuildExp() {
@@ -451,6 +458,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void processBeginningOfTurn() {
         this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[0]) this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GlobalUpgrade.ACTION.cooldownReductionChange);
         this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.spawnCooldownTurns = Math.max(0, this.spawnCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.currentBytecodeLimit = GameConstants.BYTECODE_LIMIT;

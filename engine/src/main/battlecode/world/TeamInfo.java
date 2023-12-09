@@ -55,6 +55,7 @@ public class TeamInfo {
      * @param team the team to query
      * @return the team's bread count
      */
+
     public int getBread(Team team) {
     	return this.breadCounts[team.ordinal()];
     }
@@ -64,6 +65,7 @@ public class TeamInfo {
      * @param team the team to query
      * @return the total flags captured
      */
+
     public int getFlagsCaptured(Team team) {
         return this.totalFlagsCaptured[team.ordinal()];
     }
@@ -87,6 +89,15 @@ public class TeamInfo {
      * */
     public boolean[] getGlobalUpgrades(Team team) {
         return this.globalUpgrades[team.ordinal()].clone();
+    }
+
+    /** 
+     * return number of global upgrade points
+     * 
+     * @param team the team to query
+     **/
+    public int getGlobalUpgradePoints(Team team){
+        return this.globalUpgradePoints[team.ordinal()];
     }
 
     // *********************************

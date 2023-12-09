@@ -741,7 +741,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    void buyGlobal(GlobalUpgrade ug);
+    void buyGlobal(GlobalUpgrade ug) throws GameActionException;
 
     /**
      * Destroys the robot. 
