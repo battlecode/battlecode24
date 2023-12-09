@@ -287,7 +287,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void setLocation(MapLocation loc) {
         this.gameWorld.moveRobot(getLocation(), loc);
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
-        flag.setLoc(loc);
+        if(flag != null) flag.setLoc(loc);
         this.location = loc;
     }
 

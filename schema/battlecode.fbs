@@ -84,13 +84,6 @@ table SpawnedBodyTable {
     robotIds: [int];
     teamIds: [byte];
     locs: VecTable;
-    attacksPerformed: [int];
-    attackLevels: [int];
-    buildsPerformed: [int];
-    buildLevels: [int];
-    healsPerformed: [int];
-    healLevels: [int];
-    holdingFlag: [bool];
 }
 
 table GameMap {
