@@ -208,12 +208,14 @@ export class CurrentMap {
             const data = this.resourcePileData.get(pileId)!
             if (data.amount == 0) continue
             const loc = this.indexToLocation(pileId)
+            const size = (data.amount / 10) * 0.3 + 0.75
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
-            ctx.fillStyle = 'red'
-            ctx.beginPath()
-            ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.5, 0, 2 * Math.PI)
-            ctx.fill()
-            ctx.closePath()
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                ctx,
+                getImageIfLoaded('resources/crumb_64x64.png'),
+                coords,
+                size
+            )
         }
     }
 
