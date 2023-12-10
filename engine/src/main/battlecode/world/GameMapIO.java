@@ -319,6 +319,9 @@ public final strictfp class GameMapIO {
             int spawnLocations = FlatHelpers.createVecTable(builder, spawnZoneCenterXs, spawnZoneCenterYs);
             int resourcePiles = FlatHelpers.createVecTable(builder, breadLocationXsList, breadLocationYsList);
 
+            SpawnedBodyTable.startSpawnedBodyTable(builder);
+            int spawnedBodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
+
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -330,6 +333,7 @@ public final strictfp class GameMapIO {
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
             battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
             battlecode.schema.GameMap.addSpawnLocations(builder, spawnLocations);
+            battlecode.schema.GameMap.addBodies(builder, spawnedBodies);
             battlecode.schema.GameMap.addWater(builder, waterArrayInt);
             battlecode.schema.GameMap.addDivider(builder, damArrayInt);
             battlecode.schema.GameMap.addResourcePiles(builder, resourcePiles);
