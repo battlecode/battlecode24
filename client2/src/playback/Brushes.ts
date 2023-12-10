@@ -1,3 +1,4 @@
+import { schema } from 'battlecode-schema'
 import {
     MapEditorBrush,
     MapEditorBrushField,
@@ -180,6 +181,47 @@ export class ResourcePileBrush extends SymmetricMapEditorBrush<CurrentMap> {
             this.map.staticMap.resourcePileLocations[i] = this.map.staticMap.resourcePileLocations[i + 1]
         this.map.staticMap.resourcePileLocations.pop()
         this.map.resourcePileData.delete(schemaIdx)
+    }
+}
+
+export class TestTrapBrush extends SymmetricMapEditorBrush<CurrentMap> {
+    public readonly name = 'Traps'
+    public readonly fields = {
+        should_add: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        type: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            options: [
+                { value: schema.BuildActionType.EXPLOSIVE_TRAP, label: 'Explosive' },
+                { value: schema.BuildActionType.WATER_TRAP, label: 'Water' },
+                { value: schema.BuildActionType.STUN_TRAP, label: 'Stun' }
+            ],
+            label: 'Type',
+            value: schema.BuildActionType.EXPLOSIVE_TRAP
+        }
+    }
+    constructor(map: CurrentMap) {
+        super(map)
+    }
+
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
+        const schemaIdx = this.map.locationToIndex(x, y)
+        const found = this.map.trapData.get(schemaIdx)
+
+        if (fields.should_add.value) {
+            if (found) return
+            this.map.trapData.set(schemaIdx, {
+                location: { x, y },
+                type: fields.type.value,
+                team: this.map.trapData.size % 2
+            })
+            return
+        }
+
+        if (!found) return
+        this.map.trapData.delete(schemaIdx)
     }
 }
 

@@ -4,8 +4,8 @@ import { Vector, getEmptyVector } from './Vector'
 import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
-import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
-import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS } from '../constants'
+import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, TestTrapBrush, WallsBrush, WaterBrush } from './Brushes'
+import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS, BUILD_NAMES } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
 
@@ -217,10 +217,24 @@ export class CurrentMap {
                 size
             )
         }
+
+        // Render traps
+        for (const trapId of this.trapData.keys()) {
+            const data = this.trapData.get(trapId)!
+            const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
+            const loc = data.location
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 1)
+        }
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = [new WaterBrush(this), new ResourcePileBrush(this), new SpawnZoneBrush(this)]
+        const brushes: MapEditorBrush[] = [
+            new WaterBrush(this),
+            new ResourcePileBrush(this),
+            new SpawnZoneBrush(this),
+            new TestTrapBrush(this)
+        ]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 
