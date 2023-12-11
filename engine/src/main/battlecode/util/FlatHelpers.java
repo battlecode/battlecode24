@@ -1,6 +1,5 @@
 package battlecode.util;
 
-import battlecode.common.RobotType;
 import battlecode.common.TrapType;
 import battlecode.schema.VecTable;
 import battlecode.schema.Action;

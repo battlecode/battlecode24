@@ -2,8 +2,6 @@ package battlecode.server;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
-import battlecode.common.RobotType;
 import battlecode.common.SkillType;
 import battlecode.common.TrapType;
 import battlecode.common.Team;

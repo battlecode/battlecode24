@@ -637,7 +637,6 @@ public strictfp class GameWorld {
         int[] totalFlagsPickedUp = new int[2];
 
         // consider team reserves
-        //TODO: add flags picked up array, increment in action (but check that is not setup phase)
         totalFlagsPickedUp[Team.A.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.A);
         totalFlagsPickedUp[Team.B.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.B);
         

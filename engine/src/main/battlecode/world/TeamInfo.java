@@ -3,7 +3,6 @@ package battlecode.world;
 import battlecode.common.GameConstants;
 import battlecode.common.GlobalUpgrade;
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
 import battlecode.common.SkillType;
 import battlecode.common.Team;
 import java.util.*;
@@ -178,7 +177,7 @@ public class TeamInfo {
     }
 
     /**
-     * Increment number of flags picked up by 1
+     * Increment number of flags picked up by 1 if setup phase has ended.
      * @param team the team to query
      */
     public void pickupFlag(Team team){

@@ -1,8 +1,6 @@
 package battlecode.world.maps;
 
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.world.GameMapIO;
 import battlecode.world.LiveMap;
@@ -68,10 +66,6 @@ public class MapTestSmall {
                 MapLocation loc = new MapLocation(i, j);
                 if (usedSquares.contains(loc)) {
                     continue;
-                } else if (i == 8 && j == 8) {
-                    mapBuilder.setSymmetricResource(i, j, ResourceType.ADAMANTIUM.resourceID);
-                } else if (i == 2 && j == 2) {
-                    mapBuilder.setSymmetricResource(i, j, ResourceType.MANA.resourceID);
                 } else if ((i*13 + j*19 + random.nextInt(51)) % 43 == 0) {
                     if (i+3 >= mapBuilder.width || j+3 >= mapBuilder.height || usedSquares.contains(new MapLocation(i+3, j+3))) {
                         continue;

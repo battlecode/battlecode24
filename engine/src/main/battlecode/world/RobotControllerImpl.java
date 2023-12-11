@@ -814,6 +814,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
+        this.gameWorld.getTeamInfo().pickupFlag(getTeam());
     }
 
     // ***********************************
