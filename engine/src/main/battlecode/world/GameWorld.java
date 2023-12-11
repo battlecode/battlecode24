@@ -30,6 +30,7 @@ public strictfp class GameWorld {
     private boolean[] water;
     private boolean[] dams;
     private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
+    private MapLocation[][] spawnLocations;
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
@@ -118,6 +119,19 @@ public strictfp class GameWorld {
             placedFlags[i].add(flag);
         }
       
+        this.spawnLocations = new MapLocation[2][9*GameConstants.NUMBER_FLAGS];
+        int curA = 0, curB = 0;
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            if (this.spawnZones[i] == 1){
+                this.spawnLocations[0][curA] = indexToLocation(i);
+                curA += 1;
+            }
+            else if (this.spawnZones[i] == 2){
+                this.spawnLocations[1][curB] = indexToLocation(i);
+                curB += 1;
+            }
+
+        }
     }
 
     /**
@@ -482,6 +496,10 @@ public strictfp class GameWorld {
      */
     private MapLocation[] getAllLocations() {
         return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
+    }
+
+    public MapLocation[] getSpawnLocations(Team team){
+        return this.spawnLocations[team.ordinal()];
     }
     
 

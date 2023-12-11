@@ -676,17 +676,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     public MapLocation[] getAllySpawnLocations(){
-        //TODO: make more efficient implementation of this method. probably need to save array in gameworld
-        //this is a bashy implementation just to have something working
-        MapLocation[] outputLocations = new MapLocation[27];
-        int i = 0;
-        for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), 10*getMapWidth()*getMapHeight()*getMapHeight()*getMapWidth())){
-            if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
-                outputLocations[i] = loc;
-                i += 1;
-            }
-        }
-        return outputLocations;
+        MapLocation[] allyLocations = this.gameWorld.getSpawnLocations(getTeam());
+        return Arrays.copyOf(allyLocations, allyLocations.length);
 
     }
 

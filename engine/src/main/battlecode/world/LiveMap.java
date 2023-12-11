@@ -325,6 +325,11 @@ public strictfp class LiveMap {
         return spawnZoneArray;
     }
 
+
+    /**
+     * 
+     * @return a 6x2 array of spawn locations; the first 3 are for team A
+     */
     public int[][] getSpawnZoneCenters(){
         //first 3 team A next 3 team B
         int[][] spawnZoneCenters = new int[6][2];
