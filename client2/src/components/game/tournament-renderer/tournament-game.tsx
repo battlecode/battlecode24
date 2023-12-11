@@ -50,14 +50,22 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
                 'pt-4 px-2 pb-2 mx-2 my-4 rounded d-flex flex-col relative border-2 border-white min-w-[80px] max-w-[120px] ' +
                 (loadingGame ? 'opacity-50' : '') +
                 ' ' +
-                (playable ? 'bg-blueLight hover:bg-blueLighter cursor-pointer' : 'bg-blueDark')
+                (game.gameFile
+                    ? playable
+                        ? 'bg-blueLight hover:bg-blueLighter cursor-pointer'
+                        : 'bg-blueDark'
+                    : 'bg-greyLight')
             }
             onTap={onClick}
         >
             <GameNumber number={game.id} />
-            <GameTeam game={game} teamIdx={0} />
-            <div className="ml-0.5 text-xxxs">vs</div>
-            <GameTeam game={game} teamIdx={1} />
+            {game.gameFile && (
+                <>
+                    <GameTeam game={game} teamIdx={0} />
+                    <div className="ml-0.5 text-xxxs">vs</div>
+                    <GameTeam game={game} teamIdx={1} />
+                </>
+            )}
         </Pressable>
     )
 }

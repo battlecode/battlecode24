@@ -41,10 +41,7 @@ export const Sidebar: React.FC = () => {
     // Tournament mode loading ====================================================================================================
     const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
     const [loadingRemoteTournament, setLoadingRemoteTournament] = React.useState(false)
-    const [tournamentSource, setTournamentSource] = useSearchParamString(
-        'tournamentSource',
-        'https://api.battlecode.org/api/compete/bc23/match/tournament/?external_id_private=private_bc23highschool3_54378c83_4bfb_47b2_ae4a_0e711b0e167c&format=json'
-    )
+    const [tournamentSource, setTournamentSource] = useSearchParamString('tournamentSource', '')
     const fetchTournamentPage = (tournamentSource: string, rawGames: JsonTournamentGame[]) => {
         fetch(tournamentSource)
             .then((response) => response.text())
