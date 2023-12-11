@@ -231,60 +231,7 @@ public strictfp class Server implements Runnable {
                                idx / liveMap.getWidth());
     }
 
-    private void validateMapOnGuarantees(LiveMap liveMap) {
-        // Check map dimensions
-        if (liveMap.getWidth() > GameConstants.MAP_MAX_WIDTH) {
-            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
-        }
-        if (liveMap.getWidth() < GameConstants.MAP_MIN_WIDTH) {
-            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
-        }
-        if (liveMap.getHeight() > GameConstants.MAP_MAX_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
-        }
-        if (liveMap.getHeight() < GameConstants.MAP_MIN_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
-        }
 
-        for (int i = 0; i < liveMap.getWidth()*liveMap.getHeight(); i++){
-            //TODO check for multiple things existing on the same tile
-            if(liveMap.getWallArray()[i]) {
-                if (liveMap.getDamArray()[i]) {
-                    throw new RuntimeException("Walls can't be on the same squre as dams.");
-                }
-                if (liveMap.getWaterArray()[i]) {
-                    throw new RuntimeException("Walls can't be on the same square as water.");
-                }
-                if (liveMap.getBreadArray()[i] != 0) {
-                    throw new RuntimeException("Walls can't be on the same square as bread.");
-                }
-                if(liveMap.getSpawnZoneArray()[i] != 0) {
-                    throw new RuntimeException("Walls can't be on the same square as spawn zones.");
-                } 
-            }
-            if(liveMap.getDamArray()[i]) {
-                if(liveMap.getWaterArray()[i]) {
-                    throw new RuntimeException("Dams can't be on the same square as water.");
-                }
-                if(liveMap.getBreadArray()[i] != 0) {
-                    throw new RuntimeException("Dams can't be on the same square as bread.");
-                }
-                if(liveMap.getSpawnZoneArray()[i] != 0) {
-                    throw new RuntimeException("Dams can't be on the same square as spawn zones.");
-                }
-            }
-
-            if(liveMap.getWaterArray()[i]) {
-                if(liveMap.getBreadArray()[i] != 0) {
-                    throw new RuntimeException("Water can't be on the same square as bread.");
-                }
-                if(liveMap.getSpawnZoneArray()[i] != 0) {
-                    throw new RuntimeException("Water can't be on the same square as spawn zones.");
-                }
-            }
-
-        }
-    }
     
     private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
         return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
@@ -299,10 +246,6 @@ public strictfp class Server implements Runnable {
                           RobotControlProvider prov,
                           GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
-
-        // System.out.println("running runMatch in server");
-        // MapTestBad.makeBad();
-        // System.out.println("done making bad");
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
@@ -320,7 +263,7 @@ public strictfp class Server implements Runnable {
         
         if (checkMapGuarantees) {
             // Validate the map
-            validateMapOnGuarantees(currentWorld.getGameMap());
+            currentWorld.getGameMap().assertIsValid();
         }
 
         // Get started

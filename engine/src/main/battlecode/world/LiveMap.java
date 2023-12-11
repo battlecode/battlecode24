@@ -2,7 +2,11 @@ package battlecode.world;
 
 import battlecode.common.*;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.function.*;
+
+import javax.management.RuntimeErrorException;
 
 /**
  * The class represents the map in the game world on which
@@ -375,6 +379,186 @@ public strictfp class LiveMap {
         return new MapLocation(idx % getWidth() + getOrigin().x,
                                idx / getWidth() + getOrigin().y);
     }
+
+    public void assertIsValid() throws Exception{
+        if (this.width > GameConstants.MAP_MAX_WIDTH) {
+            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
+        }
+        if (this.width < GameConstants.MAP_MIN_WIDTH) {
+            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
+        }
+        if (this.height > GameConstants.MAP_MAX_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
+        }
+        if (this.height < GameConstants.MAP_MIN_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
+        }
+        for (int i = 0; i < this.width*this.height; i++){
+            if(this.wallArray[i]) {
+                if (this.damArray[i]) {
+                    throw new RuntimeException("Walls can't be on the same square as dams.");
+                }
+                if (this.waterArray[i]) {
+                    throw new RuntimeException("Walls can't be on the same square as water.");
+                }
+                if (this.breadArray[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as bread.");
+                }
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as spawn zones.");
+                } 
+            }
+            if(this.damArray[i]) {
+                if(this.waterArray[i]) {
+                    throw new RuntimeException("Dams can't be on the same square as water.");
+                }
+                if(this.breadArray[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as bread.");
+                }
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as spawn zones.");
+                }
+            }
+
+            if(this.waterArray[i]) {
+                if(this.breadArray[i] != 0) {
+                    throw new RuntimeException("Water can't be on the same square as bread.");
+                }
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Water can't be on the same square as spawn zones.");
+                }
+            }
+
+        }
+        assertSpawnZoneDistances();
+        assertSpawnZonesAreValid();
+    }
+
+    private boolean isTeamNumber(int team) {
+        return team == 1 || team == 2;
+    }
+
+    private int getOpposingTeamNumber(int team) {
+        switch (team) {
+            case 1:
+                return 2;
+            case 2:
+                return 1;
+            default:
+                throw new RuntimeException("Argument of LiveMap.getOpposingTeamNumber must be a valid team number, was " + team + ".");
+        }
+    }
+
+        // WARNING: POSSIBLY BUGGY
+        private void assertSpawnZonesAreValid() {
+            int numSquares = this.width * this.height;
+            boolean[] alreadyChecked = new boolean[numSquares];
+    
+            for (int i = 0; i < numSquares; i++) {
+                int team = this.spawnZoneArray[i];
+    
+                // if the square is actually a spawn zone
+    
+                if (isTeamNumber(team)) {
+                    boolean bad = floodFillMap(indexToLocation(i),
+                        (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
+                        (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
+                        alreadyChecked);
+    
+                    if (bad) {
+                        throw new RuntimeException("Two spawn zones for opposing teams can reach each other.");
+                    }
+                }
+            }
+        }
+
+        private void assertSpawnZoneDistances() {
+            //TODO: I changed this to only check distances between the centers of spawn zones, we may need to adjust math accordingly
+            ArrayList<MapLocation> team1 = new ArrayList<MapLocation>();
+            ArrayList<MapLocation> team2 = new ArrayList<MapLocation>();
+    
+            int[][] spawnZoneCenters = getSpawnZoneCenters();
+            for(int i = 0; i < spawnZoneCenters.length; i ++){
+                if (i < spawnZoneCenters.length/2){
+                    team1.add(new MapLocation(spawnZoneCenters[i][0], spawnZoneCenters[i][1]));
+                }
+                else {
+                    team2.add(new MapLocation(spawnZoneCenters[i][0], spawnZoneCenters[i][1]));
+                }
+            }
+    
+            for(int a = 0; a < team1.size()-1; a ++){
+                for(int b = a+1; b < team1.size(); b ++){
+                    if ((team1.get(a)).distanceSquaredTo((team1.get(b))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                        throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                    }
+                }
+            }
+    
+            for(int c = 0; c < team2.size()-1; c ++){
+                for(int d = c+1; d < team2.size(); d ++){
+                    if ((team2.get(c)).distanceSquaredTo((team2.get(d))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                        throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                    }
+                }
+            }
+        }
+    
+        /**
+         * Performs a flood fill algorithm to check if a predicate is true for any squares
+         * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
+         * 
+         * @param startLoc the starting location
+         * @param checkForBad the predicate to check for each reachable square
+         * @param checkForWall a predicate that checks if the given square has a wall
+         * @param alreadyChecked an array indexed by map location indices which has "true" at
+         * every location reachable from a spawn zone that has already been checked
+         * (WARNING: this array gets updated by floodFillMap)
+         * @return if checkForBad returns true for any reachable squares
+         */
+        private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+            Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+    
+            if (!onTheMap(startLoc)) {
+                throw new RuntimeException("Cannot call floodFillMap with startLocation off the map.");
+            }
+    
+            queue.add(startLoc);
+    
+            while (!queue.isEmpty()) {
+                MapLocation loc = queue.remove();
+                int idx = locationToIndex(loc);
+    
+                if (alreadyChecked[idx]) {
+                    continue;
+                }
+    
+                alreadyChecked[idx] = true;
+    
+                if (!checkForWall.test(loc)) {
+                    if (checkForBad.test(loc)) {
+                        return true;
+                    }
+    
+                    for (Direction dir : Direction.allDirections()) {
+                        if (dir != Direction.CENTER) {
+                            MapLocation newLoc = loc.add(dir);
+    
+                            if (onTheMap(newLoc)) {
+                                int newIdx = locationToIndex(newLoc);
+    
+                                if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                                    queue.add(newLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    
+            return false;
+        }
+
 
     @Override
     public String toString() {

@@ -34,13 +34,13 @@ public class MapTestSmall {
     public static void main(String[] args) {
         try {
             makeSimple();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
         System.out.println("Generated a map!");
     }
 
-    public static void makeSimple() throws IOException {
+    public static void makeSimple() throws Exception {
         MapBuilder mapBuilder = new MapBuilder(mapName, 20, 20, 0, 0, 30);
         Random random = new Random(6147);
 
