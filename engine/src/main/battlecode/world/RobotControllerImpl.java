@@ -654,7 +654,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addMovementCooldownTurns();
 
         // trap trigger methods
-        for(Trap trap:this.gameWorld.getTrapTriggers(nextLoc)){
+        for(int i = this.gameWorld.getTrapTriggers(nextLoc).size()-1; i >= 0; i--){
+            Trap trap = this.gameWorld.getTrapTriggers(nextLoc).get(i);
             if (trap.getTeam() == this.robot.getTeam()){
                 continue;
             }
