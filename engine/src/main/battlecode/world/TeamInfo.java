@@ -182,7 +182,7 @@ public class TeamInfo {
      */
     public void pickupFlag(Team team){
         if (!gameWorld.isSetupPhase()){
-            totalFlagsPickedUp[team.ordinal()]++;
+            totalFlagsPickedUp[team.ordinal()] += 1;
         }
     }
 

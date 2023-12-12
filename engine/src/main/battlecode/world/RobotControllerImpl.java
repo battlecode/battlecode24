@@ -794,7 +794,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
-        if(this.gameWorld.getFlags(loc) == null) {
+        if(this.gameWorld.getFlags(loc).size() == 0) {
             throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
         }
     }
