@@ -290,7 +290,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
 
     0: class Duck extends Body {
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            this.imgPath = `robots/${this.team.name.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            this.imgPath = `robots/${this.team.color.toLowerCase()}/${this.getSpecialization()}_64x64.png`
             super.draw(match, ctx)
 
             const levelIndicators: [string, number, [number, number]][] = [

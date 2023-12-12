@@ -33,9 +33,9 @@ export const SERVER_MAPS: string[] = [
 export const TEAM_BLUE = '#407496'
 export const TEAM_RED = '#D53E43'
 export const TEAM_COLORS = [TEAM_RED, TEAM_BLUE]
-export const TEAM_NAMES = ['White', 'Brown']
+export const TEAM_COLOR_NAMES = ['White', 'Brown']
 
-export const WATER_COLOR = '#1d4f6c' // brighter version '#F0EAD2'
+export const WATER_COLOR = '#1d4f6c' // brighter version '#29B0D9'
 export const WALLS_COLOR = '#3B6B4C'
 export const DIVIDER_COLOR = '#FF5F15'
 export const GRASS_COLOR = '#153e30' // brighter version '#3CCA6E'

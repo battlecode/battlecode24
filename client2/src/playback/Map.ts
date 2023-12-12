@@ -5,7 +5,15 @@ import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, TestTrapBrush, WallsBrush, WaterBrush } from './Brushes'
-import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS, BUILD_NAMES } from '../constants'
+import {
+    DIVIDER_COLOR,
+    GRASS_COLOR,
+    WALLS_COLOR,
+    WATER_COLOR,
+    TEAM_COLORS,
+    BUILD_NAMES,
+    TEAM_COLOR_NAMES
+} from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
 
@@ -176,8 +184,7 @@ export class CurrentMap {
                         this,
                         this.staticMap.divider,
                         () => {
-                            ctx.fillStyle = DIVIDER_COLOR
-                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                            renderUtils.drawDiagonalLines(ctx, coords, 1.0, DIVIDER_COLOR)
                         },
                         { x: false, y: true }
                     )
@@ -210,9 +217,10 @@ export class CurrentMap {
             const loc = this.indexToLocation(pileId)
             const size = (data.amount / 10) * 0.3 + 0.75
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+            const crumbVersion = ((loc.x * 37 + loc.y * 19) % 3) + 1
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 ctx,
-                getImageIfLoaded('resources/crumb_64x64.png'),
+                getImageIfLoaded(`resources/crumb_${crumbVersion}_64x64.png`),
                 coords,
                 size
             )
@@ -221,7 +229,7 @@ export class CurrentMap {
         // Render traps
         for (const trapId of this.trapData.keys()) {
             const data = this.trapData.get(trapId)!
-            const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
+            const file = `traps/${TEAM_COLOR_NAMES[data.team].toLowerCase()}/${BUILD_NAMES[data.type]}_64x64.png`
             const loc = data.location
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 1)

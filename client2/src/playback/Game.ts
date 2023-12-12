@@ -2,7 +2,7 @@ import Match from './Match'
 import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
-import { SPEC_VERSION } from '../constants'
+import { SPEC_VERSION, TEAM_COLORS, TEAM_COLOR_NAMES } from '../constants'
 import { FakeGameWrapper } from '../components/sidebar/runner/websocket'
 
 let nextID = 0
@@ -48,8 +48,8 @@ export default class Game {
         if (!wrapper) {
             //bare minimum setup for map editor
             this.teams = [
-                new Team('Red', { wins: 0, elo: 0 }, 1, 'map_editor_red', 'red'),
-                new Team('Blue', { wins: 0, elo: 0 }, 2, 'map_editor_blue', 'blue')
+                new Team(TEAM_COLOR_NAMES[0], { wins: 0, elo: 0 }, 1, 'map_editor_red', TEAM_COLOR_NAMES[0].toLowerCase()),
+                new Team(TEAM_COLOR_NAMES[1], { wins: 0, elo: 0 }, 2, 'map_editor_blue', TEAM_COLOR_NAMES[1].toLowerCase())
             ]
             this.winner = this.teams[0]
             this.specVersion = SPEC_VERSION
@@ -160,7 +160,7 @@ export class Team {
         }
         const id = team.teamId() ?? assert.fail('Team id is missing')
         const packageName = team.packageName() ?? assert.fail('Team package name is missing')
-        const color = id === 1 ? 'red' : 'blue'
+        const color = TEAM_COLOR_NAMES[id - 1]
         return new Team(name, stats, id, packageName, color)
     }
 }

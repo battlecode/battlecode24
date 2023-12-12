@@ -3,7 +3,7 @@ import { useAppContext } from '../../../app-context'
 import { useForceUpdate } from '../../../util/react-util'
 import { useListenEvent, EventType } from '../../../app-events'
 import { getImageIfLoaded, removeTriggerOnImageLoad, triggerOnImageLoad } from '../../../util/ImageLoader'
-import { TEAM_NAMES } from '../../../constants';
+import { TEAM_COLOR_NAMES } from '../../../constants';
 
 interface UnitsIconProps {
     team: 0 | 1
@@ -11,7 +11,7 @@ interface UnitsIconProps {
 }
 
 const UnitsIcon: React.FC<UnitsIconProps> = (props: UnitsIconProps) => {
-    const color = TEAM_NAMES[props.team].toLowerCase()
+    const color = TEAM_COLOR_NAMES[props.team].toLowerCase()
     const imagePath = `robots/${color}/${props.robotType}.png`
 
     const imageData = getImageIfLoaded(imagePath)
