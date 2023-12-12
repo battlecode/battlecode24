@@ -87,6 +87,8 @@ public strictfp class GameWorld {
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
 
+        this.trapLocations = new Trap[gm.getWidth()*gm.getHeight()];
+
         this.trapTriggers = new ArrayList[gm.getWidth()*gm.getHeight()];
         for (int i = 0; i < trapTriggers.length; i++){
             this.trapTriggers[i] = new ArrayList<Trap>();
@@ -357,7 +359,7 @@ public strictfp class GameWorld {
     }
 
     public boolean hasTrap(MapLocation loc){
-        return !(this.trapLocations[locationToIndex(loc)] == null);
+        return (this.trapLocations[locationToIndex(loc)] != null);
     }
 
     public ArrayList<Trap> getTrapTriggers(MapLocation loc) {

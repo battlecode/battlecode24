@@ -154,8 +154,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void removeFlag() {
-        this.flag = null;
         flag.drop();
+        this.flag = null;
     }
 
     public long getControlBits() {
