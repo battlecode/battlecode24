@@ -655,6 +655,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         // trap trigger methods
         for(Trap trap:this.gameWorld.getTrapTriggers(nextLoc)){
+            if (trap.getTeam() == this.robot.getTeam()){
+                continue;
+            }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
                 this.gameWorld.triggerTrap(trap, true);
             } else {
