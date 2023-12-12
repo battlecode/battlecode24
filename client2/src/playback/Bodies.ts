@@ -5,15 +5,12 @@ import Turn from './Turn'
 import TurnStat from './TurnStat'
 import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
-import {
-    MapEditorBrush,
-    MapEditorBrushField,
-    MapEditorBrushFieldType
-} from '../components/sidebar/map-editor/MapEditorBrush'
+import { MapEditorBrush } from '../components/sidebar/map-editor/MapEditorBrush'
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
 import Match from './Match'
+import { TestDuckBrush } from './Brushes'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -334,26 +331,26 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
                 const angle = i * petalWidthRads * 2
                 const petalLength = 0.15
                 ctx.bezierCurveTo(
-                    drawCoords.x + (petalLength * 1/3) * Math.cos(angle - petalWidthRads * 2.5),
-                    drawCoords.y + (petalLength * 1/3) * Math.sin(angle - petalWidthRads * 2.5),
-                    drawCoords.x + (petalLength * 2/3) * Math.cos(angle - petalWidthRads * 2.5 / 2),
-                    drawCoords.y + (petalLength * 2/3) * Math.sin(angle - petalWidthRads * 2.5 / 2),
+                    drawCoords.x + ((petalLength * 1) / 3) * Math.cos(angle - petalWidthRads * 2.5),
+                    drawCoords.y + ((petalLength * 1) / 3) * Math.sin(angle - petalWidthRads * 2.5),
+                    drawCoords.x + ((petalLength * 2) / 3) * Math.cos(angle - (petalWidthRads * 2.5) / 2),
+                    drawCoords.y + ((petalLength * 2) / 3) * Math.sin(angle - (petalWidthRads * 2.5) / 2),
                     drawCoords.x + petalLength * Math.cos(angle),
                     drawCoords.y + petalLength * Math.sin(angle)
-                );
+                )
                 ctx.bezierCurveTo(
-                    drawCoords.x + (petalLength * 2/3) * Math.cos(angle + petalWidthRads * 2.5 / 2),
-                    drawCoords.y + (petalLength * 2/3) * Math.sin(angle + petalWidthRads * 2.5 / 2),
-                    drawCoords.x + (petalLength * 1/3) * Math.cos(angle + petalWidthRads * 2.5),
-                    drawCoords.y + (petalLength * 1/3) * Math.sin(angle + petalWidthRads * 2.5),
+                    drawCoords.x + ((petalLength * 2) / 3) * Math.cos(angle + (petalWidthRads * 2.5) / 2),
+                    drawCoords.y + ((petalLength * 2) / 3) * Math.sin(angle + (petalWidthRads * 2.5) / 2),
+                    drawCoords.x + ((petalLength * 1) / 3) * Math.cos(angle + petalWidthRads * 2.5),
+                    drawCoords.y + ((petalLength * 1) / 3) * Math.sin(angle + petalWidthRads * 2.5),
                     drawCoords.x,
                     drawCoords.y
-                );
+                )
             }
             ctx.lineWidth = 0.05
             ctx.globalAlpha = 0.5
             ctx.stroke()
-            ctx.globalAlpha = .75
+            ctx.globalAlpha = 0.75
             ctx.fill()
             ctx.globalAlpha = 1
 
@@ -374,89 +371,6 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             if (this.healLevel > 3) return 'heal'
             if (this.buildLevel > 3) return 'build'
             return 'base'
-        }
-    }
-}
-
-export class TestDuckBrush extends MapEditorBrush {
-    public readonly name = 'Ducks'
-    public readonly fields = {
-        is_duck: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        team: {
-            type: MapEditorBrushFieldType.TEAM,
-            value: 0
-        },
-        heal_level: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            options: [
-                { value: 0, label: '0' },
-                { value: 1, label: '1' },
-                { value: 2, label: '2' },
-                { value: 3, label: '3' },
-                { value: 4, label: '4' },
-                { value: 5, label: '5' },
-                { value: 6, label: '6' }
-            ],
-            value: 1
-        },
-        attack_level: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            options: [
-                { value: 0, label: '0' },
-                { value: 1, label: '1' },
-                { value: 2, label: '2' },
-                { value: 3, label: '3' },
-                { value: 4, label: '4' },
-                { value: 5, label: '5' },
-                { value: 6, label: '6' }
-            ],
-            value: 2
-        },
-        build_level: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            options: [
-                { value: 0, label: '0' },
-                { value: 1, label: '1' },
-                { value: 2, label: '2' },
-                { value: 3, label: '3' },
-                { value: 4, label: '4' },
-                { value: 5, label: '5' },
-                { value: 6, label: '6' }
-            ],
-            value: 5
-        }
-    }
-
-    constructor(
-        private readonly bodies: Bodies,
-        private readonly map: StaticMap
-    ) {
-        super()
-    }
-
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const is_duck: boolean = fields.is_duck.value
-        if (is_duck) {
-            if (this.bodies.getBodyAtLocation(x, y)) return
-            const duckClass = BODY_DEFINITIONS[0]
-            const duck = new duckClass(
-                { x, y },
-                1,
-                this.bodies.game.teams[fields.team.value],
-                this.bodies.getNextID(),
-                fields.heal_level.value,
-                fields.attack_level.value,
-                fields.build_level.value
-            )
-            this.bodies.bodies.set(duck.id, duck)
-        } else {
-            let duck = this.bodies.getBodyAtLocation(x, y, undefined)
-            if (duck) {
-                this.bodies.bodies.delete(duck.id)
-            }
         }
     }
 }
