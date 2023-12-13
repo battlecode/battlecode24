@@ -649,7 +649,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.setLocation(nextLoc);
 
         int amtBread = this.gameWorld.getBreadAmount(nextLoc);
-        if(amtBread != 0) this.robot.addResourceAmount(amtBread);
+        if(amtBread != 0) {
+            this.robot.addResourceAmount(amtBread);
+            this.gameWorld.getMatchMaker().addClaimedResource(nextLoc);
+        }
         this.gameWorld.removeBread(nextLoc);
         this.robot.addMovementCooldownTurns();
 

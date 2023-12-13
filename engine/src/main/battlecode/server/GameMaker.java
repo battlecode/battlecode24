@@ -391,6 +391,9 @@ public strictfp class GameMaker {
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
 
+        private TIntArrayList claimedResourcesX;
+        private TIntArrayList claimedResourcesY;
+
         // Round statistics
         private TIntArrayList teamIDs;
         private TIntArrayList teamBreadAmounts;
@@ -459,6 +462,8 @@ public strictfp class GameMaker {
             this.actionIds = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
+            this.claimedResourcesX = new TIntArrayList();
+            this.claimedResourcesY = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
             this.teamBreadAmounts = new TIntArrayList();
             this.teamAComm = new TIntArrayList();
@@ -609,6 +614,8 @@ public strictfp class GameMaker {
                 int actionsP = Round.createActionsVector(builder, actions.toArray());
                 int actionTargetsP = Round.createActionTargetsVector(builder, actionTargets.toArray());
 
+                int claimedResourcesP = FlatHelpers.createVecTable(builder, claimedResourcesX, claimedResourcesY);
+
                 int trapAddedIdsP = Round.createTrapAddedIdsVector(builder, trapAddedIds.toArray());
                 int trapAddedLocsP = createVecTable(builder, trapAddedX, trapAddedY);
                 int trapAddedTypesP = Round.createTrapAddedTypesVector(builder, trapAddedTypes.toArray());
@@ -662,6 +669,7 @@ public strictfp class GameMaker {
                 Round.addActionIds(builder, actionIdsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
+                Round.addClaimedResourcePiles(builder, claimedResourcesP);
                 Round.addTrapAddedIds(builder, trapAddedIdsP);
                 Round.addTrapAddedLocations(builder, trapAddedLocsP);
                 Round.addTrapAddedTypes(builder, trapAddedTypesP);
@@ -727,6 +735,11 @@ public strictfp class GameMaker {
             actionIds.add(userID);
             actions.add(action);
             actionTargets.add(targetID);
+        }
+
+        public void addClaimedResource(MapLocation loc) {
+            claimedResourcesX.add(loc.x);
+            claimedResourcesY.add(loc.y);
         }
 
         public void addTrap(Trap trap) {
@@ -818,6 +831,8 @@ public strictfp class GameMaker {
             actionIds.clear();
             actions.clear();
             actionTargets.clear();
+            claimedResourcesX.clear();
+            claimedResourcesY.clear();
             teamIDs.clear();
             teamBreadAmounts.clear();
             teamAComm.clear();
