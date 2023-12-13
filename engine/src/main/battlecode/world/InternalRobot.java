@@ -343,7 +343,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         this.health += healthAmount;
         this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
-        System.out.println();
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
         }
@@ -398,7 +397,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     
     private int getDamage() {
         int damage = Math.round(SkillType.ATTACK.skillEffect * ((float) SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK)) / 100 + 1));
-        System.out.println(damage);
         return damage;
     }
 
