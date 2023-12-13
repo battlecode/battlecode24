@@ -296,8 +296,8 @@ public final strictfp class GameMapIO {
                 wallArrayList.add(wallArray[i]);
                 waterArrayList.add(waterArray[i]);
                 damArrayList.add(damArray[i]);
-                breadArrayList.add(breadArray[i]);
                 if (breadArray[i] != 0){
+                    breadArrayList.add(breadArray[i]);
                     breadLocationsArrayList.add(i);
                 }
             }
