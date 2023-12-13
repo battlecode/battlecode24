@@ -334,21 +334,21 @@ public strictfp class LiveMap {
         //first 3 team A next 3 team B
         int[][] spawnZoneCenters = new int[2][6];
         int cur_A = 0;
-        int cur_B = 3;
+        int cur_B = 1;
         for (int i = 0; i < spawnZoneArray.length; i++){
             if (spawnZoneArray[i] == 1 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 1
             && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 1){
                 MapLocation center = indexToLocation(i);
                 spawnZoneCenters[0][cur_A] = center.x;
                 spawnZoneCenters[1][cur_A] = center.y;
-                cur_A += 1;
+                cur_A += 2;
             }
             if (spawnZoneArray[i] == 2 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 2
             && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 2){
                 MapLocation center = indexToLocation(i);
                 spawnZoneCenters[0][cur_B] = center.x;
-                spawnZoneCenters[1][cur_A] = center.y;
-                cur_B += 1;
+                spawnZoneCenters[1][cur_B] = center.y;
+                cur_B += 2;
             }
         }
         return spawnZoneCenters;
