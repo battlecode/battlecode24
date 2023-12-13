@@ -319,7 +319,13 @@ public final strictfp class GameMapIO {
             int spawnLocations = FlatHelpers.createVecTable(builder, spawnZoneCenterXs, spawnZoneCenterYs);
             int resourcePiles = FlatHelpers.createVecTable(builder, breadLocationXsList, breadLocationYsList);
 
+            int spawnedRobotsP = SpawnedBodyTable.createRobotIdsVector(builder, new int[0]);
+            int spawnedTeamsP = SpawnedBodyTable.createTeamIdsVector(builder, new byte[0]);
+            int spawnedLocsP = FlatHelpers.createVecTable(builder, new TIntArrayList(), new TIntArrayList());
             SpawnedBodyTable.startSpawnedBodyTable(builder);
+            SpawnedBodyTable.addRobotIds(builder, spawnedRobotsP);
+            SpawnedBodyTable.addTeamIds(builder, spawnedTeamsP);
+            SpawnedBodyTable.addLocs(builder, spawnedLocsP);
             int spawnedBodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
 
             // Build LiveMap for flatbuffer
