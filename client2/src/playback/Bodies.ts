@@ -85,18 +85,16 @@ export default class Bodies {
         }
 
         const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
-        if (delta.diedIdsLength() > 0) {
-            for (let i = 0; i < delta.diedIdsLength(); i++) {
-                const diedBody =
-                    this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
-                if (!turn.stat.completed) {
-                    const teamStat =
-                        turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
-                    teamStat.robots -= 1
-                    teamStat.total_hp -= diedBody.hp
-                }
-                diedBody.dead = true
+        for (let i = 0; i < delta.diedIdsLength(); i++) {
+            const diedBody =
+                this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
+            if (!turn.stat.completed) {
+                const teamStat =
+                    turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
+                teamStat.robots -= 1
+                teamStat.total_hp -= diedBody.hp
             }
+            diedBody.dead = true
         }
     }
 

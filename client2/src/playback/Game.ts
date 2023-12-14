@@ -48,8 +48,20 @@ export default class Game {
         if (!wrapper) {
             //bare minimum setup for map editor
             this.teams = [
-                new Team(TEAM_COLOR_NAMES[0], { wins: 0, elo: 0 }, 1, 'map_editor_red', TEAM_COLOR_NAMES[0].toLowerCase()),
-                new Team(TEAM_COLOR_NAMES[1], { wins: 0, elo: 0 }, 2, 'map_editor_blue', TEAM_COLOR_NAMES[1].toLowerCase())
+                new Team(
+                    TEAM_COLOR_NAMES[0],
+                    { wins: 0, elo: 0 },
+                    1,
+                    'map_editor_red',
+                    TEAM_COLOR_NAMES[0].toLowerCase()
+                ),
+                new Team(
+                    TEAM_COLOR_NAMES[1],
+                    { wins: 0, elo: 0 },
+                    2,
+                    'map_editor_blue',
+                    TEAM_COLOR_NAMES[1].toLowerCase()
+                )
             ]
             this.winner = this.teams[0]
             this.specVersion = SPEC_VERSION

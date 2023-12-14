@@ -354,9 +354,9 @@ export class StaticMap {
         }
 
         const walls = schemaMap.wallsArray() ?? assert.fail('wallsArray() is null')
-        const divider = schemaMap.dividerArray() ?? assert.fail('divierArray() is null')
-        const spawnLocations = parseVecTable(schemaMap.spawnLocations() ?? assert.fail('divierArray() is null'))
-        const resourcePileLocations = parseVecTable(schemaMap.resourcePiles() ?? assert.fail('divierArray() is null'))
+        const divider = schemaMap.dividerArray() ?? assert.fail('dividerArray() is null')
+        const spawnLocations = parseVecTable(schemaMap.spawnLocations() ?? assert.fail('spawnLocations() is null'))
+        const resourcePileLocations = parseVecTable(schemaMap.resourcePiles() ?? assert.fail('resourcePiles() is null'))
         const initialResourcePileAmounts =
             schemaMap.resourcePileAmountsArray() ?? assert.fail('resourcePileAmountsArray() is null')
         const initialWater = schemaMap.waterArray() ?? assert.fail('waterArray() is null')

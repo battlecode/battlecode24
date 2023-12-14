@@ -49,11 +49,7 @@ export default class Actions {
 }
 
 export class Action {
-    constructor(
-        protected robotID: number,
-        protected target: number,
-        public duration: number = 1
-    ) {}
+    constructor(protected robotID: number, protected target: number, public duration: number = 1) {}
 
     /**
      * Applies this action to the turn provided. If stat is provided, it will be mutated to reflect the action as well
@@ -69,10 +65,81 @@ export class Action {
     }
 }
 
-export const ACTION_DEFINITIONS: Record<number, typeof Action> = { 
+export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
         apply(turn: Turn): void {
             console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`)
+        }
+    },
+    [schema.Action.ATTACK]: class Dig extends Action {
+        apply(turn: Turn): void {
+            // To dicuss
+        }
+        draw(match: Match, ctx: CanvasRenderingContext2D) {
+            const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Attacking body not found')
+            const interpStart = renderUtils.getInterpolatedCoords(
+                body.pos,
+                body.nextPos,
+                match.getInterpolationFactor()
+            )
+
+            let interpEnd
+            // Target is negative when it represents a miss (map location hit). Otherwise,
+            // the attack hit a bot so we must transform the target into the bot's location
+            if (this.target >= 0) {
+                const targetBody =
+                    match.currentTurn.bodies.getById(this.target) ?? assert.fail('Attack target not found')
+                interpEnd = renderUtils.getInterpolatedCoords(
+                    targetBody.pos,
+                    targetBody.nextPos,
+                    match.getInterpolationFactor()
+                )
+            } else {
+                interpEnd = match.currentTurn.map.indexToLocation(-this.target - 1)
+            }
+
+            // Compute the start and end points for the animation projectile
+            const dir = vectorUtils.vectorSub(interpEnd, interpStart)
+            const len = vectorUtils.vectorLength(dir)
+            vectorUtils.vectorMultiplyInPlace(dir, 1 / len)
+            const projectileStart = vectorUtils.vectorAdd(
+                interpStart,
+                vectorUtils.vectorMultiply(dir, len * match.getInterpolationFactor())
+            )
+            const projectileEnd = vectorUtils.vectorAdd(
+                interpStart,
+                vectorUtils.vectorMultiply(dir, len * Math.min(match.getInterpolationFactor() + 0.2, 1.0))
+            )
+
+            // True direction
+            renderUtils.renderLine(
+                ctx,
+                renderUtils.getRenderCoords(interpStart.x, interpStart.y, match.currentTurn.map.staticMap.dimension),
+                renderUtils.getRenderCoords(interpEnd.x, interpEnd.y, match.currentTurn.map.staticMap.dimension),
+                body.team,
+                0.05,
+                0.1,
+                true
+            )
+
+            // Projectile animation
+            renderUtils.renderLine(
+                ctx,
+                renderUtils.getRenderCoords(
+                    projectileStart.x,
+                    projectileStart.y,
+                    match.currentTurn.map.staticMap.dimension
+                ),
+                renderUtils.getRenderCoords(
+                    projectileEnd.x,
+                    projectileEnd.y,
+                    match.currentTurn.map.staticMap.dimension
+                ),
+                body.team,
+                0.05,
+                1.0,
+                false
+            )
         }
     },
     [schema.Action.HEAL]: class Heal extends Action {
@@ -80,82 +147,52 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             const body = turn.bodies.getById(this.robotID)
             //if (!turn.stat.completed) turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target
             //body.hp += this.target
-			
-			// Implementation Questions: 
-			// How much do you heal by?
+
+            // Implementation Questions:
+            // How much do you heal by?
         }
     },
     [schema.Action.DIG]: class Dig extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.FILL]: class Fill extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.EXPLOSIVE_TRAP]: class ExplosiveTrap extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.WATER_TRAP]: class WaterTrap extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.STUN_TRAP]: class StunTrap extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.PICKUP_FLAG]: class PickupFlag extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.DROP_FLAG]: class DropFlag extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {
         apply(turn: Turn): void {
-			// To dicuss
+            // To dicuss
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 export const ACTION_DEFINITIONS: Record<number, typeof Action> = { 
