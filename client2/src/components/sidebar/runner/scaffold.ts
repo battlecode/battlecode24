@@ -5,7 +5,6 @@ import { ConsoleLine } from './runner'
 import { useForceUpdate } from '../../../util/react-util'
 import WebSocketListener from './websocket'
 import { useAppContext } from '../../../app-context'
-import { app } from 'electron'
 
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
