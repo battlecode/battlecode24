@@ -1,16 +1,12 @@
 import * as cst from '../constants'
 import { Team } from '../playback/Game'
-import { Dimension } from '../playback/Map'
+import { CurrentMap, Dimension, StaticMap } from '../playback/Map'
 import { Vector } from '../playback/Vector'
 
 export const getRenderCoords = (cellX: number, cellY: number, dims: Dimension) => {
     const cx = dims.minCorner.x + cellX
     const cy = dims.minCorner.y + dims.height - cellY - 1 // Y is flipped
     return { x: cx, y: cy }
-}
-
-export const getSchemaIdx = (cellX: number, cellY: number, dims: Dimension) => {
-    return Math.floor(cellY) * dims.width + Math.floor(cellX)
 }
 
 export const getInterpolatedCoords = (prev: Vector, cur: Vector, alpha: number) => {
@@ -23,8 +19,9 @@ export const getInterpolatedCoords = (prev: Vector, cur: Vector, alpha: number) 
 export const get9SliceClipPath = (
     i: number,
     j: number,
-    dims: Dimension,
+    map: StaticMap | CurrentMap,
     vals: number[] | Int8Array | Int32Array,
+    outsideMerge: { x: boolean; y: boolean } = { x: false, y: false },
     valFunc: (v: number | boolean) => boolean = (v) => (v ? true : false)
 ): number[][] => {
     let edge = 0.07
@@ -33,9 +30,13 @@ export const get9SliceClipPath = (
     for (let v = 1; v < 9; v++) {
         let x = cst.DIRECTIONS[v][0] + i
         let y = cst.DIRECTIONS[v][1] + j
-        neighbors.push(
-            x < 0 || y < 0 || x == dims.width || y == dims.height ? false : valFunc(vals[getSchemaIdx(x, y, dims)])
-        )
+        let pushVal =
+            x < 0 || x == map.width
+                ? outsideMerge.x
+                : y < 0 || y == map.height
+                ? outsideMerge.y
+                : valFunc(vals[map.locationToIndex(x, y)])
+        neighbors.push(pushVal)
     }
     let points: number[][] = []
     let corners: Record<number, { cx: number; cy: number; sx: number; sy: number }> = {
@@ -71,11 +72,10 @@ export const get9SliceClipPath = (
     return points
 }
 
-export const applyClipScaled = (
+export const applyClip = (
     ctx: CanvasRenderingContext2D,
     i: number,
     j: number,
-    scale: number,
     path: number[][],
     render: () => void
 ) => {
@@ -83,8 +83,8 @@ export const applyClipScaled = (
     ctx.beginPath()
     let started = false
     for (let point of path) {
-        if (!started) ctx.moveTo((point[0] + i) * scale, (point[1] + j) * scale)
-        else ctx.lineTo((point[0] + i) * scale, (point[1] + j) * scale)
+        if (!started) ctx.moveTo(point[0] + i, point[1] + j)
+        else ctx.lineTo(point[0] + i, point[1] + j)
         started = true
     }
     ctx.closePath()
@@ -97,15 +97,15 @@ export const renderRounded = (
     ctx: CanvasRenderingContext2D,
     i: number,
     j: number,
-    dims: Dimension,
-    values: number[] | Int8Array | Int32Array,
-    render: (scale: number) => void,
-    renderScale: number = 1.01,
+    map: CurrentMap | StaticMap,
+    values: any[] | Int8Array | Int32Array,
+    render: () => void,
+    outsideMerge: { x: boolean; y: boolean } = { x: false, y: false },
     valueCheck: (v: number | boolean) => boolean = (v) => !!v
 ) => {
-    const path = get9SliceClipPath(i, j, dims, values, valueCheck)
-    const coords = getRenderCoords(i, j, dims)
-    applyClipScaled(ctx, coords.x / renderScale, coords.y / renderScale, renderScale, path, () => render(renderScale))
+    const path = get9SliceClipPath(i, j, map, values, outsideMerge, valueCheck)
+    const coords = getRenderCoords(i, j, map.dimension)
+    applyClip(ctx, coords.x, coords.y, path, () => render())
 }
 
 export const applyStyles = (ctx: CanvasRenderingContext2D, styles: Record<string, any>, render: () => void) => {
@@ -116,6 +116,72 @@ export const applyStyles = (ctx: CanvasRenderingContext2D, styles: Record<string
     }
     render()
     for (const style in saved) (ctx as any)[style] = saved[style]
+}
+
+export const blendColors = (colorA: string, colorB: string, amount: number) => {
+    const [rA, gA, bA] = colorA.match(/\w\w/g)!.map((c) => parseInt(c, 16))
+    const [rB, gB, bB] = colorB.match(/\w\w/g)!.map((c) => parseInt(c, 16))
+    const r = Math.round(rA + (rB - rA) * amount)
+        .toString(16)
+        .padStart(2, '0')
+    const g = Math.round(gA + (gB - gA) * amount)
+        .toString(16)
+        .padStart(2, '0')
+    const b = Math.round(bA + (bB - bA) * amount)
+        .toString(16)
+        .padStart(2, '0')
+    return '#' + r + g + b
+}
+
+export const drawDiagonalLines = (ctx: CanvasRenderingContext2D, coords: Vector, scale: number, color: string) => {
+    const x = coords.x * scale
+    const y = coords.y * scale
+    const d = scale / 8
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.moveTo(x, y)
+    ctx.lineTo(x + d, y)
+    ctx.lineTo(x, y + d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.moveTo(x + 3 * d, y)
+    ctx.lineTo(x + 5 * d, y)
+    ctx.lineTo(x, y + 5 * d)
+    ctx.lineTo(x, y + 3 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.moveTo(x + 7 * d, y)
+    ctx.lineTo(x + 8 * d, y)
+    ctx.lineTo(x + 8 * d, y + d)
+    ctx.lineTo(x + d, y + 8 * d)
+    ctx.lineTo(x, y + 8 * d)
+    ctx.lineTo(x, y + 7 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.moveTo(x + 5 * d, y + 8 * d)
+    ctx.lineTo(x + 3 * d, y + 8 * d)
+    ctx.lineTo(x + 8 * d, y + 3 * d)
+    ctx.lineTo(x + 8 * d, y + 5 * d)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.moveTo(x + 8 * d, y + 8 * d)
+    ctx.lineTo(x + 7 * d, y + 8 * d)
+    ctx.lineTo(x + 8 * d, y + 7 * d)
+    ctx.closePath()
+    ctx.fill()
 }
 
 export const renderTileArrow = (ctx: CanvasRenderingContext2D, coords: Vector, direction: number) => {

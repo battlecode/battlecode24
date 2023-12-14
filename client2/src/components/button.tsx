@@ -3,6 +3,7 @@ import React, { MouseEvent, PropsWithChildren } from 'react'
 type Props = {
     className?: string
     onClick: (event: MouseEvent<HTMLButtonElement>) => void
+    disabled?: boolean
 }
 
 export const Button = (props: PropsWithChildren<Props>) => {
@@ -10,7 +11,8 @@ export const Button = (props: PropsWithChildren<Props>) => {
         <button
             className={
                 'text-xs mx-auto px-4 py-3 mt-1 mb-3 flex flex-row bg-light hover:bg-lightHighlight border-black border rounded-md ' +
-                (props.className ?? '')
+                (props.className ?? '') +
+                (props.disabled ? ' opacity-50 cursor-not-allowed' : '')
             }
             onClick={props.onClick}
         >

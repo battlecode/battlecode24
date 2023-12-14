@@ -4,6 +4,7 @@ import { UnitsTable } from './units-table'
 import { ResourceGraph } from './resource-graph'
 import { useSearchParamBool } from '../../../app-search-params'
 import { useAppContext } from '../../../app-context'
+import { SectionHeader } from '../../section-header'
 
 export const GamePage: React.FC = () => {
     const context = useAppContext()
@@ -30,30 +31,21 @@ export const GamePage: React.FC = () => {
             </div>
             <UnitsTable team={1} />
 
-            <button
+            <SectionHeader
+                title="Stats"
+                open={showStats}
                 onClick={() => setShowStats(!showStats)}
-                className="flex flex-row justify-between mt-8 mb-1 font-bold hover:bg-lightHighlight p-3 rounded-md border-black border"
+                containerClassName="mt-5"
+                titleClassName="mb-3 py-2"
             >
-                Stats{' '}
-                {showStats ? (
-                    <ChevronDownIcon className={showStatsArrowClasses} />
-                ) : (
-                    <ChevronUpIcon className={showStatsArrowClasses} />
-                )}
-            </button>
-
-            {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
-                      them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-            <div
-                className={
-                    'flex flex-col transition-max-height overflow-hidden duration-300 ease-in ' +
-                    (showStats ? 'max-h-[3000px]' : 'max-h-0')
-                }
-            >
+                {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
+                    them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+                {/*
                 <ResourceGraph active={showStats} property="adamantium" propertyDisplayName='Adamantium'/>
                 <ResourceGraph active={showStats} property="mana" propertyDisplayName='Mana'/>
                 <ResourceGraph active={showStats} property="elixir" propertyDisplayName='Elixir'/>
-            </div>
+                */}
+            </SectionHeader>
         </div>
     )
 }

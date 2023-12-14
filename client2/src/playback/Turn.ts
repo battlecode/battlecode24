@@ -31,9 +31,8 @@ export default class Turn {
         else this.stat = this.match.stats[this.turnNumber].copy()
 
         this.map.applyDelta(delta)
-        this.bodies.applyDelta(this, delta, nextDelta, () => {
-            this.actions.applyDelta(this, delta)
-        })
+        this.bodies.applyDelta(this, delta, nextDelta)
+        this.actions.applyDelta(this, delta)
 
         if (firstTimeComputingStat) {
             // finish computing stat and save to match
