@@ -15,6 +15,7 @@ import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
 import { TournamentPage } from './tournament/tournament'
+import { useScaffold } from './runner/scaffold';
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -29,6 +30,9 @@ export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
     const keyboard = useKeyboard()
+
+    // scaffold is created at this level so it is never re-created
+    const scaffold = useScaffold()
 
     const [open, setOpen] = useSearchParamBool('sidebarOpen', true)
     const [expanded, setExpanded] = React.useState(false)
@@ -49,7 +53,7 @@ export const Sidebar: React.FC = () => {
             case PageType.QUEUE:
                 return <QueuePage />
             case PageType.RUNNER:
-                return <RunnerPage />
+                return <RunnerPage scaffold={scaffold}/>
             case PageType.PROFILER:
                 return <ProfilerPage />
             case PageType.MAP_EDITOR:
@@ -139,39 +143,17 @@ export const Sidebar: React.FC = () => {
                     </div>
                     {open && (
                         <>
-                            <Listbox value={page} onChange={updatePage}>
-                                <Listbox.Button className="text-left flex flex-row justify-between hover:bg-lightHighlight p-3 rounded-md border-black border">
-                                    {page}
-                                    <TbSelector className="text-2xl align-middle" />
-                                </Listbox.Button>
-                                <Transition
-                                    as={Fragment}
-                                    enter="transition-all ease-out overflow-hidden duration-100"
-                                    enterFrom="transform scale-95 opacity-0 max-h-0"
-                                    enterTo="transform scale-100 opacity-100 max-h-96"
-                                    leave="transition-all ease-in overflow-hidden duration-50"
-                                    leaveFrom="transform scale-100 opacity-100 max-h-96"
-                                    leaveTo="transform scale-95 opacity-0 max-h-0"
-                                >
-                                    <Listbox.Options>
-                                        {activeSidebarButtons.map((data) => {
-                                            return (
-                                                <Listbox.Option
-                                                    key={data.page}
-                                                    value={data.page}
-                                                    className="text-left hover:bg-lightHighlight p-3 py-1 rounded-md cursor-pointer"
-                                                >
-                                                    {data.name}
-                                                </Listbox.Option>
-                                            )
-                                        })}
-                                    </Listbox.Options>
-                                </Transition>
-                            </Listbox>
-
-                            {/* spacing */}
-                            <div className="mt-1"></div>
-
+                            <div className="flex flex-row flex-wrap justify-between mb-2">
+                                {activeSidebarButtons.map((sidebarButton) => (
+                                    <div
+                                        className={"w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 " + 
+                                            (page == sidebarButton.page ? "border-gray-800" : "border-gray-200")}
+                                        onClick={() => setPage(sidebarButton.page)}
+                                    >
+                                        {sidebarButton.name}
+                                    </div>
+                                ))}
+                            </div>
                             {renderPage()}
                         </>
                     )}

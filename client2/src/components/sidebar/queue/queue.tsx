@@ -52,7 +52,7 @@ export const QueuePage: React.FC = () => {
                 <FiUpload className="align-middle text-base mr-2" />
                 Upload a .bc{BATTLECODE_YEAR % 100} replay file
             </Button>
-            <p className="mb-2">
+            <p className="mt-2 mb-2">
                 Games ({queue.length === 0 ? 0 : 1}/{queue.length})
             </p>
             {queue.map((game) => (

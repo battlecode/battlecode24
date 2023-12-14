@@ -4,7 +4,6 @@ import { ControlsBarButton } from './controls-bar-button'
 import { useAppContext } from '../../app-context'
 import { useKeyboard } from '../../util/keyboard'
 import { ControlsBarTimeline } from './controls-bar-timeline'
-import { MAX_SIMULATION_STEPS } from '../../playback/Match'
 import { EventType, useListenEvent } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import Tooltip from '../tooltip'
@@ -39,20 +38,26 @@ export const ControlsBar: React.FC = () => {
 
     const stepTurn = (delta: number) => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.stepTurn(delta)
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.stepTurn(delta, false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const jumpToTurn = (turn: number) => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.jumpToTurn(turn)
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.jumpToTurn(turn, false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const jumpToEnd = () => {
         if (!matchLoaded) return
-        appState.activeGame!.currentMatch!.jumpToEnd()
+        // explicit rerender at the end so a render doesnt occur between these two steps
+        appState.activeGame!.currentMatch!.jumpToEnd(false)
         appState.activeGame!.currentMatch!.roundSimulation()
+        appState.activeGame!.currentMatch!.rerender()
     }
 
     const nextMatch = () => {
@@ -101,10 +106,9 @@ export const ControlsBar: React.FC = () => {
 
         const msPerUpdate = 1000 / appState.updatesPerSecond
         const updatesPerInterval = SIMULATION_UPDATE_INTERVAL_MS / msPerUpdate
-        const simStepsPerInterval = updatesPerInterval * MAX_SIMULATION_STEPS
         const stepInterval = setInterval(() => {
             const prevTurn = appState.activeGame!.currentMatch!.currentTurn.turnNumber
-            appState.activeGame!.currentMatch!.stepSimulation(simStepsPerInterval)
+            appState.activeGame!.currentMatch!.stepSimulation(updatesPerInterval)
 
             if (prevTurn != appState.activeGame!.currentMatch!.currentTurn.turnNumber) {
                 currentUPSBuffer.current.push(Date.now())
@@ -128,7 +132,7 @@ export const ControlsBar: React.FC = () => {
 
         if (keyboard.keyCode === 'KeyC') setMinimized(!minimized)
 
-        if (appState.updatesPerSecond === 0) {
+        if (appState.paused) {
             // Paused
             if (keyboard.keyCode === 'ArrowRight') stepTurn(1)
             if (keyboard.keyCode === 'ArrowLeft') stepTurn(-1)
@@ -232,8 +236,8 @@ export const ControlsBar: React.FC = () => {
                 {appState.tournament && (
                     <>
                         <ControlsBarButton
-                            icon={<ControlIcons.NextRound />}
-                            tooltip="Next Round"
+                            icon={<ControlIcons.NextMatch />}
+                            tooltip="Next Match"
                             onClick={nextMatch}
                             disabled={!hasNextMatch}
                         />

@@ -5,7 +5,8 @@ export enum EventType {
     TILE_CLICK = 'tileclick',
     TILE_DRAG = 'TILE_DRAG',
     CANVAS_RIGHT_CLICK = 'CANVAS_RIGHT_CLICK',
-    RENDER = 'render'
+    RENDER = 'render',
+    INITIAL_RENDER = 'initalrender'
 }
 
 export function useListenEvent(

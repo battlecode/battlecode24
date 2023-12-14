@@ -5,14 +5,12 @@ import Turn from './Turn'
 import TurnStat from './TurnStat'
 import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
-import {
-    MapEditorBrush,
-    MapEditorBrushField,
-    MapEditorBrushFieldType
-} from '../components/sidebar/map-editor/MapEditorBrush'
+import { MapEditorBrush } from '../components/sidebar/map-editor/MapEditorBrush'
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
-import { TOOLTIP_PATH_LENGTH } from '../constants'
+import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
+import Match from './Match'
+import { TestDuckBrush } from './Brushes'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -25,7 +23,7 @@ export default class Bodies {
     ) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
 
-        // Don't think we can have initial bodies this year so no need to verify
+        // We have initial bodies this year, but we don't know how spawn zones work quite yet
         /*
         if (mapToVerify) {
             for (let i = 0; i < mapToVerify.width * mapToVerify.height; i++) {
@@ -51,6 +49,7 @@ export default class Bodies {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
+            assert(!body?.dead, `Moved body ${id} is dead`)
             assert.equal(allowNullBodies || !!body, true, `Moved body ${id} not found in bodies`)
 
             if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
@@ -60,10 +59,13 @@ export default class Bodies {
     /**
      * Applies a delta to the bodies array. Because of update order, bodies will first
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
-     * Afterwards, diedBodies will be deleted, so any methods which reference bodies should
-     * most likely be inside scopedCallback()
      */
-    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null, scopedCallback: () => void): void {
+    applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null): void {
+        // remove all that are dead
+        for (const body of this.bodies.values()) {
+            if (body.dead) this.bodies.delete(body.id)
+        }
+
         const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
 
@@ -82,11 +84,7 @@ export default class Bodies {
             }
         }
 
-        scopedCallback()
-
-        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIdsArray not found in round')
-
-        /*
+        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
         if (delta.diedIdsLength() > 0) {
             for (let i = 0; i < delta.diedIdsLength(); i++) {
                 const diedBody =
@@ -94,19 +92,16 @@ export default class Bodies {
                 if (!turn.stat.completed) {
                     const teamStat =
                         turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
-                    teamStat.robots[diedBody.type] -= 1
-                    teamStat.total_hp[diedBody.type] -= diedBody.hp
+                    teamStat.robots -= 1
+                    teamStat.total_hp -= diedBody.hp
                 }
-                assert(this.bodies.delete(diedBody.id))
+                diedBody.dead = true
             }
         }
-		*/
     }
 
     private insertBodies(bodies: schema.SpawnedBodyTable, stat?: TurnStat): void {
-        /*var teams = bodies.teamIdsArray() ?? assert.fail('Initial body teams not found in header')
-        var types = bodies.typesArray() ?? assert.fail('Initial body types not found in header')
-
+        const teams = bodies.teamIdsArray() ?? assert.fail('Initial body teams not found in header')
         const locs = bodies.locs() ?? assert.fail('Initial body locations not found in header')
         const xsArray = locs.xsArray() ?? assert.fail('Initial body x locations not found in header')
         const ysArray = locs.ysArray() ?? assert.fail('Initial body y locations not found in header')
@@ -114,9 +109,8 @@ export default class Bodies {
 
         for (let i = 0; i < bodies.robotIdsLength(); i++) {
             const id = idsArray[i]
-            const bodyClass =
-                BODY_DEFINITIONS[types[i]] ?? assert.fail(`Body type ${types[i]} not found in BODY_DEFINITIONS`)
-            const health = this.game.playable ? this.game.typeMetadata[types[i]].health() : 1
+            const bodyClass = BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
+            const health = this.game.playable ? this.game.constants.robotBaseHealth() : 1
 
             this.bodies.set(
                 id,
@@ -126,10 +120,10 @@ export default class Bodies {
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots[types[i]] += 1
-                teamStat.total_hp[types[i]] += health
+                teamStat.robots += 1
+                teamStat.total_hp += health
             }
-        }*/
+        }
     }
 
     getById(id: number): Body {
@@ -140,15 +134,6 @@ export default class Bodies {
         return this.bodies.has(id)
     }
 
-    getByLocation(x: number, y: number): Body | undefined {
-        for (const body of this.bodies.values()) {
-            if (body.pos.x == x && body.pos.y == y) {
-                return body
-            }
-        }
-        return undefined
-    }
-
     copy(): Bodies {
         const newBodies = new Bodies(this.game)
         newBodies.bodies = new Map(this.bodies)
@@ -157,9 +142,9 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
+    draw(match: Match, ctx: CanvasRenderingContext2D): void {
         for (const body of this.bodies.values()) {
-            body.draw(mapDimension, interpFactor, ctx)
+            body.draw(match, ctx)
         }
     }
 
@@ -168,11 +153,14 @@ export default class Bodies {
     }
 
     getBodyAtLocation(x: number, y: number, team?: Team): Body | undefined {
-        let found_body: Body | undefined = undefined
-        this.bodies.forEach((body, id) => {
-            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) found_body = body
-        })
-        return found_body
+        let found_dead_body: Body | undefined = undefined
+        for (const body of this.bodies.values()) {
+            if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) {
+                if (body.dead) found_dead_body = body
+                else return body
+            }
+        }
+        return found_dead_body
     }
 
     isEmpty(): boolean {
@@ -180,7 +168,7 @@ export default class Bodies {
     }
 
     getEditorBrushes(map: StaticMap): MapEditorBrush[] {
-        return [new ArchonBrush(this, map)]
+        return [new TestDuckBrush(this, map)]
     }
 
     toSpawnedBodyTable(builder: flatbuffers.Builder): number {
@@ -221,29 +209,31 @@ export class Body {
     protected imgPath: string = ''
     public nextPos: Vector
     public prevSquares: Vector[]
+    public dead: boolean = false
     constructor(
         public pos: Vector,
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
-        public adamantium: number = 0,
-        public elixir: number = 0,
-        public mana: number = 0,
-        public anchor: number = 0,
+        public healLevel: number = 0,
+        public attackLevel: number = 0,
+        public buildLevel: number = 0,
         public bytecodesUsed: number = 0
     ) {
         this.nextPos = this.pos
         this.prevSquares = [this.pos]
     }
 
-    public draw(mapDimension: Dimension, interpFactor: number, ctx: CanvasRenderingContext2D): void {
-        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, interpFactor)
+    public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
+        if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(
             ctx,
             getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, mapDimension),
+            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, match.currentTurn.map.staticMap.dimension),
             1
         )
+        ctx.globalAlpha = 1
     }
 
     public getInterpolatedCoords(turn: Turn): Vector {
@@ -252,7 +242,7 @@ export class Body {
 
     public onHoverInfo(): string[] {
         return [
-            this.robotName,
+            (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
             `Bytecodes Used: ${this.bytecodesUsed}`
@@ -275,151 +265,112 @@ export class Body {
             this.prevSquares.splice(0, 1)
         }
     }
-
-    public clearResources(): void {
-        this.adamantium = 0
-        this.elixir = 0
-        this.mana = 0
-        this.anchor = 0
-    }
 }
 
-export const BODY_DEFINITIONS: Record<number, typeof Body> = {}
-/*export const BODY_DEFINITIONS: Record<number, typeof Body> = {
-    [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
-        public robotName = 'Headquarters'
-        public actionRadius = 8
-        public visionRadius = 34
-        public type = schema.BodyType.HEADQUARTERS
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_headquarters_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.LAUNCHER]: class Launcher extends Body {
-        public robotName = 'Launcher'
-        public actionRadius = 16
-        public visionRadius = 20
-        public type = schema.BodyType.LAUNCHER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_launcher_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.CARRIER]: class Carrier extends Body {
-        public robotName = 'Carrier'
-        public actionRadius = 9
-        public visionRadius = 20
-        public type = schema.BodyType.CARRIER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_carrier_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.BOOSTER]: class Booster extends Body {
-        public robotName = 'Booster'
-        public actionRadius = 0
-        public visionRadius = 20
-        public type = schema.BodyType.BOOSTER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_booster_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.DESTABILIZER]: class Destabilizer extends Body {
-        public robotName = 'Destabilizer'
-        public actionRadius = 13
-        public visionRadius = 20
-        public type = schema.BodyType.DESTABILIZER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_destabilizer_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    },
-    [schema.BodyType.AMPLIFIER]: class Amplifier extends Body {
-        public robotName = 'Amplifier'
-        public actionRadius = 0
-        public visionRadius = 34
-        public type = schema.BodyType.AMPLIFIER
-        constructor(pos: Vector, hp: number, team: Team, id: number) {
-            super(pos, hp, team, id)
-            this.imgPath = `robots/${team.color}_amplifier_smaller.png`
-        }
-        onHoverInfo(): string[] {
-            return super.onHoverInfo();
-        }
-    }
-}*/
+export const BODY_DEFINITIONS: Record<number, typeof Body> = {
+    // For future games, this dictionary translate schema values of robot
+    // types to their respective class, such as this:
+    //
+    // [schema.BodyType.HEADQUARTERS]: class Headquarters extends Body {
+    // 	public robotName = 'Headquarters'
+    // 	public actionRadius = 8
+    // 	public visionRadius = 34
+    // 	public type = schema.BodyType.HEADQUARTERS
+    // 	constructor(pos: Vector, hp: number, team: Team, id: number) {
+    // 		super(pos, hp, team, id)
+    // 		this.imgPath = `robots/${team.color}_headquarters_smaller.png`
+    //	}
+    //	onHoverInfo(): string[] {
+    // 		return super.onHoverInfo();
+    // 	}
+    // },
+    //
+    // This game has no types or headquarters to speak of, so there is only
+    // one type pointed to by 0:
 
-export class ArchonBrush extends MapEditorBrush {
-    public readonly name = 'Archons'
-    public readonly fields = {
-        is_archon: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        team: {
-            type: MapEditorBrushFieldType.TEAM,
-            value: 0
-        }
-    }
+    0: class Duck extends Body {
+        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+            this.imgPath = `robots/${this.team.color.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            super.draw(match, ctx)
 
-    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
-        super()
-    }
-
-    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        /*
-        const symmetryPoint = this.map.applySymmetry({ x: x, y: y })
-        if (symmetryPoint.x == x && symmetryPoint.y == y) return // dont allow the case where the archon is on the symmetry line
-
-        const is_archon: boolean = fields.is_archon.value
-
-        if (is_archon) {
-            if (this.bodies.getBodyAtLocation(x, y)) return
-
-            const team = this.bodies.game.teams[fields.team.value]
-            const otherTeam = this.bodies.game.teams[(fields.team.value + 1) % 2]
-
-            const archonClass = BODY_DEFINITIONS[schema.BodyType.HEADQUARTERS]
-            const archon = new archonClass({ x, y }, 1, team, this.bodies.getNextID())
-            this.bodies.bodies.set(archon.id, archon)
-            const otherArchon = new archonClass(
-                { x: symmetryPoint.x, y: symmetryPoint.y },
-                1,
-                otherTeam,
-                this.bodies.getNextID()
+            const levelIndicators: [string, number, [number, number]][] = [
+                [ATTACK_COLOR, this.attackLevel, [0.8, -0.5]],
+                [BUILD_COLOR, this.buildLevel, [0.5, -0.8]],
+                [HEAL_COLOR, this.healLevel, [0.2, -0.2]]
+            ]
+            const interpCoords = renderUtils.getInterpolatedCoords(
+                this.pos,
+                this.nextPos,
+                match.getInterpolationFactor()
             )
-            this.bodies.bodies.set(otherArchon.id, otherArchon)
-        } else {
-            let archon = this.bodies.getBodyAtLocation(x, y, undefined, schema.BodyType.HEADQUARTERS)
-            let otherArchon = this.bodies.getBodyAtLocation(
-                symmetryPoint.x,
-                symmetryPoint.y,
-                undefined,
-                schema.BodyType.HEADQUARTERS
-            )
-            if (archon || otherArchon) {
-                assert(archon && otherArchon, 'Archon and otherArchon should both be defined or both be undefined')
-                this.bodies.bodies.delete(archon.id)
-                this.bodies.bodies.delete(otherArchon.id)
+            for (const [color, level, [dx, dy]] of levelIndicators) {
+                this.drawPetals(match, ctx, color, level, interpCoords.x + dx, interpCoords.y + dy)
             }
         }
-		*/
+
+        private drawPetals(
+            match: Match,
+            ctx: CanvasRenderingContext2D,
+            color: string,
+            level: number,
+            x: number,
+            y: number
+        ): void {
+            if (level == 0) return
+            // const imgPath = `levels/${image}/${level}_64x64.png`
+            // const img = getImageIfLoaded(imgPath)
+
+            const drawCoords = renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension)
+
+            ctx.fillStyle = color
+            ctx.strokeStyle = 'black'
+            ctx.beginPath()
+            ctx.moveTo(drawCoords.x, drawCoords.y)
+            for (let i = 0; i < level; i++) {
+                const petalWidthRads = (2 * Math.PI) / 12
+                const angle = i * petalWidthRads * 2
+                const petalLength = 0.15
+                ctx.bezierCurveTo(
+                    drawCoords.x + ((petalLength * 1) / 3) * Math.cos(angle - petalWidthRads * 2.5),
+                    drawCoords.y + ((petalLength * 1) / 3) * Math.sin(angle - petalWidthRads * 2.5),
+                    drawCoords.x + ((petalLength * 2) / 3) * Math.cos(angle - (petalWidthRads * 2.5) / 2),
+                    drawCoords.y + ((petalLength * 2) / 3) * Math.sin(angle - (petalWidthRads * 2.5) / 2),
+                    drawCoords.x + petalLength * Math.cos(angle),
+                    drawCoords.y + petalLength * Math.sin(angle)
+                )
+                ctx.bezierCurveTo(
+                    drawCoords.x + ((petalLength * 2) / 3) * Math.cos(angle + (petalWidthRads * 2.5) / 2),
+                    drawCoords.y + ((petalLength * 2) / 3) * Math.sin(angle + (petalWidthRads * 2.5) / 2),
+                    drawCoords.x + ((petalLength * 1) / 3) * Math.cos(angle + petalWidthRads * 2.5),
+                    drawCoords.y + ((petalLength * 1) / 3) * Math.sin(angle + petalWidthRads * 2.5),
+                    drawCoords.x,
+                    drawCoords.y
+                )
+            }
+            ctx.lineWidth = 0.05
+            ctx.globalAlpha = 0.5
+            ctx.stroke()
+            ctx.globalAlpha = 0.75
+            ctx.fill()
+            ctx.globalAlpha = 1
+
+            // renderUtils.renderCenteredImageOrLoadingIndicator(
+            //     ctx,
+            //     img,
+            //     renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension),
+            //     0.45
+            // )
+        }
+
+        private getSpecialization(): string {
+            assert(this.attackLevel >= 0 && this.attackLevel <= 6, 'Attack level out of bounds')
+            assert(this.healLevel >= 0 && this.healLevel <= 6, 'Heal level out of bounds')
+            assert(this.buildLevel >= 0 && this.buildLevel <= 6, 'Build level out of bounds')
+            assert([this.attackLevel, this.healLevel, this.buildLevel].sort()[1] <= 3, 'Specialization level too high')
+            if (this.attackLevel > 3) return 'attack'
+            if (this.healLevel > 3) return 'heal'
+            if (this.buildLevel > 3) return 'build'
+            return 'base'
+        }
     }
 }

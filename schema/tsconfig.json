@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "outDir": "./js/battlecode",
+      "declaration": true,
+      "strict": true
+    },
+    "include": [
+      "ts/**/*.ts"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+  }
