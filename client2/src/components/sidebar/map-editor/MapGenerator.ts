@@ -4,7 +4,7 @@ import Match from '../../../playback/Match'
 import { CurrentMap, StaticMap } from '../../../playback/Map'
 import Turn from '../../../playback/Turn'
 import Bodies from '../../../playback/Bodies'
-import { BATTLECODE_YEAR } from '../../../constants'
+import { BATTLECODE_YEAR, DIRECTIONS } from '../../../constants'
 
 export function loadFileAsMap(file: File): Promise<Game> {
     return new Promise((resolve, reject) => {
@@ -36,11 +36,13 @@ function verifyMapGuarantees(turn: Turn) {
         alert('Map is empty')
         return false
     }
+
     const spawnZoneCount = turn.map.staticMap.spawnLocations.length
     if (spawnZoneCount !== 6) {
         alert(`Map has ${spawnZoneCount} spawn zones. Must have exactly 6`)
         return false
     }
+
     for (let i = 0; i < spawnZoneCount; i++) {
         for (let j = i + 1; j < spawnZoneCount; j++) {
             const distSquared =
@@ -54,6 +56,58 @@ function verifyMapGuarantees(turn: Turn) {
             }
         }
     }
+
+    let totalSpawnableLocations = 0
+    for (let i = 0; i < spawnZoneCount; i++) {
+        const loc = turn.map.staticMap.spawnLocations[i]
+        const mapIdx = turn.map.locationToIndex(loc.x, loc.y)
+        for (let x = loc.x - 1; x <= loc.x + 1; x++) {
+            for (let y = loc.y - 1; y <= loc.y + 1; y++) {
+                if (
+                    x >= 0 &&
+                    x < turn.map.width &&
+                    y >= 0 &&
+                    y < turn.map.height &&
+                    !turn.map.water[mapIdx] &&
+                    !turn.map.staticMap.walls[mapIdx] &&
+                    !turn.map.staticMap.divider[mapIdx]
+                ) {
+                    totalSpawnableLocations++
+                }
+            }
+        }
+    }
+    if (totalSpawnableLocations < 18) {
+        alert(`Map has ${totalSpawnableLocations} spawnable locations. Must have at least 9 for each team`)
+        return false
+    }
+
+    const floodMask = new Int8Array(turn.map.width * turn.map.height)
+    const floodQueue: number[] = []
+    const spawnZone = turn.map.staticMap.spawnLocations[0]
+    const spawnZoneIdx = turn.map.locationToIndex(spawnZone.x, spawnZone.y)
+    floodMask[spawnZoneIdx] = 1
+    floodQueue.push(spawnZoneIdx)
+    let totalFlooded = 1
+    while (floodQueue.length > 0) {
+        const idx = floodQueue.shift()!
+        for (let i = 1; i < 9; i++) {
+            const x = DIRECTIONS[i][0] + turn.map.indexToLocation(idx).x
+            const y = DIRECTIONS[i][1] + turn.map.indexToLocation(idx).y
+            if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
+            const newIdx = turn.map.locationToIndex(x, y)
+            if (!turn.map.staticMap.divider[newIdx] && !floodMask[newIdx]) {
+                floodMask[newIdx] = 1
+                floodQueue.push(newIdx)
+                totalFlooded++
+            }
+        }
+    }
+    if (totalFlooded >= 0.5 * turn.map.width * turn.map.height) {
+        alert(`Map is too open. Must be divided into at least 2 sections by the divider`)
+        return false
+    }
+
     return true
 }
 
