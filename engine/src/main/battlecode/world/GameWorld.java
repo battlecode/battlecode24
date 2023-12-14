@@ -106,7 +106,7 @@ public strictfp class GameWorld {
         int[][] spawnZoneCenters = gm.getSpawnZoneCenters();
         for (int i = 0; i < spawnZoneCenters[0].length; i++){
             MapLocation cur = new MapLocation(spawnZoneCenters[0][i], spawnZoneCenters[1][i]);
-            if (i < GameConstants.NUMBER_FLAGS){
+            if (i % 2 == 0){
                 flagArray[locationToIndex(cur)] = 1;
             }
             else{

@@ -328,10 +328,9 @@ public strictfp class LiveMap {
 
     /**
      * 
-     * @return a 6x2 array of spawn locations; the first 3 are for team A
+     * @return a 2x6 array of spawn locations, alternating starting with team A
      */
     public int[][] getSpawnZoneCenters(){
-        //first 3 team A next 3 team B
         int[][] spawnZoneCenters = new int[2][6];
         int cur_A = 0;
         int cur_B = 1;
@@ -484,7 +483,7 @@ public strictfp class LiveMap {
     
             int[][] spawnZoneCenters = getSpawnZoneCenters();
             for(int i = 0; i < spawnZoneCenters.length; i ++){
-                if (i < spawnZoneCenters.length/2){
+                if (i % 2 == 0){
                     team1.add(new MapLocation(spawnZoneCenters[i][0], spawnZoneCenters[i][1]));
                 }
                 else {
