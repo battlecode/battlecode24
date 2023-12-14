@@ -12,7 +12,8 @@ import {
     WATER_COLOR,
     TEAM_COLORS,
     BUILD_NAMES,
-    TEAM_COLOR_NAMES
+    TEAM_COLOR_NAMES,
+    DIVIDER_DROP_TURN
 } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
@@ -175,8 +176,7 @@ export class CurrentMap {
                 }
 
                 // Render rounded (clipped) divider
-                // TODO: check divider game state
-                if (this.staticMap.divider[schemaIdx]) {
+                if (match.currentTurn.turnNumber < DIVIDER_DROP_TURN && this.staticMap.divider[schemaIdx]) {
                     renderUtils.renderRounded(
                         ctx,
                         i,
@@ -184,7 +184,8 @@ export class CurrentMap {
                         this,
                         this.staticMap.divider,
                         () => {
-                            renderUtils.drawDiagonalLines(ctx, coords, 1.0, DIVIDER_COLOR)
+                            ctx.fillStyle = DIVIDER_COLOR
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                         },
                         { x: false, y: true }
                     )
@@ -229,10 +230,26 @@ export class CurrentMap {
         // Render traps
         for (const trapId of this.trapData.keys()) {
             const data = this.trapData.get(trapId)!
-            const file = `traps/${TEAM_COLOR_NAMES[data.team].toLowerCase()}/${BUILD_NAMES[data.type]}_64x64.png`
+            const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
             const loc = data.location
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
-            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 1)
+            ctx.beginPath()
+            const r90 = 0.5 * Math.PI
+            ctx.moveTo(coords.x + 0.1, coords.y + 0.2)
+            ctx.arc(coords.x + 0.2, coords.y + 0.2, 0.1, 2 * r90, 3 * r90)
+            ctx.lineTo(coords.x + 0.8, coords.y + 0.1)
+            ctx.arc(coords.x + 0.8, coords.y + 0.2, 0.1, 3 * r90, 4 * r90)
+            ctx.lineTo(coords.x + 0.9, coords.y + 0.8)
+            ctx.arc(coords.x + 0.8, coords.y + 0.8, 0.1, 0, r90)
+            ctx.lineTo(coords.x + 0.2, coords.y + 0.9)
+            ctx.arc(coords.x + 0.2, coords.y + 0.8, 0.1, r90, 2 * r90)
+            ctx.lineTo(coords.x + 0.1, coords.y + 0.2)
+            ctx.closePath()
+            ctx.strokeStyle = TEAM_COLORS[data.team]
+            ctx.lineWidth = 0.075
+            ctx.stroke()
+
+            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
         }
     }
 
@@ -241,7 +258,8 @@ export class CurrentMap {
             new WaterBrush(this),
             new ResourcePileBrush(this),
             new SpawnZoneBrush(this),
-            new TestTrapBrush(this)
+            new TestTrapBrush(this),
+            new WallsBrush(this)
         ]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
@@ -261,7 +279,7 @@ export class CurrentMap {
         )
         const waterOffset = schema.GameMap.createWaterVector(
             builder,
-            Array.from(this.water).map((x) => !!x)
+            Array.from(this.staticMap.initialWater).map((x) => !!x)
         )
         const dividerOffset = schema.GameMap.createDividerVector(
             builder,
@@ -445,9 +463,10 @@ export class StaticMap {
                     const target_x = pos.x + x
                     const target_y = pos.y + y
                     if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
-                        const target_idx = this.locationToIndex(target_x, target_y)
+                        const idx = this.locationToIndex(target_x, target_y)
+                        if (this.walls[idx] || this.initialWater[idx]) continue
                         // Team A: 1, Team B: 2
-                        spawnZoneDrawAreas[target_idx] = (i % 2) + 1
+                        spawnZoneDrawAreas[idx] = (i % 2) + 1
                     }
                 }
             }
@@ -504,6 +523,6 @@ export class StaticMap {
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [new WallsBrush(this), new DividerBrush(this)]
+        return [new DividerBrush(this)]
     }
 }

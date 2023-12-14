@@ -5,7 +5,6 @@ import {
     MapEditorBrushFieldType,
     SymmetricMapEditorBrush
 } from '../components/sidebar/map-editor/MapEditorBrush'
-import * as cst from '../constants'
 import Bodies, { BODY_DEFINITIONS } from './Bodies'
 import { CurrentMap, StaticMap } from './Map'
 
@@ -30,7 +29,7 @@ const applyInRadius = (
     }
 }
 
-export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
+export class WallsBrush extends SymmetricMapEditorBrush<CurrentMap> {
     public readonly name = 'Walls'
     public readonly fields = {
         should_add: {
@@ -44,14 +43,18 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
         }
     }
 
-    constructor(map: StaticMap) {
+    constructor(map: CurrentMap) {
         super(map)
     }
 
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            this.map.walls[idx] = fields.should_add.value ? 1 : 0
+            this.map.staticMap.walls[idx] = fields.should_add.value ? 1 : 0
+            if (fields.should_add.value) {
+                this.map.staticMap.initialWater[idx] = 0
+                this.map.water[idx] = 0
+            }
         })
     }
 }
@@ -138,7 +141,9 @@ export class WaterBrush extends SymmetricMapEditorBrush<CurrentMap> {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            this.map.water[idx] = fields.should_add.value ? 1 : 0
+            const add = fields.should_add.value && this.map.staticMap.walls[idx] == 0
+            this.map.water[idx] = add ? 1 : 0
+            this.map.staticMap.initialWater[idx] = add ? 1 : 0
         })
     }
 }
@@ -277,7 +282,10 @@ export class TestDuckBrush extends MapEditorBrush {
         }
     }
 
-    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
+    constructor(
+        private readonly bodies: Bodies,
+        private readonly map: StaticMap
+    ) {
         super()
     }
 

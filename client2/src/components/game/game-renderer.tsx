@@ -176,6 +176,9 @@ export const GameRenderer: React.FC = () => {
                                 onMouseUp()
                                 mouseDownRight(false)
                             }}
+                            onMouseEnter={(e) => {
+                                if (e.buttons == 1) mouseDown.current = true
+                            }}
                             onMouseDownCapture={(e) => {
                                 if (e.button == 2) mouseDownRight(true, e)
                             }}

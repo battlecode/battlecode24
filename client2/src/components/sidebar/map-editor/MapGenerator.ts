@@ -36,6 +36,24 @@ function verifyMapGuarantees(turn: Turn) {
         alert('Map is empty')
         return false
     }
+    const spawnZoneCount = turn.map.staticMap.spawnLocations.length
+    if (spawnZoneCount !== 6) {
+        alert(`Map has ${spawnZoneCount} spawn zones. Must have exactly 6`)
+        return false
+    }
+    for (let i = 0; i < spawnZoneCount; i++) {
+        for (let j = i + 1; j < spawnZoneCount; j++) {
+            const distSquared =
+                Math.pow(turn.map.staticMap.spawnLocations[i].x - turn.map.staticMap.spawnLocations[j].x, 2) +
+                Math.pow(turn.map.staticMap.spawnLocations[i].y - turn.map.staticMap.spawnLocations[j].y, 2)
+            if (distSquared < 36) {
+                alert(
+                    `Spawn zones ${i} and ${j} are too close together, they must be at least sqrt(36) units apart (6 tiles)`
+                )
+                return false
+            }
+        }
+    }
     return true
 }
 
