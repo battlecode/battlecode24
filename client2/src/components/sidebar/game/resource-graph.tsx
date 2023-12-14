@@ -31,8 +31,8 @@ function getChartData(appContext: AppContext, property: string): DataPoint[] {
     return values[0].slice(0, match.currentTurn.turnNumber).map((value, index) => {
         return {
             turn: index + 1,
-            red: value as number,
-            blue: values[1][index] as number
+            white: value as number,
+            brown: values[1][index] as number
         }
     })
 }

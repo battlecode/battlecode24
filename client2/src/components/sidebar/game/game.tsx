@@ -19,14 +19,14 @@ export const GamePage: React.FC = () => {
 
     return (
         <div className="flex flex-col">
-            <div className={teamBoxClasses + ' bg-red'}>
+            <div className={teamBoxClasses + ' bg-team0'}>
                 <p>{activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
             <UnitsTable team={0} />
 
             <div className="h-[30px]" />
 
-            <div className={teamBoxClasses + ' bg-blue'}>
+            <div className={teamBoxClasses + ' bg-team1'}>
                 <p>{activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}</p>
             </div>
             <UnitsTable team={1} />
@@ -40,11 +40,9 @@ export const GamePage: React.FC = () => {
             >
                 {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                     them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-                {/*
-                <ResourceGraph active={showStats} property="adamantium" propertyDisplayName='Adamantium'/>
-                <ResourceGraph active={showStats} property="mana" propertyDisplayName='Mana'/>
-                <ResourceGraph active={showStats} property="elixir" propertyDisplayName='Elixir'/>
-                */}
+                {
+                <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName='Bread'/>
+                }
             </SectionHeader>
         </div>
     )
