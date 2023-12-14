@@ -817,6 +817,7 @@ public strictfp class GameMaker {
             robotLocsY.clear();
             robotMoveCooldowns.clear();
             robotActionCooldowns.clear();
+            robotHealths.clear();
             attacksPerformed.clear();
             attackLevels.clear();
             buildsPerformed.clear();
