@@ -91,8 +91,8 @@ export default class Bodies {
             if (!turn.stat.completed) {
                 const teamStat =
                     turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots -= 1
-                teamStat.total_hp -= diedBody.hp
+                teamStat.robots[0] -= 1 // TODO: Remove robots per specialization
+                teamStat.total_hp[0] -= diedBody.hp // TODO
             }
             diedBody.dead = true
         }
@@ -118,8 +118,8 @@ export default class Bodies {
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots += 1
-                teamStat.total_hp += health
+                teamStat.robots[0] += 1 // TODO: If there are specilizations initially change this
+                teamStat.total_hp[0] += health
             }
         }
     }
