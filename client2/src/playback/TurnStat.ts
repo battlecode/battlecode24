@@ -4,8 +4,8 @@ import assert from 'assert'
 import Turn from './Turn'
 
 class TeamTurnStat {
-    robots: number = 0
-    total_hp: number = 0
+    robots: number[] = Array(6).fill(0);
+    total_hp: number[] = Array(6).fill(0);
     resourceAmount: number = 0
     resourceAmountAverageDatapoint: number | undefined = undefined
 
