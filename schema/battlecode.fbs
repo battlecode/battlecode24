@@ -109,11 +109,11 @@ enum Action : byte {
     DIG,
     // Target: x + y * width of fill location
     FILL,
-    // Target: x + y * width of explosive trap location
+    // Target: ID of triggered trap
     EXPLOSIVE_TRAP,
-    // Target: x + y * width of water trap location
+    // Target: ID of triggered trap
     WATER_TRAP,
-    // Target: x + y * width of stun trap location
+    // Target: ID of triggered trap
     STUN_TRAP,
     // Target: flag id
     PICKUP_FLAG,

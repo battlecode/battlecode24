@@ -5,6 +5,7 @@ import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
+import battlecode.util.FlatHelpers;
 import battlecode.world.control.RobotControlProvider;
 
 import java.util.*;
@@ -376,7 +377,7 @@ public strictfp class GameWorld {
         }
     }
 
-    public void triggerTrap(Trap trap, boolean entered){
+    public void triggerTrap(Trap trap, InternalRobot robot, boolean entered){
         MapLocation loc = trap.getLocation();
         TrapType type = trap.getType();
         switch(type){
@@ -410,6 +411,7 @@ public strictfp class GameWorld {
         }
         this.trapLocations[locationToIndex(loc)] = null;
         matchMaker.addTriggeredTrap(trap.getId());
+        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), trap.getId());
     }
 
     // ***********************************

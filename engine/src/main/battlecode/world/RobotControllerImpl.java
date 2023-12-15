@@ -469,7 +469,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void build(TrapType trap, MapLocation loc) throws GameActionException{
         assertCanBuild(trap, loc);
         this.gameWorld.placeTrap(loc, trap, this.getTeam());
-        this.gameWorld.getMatchMaker().addAction(getID(), FlatHelpers.getTrapActionFromTrapType(trap), locationToInt(loc));
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
 
@@ -506,7 +505,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -514,7 +513,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
     }
 
@@ -551,7 +550,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -668,9 +667,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                this.gameWorld.triggerTrap(trap, true);
+                this.gameWorld.triggerTrap(trap, this.robot, true);
             } else {
-                this.gameWorld.triggerTrap(trap, false);
+                this.gameWorld.triggerTrap(trap, this.robot, false);
             }
         }
         
