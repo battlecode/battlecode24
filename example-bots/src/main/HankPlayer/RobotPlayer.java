@@ -89,6 +89,7 @@ public class RobotPlayer {
                     break;
                 }
             }
+            moveRandom(rc);
         } 
         else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
             if(rc.canDropFlag(rc.getLocation())){
@@ -99,6 +100,7 @@ public class RobotPlayer {
                 // rc.build(TrapType.EXPLOSIVE, rc.getLocation());
                 // System.out.println("they call me oppenheimer");
             }
+            moveRandom(rc);
         }
         else if (!hasEnemyFlag) {
             ArrayList<MapLocation> flagLocs = new ArrayList<>();

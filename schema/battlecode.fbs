@@ -119,13 +119,10 @@ enum Action : byte {
     PICKUP_FLAG,
     // Target: flag id
     DROP_FLAG,
-
-    // Target: none
-    
-
+    // Target: flag id
+    CAPTURE_FLAG,
     // Target: GlobalUpgradeType id
     GLOBAL_UPGRADE,
-
     /// Dies due to an uncaught exception
     /// Target: none
     DIE_EXCEPTION,
