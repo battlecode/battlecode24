@@ -674,8 +674,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             }
         }
         
-
-        if (this.robot.hasFlag() && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
+        if (this.robot.hasFlag() && this.robot.getFlag().getTeam() != this.robot.getTeam() 
+                && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
             this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
             robot.getFlag().setLoc(null);
             gameWorld.getAllFlags().remove(robot.getFlag());
