@@ -38,7 +38,7 @@ module.exports = {
                 blue: '#04a2d9',
                 blueLight: '#26abd9',
 
-                dark: colors.gray['800'],
+               dark: colors.gray['800'],
                 darkHighlight: colors.gray['900'],
                 black: colors.black,
                 light: '#faf9fe',
@@ -46,8 +46,8 @@ module.exports = {
                 medHighlight: '#d0d0d0',
                 lightCard: '#f7f7f7',
 
-                team0: '#D53E43',
-                team1: '#407496'
+                team0: '#f1ebd3',
+                team1: '#b99c76'
             }
         },
     },
