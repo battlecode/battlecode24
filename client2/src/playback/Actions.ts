@@ -122,7 +122,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
                 ctx,
                 renderUtils.getRenderCoords(from.x, from.y, match.currentTurn.map.staticMap.dimension),
                 renderUtils.getRenderCoords(to.x, to.y, match.currentTurn.map.staticMap.dimension),
-                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 1.0, renderArrow: false }
+                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 0.1, renderArrow: false }
             )
 
             // Projectile animation
@@ -181,17 +181,17 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             // To dicuss
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const map = match.currentTurn.map
+            const trapId = this.target
+            const trapData = map.trapData.get(trapId)!
+            const coords = trapData.location
             const radius = 3.3 // in between the two sizes of the explosion
-            const trap = [...match.currentTurn.map.trapData.values()].find(
-                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
-            )
-            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.strokeStyle = TEAM_COLORS[trapData.team]
             ctx.fillStyle = ATTACK_COLOR
             ctx.beginPath()
             ctx.arc(
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
+                renderUtils.getRenderCoords(coords.x, coords.y, map.dimension).x,
+                renderUtils.getRenderCoords(coords.x, coords.y, map.dimension).y,
                 radius,
                 0,
                 2 * Math.PI
@@ -202,8 +202,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     },
     [schema.Action.WATER_TRAP]: class WaterTrap extends Action {
         apply(turn: Turn): void {
+            const trapId = this.target
+            const trapData = turn.map.trapData.get(trapId)!
+            const coords = trapData.location
             const rad = 3
-            const coords = turn.map.indexToLocation(this.target)
             // change all non wall and non spawnzone tiles to water
             for (let x = coords.x - rad; x <= coords.x + rad; x++) {
                 for (let y = coords.y - rad; y <= coords.y + rad; y++) {
@@ -221,12 +223,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const map = match.currentTurn.map
+            const trapId = this.target
+            const trapData = map.trapData.get(trapId)!
+            const coords = trapData.location
             const radius = 3
-            const trap = [...match.currentTurn.map.trapData.values()].find(
-                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
-            )
-            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.strokeStyle = TEAM_COLORS[trapData.team]
             ctx.fillStyle = WATER_COLOR
             ctx.beginPath()
             ctx.arc(
@@ -245,12 +247,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             // To dicuss
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const map = match.currentTurn.map
+            const trapId = this.target
+            const trapData = map.trapData.get(trapId)!
+            const coords = trapData.location
             const radius = Math.sqrt(13)
-            const trap = [...match.currentTurn.map.trapData.values()].find(
-                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
-            )
-            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.strokeStyle = TEAM_COLORS[trapData.team]
             ctx.fillStyle = 'black'
             ctx.beginPath()
             ctx.arc(
@@ -283,6 +285,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = null
             flagData.location = turn.map.indexToLocation(this.target)
+        }
+    },
+    [schema.Action.CAPTURE_FLAG]: class CaptureFlag extends Action {
+        apply(turn: Turn): void {
+            const flagId = this.target
+            turn.map.flagData.delete(flagId)
         }
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {

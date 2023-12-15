@@ -138,7 +138,7 @@ export class CurrentMap {
             this.water[schemaIdx] = 1
         }
         for (let i = 0; i < fillLocations.xsLength(); i++) {
-            const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
+            const schemaIdx = this.locationToIndex(fillLocations.xs(i)!, fillLocations.ys(i)!)
             this.water[schemaIdx] = 0
         }
         for (let i = 0; i < delta.trapAddedIdsLength(); i++) {
