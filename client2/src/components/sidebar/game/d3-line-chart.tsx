@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from 'react'
-import { TEAM_WHITE, TEAM_BROWN } from "../../../constants"
+import { TEAM_WHITE, TEAM_BROWN } from '../../../constants'
 import * as d3 from 'd3'
 
-export interface DataPoint {
+export interface LineChartDataPoint {
     turn: number
     brown: number
     white: number
 }
 
 interface LineChartProps {
-    data: DataPoint[]
+    data: LineChartDataPoint[]
     width: number
     height: number
     margin: {
@@ -48,9 +48,9 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
         // This function returns a function that draws a SVG line between every
         // data point. The "y" of the data point is what is determined by the
         // function passed in, see code below.
-        const lineGenerator = (dScaleFunc: (dataPoint: DataPoint) => any) => {
+        const lineGenerator = (dScaleFunc: (dataPoint: LineChartDataPoint) => any) => {
             return d3
-                .line<DataPoint>()
+                .line<LineChartDataPoint>()
                 .x((d) => xScale(d.turn))
                 .y(dScaleFunc)
                 .curve(d3.curveMonotoneX)
@@ -64,7 +64,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
             .attr('fill', 'none')
             .attr('stroke', TEAM_BROWN)
             .attr('stroke-width', 1.5)
-            .attr('d', lineGenerator((d: DataPoint) => yScale(d.brown))(data))
+            .attr('d', lineGenerator((d: LineChartDataPoint) => yScale(d.brown))(data))
 
         // Draw White Line
         svg.append('path')
@@ -72,7 +72,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
             .attr('fill', 'none')
             .attr('stroke', TEAM_WHITE)
             .attr('stroke-width', 1.5)
-            .attr('d', lineGenerator((d: DataPoint) => yScale(d.white))(data))
+            .attr('d', lineGenerator((d: LineChartDataPoint) => yScale(d.white))(data))
 
         // Add X-Axis
         svg.append('g')

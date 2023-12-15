@@ -2,19 +2,17 @@ import React from 'react'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
-import { D3LineChart, LineChartDataPoint } from './d3-line-chart'
+import { D3Histogram } from './d3-histogram'
 import assert from 'assert'
 
 interface Props {
     active: boolean
     property: string
     propertyDisplayName: string
-}
-function hasKey<O extends Object>(obj: O, key: PropertyKey): key is keyof O {
-    return key in obj
+	color: string
 }
 
-function getChartData(appContext: AppContext, property: string): LineChartDataPoint[] {
+function getChartData(appContext: AppContext, property: string): number[] {
     const match = appContext.state.activeMatch
     if (match === undefined) {
         return []
@@ -23,21 +21,15 @@ function getChartData(appContext: AppContext, property: string): LineChartDataPo
     const values = [0, 1].map((index) =>
         match.stats.map((turnStat) => {
             const teamStat = turnStat.getTeamStat(match.game.teams[index])
-            assert(hasKey(teamStat, property), `TeamStat missing property '${property}' when rendering chart`)
-            return teamStat[property]
+            return teamStat.robots[0] % 5;
         })
     )
 
-    return values[0].slice(0, match.currentTurn.turnNumber).map((value, index) => {
-        return {
-            turn: index + 1,
-            white: value as number,
-            brown: values[1][index] as number
-        }
-    })
+	return [0,0,0, 1, 1, 1, 4,4,4,2,2];
+
 }
 
-export const ResourceGraph: React.FC<Props> = (props: Props) => {
+export const Histogram: React.FC<Props> = (props: Props) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
 
@@ -46,11 +38,13 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     return (
         <div className="mt-2 px-2 w-full">
             <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
-            <D3LineChart
+            <D3Histogram
                 data={getChartData(appContext, props.property)}
                 width={300 + 40} // Add 40 so that tooltip is visible outside of SVG container
+				binCount={6}
                 height={300}
-                margin={{ top: 20, right: 20 + 20, bottom: 30, left: 40 + 20 }}
+                margin={{ top: 20, right: 30, bottom: 20, left: 40 }}
+				color={ props.color }
             />
         </div>
     )
