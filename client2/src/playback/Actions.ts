@@ -52,11 +52,7 @@ export default class Actions {
 }
 
 export class Action {
-    constructor(
-        protected robotID: number,
-        protected target: number,
-        public duration: number = 1
-    ) {}
+    constructor(protected robotID: number, protected target: number, public duration: number = 1) {}
 
     /**
      * Applies this action to the turn provided. If stat is provided, it will be mutated to reflect the action as well
@@ -270,12 +266,23 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     },
     [schema.Action.PICKUP_FLAG]: class PickupFlag extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            const flagId = this.target
+            const flagData = turn.map.flagData.get(flagId)!
+            flagData.carrierId = this.robotID
         }
     },
     [schema.Action.DROP_FLAG]: class DropFlag extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            // Find flag id based on carrying robot
+            let flagId = -1
+            turn.map.flagData.forEach((v, k) => {
+                if (v.carrierId == this.robotID) {
+                    flagId = k
+                }
+            })
+            const flagData = turn.map.flagData.get(flagId)!
+            flagData.carrierId = null
+            flagData.location = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {

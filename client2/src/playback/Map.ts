@@ -82,10 +82,11 @@ export class CurrentMap {
                 this.resourcePileData.set(id, { amount: from.initialResourcePileAmounts[i] })
             }
             for (let i = 0; i < from.spawnLocations.length; i++) {
-                // Assign initial flag data, ids are same order as spawn zones
+                // Assign initial flag data, ids are initial map locations
                 const team = i % 2
                 const location = from.spawnLocations[i]
-                this.flagData.set(i, { team, location, carrierId: null })
+                const flagId = this.locationToIndex(location.x, location.y)
+                this.flagData.set(flagId, { team, location, carrierId: null })
             }
         } else {
             // Create current map from current map (copy)
