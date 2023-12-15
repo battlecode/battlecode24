@@ -2,10 +2,13 @@ import Turn from './Turn'
 import { schema } from 'battlecode-schema'
 import assert from 'assert'
 import * as renderUtils from '../util/RenderUtil'
-import * as vectorUtils from './Vector'
+import { vectorAdd, vectorLength, vectorMultiply, vectorSub, vectorMultiplyInPlace } from './Vector'
 import { Dimension } from './Map'
 import { Team } from './Game'
 import Match from './Match'
+import { Body } from './Bodies'
+import { render } from '@headlessui/react/dist/utils/render'
+import { ATTACK_COLOR, GRASS_COLOR, HEAL_COLOR, TEAM_COLORS, WATER_COLOR } from '../constants'
 
 export default class Actions {
     actions: Action[] = []
@@ -49,7 +52,11 @@ export default class Actions {
 }
 
 export class Action {
-    constructor(protected robotID: number, protected target: number, public duration: number = 1) {}
+    constructor(
+        protected robotID: number,
+        protected target: number,
+        public duration: number = 1
+    ) {}
 
     /**
      * Applies this action to the turn provided. If stat is provided, it will be mutated to reflect the action as well
@@ -65,61 +72,61 @@ export class Action {
     }
 }
 
+export abstract class ToFromAction extends Action {
+    constructor(robotID: number, target: number) {
+        super(robotID, target)
+    }
+
+    abstract drawToFrom(
+        match: Match,
+        ctx: CanvasRenderingContext2D,
+        from: { x: number; y: number },
+        to: { x: number; y: number },
+        body: Body
+    ): void
+
+    draw(match: Match, ctx: CanvasRenderingContext2D) {
+        const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Attacking body not found')
+        const interpStart = renderUtils.getInterpolatedCoordsFromBody(body, match.getInterpolationFactor())
+        const targetBody = match.currentTurn.bodies.getById(this.target) ?? assert.fail('Attack target not found')
+        const interpEnd = renderUtils.getInterpolatedCoordsFromBody(targetBody, match.getInterpolationFactor())
+        this.drawToFrom(match, ctx, interpStart, interpEnd, body)
+    }
+}
+
 export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     [schema.Action.DIE_EXCEPTION]: class DieException extends Action {
         apply(turn: Turn): void {
             console.log(`Exception occured: robotID(${this.robotID}), target(${this.target}`)
         }
     },
-    [schema.Action.ATTACK]: class Dig extends Action {
+    [schema.Action.ATTACK]: class Dig extends ToFromAction {
         apply(turn: Turn): void {
             // To dicuss
         }
-        draw(match: Match, ctx: CanvasRenderingContext2D) {
-            const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Attacking body not found')
-            const interpStart = renderUtils.getInterpolatedCoords(
-                body.pos,
-                body.nextPos,
-                match.getInterpolationFactor()
-            )
-
-            let interpEnd
-            // Target is negative when it represents a miss (map location hit). Otherwise,
-            // the attack hit a bot so we must transform the target into the bot's location
-            if (this.target >= 0) {
-                const targetBody =
-                    match.currentTurn.bodies.getById(this.target) ?? assert.fail('Attack target not found')
-                interpEnd = renderUtils.getInterpolatedCoords(
-                    targetBody.pos,
-                    targetBody.nextPos,
-                    match.getInterpolationFactor()
-                )
-            } else {
-                interpEnd = match.currentTurn.map.indexToLocation(-this.target - 1)
-            }
-
+        drawToFrom(
+            match: Match,
+            ctx: CanvasRenderingContext2D,
+            from: { x: number; y: number },
+            to: { x: number; y: number },
+            body: Body
+        ): void {
             // Compute the start and end points for the animation projectile
-            const dir = vectorUtils.vectorSub(interpEnd, interpStart)
-            const len = vectorUtils.vectorLength(dir)
-            vectorUtils.vectorMultiplyInPlace(dir, 1 / len)
-            const projectileStart = vectorUtils.vectorAdd(
-                interpStart,
-                vectorUtils.vectorMultiply(dir, len * match.getInterpolationFactor())
-            )
-            const projectileEnd = vectorUtils.vectorAdd(
-                interpStart,
-                vectorUtils.vectorMultiply(dir, len * Math.min(match.getInterpolationFactor() + 0.2, 1.0))
+            const dir = vectorSub(to, from)
+            const len = vectorLength(dir)
+            vectorMultiplyInPlace(dir, 1 / len)
+            const projectileStart = vectorAdd(from, vectorMultiply(dir, len * match.getInterpolationFactor()))
+            const projectileEnd = vectorAdd(
+                from,
+                vectorMultiply(dir, len * Math.min(match.getInterpolationFactor() + 0.2, 1.0))
             )
 
             // True direction
             renderUtils.renderLine(
                 ctx,
-                renderUtils.getRenderCoords(interpStart.x, interpStart.y, match.currentTurn.map.staticMap.dimension),
-                renderUtils.getRenderCoords(interpEnd.x, interpEnd.y, match.currentTurn.map.staticMap.dimension),
-                body.team,
-                0.05,
-                0.1,
-                true
+                renderUtils.getRenderCoords(from.x, from.y, match.currentTurn.map.staticMap.dimension),
+                renderUtils.getRenderCoords(to.x, to.y, match.currentTurn.map.staticMap.dimension),
+                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 1.0, renderArrow: false }
             )
 
             // Projectile animation
@@ -135,46 +142,130 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
                     projectileEnd.y,
                     match.currentTurn.map.staticMap.dimension
                 ),
-                body.team,
-                0.05,
-                1.0,
-                false
+                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 1.0, renderArrow: false }
             )
         }
     },
-    [schema.Action.HEAL]: class Heal extends Action {
+    [schema.Action.HEAL]: class Heal extends ToFromAction {
         apply(turn: Turn): void {
-            const body = turn.bodies.getById(this.robotID)
-            //if (!turn.stat.completed) turn.stat.getTeamStat(body.team).total_hp[body.type] += this.target
-            //body.hp += this.target
-
-            // Implementation Questions:
-            // How much do you heal by?
+            // To dicuss
+        }
+        drawToFrom(
+            match: Match,
+            ctx: CanvasRenderingContext2D,
+            from: { x: number; y: number },
+            to: { x: number; y: number },
+            body: Body
+        ): void {
+            renderUtils.renderLine(
+                ctx,
+                renderUtils.getRenderCoords(from.x, from.y, match.currentTurn.map.staticMap.dimension),
+                renderUtils.getRenderCoords(to.x, to.y, match.currentTurn.map.staticMap.dimension),
+                {
+                    color: HEAL_COLOR,
+                    lineWidth: 0.05,
+                    opacity: 0.1,
+                    renderArrow: true
+                }
+            )
         }
     },
     [schema.Action.DIG]: class Dig extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            turn.map.water[this.target] = 0
         }
     },
     [schema.Action.FILL]: class Fill extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            turn.map.water[this.target] = 1
         }
     },
     [schema.Action.EXPLOSIVE_TRAP]: class ExplosiveTrap extends Action {
         apply(turn: Turn): void {
             // To dicuss
         }
+        draw(match: Match, ctx: CanvasRenderingContext2D): void {
+            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const radius = 3.3 // in between the two sizes of the explosion
+            const trap = [...match.currentTurn.map.trapData.values()].find(
+                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
+            )
+            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.fillStyle = ATTACK_COLOR
+            ctx.beginPath()
+            ctx.arc(
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
+                radius,
+                0,
+                2 * Math.PI
+            )
+            ctx.fill()
+            ctx.stroke()
+        }
     },
     [schema.Action.WATER_TRAP]: class WaterTrap extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            const rad = 3
+            const coords = turn.map.indexToLocation(this.target)
+            // change all non wall and non spawnzone tiles to water
+            for (let x = coords.x - rad; x <= coords.x + rad; x++) {
+                for (let y = coords.y - rad; y <= coords.y + rad; y++) {
+                    if (x < 0 || y < 0 || x >= turn.map.width || y >= turn.map.height) continue
+                    if (Math.pow(x - coords.x, 2) + Math.pow(y - coords.y, 2) > rad * rad) continue
+                    const idx = turn.map.locationToIndex(x, y)
+                    if (turn.map.staticMap.walls[idx]) continue
+                    let inSpawnZone = false
+                    for (const spawnZone of turn.map.staticMap.spawnLocations)
+                        inSpawnZone ||= Math.abs(spawnZone.x - x) <= 1 && Math.abs(spawnZone.y - y) <= 1
+                    if (inSpawnZone) continue
+
+                    turn.map.water[idx] = 1
+                }
+            }
+        }
+        draw(match: Match, ctx: CanvasRenderingContext2D): void {
+            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const radius = 3
+            const trap = [...match.currentTurn.map.trapData.values()].find(
+                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
+            )
+            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.fillStyle = WATER_COLOR
+            ctx.beginPath()
+            ctx.arc(
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
+                radius,
+                0,
+                2 * Math.PI
+            )
+            ctx.fill()
+            ctx.stroke()
         }
     },
     [schema.Action.STUN_TRAP]: class StunTrap extends Action {
         apply(turn: Turn): void {
             // To dicuss
+        }
+        draw(match: Match, ctx: CanvasRenderingContext2D): void {
+            const coords = match.currentTurn.map.indexToLocation(this.target)
+            const radius = Math.sqrt(13)
+            const trap = [...match.currentTurn.map.trapData.values()].find(
+                (trap) => trap.location.x === coords.x && trap.location.y === coords.y
+            )
+            ctx.strokeStyle = trap?.team ? TEAM_COLORS[trap?.team] : 'black'
+            ctx.fillStyle = 'black'
+            ctx.beginPath()
+            ctx.arc(
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
+                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
+                radius,
+                0,
+                2 * Math.PI
+            )
+            ctx.fill()
+            ctx.stroke()
         }
     },
     [schema.Action.PICKUP_FLAG]: class PickupFlag extends Action {
@@ -269,16 +360,16 @@ export const ACTION_DEFINITIONS: Record<number, typeof Action> = {
             }
 
             // Compute the start and end points for the animation projectile
-            const dir = vectorUtils.vectorSub(interpEnd, interpStart)
-            const len = vectorUtils.vectorLength(dir)
-            vectorUtils.vectorMultiplyInPlace(dir, 1 / len)
-            const projectileStart = vectorUtils.vectorAdd(
+            const dir = vectorSub(interpEnd, interpStart)
+            const len = vectorLength(dir)
+            vectorMultiplyInPlace(dir, 1 / len)
+            const projectileStart = vectorAdd(
                 interpStart,
-                vectorUtils.vectorMultiply(dir, len * match.getInterpolationFactor())
+                vectorMultiply(dir, len * match.getInterpolationFactor())
             )
-            const projectileEnd = vectorUtils.vectorAdd(
+            const projectileEnd = vectorAdd(
                 interpStart,
-                vectorUtils.vectorMultiply(dir, len * Math.min(match.getInterpolationFactor() + 0.2, 1.0))
+                vectorMultiply(dir, len * Math.min(match.getInterpolationFactor() + 0.2, 1.0))
             )
 
             // True direction
