@@ -1,14 +1,15 @@
 package RuthBotPlayer;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import battlecode.common.*;
+import battlecode.schema.GameplayConstants;
 
 public class RobotPlayer {
 
-    static final Random rng = new Random(6147);
+    static final Random rng = new Random(6148);
     static boolean hasEnemyFlag = false;
-    static Team team;
 
     static Direction[] directions = {
                 Direction.NORTH,
@@ -24,8 +25,8 @@ public class RobotPlayer {
 
     public static void run(RobotController rc) throws GameActionException{
         while (true){
+
             try {
-                if(team == null) team = rc.getTeam();
                 if (!rc.isSpawned()){
                     MapLocation[] allySpawns = rc.getAllySpawnLocations();
                     //System.out.println(Arrays.toString(allySpawns));
@@ -49,17 +50,24 @@ public class RobotPlayer {
                     }
                 }
                 else{
+
+                    RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+                    if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
+                        rc.attack(enemies[0].getLocation());
+                        //System.out.println("punched someone");
+                    } 
+
                     // System.out.println(rc.getLocation());
-                    MapLocation[] flagLocs = rc.senseNearbyFlagLocations(rc.getLocation(), 36, team);
+                    MapLocation[] flagLocs = rc.senseNearbyFlagLocations(rc.getLocation(), 36, rc.getTeam().opponent());
 
                     if(rc.getRoundNum() < 150){
-                        if(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team).length > 0){
-                            if(rc.canPickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0])){
-                                rc.pickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0]);
+                        if(rc.senseNearbyFlagLocations(rc.getLocation(), 1, rc.getTeam().opponent()).length > 0){
+                            if(rc.canPickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, rc.getTeam().opponent())[0])){
+                                rc.pickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, rc.getTeam().opponent())[0]);
                             }
                         }
 
-                        
+                
                     } else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
                         if(rc.canDropFlag(rc.getLocation())){
                             rc.dropFlag(rc.getLocation());
@@ -67,21 +75,22 @@ public class RobotPlayer {
                         }
                         if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())){
                             rc.build(TrapType.EXPLOSIVE, rc.getLocation());
-                            // System.out.println("they call me oppenheimer");
                         }
                     } else if (!hasEnemyFlag) {
+                        boolean flagReachable = true;
+
                         if(flagLocs.length == 0){
                             flagLocs = rc.senseBroadcastFlagLocations();
+                            flagReachable = false;
                         }
-                        if(flagLocs.length != 0){
-                            
-                        }
+
                         int minInd = -1;
                         int minDist = 1000;
                         for (int i = 0; i < flagLocs.length; i++){
                             if(flagLocs[i].distanceSquaredTo(rc.getLocation()) < minDist){
                                 minInd = i;
                                 minDist = flagLocs[i].distanceSquaredTo(rc.getLocation());
+                               // System.out.println(flagLocs[i]);
                             }
                         }
 
@@ -97,7 +106,8 @@ public class RobotPlayer {
                             }
                         }
 
-                        if (minInd != -1 && rc.canPickupFlag(flagLocs[minInd])){
+                        if (flagReachable && minInd != -1 && rc.canPickupFlag(flagLocs[minInd])){
+                            System.out.println(flagLocs[minInd]);
                             rc.pickupFlag(flagLocs[minInd]);
                             System.out.println("Got enemy flag!");
                             hasEnemyFlag = true;
@@ -136,13 +146,6 @@ public class RobotPlayer {
                         }
                     }
 
-
-                    RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
-                    if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
-                        //rc.attack(enemies[0].getLocation());
-                        //System.out.println("punched someone");
-                    } 
-
                 }
 
             } catch (GameActionException e) {
@@ -155,15 +158,15 @@ public class RobotPlayer {
             } catch (Exception e) {
                 // Oh no! It looks like our code tried to do something bad. This isn't a
                 // GameActionException, so it's more likely to be a bug in our code.
-                // System.out.println("Exception");
-                // e.printStackTrace();
+                System.out.println("Exception");
+                e.printStackTrace();
 
             } finally {
                 // Signify we've done everything we want to do, thereby ending our turn.
                 // This will make our code wait until the next turn, and then perform this loop again.
                 Clock.yield();
             }
- 
+            //Clock.yield();
 
 
     }

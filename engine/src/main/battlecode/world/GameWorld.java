@@ -750,6 +750,7 @@ public strictfp class GameWorld {
 
     private void moveFlagSetStartLoc(Flag flag, MapLocation location){
         flag.drop();
+        removeFlag(flag.getLoc(), flag);
         addFlag(location, flag);
         flag.setStartLoc(location);
         if(water[locationToIndex(location)]) 
