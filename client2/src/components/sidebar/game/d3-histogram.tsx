@@ -7,7 +7,7 @@ interface HistogramProps {
     binCount: number
     width: number
     height: number
-	color: string
+    color: string
     margin: {
         top: number
         right: number
@@ -27,19 +27,24 @@ export const D3Histogram: React.FC<HistogramProps> = ({ data, width, height, mar
         //.on('pointerenter pointermove', pointerMoved)
         //.on('pointerleave', pointerLeft)
 
-        const xScale = d3
-            .scaleLinear()
-            .domain([0, d3.max(data)! + 1]) // Add 1 so data is not cut off
-            .range([margin.left, width - margin.right - margin.left])
-
         const bins = d3
             .histogram()
-            .domain(xScale.domain() as any)
-            .thresholds(xScale.ticks(binCount))(data)
+            .domain([1, binCount + 1]) // Add 1 so it isn't cut off
+            .thresholds(binCount)(data) // Number of bins
+
+        const xScale = d3
+            .scaleBand()
+            .domain(d3.range(1, binCount + 1).map(String)) // [1-5] to ["1"-"5"]
+            .range([margin.left, width - margin.right - margin.left])
 
         const yScale = d3
             .scaleLinear()
-            .domain([0, d3.max(bins, function(d) { return d.length; }) as number])
+            .domain([
+                0,
+                d3.max(bins, function (d) {
+                    return d.length
+                }) as number
+            ])
             .range([height - margin.bottom - margin.top, margin.top])
 
         // Add X-Axis
@@ -50,22 +55,23 @@ export const D3Histogram: React.FC<HistogramProps> = ({ data, width, height, mar
         // Add Y-axis
         svg.append('g').attr('transform', `translate(${margin.left}, 0)`).call(d3.axisLeft(yScale))
 
+        console.log(bins)
+
         svg.selectAll('rect')
             .data(bins)
             .join('rect')
             .attr('x', 1)
             .attr('transform', function (d) {
-                return `translate(${xScale(d.x0!)} , ${yScale(d.length!)})`
+                console.log(d)
+                return `translate(${xScale(String(d.x0!))} , ${yScale(d.length!)})`
             })
             .attr('width', function (d) {
-                return xScale(d.x1!) - xScale(d.x0!) - 2
+                return xScale.bandwidth() - 5 // -5 for space between bars
             })
             .attr('height', function (d) {
-                return (height - margin.top - margin.bottom) - yScale(d.length!)
+                return height - margin.top - margin.bottom - yScale(d.length!)
             })
             .style('fill', color)
-
-
     }, [data, width, height, margin])
 
     return (

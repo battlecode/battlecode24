@@ -9,7 +9,7 @@ interface Props {
     active: boolean
     property: string
     propertyDisplayName: string
-	color: string
+    color: string
 }
 
 function getChartData(appContext: AppContext, property: string): number[] {
@@ -18,15 +18,14 @@ function getChartData(appContext: AppContext, property: string): number[] {
         return []
     }
 
-    const values = [0, 1].map((index) =>
+    /*const values = [0, 1].map((index) =>
         match.stats.map((turnStat) => {
             const teamStat = turnStat.getTeamStat(match.game.teams[index])
             return teamStat.robots[0] % 5;
         })
-    )
+    )*/
 
-	return [0,0,0, 1, 1, 1, 4,4,4,2,2];
-
+    return [1, 1, 1, 3, 3, 3, 3, 3, 4, 4, 4, 2, 2, 5, 5, 5, 5]
 }
 
 export const Histogram: React.FC<Props> = (props: Props) => {
@@ -41,10 +40,10 @@ export const Histogram: React.FC<Props> = (props: Props) => {
             <D3Histogram
                 data={getChartData(appContext, props.property)}
                 width={300 + 40} // Add 40 so that tooltip is visible outside of SVG container
-				binCount={6}
+                binCount={5}
                 height={300}
                 margin={{ top: 20, right: 30, bottom: 20, left: 40 }}
-				color={ props.color }
+                color={props.color}
             />
         </div>
     )

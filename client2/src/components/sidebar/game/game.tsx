@@ -43,8 +43,18 @@ export const GamePage: React.FC = () => {
                 {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                     them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
                 <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Bread" />
-                <Histogram active={showStats} property="resourceAmount" propertyDisplayName="White Team Levels" color={TEAM_WHITE}/>
-                <Histogram active={showStats} property="resourceAmount" propertyDisplayName="Brown Team Levels" color={TEAM_BROWN}/>
+                <Histogram
+                    active={showStats}
+                    property="resourceAmount"
+                    propertyDisplayName="White Team Levels"
+                    color={TEAM_WHITE}
+                />
+                <Histogram
+                    active={showStats}
+                    property="resourceAmount"
+                    propertyDisplayName="Brown Team Levels"
+                    color={TEAM_BROWN}
+                />
             </SectionHeader>
         </div>
     )
