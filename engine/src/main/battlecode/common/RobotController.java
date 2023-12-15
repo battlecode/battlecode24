@@ -79,6 +79,15 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
+     * Returns the opposing Team
+     *
+     * @return the opposing team
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    Team getEnemyTeam();
+
+    /**
      * Returns the robot's current experience in the specified skill.
      * 
      * @param skill the skill that we want to get the robot's experience in
@@ -361,7 +370,7 @@ public strictfp interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      **/
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
+    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared, Team team) throws GameActionException; 
 
     /**
      * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.

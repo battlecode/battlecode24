@@ -109,6 +109,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public Team getEnemyTeam() {
+        return this.robot.getTeam() == Team.A ? Team.B : Team.A;
+    }
+
+    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
@@ -280,14 +285,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
   
     @Override
-    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
+    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared, Team team) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         List<MapLocation> validSensedFlagLocs = new ArrayList<>();
         Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
         for (Flag flag : allFlagsInRadius) {
-            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS_SQUARED))
+            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS_SQUARED) && flag.getTeam() == team)
                 validSensedFlagLocs.add(flag.getLoc());
         }
         return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);

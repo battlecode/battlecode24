@@ -1,15 +1,14 @@
 package RuthBotPlayer;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import battlecode.common.*;
-import battlecode.schema.GameplayConstants;
 
 public class RobotPlayer {
 
     static final Random rng = new Random(6147);
     static boolean hasEnemyFlag = false;
+    static Team team;
 
     static Direction[] directions = {
                 Direction.NORTH,
@@ -25,8 +24,8 @@ public class RobotPlayer {
 
     public static void run(RobotController rc) throws GameActionException{
         while (true){
-
             try {
+                if(team == null) team = rc.getTeam();
                 if (!rc.isSpawned()){
                     MapLocation[] allySpawns = rc.getAllySpawnLocations();
                     //System.out.println(Arrays.toString(allySpawns));
@@ -51,16 +50,16 @@ public class RobotPlayer {
                 }
                 else{
                     // System.out.println(rc.getLocation());
-                    MapLocation[] flagLocs = rc.senseNearbyFlagLocations(rc.getLocation(), 36);
+                    MapLocation[] flagLocs = rc.senseNearbyFlagLocations(rc.getLocation(), 36, team);
 
                     if(rc.getRoundNum() < 150){
-                        if(rc.senseNearbyFlagLocations(rc.getLocation(), 1).length > 0){
-                            if(rc.canPickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1)[0])){
-                                rc.pickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1)[0]);
+                        if(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team).length > 0){
+                            if(rc.canPickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0])){
+                                rc.pickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0]);
                             }
                         }
 
-                
+                        
                     } else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
                         if(rc.canDropFlag(rc.getLocation())){
                             rc.dropFlag(rc.getLocation());
@@ -156,7 +155,7 @@ public class RobotPlayer {
             } catch (Exception e) {
                 // Oh no! It looks like our code tried to do something bad. This isn't a
                 // GameActionException, so it's more likely to be a bug in our code.
-                System.out.println("Exception");
+                // System.out.println("Exception");
                 // e.printStackTrace();
 
             } finally {
