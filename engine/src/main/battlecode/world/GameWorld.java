@@ -5,6 +5,7 @@ import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
+import battlecode.util.FlatHelpers;
 import battlecode.world.control.RobotControlProvider;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public strictfp class GameWorld {
     private boolean[] water;
     private boolean[] dams;
     private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
+    private MapLocation[][] spawnLocations;
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
@@ -86,6 +88,8 @@ public strictfp class GameWorld {
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
 
+        this.trapLocations = new Trap[gm.getWidth()*gm.getHeight()];
+
         this.trapTriggers = new ArrayList[gm.getWidth()*gm.getHeight()];
         for (int i = 0; i < trapTriggers.length; i++){
             this.trapTriggers[i] = new ArrayList<Trap>();
@@ -103,7 +107,7 @@ public strictfp class GameWorld {
         int[][] spawnZoneCenters = gm.getSpawnZoneCenters();
         for (int i = 0; i < spawnZoneCenters[0].length; i++){
             MapLocation cur = new MapLocation(spawnZoneCenters[0][i], spawnZoneCenters[1][i]);
-            if (i < GameConstants.NUMBER_FLAGS){
+            if (i % 2 == 0){
                 flagArray[locationToIndex(cur)] = 1;
             }
             else{
@@ -118,6 +122,19 @@ public strictfp class GameWorld {
             placedFlags[i].add(flag);
         }
       
+        this.spawnLocations = new MapLocation[2][9*GameConstants.NUMBER_FLAGS];
+        int curA = 0, curB = 0;
+        for (int i = 0; i < gm.getHeight()*gm.getWidth(); i++){
+            if (this.spawnZones[i] == 1){
+                this.spawnLocations[0][curA] = indexToLocation(i);
+                curA += 1;
+            }
+            else if (this.spawnZones[i] == 2){
+                this.spawnLocations[1][curB] = indexToLocation(i);
+                curB += 1;
+            }
+
+        }
     }
 
     /**
@@ -343,7 +360,7 @@ public strictfp class GameWorld {
     }
 
     public boolean hasTrap(MapLocation loc){
-        return !(this.trapLocations[locationToIndex(loc)] == null);
+        return (this.trapLocations[locationToIndex(loc)] != null);
     }
 
     public ArrayList<Trap> getTrapTriggers(MapLocation loc) {
@@ -360,7 +377,7 @@ public strictfp class GameWorld {
         }
     }
 
-    public void triggerTrap(Trap trap, boolean entered){
+    public void triggerTrap(Trap trap, InternalRobot robot, boolean entered){
         MapLocation loc = trap.getLocation();
         TrapType type = trap.getType();
         switch(type){
@@ -383,7 +400,7 @@ public strictfp class GameWorld {
                 break;
             case WATER:
                 for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.enterRadius)){
-                    if (getRobot(adjLoc) != null || !isPassable(adjLoc))
+                    if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(loc) != 0)
                         continue;
                     setWater(adjLoc);
                 }
@@ -394,6 +411,7 @@ public strictfp class GameWorld {
         }
         this.trapLocations[locationToIndex(loc)] = null;
         matchMaker.addTriggeredTrap(trap.getId());
+        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), trap.getId());
     }
 
     // ***********************************
@@ -482,6 +500,10 @@ public strictfp class GameWorld {
      */
     private MapLocation[] getAllLocations() {
         return getAllLocationsWithinRadiusSquared(new MapLocation(0, 0), Integer.MAX_VALUE);
+    }
+
+    public MapLocation[] getSpawnLocations(Team team){
+        return this.spawnLocations[team.ordinal()];
     }
     
 
@@ -619,7 +641,6 @@ public strictfp class GameWorld {
         int[] totalFlagsPickedUp = new int[2];
 
         // consider team reserves
-        //TODO: add flags picked up array, increment in action (but check that is not setup phase)
         totalFlagsPickedUp[Team.A.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.A);
         totalFlagsPickedUp[Team.B.ordinal()] += this.teamInfo.getFlagsPickedUp(Team.B);
         
@@ -729,6 +750,7 @@ public strictfp class GameWorld {
 
     private void moveFlagSetStartLoc(Flag flag, MapLocation location){
         flag.drop();
+        removeFlag(flag.getLoc(), flag);
         addFlag(location, flag);
         flag.setStartLoc(location);
         if(water[locationToIndex(location)]) 

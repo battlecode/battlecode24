@@ -154,8 +154,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void removeFlag() {
-        this.flag = null;
         flag.drop();
+        this.flag = null;
     }
 
     public long getControlBits() {
@@ -343,7 +343,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         this.health += healthAmount;
         this.health = Math.min(this.health, GameConstants.DEFAULT_HEALTH);
-        System.out.println();
         if (this.health <= 0) {
             this.gameWorld.despawnRobot(this.ID);
         }
@@ -397,7 +396,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
     
     private int getDamage() {
-        return SkillType.ATTACK.skillEffect * SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK));
+        int damage = Math.round(SkillType.ATTACK.skillEffect * ((float) SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK)) / 100 + 1));
+        return damage;
     }
 
     private int locationToInt(MapLocation loc) {
@@ -430,7 +430,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]){
             base_heal += GlobalUpgrade.HEALING.baseHealChange;
         }
-        return base_heal * SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)); 
+        return Math.round(base_heal * ((float) SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)) / 100 + 1)); 
     }
 
     public int getBuildExp() {

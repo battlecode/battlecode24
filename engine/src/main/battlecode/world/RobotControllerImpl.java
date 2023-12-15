@@ -109,6 +109,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public Team getEnemyTeam() {
+        return this.robot.getTeam() == Team.A ? Team.B : Team.A;
+    }
+
+    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
@@ -278,34 +283,36 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanSenseLocation(loc);
         return this.gameWorld.isPassable(loc);
     }
+
+    @Override
+    public FlagInfo[] senseNearbyFlags(int radiusSquared) throws GameActionException {
+        return senseNearbyFlags(radiusSquared, null);
+    }
   
     @Override
-    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException {
-        assertNotNull(center);
+    public FlagInfo[] senseNearbyFlags(int radiusSquared, Team team) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
-        List<MapLocation> validSensedFlagLocs = new ArrayList<>();
-        Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
-        for (Flag flag : allFlagsInRadius) {
-            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS_SQUARED))
-                validSensedFlagLocs.add(flag.getLoc());
+        ArrayList<FlagInfo> flagInfos = new ArrayList<>();
+        for(Flag x : gameWorld.getAllFlags()) {
+            if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
+                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
+            }
         }
-        return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
+        return flagInfos.toArray(new FlagInfo[flagInfos.size()]);
     }
 
     @Override
     public MapLocation[] senseBroadcastFlagLocations() {
-        List<MapLocation> currentBroadcastLocations = new ArrayList<MapLocation>();
+        List<MapLocation> locations = new ArrayList<MapLocation>();
         for(Flag x: gameWorld.getAllFlags()) {
-            if(!canSenseLocation(x.getLoc())) {
-                currentBroadcastLocations.add(x.getBroadcastLoc());
-            }
+            if(x.getTeam() != robot.getTeam() && !x.isPickedUp() && !canSenseLocation(x.getLoc())) locations.add(x.getBroadcastLoc());
         }
-        return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
+        return locations.toArray(new MapLocation[locations.size()]);
     }
+
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
-
 
         Trap trap = gw.getTrap(loc);
         TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
@@ -464,7 +471,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void build(TrapType trap, MapLocation loc) throws GameActionException{
         assertCanBuild(trap, loc);
         this.gameWorld.placeTrap(loc, trap, this.getTeam());
-        this.gameWorld.getMatchMaker().addAction(getID(), FlatHelpers.getTrapActionFromTrapType(trap), locationToInt(loc));
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
 
@@ -501,7 +507,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -509,7 +515,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
     }
 
@@ -546,7 +552,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), false);
+            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -649,22 +655,30 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.setLocation(nextLoc);
 
         int amtBread = this.gameWorld.getBreadAmount(nextLoc);
-        if(amtBread != 0) this.robot.addResourceAmount(amtBread);
+        if(amtBread != 0) {
+            this.robot.addResourceAmount(amtBread);
+            this.gameWorld.getMatchMaker().addClaimedResource(nextLoc);
+        }
         this.gameWorld.removeBread(nextLoc);
         this.robot.addMovementCooldownTurns();
 
         // trap trigger methods
-        for(Trap trap:this.gameWorld.getTrapTriggers(nextLoc)){
+        for(int i = this.gameWorld.getTrapTriggers(nextLoc).size()-1; i >= 0; i--){
+            Trap trap = this.gameWorld.getTrapTriggers(nextLoc).get(i);
+            if (trap.getTeam() == this.robot.getTeam()){
+                continue;
+            }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                this.gameWorld.triggerTrap(trap, true);
+                this.gameWorld.triggerTrap(trap, this.robot, true);
             } else {
-                this.gameWorld.triggerTrap(trap, false);
+                this.gameWorld.triggerTrap(trap, this.robot, false);
             }
         }
         
-
-        if (this.robot.hasFlag() && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
+        if (this.robot.hasFlag() && this.robot.getFlag().getTeam() != this.robot.getTeam() 
+                && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)] == this.getTeam()) {
             this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.CAPTURE_FLAG, robot.getFlag().getId());
             robot.getFlag().setLoc(null);
             gameWorld.getAllFlags().remove(robot.getFlag());
             this.robot.removeFlag();
@@ -676,17 +690,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     public MapLocation[] getAllySpawnLocations(){
-        //TODO: make more efficient implementation of this method. probably need to save array in gameworld
-        //this is a bashy implementation just to have something working
-        MapLocation[] outputLocations = new MapLocation[27];
-        int i = 0;
-        for (MapLocation loc : gameWorld.getAllLocationsWithinRadiusSquared(new MapLocation(0,0), 10*getMapWidth()*getMapHeight()*getMapHeight()*getMapWidth())){
-            if (gameWorld.getSpawnZone(loc) == getTeam().ordinal()+1){
-                outputLocations[i] = loc;
-                i += 1;
-            }
-        }
-        return outputLocations;
+        MapLocation[] allyLocations = this.gameWorld.getSpawnLocations(getTeam());
+        return Arrays.copyOf(allyLocations, allyLocations.length);
 
     }
 
@@ -732,8 +737,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanSpawn(loc);
         this.gameWorld.addRobot(loc, robot);
         this.gameWorld.getObjectInfo().addRobotIndex(robot, loc);
-        this.gameWorld.getMatchMaker().addSpawned(getID());
         this.robot.spawn(loc);
+        this.gameWorld.getMatchMaker().addSpawned(this.robot.getID(), this.robot.getTeam(), this.robot.getLocation());
     }
 
     // *****************************
@@ -803,7 +808,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
-        if(this.gameWorld.getFlags(loc) == null) {
+        if(this.gameWorld.getFlags(loc).size() == 0) {
             throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
         }
     }
@@ -823,6 +828,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
+        this.gameWorld.getTeamInfo().pickupFlag(getTeam());
     }
 
     // ***********************************

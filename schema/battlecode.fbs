@@ -109,23 +109,20 @@ enum Action : byte {
     DIG,
     // Target: x + y * width of fill location
     FILL,
-    // Target: x + y * width of explosive trap location
+    // Target: ID of triggered trap
     EXPLOSIVE_TRAP,
-    // Target: x + y * width of water trap location
+    // Target: ID of triggered trap
     WATER_TRAP,
-    // Target: x + y * width of stun trap location
+    // Target: ID of triggered trap
     STUN_TRAP,
     // Target: flag id
     PICKUP_FLAG,
     // Target: flag id
     DROP_FLAG,
-
-    // Target: none
-    
-
+    // Target: flag id
+    CAPTURE_FLAG,
     // Target: GlobalUpgradeType id
     GLOBAL_UPGRADE,
-
     /// Dies due to an uncaught exception
     /// Target: none
     DIE_EXCEPTION,

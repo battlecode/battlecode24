@@ -2,7 +2,6 @@ package battlecode.world;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 
 import gnu.trove.list.array.TIntArrayList;
