@@ -86,9 +86,9 @@ export abstract class ToFromAction extends Action {
     ): void
 
     draw(match: Match, ctx: CanvasRenderingContext2D) {
-        const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Attacking body not found')
+        const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Acting body not found')
         const interpStart = renderUtils.getInterpolatedCoordsFromBody(body, match.getInterpolationFactor())
-        const targetBody = match.currentTurn.bodies.getById(this.target) ?? assert.fail('Attack target not found')
+        const targetBody = match.currentTurn.bodies.getById(this.target) ?? assert.fail('Action target not found')
         const interpEnd = renderUtils.getInterpolatedCoordsFromBody(targetBody, match.getInterpolationFactor())
         this.drawToFrom(match, ctx, interpStart, interpEnd, body)
     }
