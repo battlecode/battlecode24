@@ -287,6 +287,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             flagData.location = turn.map.indexToLocation(this.target)
         }
     },
+    [schema.Action.CAPTURE_FLAG]: class CaptureFlag extends Action {
+        apply(turn: Turn): void {
+            const flagId = this.target
+            turn.map.flagData.delete(flagId)
+        }
+    },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {
         apply(turn: Turn): void {
             // To dicuss
