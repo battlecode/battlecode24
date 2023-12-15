@@ -283,34 +283,36 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanSenseLocation(loc);
         return this.gameWorld.isPassable(loc);
     }
+
+    @Override
+    public FlagInfo[] senseNearbyFlags(int radiusSquared) throws GameActionException {
+        return senseNearbyFlags(radiusSquared, null);
+    }
   
     @Override
-    public MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared, Team team) throws GameActionException {
-        assertNotNull(center);
+    public FlagInfo[] senseNearbyFlags(int radiusSquared, Team team) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
-        List<MapLocation> validSensedFlagLocs = new ArrayList<>();
-        Flag[] allFlagsInRadius = this.gameWorld.getAllFlagsWithinRadiusSquared(center, actualRadiusSquared);
-        for (Flag flag : allFlagsInRadius) {
-            if (getLocation().isWithinDistanceSquared(flag.getLoc(), GameConstants.VISION_RADIUS_SQUARED) && flag.getTeam() == team)
-                validSensedFlagLocs.add(flag.getLoc());
+        ArrayList<FlagInfo> flagInfos = new ArrayList<>();
+        for(Flag x : gameWorld.getAllFlags()) {
+            if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
+                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
+            }
         }
-        return validSensedFlagLocs.toArray(new MapLocation[validSensedFlagLocs.size()]);
+        return flagInfos.toArray(new FlagInfo[flagInfos.size()]);
     }
 
     @Override
     public MapLocation[] senseBroadcastFlagLocations() {
-        List<MapLocation> currentBroadcastLocations = new ArrayList<MapLocation>();
+        List<MapLocation> locations = new ArrayList<MapLocation>();
         for(Flag x: gameWorld.getAllFlags()) {
-            if(!canSenseLocation(x.getLoc())) {
-                currentBroadcastLocations.add(x.getBroadcastLoc());
-            }
+            if(x.getTeam() != robot.getTeam() && !x.isPickedUp() && !canSenseLocation(x.getLoc())) locations.add(x.getBroadcastLoc());
         }
-        return currentBroadcastLocations.toArray(new MapLocation[currentBroadcastLocations.size()]);
+        return locations.toArray(new MapLocation[locations.size()]);
     }
+
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
-
 
         Trap trap = gw.getTrap(loc);
         TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
@@ -674,7 +676,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         
         if (this.robot.hasFlag() && this.robot.getFlag().getTeam() != this.robot.getTeam() 
-                && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)+1] == this.getTeam()) {
+                && allSpawnZones[this.gameWorld.getSpawnZone(nextLoc)] == this.getTeam()) {
             this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
             robot.getFlag().setLoc(null);
             gameWorld.getAllFlags().remove(robot.getFlag());

@@ -1,6 +1,9 @@
 package HankPlayer;
 
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import battlecode.common.*;
 
@@ -21,151 +24,146 @@ public class RobotPlayer {
                 Direction.NORTHWEST,
             };
 
-
     public static void run(RobotController rc) throws GameActionException{
         while (true){
             try {
-                if(team == null) team = rc.getTeam();
-                if (!rc.isSpawned()){
-                    MapLocation[] allySpawns = rc.getAllySpawnLocations();
-                    //System.out.println(Arrays.toString(allySpawns));
-                    //rc.resign();
-                    for (MapLocation loc : rc.getAllySpawnLocations()){
-                        //rc.spawn(loc);
-                        if (rc.canSpawn(loc)){
-                            rc.spawn(loc);
-                            hasEnemyFlag = false;
-                            //System.out.println(" i spawned in :)");
-                            break;
-                        }
-                    }
+                runBot(rc);
+                // if (!rc.isSpawned()){
+                //     for (MapLocation loc : rc.getAllySpawnLocations()){
+                //         if (rc.canSpawn(loc)){
+                //             rc.spawn(loc);
+                //             hasEnemyFlag = false;
 
-                    int b = rng.nextInt(8);
-                    
-                    for(int i = 0; i < 8; i++){
-                        if(rc.canMove(directions[(b+i)%8])){
-                            rc.move(directions[(b+i)%8]);
-                        }
-                    }
-                }
-                else{
-                    // System.out.println(rc.getLocation());
-                    MapLocation[] flagLocs = rc.senseNearbyFlagLocations(rc.getLocation(), 36, team);
+                //             FlagInfo[] nearLocs = rc.senseNearbyFlags(-1);
+                //             for(FlagInfo flag : nearLocs) {
+                //                 System.out.println(flag.getLocation());
+                //             }
+                //             MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
+                //             for(MapLocation otherLoc : broadcastLocs) {
+                //                 System.out.println(otherLoc);
+                //             }
 
-                    if(rc.getRoundNum() < 150){
-                        if(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team).length > 0){
-                            if(rc.canPickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0])){
-                                rc.pickupFlag(rc.senseNearbyFlagLocations(rc.getLocation(), 1, team)[0]);
-                            }
-                        }
-
-                        
-                    } else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
-                        if(rc.canDropFlag(rc.getLocation())){
-                            rc.dropFlag(rc.getLocation());
-                            System.out.println("Dropped ally flag!");
-                        }
-                        if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())){
-                            rc.build(TrapType.EXPLOSIVE, rc.getLocation());
-                            // System.out.println("they call me oppenheimer");
-                        }
-                    } else if (!hasEnemyFlag) {
-                        if(flagLocs.length == 0){
-                            flagLocs = rc.senseBroadcastFlagLocations();
-                        }
-                        if(flagLocs.length != 0){
-                            
-                        }
-                        int minInd = -1;
-                        int minDist = 1000;
-                        for (int i = 0; i < flagLocs.length; i++){
-                            if(flagLocs[i].distanceSquaredTo(rc.getLocation()) < minDist){
-                                minInd = i;
-                                minDist = flagLocs[i].distanceSquaredTo(rc.getLocation());
-                            }
-                        }
-
-                        if (minInd != -1 && rc.canMove(rc.getLocation().directionTo(flagLocs[minInd]))){
-                            rc.move(rc.getLocation().directionTo(flagLocs[minInd]));
-                        } else if (minInd != -1 && rc.canFill(rc.adjacentLocation(rc.getLocation().directionTo(flagLocs[minInd])))){
-                            rc.fill(rc.adjacentLocation(rc.getLocation().directionTo(flagLocs[minInd])));
-                        } else {
-                            for (Direction dir: directions){
-                                if (rc.canMove(dir)){
-                                    rc.move(dir);
-                                }
-                            }
-                        }
-
-                        if (minInd != -1 && rc.canPickupFlag(flagLocs[minInd])){
-                            rc.pickupFlag(flagLocs[minInd]);
-                            System.out.println("Got enemy flag!");
-                            hasEnemyFlag = true;
-                        }
-
-                        
-                        /*if (rc.senseNearbyFlagLocations(rc.getLocation(), 36).length > 0) {
-                            if (minInd != -1 && rc.canPickupFlag(flagLocs[minInd])){
-                                rc.pickupFlag(flagLocs[minInd]);
-                                System.out.println("Got enemy flag!");
-                                hasEnemyFlag = true;
-                            }
-                        }*/
-                        
-                    } else {
-                        MapLocation[] allySpawns = rc.getAllySpawnLocations();
-                        int minInd = 0;
-                        int minDist = 1000;
-                        for (int i = 0; i < allySpawns.length; i++){
-                            if(allySpawns[i].distanceSquaredTo(rc.getLocation()) < minDist){
-                                minInd = i;
-                                minDist = allySpawns[i].distanceSquaredTo(rc.getLocation());
-                            }
-                        }
-
-                        if (rc.canMove(rc.getLocation().directionTo(allySpawns[minInd]))){
-                            rc.move(rc.getLocation().directionTo(allySpawns[minInd]));
-                        } else if (rc.canFill(rc.adjacentLocation(rc.getLocation().directionTo(allySpawns[minInd])))){
-                            rc.fill(rc.adjacentLocation(rc.getLocation().directionTo(allySpawns[minInd])));
-                        } else {
-                            for (Direction dir: directions){
-                                if (rc.canMove(dir)){
-                                    rc.move(dir);
-                                }
-                            }
-                        }
-                    }
-
-
-                    RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
-                    if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
-                        //rc.attack(enemies[0].getLocation());
-                        //System.out.println("punched someone");
-                    } 
-
-                }
-
+                //             break;
+                //         }
+                //     }
+                // }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game
                 // world. Remember, uncaught exceptions cause your robot to explode!
-                System.out.println("GameActionException");
-                // e.printStackTrace();
-
+                e.printStackTrace();
             } catch (Exception e) {
                 // Oh no! It looks like our code tried to do something bad. This isn't a
                 // GameActionException, so it's more likely to be a bug in our code.
                 // System.out.println("Exception");
-                // e.printStackTrace();
-
+                e.printStackTrace();
             } finally {
                 // Signify we've done everything we want to do, thereby ending our turn.
                 // This will make our code wait until the next turn, and then perform this loop again.
                 Clock.yield();
             }
- 
-
-
+        }
     }
+
+    private static void runBot(RobotController rc) throws GameActionException {
+        if(team == null) team = rc.getTeam();
+
+        if (!rc.isSpawned()){
+            for (MapLocation loc : rc.getAllySpawnLocations()){
+                if (rc.canSpawn(loc)){
+                    rc.spawn(loc);
+                    hasEnemyFlag = false;
+                    break;
+                }
+                moveRandom(rc);
+            }
+            return;
+        }
+
+        if(rc.getRoundNum() < 150){
+            FlagInfo[] flags = rc.senseNearbyFlags(-1, team);
+            for(FlagInfo flag : flags) {
+                MapLocation flagLoc = flag.getLocation();
+                if(rc.canPickupFlag(flagLoc)) {
+                    rc.pickupFlag(flagLoc);
+                    break;
+                }
+            }
+        } 
+        else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
+            if(rc.canDropFlag(rc.getLocation())){
+                rc.dropFlag(rc.getLocation());
+                System.out.println("Dropped ally flag!");
+            }
+            if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())){
+                // rc.build(TrapType.EXPLOSIVE, rc.getLocation());
+                // System.out.println("they call me oppenheimer");
+            }
+        }
+        else if (!hasEnemyFlag) {
+            ArrayList<MapLocation> flagLocs = new ArrayList<>();
+            for(FlagInfo flag : rc.senseNearbyFlags(-1, team == Team.A ? Team.B : Team.A)) {
+                if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
+            }
+            if(flagLocs.size() == 0) {
+                MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
+                for(MapLocation loc : broadcastLocs) flagLocs.add(loc);
+            }
+
+            MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
+            if (closestFlag != null && rc.canMove(rc.getLocation().directionTo(closestFlag))){
+                rc.move(rc.getLocation().directionTo(closestFlag));
+            } else if (closestFlag != null && rc.canFill(rc.adjacentLocation(rc.getLocation().directionTo(closestFlag)))){
+                rc.fill(rc.adjacentLocation(rc.getLocation().directionTo(closestFlag)));
+            } else {
+                moveRandom(rc);
+            }
+
+            if (closestFlag != null && rc.canPickupFlag(closestFlag)){
+                rc.pickupFlag(closestFlag);
+                hasEnemyFlag = true;
+                System.out.println("Got enemy flag!");
+            }
+        } 
+        else {
+            MapLocation[] allySpawns = rc.getAllySpawnLocations();
+            MapLocation closestSpawn = findClosestLocation(rc.getLocation(), Arrays.asList(allySpawns));
+
+            if (rc.canMove(rc.getLocation().directionTo(closestSpawn))){
+                rc.move(rc.getLocation().directionTo(closestSpawn));
+            } else if (rc.canFill(rc.adjacentLocation(rc.getLocation().directionTo(closestSpawn)))){
+                rc.fill(rc.adjacentLocation(rc.getLocation().directionTo(closestSpawn)));
+            } else {
+                moveRandom(rc);
+            }
+        }
+
+        RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+        if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
+            //rc.attack(enemies[0].getLocation());
+            //System.out.println("punched someone");
+        } 
+    }
+
+    private static void moveRandom(RobotController rc) throws GameActionException {
+        int b = rng.nextInt(8);
+        for(int i = 0; i < 8; i++){
+            if(rc.canMove(directions[(b+i)%8])){
+                rc.move(directions[(b+i)%8]);
+            }
+        }
+    }
+
+    public static MapLocation findClosestLocation(MapLocation start, List<MapLocation> locs) {
+        MapLocation minLoc = null;
+        int minDist = Integer.MAX_VALUE;
+        for (int i = 0; i < locs.size(); i++){
+            int dist = locs.get(i).distanceSquaredTo(start);
+            if(dist < minDist){
+                minLoc = locs.get(i);
+                minDist = dist;
+            }
+        }
+        return minLoc;
     }
 }
