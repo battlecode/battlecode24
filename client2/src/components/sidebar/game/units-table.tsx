@@ -51,8 +51,9 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     ]
 
     const data: Array<[string, Array<number>]> = [
-        ['Count', [0, 0, 0, 0]], // TODO: Decide what stats should be shown, including total robots
-        ['Σ(HP)', [0, 0, 0, 0]]
+        ['Count', teamStat?.robots ?? [0, 0, 0, 0]], 
+        ['Avg. Level', [0, 0, 0, 0]], 
+        ['Σ(HP)', teamStat?.total_hp ?? [0, 0, 0, 0]]
     ]
 
     return (
