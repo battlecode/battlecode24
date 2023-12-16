@@ -261,22 +261,23 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     },
     [schema.Action.DROP_FLAG]: class DropFlag extends Action {
         apply(turn: Turn): void {
-            // Find flag id based on carrying robot
-            let flagId = -1
-            turn.map.flagData.forEach((v, k) => {
-                if (v.carrierId == this.robotID) {
-                    flagId = k
-                }
-            })
+            const flagId = this.target
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = null
-            flagData.location = turn.map.indexToLocation(this.target)
+            flagData.location = turn.bodies.getById(this.robotID).pos
         }
     },
     [schema.Action.CAPTURE_FLAG]: class CaptureFlag extends Action {
         apply(turn: Turn): void {
             const flagId = this.target
             turn.map.flagData.delete(flagId)
+        }
+    },
+    [schema.Action.RESET_FLAG]: class ResetFlag extends Action {
+        apply(turn: Turn): void {
+            const flagId = this.robotID
+            const flagData = turn.map.flagData.get(flagId)!
+            flagData.location = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {

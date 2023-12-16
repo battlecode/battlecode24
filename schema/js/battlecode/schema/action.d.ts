@@ -9,10 +9,11 @@ export declare enum Action {
     PICKUP_FLAG = 7,
     DROP_FLAG = 8,
     CAPTURE_FLAG = 9,
-    GLOBAL_UPGRADE = 10,
+    RESET_FLAG = 10,
+    GLOBAL_UPGRADE = 11,
     /**
      * Dies due to an uncaught exception
      * Target: none
      */
-    DIE_EXCEPTION = 11
+    DIE_EXCEPTION = 12
 }
