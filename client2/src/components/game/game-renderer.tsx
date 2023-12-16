@@ -5,6 +5,7 @@ import { EventType, publishEvent, useListenEvent } from '../../app-events'
 import * as cst from '../../constants'
 import assert from 'assert'
 import Tooltip from './tooltip'
+import { Body } from '../../playback/Bodies'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -22,6 +23,9 @@ export const GameRenderer: React.FC = () => {
 
     const appContext = useAppContext()
     const { activeGame, activeMatch } = appContext.state
+
+    const [hoveredBody, setHoveredBody] = React.useState<Body | undefined>(undefined)
+    const [selectedBody, setSelectedBody] = React.useState<Body | undefined>(undefined)
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
@@ -49,8 +53,8 @@ export const GameRenderer: React.FC = () => {
 
         const ctx = getCanvasContext(CanvasType.DYNAMIC)!
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(match, ctx)
-        currentTurn.bodies.draw(match, ctx)
+        map.draw(match, ctx, appContext.state.config, selectedBody)
+        currentTurn.bodies.draw(match, ctx, appContext.state.config, selectedBody, hoveredBody)
         currentTurn.actions.draw(match, ctx)
     }, [activeMatch])
     useListenEvent(EventType.RENDER, render, [render])
@@ -112,7 +116,10 @@ export const GameRenderer: React.FC = () => {
     }
 
     const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        publishEvent(EventType.TILE_CLICK, eventToPoint(e))
+        const point = eventToPoint(e)
+        const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
+        setSelectedBody(clickedBody)
+        publishEvent(EventType.TILE_CLICK, point)
     }
 
     const mouseDown = React.useRef(false)
@@ -121,6 +128,15 @@ export const GameRenderer: React.FC = () => {
         mouseDown.current = false
         lastFiredDragEvent.current = { x: -1, y: -1 }
     }
+    const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        mouseDown.current = true
+    }
+    const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const tile = eventToPoint(e)
+        const currentlyHoveredBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(tile.x, tile.y)
+        setHoveredBody(currentlyHoveredBody)
+    }
+
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const point = eventToPoint(e)
         if (point.x === lastFiredDragEvent.current.x && point.y === lastFiredDragEvent.current.y) return
@@ -138,7 +154,6 @@ export const GameRenderer: React.FC = () => {
 
     if (!canvases) return <></>
 
-    // TODO: better support for strange aspect ratios, for now it is fine
     return (
         <div className="w-full h-screen flex items-center justify-center">
             {!activeGame || !activeGame.currentMatch ? (
@@ -157,38 +172,44 @@ export const GameRenderer: React.FC = () => {
                             ref={(ref) => {
                                 canvases.current[ct] = ref
                                 // TODO: there's def a better way to do this but idk how rn
-                                if (ct == CanvasType.BACKGROUND && ref && mapCanvas !== ref) {
+                                if (ct === CanvasType.BACKGROUND && ref && mapCanvas !== ref) {
                                     setMapCanvas(ref)
                                 }
-                                if (ct == CanvasType.OVERLAY && ref && mapCanvas !== ref) {
+                                if (ct === CanvasType.OVERLAY && ref && mapCanvas !== ref) {
                                     setOverlayCanvas(ref)
                                 }
                             }}
-                            onClick={onCanvasClick}
-                            onMouseMove={(e) => {
-                                if (mouseDown.current) onCanvasDrag(e)
-                            }}
-                            onMouseDown={() => {
-                                mouseDown.current = true
-                            }}
-                            onMouseUp={() => onMouseUp}
-                            onMouseLeave={(e) => {
-                                onMouseUp()
-                                mouseDownRight(false)
-                            }}
-                            onMouseEnter={(e) => {
-                                if (e.buttons == 1) mouseDown.current = true
-                            }}
-                            onMouseDownCapture={(e) => {
-                                if (e.button == 2) mouseDownRight(true, e)
-                            }}
-                            onMouseUpCapture={(e) => {
-                                onMouseUp()
-                                if (e.button == 2) mouseDownRight(false, e)
-                            }}
+                            {...(ct === CanvasType.OVERLAY && {
+                                onClick: onCanvasClick,
+                                onMouseMove: (e) => {
+                                    if (mouseDown.current) onCanvasDrag(e)
+                                    onMouseMove(e)
+                                },
+                                onMouseDown: onMouseDown,
+                                onMouseUp: onMouseUp,
+                                onMouseLeave: (e) => {
+                                    onMouseUp()
+                                    mouseDownRight(false)
+                                },
+                                onMouseEnter: (e) => {
+                                    if (e.buttons == 1) mouseDown.current = true
+                                },
+                                onMouseDownCapture: (e) => {
+                                    if (e.button == 2) mouseDownRight(true, e)
+                                },
+                                onMouseUpCapture: (e) => {
+                                    onMouseUp()
+                                    if (e.button == 2) mouseDownRight(false, e)
+                                }
+                            })}
                         />
                     ))}
-                    <Tooltip mapCanvas={mapCanvas} overlayCanvas={overlayCanvas} wrapperRef={wrapperRef} />
+                    <Tooltip
+                        overlayCanvas={overlayCanvas}
+                        selectedBody={selectedBody}
+                        hoveredBody={hoveredBody}
+                        wrapper={wrapperRef}
+                    />
                 </div>
             )}
         </div>

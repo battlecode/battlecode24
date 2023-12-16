@@ -19,6 +19,8 @@ import {
 } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
+import { Body } from './Bodies'
+import { ClientConfig } from '../client-config';
 
 export type Dimension = {
     minCorner: Vector
@@ -195,7 +197,7 @@ export class CurrentMap {
         }
     }
 
-    draw(match: Match, ctx: CanvasRenderingContext2D) {
+    draw(match: Match, ctx: CanvasRenderingContext2D, config: ClientConfig, selectedBody?: Body) {
         const dimension = this.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
@@ -297,8 +299,7 @@ export class CurrentMap {
 
         // Render indicator dots
         for (const data of this.indicatorDotData) {
-            // if (data.id === this.lastSelectedID || this.conf.allIndicators) {
-            if (true) {
+            if ((selectedBody && data.id === selectedBody.id) || config.showAllIndicators) {
                 const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
                 ctx.beginPath()
                 ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
@@ -309,8 +310,7 @@ export class CurrentMap {
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
         for (const data of this.indicatorLineData) {
-            // if (data.id === this.lastSelectedID || this.conf.allIndicators) {
-            if (true) {
+            if ((selectedBody && data.id === selectedBody.id) || config.showAllIndicators) {
                 const start = renderUtils.getRenderCoords(data.start.x, data.start.y, this.dimension)
                 const end = renderUtils.getRenderCoords(data.end.x, data.end.y, this.dimension)
                 ctx.beginPath()

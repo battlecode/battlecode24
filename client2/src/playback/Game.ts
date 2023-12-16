@@ -133,8 +133,6 @@ export default class Game {
         this.winner = this.teams[gameFooter.winner()]
 
         this.id = nextID++
-
-        console.log(this)
     }
 
     public getTeamByID(id: number): Team {

@@ -11,6 +11,7 @@ import { Vector } from './Vector'
 import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
 import Match from './Match'
 import { TestDuckBrush } from './Brushes'
+import { ClientConfig } from '../client-config';
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -140,9 +141,15 @@ export default class Bodies {
         return newBodies
     }
 
-    draw(match: Match, ctx: CanvasRenderingContext2D): void {
+    draw(
+        match: Match,
+        ctx: CanvasRenderingContext2D,
+        config: ClientConfig,
+        selectedBody?: Body,
+        hoveredBody?: Body
+    ): void {
         for (const body of this.bodies.values()) {
-            body.draw(match, ctx)
+            body.draw(match, ctx, config, body === selectedBody, body === hoveredBody)
         }
     }
 
@@ -222,7 +229,13 @@ export class Body {
         this.prevSquares = [this.pos]
     }
 
-    public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+    public draw(
+        match: Match,
+        ctx: CanvasRenderingContext2D,
+        config: ClientConfig,
+        selected: boolean,
+        hovered: boolean
+    ): void {
         const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
         if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(
@@ -287,9 +300,15 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     // one type pointed to by 0:
 
     0: class Duck extends Body {
-        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+        public draw(
+            match: Match,
+            ctx: CanvasRenderingContext2D,
+            config: ClientConfig,
+            selected: boolean,
+            hovered: boolean
+        ): void {
             this.imgPath = `robots/${this.team.color.toLowerCase()}/${this.getSpecialization()}_64x64.png`
-            super.draw(match, ctx)
+            super.draw(match, ctx, config, selected, hovered)
 
             const levelIndicators: [string, number, [number, number]][] = [
                 [ATTACK_COLOR, this.attackLevel, [0.8, -0.5]],
@@ -303,6 +322,20 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             )
             for (const [color, level, [dx, dy]] of levelIndicators) {
                 this.drawPetals(match, ctx, color, level, interpCoords.x + dx, interpCoords.y + dy)
+            }
+
+            if (selected || hovered || config.showAllRobotRadii) {
+                ctx.beginPath()
+                ctx.strokeStyle = 'blue'
+                ctx.lineWidth = 1 / match.map.width
+                ctx.arc(interpCoords.x + 0.5, interpCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.strokeStyle = 'red'
+                ctx.lineWidth = 1 / match.map.width
+                ctx.arc(interpCoords.x + 0.5, interpCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
+                ctx.stroke()
             }
         }
 

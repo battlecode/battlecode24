@@ -1,9 +1,15 @@
 import { schema } from 'battlecode-schema'
 
+export const SPEC_VERSION = '0.0.1'
+export const BATTLECODE_YEAR: number = 2024
+export const MAP_SIZE_RANGE = {
+    min: 20,
+    max: 60
+}
+
 /*
  * General constants
  */
-export const BATTLECODE_YEAR: number = 2024
 export const DIRECTIONS: Record<number, Array<number>> = {
     0: [0, 0],
     1: [-1, 0],
@@ -68,10 +74,3 @@ export const BUILD_NAMES: Record<schema.BuildActionType, string> = {
     [schema.BuildActionType.DIG]: '',
     [schema.BuildActionType.FILL]: ''
 }
-
-export const MAP_SIZE_RANGE = {
-    min: 20,
-    max: 60
-}
-
-export const SPEC_VERSION = '0.0.1'
