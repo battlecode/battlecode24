@@ -248,12 +248,14 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const flagId = this.target
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = this.robotID
+            turn.bodies.getById(this.robotID).hasFlag = true
         }
     },
     [schema.Action.PLACE_FLAG]: class ResetFlag extends Action {
         apply(turn: Turn): void {
             const flagId = this.robotID
             const flagData = turn.map.flagData.get(flagId)!
+            if (flagData.carrierId) turn.bodies.getById(flagData.carrierId).hasFlag = false
             flagData.carrierId = null
             flagData.location = turn.map.indexToLocation(this.target)
         }
