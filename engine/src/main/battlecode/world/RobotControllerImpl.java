@@ -306,6 +306,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return locations.toArray(new MapLocation[locations.size()]);
     }
 
+    @Override
+    public boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException{
+        assertCanSenseLocation(loc);
+        if(!canDropFlag(loc)) return false;
+        boolean valid = true;
+        for(Flag x : gameWorld.getAllFlags()) {
+            if(x.getTeam() == robot.getTeam() && x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
+    }
+
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
 

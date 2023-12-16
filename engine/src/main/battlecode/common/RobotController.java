@@ -385,6 +385,17 @@ public strictfp interface RobotController {
     MapLocation[] senseBroadcastFlagLocations();
 
     /**
+     * Checks if the given location within vision radius is a legal starting flag placement. This is true when the
+     * location is in range, is passable, and is far enough away from other placed friendly flags. Note that if the third
+     * condition is false, the flag can still be placed but will be teleported back to the spawn zone at the end of the
+     * setup phase.
+     * @param loc The location to check
+     * @return Whether the location is a valid flag placement
+     * @throws GameActionException if the location is out of sensing range
+     */
+    boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
