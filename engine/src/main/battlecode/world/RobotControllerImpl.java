@@ -761,6 +761,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (bot == null || bot.getTeam() == this.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "No enemy robot to attack at this location"); 
+        }
     }
 
     @Override
@@ -822,6 +826,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
+        assertIsSpawned();
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
@@ -843,8 +848,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!validFlagExists && !gameWorld.isSetupPhase()){
             throw new GameActionException(CANT_DO_THAT, "Cannot pick up ally flags after setup phase");
         }
-        
-        
     }
 
     @Override
