@@ -133,6 +133,7 @@ export class CurrentMap {
             const schemaIdx = this.locationToIndex(claimedPiles.xs(i)!, claimedPiles.ys(i)!)
             this.resourcePileData.get(schemaIdx)!.amount = 0
         }
+        /* Not actually necessary since this is handled via actions
         for (let i = 0; i < digLocations.xsLength(); i++) {
             const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
             this.water[schemaIdx] = 1
@@ -141,6 +142,7 @@ export class CurrentMap {
             const schemaIdx = this.locationToIndex(fillLocations.xs(i)!, fillLocations.ys(i)!)
             this.water[schemaIdx] = 0
         }
+        */
         for (let i = 0; i < delta.trapAddedIdsLength(); i++) {
             const id = delta.trapAddedIds(i)!
             const location = { x: trapAddedLocations.xs(i)!, y: trapAddedLocations.ys(i)! }
@@ -149,7 +151,7 @@ export class CurrentMap {
             this.trapData.set(id, { location, type, team })
         }
         for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {
-            this.trapData.delete(delta.trapAddedIds(i)!)
+            this.trapData.delete(delta.trapTriggeredIds(i)!)
         }
     }
 
@@ -246,7 +248,7 @@ export class CurrentMap {
             ctx.arc(coords.x + 0.2, coords.y + 0.8, 0.1, r90, 2 * r90)
             ctx.lineTo(coords.x + 0.1, coords.y + 0.2)
             ctx.closePath()
-            ctx.strokeStyle = TEAM_COLORS[data.team]
+            ctx.strokeStyle = TEAM_COLORS[data.team - 1]
             ctx.lineWidth = 0.075
             ctx.stroke()
 

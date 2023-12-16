@@ -168,12 +168,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     },
     [schema.Action.DIG]: class Dig extends Action {
         apply(turn: Turn): void {
-            turn.map.water[this.target] = 0
+            turn.map.water[this.target] = 1
         }
     },
     [schema.Action.FILL]: class Fill extends Action {
         apply(turn: Turn): void {
-            turn.map.water[this.target] = 1
+            turn.map.water[this.target] = 0
         }
     },
     [schema.Action.EXPLOSIVE_TRAP]: class ExplosiveTrap extends Action {
@@ -182,11 +182,13 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const map = match.currentTurn.map
-            const trapId = this.target
-            const trapData = map.trapData.get(trapId)!
-            const coords = trapData.location
+            const coords = map.indexToLocation(this.target)
             const radius = 3.3 // in between the two sizes of the explosion
-            ctx.strokeStyle = TEAM_COLORS[trapData.team]
+
+            // Get the trap color, assumes only opposite team can trigger
+            const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
+            ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
+
             ctx.fillStyle = ATTACK_COLOR
             ctx.beginPath()
             ctx.arc(
@@ -204,11 +206,13 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         apply(turn: Turn): void {}
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const map = match.currentTurn.map
-            const trapId = this.target
-            const trapData = map.trapData.get(trapId)!
-            const coords = trapData.location
+            const coords = map.indexToLocation(this.target)
             const radius = 3
-            ctx.strokeStyle = TEAM_COLORS[trapData.team]
+
+            // Get the trap color, assumes only opposite team can trigger
+            const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
+            ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
+
             ctx.fillStyle = WATER_COLOR
             ctx.beginPath()
             ctx.arc(
@@ -228,11 +232,13 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const map = match.currentTurn.map
-            const trapId = this.target
-            const trapData = map.trapData.get(trapId)!
-            const coords = trapData.location
+            const coords = map.indexToLocation(this.target)
             const radius = Math.sqrt(13)
-            ctx.strokeStyle = TEAM_COLORS[trapData.team]
+
+            // Get the trap color, assumes only opposite team can trigger
+            const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
+            ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
+
             ctx.fillStyle = 'black'
             ctx.beginPath()
             ctx.arc(
