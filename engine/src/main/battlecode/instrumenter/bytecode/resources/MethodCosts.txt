@@ -115,6 +115,7 @@ battlecode/common/RobotController/canBuild                              10   tru
 battlecode/common/RobotController/build                                 0    true
 battlecode/common/RobotController/canHeal                               10   true
 battlecode/common/RobotController/heal                                  0    true
+battlecode/common/RobotController/hasFlag                               10   true
 battlecode/common/RobotController/canPickUpFlag                         10   true
 battlecode/common/RobotController/pickUpFlag                            0    true
 battlecode/common/RobotController/canDropFlag                           10   true
