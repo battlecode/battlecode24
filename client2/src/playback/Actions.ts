@@ -255,6 +255,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         apply(turn: Turn): void {
             const flagId = this.robotID
             const flagData = turn.map.flagData.get(flagId)!
+            // Could be carrying or already placed
             if (flagData.carrierId) turn.bodies.getById(flagData.carrierId).hasFlag = false
             flagData.carrierId = null
             flagData.location = turn.map.indexToLocation(this.target)
@@ -263,6 +264,9 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     [schema.Action.CAPTURE_FLAG]: class CaptureFlag extends Action {
         apply(turn: Turn): void {
             const flagId = this.target
+            const flagData = turn.map.flagData.get(flagId)!
+            // Always  carrying
+            turn.bodies.getById(flagData.carrierId).hasFlag = false
             turn.map.flagData.delete(flagId)
         }
     },
