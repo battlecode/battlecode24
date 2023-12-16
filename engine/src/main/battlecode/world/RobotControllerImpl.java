@@ -803,7 +803,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanDropFlag(loc);
         Flag flag = robot.getFlag();
         this.gameWorld.addFlag(loc, flag);
-        this.gameWorld.getMatchMaker().addAction(robot.getID(), Action.DROP_FLAG, flag.getId());
+        this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
         robot.removeFlag();   
     }
 
