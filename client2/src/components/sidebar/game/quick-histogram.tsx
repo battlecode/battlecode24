@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useMemo } from 'react'
+import { drawAxes, getAxes, setCanvasResolution } from '../../../util/graph-util'
 
 interface HistogramProps {
     data: number[]
     width: number
     height: number
     color: string
-    lineColor: string
     margin: {
         top: number
         right: number
@@ -15,15 +15,7 @@ interface HistogramProps {
     resolution?: number
 }
 
-export const CanvasHistogram: React.FC<HistogramProps> = ({
-    data,
-    width,
-    height,
-    margin,
-    color,
-    lineColor,
-    resolution = 1
-}) => {
+export const CanvasHistogram: React.FC<HistogramProps> = ({ data, width, height, margin, color, resolution = 1 }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
     useEffect(() => {
@@ -32,21 +24,16 @@ export const CanvasHistogram: React.FC<HistogramProps> = ({
         const context = canvas.getContext('2d')
         if (!context) return
 
-        canvas.width = width * resolution
-        canvas.height = height * resolution
-        canvas.style.width = `${width}px`
-        canvas.style.height = `${height}px`
-        context.scale(resolution, resolution)
+        setCanvasResolution(canvas, width, height, resolution)
 
         const max = Math.max(...data)
-        const xScale = (value: number) => (value * (width - margin.left - margin.right)) / data.length + margin.left
-        const yScale = (value: number) => height - margin.bottom - (value / max) * (height - margin.top - margin.bottom)
+        const { xScale, yScale, innerWidth, innerHeight } = getAxes(width, height, margin, { x: data.length, y: max })
 
         context.clearRect(0, 0, width, height)
         context.fillStyle = color
-        data.forEach((bin, index) => {
-            const barWidth = (width - margin.left - margin.right) / data.length
-            const barHeight = yScale(bin)
+        const barWidth = innerWidth / data.length
+        data.forEach((y, index) => {
+            const barHeight = yScale(y)
             const leftPadding = 3
             context.fillRect(
                 xScale(index) + leftPadding,
@@ -56,51 +43,25 @@ export const CanvasHistogram: React.FC<HistogramProps> = ({
             )
         })
 
-        context.strokeStyle = lineColor
-        // Draw x-axis
-        context.beginPath()
-        context.moveTo(margin.left, height - margin.bottom)
-        context.lineTo(width - margin.right, height - margin.bottom)
-        context.stroke()
-
-        // Draw x-axis tick marks and labels
-        data.forEach((_, index) => {
-            const xPos = xScale(index) + (width - margin.left - margin.right) / (2 * data.length)
-            // Draw tick mark
-            context.beginPath()
-            context.moveTo(xPos, height - margin.bottom)
-            context.lineTo(xPos, height - margin.bottom + 6)
-            context.stroke()
-            // Draw label
-            context.fillStyle = 'black' // Set label color to black
-            context.fillText(index.toString(), xPos - 2, height - margin.bottom + 20)
-        })
-
-        // Draw y-axis
-        context.beginPath()
-        context.moveTo(margin.left, margin.top)
-        context.lineTo(margin.left, height - margin.bottom)
-        context.stroke()
-
-        // Draw y-axis tick marks and labels
-        const possibleRanges = [4, 5, 6, 7]
-        let gap = Math.ceil(max / possibleRanges[0])
-        for (let i = 0; i < possibleRanges.length; i++) {
-            if (max % gap > max % possibleRanges[i]) {
-                gap = Math.ceil(max / possibleRanges[i])
+        drawAxes(
+            context,
+            width,
+            height,
+            margin,
+            {
+                range: { min: 0, max: data.length - 1 },
+                options: {
+                    count: data.length,
+                    centered: true
+                }
+            },
+            {
+                range: { min: 0, max: max },
+                options: {
+                    count: 5
+                }
             }
-        }
-        for (let i = 0; i <= max; i += gap) {
-            const yPos = yScale((max / max) * i)
-            // Draw tick mark
-            context.beginPath()
-            context.moveTo(margin.left - 6, yPos)
-            context.lineTo(margin.left, yPos)
-            context.stroke()
-            // Draw label
-            context.fillStyle = 'black' // Set label color to black
-            context.fillText(i.toString(), margin.left - 15, yPos + 5)
-        }
+        )
     }, [data.length, height, margin, width])
 
     return <canvas ref={canvasRef} width={width} height={height} />
