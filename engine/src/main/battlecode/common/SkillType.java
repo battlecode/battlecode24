@@ -9,22 +9,16 @@ public enum SkillType{
     // base skill effect, base cooldown - build is 0 because variable
     /**
      * Attacking immediately reduces one enemy unit's (in range) base health by 15 (level 0), with a cooldown cost of 20.
-     *
-     * @battlecode.doc.skilltype
      */
     ATTACK(15, 20),
     
     /**
      * Build uses team resources to dig, fill, or build a trap.
-     *
-     * @battlecode.doc.skilltype
      */
     BUILD(0, 0),
     
     /**
      * Healing adds 8 health points to a nearby friendly unit, with a cooldown cost of 30. (level 0)
-     * 
-     * @battlecode.doc.skilltype
      */
     HEAL(8, 30);
 

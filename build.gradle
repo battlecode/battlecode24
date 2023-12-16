@@ -150,38 +150,19 @@ task prodClient {
       workingDir 'client'
     }
     exec {
-      commandLine 'npm', 'run', 'prod-electron'
+      commandLine 'npm', 'run', 'electron-build' 
       workingDir 'client'
     }
   }
 }
 
-task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-unpacked')
-}
-
-task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/mac')
-}
-
-task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/linux-unpacked')
-}
-
-task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-ia32-unpacked')
-}
-
-task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/linux-ia32-unpacked')
-}
-
+def packagedDirPrefix = 'client/packaged/battlecode24-client-'
 
 publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23'
+      artifactId 'battlecode24'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
@@ -197,42 +178,42 @@ publishing {
 
     clientWin(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-win'
+      artifactId 'battlecode24-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientWin
+      artifact (packagedDirPrefix + 'win-x64.zip') {
+        builtBy prodClient
+      }
     }
 
     clientMac(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-mac'
+      artifactId 'battlecode24-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientMac
+      artifact (packagedDirPrefix + 'mac-x64.zip') {
+        builtBy prodClient
+      }
     }
 
     clientLinux(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-linux'
+      artifactId 'battlecode24-client-linux-x64'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientLinux
+      artifact (packagedDirPrefix + 'linux-x64.zip') {
+        builtBy prodClient
+      }
     }
 
     clientWin32(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-win-32'
+      artifactId 'battlecode24-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientWin32
-    }
-
-    clientLinux32(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode23-client-linux-32'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientLinux32
+      artifact (packagedDirPrefix + 'win-ia32.zip') {
+        builtBy prodClient
+      }
     }
   }
 }
