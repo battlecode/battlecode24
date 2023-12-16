@@ -18,9 +18,78 @@ public class RobotPlayer {
         Direction.NORTHWEST,
     };
 
+    static enum MaxPlayerState {
+        NOT_SPAWNED,
+        SETTING_UP,
+        PLACING_FLAG,
+        LOOKING_FOR_ENEMY_FLAG,
+        BRINGING_FLAG_BACK,
+    }
+
+    static MaxPlayerState state;
+
+    private static void runNotSpawned(RobotController rc) throws GameActionException {
+        MapLocation[] spawnZoneLocs = rc.getAllySpawnLocations();
+        MapLocation[] goodLocs = new MapLocation[spawnZoneLocs.length];
+        int numGoodLocs = 0;
+
+        for (MapLocation loc : spawnZoneLocs) {
+            if (rc.canSpawn(loc)) {
+                goodLocs[numGoodLocs] = loc;
+                numGoodLocs++;
+            }
+        }
+
+        if (numGoodLocs > 0) {
+            int rand = rng.nextInt(numGoodLocs);
+            MapLocation spawnLoc = goodLocs[rand];
+            rc.spawn(spawnLoc);
+        }
+    }
+
+    private static void runSettingUp(RobotController rc) throws GameActionException {
+
+    }
+
+    private static void runPlacingFlag(RobotController rc) throws GameActionException {
+        
+    }
+
+    private static void runLookingForEnemyFlag(RobotController rc) throws GameActionException {
+        
+    }
+
+    private static void runBringingFlagBack(RobotController rc) throws GameActionException {
+
+    }
+
     public static void run(RobotController rc) throws GameActionException {
         while (true) {
             try {
+                switch (state) {
+                    case NOT_SPAWNED:
+                        runNotSpawned(rc);
+                        break;
+                    
+                    case SETTING_UP:
+                        runSettingUp(rc);
+                        break;
+                    
+                    case PLACING_FLAG:
+                        runSettingUp(rc);
+                        break;
+
+                    case LOOKING_FOR_ENEMY_FLAG:
+                        runLookingForEnemyFlag(rc);
+                        break;
+
+                    case BRINGING_FLAG_BACK:
+                        runBringingFlagBack(rc);
+                        break;
+
+                    default:
+                        throw new Exception("A COSMIC RAY HIT YOUR COMPUTER AND TRIGGERED THIS ERROR. THERE IS NO OTHER EXPLANATION FOR SUCH A BAD ERROR.");
+                }
                 if (rc.isSpawned()) {
                     int numGoodDirs = 0;
                     Direction[] goodDirs = new Direction[directions.length];
@@ -44,22 +113,7 @@ public class RobotPlayer {
                         rc.move(moveDir);
                     }
                 } else {
-                    MapLocation[] spawnZoneLocs = rc.getAllySpawnLocations();
-                    MapLocation[] goodLocs = new MapLocation[spawnZoneLocs.length];
-                    int numGoodLocs = 0;
-
-                    for (MapLocation loc : spawnZoneLocs) {
-                        if (rc.canSpawn(loc)) {
-                            goodLocs[numGoodLocs] = loc;
-                            numGoodLocs++;
-                        }
-                    }
-
-                    if (numGoodLocs > 0) {
-                        int rand = rng.nextInt(numGoodLocs);
-                        MapLocation spawnLoc = goodLocs[rand];
-                        rc.spawn(spawnLoc);
-                    }
+                    
                 }
             } catch (GameActionException e) {
                 System.out.println("GameActionException! Message: " + e.getMessage());
