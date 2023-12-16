@@ -121,6 +121,8 @@ enum Action : byte {
     DROP_FLAG,
     // Target: flag id
     CAPTURE_FLAG,
+    // Id: Flag id, Target: x + y * width of reset location
+    RESET_FLAG,
     // Target: GlobalUpgradeType id
     GLOBAL_UPGRADE,
     /// Dies due to an uncaught exception
