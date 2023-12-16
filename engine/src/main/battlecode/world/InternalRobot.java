@@ -385,15 +385,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void despawn() {
-        this.spawned = false;
-        this.location = null;
         this.spawnCooldownTurns = GameConstants.COOLDOWNS_PER_TURN * GameConstants.JAILED_ROUNDS;
         jailedPenalty();
         if(flag != null){
             this.gameWorld.addFlag(location, flag);
             this.gameWorld.getMatchMaker().addAction(ID, Action.DROP_FLAG, flag.getId());
             removeFlag();  
-        } 
+        }
+        this.spawned = false;
+        this.location = null;
     }
 
     public boolean isSpawned() {
