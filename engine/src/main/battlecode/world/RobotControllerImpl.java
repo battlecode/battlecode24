@@ -109,11 +109,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Team getEnemyTeam() {
-        return this.robot.getTeam() == Team.A ? Team.B : Team.A;
-    }
-
-    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
@@ -830,6 +825,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(this.gameWorld.getFlags(loc).size() == 0) {
             throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
         }
+        Team team = getTeam();
+        if (!this.gameWorld.isSetupPhase()) team = team.opponent();
+        boolean validFlagExists = false;
+        for (Flag f : this.gameWorld.getFlags(loc)){
+            if (f.getTeam() == team){
+                validFlagExists = true;
+                break;
+            }
+        }
+        if (!validFlagExists && gameWorld.isSetupPhase()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up enemy team flags during setup phase");
+        }
+        if (!validFlagExists && !gameWorld.isSetupPhase()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up ally flags after setup phase");
+        }
+        
+        
     }
 
     @Override
@@ -843,7 +855,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void pickupFlag(MapLocation loc) throws GameActionException {
         assertCanPickupFlag(loc);
-        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
+        int idx = 0;
+        Team team = getTeam();
+        if (!this.gameWorld.isSetupPhase()) team = team.opponent();
+        Flag tempflag = this.gameWorld.getFlags(loc).get(idx);
+        while (tempflag.getTeam() != team){
+            idx += 1;
+            tempflag = this.gameWorld.getFlags(loc).get(idx);
+        }
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
