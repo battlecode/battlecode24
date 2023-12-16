@@ -109,11 +109,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Team getEnemyTeam() {
-        return this.robot.getTeam() == Team.A ? Team.B : Team.A;
-    }
-
-    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }
@@ -770,6 +765,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ******* FLAG METHODS ******
     // ***************************
     
+    @Override
+    public boolean hasFlag(){
+        return this.robot.hasFlag();
+    }
+
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
@@ -798,7 +798,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanDropFlag(loc);
         Flag flag = robot.getFlag();
         this.gameWorld.addFlag(loc, flag);
-        this.gameWorld.getMatchMaker().addAction(robot.getID(), Action.DROP_FLAG, flag.getId());
+        this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
         robot.removeFlag();   
     }
 
