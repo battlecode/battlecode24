@@ -48,6 +48,9 @@ export const BUILD_COLOR = '#c573c9'
 export const HEAL_COLOR = '#f2b804'
 export const SPECIALTY_COLORS = [ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR]
 
+export const INDICATOR_DOT_SIZE = 0.2
+export const INDICATOR_LINE_WIDTH = 0.1
+
 /*
  * Renderer constants
  */

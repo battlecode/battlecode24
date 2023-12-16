@@ -13,7 +13,9 @@ import {
     TEAM_COLORS,
     BUILD_NAMES,
     TEAM_COLOR_NAMES,
-    DIVIDER_DROP_TURN
+    DIVIDER_DROP_TURN,
+    INDICATOR_LINE_WIDTH,
+    INDICATOR_DOT_SIZE
 } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
@@ -50,12 +52,27 @@ type SchemaPacket = {
     resourcePileAmountOffset: number
 }
 
+type IndicatorDotData = {
+    id: number
+    location: Vector
+    color: string
+}
+
+type IndicatorLineData = {
+    id: number
+    start: Vector
+    end: Vector
+    color: string
+}
+
 export class CurrentMap {
     public readonly staticMap: StaticMap
     public readonly resourcePileData: Map<number, ResourcePileData>
     public readonly trapData: Map<number, TrapData>
     public readonly flagData: Map<number, FlagData>
     public readonly water: Int8Array
+    private indicatorDotData: IndicatorDotData[] = []
+    private indicatorLineData: IndicatorLineData[] = []
 
     get width(): number {
         return this.dimension.width
@@ -101,6 +118,8 @@ export class CurrentMap {
                 this.flagData.set(key, { ...value })
             }
             this.water = new Int8Array(from.water)
+            this.indicatorDotData = [...from.indicatorDotData]
+            this.indicatorLineData = [...from.indicatorLineData]
         }
     }
 
@@ -149,6 +168,30 @@ export class CurrentMap {
         }
         for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {
             this.trapData.delete(delta.trapAddedIds(i)!)
+        }
+
+        this.indicatorDotData = []
+        const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
+        const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
+        for (let i = 0; i < locs.xsLength(); i++) {
+            this.indicatorDotData.push({
+                location: { x: locs.xs(i)!, y: locs.ys(i)! },
+                color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!),
+                id: delta.indicatorDotIds(i)!
+            })
+        }
+
+        this.indicatorLineData = []
+        const starts = delta.indicatorLineStartLocs() ?? assert.fail(`Delta missing indicatorLineStarts`)
+        const ends = delta.indicatorLineEndLocs() ?? assert.fail(`Delta missing indicatorLineEnds`)
+        const lineColors = delta.indicatorLineRgbs() ?? assert.fail(`Delta missing indicatorLineRgbs`)
+        for (let i = 0; i < starts.xsLength(); i++) {
+            this.indicatorLineData.push({
+                start: { x: starts.xs(i)!, y: starts.ys(i)! },
+                end: { x: ends.xs(i)!, y: ends.ys(i)! },
+                color: renderUtils.rgbToHex(lineColors.red(i)!, lineColors.green(i)!, lineColors.blue(i)!),
+                id: delta.indicatorLineIds(i)!
+            })
         }
     }
 
@@ -250,6 +293,32 @@ export class CurrentMap {
             ctx.stroke()
 
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
+        }
+
+        // Render indicator dots
+        for (const data of this.indicatorDotData) {
+            // if (data.id === this.lastSelectedID || this.conf.allIndicators) {
+            if (true) {
+                const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
+                ctx.beginPath()
+                ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
+                ctx.fillStyle = data.color
+                ctx.fill()
+            }
+        }
+
+        ctx.lineWidth = INDICATOR_LINE_WIDTH
+        for (const data of this.indicatorLineData) {
+            // if (data.id === this.lastSelectedID || this.conf.allIndicators) {
+            if (true) {
+                const start = renderUtils.getRenderCoords(data.start.x, data.start.y, this.dimension)
+                const end = renderUtils.getRenderCoords(data.end.x, data.end.y, this.dimension)
+                ctx.beginPath()
+                ctx.moveTo(start.x + 0.5, start.y + 0.5)
+                ctx.lineTo(end.x + 0.5, end.y + 0.5)
+                ctx.strokeStyle = data.color
+                ctx.stroke()
+            }
         }
     }
 
