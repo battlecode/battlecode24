@@ -109,11 +109,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public Team getEnemyTeam() {
-        return this.robot.getTeam() == Team.A ? Team.B : Team.A;
-    }
-
-    @Override
     public MapLocation getLocation() {
         return this.robot.getLocation();
     }

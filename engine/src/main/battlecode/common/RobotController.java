@@ -79,15 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns the opposing Team
-     *
-     * @return the opposing team
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    Team getEnemyTeam();
-
-    /**
      * Returns the robot's current experience in the specified skill.
      * 
      * @param skill the skill that we want to get the robot's experience in
