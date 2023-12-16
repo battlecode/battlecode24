@@ -1,7 +1,9 @@
 package HannahPlayer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Collections;
 
 import battlecode.common.*;
 import battlecode.schema.GameplayConstants;
@@ -10,7 +12,31 @@ public class RobotPlayer {
 
     static final Random rng = new Random(6147);
 
+    public static int squaredDist(MapLocation p1, MapLocation p2){
+        int xDist = p1.x - p2.x;
+        int yDist = p1.y - p2.y;
+
+        return xDist*xDist + yDist*yDist;
+    }
+
+    public static MapLocation findClosestFlag(MapLocation[] arr, MapLocation curr){
+        int minDist = Integer.MAX_VALUE;
+        MapLocation ans = null;
+
+        for (MapLocation m : arr){
+            int dist = squaredDist(m, curr);
+
+            if(dist < minDist){
+                minDist = dist;
+                ans = m;
+            }
+        }
+
+        return ans;
+    }
+
     public static void run(RobotController rc) throws GameActionException{
+
         //rc.resign();
         while (true){
         System.out.println("Round number " + rc.getRoundNum());
@@ -45,17 +71,10 @@ public class RobotPlayer {
             };
 
             if(rc.getRoundNum() < 200){ //setup phase
-                FlagInfo[] myFlags = rc.senseNearbyFlags(3, rc.getTeam());
-                if(rc.getRoundNum() < 4 && rc.canPickupFlag(rc.getLocation())){ //spawned with flag
-                    rc.pickupFlag(rc.getLocation());
-                    System.out.println("spanwed w/ flag");
-                }
-                else if(rc.canDropFlag(rc.getLocation()) && rc.canBuild(TrapType.WATER, rc.getLocation())){ //we are out of the spawn zone
-                    rc.dropFlag(rc.getLocation());
-                    System.out.println("out of spawn zone");
-                }
                 
-                else if(myFlags.length != 0){ //flags are very close!
+                FlagInfo[] myFlags = rc.senseNearbyFlags(3, rc.getTeam());
+                
+                if(myFlags.length != 0){ //flags are very close!
                     if(rc.canBuild(TrapType.WATER, rc.getLocation())){
                         rc.build(TrapType.WATER, rc.getLocation());
                     }
@@ -66,7 +85,7 @@ public class RobotPlayer {
                         rc.build(TrapType.STUN, rc.getLocation());
                     }
                 }
-                
+                Collections.shuffle(Arrays.asList(directions));
                 for (Direction dir : directions){ //try to move
                     if (rc.canMove(dir)){
                         rc.move(dir);
@@ -75,16 +94,47 @@ public class RobotPlayer {
                 }
             }
             else { //no longer in setup phase
-                for (Direction dir : directions){ //try to move
-                    if (rc.canMove(dir)){
-                        rc.move(dir);
-                        break;
+                MapLocation[] flagLocs = rc.senseBroadcastFlagLocations();
+                boolean randomMove = true;
+                if (flagLocs.length != 0){
+                    MapLocation flag = findClosestFlag(flagLocs, rc.getLocation());
+                    
+                    //find distances of all new locations to the closest flag
+                    int minDist = Integer.MAX_VALUE;
+                    Direction bestDir = null;             
+
+                    for (Direction dir : directions){ //find location that gets closest to flag
+                        if (!rc.canMove(dir)) continue;
+                        MapLocation newLoc = new MapLocation(rc.getLocation().x + dir.dx, rc.getLocation().y + dir.dy);
+                        int newDist = squaredDist(newLoc, flag);
+
+                        if(newDist < minDist){
+                            minDist = newDist;
+                            bestDir = dir;
+                            randomMove = false;
+                        }
+                    }
+                    System.out.println("move this direction " + bestDir);
+                    rc.move(bestDir);
+                }
+                if(randomMove){ //move randomly
+                    Collections.shuffle(Arrays.asList(directions));
+                    for (Direction dir : directions){ //try to move
+                        if (rc.canMove(dir)){
+                            rc.move(dir);
+                            break;
+                        }
                     }
                 }
-                
-                RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
-                if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
-                    rc.attack(enemies[0].getLocation());
+
+                RobotInfo[] nearby = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+                if (nearby.length != 0){
+                    if (rc.canAttack(nearby[0].getLocation())){
+                        rc.attack(nearby[0].getLocation());
+                    } 
+                    if (rc.canHeal(nearby[0].getLocation())){
+                        rc.heal(nearby[0].getLocation());
+                    }
                 }
                 
                 if(rc.canPickupFlag(rc.getLocation())){
