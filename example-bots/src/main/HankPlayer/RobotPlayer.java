@@ -79,8 +79,7 @@ public class RobotPlayer {
             }
             return;
         }
-        if(rc.getLocation() == null) System.out.println("I am alive but my location is null 1");
-
+        
         if(rc.getRoundNum() < 150){
             FlagInfo[] flags = rc.senseNearbyFlags(-1, team);
             for(FlagInfo flag : flags) {
@@ -93,7 +92,7 @@ public class RobotPlayer {
             moveRandom(rc);
         } 
         else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
-            if(rc.canDropFlag(rc.getLocation())){
+            if(rc.senseLegalStartingFlagPlacement(rc.getLocation())){
                 rc.dropFlag(rc.getLocation());
                 System.out.println("Dropped ally flag!");
             }
@@ -141,7 +140,6 @@ public class RobotPlayer {
             }
         }
 
-        if(rc.getLocation() == null) System.out.println("I am alive but my location is null 2");
         RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
         if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
             rc.attack(enemies[0].getLocation());
