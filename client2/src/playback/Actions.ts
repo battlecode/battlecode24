@@ -206,17 +206,36 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const trapData = turn.map.trapData.get(trapId)!
             const coords = trapData.location
             const rad = 3
-            // change all non wall and non spawnzone tiles to water
+
+            // Change tiles to water. Cannot be:
+            //  1. On a wall
+            //  2. In a spawn zone
+            //  3. On an occupied tile
             for (let x = coords.x - rad; x <= coords.x + rad; x++) {
                 for (let y = coords.y - rad; y <= coords.y + rad; y++) {
                     if (x < 0 || y < 0 || x >= turn.map.width || y >= turn.map.height) continue
+
                     if (Math.pow(x - coords.x, 2) + Math.pow(y - coords.y, 2) > rad * rad) continue
                     const idx = turn.map.locationToIndex(x, y)
                     if (turn.map.staticMap.walls[idx]) continue
+
                     let inSpawnZone = false
-                    for (const spawnZone of turn.map.staticMap.spawnLocations)
-                        inSpawnZone ||= Math.abs(spawnZone.x - x) <= 1 && Math.abs(spawnZone.y - y) <= 1
+                    for (const spawnZone of turn.map.staticMap.spawnLocations) {
+                        if (Math.abs(spawnZone.x - x) <= 1 && Math.abs(spawnZone.y - y) <= 1) {
+                            inSpawnZone = true
+                            break
+                        }
+                    }
                     if (inSpawnZone) continue
+
+                    let coveredByBot = false
+                    for (const pair of turn.bodies.bodies) {
+                        if (pair[1].pos.x == x && pair[1].pos.y == y) {
+                            coveredByBot = true
+                            break
+                        }
+                    }
+                    if (coveredByBot) continue
 
                     turn.map.water[idx] = 1
                 }
