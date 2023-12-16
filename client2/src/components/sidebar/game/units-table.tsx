@@ -3,7 +3,7 @@ import { useAppContext } from '../../../app-context'
 import { useForceUpdate } from '../../../util/react-util'
 import { useListenEvent, EventType } from '../../../app-events'
 import { getImageIfLoaded, removeTriggerOnImageLoad, triggerOnImageLoad } from '../../../util/ImageLoader'
-import { TEAM_COLOR_NAMES } from '../../../constants';
+import { TEAM_COLOR_NAMES } from '../../../constants'
 
 interface UnitsIconProps {
     team: 0 | 1
@@ -44,15 +44,15 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     const columns: Array<[string, React.ReactElement]> = [
-        ['Base', <UnitsIcon team={props.team} robotType='base' />],
-        ['Attack', <UnitsIcon team={props.team} robotType='attack'/>],
-        ['Build', <UnitsIcon team={props.team} robotType='build'/>],
-        ['Heal', <UnitsIcon team={props.team} robotType='heal'/>],
+        ['Base', <UnitsIcon team={props.team} robotType="base" />],
+        ['Attack', <UnitsIcon team={props.team} robotType="attack" />],
+        ['Build', <UnitsIcon team={props.team} robotType="build" />],
+        ['Heal', <UnitsIcon team={props.team} robotType="heal" />]
     ]
 
     const data: Array<[string, Array<number>]> = [
-        ['Count', teamStat?.robots ?? [0, 0, 0, 0]], 
-        ['Avg. Level', [0, 0, 0, 0]], 
+        ['Count', teamStat?.robots ?? [0, 0, 0, 0]],
+        ['Avg. Level', [0, 0, 0, 0]],
         ['Σ(HP)', teamStat?.total_hp ?? [0, 0, 0, 0]]
     ]
 

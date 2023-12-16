@@ -2,7 +2,7 @@ import React from 'react'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
-import { D3LineChart, DataPoint } from './d3-line-chart'
+import { D3LineChart, LineChartDataPoint } from './d3-line-chart'
 import assert from 'assert'
 
 interface Props {
@@ -14,7 +14,7 @@ function hasKey<O extends Object>(obj: O, key: PropertyKey): key is keyof O {
     return key in obj
 }
 
-function getChartData(appContext: AppContext, property: string): DataPoint[] {
+function getChartData(appContext: AppContext, property: string): LineChartDataPoint[] {
     const match = appContext.state.activeMatch
     if (match === undefined) {
         return []
