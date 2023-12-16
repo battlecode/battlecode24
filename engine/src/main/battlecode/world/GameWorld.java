@@ -413,7 +413,7 @@ public strictfp class GameWorld {
         }
         this.trapLocations[locationToIndex(loc)] = null;
         matchMaker.addTriggeredTrap(trap.getId());
-        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), trap.getId());
+        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), locationToIndex(trap.getLocation()));
     }
 
     // ***********************************
