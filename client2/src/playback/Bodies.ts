@@ -11,7 +11,7 @@ import { Vector } from './Vector'
 import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
 import Match from './Match'
 import { TestDuckBrush } from './Brushes'
-import { ClientConfig } from '../client-config';
+import { ClientConfig } from '../client-config'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -325,16 +325,21 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             }
 
             if (selected || hovered || config.showAllRobotRadii) {
+                const renderCoords = renderUtils.getRenderCoords(
+                    interpCoords.x,
+                    interpCoords.y,
+                    match.currentTurn.map.staticMap.dimension
+                )
                 ctx.beginPath()
                 ctx.strokeStyle = 'blue'
-                ctx.lineWidth = 1 / match.map.width
-                ctx.arc(interpCoords.x + 0.5, interpCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
+                ctx.lineWidth = 2 / match.map.width
+                ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
                 ctx.stroke()
 
                 ctx.beginPath()
                 ctx.strokeStyle = 'red'
-                ctx.lineWidth = 1 / match.map.width
-                ctx.arc(interpCoords.x + 0.5, interpCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
+                ctx.lineWidth = 2 / match.map.width
+                ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
                 ctx.stroke()
             }
         }

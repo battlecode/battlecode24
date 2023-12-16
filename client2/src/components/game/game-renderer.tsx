@@ -7,6 +7,8 @@ import assert from 'assert'
 import Tooltip from './tooltip'
 import { Body } from '../../playback/Bodies'
 import Match from '../../playback/Match'
+import { CurrentMap } from '../../playback/Map'
+import { render } from '@headlessui/react/dist/utils/render'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -32,6 +34,11 @@ export const GameRenderer: React.FC = () => {
 
     const getCanvas = (ct: CanvasType) => {
         return canvases.current[ct] || undefined
+    }
+    
+    const getHoveredBody = () => {
+        if (!hoveredTile || !activeMatch) return undefined
+        return activeMatch.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y)
     }
 
     // TODO: could potentially have performance settings that allows rendering
@@ -77,31 +84,23 @@ export const GameRenderer: React.FC = () => {
         }
     }
 
-    const drawHoveredTile = (ctx: CanvasRenderingContext2D, tileWidth: number, tileHeight: number) => {
+    const drawHoveredTile = (ctx: CanvasRenderingContext2D, map: CurrentMap) => {
         if (!hoveredTile) return
         const { x, y } = hoveredTile
-        ctx.beginPath()
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
-        ctx.strokeRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'
+        ctx.lineWidth = 0.075
+        ctx.strokeRect(x, map.height - y - 1, 1, 1)
     }
 
-    let hoveredBody: Body | undefined = undefined
-    if (appContext.state.activeMatch?.currentTurn?.bodies && hoveredTile)
-        hoveredBody = appContext.state.activeMatch?.currentTurn?.bodies.getBodyAtLocation(
-            hoveredTile.x,
-            hoveredTile.y
-        )
-
-    const renderOverlay = () => {
+    const renderOverlay = React.useCallback(() => {
         const overlayCanvas = getCanvas(CanvasType.OVERLAY)
-        const ctx = getCanvasContext(CanvasType.DYNAMIC)
         const overlayCtx = getCanvasContext(CanvasType.OVERLAY)
-        if (!activeMatch || !overlayCanvas || !ctx || !overlayCtx) return
+        if (!activeMatch || !overlayCanvas || !overlayCtx) return
         const map = activeMatch.currentTurn.map
         overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
         if (selectedBody) drawBodyPath(activeMatch, overlayCtx, selectedBody)
-        drawHoveredTile(overlayCtx, overlayCanvas.width / map.width, overlayCanvas.height / map.height)
-    }
+        drawHoveredTile(overlayCtx, map)
+    }, [activeMatch, selectedBody, hoveredTile])
     useEffect(renderOverlay, [hoveredTile])
 
     const render = React.useCallback(() => {
@@ -113,11 +112,11 @@ export const GameRenderer: React.FC = () => {
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         map.draw(activeMatch, ctx, appContext.state.config, selectedBody)
-        currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
+        currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, getHoveredBody())
         currentTurn.actions.draw(activeMatch, ctx)
 
         renderOverlay()
-    }, [activeMatch])
+    }, [activeMatch, renderOverlay])
     useListenEvent(EventType.RENDER, render, [render])
 
     const fullRender = () => {
@@ -176,15 +175,10 @@ export const GameRenderer: React.FC = () => {
         return { x: x, y: y }
     }
 
-    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const point = eventToPoint(e)
-        const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
-        setSelectedBody(clickedBody)
-        publishEvent(EventType.TILE_CLICK, point)
-    }
-
     const mouseDown = React.useRef(false)
+    const mouseDownRightPrev = React.useRef(false)
     const lastFiredDragEvent = React.useRef({ x: -1, y: -1 })
+
     const onMouseUp = () => {
         mouseDown.current = false
         lastFiredDragEvent.current = { x: -1, y: -1 }
@@ -193,22 +187,29 @@ export const GameRenderer: React.FC = () => {
         mouseDown.current = true
     }
     const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        setHoveredTile(eventToPoint(e))
+        const tile = eventToPoint(e)
+        if (tile.x !== hoveredTile?.x || tile.y !== hoveredTile?.y) setHoveredTile(tile)
     }
-
-    const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const point = eventToPoint(e)
-        if (point.x === lastFiredDragEvent.current.x && point.y === lastFiredDragEvent.current.y) return
-        lastFiredDragEvent.current = point
-        publishEvent(EventType.TILE_DRAG, point)
-    }
-
-    const mouseDownRightPrev = React.useRef(false)
     const mouseDownRight = (down: boolean, e?: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (down === mouseDownRightPrev.current) return
         mouseDownRightPrev.current = down
         if (!down && e) onCanvasClick(e)
         publishEvent(EventType.CANVAS_RIGHT_CLICK, { down: down })
+    }
+
+    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const point = eventToPoint(e)
+        const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
+        setSelectedBody(clickedBody)
+        publishEvent(EventType.TILE_CLICK, point)
+    }
+    const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const tile = eventToPoint(e)
+        if (tile.x !== hoveredTile?.x || tile.y !== hoveredTile?.y) setHoveredTile(tile)
+
+        if (tile.x === lastFiredDragEvent.current.x && tile.y === lastFiredDragEvent.current.y) return
+        lastFiredDragEvent.current = tile
+        publishEvent(EventType.TILE_DRAG, tile)
     }
 
     if (!canvases) return <></>
@@ -259,7 +260,7 @@ export const GameRenderer: React.FC = () => {
                     <Tooltip
                         overlayCanvas={getCanvas(CanvasType.OVERLAY)}
                         selectedBody={selectedBody}
-                        hoveredBody={hoveredBody}
+                        hoveredBody={getHoveredBody()}
                         wrapper={wrapperRef}
                     />
                 </div>

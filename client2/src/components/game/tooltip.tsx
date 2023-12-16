@@ -39,8 +39,8 @@ const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: TooltipP
                         top: mapTop + tileHeight * (map.height - hoveredBody.pos.y - 0.25) + 'px'
                     }}
                 >
-                    {hoveredBody.onHoverInfo().map((v) => (
-                        <p>{v}</p>
+                    {hoveredBody.onHoverInfo().map((v, i) => (
+                        <p key={i}>{v}</p>
                     ))}
                 </div>
             )}
@@ -52,8 +52,8 @@ const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: TooltipP
                         top: overlayCanvas.clientTop + 20 + 'px'
                     }}
                 >
-                    {selectedBody.onHoverInfo().map((v) => (
-                        <p>{v}</p>
+                    {selectedBody.onHoverInfo().map((v, i) => (
+                        <p key={i}>{v}</p>
                     ))}
                 </div>
             )}
