@@ -206,10 +206,16 @@ export class CurrentMap {
             } else {
                 loc = data.location
             }
+
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+
+            // Render a red outline to show who is carrying the flag
+            if (data.carrierId) renderUtils.renderRoundedOutline(ctx, coords, 'red')
+
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 ctx,
                 getImageIfLoaded('resources/bread_64x64.png'),
-                renderUtils.getRenderCoords(loc.x, loc.y, this.dimension),
+                coords,
                 1
             )
         }
@@ -236,23 +242,11 @@ export class CurrentMap {
             const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
             const loc = data.location
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
-            ctx.beginPath()
-            const r90 = 0.5 * Math.PI
-            ctx.moveTo(coords.x + 0.1, coords.y + 0.2)
-            ctx.arc(coords.x + 0.2, coords.y + 0.2, 0.1, 2 * r90, 3 * r90)
-            ctx.lineTo(coords.x + 0.8, coords.y + 0.1)
-            ctx.arc(coords.x + 0.8, coords.y + 0.2, 0.1, 3 * r90, 4 * r90)
-            ctx.lineTo(coords.x + 0.9, coords.y + 0.8)
-            ctx.arc(coords.x + 0.8, coords.y + 0.8, 0.1, 0, r90)
-            ctx.lineTo(coords.x + 0.2, coords.y + 0.9)
-            ctx.arc(coords.x + 0.2, coords.y + 0.8, 0.1, r90, 2 * r90)
-            ctx.lineTo(coords.x + 0.1, coords.y + 0.2)
-            ctx.closePath()
-            ctx.strokeStyle = TEAM_COLORS[data.team - 1]
-            ctx.lineWidth = 0.075
-            ctx.stroke()
+            renderUtils.renderRoundedOutline(ctx, coords, TEAM_COLORS[data.team - 1])
 
+            ctx.globalAlpha = 0.6
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
+            ctx.globalAlpha = 1
         }
     }
 

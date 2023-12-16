@@ -181,49 +181,43 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             // To dicuss
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const map = match.currentTurn.map
-            const coords = map.indexToLocation(this.target)
             const radius = 3.3 // in between the two sizes of the explosion
+            const map = match.currentTurn.map
+            const loc = map.indexToLocation(this.target)
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, map.dimension, true)
 
             // Get the trap color, assumes only opposite team can trigger
             const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
             ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
 
+            ctx.globalAlpha = 0.5
             ctx.fillStyle = ATTACK_COLOR
             ctx.beginPath()
-            ctx.arc(
-                renderUtils.getRenderCoords(coords.x, coords.y, map.dimension).x,
-                renderUtils.getRenderCoords(coords.x, coords.y, map.dimension).y,
-                radius,
-                0,
-                2 * Math.PI
-            )
+            ctx.arc(coords.x, coords.y, radius, 0, 2 * Math.PI)
             ctx.fill()
             ctx.stroke()
+            ctx.globalAlpha = 1
         }
     },
     [schema.Action.WATER_TRAP]: class WaterTrap extends Action {
         apply(turn: Turn): void {}
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const map = match.currentTurn.map
-            const coords = map.indexToLocation(this.target)
             const radius = 3
+            const map = match.currentTurn.map
+            const loc = map.indexToLocation(this.target)
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, map.dimension, true)
 
             // Get the trap color, assumes only opposite team can trigger
             const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
             ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
 
+            ctx.globalAlpha = 0.5
             ctx.fillStyle = WATER_COLOR
             ctx.beginPath()
-            ctx.arc(
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
-                radius,
-                0,
-                2 * Math.PI
-            )
+            ctx.arc(coords.x, coords.y, radius, 0, 2 * Math.PI)
             ctx.fill()
             ctx.stroke()
+            ctx.globalAlpha = 1
         }
     },
     [schema.Action.STUN_TRAP]: class StunTrap extends Action {
@@ -231,25 +225,22 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             // To dicuss
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const map = match.currentTurn.map
-            const coords = map.indexToLocation(this.target)
             const radius = Math.sqrt(13)
+            const map = match.currentTurn.map
+            const loc = map.indexToLocation(this.target)
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, map.dimension, true)
 
             // Get the trap color, assumes only opposite team can trigger
             const triggeredBot = match.currentTurn.bodies.getById(this.robotID)
             ctx.strokeStyle = TEAM_COLORS[1 - (triggeredBot.team.id - 1)]
 
+            ctx.globalAlpha = 0.5
             ctx.fillStyle = 'black'
             ctx.beginPath()
-            ctx.arc(
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).x,
-                renderUtils.getRenderCoords(coords.x, coords.y, match.currentTurn.map.staticMap.dimension).y,
-                radius,
-                0,
-                2 * Math.PI
-            )
+            ctx.arc(coords.x, coords.y, radius, 0, 2 * Math.PI)
             ctx.fill()
             ctx.stroke()
+            ctx.globalAlpha = 1
         }
     },
     [schema.Action.PICKUP_FLAG]: class PickupFlag extends Action {
