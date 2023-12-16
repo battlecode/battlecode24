@@ -63,6 +63,10 @@ public class Flag {
         return carryingRobot != null;
     }
 
+    public InternalRobot getCarryingRobot() {
+        return carryingRobot;
+    }
+
     public void pickUp(InternalRobot robot) {
         carryingRobot = robot;
         droppedRounds = 0;

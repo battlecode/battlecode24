@@ -413,7 +413,7 @@ public strictfp class GameWorld {
         }
         this.trapLocations[locationToIndex(loc)] = null;
         matchMaker.addTriggeredTrap(trap.getId());
-        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), trap.getId());
+        matchMaker.addAction(robot.getID(), FlatHelpers.getTrapActionFromTrapType(type), locationToIndex(trap.getLocation()));
     }
 
     // ***********************************
@@ -751,14 +751,16 @@ public strictfp class GameWorld {
     }
 
     private void moveFlagSetStartLoc(Flag flag, MapLocation location){
-        flag.drop();
+        if(flag.isPickedUp()) {
+            matchMaker.addAction(flag.getCarryingRobot().getID(), Action.DROP_FLAG, flag.getId());
+            flag.getCarryingRobot().removeFlag();
+        }
         removeFlag(flag.getLoc(), flag);
         addFlag(location, flag);
         flag.setStartLoc(location);
         if(water[locationToIndex(location)]) 
             water[locationToIndex(location)] = false;
     }
-
     
     // *********************************
     // ****** SPAWNING *****************
