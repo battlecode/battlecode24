@@ -280,7 +280,7 @@ public strictfp class GameWorld {
 
     /**
      * Checks if a given location is a spawn zone.
-     * Returns 0 if not, 2 if it is a Team A spawn zone,
+     * Returns 0 if not, 1 if it is a Team A spawn zone,
      * and 2 if it is a Team B spawn zone.
      * 
      * @param loc the location to check
