@@ -9,14 +9,13 @@ export enum Action {
   WATER_TRAP = 5,
   STUN_TRAP = 6,
   PICKUP_FLAG = 7,
-  DROP_FLAG = 8,
+  PLACE_FLAG = 8,
   CAPTURE_FLAG = 9,
-  RESET_FLAG = 10,
-  GLOBAL_UPGRADE = 11,
+  GLOBAL_UPGRADE = 10,
 
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  DIE_EXCEPTION = 12
+  DIE_EXCEPTION = 11
 }

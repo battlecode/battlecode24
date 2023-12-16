@@ -117,12 +117,10 @@ enum Action : byte {
     STUN_TRAP,
     // Target: flag id
     PICKUP_FLAG,
-    // Target: flag id
-    DROP_FLAG,
+    // Id: Flag id, Target: x + y * width of placed location
+    PLACE_FLAG,
     // Target: flag id
     CAPTURE_FLAG,
-    // Id: Flag id, Target: x + y * width of reset location
-    RESET_FLAG,
     // Target: GlobalUpgradeType id
     GLOBAL_UPGRADE,
     /// Dies due to an uncaught exception

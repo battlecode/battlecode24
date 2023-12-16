@@ -259,25 +259,18 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             flagData.carrierId = this.robotID
         }
     },
-    [schema.Action.DROP_FLAG]: class DropFlag extends Action {
+    [schema.Action.PLACE_FLAG]: class ResetFlag extends Action {
         apply(turn: Turn): void {
-            const flagId = this.target
+            const flagId = this.robotID
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = null
-            flagData.location = turn.bodies.getById(this.robotID).pos
+            flagData.location = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.CAPTURE_FLAG]: class CaptureFlag extends Action {
         apply(turn: Turn): void {
             const flagId = this.target
             turn.map.flagData.delete(flagId)
-        }
-    },
-    [schema.Action.RESET_FLAG]: class ResetFlag extends Action {
-        apply(turn: Turn): void {
-            const flagId = this.robotID
-            const flagData = turn.map.flagData.get(flagId)!
-            flagData.location = turn.map.indexToLocation(this.target)
         }
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {
