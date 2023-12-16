@@ -4,10 +4,11 @@ import { CurrentMap, Dimension, StaticMap } from '../playback/Map'
 import { Vector } from '../playback/Vector'
 import { Body } from '../playback/Bodies'
 
-export const getRenderCoords = (cellX: number, cellY: number, dims: Dimension) => {
+export const getRenderCoords = (cellX: number, cellY: number, dims: Dimension, centered: boolean = false) => {
     const cx = dims.minCorner.x + cellX
     const cy = dims.minCorner.y + dims.height - cellY - 1 // Y is flipped
-    return { x: cx, y: cy }
+    const offset = centered ? 0.5 : 0
+    return { x: cx + offset, y: cy + offset }
 }
 
 export const getInterpolatedCoordsFromBody = (body: Body, alpha: number) => {
@@ -261,6 +262,25 @@ export const renderLine = (
     ctx.closePath()
     ctx.strokeStyle = color
     ctx.globalAlpha = alpha
+}
+
+// Draws an outline around a tile
+export const renderRoundedOutline = (ctx: CanvasRenderingContext2D, coords: Vector, color: string) => {
+    ctx.beginPath()
+    const r90 = 0.5 * Math.PI
+    ctx.moveTo(coords.x + 0.1, coords.y + 0.2)
+    ctx.arc(coords.x + 0.2, coords.y + 0.2, 0.1, 2 * r90, 3 * r90)
+    ctx.lineTo(coords.x + 0.8, coords.y + 0.1)
+    ctx.arc(coords.x + 0.8, coords.y + 0.2, 0.1, 3 * r90, 4 * r90)
+    ctx.lineTo(coords.x + 0.9, coords.y + 0.8)
+    ctx.arc(coords.x + 0.8, coords.y + 0.8, 0.1, 0, r90)
+    ctx.lineTo(coords.x + 0.2, coords.y + 0.9)
+    ctx.arc(coords.x + 0.2, coords.y + 0.8, 0.1, r90, 2 * r90)
+    ctx.lineTo(coords.x + 0.1, coords.y + 0.2)
+    ctx.closePath()
+    ctx.strokeStyle = color
+    ctx.lineWidth = 0.075
+    ctx.stroke()
 }
 
 // Draws an image at (x, y) such that it is centered in a SIZE*SIZE grid of cells
