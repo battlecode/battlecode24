@@ -193,7 +193,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null);
         return this.cachedRobotInfo;
     }
 
