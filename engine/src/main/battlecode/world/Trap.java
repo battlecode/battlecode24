@@ -15,6 +15,7 @@ public class Trap{
         this.loc = loc;
         this.type = type;
         this.owningTeam = team;
+        this.id = id;
     }
 
     public int getId() {
