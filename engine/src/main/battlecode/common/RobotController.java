@@ -79,15 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns the opposing Team
-     *
-     * @return the opposing team
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    Team getEnemyTeam();
-
-    /**
      * Returns the robot's current experience in the specified skill.
      * 
      * @param skill the skill that we want to get the robot's experience in
@@ -653,6 +644,15 @@ public strictfp interface RobotController {
     // ***************************
     // ******* FLAG METHODS ******
     // ***************************
+
+    /**
+     * Checks whether robot is currently holding a flag.
+     * 
+     * @return whether the robot is holding a flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean hasFlag();
 
     /**
      * Tests whether robot can pickup a flag at the current location.

@@ -9,7 +9,7 @@ export enum Action {
   WATER_TRAP = 5,
   STUN_TRAP = 6,
   PICKUP_FLAG = 7,
-  DROP_FLAG = 8,
+  PLACE_FLAG = 8,
   CAPTURE_FLAG = 9,
   GLOBAL_UPGRADE = 10,
 

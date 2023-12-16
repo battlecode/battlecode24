@@ -751,12 +751,10 @@ public strictfp class GameWorld {
     }
 
     private void moveFlagSetStartLoc(Flag flag, MapLocation location){
-        if(flag.isPickedUp()) {
-            matchMaker.addAction(flag.getCarryingRobot().getID(), Action.DROP_FLAG, flag.getId());
-            flag.getCarryingRobot().removeFlag();
-        }
+        if(flag.isPickedUp()) flag.getCarryingRobot().removeFlag();
         removeFlag(flag.getLoc(), flag);
         addFlag(location, flag);
+        matchMaker.addAction(flag.getId(), Action.PLACE_FLAG, locationToIndex(location));
         flag.setStartLoc(location);
         if(water[locationToIndex(location)]) 
             water[locationToIndex(location)] = false;

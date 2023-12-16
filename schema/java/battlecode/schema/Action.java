@@ -13,7 +13,7 @@ public final class Action {
   public static final byte WATER_TRAP = 5;
   public static final byte STUN_TRAP = 6;
   public static final byte PICKUP_FLAG = 7;
-  public static final byte DROP_FLAG = 8;
+  public static final byte PLACE_FLAG = 8;
   public static final byte CAPTURE_FLAG = 9;
   public static final byte GLOBAL_UPGRADE = 10;
   /**
@@ -22,7 +22,7 @@ public final class Action {
    */
   public static final byte DIE_EXCEPTION = 11;
 
-  public static final String[] names = { "ATTACK", "HEAL", "DIG", "FILL", "EXPLOSIVE_TRAP", "WATER_TRAP", "STUN_TRAP", "PICKUP_FLAG", "DROP_FLAG", "CAPTURE_FLAG", "GLOBAL_UPGRADE", "DIE_EXCEPTION", };
+  public static final String[] names = { "ATTACK", "HEAL", "DIG", "FILL", "EXPLOSIVE_TRAP", "WATER_TRAP", "STUN_TRAP", "PICKUP_FLAG", "PLACE_FLAG", "CAPTURE_FLAG", "GLOBAL_UPGRADE", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }

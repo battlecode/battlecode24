@@ -117,8 +117,8 @@ enum Action : byte {
     STUN_TRAP,
     // Target: flag id
     PICKUP_FLAG,
-    // Target: flag id
-    DROP_FLAG,
+    // Id: Flag id, Target: x + y * width of placed location
+    PLACE_FLAG,
     // Target: flag id
     CAPTURE_FLAG,
     // Target: GlobalUpgradeType id

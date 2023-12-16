@@ -12,7 +12,7 @@ var Action;
     Action[Action["WATER_TRAP"] = 5] = "WATER_TRAP";
     Action[Action["STUN_TRAP"] = 6] = "STUN_TRAP";
     Action[Action["PICKUP_FLAG"] = 7] = "PICKUP_FLAG";
-    Action[Action["DROP_FLAG"] = 8] = "DROP_FLAG";
+    Action[Action["PLACE_FLAG"] = 8] = "PLACE_FLAG";
     Action[Action["CAPTURE_FLAG"] = 9] = "CAPTURE_FLAG";
     Action[Action["GLOBAL_UPGRADE"] = 10] = "GLOBAL_UPGRADE";
     /**

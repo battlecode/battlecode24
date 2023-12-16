@@ -259,15 +259,9 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             flagData.carrierId = this.robotID
         }
     },
-    [schema.Action.DROP_FLAG]: class DropFlag extends Action {
+    [schema.Action.PLACE_FLAG]: class ResetFlag extends Action {
         apply(turn: Turn): void {
-            // Find flag id based on carrying robot
-            let flagId = -1
-            turn.map.flagData.forEach((v, k) => {
-                if (v.carrierId == this.robotID) {
-                    flagId = k
-                }
-            })
+            const flagId = this.robotID
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = null
             flagData.location = turn.map.indexToLocation(this.target)
