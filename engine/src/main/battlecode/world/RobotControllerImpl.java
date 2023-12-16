@@ -507,15 +507,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
+           // this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
             this.robot.incrementSkill(SkillType.BUILD);
-        }
-
-        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
         }
     }
 
@@ -552,7 +549,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
+            //this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
         if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
@@ -669,9 +667,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                this.gameWorld.triggerTrap(trap, this.robot, true);
+                //this.gameWorld.triggerTrap(trap, this.robot, true);
+                this.robot.addTrapTrigger(trap, true);
             } else {
-                this.gameWorld.triggerTrap(trap, this.robot, false);
+               // this.gameWorld.triggerTrap(trap, this.robot, false);
+               this.robot.addTrapTrigger(trap, false);
             }
         }
         
