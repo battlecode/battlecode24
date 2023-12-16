@@ -416,7 +416,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Attacks another location (launcher).
+     * Attacks another location if there is an opponent robot.
      * 
      * @param loc the location of the bot
      */
