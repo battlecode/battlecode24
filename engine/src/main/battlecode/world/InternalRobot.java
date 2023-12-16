@@ -395,7 +395,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         jailedPenalty();
         if(flag != null){
             this.gameWorld.addFlag(location, flag);
-            this.gameWorld.getMatchMaker().addAction(ID, Action.DROP_FLAG, flag.getId());
+            this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(location));
             removeFlag();  
         }
         this.spawned = false;
