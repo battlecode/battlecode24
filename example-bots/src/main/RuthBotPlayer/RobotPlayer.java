@@ -1,4 +1,4 @@
-// package RuthBotPlayer;
+package RuthBotPlayer;
 
 import java.util.Random;
 import java.util.ArrayList;
@@ -7,22 +7,22 @@ import java.util.List;
 
 import battlecode.common.*;
 
-// public class RobotPlayer {
+public class RobotPlayer {
 
     static final Random rng = new Random(6147);
     static boolean hasEnemyFlag = false;
     static Team team;
 
-//     static Direction[] directions = {
-//                 Direction.NORTH,
-//                 Direction.NORTHEAST,
-//                 Direction.EAST,
-//                 Direction.SOUTHEAST,
-//                 Direction.SOUTH,
-//                 Direction.SOUTHWEST,
-//                 Direction.WEST,
-//                 Direction.NORTHWEST,
-//             };
+    static Direction[] directions = {
+                Direction.NORTH,
+                Direction.NORTHEAST,
+                Direction.EAST,
+                Direction.SOUTHEAST,
+                Direction.SOUTH,
+                Direction.SOUTHWEST,
+                Direction.WEST,
+                Direction.NORTHWEST,
+            };
 
     public static void run(RobotController rc) throws GameActionException{
         while (true){
