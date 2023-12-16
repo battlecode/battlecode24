@@ -2,7 +2,7 @@ import React from 'react'
 import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
-import { QuickHistogram } from './quick-histogram'
+import { CanvasHistogram } from './quick-histogram'
 import { ATTACK_COLOR, SPECIALTY_COLORS, TEAM_COLORS } from '../../../constants'
 
 function getChartData(appContext: AppContext): number[][][] {
@@ -43,7 +43,7 @@ export const SpecialtyHistogram: React.FC = () => {
             {[0, 1].map((team) => (
                 <div className="flex flex-row" key={team}>
                     {[0, 1, 2].map((specialty) => (
-                        <QuickHistogram
+                        <CanvasHistogram
                             key={specialty}
                             data={getData(team, specialty)}
                             width={110}

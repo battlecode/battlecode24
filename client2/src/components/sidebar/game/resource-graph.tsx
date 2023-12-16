@@ -4,6 +4,7 @@ import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
 import { D3LineChart, LineChartDataPoint } from './d3-line-chart'
 import assert from 'assert'
+import { CanvasLineChart } from './quick-line-chart';
 
 interface Props {
     active: boolean
@@ -46,10 +47,11 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     return (
         <div className="mt-2 px-2 w-full">
             <h2 className="mx-auto text-center">{props.propertyDisplayName}</h2>
-            <D3LineChart
+            <CanvasLineChart
                 data={getChartData(appContext, props.property)}
                 width={300 + 40} // Add 40 so that tooltip is visible outside of SVG container
                 height={300}
+                lineColor='black'
                 margin={{ top: 20, right: 20 + 20, bottom: 30, left: 40 + 20 }}
             />
         </div>
