@@ -357,6 +357,7 @@ public strictfp interface RobotController {
      * 
      * @param radiusSquared squared radius of all locations to be returned
      * @return all locations containing flags
+     * @throws GameActionException
      * 
      * @battlecode.doc.costlymethod
      **/
@@ -370,6 +371,7 @@ public strictfp interface RobotController {
      * @param radiusSquared squared radius of all locations to be returned
      * @param team the team to find flags for
      * @return all locations containing flags
+     * @throws GameActionException
      * 
      * @battlecode.doc.costlymethod
      **/
@@ -378,7 +380,7 @@ public strictfp interface RobotController {
     /**
      * Returns the locations of all invisible dropped enemy flags, accurate within a radius of sqrt(100) cells.
      * 
-     * @returns all location ranges containing invisible flags
+     * @return all location ranges containing invisible flags
      * 
      * @battlecode.doc.costlymethod
      **/
@@ -532,6 +534,7 @@ public strictfp interface RobotController {
      * at this location, throws an error.
      * 
      * @param loc the location to spawn the robot
+     * @throws GameActionException if spawning is not possible at this location
      */
     void spawn(MapLocation loc) throws GameActionException;
 
@@ -682,6 +685,7 @@ public strictfp interface RobotController {
     /**
      * Picks up flag at the specified location.
      * 
+     * @param loc The specified location
      * @throws GameActionException if conditions for picking up flags are not satisfied
      * 
      * @battlecode.doc.costlymethod

@@ -12,12 +12,67 @@
         "tauri": "tauri",
         "clean": "rimraf dist",
         "electron-watch": "concurrently --kill-others \"npm run watch\" \"wait-on http://localhost:3000 && electron .\"",
-        "electron-pack": "set NODE_ENV=production && electron-builder build --publish never",
+        "electron-pack": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build -mwl --publish never",
         "electron-build": "npm run build && npm run electron-pack"
     },
     "build": {
         "asar":  false,
         "appId": "battlecode-client",
+        "productName": "Battlecode Client",
+        "compression": "maximum",
+        "fileAssociations": [
+            {
+                "ext": "bc24",
+                "name": "BC24",
+                "description": "Battlecode Match 2024",
+                "role": "Viewer",
+                "icon": "icons/icon"
+            },
+            {
+                "ext": "map24",
+                "name": "MAP24",
+                "description": "Battlecode Map 2024",
+                "role": "Viewer",
+                "icon": "icons/icon"
+            }
+        ],
+        "artifactName": "battlecode24-client-${os}-${arch}",
+        "mac": {
+            "icon": "icons/icon.icns",
+            "target": [
+                {
+                    "target": "zip",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "category": "public.app-category.games",
+            "hardenedRuntime": "true"
+        },
+        "win": {
+            "icon": "icons/icon.ico",
+            "target": [
+                {
+                    "target": "zip",
+                    "arch": [
+                        "x64",
+                        "ia32"
+                    ]
+                }
+            ]
+        },
+        "linux": {
+            "icon": "icons/icon.png",
+            "target": [
+                {
+                    "target": "zip",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        },
         "files": [
             "dist/bundle*",
             "dist/index.html",
@@ -32,19 +87,11 @@
             "node_modules/process/**/*",
             "node_modules/electron-is-dev/**/*"
         ],
-        "mac": {
-            "icon": "icons/icon.icns"
-        },
-        "win": {
-            "icon": "icons/icon.ico"
-        },
-        "linux": {
-            "icon": "icons/icon.png"
-        }
+        "includeSubNodeModules": true
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/battlecode/battlecode23.git"
+        "url": "git+https://github.com/battlecode/battlecode24.git"
     },
     "author": "Teh Devs",
     "license": "GPL-3.0",
