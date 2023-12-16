@@ -404,6 +404,7 @@ public strictfp class GameWorld {
                     if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(loc) != 0)
                         continue;
                     setWater(adjLoc);
+                    matchMaker.addAction(-1, Action.DIG, locationToIndex(adjLoc));
                 }
                 break;
         }

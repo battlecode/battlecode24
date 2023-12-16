@@ -506,7 +506,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addFillLocation(loc);
         this.gameWorld.setLand(loc);
 
-        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
            // this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
@@ -548,7 +548,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addDigLocation(loc);
         this.gameWorld.setWater(loc);
 
-        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
             //this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
