@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
 import { EventType, publishEvent, useListenEvent } from '../../app-events'
@@ -6,6 +6,7 @@ import * as cst from '../../constants'
 import assert from 'assert'
 import Tooltip from './tooltip'
 import { Body } from '../../playback/Bodies'
+import Match from '../../playback/Match'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -18,17 +19,19 @@ const CANVAS_Z_INDICES = [0, 1, 2]
 export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
-    const [mapCanvas, setMapCanvas] = React.useState<HTMLCanvasElement>()
-    const [overlayCanvas, setOverlayCanvas] = React.useState<HTMLCanvasElement>()
 
     const appContext = useAppContext()
     const { activeGame, activeMatch } = appContext.state
 
-    const [hoveredBody, setHoveredBody] = React.useState<Body | undefined>(undefined)
     const [selectedBody, setSelectedBody] = React.useState<Body | undefined>(undefined)
+    const [hoveredTile, setHoveredTile] = React.useState<{ x: number; y: number } | undefined>(undefined)
 
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
+    }
+
+    const getCanvas = (ct: CanvasType) => {
+        return canvases.current[ct] || undefined
     }
 
     // TODO: could potentially have performance settings that allows rendering
@@ -41,21 +44,79 @@ export const GameRenderer: React.FC = () => {
         elem.getContext('2d')?.scale(cst.TILE_RESOLUTION, cst.TILE_RESOLUTION)
     }
 
-    // Since this is a callback, we need to ensure we recreate the function when
-    // dependent variables change. Similarly, the event listener needs to be updated, which
-    // will happen automatically via dependencies
-    const render = React.useCallback(() => {
-        const match = appContext.state.activeMatch
-        if (!match) return
+    const drawBodyPath = (match: Match, ctx: CanvasRenderingContext2D, body: Body) => {
+        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn)
 
-        const currentTurn = match.currentTurn
+        let alphaValue = 1
+        let radius = cst.TOOLTIP_PATH_INIT_R
+        let lastPos: Vector = { x: -1, y: -1 }
+
+        for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
+            const color = `rgba(255, 255, 255, ${alphaValue})`
+
+            ctx.beginPath()
+            ctx.fillStyle = color
+            ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
+            ctx.fill()
+
+            alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY
+            radius *= cst.TOOLTIP_PATH_DECAY_R
+
+            if (lastPos.x != -1 && lastPos.y != -1) {
+                ctx.beginPath()
+                ctx.strokeStyle = color
+                ctx.lineWidth = radius / 2
+
+                ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
+                ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
+
+                ctx.stroke()
+            }
+
+            lastPos = prevPos
+        }
+    }
+
+    const drawHoveredTile = (ctx: CanvasRenderingContext2D, tileWidth: number, tileHeight: number) => {
+        if (!hoveredTile) return
+        const { x, y } = hoveredTile
+        ctx.beginPath()
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+        ctx.strokeRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
+    }
+
+    let hoveredBody: Body | undefined = undefined
+    if (appContext.state.activeMatch?.currentTurn?.bodies && hoveredTile)
+        hoveredBody = appContext.state.activeMatch?.currentTurn?.bodies.getBodyAtLocation(
+            hoveredTile.x,
+            hoveredTile.y
+        )
+
+    const renderOverlay = () => {
+        const overlayCanvas = getCanvas(CanvasType.OVERLAY)
+        const ctx = getCanvasContext(CanvasType.DYNAMIC)
+        const overlayCtx = getCanvasContext(CanvasType.OVERLAY)
+        if (!activeMatch || !overlayCanvas || !ctx || !overlayCtx) return
+        const map = activeMatch.currentTurn.map
+        overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
+        if (selectedBody) drawBodyPath(activeMatch, overlayCtx, selectedBody)
+        drawHoveredTile(overlayCtx, overlayCanvas.width / map.width, overlayCanvas.height / map.height)
+    }
+    useEffect(renderOverlay, [hoveredTile])
+
+    const render = React.useCallback(() => {
+        const ctx = getCanvasContext(CanvasType.DYNAMIC)
+        if (!activeMatch || !ctx) return
+
+        const currentTurn = activeMatch.currentTurn
         const map = currentTurn.map
 
-        const ctx = getCanvasContext(CanvasType.DYNAMIC)!
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(match, ctx, appContext.state.config, selectedBody)
-        currentTurn.bodies.draw(match, ctx, appContext.state.config, selectedBody, hoveredBody)
-        currentTurn.actions.draw(match, ctx)
+        map.draw(activeMatch, ctx, appContext.state.config, selectedBody)
+        currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
+        currentTurn.actions.draw(activeMatch, ctx)
+
+        renderOverlay()
     }, [activeMatch])
     useListenEvent(EventType.RENDER, render, [render])
 
@@ -132,9 +193,7 @@ export const GameRenderer: React.FC = () => {
         mouseDown.current = true
     }
     const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const tile = eventToPoint(e)
-        const currentlyHoveredBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(tile.x, tile.y)
-        setHoveredBody(currentlyHoveredBody)
+        setHoveredTile(eventToPoint(e))
     }
 
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -171,13 +230,6 @@ export const GameRenderer: React.FC = () => {
                             key={`canv${ct}`}
                             ref={(ref) => {
                                 canvases.current[ct] = ref
-                                // TODO: there's def a better way to do this but idk how rn
-                                if (ct === CanvasType.BACKGROUND && ref && mapCanvas !== ref) {
-                                    setMapCanvas(ref)
-                                }
-                                if (ct === CanvasType.OVERLAY && ref && mapCanvas !== ref) {
-                                    setOverlayCanvas(ref)
-                                }
                             }}
                             {...(ct === CanvasType.OVERLAY && {
                                 onClick: onCanvasClick,
@@ -205,7 +257,7 @@ export const GameRenderer: React.FC = () => {
                         />
                     ))}
                     <Tooltip
-                        overlayCanvas={overlayCanvas}
+                        overlayCanvas={getCanvas(CanvasType.OVERLAY)}
                         selectedBody={selectedBody}
                         hoveredBody={hoveredBody}
                         wrapper={wrapperRef}

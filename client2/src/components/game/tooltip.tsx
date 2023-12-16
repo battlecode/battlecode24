@@ -4,8 +4,6 @@ import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import { Body } from '../../playback/Bodies'
-import { Vector } from '../../playback/Vector'
-import Match from '../../playback/Match'
 
 type TooltipProps = {
     overlayCanvas: HTMLCanvasElement | undefined
@@ -18,48 +16,6 @@ const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: TooltipP
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.RENDER, forceUpdate)
-
-    const drawBodyPath = (match: Match, ctx: CanvasRenderingContext2D, body: Body) => {
-        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn)
-
-        let alphaValue = 1
-        let radius = cst.TOOLTIP_PATH_INIT_R
-        let lastPos: Vector = { x: -1, y: -1 }
-
-        for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
-            const color = `rgba(255, 255, 255, ${alphaValue})`
-
-            ctx.beginPath()
-            ctx.fillStyle = color
-            ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
-            ctx.fill()
-
-            alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY
-            radius *= cst.TOOLTIP_PATH_DECAY_R
-
-            if (lastPos.x != -1 && lastPos.y != -1) {
-                ctx.beginPath()
-                ctx.strokeStyle = color
-                ctx.lineWidth = radius / 2
-
-                ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
-                ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
-
-                ctx.stroke()
-            }
-
-            lastPos = prevPos
-        }
-    }
-
-    useEffect(() => {
-        const match = appContext.state.activeMatch
-        if (!match || !overlayCanvas) return
-        const ctx = overlayCanvas.getContext('2d')
-        if (!ctx) return
-        ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height)
-        if (selectedBody) drawBodyPath(match, ctx, selectedBody)
-    }, [appContext.state.activeMatch, overlayCanvas, selectedBody])
 
     if (!overlayCanvas || !wrapper.current) return <></>
 
