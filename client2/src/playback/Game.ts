@@ -3,8 +3,17 @@ import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
 import { SPEC_VERSION } from '../constants'
+import { FakeGameWrapper } from '../components/sidebar/runner/websocket'
 
 let nextID = 0
+
+export type EventList = (
+    | schema.GameHeader
+    | schema.GameFooter
+    | schema.MatchHeader
+    | schema.MatchFooter
+    | schema.Round
+)[]
 
 export default class Game {
     public readonly matches: Match[] = []
@@ -31,7 +40,7 @@ export default class Game {
      */
     public readonly id: number
 
-    constructor(wrapper?: schema.GameWrapper) {
+    constructor(wrapper?: schema.GameWrapper | FakeGameWrapper) {
         this.playable = !!wrapper
 
         if (!wrapper) {
