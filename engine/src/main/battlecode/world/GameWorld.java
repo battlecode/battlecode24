@@ -208,9 +208,7 @@ public strictfp class GameWorld {
         // been visited:
 
         // NOTE: changed this from destroy to despawn; double check that this change is correct
-        //probably an issue with robot code erroring out and getting terminated when not actually spawned?
-        //may need to differentiate between death causes and despawn/destroy appropriately
-        //TODO: I think after destroy robot fix this should no longer check location and go back to destroying
+        //allowing despawned robots to continue throwing errors may be cause of gc overhead errors
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null && robot.getLocation() != null)
             despawnRobot(robot.getID());
         return true;
