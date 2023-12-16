@@ -46,6 +46,8 @@ export const DIVIDER_DROP_TURN = 200
 export const ATTACK_COLOR = '#db6b5c'
 export const BUILD_COLOR = '#c573c9'
 export const HEAL_COLOR = '#f2b804'
+export const SPECIALTY_COLORS = [ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR]
+
 /*
  * Renderer constants
  */

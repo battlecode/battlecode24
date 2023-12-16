@@ -4,7 +4,6 @@ import * as d3 from 'd3'
 
 interface HistogramProps {
     data: number[]
-    binCount: number
     width: number
     height: number
     color: string
@@ -16,9 +15,9 @@ interface HistogramProps {
     }
 }
 
-export const D3Histogram: React.FC<HistogramProps> = ({ data, width, height, margin, color, binCount }) => {
+export const D3Histogram: React.FC<HistogramProps> = ({ data, width, height, margin, color }) => {
     const svgRef = useRef<SVGSVGElement | null>(null)
-
+    const binCount = data.length
     useEffect(() => {
         if (data.length === 0) return
 
