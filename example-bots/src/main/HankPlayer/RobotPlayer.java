@@ -28,25 +28,6 @@ public class RobotPlayer {
         while (true){
             try {
                 runBot(rc);
-                // if (!rc.isSpawned()){
-                //     for (MapLocation loc : rc.getAllySpawnLocations()){
-                //         if (rc.canSpawn(loc)){
-                //             rc.spawn(loc);
-                //             hasEnemyFlag = false;
-
-                //             FlagInfo[] nearLocs = rc.senseNearbyFlags(-1);
-                //             for(FlagInfo flag : nearLocs) {
-                //                 System.out.println(flag.getLocation());
-                //             }
-                //             MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
-                //             for(MapLocation otherLoc : broadcastLocs) {
-                //                 System.out.println(otherLoc);
-                //             }
-
-                //             break;
-                //         }
-                //     }
-                // }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game
@@ -79,8 +60,7 @@ public class RobotPlayer {
             }
             return;
         }
-        if(rc.getLocation() == null) System.out.println("I am alive but my location is null 1");
-
+        
         if(rc.getRoundNum() < 150){
             FlagInfo[] flags = rc.senseNearbyFlags(-1, team);
             for(FlagInfo flag : flags) {
@@ -93,12 +73,12 @@ public class RobotPlayer {
             moveRandom(rc);
         } 
         else if (rc.getRoundNum() >= 150 && rc.getRoundNum() < 200){
-            if(rc.canDropFlag(rc.getLocation())){
+            if(rc.senseLegalStartingFlagPlacement(rc.getLocation())){
                 rc.dropFlag(rc.getLocation());
                 System.out.println("Dropped ally flag!");
             }
             if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())){
-                rc.build(TrapType.EXPLOSIVE, rc.getLocation());
+                rc.build(TrapType.WATER, rc.getLocation());
                 System.out.println("they call me oppenheimer");
             }
             moveRandom(rc);
@@ -141,7 +121,6 @@ public class RobotPlayer {
             }
         }
 
-        if(rc.getLocation() == null) System.out.println("I am alive but my location is null 2");
         RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
         if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
             rc.attack(enemies[0].getLocation());

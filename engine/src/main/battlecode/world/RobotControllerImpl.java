@@ -312,7 +312,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!canDropFlag(loc)) return false;
         boolean valid = true;
         for(Flag x : gameWorld.getAllFlags()) {
-            if(x.getTeam() == robot.getTeam() && x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED) {
+            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED) {
                 valid = false;
                 break;
             }
@@ -510,6 +510,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
         this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addMovementCooldownTurns();
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
