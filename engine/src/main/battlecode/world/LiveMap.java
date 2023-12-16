@@ -477,7 +477,6 @@ public strictfp class LiveMap {
         }
 
         private void assertSpawnZoneDistances() {
-            //TODO: I changed this to only check distances between the centers of spawn zones, we may need to adjust math accordingly
             ArrayList<MapLocation> team1 = new ArrayList<MapLocation>();
             ArrayList<MapLocation> team2 = new ArrayList<MapLocation>();
     

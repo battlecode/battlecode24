@@ -458,8 +458,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (!this.gameWorld.isPassable(loc))
                 throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
         }
-        //TODO: can this be used to check for enemy traps??
-        //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
         if (this.gameWorld.hasTrap(loc)){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
         }
@@ -802,7 +800,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         throw new GameActionException(CANT_DO_THAT, 
                 "A flag can't be placed at this location.");
 
-        // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
     @Override
