@@ -770,6 +770,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ******* FLAG METHODS ******
     // ***************************
     
+    @Override
+    public boolean hasFlag(){
+        return this.robot.hasFlag();
+    }
+
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);

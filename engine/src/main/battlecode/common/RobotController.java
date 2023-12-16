@@ -655,6 +655,15 @@ public strictfp interface RobotController {
     // ***************************
 
     /**
+     * Checks whether robot is currently holding a flag.
+     * 
+     * @return whether the robot is holding a flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean hasFlag();
+
+    /**
      * Tests whether robot can pickup a flag at the current location.
      * 
      * Checks that the flag is within range and that the flag is a friendly flag
