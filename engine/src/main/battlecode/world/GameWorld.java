@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.instrumenter.profiler.ProfilerCollection;
+import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
@@ -403,6 +404,7 @@ public strictfp class GameWorld {
                     if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(loc) != 0)
                         continue;
                     setWater(adjLoc);
+                    matchMaker.addAction(-1, Action.DIG, locationToIndex(adjLoc));
                 }
                 break;
         }
