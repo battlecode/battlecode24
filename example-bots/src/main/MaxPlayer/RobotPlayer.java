@@ -92,9 +92,7 @@ public class RobotPlayer {
         int dot1 = dot(dir1, dir1);
         int dot2 = dot(dir2, dir2);
         int dot3 = dot(dir1, dir2);
-        int answer = Integer.signum(dot3) * (4 * dot3 * dot3) / (dot1 * dot2);
-        System.out.println("dotMod of " + dir1 + " and " + dir2 + " is " + answer);
-        return answer;
+        return Integer.signum(dot3) * (4 * dot3 * dot3) / (dot1 * dot2);
     }
 
     private static int composeCompares(int a, int b, int c, int d) {
@@ -272,7 +270,6 @@ public class RobotPlayer {
         if (minRadiusSquaredFlag != null) {
             target = minRadiusSquaredFlag.getLocation();
             state = TRAVELING_TO_ENEMY_FLAG;
-            // System.out.println("Found enemy flag: " + target);
         } else {
             moveRandom(rc);
         }
@@ -317,7 +314,6 @@ public class RobotPlayer {
 
         if (!good) {
             state = LOOKING_FOR_ENEMY_FLAG;
-            // System.out.println("Gave up on enemy flag: " + target);
             return;
         }
 
@@ -349,7 +345,6 @@ public class RobotPlayer {
             s += "<";
         }
 
-        System.out.println("Ordered dirs by sim to " + dir + " then " + secondaryDir + ": " + s);
         int smallestWater = -1;
 
         for (int i = 0; i < dirs.length; i++) {
@@ -418,7 +413,6 @@ public class RobotPlayer {
                         break;
 
                     case TRAVELING_TO_ENEMY_FLAG:
-                        // System.out.println("TRAVELING TO ENEMY FLAG");
                         runTravelingToEnemyFlag(rc);
                         break;
 
