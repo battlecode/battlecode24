@@ -533,6 +533,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
         if (this.gameWorld.getWall(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
+        if (this.gameWorld.getSpawnZone(loc) != 0)
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
         if (getBreadAmount() < GameConstants.DIG_COST)
