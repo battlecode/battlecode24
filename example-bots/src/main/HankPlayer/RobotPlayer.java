@@ -28,25 +28,6 @@ public class RobotPlayer {
         while (true){
             try {
                 runBot(rc);
-                // if (!rc.isSpawned()){
-                //     for (MapLocation loc : rc.getAllySpawnLocations()){
-                //         if (rc.canSpawn(loc)){
-                //             rc.spawn(loc);
-                //             hasEnemyFlag = false;
-
-                //             FlagInfo[] nearLocs = rc.senseNearbyFlags(-1);
-                //             for(FlagInfo flag : nearLocs) {
-                //                 System.out.println(flag.getLocation());
-                //             }
-                //             MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
-                //             for(MapLocation otherLoc : broadcastLocs) {
-                //                 System.out.println(otherLoc);
-                //             }
-
-                //             break;
-                //         }
-                //     }
-                // }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game
@@ -97,7 +78,7 @@ public class RobotPlayer {
                 System.out.println("Dropped ally flag!");
             }
             if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())){
-                rc.build(TrapType.EXPLOSIVE, rc.getLocation());
+                rc.build(TrapType.WATER, rc.getLocation());
                 System.out.println("they call me oppenheimer");
             }
             moveRandom(rc);

@@ -510,6 +510,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
         this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addMovementCooldownTurns();
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
