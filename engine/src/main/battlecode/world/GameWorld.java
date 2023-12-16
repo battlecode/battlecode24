@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.instrumenter.profiler.ProfilerCollection;
+import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
@@ -749,14 +750,16 @@ public strictfp class GameWorld {
     }
 
     private void moveFlagSetStartLoc(Flag flag, MapLocation location){
-        flag.drop();
+        if(flag.isPickedUp()) {
+            matchMaker.addAction(flag.getCarryingRobot().getID(), Action.DROP_FLAG, flag.getId());
+            flag.getCarryingRobot().removeFlag();
+        }
         removeFlag(flag.getLoc(), flag);
         addFlag(location, flag);
         flag.setStartLoc(location);
         if(water[locationToIndex(location)]) 
             water[locationToIndex(location)] = false;
     }
-
     
     // *********************************
     // ****** SPAWNING *****************
