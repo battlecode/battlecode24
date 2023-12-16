@@ -37,6 +37,7 @@ module.exports = {
                 cyanDark: '#1899a7',
                 blue: '#04a2d9',
                 blueLight: '#26abd9',
+                blueDark: '#00679e',
 
                 dark: colors.gray['800'],
                 darkHighlight: colors.gray['900'],

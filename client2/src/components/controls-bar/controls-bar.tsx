@@ -7,6 +7,7 @@ import { ControlsBarTimeline } from './controls-bar-timeline'
 import { EventType, useListenEvent } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import Tooltip from '../tooltip'
+import { PageType, usePage } from '../../app-search-params'
 
 const SIMULATION_UPDATE_INTERVAL_MS = 17 // About 60 fps
 
@@ -14,6 +15,7 @@ export const ControlsBar: React.FC = () => {
     const { state: appState, setState: setAppState } = useAppContext()
     const [minimized, setMinimized] = React.useState(false)
     const keyboard = useKeyboard()
+    const [page, setPage] = usePage()
 
     const matchLoaded = appState.activeGame && appState.activeGame.currentMatch
 
@@ -90,6 +92,7 @@ export const ControlsBar: React.FC = () => {
             activeGame: undefined,
             activeMatch: undefined
         })
+        if (appState.tournament) setPage(PageType.TOURNAMENT)
     }
 
     const currentUPSBuffer = React.useRef<number[]>([])

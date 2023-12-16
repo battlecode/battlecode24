@@ -72,7 +72,8 @@
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
         "react-router-dom": "^6.13.0",
-        "recharts": "^2.6.2"
+        "recharts": "^2.6.2",
+        "react-zoomable-ui": "^0.11.0"
     },
     "devDependencies": {
         "@tauri-apps/cli": "^1.4.0",

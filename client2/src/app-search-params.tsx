@@ -41,3 +41,13 @@ export function useSearchParamBool(paramName: string, defaultValue: boolean): re
     };
     return [value, setValue];
 }
+
+export function useSearchParamString(paramName: string, defaultValue: string): readonly [string, (newValue: string) => void] {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const value = searchParams.get(paramName) ?? defaultValue;
+
+    const setValue = (newValue: string) => {
+        updateSearchParams(searchParams, setSearchParams, paramName, newValue);
+    };
+    return [value, setValue];
+}
