@@ -2,6 +2,8 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.Action;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -35,6 +37,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private int spawnCooldownTurns;
 
     private Flag flag;
+    private ArrayList<Trap> trapsToTrigger;
+    private ArrayList<Boolean> enteredTraps;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -61,6 +65,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.location = null;
         this.health = GameConstants.DEFAULT_HEALTH;
         this.spawned = false;
+        this.trapsToTrigger = new ArrayList<>();
+        this.enteredTraps = new ArrayList<>();
 
         this.buildExp = 0;
         this.healExp = 0;
@@ -445,6 +451,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.attackExp;
     }
 
+    public void addTrapTrigger(Trap t, boolean entered){
+        this.trapsToTrigger.add(t);
+        this.enteredTraps.add(entered);
+    }
+
     // *********************************
     // ****** GAMEPLAY METHODS *********
     // *********************************
@@ -463,6 +474,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void processEndOfTurn() {
+        for (int i = 0; i < trapsToTrigger.size(); i++){
+            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this, enteredTraps.get(i));
+        }
+        this.trapsToTrigger = new ArrayList<>();
+        this.enteredTraps = new ArrayList<>();
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
         // indicator strings!
