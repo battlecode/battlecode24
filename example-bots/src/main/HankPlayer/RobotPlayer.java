@@ -147,6 +147,9 @@ public class RobotPlayer {
             // rc.attack(enemies[0].getLocation());
             //System.out.println("punched someone");
         } 
+
+        rc.setIndicatorDot(rc.getLocation().add(Direction.NORTH), 200, 0, 0);
+        rc.setIndicatorLine(rc.getLocation().add(Direction.WEST), rc.getLocation().add(Direction.EAST), 0, 0, 250);
     }
 
     private static void moveRandom(RobotController rc) throws GameActionException {

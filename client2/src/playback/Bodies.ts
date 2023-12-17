@@ -352,6 +352,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             }
 
             if (selected || hovered || config.showAllRobotRadii) {
+                if (!selected && !config.showAllRobotRadii) ctx.globalAlpha = 0.5
                 const renderCoords = renderUtils.getRenderCoords(
                     interpCoords.x,
                     interpCoords.y,
@@ -368,6 +369,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
                 ctx.lineWidth = 2 / match.map.width
                 ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
                 ctx.stroke()
+                ctx.globalAlpha = 1
             }
         }
 
@@ -380,9 +382,6 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             y: number
         ): void {
             if (level == 0) return
-            // const imgPath = `levels/${image}/${level}_64x64.png`
-            // const img = getImageIfLoaded(imgPath)
-
             const drawCoords = renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension)
 
             ctx.fillStyle = color
@@ -416,13 +415,6 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             ctx.globalAlpha = 0.75
             ctx.fill()
             ctx.globalAlpha = 1
-
-            // renderUtils.renderCenteredImageOrLoadingIndicator(
-            //     ctx,
-            //     img,
-            //     renderUtils.getRenderCoords(x, y, match.currentTurn.map.staticMap.dimension),
-            //     0.45
-            // )
         }
 
         private getSpecialization(): string {

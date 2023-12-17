@@ -265,8 +265,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         apply(turn: Turn): void {
             const flagId = this.target
             const flagData = turn.map.flagData.get(flagId)!
-            // Always  carrying
-            turn.bodies.getById(flagData.carrierId).hasFlag = false
+            // Always carrying
+            turn.bodies.getById(flagData.carrierId!).hasFlag = false
             turn.map.flagData.delete(flagId)
         }
     },
