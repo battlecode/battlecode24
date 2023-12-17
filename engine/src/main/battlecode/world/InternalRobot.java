@@ -369,11 +369,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void incrementSkill(SkillType skill){
         if(skill == SkillType.BUILD)
-            this.buildExp ++;
+            if(this.buildExp < skill.getExperience(2) || (getLevel(SkillType.HEAL) < 3 && getLevel(SkillType.ATTACK) < 3)){
+                this.buildExp ++;
+            }
         if(skill == SkillType.HEAL)
-            this.healExp ++;
+            if(this.healExp < skill.getExperience(2) || (getLevel(SkillType.BUILD) < 3 && getLevel(SkillType.ATTACK) < 3)){
+                this.healExp ++;
+            }
         if(skill == SkillType.ATTACK)
-            this.attackExp ++;
+            if(this.attackExp < skill.getExperience(2) || (getLevel(SkillType.BUILD) < 3 && getLevel(SkillType.HEAL) < 3)){
+                this.attackExp ++;
+            }
     }
 
     // *********************************
@@ -428,9 +434,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
-            if(this.getLevel(SkillType.BUILD) < 4 && this.getLevel(SkillType.HEAL) < 4){
-                this.attackExp += 1;
-            }
+            incrementSkill(SkillType.ATTACK);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
     }

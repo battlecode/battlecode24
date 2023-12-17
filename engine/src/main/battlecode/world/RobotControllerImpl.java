@@ -430,9 +430,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns((int) Math.round(GameConstants.HEAL_COOLDOWN*(1+.01*SkillType.HEAL.getCooldown(this.robot.getLevel(SkillType.HEAL)))));
 
         bot.addHealth(healAmt);
-        if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.HEAL);
-        }
+        this.robot.incrementSkill(SkillType.HEAL);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL, bot.getID());
     }
 
@@ -481,9 +479,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
 
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
+        this.robot.incrementSkill(SkillType.BUILD);
     }
 
 
@@ -519,9 +515,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
+        this.robot.incrementSkill(SkillType.BUILD);
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
@@ -563,9 +557,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
+        this.robot.incrementSkill(SkillType.BUILD);
 
     }
 
