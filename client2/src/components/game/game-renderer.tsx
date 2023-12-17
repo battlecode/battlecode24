@@ -133,7 +133,7 @@ export const GameRenderer: React.FC = () => {
 
     return (
         <div className="w-full h-screen flex items-center justify-center">
-            {!activeGame || !activeGame.currentMatch ? (
+            {!gameActive ? (
                 <p className="text-white text-center">Select a game from the queue</p>
             ) : (
                 <div ref={wrapperRef} className="relative w-full h-full">
