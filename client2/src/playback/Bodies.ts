@@ -24,20 +24,19 @@ export default class Bodies {
     ) {
         if (initialBodies) this.insertBodies(initialBodies, initialStats)
 
-        // We have initial bodies this year, but we don't know how spawn zones work quite yet
-        /*
         if (mapToVerify) {
             for (let i = 0; i < mapToVerify.width * mapToVerify.height; i++) {
-                if (mapToVerify.walls[i] == 1 || mapToVerify.initialResources[i] > 0) {
+                if (mapToVerify.walls[i] || mapToVerify.divider[i] || mapToVerify.initialWater[i]) {
                     for (const body of this.bodies.values()) {
                         if (body.pos.x == i % mapToVerify.width && body.pos.y == Math.floor(i / mapToVerify.width)) {
-                            assert.fail(`Body at (${body.pos.x}, ${body.pos.y}) is on top of a wall or resource`)
+                            assert.fail(
+                                `Body at (${body.pos.x}, ${body.pos.y}) is on top of a wall or divider or water`
+                            )
                         }
                     }
                 }
             }
         }
-        */
     }
 
     updateBodyPositions(delta: schema.Round, allowNullBodies: boolean) {

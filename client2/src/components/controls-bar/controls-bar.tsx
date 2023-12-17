@@ -177,7 +177,7 @@ export const ControlsBar: React.FC = () => {
                 <button
                     className={
                         (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
-                        ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold user-select-none'
+                        ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold select-none'
                     }
                     onClick={() => setMinimized(!minimized)}
                 >
