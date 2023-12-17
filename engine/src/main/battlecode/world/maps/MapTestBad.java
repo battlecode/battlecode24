@@ -10,13 +10,13 @@ public class MapTestBad {
         try{
         makeBad();
         }
-        catch (IOException e){
+        catch (Exception e){
             System.out.println(e);
         }
         System.out.println("create a map!!");
     }
 
-    public static void makeBad() throws IOException{
+    public static void makeBad() throws Exception{
         MapBuilder builder = new MapBuilder("bad", 20, 20, 0, 0, 3);
         builder.build();
         builder.saveMap("engine/src/main/battlecode/world/resources/");

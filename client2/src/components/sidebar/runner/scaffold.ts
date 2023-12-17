@@ -27,7 +27,7 @@ export function useScaffold(): Scaffold {
     const [availablePlayers, setAvailablePlayers] = useState<Set<string>>(new Set())
     const [loading, setLoading] = useState<boolean>(true)
     const [scaffoldPath, setScaffoldPath] = useState<string | undefined>(undefined)
-    const matchPID = useRef<number | undefined>(undefined)
+    const matchPID = useRef<string | undefined>(undefined)
     const forceUpdate = useForceUpdate()
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
     const log = (line: ConsoleLine) =>
@@ -70,18 +70,15 @@ export function useScaffold(): Scaffold {
         })
 
         nativeAPI.child_process.onStdout(({ pid, data }) => {
-            if (pid !== matchPID.current)
-                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
+            if (pid !== matchPID.current) return
             log({ content: data, type: 'output' })
         })
         nativeAPI.child_process.onStderr(({ pid, data }) => {
-            if (pid !== matchPID.current)
-                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
+            if (pid !== matchPID.current) return
             log({ content: data, type: 'error' })
         })
         nativeAPI.child_process.onExit(({ pid, code, signal }) => {
-            if (pid !== matchPID.current)
-                throw new Error(`Unknown pid: ${JSON.stringify(pid)}, should be ${matchPID.current}`)
+            if (pid !== matchPID.current) return
             log({ content: `Exited with code ${code} | ${JSON.stringify(signal)}`, type: 'bold' })
             matchPID.current = undefined
             forceUpdate()
@@ -137,12 +134,13 @@ async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
     if (!(await fs.exists(sourcePath))) {
         sourcePath = await path.join(scaffoldPath, 'example-bots', 'src', 'main')
 
+        console.log(sourcePath)
         if (!(await fs.exists(sourcePath))) {
             throw new Error(`Can't find source path: ${sourcePath}`)
         }
     }
 
-    const playerFiles = await fs.getFiles(sourcePath, true)
+    const playerFiles = await fs.getFiles(sourcePath, 'true')
     const sep = await path.getSeperator()
     const players = new Set(
         await Promise.all(
@@ -208,6 +206,7 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
     } else if (await fs.exists(await path.join(fromMac, GRADLE_WRAPPER))) {
         return fromMac
     }
+
     return undefined
 }
 
@@ -217,7 +216,7 @@ async function dispatchMatch(
     selectedMaps: Set<string>,
     nativeAPI: NativeAPI,
     scaffoldPath: string
-): Promise<number> {
+): Promise<string> {
     const options = [
         `run`,
         `-x`,

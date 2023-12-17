@@ -2,7 +2,6 @@ package battlecode.instrumenter;
 
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.instrumenter.stream.SilencedPrintStream;
 import battlecode.server.Config;

@@ -50,7 +50,7 @@ export class WallsBrush extends SymmetricMapEditorBrush<CurrentMap> {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            const {x,y} = this.map.indexToLocation(idx)
+            const { x, y } = this.map.indexToLocation(idx)
             if (this.map.staticMap.spawnLocations.find((l) => l.x == x && l.y == y)) return
             this.map.staticMap.walls[idx] = fields.should_add.value ? 1 : 0
             if (fields.should_add.value) {
@@ -82,7 +82,7 @@ export class DividerBrush extends SymmetricMapEditorBrush<StaticMap> {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            const {x,y} = this.map.indexToLocation(idx)
+            const { x, y } = this.map.indexToLocation(idx)
             if (this.map.spawnLocations.find((l) => l.x == x && l.y == y)) return
             this.map.divider[idx] = fields.should_add.value ? 1 : 0
         })
@@ -107,11 +107,12 @@ export class SpawnZoneBrush extends SymmetricMapEditorBrush<CurrentMap> {
         const spawnLocs = this.map.staticMap.spawnLocations
         const flagData = this.map.flagData
         const foundIdx = spawnLocs.findIndex((l) => l.x == x && l.y == y)
+        const schemaIdx = this.map.locationToIndex(x, y)
         const team = spawnLocs.length % 2
 
         if (fields.should_add.value) {
             if (foundIdx != -1) return
-            flagData.set(spawnLocs.length, { team, location: { x, y }, carrierId: null })
+            flagData.set(schemaIdx, { team, location: { x, y }, carrierId: null })
             spawnLocs.push({ x, y })
             this.map.water[this.map.locationToIndex(x, y)] = 0
             this.map.staticMap.initialWater[this.map.locationToIndex(x, y)] = 0
@@ -120,7 +121,7 @@ export class SpawnZoneBrush extends SymmetricMapEditorBrush<CurrentMap> {
         }
 
         if (foundIdx == -1) return
-        flagData.delete(foundIdx)
+        flagData.delete(schemaIdx)
         for (let i = foundIdx; i < spawnLocs.length - 1; i++) {
             spawnLocs[i] = spawnLocs[i + 1]
         }
@@ -149,7 +150,7 @@ export class WaterBrush extends SymmetricMapEditorBrush<CurrentMap> {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
         const radius: number = fields.radius.value - 1
         applyInRadius(this.map, x, y, radius, (idx) => {
-            const {x,y} = this.map.indexToLocation(idx)
+            const { x, y } = this.map.indexToLocation(idx)
             if (this.map.staticMap.spawnLocations.find((l) => l.x == x && l.y == y)) return
             const add = fields.should_add.value && this.map.staticMap.walls[idx] == 0
             this.map.water[idx] = add ? 1 : 0
@@ -292,10 +293,7 @@ export class TestDuckBrush extends MapEditorBrush {
         }
     }
 
-    constructor(
-        private readonly bodies: Bodies,
-        private readonly map: StaticMap
-    ) {
+    constructor(private readonly bodies: Bodies, private readonly map: StaticMap) {
         super()
     }
 

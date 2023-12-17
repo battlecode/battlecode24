@@ -2,8 +2,6 @@ package battlecode.server;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
-import battlecode.common.RobotType;
 import battlecode.common.SkillType;
 import battlecode.common.TrapType;
 import battlecode.common.Team;
@@ -173,7 +171,6 @@ public strictfp class GameMaker {
             GameWrapper.addMatchFooters(fileBuilder, matchFooters);
 
             fileBuilder.finish(GameWrapper.endGameWrapper(fileBuilder));
-
             byte[] rawBytes = fileBuilder.sizedByteArray();
 
             try {
@@ -385,11 +382,17 @@ public strictfp class GameMaker {
         private TIntArrayList healLevels;
 
         private TIntArrayList spawnedIds;
+        private TByteArrayList spawnedTeams;
+        private TIntArrayList spawnedLocsX;
+        private TIntArrayList spawnedLocsY;
         private TIntArrayList diedIds; // ints
 
         private TIntArrayList actionIds; // ints
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
+
+        private TIntArrayList claimedResourcesX;
+        private TIntArrayList claimedResourcesY;
 
         // Round statistics
         private TIntArrayList teamIDs;
@@ -452,10 +455,15 @@ public strictfp class GameMaker {
             this.healsPerformed = new TIntArrayList();
             this.healLevels = new TIntArrayList();
             this.spawnedIds = new TIntArrayList();
+            this.spawnedTeams = new TByteArrayList();
+            this.spawnedLocsX = new TIntArrayList();
+            this.spawnedLocsY = new TIntArrayList();
             this.diedIds = new TIntArrayList();
             this.actionIds = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
+            this.claimedResourcesX = new TIntArrayList();
+            this.claimedResourcesY = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
             this.teamBreadAmounts = new TIntArrayList();
             this.teamAComm = new TIntArrayList();
@@ -590,13 +598,23 @@ public strictfp class GameMaker {
                 int healsPerformedP = Round.createAttacksPerformedVector(builder, healsPerformed.toArray());
                 int healLevelsP = Round.createHealLevelsVector(builder, healLevels.toArray());
 
-                int spawnedIdsP = Round.createSpawnedIdsVector(builder, spawnedIds.toArray());
+                int spawnedRobotIdsP = SpawnedBodyTable.createRobotIdsVector(builder, spawnedIds.toArray());
+                int spawnedTeamsP = SpawnedBodyTable.createTeamIdsVector(builder, spawnedTeams.toArray());
+                int spawnedLocsP = createVecTable(builder, spawnedLocsX, spawnedLocsY);
+                SpawnedBodyTable.startSpawnedBodyTable(builder);
+                SpawnedBodyTable.addRobotIds(builder, spawnedRobotIdsP);
+                SpawnedBodyTable.addTeamIds(builder, spawnedTeamsP);
+                SpawnedBodyTable.addLocs(builder, spawnedLocsP);
+                int spawnedBodiesP = SpawnedBodyTable.endSpawnedBodyTable(builder);
+
                 int diedIdsP = Round.createDiedIdsVector(builder, diedIds.toArray());
 
                 // The actions that happened
                 int actionIdsP = Round.createActionIdsVector(builder, actionIds.toArray());
                 int actionsP = Round.createActionsVector(builder, actions.toArray());
                 int actionTargetsP = Round.createActionTargetsVector(builder, actionTargets.toArray());
+
+                int claimedResourcesP = FlatHelpers.createVecTable(builder, claimedResourcesX, claimedResourcesY);
 
                 int trapAddedIdsP = Round.createTrapAddedIdsVector(builder, trapAddedIds.toArray());
                 int trapAddedLocsP = createVecTable(builder, trapAddedX, trapAddedY);
@@ -646,11 +664,12 @@ public strictfp class GameMaker {
                 Round.addBuildLevels(builder, buildLevelsP);
                 Round.addHealsPerformed(builder, healsPerformedP);
                 Round.addHealLevels(builder, healLevelsP);
-                Round.addSpawnedIds(builder, spawnedIdsP);
+                Round.addSpawnedBodies(builder, spawnedBodiesP);
                 Round.addDiedIds(builder, diedIdsP);
                 Round.addActionIds(builder, actionIdsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
+                Round.addClaimedResourcePiles(builder, claimedResourcesP);
                 Round.addTrapAddedIds(builder, trapAddedIdsP);
                 Round.addTrapAddedLocations(builder, trapAddedLocsP);
                 Round.addTrapAddedTypes(builder, trapAddedTypesP);
@@ -701,8 +720,11 @@ public strictfp class GameMaker {
             healLevels.add(robot.getLevel(SkillType.HEAL));
         }
 
-        public void addSpawned(int id) {
+        public void addSpawned(int id, Team team, MapLocation loc) {
             spawnedIds.add(id);
+            spawnedTeams.add(TeamMapping.id(team));
+            spawnedLocsX.add(loc.x);
+            spawnedLocsY.add(loc.y);
         }
 
         public void addDied(int id) {
@@ -713,6 +735,11 @@ public strictfp class GameMaker {
             actionIds.add(userID);
             actions.add(action);
             actionTargets.add(targetID);
+        }
+
+        public void addClaimedResource(MapLocation loc) {
+            claimedResourcesX.add(loc.x);
+            claimedResourcesY.add(loc.y);
         }
 
         public void addTrap(Trap trap) {
@@ -790,6 +817,7 @@ public strictfp class GameMaker {
             robotLocsY.clear();
             robotMoveCooldowns.clear();
             robotActionCooldowns.clear();
+            robotHealths.clear();
             attacksPerformed.clear();
             attackLevels.clear();
             buildsPerformed.clear();
@@ -797,10 +825,15 @@ public strictfp class GameMaker {
             healsPerformed.clear();
             healLevels.clear();
             spawnedIds.clear();
+            spawnedTeams.clear();
+            spawnedLocsX.clear();
+            spawnedLocsY.clear();
             diedIds.clear();
             actionIds.clear();
             actions.clear();
             actionTargets.clear();
+            claimedResourcesX.clear();
+            claimedResourcesY.clear();
             teamIDs.clear();
             teamBreadAmounts.clear();
             teamAComm.clear();
