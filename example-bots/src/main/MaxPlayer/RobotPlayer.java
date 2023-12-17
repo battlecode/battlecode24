@@ -131,6 +131,21 @@ public class RobotPlayer {
         }
     }
 
+    private static boolean attackEnemies(RobotController rc) throws GameActionException {
+        RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.VISION_RADIUS_SQUARED, rc.getTeam().opponent());
+
+        for (int i = 0; i < enemies.length; i++) {
+            MapLocation enemy = enemies[i].getLocation();
+
+            if (rc.canAttack(enemy)) {
+                rc.attack(enemy);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static void runNotSpawned(RobotController rc) throws GameActionException {
         MapLocation[] spawnZoneLocs = rc.getAllySpawnLocations();
         MapLocation[] goodLocs = new MapLocation[spawnZoneLocs.length];
@@ -337,14 +352,6 @@ public class RobotPlayer {
         MapLocation loc = rc.getLocation();
         Direction dir = dirTowards(loc, target);
         Direction[] dirs = orderDirsBySimilarity(dir, secondaryDir);
-
-        String s = "";
-
-        for (Direction d : dirs) {
-            s += d.toString();
-            s += "<";
-        }
-
         int smallestWater = -1;
 
         for (int i = 0; i < dirs.length; i++) {
@@ -385,6 +392,12 @@ public class RobotPlayer {
                     state = NOT_SPAWNED;
                 } else if (rc.getRoundNum() >= 200 && (state == SETTING_UP || state == PLACING_FLAG)) {
                     state = LOOKING_FOR_ENEMY_FLAG;
+                }
+
+                if (state == LOOKING_FOR_ENEMY_FLAG || state == TRAVELING_TO_ENEMY_FLAG) {
+                    if (attackEnemies(rc)) {
+                        continue;
+                    }
                 }
 
                 switch (state) {
