@@ -44,10 +44,10 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     const columns: Array<[string, React.ReactElement]> = [
-        ['Base', <UnitsIcon team={props.team} robotType="base" />],
-        ['Attack', <UnitsIcon team={props.team} robotType="attack" />],
-        ['Build', <UnitsIcon team={props.team} robotType="build" />],
-        ['Heal', <UnitsIcon team={props.team} robotType="heal" />]
+        ['Base', <UnitsIcon team={props.team} robotType="base" key="0"/>],
+        ['Attack', <UnitsIcon team={props.team} robotType="attack" key="1" />],
+        ['Build', <UnitsIcon team={props.team} robotType="build" key="2" />],
+        ['Heal', <UnitsIcon team={props.team} robotType="heal" key="3" />]
     ]
 
     const data: Array<[string, Array<number>]> = [

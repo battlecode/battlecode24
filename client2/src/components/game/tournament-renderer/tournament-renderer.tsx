@@ -1,11 +1,5 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
-import { Vector } from '../../../playback/Vector'
-import { EventType, publishEvent, useListenEvent } from '../../../app-events'
-import * as cst from '../../../constants'
-import assert from 'assert'
-import Tooltip from '../tooltip'
-import { Button } from '../../button'
 import { TournamentGameElement } from './tournament-game';
 
 export const TournamentRenderer: React.FC = () => {

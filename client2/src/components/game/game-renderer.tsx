@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAppContext } from '../../app-context'
 import { Vector } from '../../playback/Vector'
 import { EventType, publishEvent, useListenEvent } from '../../app-events'
 import * as cst from '../../constants'
 import assert from 'assert'
 import Tooltip from './tooltip'
+import { Body } from '../../playback/Bodies'
+import Match from '../../playback/Match'
+import { CurrentMap } from '../../playback/Map'
+import { render } from '@headlessui/react/dist/utils/render'
 
 export enum CanvasType {
     BACKGROUND = 'BACKGROUND',
@@ -17,14 +21,24 @@ const CANVAS_Z_INDICES = [0, 1, 2]
 export const GameRenderer: React.FC = () => {
     const wrapperRef = React.useRef(null)
     const canvases = React.useRef({} as Record<string, HTMLCanvasElement | null>)
-    const [mapCanvas, setMapCanvas] = React.useState<HTMLCanvasElement>()
-    const [overlayCanvas, setOverlayCanvas] = React.useState<HTMLCanvasElement>()
 
     const appContext = useAppContext()
     const { activeGame, activeMatch } = appContext.state
 
+    const [selectedBody, setSelectedBody] = React.useState<Body | undefined>(undefined)
+    const [hoveredTile, setHoveredTile] = React.useState<{ x: number; y: number } | undefined>(undefined)
+
     const getCanvasContext = (ct: CanvasType) => {
         return canvases.current[ct]?.getContext('2d')
+    }
+
+    const getCanvas = (ct: CanvasType) => {
+        return canvases.current[ct] || undefined
+    }
+    
+    const getHoveredBody = () => {
+        if (!hoveredTile || !activeMatch) return undefined
+        return activeMatch.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y)
     }
 
     // TODO: could potentially have performance settings that allows rendering
@@ -37,22 +51,72 @@ export const GameRenderer: React.FC = () => {
         elem.getContext('2d')?.scale(cst.TILE_RESOLUTION, cst.TILE_RESOLUTION)
     }
 
-    // Since this is a callback, we need to ensure we recreate the function when
-    // dependent variables change. Similarly, the event listener needs to be updated, which
-    // will happen automatically via dependencies
-    const render = React.useCallback(() => {
-        const match = appContext.state.activeMatch
-        if (!match) return
+    const drawBodyPath = (match: Match, ctx: CanvasRenderingContext2D, body: Body) => {
+        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn)
 
-        const currentTurn = match.currentTurn
+        let alphaValue = 1
+        let radius = cst.TOOLTIP_PATH_INIT_R
+        let lastPos: Vector = { x: -1, y: -1 }
+
+        for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
+            const color = `rgba(255, 255, 255, ${alphaValue})`
+
+            ctx.beginPath()
+            ctx.fillStyle = color
+            ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
+            ctx.fill()
+
+            alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY
+            radius *= cst.TOOLTIP_PATH_DECAY_R
+
+            if (lastPos.x != -1 && lastPos.y != -1) {
+                ctx.beginPath()
+                ctx.strokeStyle = color
+                ctx.lineWidth = radius / 2
+
+                ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
+                ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
+
+                ctx.stroke()
+            }
+
+            lastPos = prevPos
+        }
+    }
+
+    const drawHoveredTile = (ctx: CanvasRenderingContext2D, map: CurrentMap) => {
+        if (!hoveredTile) return
+        const { x, y } = hoveredTile
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'
+        ctx.lineWidth = 0.075
+        ctx.strokeRect(x, map.height - y - 1, 1, 1)
+    }
+
+    const renderOverlay = React.useCallback(() => {
+        const overlayCanvas = getCanvas(CanvasType.OVERLAY)
+        const overlayCtx = getCanvasContext(CanvasType.OVERLAY)
+        if (!activeMatch || !overlayCanvas || !overlayCtx) return
+        const map = activeMatch.currentTurn.map
+        overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
+        if (selectedBody) drawBodyPath(activeMatch, overlayCtx, selectedBody)
+        drawHoveredTile(overlayCtx, map)
+    }, [activeMatch, selectedBody, hoveredTile])
+    useEffect(renderOverlay, [hoveredTile])
+
+    const render = React.useCallback(() => {
+        const ctx = getCanvasContext(CanvasType.DYNAMIC)
+        if (!activeMatch || !ctx) return
+
+        const currentTurn = activeMatch.currentTurn
         const map = currentTurn.map
 
-        const ctx = getCanvasContext(CanvasType.DYNAMIC)!
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(match, ctx)
-        currentTurn.bodies.draw(match, ctx)
-        currentTurn.actions.draw(match, ctx)
-    }, [activeMatch])
+        map.draw(activeMatch, ctx, appContext.state.config, selectedBody)
+        currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, getHoveredBody())
+        currentTurn.actions.draw(activeMatch, ctx)
+
+        renderOverlay()
+    }, [activeMatch, renderOverlay])
     useListenEvent(EventType.RENDER, render, [render])
 
     const fullRender = () => {
@@ -111,24 +175,21 @@ export const GameRenderer: React.FC = () => {
         return { x: x, y: y }
     }
 
-    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        publishEvent(EventType.TILE_CLICK, eventToPoint(e))
-    }
-
     const mouseDown = React.useRef(false)
+    const mouseDownRightPrev = React.useRef(false)
     const lastFiredDragEvent = React.useRef({ x: -1, y: -1 })
+
     const onMouseUp = () => {
         mouseDown.current = false
         lastFiredDragEvent.current = { x: -1, y: -1 }
     }
-    const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const point = eventToPoint(e)
-        if (point.x === lastFiredDragEvent.current.x && point.y === lastFiredDragEvent.current.y) return
-        lastFiredDragEvent.current = point
-        publishEvent(EventType.TILE_DRAG, point)
+    const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        mouseDown.current = true
     }
-
-    const mouseDownRightPrev = React.useRef(false)
+    const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const tile = eventToPoint(e)
+        if (tile.x !== hoveredTile?.x || tile.y !== hoveredTile?.y) setHoveredTile(tile)
+    }
     const mouseDownRight = (down: boolean, e?: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         if (down === mouseDownRightPrev.current) return
         mouseDownRightPrev.current = down
@@ -136,9 +197,23 @@ export const GameRenderer: React.FC = () => {
         publishEvent(EventType.CANVAS_RIGHT_CLICK, { down: down })
     }
 
+    const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const point = eventToPoint(e)
+        const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
+        setSelectedBody(clickedBody)
+        publishEvent(EventType.TILE_CLICK, point)
+    }
+    const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const tile = eventToPoint(e)
+        if (tile.x !== hoveredTile?.x || tile.y !== hoveredTile?.y) setHoveredTile(tile)
+
+        if (tile.x === lastFiredDragEvent.current.x && tile.y === lastFiredDragEvent.current.y) return
+        lastFiredDragEvent.current = tile
+        publishEvent(EventType.TILE_DRAG, tile)
+    }
+
     if (!canvases) return <></>
 
-    // TODO: better support for strange aspect ratios, for now it is fine
     return (
         <div className="w-full h-screen flex items-center justify-center">
             {!activeGame || !activeGame.currentMatch ? (
@@ -156,39 +231,38 @@ export const GameRenderer: React.FC = () => {
                             key={`canv${ct}`}
                             ref={(ref) => {
                                 canvases.current[ct] = ref
-                                // TODO: there's def a better way to do this but idk how rn
-                                if (ct == CanvasType.BACKGROUND && ref && mapCanvas !== ref) {
-                                    setMapCanvas(ref)
+                            }}
+                            {...(ct === CanvasType.OVERLAY && {
+                                onClick: onCanvasClick,
+                                onMouseMove: (e) => {
+                                    if (mouseDown.current) onCanvasDrag(e)
+                                    onMouseMove(e)
+                                },
+                                onMouseDown: onMouseDown,
+                                onMouseUp: onMouseUp,
+                                onMouseLeave: (e) => {
+                                    onMouseUp()
+                                    mouseDownRight(false)
+                                },
+                                onMouseEnter: (e) => {
+                                    if (e.buttons == 1) mouseDown.current = true
+                                },
+                                onMouseDownCapture: (e) => {
+                                    if (e.button == 2) mouseDownRight(true, e)
+                                },
+                                onMouseUpCapture: (e) => {
+                                    onMouseUp()
+                                    if (e.button == 2) mouseDownRight(false, e)
                                 }
-                                if (ct == CanvasType.OVERLAY && ref && mapCanvas !== ref) {
-                                    setOverlayCanvas(ref)
-                                }
-                            }}
-                            onClick={onCanvasClick}
-                            onMouseMove={(e) => {
-                                if (mouseDown.current) onCanvasDrag(e)
-                            }}
-                            onMouseDown={() => {
-                                mouseDown.current = true
-                            }}
-                            onMouseUp={() => onMouseUp}
-                            onMouseLeave={(e) => {
-                                onMouseUp()
-                                mouseDownRight(false)
-                            }}
-                            onMouseEnter={(e) => {
-                                if (e.buttons == 1) mouseDown.current = true
-                            }}
-                            onMouseDownCapture={(e) => {
-                                if (e.button == 2) mouseDownRight(true, e)
-                            }}
-                            onMouseUpCapture={(e) => {
-                                onMouseUp()
-                                if (e.button == 2) mouseDownRight(false, e)
-                            }}
+                            })}
                         />
                     ))}
-                    <Tooltip mapCanvas={mapCanvas} overlayCanvas={overlayCanvas} wrapperRef={wrapperRef} />
+                    <Tooltip
+                        overlayCanvas={getCanvas(CanvasType.OVERLAY)}
+                        selectedBody={selectedBody}
+                        hoveredBody={getHoveredBody()}
+                        wrapper={wrapperRef}
+                    />
                 </div>
             )}
         </div>

@@ -15,7 +15,7 @@ import { useKeyboard } from '../../util/keyboard'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import useWindowDimensions from '../../util/window-size'
 import { TournamentPage } from './tournament/tournament'
-import { useScaffold } from './runner/scaffold';
+import { useScaffold } from './runner/scaffold'
 
 const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
     { name: 'Game', page: PageType.GAME },
@@ -53,7 +53,7 @@ export const Sidebar: React.FC = () => {
             case PageType.QUEUE:
                 return <QueuePage />
             case PageType.RUNNER:
-                return <RunnerPage scaffold={scaffold}/>
+                return <RunnerPage scaffold={scaffold} />
             case PageType.PROFILER:
                 return <ProfilerPage />
             case PageType.MAP_EDITOR:
@@ -146,8 +146,11 @@ export const Sidebar: React.FC = () => {
                             <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div
-                                        className={"w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 " + 
-                                            (page == sidebarButton.page ? "border-gray-800" : "border-gray-200")}
+                                        key={sidebarButton.name}
+                                        className={
+                                            'w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 ' +
+                                            (page == sidebarButton.page ? 'border-gray-800' : 'border-gray-200')
+                                        }
                                         onClick={() => setPage(sidebarButton.page)}
                                     >
                                         {sidebarButton.name}
