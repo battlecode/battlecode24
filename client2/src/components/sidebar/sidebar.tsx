@@ -1,10 +1,8 @@
-import { Listbox, Transition } from '@headlessui/react'
-import React, { Fragment, useEffect } from 'react'
+import React from 'react'
 import { BATTLECODE_YEAR } from '../../constants'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
 import { QueuePage } from './queue/queue'
-import { TbSelector } from 'react-icons/tb'
 import { BsChevronLeft } from 'react-icons/bs'
 import { HelpPage } from './help/help'
 import { MapEditorPage } from './map-editor/map-editor'
@@ -164,13 +162,12 @@ export const Sidebar: React.FC = () => {
                             <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div
-                                        key={sidebarButton.name}
+                                        key={sidebarButton.page}
                                         className={
                                             'w-[32%] text-center text-sm py-2 my-1 cursor-pointer hover:bg-lightHighlight border-b-2 ' +
                                             (page == sidebarButton.page ? 'border-gray-800' : 'border-gray-200')
                                         }
                                         onClick={() => setPage(sidebarButton.page)}
-                                        key={sidebarButton.page}
                                     >
                                         {sidebarButton.name}
                                     </div>

@@ -5,6 +5,7 @@ import Game from '../../../playback/Game'
 import { PageType, usePage } from '../../../app-search-params'
 import { Pressable } from 'react-zoomable-ui'
 import { Crown } from '../../../icons/crown'
+import Tooltip from '../../tooltip';
 
 interface Props {
     game: TournamentGame
