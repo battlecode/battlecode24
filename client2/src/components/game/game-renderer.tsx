@@ -6,7 +6,7 @@ import assert from 'assert'
 import { Tooltip } from './tooltip'
 import { Body } from '../../playback/Bodies'
 import Match from '../../playback/Match'
-import { TILE_RESOLUTION, TOOLTIP_PATH_DECAY_OPACITY, TOOLTIP_PATH_DECAY_R, TOOLTIP_PATH_INIT_R } from '../../constants'
+import { TILE_RESOLUTION } from '../../constants'
 import { CurrentMap } from '../../playback/Map'
 
 export const GameRenderer: React.FC = () => {
@@ -18,32 +18,33 @@ export const GameRenderer: React.FC = () => {
     const appContext = useAppContext()
     const { activeGame, activeMatch } = appContext.state
 
-    const [selectedBody, setSelectedBody] = useState<Body | undefined>(undefined)
-    const [hoveredTile, setHoveredTile] = useState<{ x: number; y: number } | undefined>(undefined)
-    const [hoveredBody, setHoveredBody] = useState<Body | undefined>(undefined)
-    const calculateHoveredBody = () => {
+    const [selectedBodyID, setSelectedBodyID] = useState<number | undefined>(undefined)
+    const [hoveredTile, setHoveredTile] = useState<Vector | undefined>(undefined)
+    const [hoveredBodyID, setHoveredBodyID] = useState<number | undefined>(undefined)
+    const calculateHoveredBodyID = () => {
+        if (!hoveredTile) return setHoveredBodyID(undefined)
         const match = appContext.state.activeMatch
-        if (!match || !hoveredTile) return
-        setHoveredBody(match.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y))
+        if (!match) return
+        setHoveredBodyID(match.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y)?.id)
     }
-    useEffect(calculateHoveredBody, [appContext.state.activeMatch, hoveredTile])
-    useListenEvent(EventType.TURN_PROGRESS, calculateHoveredBody)
+    useEffect(calculateHoveredBodyID, [hoveredTile])
+    useListenEvent(EventType.TURN_PROGRESS, calculateHoveredBodyID)
 
     const render = () => {
         const ctx = dynamicCanvas.current?.getContext('2d')
-        if (!activeMatch || !ctx) return
+        const overlayCtx = overlayCanvas.current?.getContext('2d')
+        if (!activeMatch || !ctx || !overlayCtx) return
 
         const currentTurn = activeMatch.currentTurn
         const map = currentTurn.map
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
-        currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
+        overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
+        map.draw(activeMatch, ctx, appContext.state.config, selectedBodyID, hoveredBodyID)
+        currentTurn.bodies.draw(activeMatch, ctx, overlayCtx, appContext.state.config, selectedBodyID, hoveredBodyID)
         currentTurn.actions.draw(activeMatch, ctx)
-
-        renderOverlay(overlayCanvas.current?.getContext('2d')!, activeMatch, selectedBody, hoveredTile)
     }
-    useEffect(render, [hoveredBody, selectedBody])
+    useEffect(render, [hoveredBodyID, selectedBodyID])
     useListenEvent(EventType.RENDER, render, [render])
 
     const fullRender = () => {
@@ -119,8 +120,7 @@ export const GameRenderer: React.FC = () => {
     const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const point = eventToPoint(e)
         const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
-        setSelectedBody(clickedBody)
-        console.log('setting selectted bocy', clickedBody)
+        setSelectedBodyID(clickedBody ? clickedBody.id : undefined)
         publishEvent(EventType.TILE_CLICK, point)
     }
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -180,8 +180,8 @@ export const GameRenderer: React.FC = () => {
                     />
                     <Tooltip
                         overlayCanvas={overlayCanvas.current}
-                        selectedBody={selectedBody}
-                        hoveredBody={hoveredBody}
+                        selectedBodyID={selectedBodyID}
+                        hoveredBodyID={hoveredBodyID}
                         wrapper={wrapperRef}
                     />
                     <HighlightedSquare
@@ -200,7 +200,7 @@ interface HighlightedSquareProps {
     overlayCanvasRef: HTMLCanvasElement | null
     wrapperRef: HTMLDivElement | null
     map?: CurrentMap
-    hoveredTile?: { x: number; y: number }
+    hoveredTile?: Vector
 }
 const HighlightedSquare: React.FC<HighlightedSquareProps> = ({ overlayCanvasRef, wrapperRef, map, hoveredTile }) => {
     if (!hoveredTile || !map || !wrapperRef || !overlayCanvasRef) return <></>
@@ -224,48 +224,4 @@ const HighlightedSquare: React.FC<HighlightedSquareProps> = ({ overlayCanvasRef,
             }}
         />
     )
-}
-
-const renderOverlay = (
-    ctx: CanvasRenderingContext2D,
-    match?: Match,
-    selectedBody?: Body,
-    hoveredTile?: { x: number; y: number }
-) => {
-    if (!match) return
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    if (selectedBody) drawBodyPath(match, ctx, selectedBody)
-}
-
-const drawBodyPath = (match: Match, ctx: CanvasRenderingContext2D, body: Body) => {
-    const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn)
-
-    let alphaValue = 1
-    let radius = TOOLTIP_PATH_INIT_R
-    let lastPos: Vector = { x: -1, y: -1 }
-
-    for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
-        const color = `rgba(255, 255, 255, ${alphaValue})`
-
-        ctx.beginPath()
-        ctx.fillStyle = color
-        ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
-        ctx.fill()
-
-        alphaValue *= TOOLTIP_PATH_DECAY_OPACITY
-        radius *= TOOLTIP_PATH_DECAY_R
-
-        if (lastPos.x != -1 && lastPos.y != -1) {
-            ctx.beginPath()
-            ctx.strokeStyle = color
-            ctx.lineWidth = radius / 2
-
-            ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
-            ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
-
-            ctx.stroke()
-        }
-
-        lastPos = prevPos
-    }
 }

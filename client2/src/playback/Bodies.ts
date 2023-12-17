@@ -8,10 +8,19 @@ import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush } from '../components/sidebar/map-editor/MapEditorBrush'
 import { Dimension, StaticMap } from './Map'
 import { Vector } from './Vector'
-import { ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR, TOOLTIP_PATH_LENGTH } from '../constants'
+import {
+    ATTACK_COLOR,
+    BUILD_COLOR,
+    HEAL_COLOR,
+    TOOLTIP_PATH_DECAY_OPACITY,
+    TOOLTIP_PATH_DECAY_R,
+    TOOLTIP_PATH_INIT_R,
+    TOOLTIP_PATH_LENGTH
+} from '../constants'
 import Match from './Match'
 import { TestDuckBrush } from './Brushes'
 import { ClientConfig } from '../client-config'
+import { Vec } from 'battlecode-schema/js/battlecode/schema';
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -61,10 +70,7 @@ export default class Bodies {
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
      */
     applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null): void {
-        // remove all that are dead
-        for (const body of this.bodies.values()) {
-            if (body.dead) this.bodies.delete(body.id)
-        }
+        for (const body of this.bodies.values()) if (body.dead) this.bodies.delete(body.id)
 
         const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
@@ -77,17 +83,15 @@ export default class Bodies {
         // since the first call is really only necessary for bodies that die, so there is potential for
         // optimization.
         this.updateBodyPositions(delta, false)
+        for(const [id, body] of this.bodies) body.addToPrevSquares()
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
-            for (const pair of this.bodies) {
-                pair[1].addToPrevSquares()
-            }
         }
 
         // Update bytecode counters
         for (let i = 0; i < delta.bytecodeIdsLength(); i++) {
             const id = delta.bytecodeIds(i)!
-            if (!this.hasId(id)) continue // Not spawned in yet
+            if (!this.hasId(id)) continue // Not spawned in yet (unique to this game)
             this.getById(id).bytecodesUsed = delta.bytecodesUsed(i)!
         }
 
@@ -162,13 +166,13 @@ export default class Bodies {
     draw(
         match: Match,
         ctx: CanvasRenderingContext2D,
+        overlayCtx: CanvasRenderingContext2D,
         config: ClientConfig,
-        selectedBody?: Body,
-        hoveredBody?: Body
+        selectedBodyID?: number,
+        hoveredBodyID?: number
     ): void {
-        for (const body of this.bodies.values()) {
-            body.draw(match, ctx, config, body === selectedBody, body === hoveredBody)
-        }
+        for (const body of this.bodies.values())
+            body.draw(match, ctx, overlayCtx, config, body.id === selectedBodyID, body.id === hoveredBodyID)
     }
 
     getNextID(): number {
@@ -231,7 +235,7 @@ export class Body {
     public visionRadius: number = 0
     protected imgPath: string = ''
     public nextPos: Vector
-    public prevSquares: Vector[]
+    private prevSquares: Vector[]
     public dead: boolean = false
     constructor(
         public pos: Vector,
@@ -254,23 +258,68 @@ export class Body {
     public draw(
         match: Match,
         ctx: CanvasRenderingContext2D,
+        overlayCtx: CanvasRenderingContext2D,
         config: ClientConfig,
         selected: boolean,
         hovered: boolean
     ): void {
-        const interpCoords = renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
+        const pos = this.getInterpolatedCoords(match)
+        const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
         if (this.dead) ctx.globalAlpha = 0.5
-        renderUtils.renderCenteredImageOrLoadingIndicator(
-            ctx,
-            getImageIfLoaded(this.imgPath),
-            renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, match.currentTurn.map.staticMap.dimension),
-            1
-        )
+        renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, 1)
+        ctx.globalAlpha = 1
+
+        if (selected || hovered) this.drawPath(match, overlayCtx)
+        if (selected || hovered || config.showAllRobotRadii)
+            this.drawRadii(match, overlayCtx, !selected && !config.showAllRobotRadii)
+    }
+
+    private drawPath(match: Match, ctx: CanvasRenderingContext2D) {
+        const interpolatedCoords = this.getInterpolatedCoords(match)
+        let alphaValue = 1
+        let radius = TOOLTIP_PATH_INIT_R
+        let lastPos: Vector | undefined = undefined
+        const posList = [...this.prevSquares, interpolatedCoords].reverse()
+        for (const prevPos of posList) {
+            const color = `rgba(255, 255, 255, ${alphaValue})`
+            ctx.beginPath()
+            ctx.fillStyle = color
+            ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
+            ctx.fill()
+            alphaValue *= TOOLTIP_PATH_DECAY_OPACITY
+            radius *= TOOLTIP_PATH_DECAY_R
+            if (lastPos) {
+                ctx.beginPath()
+                ctx.strokeStyle = color
+                ctx.lineWidth = radius / 2
+                ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
+                ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
+                ctx.stroke()
+            }
+            lastPos = prevPos
+        }
+    }
+
+    private drawRadii(match: Match, ctx: CanvasRenderingContext2D, lightly: boolean) {
+        const pos = this.getInterpolatedCoords(match)
+        if (lightly) ctx.globalAlpha = 0.5
+        const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
+        ctx.beginPath()
+        ctx.strokeStyle = 'blue'
+        ctx.lineWidth = 2 / match.map.width
+        ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
+        ctx.stroke()
+
+        ctx.beginPath()
+        ctx.strokeStyle = 'red'
+        ctx.lineWidth = 2 / match.map.width
+        ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
+        ctx.stroke()
         ctx.globalAlpha = 1
     }
 
-    public getInterpolatedCoords(turn: Turn): Vector {
-        return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, turn.match.getInterpolationFactor())
+    public getInterpolatedCoords(match: Match): Vector {
+        return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
     }
 
     public onHoverInfo(): string[] {
@@ -287,8 +336,10 @@ export class Body {
     }
 
     public copy(): Body {
+        const newBody = Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this))
         // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
-        return Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this))
+        newBody.prevSquares = [...this.prevSquares]
+        return newBody
     }
 
     public moveTo(pos: Vector): void {
@@ -326,49 +377,27 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     // one type pointed to by 0:
 
     0: class Duck extends Body {
+        public actionRadius = 8
+        public visionRadius = 10
         public draw(
             match: Match,
             ctx: CanvasRenderingContext2D,
+            overlayCtx: CanvasRenderingContext2D,
             config: ClientConfig,
             selected: boolean,
             hovered: boolean
         ): void {
             this.imgPath = `robots/${this.team.colorName.toLowerCase()}/${this.getSpecialization()}_64x64.png`
-            super.draw(match, ctx, config, selected, hovered)
+            super.draw(match, ctx, overlayCtx, config, selected, hovered)
 
             const levelIndicators: [string, number, [number, number]][] = [
                 [ATTACK_COLOR, this.attackLevel, [0.8, -0.5]],
                 [BUILD_COLOR, this.buildLevel, [0.5, -0.8]],
                 [HEAL_COLOR, this.healLevel, [0.2, -0.2]]
             ]
-            const interpCoords = renderUtils.getInterpolatedCoords(
-                this.pos,
-                this.nextPos,
-                match.getInterpolationFactor()
-            )
+            const interpCoords = this.getInterpolatedCoords(match)
             for (const [color, level, [dx, dy]] of levelIndicators) {
                 this.drawPetals(match, ctx, color, level, interpCoords.x + dx, interpCoords.y + dy)
-            }
-
-            if (selected || hovered || config.showAllRobotRadii) {
-                if (!selected && !config.showAllRobotRadii) ctx.globalAlpha = 0.5
-                const renderCoords = renderUtils.getRenderCoords(
-                    interpCoords.x,
-                    interpCoords.y,
-                    match.currentTurn.map.staticMap.dimension
-                )
-                ctx.beginPath()
-                ctx.strokeStyle = 'blue'
-                ctx.lineWidth = 2 / match.map.width
-                ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
-                ctx.stroke()
-
-                ctx.beginPath()
-                ctx.strokeStyle = 'red'
-                ctx.lineWidth = 2 / match.map.width
-                ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
-                ctx.stroke()
-                ctx.globalAlpha = 1
             }
         }
 

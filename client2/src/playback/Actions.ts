@@ -2,12 +2,9 @@ import Turn from './Turn'
 import { schema } from 'battlecode-schema'
 import assert from 'assert'
 import * as renderUtils from '../util/RenderUtil'
-import { vectorAdd, vectorLength, vectorMultiply, vectorSub, vectorMultiplyInPlace } from './Vector'
-import { Dimension } from './Map'
-import { Team } from './Game'
+import { vectorAdd, vectorLength, vectorMultiply, vectorSub, vectorMultiplyInPlace, Vector } from './Vector'
 import Match from './Match'
 import { Body } from './Bodies'
-import { render } from '@headlessui/react/dist/utils/render'
 import { ATTACK_COLOR, GRASS_COLOR, HEAL_COLOR, TEAM_COLORS, WATER_COLOR } from '../constants'
 
 export default class Actions {
@@ -52,7 +49,11 @@ export default class Actions {
 }
 
 export class Action {
-    constructor(protected robotID: number, protected target: number, public duration: number = 1) {}
+    constructor(
+        protected robotID: number,
+        protected target: number,
+        public duration: number = 1
+    ) {}
 
     /**
      * Applies this action to the turn provided. If stat is provided, it will be mutated to reflect the action as well
@@ -73,13 +74,7 @@ export abstract class ToFromAction extends Action {
         super(robotID, target)
     }
 
-    abstract drawToFrom(
-        match: Match,
-        ctx: CanvasRenderingContext2D,
-        from: { x: number; y: number },
-        to: { x: number; y: number },
-        body: Body
-    ): void
+    abstract drawToFrom(match: Match, ctx: CanvasRenderingContext2D, from: Vector, to: Vector, body: Body): void
 
     draw(match: Match, ctx: CanvasRenderingContext2D) {
         const body = match.currentTurn.bodies.getById(this.robotID) ?? assert.fail('Acting body not found')
@@ -100,13 +95,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         apply(turn: Turn): void {
             // To dicuss
         }
-        drawToFrom(
-            match: Match,
-            ctx: CanvasRenderingContext2D,
-            from: { x: number; y: number },
-            to: { x: number; y: number },
-            body: Body
-        ): void {
+        drawToFrom(match: Match, ctx: CanvasRenderingContext2D, from: Vector, to: Vector, body: Body): void {
             // Compute the start and end points for the animation projectile
             const dir = vectorSub(to, from)
             const len = vectorLength(dir)
@@ -146,13 +135,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
         apply(turn: Turn): void {
             // To dicuss
         }
-        drawToFrom(
-            match: Match,
-            ctx: CanvasRenderingContext2D,
-            from: { x: number; y: number },
-            to: { x: number; y: number },
-            body: Body
-        ): void {
+        drawToFrom(match: Match, ctx: CanvasRenderingContext2D, from: Vector, to: Vector, body: Body): void {
             renderUtils.renderLine(
                 ctx,
                 renderUtils.getRenderCoords(from.x, from.y, match.currentTurn.map.staticMap.dimension),

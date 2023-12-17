@@ -7,15 +7,24 @@ import { ThreeBarsIcon } from '../../icons/three-bars'
 
 type TooltipProps = {
     overlayCanvas: HTMLCanvasElement | null
-    selectedBody: Body | undefined
-    hoveredBody: Body | undefined
+    selectedBodyID: number | undefined
+    hoveredBodyID: number | undefined
     wrapper: MutableRefObject<HTMLDivElement | null>
 }
 
-export const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: TooltipProps) => {
+export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, wrapper }: TooltipProps) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.RENDER, forceUpdate)
+    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+
+    const selectedBody =
+        selectedBodyID !== undefined
+            ? appContext.state.activeMatch?.currentTurn.bodies.bodies.get(selectedBodyID)
+            : undefined
+    const hoveredBody =
+        hoveredBodyID !== undefined
+            ? appContext.state.activeMatch?.currentTurn.bodies.bodies.get(hoveredBodyID)
+            : undefined
 
     const tooltipRef = React.useRef<HTMLDivElement>(null)
     const [tooltipSize, setTooltipSize] = React.useState({ width: 0, height: 0 })

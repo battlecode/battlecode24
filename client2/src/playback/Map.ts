@@ -200,7 +200,13 @@ export class CurrentMap {
         }
     }
 
-    draw(match: Match, ctx: CanvasRenderingContext2D, config: ClientConfig, selectedBody?: Body, hoveredBody?: Body) {
+    draw(
+        match: Match,
+        ctx: CanvasRenderingContext2D,
+        config: ClientConfig,
+        selectedBodyID?: number,
+        hoveredBodyID?: number
+    ) {
         const dimension = this.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
@@ -247,7 +253,7 @@ export class CurrentMap {
             let loc: Vector = getEmptyVector()
             if (data.carrierId) {
                 // Bot is carrying flag
-                loc = match.currentTurn.bodies.getById(data.carrierId).getInterpolatedCoords(match.currentTurn)
+                loc = match.currentTurn.bodies.getById(data.carrierId).getInterpolatedCoords(match)
             } else {
                 loc = data.location
             }
@@ -296,12 +302,8 @@ export class CurrentMap {
 
         // Render indicator dots
         for (const data of this.indicatorDotData) {
-            if (
-                (selectedBody && data.id === selectedBody.id) ||
-                (hoveredBody && data.id === hoveredBody.id) ||
-                config.showAllIndicators
-            ) {
-                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
+            if (data.id === selectedBodyID || data.id === hoveredBodyID || config.showAllIndicators) {
+                ctx.globalAlpha = data.id === selectedBodyID ? 1 : 0.5
                 const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
                 ctx.beginPath()
                 ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
@@ -313,12 +315,8 @@ export class CurrentMap {
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
         for (const data of this.indicatorLineData) {
-            if (
-                (selectedBody && data.id === selectedBody.id) ||
-                (hoveredBody && data.id === hoveredBody.id) ||
-                config.showAllIndicators
-            ) {
-                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
+            if (data.id === selectedBodyID || data.id === hoveredBodyID || config.showAllIndicators) {
+                ctx.globalAlpha = data.id === selectedBodyID ? 1 : 0.5
                 const start = renderUtils.getRenderCoords(data.start.x, data.start.y, this.dimension)
                 const end = renderUtils.getRenderCoords(data.end.x, data.end.y, this.dimension)
                 ctx.beginPath()
