@@ -1,16 +1,26 @@
-import { schema } from 'battlecode-schema'
+import { flatbuffers, schema } from 'battlecode-schema'
 import assert from 'assert'
-import { Vector } from './Vector'
-import * as cst from '../constants'
+import { Vector, getEmptyVector } from './Vector'
+import Match from './Match'
+import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
+import { packVecTable, parseVecTable } from './SchemaHelpers'
+import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, TestTrapBrush, WallsBrush, WaterBrush } from './Brushes'
+import {
+    DIVIDER_COLOR,
+    GRASS_COLOR,
+    WALLS_COLOR,
+    WATER_COLOR,
+    TEAM_COLORS,
+    BUILD_NAMES,
+    TEAM_COLOR_NAMES,
+    DIVIDER_DROP_TURN,
+    INDICATOR_LINE_WIDTH,
+    INDICATOR_DOT_SIZE
+} from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
-import {
-    MapEditorBrush,
-    MapEditorBrushField,
-    MapEditorBrushFieldType,
-    SymmetricMapEditorBrush,
-    Symmetry
-} from '../components/sidebar/map-editor/MapEditorBrush'
+import { Body } from './Bodies'
+import { ClientConfig } from '../client-config'
 
 export type Dimension = {
     minCorner: Vector
@@ -19,77 +29,100 @@ export type Dimension = {
     height: number
 }
 
-type ResourceWellStat = {
-    adamantium: number
-    mana: number
-    elixir: number
-    upgraded: boolean
+type ResourcePileData = {
+    amount: number
 }
 
-type IslandStat = {
-    owner: number
-    flip_progress: number
-    locations: number[]
-    is_accelerated: boolean
+type TrapData = {
+    location: Vector
+    type: schema.BuildActionType
+    team: number
+}
+
+type FlagData = {
+    team: number
+    location: Vector
+    carrierId: number | null
+}
+
+type SchemaPacket = {
+    wallsOffset: number
+    waterOffset: number
+    dividerOffset: number
+    spawnLocationOffset: number
+    resourcePileOffset: number
+    resourcePileAmountOffset: number
+}
+
+type IndicatorDotData = {
     id: number
+    location: Vector
+    color: string
+}
+
+type IndicatorLineData = {
+    id: number
+    start: Vector
+    end: Vector
+    color: string
 }
 
 export class CurrentMap {
     public readonly staticMap: StaticMap
-    public readonly resource_well_stats: Map<number, ResourceWellStat>
-    public readonly island_stats: Map<number, IslandStat>
-    public readonly resources: Int8Array
+    public readonly resourcePileData: Map<number, ResourcePileData>
+    public readonly trapData: Map<number, TrapData>
+    public readonly flagData: Map<number, FlagData>
+    public readonly water: Int8Array
+    private indicatorDotData: IndicatorDotData[] = []
+    private indicatorLineData: IndicatorLineData[] = []
 
     get width(): number {
-        return this.staticMap.dimension.width
+        return this.dimension.width
     }
     get height(): number {
-        return this.staticMap.dimension.height
+        return this.dimension.height
+    }
+    get dimension(): Dimension {
+        return this.staticMap.dimension
     }
 
     constructor(from: StaticMap | CurrentMap) {
+        this.resourcePileData = new Map()
+        this.trapData = new Map()
+        this.flagData = new Map()
         if (from instanceof StaticMap) {
-            // create current map from static map
+            // Create current map from static map
+
             this.staticMap = from
-            this.resources = from.initialResources
-            this.resource_well_stats = new Map()
-            for (let i = 0; i < this.resources.length; i++) {
-                if (this.resources[i] != 0) {
-                    this.resource_well_stats.set(i, {
-                        adamantium: 0,
-                        mana: 0,
-                        elixir: 0,
-                        upgraded: false
-                    })
-                }
+            this.trapData = new Map()
+            this.water = new Int8Array(from.initialWater)
+            for (let i = 0; i < from.initialResourcePileAmounts.length; i++) {
+                const id = this.locationToIndex(from.resourcePileLocations[i].x, from.resourcePileLocations[i].y)
+                this.resourcePileData.set(id, { amount: from.initialResourcePileAmounts[i] })
             }
-            this.island_stats = new Map()
-            for (let i = 0; i < this.staticMap.islands.length; i++) {
-                if (this.staticMap.islands[i] != 0) {
-                    let island_id = this.staticMap.islands[i]
-                    if (this.island_stats.has(island_id)) {
-                        this.island_stats.get(island_id)!.locations.push(i)
-                    } else {
-                        this.island_stats.set(island_id, {
-                            owner: 0,
-                            flip_progress: 0,
-                            locations: [i],
-                            is_accelerated: false,
-                            id: island_id
-                        })
-                    }
-                }
+            for (let i = 0; i < from.spawnLocations.length; i++) {
+                // Assign initial flag data, ids are initial map locations
+                const team = i % 2
+                const location = from.spawnLocations[i]
+                const flagId = this.locationToIndex(location.x, location.y)
+                this.flagData.set(flagId, { team, location, carrierId: null })
             }
         } else {
-            // create current map from current map (copy)
-            this.resource_well_stats = new Map(from.resource_well_stats)
-            for (let [key, value] of this.resource_well_stats) this.resource_well_stats.set(key, { ...value })
-
-            this.island_stats = new Map(from.island_stats)
-            for (let [key, value] of this.island_stats) this.island_stats.set(key, { ...value })
+            // Create current map from current map (copy)
 
             this.staticMap = from.staticMap
-            this.resources = new Int8Array(from.resources)
+            for (let [key, value] of from.resourcePileData) {
+                this.resourcePileData.set(key, { ...value })
+            }
+            for (let [key, value] of from.trapData) {
+                this.trapData.set(key, { ...value })
+            }
+            for (let [key, value] of from.flagData) {
+                this.flagData.set(key, { ...value })
+            }
+            this.water = new Int8Array(from.water)
+            this.indicatorDotData = [...from.indicatorDotData]
+            this.indicatorLineData = [...from.indicatorLineData]
         }
     }
 
@@ -101,6 +134,10 @@ export class CurrentMap {
         return this.staticMap.locationToIndex(x, y)
     }
 
+    applySymmetry(point: Vector): Vector {
+        return this.staticMap.applySymmetry(point)
+    }
+
     copy(): CurrentMap {
         return new CurrentMap(this)
     }
@@ -109,186 +146,251 @@ export class CurrentMap {
      * Mutates this currentMap to reflect the given delta.
      */
     applyDelta(delta: schema.Round): void {
-        for (let i = 0; i < delta.resourceWellLocsLength(); i++) {
-            const well_index = delta.resourceWellLocs(i) ?? assert.fail(`resource well loc at ${i} not found`)
-            this.resources[well_index] = delta.resourceID(i) ?? assert.fail(`resource id at ${i} not found`)
-
-            const current_resource_stats =
-                this.resource_well_stats.get(well_index) ??
-                assert.fail(`resource well stats at ${well_index} not found`)
-            current_resource_stats.adamantium =
-                delta.wellAdamantiumValues(i) ?? assert.fail(`resource adamantium at ${i} not found`)
-            current_resource_stats.mana = delta.wellManaValues(i) ?? assert.fail(`resource mana at ${i} not found`)
-            current_resource_stats.elixir =
-                delta.wellElixirValues(i) ?? assert.fail(`resource elixir at ${i} not found`)
-            current_resource_stats.upgraded =
-                (delta.wellAccelerationID(i) ?? assert.fail(`resource acceleration id at ${i} not found`)) > 0
+        const claimedPiles = delta.claimedResourcePiles() ?? assert.fail(`Delta missing claimedResourcePiles`)
+        const digLocations = delta.digLocations() ?? assert.fail(`Delta missing digLocations`)
+        const fillLocations = delta.fillLocations() ?? assert.fail(`Delta missing fillLocations`)
+        const trapAddedLocations = delta.trapAddedLocations() ?? assert.fail(`Delta missing trapAddedLocations`)
+        for (let i = 0; i < claimedPiles.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(claimedPiles.xs(i)!, claimedPiles.ys(i)!)
+            this.resourcePileData.get(schemaIdx)!.amount = 0
+        }
+        /* Not actually necessary since this is handled via actions
+        for (let i = 0; i < digLocations.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
+            this.water[schemaIdx] = 1
+        }
+        for (let i = 0; i < fillLocations.xsLength(); i++) {
+            const schemaIdx = this.locationToIndex(fillLocations.xs(i)!, fillLocations.ys(i)!)
+            this.water[schemaIdx] = 0
+        }
+        */
+        for (let i = 0; i < delta.trapAddedIdsLength(); i++) {
+            const id = delta.trapAddedIds(i)!
+            const location = { x: trapAddedLocations.xs(i)!, y: trapAddedLocations.ys(i)! }
+            const type = delta.trapAddedTypes(i)!
+            const team = delta.trapAddedTeams(i)!
+            this.trapData.set(id, { location, type, team })
+        }
+        for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {
+            this.trapData.delete(delta.trapTriggeredIds(i)!)
         }
 
-        for (let i = 0; i < delta.islandIDsLength(); i++) {
-            const id = delta.islandIDs(i) ?? assert.fail(`island id at ${i} not found`)
-            const owner = delta.islandOwnership(i) ?? assert.fail(`island ownership at ${i} not found`)
-            const turnover = delta.islandTurnoverTurns(i) ?? assert.fail(`island turnover turns at ${i} not found`)
-            const island_stats = this.island_stats.get(id) ?? assert.fail(`island stats at ${id} not found`)
-            island_stats.flip_progress = turnover
-            if (island_stats.owner != owner) {
-                island_stats.is_accelerated = false
-            }
-            island_stats.owner = owner
+        this.indicatorDotData = []
+        const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
+        const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
+        for (let i = 0; i < locs.xsLength(); i++) {
+            this.indicatorDotData.push({
+                location: { x: locs.xs(i)!, y: locs.ys(i)! },
+                color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!),
+                id: delta.indicatorDotIds(i)!
+            })
+        }
+
+        this.indicatorLineData = []
+        const starts = delta.indicatorLineStartLocs() ?? assert.fail(`Delta missing indicatorLineStarts`)
+        const ends = delta.indicatorLineEndLocs() ?? assert.fail(`Delta missing indicatorLineEnds`)
+        const lineColors = delta.indicatorLineRgbs() ?? assert.fail(`Delta missing indicatorLineRgbs`)
+        for (let i = 0; i < starts.xsLength(); i++) {
+            this.indicatorLineData.push({
+                start: { x: starts.xs(i)!, y: starts.ys(i)! },
+                end: { x: ends.xs(i)!, y: ends.ys(i)! },
+                color: renderUtils.rgbToHex(lineColors.red(i)!, lineColors.green(i)!, lineColors.blue(i)!),
+                id: delta.indicatorLineIds(i)!
+            })
         }
     }
 
-    private renderIsland(ctx: CanvasRenderingContext2D, i: number, j: number, islandStat: IslandStat) {
-        renderUtils.renderRounded(ctx, i, j, this.staticMap.dimension, this.staticMap.islands, (scale) => {
-            ctx.globalAlpha = 0.7
-
-            const sigmoid = (x: number) => {
-                return 1 / (1 + Math.exp(-x))
-            }
-            const blendColors = (colorA: string, colorB: string, amount: number) => {
-                const [rA, gA, bA] = colorA.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
-                const [rB, gB, bB] = colorB.match(/\w\w/g)!.map((c: string) => parseInt(c, 16))
-                const r = Math.round(rA + (rB - rA) * amount)
-                    .toString(16)
-                    .padStart(2, '0')
-                const g = Math.round(gA + (gB - gA) * amount)
-                    .toString(16)
-                    .padStart(2, '0')
-                const b = Math.round(bA + (bB - bA) * amount)
-                    .toString(16)
-                    .padStart(2, '0')
-                return '#' + r + g + b
-            }
-
-            let first_color = '#666666'
-            if (islandStat.owner != 0)
-                first_color = blendColors(
-                    first_color,
-                    cst.TEAM_COLORS[islandStat.owner - 1],
-                    Math.min(1, sigmoid(islandStat.flip_progress / 15 - 2) + 0.3)
-                )
-
-            let second_color = islandStat.is_accelerated ? '#EEAC09' : first_color
-
-            const coords = renderUtils.getRenderCoords(i, j, this.staticMap.dimension)
-            const x = coords.x
-            const y = coords.y
-            let d = scale / 8
-
-            ctx.fillStyle = first_color
-            ctx.beginPath()
-            ctx.moveTo(x, y)
-            ctx.lineTo(x + d, y)
-            ctx.lineTo(x, y + d)
-            ctx.closePath()
-            ctx.fill()
-
-            ctx.fillStyle = second_color
-            ctx.beginPath()
-            ctx.moveTo(x + 3 * d, y)
-            ctx.lineTo(x + 5 * d, y)
-            ctx.lineTo(x, y + 5 * d)
-            ctx.lineTo(x, y + 3 * d)
-            ctx.closePath()
-            ctx.fill()
-
-            ctx.fillStyle = first_color
-            ctx.beginPath()
-            ctx.moveTo(x + 7 * d, y)
-            ctx.lineTo(x + 8 * d, y)
-            ctx.lineTo(x + 8 * d, y + d)
-            ctx.lineTo(x + d, y + 8 * d)
-            ctx.lineTo(x, y + 8 * d)
-            ctx.lineTo(x, y + 7 * d)
-            ctx.closePath()
-            ctx.fill()
-
-            ctx.fillStyle = second_color
-            ctx.beginPath()
-            ctx.moveTo(x + 5 * d, y + 8 * d)
-            ctx.lineTo(x + 3 * d, y + 8 * d)
-            ctx.lineTo(x + 8 * d, y + 3 * d)
-            ctx.lineTo(x + 8 * d, y + 5 * d)
-            ctx.closePath()
-            ctx.fill()
-
-            ctx.fillStyle = first_color
-            ctx.beginPath()
-            ctx.moveTo(x + 8 * d, y + 8 * d)
-            ctx.lineTo(x + 7 * d, y + 8 * d)
-            ctx.lineTo(x + 8 * d, y + 7 * d)
-            ctx.closePath()
-            ctx.fill()
-        })
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        const dimension = this.staticMap.dimension
+    draw(match: Match, ctx: CanvasRenderingContext2D, config: ClientConfig, selectedBody?: Body, hoveredBody?: Body) {
+        const dimension = this.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
-                const schemaIdx = renderUtils.getSchemaIdx(i, j, dimension)
+                const schemaIdx = this.locationToIndex(i, j)
                 const coords = renderUtils.getRenderCoords(i, j, dimension)
 
-                // Render island
-                if (this.staticMap.islands[schemaIdx]) {
-                    const islandStat = this.island_stats.get(this.staticMap.islands[schemaIdx])!
-                    this.renderIsland(ctx, i, j, islandStat)
+                // Render rounded (clipped) water
+                if (this.water[schemaIdx]) {
+                    renderUtils.renderRounded(
+                        ctx,
+                        i,
+                        j,
+                        this,
+                        this.water,
+                        () => {
+                            ctx.fillStyle = WATER_COLOR
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        },
+                        { x: true, y: false }
+                    )
                 }
 
-                // Render resource
-                if (this.resources[schemaIdx] > 0) {
-                    // Main image
-                    const upgraded = this.resource_well_stats.get(schemaIdx)!.upgraded
-                    const resource = this.resources[schemaIdx]
-                    const size = upgraded ? 0.95 : 0.85
-                    const resourcename = cst.RESOURCE_NAMES[resource]
-                    const img = getImageIfLoaded(
-                        `resources/${resourcename}_well_${upgraded ? 'upgraded_' : ''}smaller.png`
+                // Render rounded (clipped) divider
+                if (match.currentTurn.turnNumber < DIVIDER_DROP_TURN && this.staticMap.divider[schemaIdx]) {
+                    renderUtils.renderRounded(
+                        ctx,
+                        i,
+                        j,
+                        this,
+                        this.staticMap.divider,
+                        () => {
+                            ctx.fillStyle = DIVIDER_COLOR
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        },
+                        { x: false, y: true }
                     )
-                    renderUtils.renderCenteredImageOrLoadingIndicator(ctx, img, coords, size)
                 }
+            }
+        }
+
+        // Render flags
+        for (const flagId of this.flagData.keys()) {
+            const data = this.flagData.get(flagId)!
+            let loc: Vector = getEmptyVector()
+            if (data.carrierId) {
+                // Bot is carrying flag
+                loc = match.currentTurn.bodies.getById(data.carrierId).getInterpolatedCoords(match.currentTurn)
+            } else {
+                loc = data.location
+            }
+
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+
+            // Render a red outline to show who is carrying the flag
+            if (data.carrierId) renderUtils.renderRoundedOutline(ctx, coords, 'red')
+
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                ctx,
+                getImageIfLoaded('resources/bread_64x64.png'),
+                coords,
+                1
+            )
+        }
+
+        // Render resource piles
+        for (const pileId of this.resourcePileData.keys()) {
+            const data = this.resourcePileData.get(pileId)!
+            if (data.amount == 0) continue
+            const loc = this.indexToLocation(pileId)
+            const size = (data.amount / 10) * 0.3 + 0.75
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+            const crumbVersion = ((loc.x * 37 + loc.y * 19) % 3) + 1
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                ctx,
+                getImageIfLoaded(`resources/crumb_${crumbVersion}_64x64.png`),
+                coords,
+                size
+            )
+        }
+
+        // Render traps
+        for (const trapId of this.trapData.keys()) {
+            const data = this.trapData.get(trapId)!
+            const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
+            const loc = data.location
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+            renderUtils.renderRoundedOutline(ctx, coords, TEAM_COLORS[data.team - 1])
+
+            ctx.globalAlpha = 0.6
+            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
+            ctx.globalAlpha = 1
+        }
+
+        // Render indicator dots
+        for (const data of this.indicatorDotData) {
+            if (
+                (selectedBody && data.id === selectedBody.id) ||
+                (hoveredBody && data.id === hoveredBody.id) ||
+                config.showAllIndicators
+            ) {
+                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
+                const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
+                ctx.beginPath()
+                ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
+                ctx.fillStyle = data.color
+                ctx.fill()
+                ctx.globalAlpha = 1
+            }
+        }
+
+        ctx.lineWidth = INDICATOR_LINE_WIDTH
+        for (const data of this.indicatorLineData) {
+            if (
+                (selectedBody && data.id === selectedBody.id) ||
+                (hoveredBody && data.id === hoveredBody.id) ||
+                config.showAllIndicators
+            ) {
+                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
+                const start = renderUtils.getRenderCoords(data.start.x, data.start.y, this.dimension)
+                const end = renderUtils.getRenderCoords(data.end.x, data.end.y, this.dimension)
+                ctx.beginPath()
+                ctx.moveTo(start.x + 0.5, start.y + 0.5)
+                ctx.lineTo(end.x + 0.5, end.y + 0.5)
+                ctx.strokeStyle = data.color
+                ctx.stroke()
+                ctx.globalAlpha = 1
             }
         }
     }
 
     getEditorBrushes() {
-        const brushes: MapEditorBrush[] = [new ResourcesBrush(this)]
+        const brushes: MapEditorBrush[] = [
+            new WaterBrush(this),
+            new ResourcePileBrush(this),
+            new SpawnZoneBrush(this),
+            new TestTrapBrush(this),
+            new WallsBrush(this)
+        ]
         return brushes.concat(this.staticMap.getEditorBrushes())
     }
 
     isEmpty(): boolean {
-        return this.resource_well_stats.size == 0 && this.island_stats.size == 0 && this.staticMap.isEmpty()
+        return this.resourcePileData.size == 0 && this.staticMap.isEmpty()
     }
 
     /**
      * Creates a packet of flatbuffers data which will later be inserted
      * This and the next function are seperated due to how flatbuffers works
      */
-    getSchemaPacket(builder: flatbuffers.Builder): [number, number, number, number, number] {
-        const walls = schema.GameMap.createWallsVector(
+    getSchemaPacket(builder: flatbuffers.Builder): SchemaPacket {
+        const wallsOffset = schema.GameMap.createWallsVector(
             builder,
             Array.from(this.staticMap.walls).map((x) => !!x)
         )
-        const resources = schema.GameMap.createResourcesVector(builder, Uint8Array.from(this.resources))
-        const clouds = schema.GameMap.createCloudsVector(
+        const waterOffset = schema.GameMap.createWaterVector(
             builder,
-            Array.from(this.staticMap.clouds).map((x) => !!x)
+            Array.from(this.staticMap.initialWater).map((x) => !!x)
         )
-        const currents = schema.GameMap.createCurrentsVector(builder, Uint8Array.from(this.staticMap.currents))
-        const islands = schema.GameMap.createIslandsVector(builder, Uint8Array.from(this.staticMap.islands))
-        return [walls, resources, clouds, currents, islands]
+        const dividerOffset = schema.GameMap.createDividerVector(
+            builder,
+            Array.from(this.staticMap.divider).map((x) => !!x)
+        )
+        const resourcePileAmountOffset = schema.GameMap.createResourcePileAmountsVector(
+            builder,
+            Array.from(this.resourcePileData.values()).map((x) => x.amount)
+        )
+        const spawnLocationOffset = packVecTable(builder, this.staticMap.spawnLocations)
+        const resourcePileOffset = packVecTable(builder, this.staticMap.resourcePileLocations)
+
+        return {
+            wallsOffset,
+            waterOffset,
+            dividerOffset,
+            spawnLocationOffset,
+            resourcePileOffset,
+            resourcePileAmountOffset
+        }
     }
 
     /**
      * Inserts an existing packet of flatbuffers data into the given builder
      * This and the previous function are seperated due to how flatbuffers works
      */
-    insertSchemaPacket(builder: flatbuffers.Builder, packet: [number, number, number, number, number]) {
-        schema.GameMap.addWalls(builder, packet[0])
-        schema.GameMap.addResources(builder, packet[1])
-        schema.GameMap.addClouds(builder, packet[2])
-        schema.GameMap.addCurrents(builder, packet[3])
-        schema.GameMap.addIslands(builder, packet[4])
+    insertSchemaPacket(builder: flatbuffers.Builder, packet: SchemaPacket) {
+        schema.GameMap.addWalls(builder, packet.wallsOffset)
+        schema.GameMap.addWater(builder, packet.waterOffset)
+        schema.GameMap.addDivider(builder, packet.dividerOffset)
+        schema.GameMap.addSpawnLocations(builder, packet.spawnLocationOffset)
+        schema.GameMap.addResourcePiles(builder, packet.resourcePileOffset)
+        schema.GameMap.addResourcePileAmounts(builder, packet.resourcePileAmountOffset)
     }
 }
 
@@ -299,29 +401,19 @@ export class StaticMap {
         public readonly symmetry: number,
         public readonly dimension: Dimension,
         public readonly walls: Int8Array,
-        public readonly clouds: Int8Array,
-        public readonly currents: Int8Array,
-        public readonly initialResources: Int8Array,
-        public readonly islands: Int32Array
+        public readonly divider: Int8Array,
+        public readonly spawnLocations: Vector[],
+        public readonly resourcePileLocations: Vector[],
+        public readonly initialResourcePileAmounts: Int32Array,
+        public readonly initialWater: Int8Array
     ) {
         if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) throw new Error(`Invalid symmetry ${symmetry}`)
 
         if (walls.length != dimension.width * dimension.height) throw new Error('Invalid walls length')
-        if (clouds.length != dimension.width * dimension.height) throw new Error('Invalid clouds length')
-        if (currents.length != dimension.width * dimension.height) throw new Error('Invalid currents length')
-        if (initialResources.length != dimension.width * dimension.height)
-            throw new Error('Invalid initialResources length')
-        if (islands.length != dimension.width * dimension.height) throw new Error('Invalid islands length')
+        if (divider.length != dimension.width * dimension.height) throw new Error('Invalid divider length')
 
         if (walls.some((x) => x !== 0 && x !== 1)) throw new Error('Invalid walls value')
-        if (clouds.some((x) => x !== 0 && x !== 1)) throw new Error('Invalid clouds value')
-        if (currents.some((x) => x < 0 || x > 8)) throw new Error('Invalid currents value')
-
-        if (initialResources.some((x) => x !== 0 && !(x in cst.RESOURCE_NAMES)))
-            throw new Error('Invalid initialResources value')
-
-        for(let i = 0; i < dimension.width * dimension.height; i++)
-            if(walls[i] === 1 && initialResources[i] !== 0) throw new Error('Resource well on wall')
+        if (divider.some((x) => x !== 0 && x !== 1)) throw new Error('Invalid divider value')
     }
 
     static fromSchema(schemaMap: schema.GameMap) {
@@ -329,10 +421,9 @@ export class StaticMap {
         const randomSeed = schemaMap.randomSeed()
         const symmetry = schemaMap.symmetry()
 
-        assert(schemaMap.minCorner(), 'minCorner() is missing')
-        assert(schemaMap.maxCorner(), 'maxCorner() is missing')
-        const minCorner = { x: schemaMap.minCorner()!.x(), y: schemaMap.minCorner()!.y() }
-        const maxCorner = { x: schemaMap.maxCorner()!.x(), y: schemaMap.maxCorner()!.y() }
+        const size = schemaMap.size() ?? assert.fail('Map size() is missing')
+        const minCorner = { x: 0, y: 0 }
+        const maxCorner = { x: size.x(), y: size.y() }
         const dimension = {
             minCorner,
             maxCorner,
@@ -341,11 +432,24 @@ export class StaticMap {
         }
 
         const walls = schemaMap.wallsArray() ?? assert.fail('wallsArray() is null')
-        const clouds = schemaMap.cloudsArray() ?? assert.fail('cloudsArray() is null')
-        const currents = Int8Array.from(schemaMap.currentsArray() ?? assert.fail('currentsArray() is null'))
-        const resources = Int8Array.from(schemaMap.resourcesArray() ?? assert.fail('resourcesArray() is null'))
-        const islands = schemaMap.islandsArray() ?? assert.fail('islandsArray() is null')
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, clouds, currents, resources, islands)
+        const divider = schemaMap.dividerArray() ?? assert.fail('dividerArray() is null')
+        const spawnLocations = parseVecTable(schemaMap.spawnLocations() ?? assert.fail('spawnLocations() is null'))
+        const resourcePileLocations = parseVecTable(schemaMap.resourcePiles() ?? assert.fail('resourcePiles() is null'))
+        const initialResourcePileAmounts =
+            schemaMap.resourcePileAmountsArray() ?? assert.fail('resourcePileAmountsArray() is null')
+        const initialWater = schemaMap.waterArray() ?? assert.fail('waterArray() is null')
+        return new StaticMap(
+            name,
+            randomSeed,
+            symmetry,
+            dimension,
+            walls,
+            divider,
+            spawnLocations,
+            resourcePileLocations,
+            initialResourcePileAmounts,
+            initialWater
+        )
     }
 
     static fromParams(width: number, height: number, symmetry: Symmetry) {
@@ -362,11 +466,23 @@ export class StaticMap {
         }
 
         const walls = new Int8Array(width * height)
-        const clouds = new Int8Array(width * height)
-        const currents = new Int8Array(width * height)
-        const resources = new Int8Array(width * height)
-        const islands = new Int32Array(width * height)
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, clouds, currents, resources, islands)
+        const divider = new Int8Array(width * height)
+        const spawnLocations: Vector[] = []
+        const resourcePileLocations: Vector[] = []
+        const initialResourcePileAmounts = new Int32Array()
+        const initialWater = new Int8Array(width * height)
+        return new StaticMap(
+            name,
+            randomSeed,
+            symmetry,
+            dimension,
+            walls,
+            divider,
+            spawnLocations,
+            resourcePileLocations,
+            initialResourcePileAmounts,
+            initialWater
+        )
     }
 
     get width(): number {
@@ -387,13 +503,13 @@ export class StaticMap {
     locationToIndex(x: number, y: number): number {
         assert(x >= 0 && x < this.width, `x ${x} out of bounds`)
         assert(y >= 0 && y < this.height, `y ${y} out of bounds`)
-        return y * this.width + x
+        return Math.floor(y) * this.width + Math.floor(x)
     }
 
     /**
      * Returns a point representing the reflection of the given point following the map's symmetry.
      */
-    applySymmetry(point: { x: number; y: number }): { x: number; y: number } {
+    applySymmetry(point: Vector): Vector {
         switch (this.symmetry) {
             case Symmetry.VERTICAL:
                 return { x: this.width - point.x - 1, y: point.y }
@@ -408,7 +524,7 @@ export class StaticMap {
 
     draw(ctx: CanvasRenderingContext2D) {
         // Fill background
-        ctx.fillStyle = '#BAAD99'
+        ctx.fillStyle = GRASS_COLOR
         ctx.fillRect(
             this.dimension.minCorner.x,
             this.dimension.minCorner.y,
@@ -416,47 +532,42 @@ export class StaticMap {
             this.dimension.height
         )
 
+        // Populate buffer with values where spawn zones should be rendered
+        const spawnZoneDrawAreas = Array(this.width * this.height).fill(0)
+        for (let i = 0; i < this.spawnLocations.length; i++) {
+            const pos = this.spawnLocations[i]
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    const target_x = pos.x + x
+                    const target_y = pos.y + y
+                    if (target_x >= 0 && target_x < this.width && target_y >= 0 && target_y < this.height) {
+                        const idx = this.locationToIndex(target_x, target_y)
+                        if (this.walls[idx] || this.initialWater[idx]) continue
+                        // Team A: 1, Team B: 2
+                        spawnZoneDrawAreas[idx] = (i % 2) + 1
+                    }
+                }
+            }
+        }
+
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {
-                const schemaIdx = renderUtils.getSchemaIdx(i, j, this.dimension)
+                const schemaIdx = this.locationToIndex(i, j)
                 const coords = renderUtils.getRenderCoords(i, j, this.dimension)
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.walls, (scale) => {
-                        ctx.fillStyle = '#333333'
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                    renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                        ctx.fillStyle = WALLS_COLOR
+                        ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                     })
                 }
-
-                // Render cloud
-                if (this.clouds[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this.dimension, this.clouds, (scale) => {
-                        ctx.fillStyle = 'white'
-                        ctx.globalAlpha = 0.3
-                        ctx.fillRect(coords.x, coords.y, scale, scale)
+                // Render spawn zones
+                if (spawnZoneDrawAreas[schemaIdx]) {
+                    const color = TEAM_COLORS[spawnZoneDrawAreas[schemaIdx] - 1]
+                    renderUtils.renderRounded(ctx, i, j, this, spawnZoneDrawAreas, () => {
+                        renderUtils.drawDiagonalLines(ctx, coords, 1.0, color)
                     })
-                }
-
-                // Render current
-                if (this.currents[schemaIdx]) {
-                    renderUtils.renderRounded(
-                        ctx,
-                        i,
-                        j,
-                        this.dimension,
-                        this.currents,
-                        (scale) => {
-                            ctx.fillStyle = 'purple'
-                            ctx.globalAlpha = 0.2
-                            ctx.fillRect(coords.x, coords.y, scale, scale)
-                            ctx.globalAlpha = 0.1
-                            ctx.fillStyle = 'black'
-                            renderUtils.renderTileArrow(ctx, coords, this.currents[schemaIdx])
-                        },
-                        1.01,
-                        (c) => c == this.currents[schemaIdx]
-                    )
                 }
 
                 // Draw grid
@@ -483,144 +594,13 @@ export class StaticMap {
     isEmpty(): boolean {
         return (
             this.walls.every((x) => x == 0) &&
-            this.clouds.every((x) => x == 0) &&
-            this.currents.every((x) => x == 0) &&
-            this.initialResources.every((x) => x == 0) &&
-            this.islands.every((x) => x == 0)
+            this.divider.every((x) => x == 0) &&
+            this.spawnLocations.length == 0 &&
+            this.resourcePileLocations.length == 0
         )
     }
 
     getEditorBrushes(): MapEditorBrush[] {
-        return [new WallsBrush(this), new CloudsBrush(this), new CurrentsBrush(this)]
-    }
-}
-
-class ResourcesBrush extends SymmetricMapEditorBrush {
-    public readonly name = 'Resources'
-    public readonly fields = {
-        is_resource: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        resource: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            value: 1,
-            label: 'Resource',
-            options: Object.entries(cst.RESOURCE_NAMES).map(([index, label]) => ({
-                value: parseInt(index),
-                label
-            }))
-        }
-    }
-
-    constructor(private readonly currentMap: CurrentMap) {
-        super(currentMap.staticMap)
-    }
-
-    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const target_idx = this.map.locationToIndex(x, y)
-        const is_resource: boolean = fields.is_resource.value
-        const resource: number = fields.resource.value
-        const resource_val = is_resource ? resource : 0
-        if (this.currentMap.resources[target_idx] != resource_val) {
-            this.currentMap.resources[target_idx] = resource_val
-            if (is_resource) {
-                this.currentMap.resource_well_stats.set(target_idx, {
-                    adamantium: 0,
-                    mana: 0,
-                    elixir: 0,
-                    upgraded: false
-                })
-            } else {
-                this.currentMap.resource_well_stats.delete(target_idx)
-            }
-        }
-    }
-}
-
-class WallsBrush extends SymmetricMapEditorBrush {
-    public readonly name = 'Walls'
-    public readonly fields = {
-        is_wall: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        radius: {
-            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
-            value: 1,
-            label: 'Radius'
-        }
-    }
-
-    constructor(map: StaticMap) {
-        super(map)
-    }
-
-    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const radius: number = fields.radius.value - 1
-        for (let i = -radius; i <= radius; i++) {
-            for (let j = -radius; j <= radius; j++) {
-                if (Math.sqrt(i * i + j * j) <= radius) {
-                    const target_x = x + i
-                    const target_y = y + j
-                    if (target_x >= 0 && target_x < this.map.width && target_y >= 0 && target_y < this.map.height) {
-                        const target_idx = this.map.locationToIndex(target_x, target_y)
-                        const is_wall: boolean = fields.is_wall.value
-                        this.map.walls[target_idx] = is_wall ? 1 : 0
-                    }
-                }
-            }
-        }
-    }
-}
-
-class CloudsBrush extends SymmetricMapEditorBrush {
-    public readonly name = 'Clouds'
-    public readonly fields = {
-        is_cloud: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        radius: {
-            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
-            value: 1,
-            label: 'Radius'
-        }
-    }
-
-    constructor(map: StaticMap) {
-        super(map)
-    }
-
-    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const target_idx = this.map.locationToIndex(x, y)
-        const is_cloud: boolean = fields.is_cloud.value
-        this.map.clouds[target_idx] = is_cloud ? 1 : 0
-    }
-}
-
-class CurrentsBrush extends SymmetricMapEditorBrush {
-    public readonly name = 'Currents'
-    public readonly fields = {
-        is_current: {
-            type: MapEditorBrushFieldType.ADD_REMOVE,
-            value: true
-        },
-        direction: {
-            type: MapEditorBrushFieldType.POSITIVE_INTEGER,
-            value: 1,
-            label: 'Direction'
-        }
-    }
-
-    constructor(map: StaticMap) {
-        super(map)
-    }
-
-    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>) {
-        const target_idx = this.map.locationToIndex(x, y)
-        const is_current: boolean = fields.is_current.value
-        const direction: number = fields.direction.value
-        this.map.currents[target_idx] = is_current ? direction : 0
+        return [new DividerBrush(this)]
     }
 }

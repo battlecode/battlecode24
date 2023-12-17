@@ -1,4 +1,4 @@
-package instrumentertest;
+package battlecode.instrumenter.sample.instrumentertest;
 
 import battlecode.common.Team;
 

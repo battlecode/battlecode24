@@ -2,7 +2,7 @@ import Match from './Match'
 import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
-import { SPEC_VERSION } from '../constants'
+import { SPEC_VERSION, TEAM_COLORS, TEAM_COLOR_NAMES } from '../constants'
 import { FakeGameWrapper } from '../components/sidebar/runner/websocket'
 
 let nextID = 0
@@ -21,10 +21,12 @@ export default class Game {
     public readonly teams: [Team, Team]
     public readonly winner: Team
 
-    //metadata
+    // Metadata
     private readonly specVersion: string
-    private readonly constants: schema.Constants
-    public readonly typeMetadata: schema.BodyTypeMetadata[] = []
+    public readonly constants: schema.GameplayConstants
+    public readonly specializationMetadata: schema.SpecializationMetadata[] = []
+    public readonly buildActionMetadata: schema.BuildActionMetadata[] = []
+    public readonly globalUpgradeMetadata: schema.GlobalUpgradeMetadata[] = []
 
     /**
      * Whether this game is playable (not currently being made in the map editor)
@@ -46,12 +48,12 @@ export default class Game {
         if (!wrapper) {
             //bare minimum setup for map editor
             this.teams = [
-                new Team('Red', { wins: 0, elo: 0 }, 1, 'map_editor_red', 'red'),
-                new Team('Blue', { wins: 0, elo: 0 }, 2, 'map_editor_blue', 'blue')
+                new Team(TEAM_COLOR_NAMES[0], { wins: 0, elo: 0 }, 1, 'map_editor_red'),
+                new Team(TEAM_COLOR_NAMES[1], { wins: 0, elo: 0 }, 2, 'map_editor_blue')
             ]
             this.winner = this.teams[0]
             this.specVersion = SPEC_VERSION
-            this.constants = new schema.Constants()
+            this.constants = new schema.GameplayConstants()
             this.id = nextID++
             this.playable = false
             return
@@ -72,10 +74,17 @@ export default class Game {
             Team.fromSchema(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
         ]
 
-        const bodyCount = gameHeader.bodyTypeMetadataLength()
-        for (let i = 0; i < bodyCount; i++) {
-            const bodyData = gameHeader.bodyTypeMetadata(i) ?? assert.fail('BodyTypeMetadata was null')
-            this.typeMetadata[bodyData.type()] = bodyData
+        for (let i = 0; i < gameHeader.specializationMetadataLength(); i++) {
+            const data = gameHeader.specializationMetadata(i) ?? assert.fail('SpecializationMetadata was null')
+            this.specializationMetadata[data.type()] = data
+        }
+        for (let i = 0; i < gameHeader.buildActionMetadataLength(); i++) {
+            const data = gameHeader.buildActionMetadata(i) ?? assert.fail('BuildActionMetadata was null')
+            this.buildActionMetadata[data.type()] = data
+        }
+        for (let i = 0; i < gameHeader.globalUpgradeMetadataLength(); i++) {
+            const data = gameHeader.globalUpgradeMetadata(i) ?? assert.fail('GlobalUpgradeMetadata was null')
+            this.globalUpgradeMetadata[data.type()] = data
         }
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
 
@@ -112,8 +121,6 @@ export default class Game {
         this.winner = this.teams[gameFooter.winner()]
 
         this.id = nextID++
-
-        console.log(this)
     }
 
     public getTeamByID(id: number): Team {
@@ -135,13 +142,17 @@ export default class Game {
 }
 
 export class Team {
+    public readonly colorName: string
+    public readonly color: string
     constructor(
         public readonly name: string,
         public stats: TeamStat,
         public readonly id: number,
         public readonly packageName: string,
-        public readonly color: string
-    ) {}
+    ) {
+        this.colorName = TEAM_COLOR_NAMES[id - 1]
+        this.color = TEAM_COLORS[id - 1]
+    }
 
     static fromSchema(team: schema.TeamData) {
         const name = team.name() ?? assert.fail('Team name is missing')
@@ -149,10 +160,9 @@ export class Team {
             wins: 0,
             elo: 0
         }
-        const id = team.teamID() ?? assert.fail('Team id is missing')
+        const id = team.teamId() ?? assert.fail('Team id is missing')
         const packageName = team.packageName() ?? assert.fail('Team package name is missing')
-        const color = id === 1 ? 'red' : 'blue'
-        return new Team(name, stats, id, packageName, color)
+        return new Team(name, stats, id, packageName)
     }
 }
 

@@ -1,6 +1,5 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
-import Tooltip from '../../tooltip'
 import { TournamentGame } from '../../../playback/Tournament'
 import Game from '../../../playback/Game'
 import { PageType, usePage } from '../../../app-search-params'

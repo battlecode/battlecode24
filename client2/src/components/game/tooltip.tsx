@@ -1,235 +1,153 @@
-import React, { useEffect } from 'react'
-import * as cst from '../../constants'
-import { useMousePosition } from '../../util/mouse-pos'
+import React, { MutableRefObject, useEffect } from 'react'
 import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import { Body } from '../../playback/Bodies'
-import { Vector } from '../../playback/Vector'
-import Match from '../../playback/Match'
+import { ThreeBarsIcon } from '../../icons/three-bars'
 
 type TooltipProps = {
-    mapCanvas: HTMLCanvasElement | undefined
-    overlayCanvas: HTMLCanvasElement | undefined
-    wrapperRef: React.MutableRefObject<HTMLElement | null>
+    overlayCanvas: HTMLCanvasElement | null
+    selectedBody: Body | undefined
+    hoveredBody: Body | undefined
+    wrapper: MutableRefObject<HTMLDivElement | null>
 }
 
-const Tooltip = ({ mapCanvas, overlayCanvas, wrapperRef }: TooltipProps) => {
-    const mousePos = useMousePosition()
+export const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: TooltipProps) => {
     const appContext = useAppContext()
-
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.RENDER, forceUpdate)
 
-    const [clickedBodyID, setClickedBodyID] = React.useState<number>(-1)
-
-    const enabled = appContext.state.activeGame?.playable
-
-    let canvasAbsLeft = 0,
-        canvasAbsTop = 0
-    let tileLeft = 0,
-        tileTop = 0
-    let tileWidth = 0,
-        tileHeight = 0
-    let tileCol = -1,
-        tileRow = -1
-
-    if (mapCanvas && wrapperRef.current) {
-        const canvasBoundingBox = mapCanvas.getBoundingClientRect()
-        const wrapperBoundingBox = wrapperRef.current.getBoundingClientRect()
-
-        const scalingFactorX = mapCanvas.width / canvasBoundingBox.width
-        const scalingFactorY = mapCanvas.height / canvasBoundingBox.height
-
-        const localX = (mousePos.x - canvasBoundingBox.left) * scalingFactorX
-        const localY = (mousePos.y - canvasBoundingBox.top) * scalingFactorY
-
-        tileCol = Math.floor(localX / cst.TILE_RESOLUTION)
-        tileRow = Math.floor(localY / cst.TILE_RESOLUTION)
-
-        canvasAbsLeft = canvasBoundingBox.left - wrapperBoundingBox.left
-        canvasAbsTop = canvasBoundingBox.top - wrapperBoundingBox.top
-
-        tileLeft = (tileCol * cst.TILE_RESOLUTION) / scalingFactorX + canvasAbsLeft
-        tileTop = (tileRow * cst.TILE_RESOLUTION) / scalingFactorY + canvasAbsTop
-        tileWidth = cst.TILE_RESOLUTION / scalingFactorX
-        tileHeight = cst.TILE_RESOLUTION / scalingFactorY
-    }
-
-    function getHoveredBody() {
-        return appContext.state?.activeMatch?.map
-            ? appContext.state.activeMatch?.currentTurn.bodies.getBodyAtLocation(
-                  tileCol,
-                  appContext.state.activeMatch.map.dimension.height - 1 - tileRow
-              )
-            : undefined
-    }
-
-    function onClick(e: Event) {
-        const hoveredBody = getHoveredBody()
-        setClickedBodyID(hoveredBody?.id ?? -1)
-    }
-
+    const tooltipRef = React.useRef<HTMLDivElement>(null)
+    const [tooltipSize, setTooltipSize] = React.useState({ width: 0, height: 0 })
     useEffect(() => {
-        if (overlayCanvas && enabled) {
-            overlayCanvas.addEventListener('click', onClick)
-            return () => {
-                overlayCanvas.removeEventListener('click', onClick)
+        const observer = new ResizeObserver((entries) => {
+            if (entries[0]) {
+                const borderBox = entries[0].borderBoxSize[0]
+                setTooltipSize({ width: borderBox.inlineSize, height: borderBox.blockSize })
             }
+        })
+        if (tooltipRef.current) observer.observe(tooltipRef.current)
+        return () => {
+            if (tooltipRef.current) observer.unobserve(tooltipRef.current)
         }
-    }, [overlayCanvas, mousePos, enabled])
+    }, [hoveredBody])
 
-    const hoveredBody = getHoveredBody()
+    const map = appContext.state.activeMatch?.currentTurn.map
+    if (!overlayCanvas || !wrapper.current || !map) return <></>
 
-    const drawBodyTooltip = (match: Match, ctx: CanvasRenderingContext2D, body: Body, isClicked: boolean) => {
-        const interpolatedCoords = body.getInterpolatedCoords(match.currentTurn)
-        const coords = {
-            x: interpolatedCoords.x + 0.5,
-            y: match.map.height - (interpolatedCoords.y + 0.5)
-        }
+    const wrapperRect = wrapper.current.getBoundingClientRect()
+    const overlayCanvasRect = overlayCanvas.getBoundingClientRect()
+    const tileWidth = overlayCanvasRect.width / map.width
+    const tileHeight = overlayCanvasRect.height / map.height
+    const mapLeft = overlayCanvasRect.left - wrapperRect.left
+    const mapTop = overlayCanvasRect.top - wrapperRect.top
 
-        ctx.beginPath()
-        ctx.strokeStyle = 'blue'
-        ctx.lineWidth = 1 / match.map.width
-        ctx.arc(coords.x, coords.y, Math.sqrt(body.actionRadius), 0, 360)
-        ctx.stroke()
-
-        ctx.beginPath()
-        ctx.strokeStyle = 'red'
-        ctx.lineWidth = 1 / match.map.width
-        ctx.arc(coords.x, coords.y, Math.sqrt(body.visionRadius), 0, 360)
-        ctx.stroke()
-
-        if (isClicked) {
-            let alphaValue = 1
-            let radius = cst.TOOLTIP_PATH_INIT_R
-            let lastPos: Vector = { x: -1, y: -1 }
-
-            for (const prevPos of [interpolatedCoords].concat(body.prevSquares.slice().reverse())) {
-                const color = `rgba(255, 255, 255, ${alphaValue})`
-
-                ctx.beginPath()
-                ctx.fillStyle = color
-                ctx.ellipse(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5), radius, radius, 0, 0, 360)
-                ctx.fill()
-
-                alphaValue *= cst.TOOLTIP_PATH_DECAY_OPACITY
-                radius *= cst.TOOLTIP_PATH_DECAY_R
-
-                if (lastPos.x != -1 && lastPos.y != -1) {
-                    ctx.beginPath()
-                    ctx.strokeStyle = color
-                    ctx.lineWidth = radius / 2
-
-                    ctx.moveTo(lastPos.x + 0.5, match.map.height - (lastPos.y + 0.5))
-                    ctx.lineTo(prevPos.x + 0.5, match.map.height - (prevPos.y + 0.5))
-
-                    ctx.stroke()
-                }
-
-                lastPos = prevPos
-            }
-        }
+    let tooltipStyle: React.CSSProperties = {
+        visibility: 'hidden'
     }
+    if (hoveredBody && tooltipRef.current) {
+        const botPosX = hoveredBody.pos.x + 0.5
+        const botPosY = map.height - hoveredBody.pos.y - 1 + 0.5
+        const distanceFromBotCenterX = 0.75 * tileWidth
+        const distanceFromBotCenterY = 0.75 * tileHeight
+        const clearanceLeft = mapLeft + botPosX * tileWidth - distanceFromBotCenterX
+        const clearanceRight = wrapperRect.width - clearanceLeft - 2 * distanceFromBotCenterX
+        const clearanceTop = mapTop + botPosY * tileHeight - distanceFromBotCenterY
 
-    // draw tooltip stuff to overlay canvas
-    useEffect(() => {
-        const match = appContext.state.activeMatch
-        if (!match || !overlayCanvas || !enabled) return
-
-        const ctx = overlayCanvas.getContext('2d')
-        if (!ctx) return
-
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-        if (hoveredBody) {
-            drawBodyTooltip(match, ctx, hoveredBody, false)
+        if (clearanceTop > tooltipSize.height) {
+            tooltipStyle.top = mapTop + botPosY * tileHeight - tooltipSize.height - distanceFromBotCenterY + 'px'
+        } else {
+            tooltipStyle.top = mapTop + botPosY * tileHeight + distanceFromBotCenterY + 'px'
         }
-
-        if (clickedBodyID != -1) {
-            if (!match.currentTurn.bodies.hasId(clickedBodyID)) {
-                setClickedBodyID(-1)
-            } else {
-                const clickedBody = match.currentTurn.bodies.getById(clickedBodyID)
-                drawBodyTooltip(match, ctx, clickedBody, true)
-            }
+        if (clearanceLeft < tooltipSize.width / 2) {
+            tooltipStyle.left = mapLeft + botPosX * tileWidth + distanceFromBotCenterX + 'px'
+        } else if (clearanceRight < tooltipSize.width / 2) {
+            tooltipStyle.left = mapLeft + botPosX * tileWidth - tooltipSize.width - distanceFromBotCenterX + 'px'
+        } else {
+            tooltipStyle.left = mapLeft + botPosX * tileWidth - tooltipSize.width / 2 + 'px'
         }
-    }, [
-        enabled,
-        appContext.state.activeMatch,
-        overlayCanvas,
-        hoveredBody,
-        clickedBodyID,
-        tileLeft,
-        tileTop,
-        appContext.state.activeMatch?.currentTurn.turnNumber,
-        appContext.state.activeMatch?.getInterpolationFactor()
-    ])
-
-    useEffect(() => {
-        setClickedBodyID(-1)
-    }, [appContext.state.activeMatch])
-
-    if (!mapCanvas || !overlayCanvas || !wrapperRef.current || !enabled) {
-        return <></>
+        tooltipStyle.visibility = 'visible'
     }
-
-    const canvasBoundingBox = mapCanvas.getBoundingClientRect()
-    const hoverVisible = !(
-        mousePos.x < canvasBoundingBox.left ||
-        mousePos.x > canvasBoundingBox.right ||
-        mousePos.y < canvasBoundingBox.top ||
-        mousePos.y > canvasBoundingBox.bottom
-    )
-
-    const clickedBody = appContext?.state.activeMatch?.currentTurn.bodies.hasId(clickedBodyID)
-        ? appContext?.state.activeMatch?.currentTurn.bodies.getById(clickedBodyID)
-        : undefined
 
     return (
         <>
-            {hoverVisible && (
-                <>
-                    <div
-                        className="absolute border-2 border-black/70 z-10 cursor-pointer"
-                        style={{
-                            left: tileLeft + 'px',
-                            top: tileTop + 'px',
-                            width: tileWidth + 'px',
-                            height: tileHeight + 'px',
-                            pointerEvents: 'none'
-                        }}
-                    />
-                    {hoveredBody && (
-                        <div
-                            className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
-                            style={{
-                                left: tileLeft + tileWidth * 0.75 + 'px',
-                                top: tileTop + tileHeight * 0.75 + 'px'
-                            }}
-                        >
-                            {hoveredBody.onHoverInfo().map((v) => (
-                                <p>{v}</p>
-                            ))}
-                        </div>
-                    )}
-                </>
-            )}
-            {clickedBody !== undefined && (
+            {hoveredBody && hoveredBody != selectedBody && (
                 <div
-                    className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-md pointer-events-none select-none"
-                    style={{
-                        left: overlayCanvas.clientLeft + tileWidth * 0.5 + 'px',
-                        top: overlayCanvas.clientTop + tileHeight * 0.5 + 'px'
-                    }}
+                    className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
+                    style={tooltipStyle}
+                    ref={tooltipRef}
                 >
-                    {clickedBody.onHoverInfo().map((v) => (
-                        <p>{v}</p>
+                    {hoveredBody.onHoverInfo().map((v, i) => (
+                        <p key={i}>{v}</p>
                     ))}
                 </div>
             )}
+
+            <Draggable width={wrapperRect.width} height={wrapperRect.height}>
+                {selectedBody && (
+                    <div className="bg-black/90 z-20 text-white p-2 rounded-md text-xs cursor-pointer relative">
+                        {selectedBody.onHoverInfo().map((v, i) => (
+                            <p key={i}>{v}</p>
+                        ))}
+                        <div className="absolute top-0 right-0" style={{ transform: 'scaleX(0.57) scaleY(0.73)' }}>
+                            <ThreeBarsIcon />
+                        </div>
+                    </div>
+                )}
+            </Draggable>
         </>
     )
 }
 
-export default Tooltip
+interface DraggableProps {
+    children: React.ReactNode
+    width: number
+    height: number
+    margin?: number
+}
+
+const Draggable = ({ children, width, height, margin = 0 }: DraggableProps) => {
+    const [dragging, setDragging] = React.useState(false)
+    const [pos, setPos] = React.useState({ x: 20, y: 20 })
+    const [offset, setOffset] = React.useState({ x: 0, y: 0 })
+    const ref = React.useRef<HTMLDivElement>(null)
+
+    const mouseDown = (e: React.MouseEvent) => {
+        setDragging(true)
+        setOffset({ x: e.clientX - pos.x, y: e.clientY - pos.y })
+    }
+
+    const mouseUp = () => {
+        setDragging(false)
+    }
+
+    const mouseMove = (e: React.MouseEvent) => {
+        if (dragging && ref.current) {
+            const targetX = e.clientX - offset.x
+            const targetY = e.clientY - offset.y
+            const realX = Math.min(Math.max(targetX, margin), width - ref.current.clientWidth - margin)
+            const realY = Math.min(Math.max(targetY, margin), height - ref.current.clientHeight - margin)
+            setPos({ x: realX, y: realY })
+        }
+    }
+
+    return (
+        <div
+            ref={ref}
+            onMouseDown={mouseDown}
+            onMouseUp={mouseUp}
+            onMouseLeave={mouseUp}
+            onMouseEnter={(e) => {
+                if (e.buttons === 1) mouseDown(e)
+            }}
+            onMouseMove={mouseMove}
+            className="absolute z-20"
+            style={{
+                left: pos.x + 'px',
+                top: pos.y + 'px'
+            }}
+        >
+            {children}
+        </div>
+    )
+}

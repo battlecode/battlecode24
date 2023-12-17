@@ -2,13 +2,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-/**
- * A table of vectors.
- */
 export class VecTable {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):VecTable {
+  __init(i:number, bb:flatbuffers.ByteBuffer):VecTable {
   this.bb_pos = i;
   this.bb = bb;
   return this;

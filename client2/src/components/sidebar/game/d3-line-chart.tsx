@@ -1,14 +1,15 @@
 import React, { useEffect, useRef } from 'react'
+import { TEAM_WHITE, TEAM_BROWN } from '../../../constants'
 import * as d3 from 'd3'
 
-export interface DataPoint {
+export interface LineChartDataPoint {
     turn: number
-    blue: number
-    red: number
+    brown: number
+    white: number
 }
 
 interface LineChartProps {
-    data: DataPoint[]
+    data: LineChartDataPoint[]
     width: number
     height: number
     margin: {
@@ -41,15 +42,15 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
 
         const yScale = d3
             .scaleLinear()
-            .domain([1, d3.max(data, (d) => Math.max(d.red, d.blue))!])
+            .domain([1, d3.max(data, (d) => Math.max(d.white, d.brown))!])
             .range([height - margin.bottom, margin.top])
 
         // This function returns a function that draws a SVG line between every
         // data point. The "y" of the data point is what is determined by the
         // function passed in, see code below.
-        const lineGenerator = (dScaleFunc: (dataPoint: DataPoint) => any) => {
+        const lineGenerator = (dScaleFunc: (dataPoint: LineChartDataPoint) => any) => {
             return d3
-                .line<DataPoint>()
+                .line<LineChartDataPoint>()
                 .x((d) => xScale(d.turn))
                 .y(dScaleFunc)
                 .curve(d3.curveMonotoneX)
@@ -57,21 +58,21 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
 
         svg.selectAll('*').remove()
 
-        // Draws Blue Line
+        // Draws Brown Line
         svg.append('path')
             .datum(data)
             .attr('fill', 'none')
-            .attr('stroke', '#04a2d9')
+            .attr('stroke', TEAM_BROWN)
             .attr('stroke-width', 1.5)
-            .attr('d', lineGenerator((d: DataPoint) => yScale(d.blue))(data))
+            .attr('d', lineGenerator((d: LineChartDataPoint) => yScale(d.brown))(data))
 
-        // Draw Red Line
+        // Draw White Line
         svg.append('path')
             .datum(data)
             .attr('fill', 'none')
-            .attr('stroke', '#ff9194')
+            .attr('stroke', TEAM_WHITE)
             .attr('stroke-width', 1.5)
-            .attr('d', lineGenerator((d: DataPoint) => yScale(d.red))(data))
+            .attr('d', lineGenerator((d: LineChartDataPoint) => yScale(d.white))(data))
 
         // Add X-Axis
         svg.append('g')
@@ -106,7 +107,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
             tooltip.style('display', null)
             tooltip.attr(
                 'transform',
-                `translate(${xScale(data[i].turn)},${yScale(Math.max(data[i].blue, data[i].red))})`
+                `translate(${xScale(data[i].turn)},${yScale(Math.max(data[i].brown, data[i].white))})`
             )
 
             const path = tooltip.selectAll('path').data([,]).join('path').attr('fill', 'white').attr('stroke', 'black')
@@ -118,7 +119,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
                 .call((text) =>
                     text
                         .selectAll('tspan')
-                        .data(['Turn: ' + data[i].turn, 'Blue: ' + data[i].blue, 'Red: ' + data[i].red])
+                        .data(['Turn: ' + data[i].turn, 'Brown: ' + data[i].brown, 'White: ' + data[i].white])
                         .join('tspan')
                         .attr('x', 0)
                         .attr('y', (_, i) => `${i * 1.1}em`)
@@ -130,7 +131,7 @@ export const D3LineChart: React.FC<LineChartProps> = ({ data, width, height, mar
 
             // If the data point is low, swap the tooltip render to be on the
             // top. "d" attr in path is SVG code to draw the tooltip icon
-            if (yScale(Math.max(data[i].blue, data[i].red)) / height > 0.7) {
+            if (yScale(Math.max(data[i].brown, data[i].white)) / height > 0.7) {
                 text.attr('transform', `translate(${-w / 2},${y - 15 - 15})`)
                 path.attr('d', `M${-w / 2 - 10},-5H-5l5,5l5,-5H${w / 2 + 10}v${-h - 20}h-${w + 20}z`)
             } else {

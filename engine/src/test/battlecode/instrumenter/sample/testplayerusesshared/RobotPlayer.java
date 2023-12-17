@@ -1,8 +1,8 @@
-package testplayerusesshared;
+package battlecode.instrumenter.sample.testplayerusesshared;
 
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
-import shared.SharedUtility;
+import battlecode.instrumenter.sample.shared.SharedUtility;
 
 /**
  * @author james

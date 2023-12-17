@@ -1,8 +1,6 @@
 package battlecode.world.maps;
 
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.world.GameMapIO;
 import battlecode.world.LiveMap;
@@ -34,15 +32,14 @@ public class MapTestSmall {
     public static void main(String[] args) {
         try {
             makeSimple();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
         System.out.println("Generated a map!");
     }
 
-    public static void makeSimple() throws IOException {
+    public static void makeSimple() throws Exception {
         MapBuilder mapBuilder = new MapBuilder(mapName, 20, 20, 0, 0, 30);
-        mapBuilder.addSymmetricHeadquarter(5, 5);
         Random random = new Random(6147);
 
         Set<MapLocation> usedSquares = new HashSet<>();
@@ -69,10 +66,6 @@ public class MapTestSmall {
                 MapLocation loc = new MapLocation(i, j);
                 if (usedSquares.contains(loc)) {
                     continue;
-                } else if (i == 8 && j == 8) {
-                    mapBuilder.setSymmetricResource(i, j, ResourceType.ADAMANTIUM.resourceID);
-                } else if (i == 2 && j == 2) {
-                    mapBuilder.setSymmetricResource(i, j, ResourceType.MANA.resourceID);
                 } else if ((i*13 + j*19 + random.nextInt(51)) % 43 == 0) {
                     if (i+3 >= mapBuilder.width || j+3 >= mapBuilder.height || usedSquares.contains(new MapLocation(i+3, j+3))) {
                         continue;

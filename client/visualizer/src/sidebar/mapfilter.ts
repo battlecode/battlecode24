@@ -107,8 +107,12 @@ export default class MapFilter {
     this.filterName.onkeyup = () => { this.applyFilter() };
     this.filterName.onchange = () => { this.applyFilter() };
 
+    const serverMapTypes = new Set(cst.SERVER_MAPS.values());
+    const sortedMapTypes = Object.keys(MapType).map(Number).filter(item => !isNaN(item));
+    const mapTypesToRender = sortedMapTypes.filter(type => type === cst.MapType.CUSTOM || serverMapTypes.has(type));
+
     // Filter for map type
-    for (let type of cst.mapTypes) {
+    for (let type of mapTypesToRender) {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.value = String(type);
@@ -143,12 +147,12 @@ export default class MapFilter {
   private mapTypeToString(type: MapType): string {
     switch(type) {
       case MapType.DEFAULT: return "Default";
-      // case MapType.SPRINT_1: return "Sprint 1";
-      // case MapType.SPRINT_2: return "Sprint 2";
-      // case MapType.INTL_QUALIFYING: return "Intl Quals";
-      // case MapType.US_QUALIFYING: return "US Quals";
-      // case MapType.HS_NEWBIE: return "HS and Newbie";
-      // case MapType.FINAL: return "Final";
+      case MapType.SPRINT_1: return "Sprint 1";
+      case MapType.SPRINT_2: return "Sprint 2";
+      case MapType.INTL_QUALIFYING: return "Intl Quals";
+      case MapType.US_QUALIFYING: return "US Quals";
+      case MapType.HS_NEWBIE: return "HS and Newbie";
+      case MapType.FINAL: return "Final";
       default: return "Custom";
     }
   }

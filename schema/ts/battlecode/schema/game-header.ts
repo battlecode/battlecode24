@@ -2,8 +2,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { BodyTypeMetadata } from '../../battlecode/schema/body-type-metadata';
-import { Constants } from '../../battlecode/schema/constants';
+import { BuildActionMetadata } from '../../battlecode/schema/build-action-metadata';
+import { GameplayConstants } from '../../battlecode/schema/gameplay-constants';
+import { GlobalUpgradeMetadata } from '../../battlecode/schema/global-upgrade-metadata';
+import { SpecializationMetadata } from '../../battlecode/schema/specialization-metadata';
 import { TeamData } from '../../battlecode/schema/team-data';
 
 
@@ -13,7 +15,7 @@ import { TeamData } from '../../battlecode/schema/team-data';
 export class GameHeader {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):GameHeader {
+  __init(i:number, bb:flatbuffers.ByteBuffer):GameHeader {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -28,9 +30,6 @@ static getSizePrefixedRootAsGameHeader(bb:flatbuffers.ByteBuffer, obj?:GameHeade
   return (obj || new GameHeader()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-/**
- * The version of the spec this game complies with.
- */
 specVersion():string|null
 specVersion(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
 specVersion(optionalEncoding?:any):string|Uint8Array|null {
@@ -38,9 +37,6 @@ specVersion(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-/**
- * The teams participating in the game.
- */
 teams(index: number, obj?:TeamData):TeamData|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? (obj || new TeamData()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
@@ -51,26 +47,43 @@ teamsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-/**
- * Information about all body types in the game.
- */
-bodyTypeMetadata(index: number, obj?:BodyTypeMetadata):BodyTypeMetadata|null {
+specializationMetadata(index: number, obj?:SpecializationMetadata):SpecializationMetadata|null {
   const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new BodyTypeMetadata()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new SpecializationMetadata()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
-bodyTypeMetadataLength():number {
+specializationMetadataLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-constants(obj?:Constants):Constants|null {
+buildActionMetadata(index: number, obj?:BuildActionMetadata):BuildActionMetadata|null {
   const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? (obj || new Constants()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new BuildActionMetadata()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+buildActionMetadataLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+globalUpgradeMetadata(index: number, obj?:GlobalUpgradeMetadata):GlobalUpgradeMetadata|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? (obj || new GlobalUpgradeMetadata()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+globalUpgradeMetadataLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+constants(obj?:GameplayConstants):GameplayConstants|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
+  return offset ? (obj || new GameplayConstants()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startGameHeader(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 }
 
 static addSpecVersion(builder:flatbuffers.Builder, specVersionOffset:flatbuffers.Offset) {
@@ -93,11 +106,11 @@ static startTeamsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addBodyTypeMetadata(builder:flatbuffers.Builder, bodyTypeMetadataOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, bodyTypeMetadataOffset, 0);
+static addSpecializationMetadata(builder:flatbuffers.Builder, specializationMetadataOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, specializationMetadataOffset, 0);
 }
 
-static createBodyTypeMetadataVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+static createSpecializationMetadataVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]!);
@@ -105,12 +118,44 @@ static createBodyTypeMetadataVector(builder:flatbuffers.Builder, data:flatbuffer
   return builder.endVector();
 }
 
-static startBodyTypeMetadataVector(builder:flatbuffers.Builder, numElems:number) {
+static startSpecializationMetadataVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addBuildActionMetadata(builder:flatbuffers.Builder, buildActionMetadataOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, buildActionMetadataOffset, 0);
+}
+
+static createBuildActionMetadataVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startBuildActionMetadataVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addGlobalUpgradeMetadata(builder:flatbuffers.Builder, globalUpgradeMetadataOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, globalUpgradeMetadataOffset, 0);
+}
+
+static createGlobalUpgradeMetadataVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startGlobalUpgradeMetadataVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addConstants(builder:flatbuffers.Builder, constantsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, constantsOffset, 0);
+  builder.addFieldOffset(5, constantsOffset, 0);
 }
 
 static endGameHeader(builder:flatbuffers.Builder):flatbuffers.Offset {

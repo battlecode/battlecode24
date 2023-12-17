@@ -60,19 +60,6 @@ public class TestGame {
     }
 
     /**
-     * Spawns a robot of the given type and team on the given location, and returns its ID. Does not spend resources,
-     * and all units are created with no delays.
-     *
-     * @param x x coordinate for the spawn
-     * @param y y coordinate for the spawn
-     * @param type type of the robot to spawn
-     * @param team team of the robot to spawn
-     */
-    public int spawn(int x, int y, RobotType type, Team team) {
-        return world.spawnRobot(type, new MapLocation(x, y), team);
-    }
-
-    /**
      * A helper class to deal with the fact that it's tricky for Java lambdas
      * to handle checked exceptions. This is equivalent to a BiConsumer,
      * except that "accept" throws GameActionException.

@@ -1,4 +1,4 @@
-package shared;
+package battlecode.instrumenter.sample.shared;
 
 /**
  * @author james

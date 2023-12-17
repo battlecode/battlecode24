@@ -10,7 +10,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.2.4";
+    public static final String SPEC_VERSION = "3.0.14";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -28,30 +28,18 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 60;
 
-    /** The minimum number of starting Headquarters per team. */
-    public static final int MIN_STARTING_HEADQUARTERS = 1;
-
-    /** The maximum number of starting Headquarters per team. */
-    public static final int MAX_STARTING_HEADQUARTERS = 4;
-
-    /** The minimum number of islands on the map. */
-    public static final int MIN_NUMBER_ISLANDS = 4;
-
-    /** The maximum number of islands on the map. */
-    public static final int MAX_NUMBER_ISLANDS = 35;
-
-    /** The maximum area of an island in units. */
-    public static final int MAX_ISLAND_AREA = 20;
-
-    /** The maximum distance between wells of different types. */
-    public static final int MAX_DISTANCE_BETWEEN_WELLS = 81;
-
-    /** The maximum percentage of the map that can be wells of a certain type. */
-    public static final float MAX_MAP_PERCENT_WELLS = 0.04f;
+    /** The minimum distance between ally flags in the initial map and at the end of the seutp phase */
+    public static final int MIN_FLAG_SPACING_SQUARED = 36;
 
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
+
+    /** The number of flags a player starts with. */
+    public static final int NUMBER_FLAGS = 3;
+
+    /** health each robot starts with */
+    public static final int DEFAULT_HEALTH = 100;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
@@ -65,47 +53,30 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The initial amount of mana each team starts with in each headquarter. */
-    public static final int INITIAL_MN_AMOUNT = 200;
+    /** The total number of robots a team has (both despawned or spawned). */
+    public static final int ROBOT_CAPACITY = 50;
 
-    /** The initial amount of adamantium each team starts with in each headquarter. */
-    public static final int INITIAL_AD_AMOUNT = 200;
+    /** The initial amount of bread each team starts with. */
+    public static final int INITIAL_BREAD_AMOUNT = 200;
 
-    /** The amount of adamantium each headquarter on a team gains per turn. */
-    public static final int PASSIVE_AD_INCREASE = 2;
+    /** The amount of bread each team gains per turn. */
+    public static final int PASSIVE_BREAD_INCREASE = 6;
 
-    /** The amount of mana each headquarter on a team gains per turn. */
-    public static final int PASSIVE_MN_INCREASE = 2;
-
-    /** The number of rounds between adding resources to headquarters. */
+    /** The number of rounds between adding resources to teams. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
 
-    /** The amount of adamantium or mana needed to upgrade a well to elixir */
-    public static final int UPGRADE_TO_ELIXIR = 1000;
+    /** The end of the setup rounds in the game */
+    public static final int SETUP_ROUNDS = 200;
 
-    /** The amount of adamantium or mana needed to upgrade a well's transfer rate */
-    public static final int UPGRADE_WELL_AMOUNT = 2400;
+    /** Number of rounds between adding a global upgrade point */
+    public static final int GLOBAL_UPGRADE_ROUNDS = 750;
 
-    /** The percentage of islands that need to be occupied for a team to win */
-    public static final float WIN_PERCENTAGE_OF_ISLANDS_OCCUPIED = 0.75f;
-    
-    /** The distance a robot must be from a signal amplifier to be able to write to the shared array */
-    public static final int DISTANCE_SQUARED_FROM_SIGNAL_AMPLIFIER = 20;
+    /** Number of rounds robots must spend in jail before respawning */
+    public static final int JAILED_ROUNDS = 10;
 
-    /** The distance a robot must be from an island to be able to write to the shared array */
-    public static final int DISTANCE_SQUARED_FROM_ISLAND = 4;
+    public static final int VISION_RADIUS_SQUARED = 20;
 
-    /** The distance a robot must be from a headquarter to be able to write to the shared array */
-    public static final int DISTANCE_SQUARED_FROM_HEADQUARTER = 9;
-
-    /** The discount factor on the amount of damage a carrier can do based on their capacity */
-    public static final float CARRIER_DAMAGE_FACTOR = 0.2f;
-
-    /** The slope of the function to determine movement cooldown for carriers */
-    public static final float CARRIER_MOVEMENT_SLOPE = 0.375f;
-
-    /** The intercept of the function to determine movement cooldown for carriers */
-    public static final int CARRIER_MOVEMENT_INTERCEPT = 5;
+    public static final int ACTION_RADIUS_SQUARED = 4;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -121,40 +92,22 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** The number of game rounds between applying movement due to currents */
-    public static final int CURRENT_STRENGTH = 1;
+    /** Constants for attacking. */
+    public static final int ATTACK_COOLDOWN = 20;
 
-    /** The maximum capacity a carrier can carry */
-    public static final int CARRIER_CAPACITY = 40;
+    /** Constants for healing. */
+    public static final int HEAL_COOLDOWN = 20;
 
-    /** The weight of an anchor */
-    public static final int ANCHOR_WEIGHT = CARRIER_CAPACITY;
+    /** Constants for dig and fill costs and cooldowns. */
+    public static final int DIG_COST = 2;
+    public static final int DIG_COOLDOWN = 20;
+    public static final int FILL_COST = 1;
+    public static final int FILL_COOLDOWN = 20;
 
-    /** Constant for vision radius when affected by cloud */
-    public static final int CLOUD_VISION_RADIUS_SQUARED = 4;
-
-    /** Constants for cooldown multipliers. */
-    public static final double BOOSTER_MULTIPLIER = -.1;
-    public static final double DESTABILIZER_MULTIPLIER = .1;
-    public static final double ANCHOR_MULTIPLIER = -.15;
-    public static final double CLOUD_MULTIPLIER = .2;
-
-    /** Constants for boost radii squared. */
-    public static final int BOOSTER_RADIUS_SQUARED = 20;
-    public static final int DESTABILIZER_RADIUS_SQUARED = 15;
-
-    /** Constants for boost durations. */
-    public static final int BOOSTER_DURATION = 10;
-    public static final int DESTABILIZER_DURATION = 5;
-
-    /** Constants for number of boosts that stack. */
-    public static final int MAX_BOOST_STACKS = 3;
-    public static final int MAX_DESTABILIZE_STACKS = 2;
-    public static final int MAX_ANCHOR_STACKS = 1;
-
-    /** Constants for well rates. */
-    public static final int WELL_STANDARD_RATE = 2;
-    public static final int WELL_ACCELERATED_RATE = 6;
+    /** Constants for flags */
+    public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
+    public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+    public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -165,4 +118,6 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game.  **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    public static final int BYTECODE_LIMIT = 20000;
 }

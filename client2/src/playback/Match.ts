@@ -73,7 +73,7 @@ export default class Match {
 
         const deltas = turns
         deltas.forEach((delta, i) =>
-            assert(delta.roundID() === i + 1, `Wrong turn ID: is ${delta.roundID()}, should be ${i}`)
+            assert(delta.roundId() === i + 1, `Wrong turn ID: is ${delta.roundId()}, should be ${i}`)
         )
 
         const maxTurn = deltas.length

@@ -1,4 +1,4 @@
-package testplayersystem;
+package battlecode.instrumenter.sample.testplayersystem;
 
 import battlecode.common.RobotController;
 

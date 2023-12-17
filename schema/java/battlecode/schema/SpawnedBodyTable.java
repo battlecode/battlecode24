@@ -2,79 +2,76 @@
 
 package battlecode.schema;
 
-import java.nio.*;
-import java.lang.*;
-import java.util.*;
-import com.google.flatbuffers.*;
+import com.google.flatbuffers.BaseVector;
+import com.google.flatbuffers.BooleanVector;
+import com.google.flatbuffers.ByteVector;
+import com.google.flatbuffers.Constants;
+import com.google.flatbuffers.DoubleVector;
+import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.FloatVector;
+import com.google.flatbuffers.IntVector;
+import com.google.flatbuffers.LongVector;
+import com.google.flatbuffers.ShortVector;
+import com.google.flatbuffers.StringVector;
+import com.google.flatbuffers.Struct;
+import com.google.flatbuffers.Table;
+import com.google.flatbuffers.UnionVector;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
-/**
- * A list of new bodies to be placed on the map.
- */
 public final class SpawnedBodyTable extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
   public static SpawnedBodyTable getRootAsSpawnedBodyTable(ByteBuffer _bb) { return getRootAsSpawnedBodyTable(_bb, new SpawnedBodyTable()); }
   public static SpawnedBodyTable getRootAsSpawnedBodyTable(ByteBuffer _bb, SpawnedBodyTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public SpawnedBodyTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  /**
-   * The numeric ID of the new bodies.
-   * Will never be negative.
-   * There will only be one body with a particular ID at a time.
-   * So, there will never be two robots with the same ID, or a robot and
-   * a building with the same ID.
-   */
-  public int robotIDs(int j) { int o = __offset(4); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int robotIDsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer robotIDsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
-  public ByteBuffer robotIDsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
-  /**
-   * The teams of the new bodies.
-   */
-  public byte teamIDs(int j) { int o = __offset(6); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
-  public int teamIDsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer teamIDsAsByteBuffer() { return __vector_as_bytebuffer(6, 1); }
-  public ByteBuffer teamIDsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
-  /**
-   * The types of the new bodies.
-   */
-  public byte types(int j) { int o = __offset(8); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
-  public int typesLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer typesAsByteBuffer() { return __vector_as_bytebuffer(8, 1); }
-  public ByteBuffer typesInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 1); }
-  /**
-   * The locations of the bodies.
-   */
-  public VecTable locs() { return locs(new VecTable()); }
-  public VecTable locs(VecTable obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public int robotIds(int j) { int o = __offset(4); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int robotIdsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector robotIdsVector() { return robotIdsVector(new IntVector()); }
+  public IntVector robotIdsVector(IntVector obj) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer robotIdsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
+  public ByteBuffer robotIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
+  public byte teamIds(int j) { int o = __offset(6); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
+  public int teamIdsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public ByteVector teamIdsVector() { return teamIdsVector(new ByteVector()); }
+  public ByteVector teamIdsVector(ByteVector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamIdsAsByteBuffer() { return __vector_as_bytebuffer(6, 1); }
+  public ByteBuffer teamIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
+  public battlecode.schema.VecTable locs() { return locs(new battlecode.schema.VecTable()); }
+  public battlecode.schema.VecTable locs(battlecode.schema.VecTable obj) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
 
   public static int createSpawnedBodyTable(FlatBufferBuilder builder,
-      int robotIDsOffset,
-      int teamIDsOffset,
-      int typesOffset,
+      int robotIdsOffset,
+      int teamIdsOffset,
       int locsOffset) {
-    builder.startObject(4);
+    builder.startTable(3);
     SpawnedBodyTable.addLocs(builder, locsOffset);
-    SpawnedBodyTable.addTypes(builder, typesOffset);
-    SpawnedBodyTable.addTeamIDs(builder, teamIDsOffset);
-    SpawnedBodyTable.addRobotIDs(builder, robotIDsOffset);
+    SpawnedBodyTable.addTeamIds(builder, teamIdsOffset);
+    SpawnedBodyTable.addRobotIds(builder, robotIdsOffset);
     return SpawnedBodyTable.endSpawnedBodyTable(builder);
   }
 
-  public static void startSpawnedBodyTable(FlatBufferBuilder builder) { builder.startObject(4); }
-  public static void addRobotIDs(FlatBufferBuilder builder, int robotIDsOffset) { builder.addOffset(0, robotIDsOffset, 0); }
-  public static int createRobotIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startRobotIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamIDs(FlatBufferBuilder builder, int teamIDsOffset) { builder.addOffset(1, teamIDsOffset, 0); }
-  public static int createTeamIDsVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
-  public static void startTeamIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
-  public static void addTypes(FlatBufferBuilder builder, int typesOffset) { builder.addOffset(2, typesOffset, 0); }
-  public static int createTypesVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
-  public static void startTypesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
-  public static void addLocs(FlatBufferBuilder builder, int locsOffset) { builder.addOffset(3, locsOffset, 0); }
+  public static void startSpawnedBodyTable(FlatBufferBuilder builder) { builder.startTable(3); }
+  public static void addRobotIds(FlatBufferBuilder builder, int robotIdsOffset) { builder.addOffset(0, robotIdsOffset, 0); }
+  public static int createRobotIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startRobotIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamIds(FlatBufferBuilder builder, int teamIdsOffset) { builder.addOffset(1, teamIdsOffset, 0); }
+  public static int createTeamIdsVector(FlatBufferBuilder builder, byte[] data) { return builder.createByteVector(data); }
+  public static int createTeamIdsVector(FlatBufferBuilder builder, ByteBuffer data) { return builder.createByteVector(data); }
+  public static void startTeamIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addLocs(FlatBufferBuilder builder, int locsOffset) { builder.addOffset(2, locsOffset, 0); }
   public static int endSpawnedBodyTable(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public SpawnedBodyTable get(int j) { return get(new SpawnedBodyTable(), j); }
+    public SpawnedBodyTable get(SpawnedBodyTable obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

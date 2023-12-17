@@ -2,13 +2,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-/**
- * Data relevant to a particular team.
- */
 export class TeamData {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):TeamData {
+  __init(i:number, bb:flatbuffers.ByteBuffer):TeamData {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -23,9 +20,6 @@ static getSizePrefixedRootAsTeamData(bb:flatbuffers.ByteBuffer, obj?:TeamData):T
   return (obj || new TeamData()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-/**
- * The name of the team.
- */
 name():string|null
 name(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
 name(optionalEncoding?:any):string|Uint8Array|null {
@@ -33,9 +27,6 @@ name(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-/**
- * The java package the team uses.
- */
 packageName():string|null
 packageName(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
 packageName(optionalEncoding?:any):string|Uint8Array|null {
@@ -43,10 +34,7 @@ packageName(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-/**
- * The ID of the team this data pertains to.
- */
-teamID():number {
+teamId():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt8(this.bb_pos + offset) : 0;
 }
@@ -63,8 +51,8 @@ static addPackageName(builder:flatbuffers.Builder, packageNameOffset:flatbuffers
   builder.addFieldOffset(1, packageNameOffset, 0);
 }
 
-static addTeamID(builder:flatbuffers.Builder, teamID:number) {
-  builder.addFieldInt8(2, teamID, 0);
+static addTeamId(builder:flatbuffers.Builder, teamId:number) {
+  builder.addFieldInt8(2, teamId, 0);
 }
 
 static endTeamData(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -72,11 +60,11 @@ static endTeamData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createTeamData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, packageNameOffset:flatbuffers.Offset, teamID:number):flatbuffers.Offset {
+static createTeamData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, packageNameOffset:flatbuffers.Offset, teamId:number):flatbuffers.Offset {
   TeamData.startTeamData(builder);
   TeamData.addName(builder, nameOffset);
   TeamData.addPackageName(builder, packageNameOffset);
-  TeamData.addTeamID(builder, teamID);
+  TeamData.addTeamId(builder, teamId);
   return TeamData.endTeamData(builder);
 }
 }

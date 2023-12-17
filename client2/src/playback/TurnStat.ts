@@ -4,26 +4,16 @@ import assert from 'assert'
 import Turn from './Turn'
 
 class TeamTurnStat {
-    robots: number[] = Array(6).fill(0)
-    total_hp: number[] = Array(6).fill(0)
-    adamantium: number = 0
-    mana: number = 0
-    elixir: number = 0
-    adamantiumChange: number = 0
-    manaChange: number = 0
-    elixirChange: number = 0
-    adamantiumMined: number = 0
-    manaMined: number = 0
-    elixirMined: number = 0
-    adamantiumIncomeAverageDatapoint: number | undefined = undefined
-    manaIncomeAverageDatapoint: number | undefined = undefined
-    elixirIncomeAverageDatapoint: number | undefined = undefined
+    robots: number[] = Array(4).fill(0);
+    total_hp: number[] = Array(4).fill(0);
+    resourceAmount: number = 0
+    resourceAmountAverageDatapoint: number | undefined = undefined
 
     copy(): TeamTurnStat {
         const newStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        // manually copy internal objects
-        newStat.robots = [...this.robots]
-        newStat.total_hp = [...this.total_hp]
+
+		// Copy any internal objects here
+
         return newStat
     }
 }
@@ -56,44 +46,33 @@ export default class TurnStat {
      */
     applyDelta(turn: Turn, delta: schema.Round): void {
         assert(!this.completed, 'Cannot apply delta to completed turn')
-        assert(turn.turnNumber === delta.roundID(), `Wrong turn ID: is ${delta.roundID()}, should be ${turn.turnNumber}`)
-        
-        for (var i = 0; i < delta.teamIDsLength(); i++) {
-            const team = this.game.teams[(delta.teamIDs(i) ?? assert.fail('teamID not found in round')) - 1]
+        assert(
+            turn.turnNumber === delta.roundId(),
+            `Wrong turn ID: is ${delta.roundId()}, should be ${turn.turnNumber}`
+        )
+
+        for (var i = 0; i < delta.teamIdsLength(); i++) {
+            const team = this.game.teams[(delta.teamIds(i) ?? assert.fail('teamID not found in round')) - 1]
             assert(team != undefined, `team ${i} not found in game.teams in turn`)
             const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in turn`)
 
-            teamStat.adamantium += delta.teamAdChanges(i) ?? assert.fail('teamAdChanges not found in round')
-            teamStat.mana += delta.teamMnChanges(i) ?? assert.fail('teamMnChanges not found in round')
-            teamStat.elixir += delta.teamExChanges(i) ?? assert.fail('teamExChanges not found in round')
-
-            teamStat.adamantiumChange = delta.teamAdChanges(i) ?? assert.fail('teamAdChanges not found in round')
-            teamStat.manaChange = delta.teamMnChanges(i) ?? assert.fail('teamMnChanges not found in round')
-            teamStat.elixirChange = delta.teamExChanges(i) ?? assert.fail('teamExChanges not found in round')
-
-            teamStat.adamantiumMined = 0
-            teamStat.manaMined = 0
-            teamStat.elixirMined = 0
+            teamStat.resourceAmount =
+                delta.teamResourceAmounts(i) ?? assert.fail('teamResourceAmounts not found in round')
         }
 
         const time = Date.now()
-        const average = (array: number[]) => (array.length > 0 ? array.reduce((a, b) => a + b) / array.length : 0)
         for (const team of this.game.teams) {
             if (turn.turnNumber % 10 == 0) {
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${team} not found in team stats in turn`)
-                const adamantiumMinedHist = [teamStat.adamantiumMined]
-                const manaMinedHist = [teamStat.manaMined]
-                const elixirMinedHist = [teamStat.elixirMined]
+                let avgValue = teamStat.resourceAmount
+                let avgCount = 1
                 for (let i = turn.turnNumber - 1; i >= Math.max(0, turn.turnNumber - 100); i--) {
                     const prevTurnStat = turn.match.stats[i].getTeamStat(team)
-                    adamantiumMinedHist.push(prevTurnStat.adamantiumMined)
-                    manaMinedHist.push(prevTurnStat.manaMined)
-                    elixirMinedHist.push(prevTurnStat.elixirMined)
+                    avgValue += prevTurnStat.resourceAmount
+                    avgCount += 1
                 }
 
-                teamStat.adamantiumIncomeAverageDatapoint = average(adamantiumMinedHist)
-                teamStat.manaIncomeAverageDatapoint = average(manaMinedHist)
-                teamStat.elixirIncomeAverageDatapoint = average(elixirMinedHist)
+                teamStat.resourceAmountAverageDatapoint = avgValue / avgCount
             }
         }
         const timems = Date.now() - time

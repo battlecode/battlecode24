@@ -12,7 +12,7 @@ import * as flatbuffers from 'flatbuffers';
 export class ProfilerEvent {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerEvent {
+  __init(i:number, bb:flatbuffers.ByteBuffer):ProfilerEvent {
   this.bb_pos = i;
   this.bb = bb;
   return this;

@@ -17,7 +17,7 @@ import { Round } from '../../battlecode/schema/round';
  * rounds, and is played on a single map. Each round is a single simulation
  * step.
  */
-export enum Event{
+export enum Event {
   NONE = 0,
 
   /**
@@ -77,4 +77,3 @@ export function unionListToEvent(
     default: return null;
   }
 }
-
