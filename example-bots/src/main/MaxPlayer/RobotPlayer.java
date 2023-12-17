@@ -44,6 +44,12 @@ public class RobotPlayer {
         NAVIGATING_OBSTACLE,
     }
 
+    static final TrapType[] trapTypes = {
+        TrapType.EXPLOSIVE,
+        TrapType.STUN,
+        TrapType.WATER,
+    };
+
     static MaxPlayerState state;
     static MaxPlayerState nextState;
     static int numIdleTurns;
@@ -55,12 +61,34 @@ public class RobotPlayer {
     static final int claimedFlagsCommStart = 1;
     static final int nextUnusedFlagCommIndex = 0;
 
-    private static void moveRandom(RobotController rc) throws GameActionException {
+    private static TrapType randomTrapType() {
+        int rand = rng.nextInt(trapTypes.length);
+        return trapTypes[rand];
+    }
+
+    private static void moveRandom(RobotController rc, float fillChance, float trapChance) throws GameActionException {
+        boolean fill = rng.nextFloat() < fillChance;
+        boolean trap = !fill && rng.nextFloat() < trapChance;
+        TrapType type = TrapType.NONE;
+
+        if (trap) {
+            type = randomTrapType();
+        }
+
         Direction[] goodDirs = new Direction[directions.length];
         int numGoodDirs = 0;
+        MapLocation loc = rc.getLocation();
 
         for (Direction dir : directions) {
-            if (rc.canMove(dir)) {
+            MapLocation newLoc = loc.add(dir);
+
+            if (!fill && !trap && rc.canMove(dir)) {
+                goodDirs[numGoodDirs] = dir;
+                numGoodDirs++;
+            } else if (fill && rc.canFill(newLoc)) {
+                goodDirs[numGoodDirs] = dir;
+                numGoodDirs++;
+            } else if (trap && rc.canBuild(type, newLoc)) {
                 goodDirs[numGoodDirs] = dir;
                 numGoodDirs++;
             }
@@ -69,7 +97,17 @@ public class RobotPlayer {
         if (numGoodDirs > 0) {
             int rand = rng.nextInt(numGoodDirs);
             Direction dir = goodDirs[rand];
-            rc.move(dir);
+            MapLocation newLoc = loc.add(dir);
+
+            if (fill) {
+                rc.fill(newLoc);
+            } else if (trap) {
+                rc.build(type, newLoc);
+            } else {
+                rc.move(dir);
+            }
+        } else if (fill || trap) {
+            moveRandom(rc, 0, 0);
         }
     }
 
@@ -188,7 +226,7 @@ public class RobotPlayer {
     }
 
     private static void runSettingUp(RobotController rc) throws GameActionException {
-        moveRandom(rc);
+        moveRandom(rc, 0, 0.1f);
 
         // sense flags nearby
         // FlagInfo[] flagLocs = rc.senseNearbyFlags(GameConstants.VISION_RADIUS_SQUARED, rc.getTeam());
@@ -258,7 +296,7 @@ public class RobotPlayer {
     // }
 
     private static void runPlacingFlag(RobotController rc) throws GameActionException {
-        moveRandom(rc);
+        moveRandom(rc, 0, 0);
         // TODO write method
     }
 
@@ -286,7 +324,7 @@ public class RobotPlayer {
             target = minRadiusSquaredFlag.getLocation();
             state = TRAVELING_TO_ENEMY_FLAG;
         } else {
-            moveRandom(rc);
+            moveRandom(rc, 0.25f, 0);
         }
     }
 
