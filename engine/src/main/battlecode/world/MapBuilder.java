@@ -187,148 +187,17 @@ public class MapBuilder {
     /**
      * Saves the map to the specified location.
      * @param pathname
-     * @throws IOException
+     * @throws Exception
      */
-    public void saveMap(String pathname) throws IOException {
+    public void saveMap(String pathname) throws Exception {
         // validate
-        assertIsValid();
+        LiveMap lm = this.build();
+        lm.assertIsValid();
         System.out.println("Saving " + this.name + ".");
-        GameMapIO.writeMap(this.build(), new File(pathname));
-    }
-
-    /**
-     * Throws a RuntimeException if the map is invalid.
-     */
-    public void assertIsValid() {
-        System.out.println("Validating " + name + "...");
-
-        if (width < GameConstants.MAP_MIN_WIDTH || height < GameConstants.MAP_MIN_HEIGHT || 
-            width > GameConstants.MAP_MAX_WIDTH || height > GameConstants.MAP_MAX_HEIGHT)
-            throw new RuntimeException("The map size must be between " + GameConstants.MAP_MIN_WIDTH + "x" +
-                                       GameConstants.MAP_MIN_HEIGHT + " and " + GameConstants.MAP_MAX_WIDTH + "x" +
-                                       GameConstants.MAP_MAX_HEIGHT + ", inclusive");
-
-        for (int i = 0; i < this.width*this.height; i++){
-            //TODO check for multiple things existing on the same tile
-        }
-
-        //assertSpawnZonesAreValid();
-       // assertSpawnZoneDistances();
-    }
-
-    private boolean isTeamNumber(int team) {
-        return team == 0 || team == 1;
-    }
-
-    private int getOpposingTeamNumber(int team) {
-        switch (team) {
-            case 0:
-                return 1;
-            case 1:
-                return 0;
-            default:
-                throw new RuntimeException("Argument of MapBuilder.getOpposingTeamNumber must be a valid team number, was " + team + ".");
-        }
-    }
-
-    // WARNING: POSSIBLY BUGGY
-    private void assertSpawnZonesAreValid() {
-        int numSquares = this.width * this.height;
-        boolean[] alreadyChecked = new boolean[numSquares];
-
-        for (int i = 0; i < numSquares; i++) {
-            int team = this.spawnZoneArray[i];
-
-            // if the square is actually a spawn zone
-
-            //TODO need to include dam in reachability check
-            if (isTeamNumber(team)) {
-                boolean bad = floodFillMap(indexToLocation(i),
-                    (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
-                    (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
-                    alreadyChecked);
-
-                if (bad) {
-                    throw new RuntimeException("Two spawn zones for opposing teams can reach each other.");
-                }
-            }
-        }
+        GameMapIO.writeMap(lm, new File(pathname));
     }
 
 
-    private void assertSpawnZoneDistances() {
-        ArrayList<Integer> team1 = new ArrayList<Integer>();
-        ArrayList<Integer> team2 = new ArrayList<Integer>();
-
-        for(int i = 0; i < spawnZoneArray.length; i ++){
-            if (spawnZoneArray[i] == 0){
-                team1.add(i);
-            }
-            else if (spawnZoneArray[i] == 1){
-                team2.add(i);
-            }
-        }
-
-        for(int a = 0; a < team1.size(); a ++){
-            for(int b = 1; b < team1.size(); b ++){
-                if (indexToLocation(team1.get(a)).distanceSquaredTo(indexToLocation(team1.get(b))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
-                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
-                }
-            }
-        }
-
-        for(int c = 0; c < team2.size(); c ++){
-            for(int d = 1; d < team2.size(); d ++){
-                if (indexToLocation(team2.get(c)).distanceSquaredTo(indexToLocation(team2.get(d))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
-                    throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
-                }
-            }
-        }
-    }
-    /**
-     * Performs a flood fill algorithm to check if a predicate is true for any squares
-     * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
-     * 
-     * @param checkForBad the predicate to check for each reachable square
-     * @param checkForWall a predicate that checks if the given square has a wall
-     * @param action an action that is performed when scanning each square (might be called multiple times per square)
-     * @return if checkForBad returns true for any reachable squares
-     */
-    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
-        Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
-        queue.add(startLoc);
-        //TODO: gave arrayindexoutofbounds -19 on line 319; probably need to check that the newlocation is within map bounds first
-
-        while (!queue.isEmpty()) {
-            MapLocation loc = queue.remove();
-            int idx = locationToIndex(loc);
-
-            if (alreadyChecked[idx]) {
-                continue;
-            }
-
-            alreadyChecked[idx] = true;
-
-            if (!checkForWall.test(loc)) {
-                if (checkForBad.test(loc)) {
-                    return true;
-                }
-
-                for (Direction dir : Direction.allDirections()) {
-                    if (dir != Direction.CENTER) {
-                        MapLocation newLoc = loc.add(dir);
-                        int newIdx = locationToIndex(newLoc);
-
-                        if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
-                            queue.add(newLoc);
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
 
     public boolean onTheMap(MapLocation loc) {
         return loc.x >= 0 && loc.y >= 0 && loc.x < width && loc.y < height;

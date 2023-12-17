@@ -351,20 +351,32 @@ public strictfp interface RobotController {
     MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
-     * Returns the location of all nearby flags that are visible to the robot. 
+     * Returns the location of all nearby flags that are visible to the robot, including picked up flags.
      * If radiusSquared is greater than the robot's vision radius, use the 
      * robot's vision radius instead.
      * 
-     * @param center the center of the search area (robot's current position)
      * @param radiusSquared squared radius of all locations to be returned
      * @return all locations containing flags
      * 
      * @battlecode.doc.costlymethod
      **/
-    MapLocation[] senseNearbyFlagLocations(MapLocation center, int radiusSquared) throws GameActionException; 
+    FlagInfo[] senseNearbyFlags(int radiusSquared) throws GameActionException; 
 
     /**
-     * Returns the location of all invisible flags, accurate within a radius of sqrt(100) cells.
+     * Returns the location of all nearby flags that are visible to the robot, including picked up flags.
+     * If radiusSquared is greater than the robot's vision radius, use the 
+     * robot's vision radius instead.
+     * 
+     * @param radiusSquared squared radius of all locations to be returned
+     * @param team the team to find flags for
+     * @return all locations containing flags
+     * 
+     * @battlecode.doc.costlymethod
+     **/
+    FlagInfo[] senseNearbyFlags(int radiusSquared, Team team) throws GameActionException; 
+
+    /**
+     * Returns the locations of all invisible dropped enemy flags, accurate within a radius of sqrt(100) cells.
      * 
      * @returns all location ranges containing invisible flags
      * 
@@ -632,6 +644,15 @@ public strictfp interface RobotController {
     // ***************************
     // ******* FLAG METHODS ******
     // ***************************
+
+    /**
+     * Checks whether robot is currently holding a flag.
+     * 
+     * @return whether the robot is holding a flag
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean hasFlag();
 
     /**
      * Tests whether robot can pickup a flag at the current location.

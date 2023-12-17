@@ -18,14 +18,15 @@ export type NativeAPI = {
     fs: {
         exists: (arg: string) => Promise<boolean>
         mkdir: (arg: string) => Promise<void>
-        getFiles: (path: string, recursive?: boolean) => Promise<string[]>
+        // recursive: "true" or "false"
+        getFiles: (path: string, recursive?: string) => Promise<string[]>
     }
     child_process: {
-        spawn: (scaffoldPath: string, args: string[]) => Promise<number>
-        kill: (pid: number) => Promise<void>
-        onStdout: (callback: (x: { pid: number; data: string }) => void) => void
-        onStderr: (callback: (x: { pid: number; data: string }) => void) => void
-        onExit: (callback: (x: { pid: number; code: number | null; signal: NodeJS.Signals | null }) => void) => void
+        spawn: (scaffoldPath: string, args: string[]) => Promise<string>
+        kill: (pid: string) => Promise<void>
+        onStdout: (callback: (x: { pid: string; data: string }) => void) => void
+        onStderr: (callback: (x: { pid: string; data: string }) => void) => void
+        onExit: (callback: (x: { pid: string; code: string; signal: string }) => void) => void
     }
 }
 

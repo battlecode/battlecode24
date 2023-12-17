@@ -1,6 +1,5 @@
 package battlecode.instrumenter.profiler;
 
-import battlecode.common.RobotType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

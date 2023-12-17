@@ -3,6 +3,7 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run watch",
+    "withGlobalTauri": true,
     "devPath": "http://localhost:3000",
     "distDir": "../dist"
   },

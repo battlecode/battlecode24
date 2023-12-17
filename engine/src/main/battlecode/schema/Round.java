@@ -118,12 +118,8 @@ public final class Round extends Table {
   /**
    * New bodies.
    */
-  public int spawnedIds(int j) { int o = __offset(32); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int spawnedIdsLength() { int o = __offset(32); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector spawnedIdsVector() { return spawnedIdsVector(new IntVector()); }
-  public IntVector spawnedIdsVector(IntVector obj) { int o = __offset(32); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer spawnedIdsAsByteBuffer() { return __vector_as_bytebuffer(32, 4); }
-  public ByteBuffer spawnedIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 32, 4); }
+  public battlecode.schema.SpawnedBodyTable spawnedBodies() { return spawnedBodies(new battlecode.schema.SpawnedBodyTable()); }
+  public battlecode.schema.SpawnedBodyTable spawnedBodies(battlecode.schema.SpawnedBodyTable obj) { int o = __offset(32); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The IDs of bodies that died.
    */
@@ -292,7 +288,7 @@ public final class Round extends Table {
       int buildLevelsOffset,
       int healsPerformedOffset,
       int healLevelsOffset,
-      int spawnedIdsOffset,
+      int spawnedBodiesOffset,
       int diedIdsOffset,
       int actionIdsOffset,
       int actionsOffset,
@@ -342,7 +338,7 @@ public final class Round extends Table {
     Round.addActions(builder, actionsOffset);
     Round.addActionIds(builder, actionIdsOffset);
     Round.addDiedIds(builder, diedIdsOffset);
-    Round.addSpawnedIds(builder, spawnedIdsOffset);
+    Round.addSpawnedBodies(builder, spawnedBodiesOffset);
     Round.addHealLevels(builder, healLevelsOffset);
     Round.addHealsPerformed(builder, healsPerformedOffset);
     Round.addBuildLevels(builder, buildLevelsOffset);
@@ -399,9 +395,7 @@ public final class Round extends Table {
   public static void addHealLevels(FlatBufferBuilder builder, int healLevelsOffset) { builder.addOffset(13, healLevelsOffset, 0); }
   public static int createHealLevelsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startHealLevelsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addSpawnedIds(FlatBufferBuilder builder, int spawnedIdsOffset) { builder.addOffset(14, spawnedIdsOffset, 0); }
-  public static int createSpawnedIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startSpawnedIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addSpawnedBodies(FlatBufferBuilder builder, int spawnedBodiesOffset) { builder.addOffset(14, spawnedBodiesOffset, 0); }
   public static void addDiedIds(FlatBufferBuilder builder, int diedIdsOffset) { builder.addOffset(15, diedIdsOffset, 0); }
   public static int createDiedIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDiedIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }

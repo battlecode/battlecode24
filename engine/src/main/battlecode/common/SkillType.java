@@ -12,7 +12,7 @@ public enum SkillType{
      *
      * @battlecode.doc.skilltype
      */
-    ATTACK(-15, 20),
+    ATTACK(15, 20),
     
     /**
      * Build uses team resources to dig, fill, or build a trap.

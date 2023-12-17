@@ -80,9 +80,28 @@ export default class Bodies {
         this.updateBodyPositions(delta, false)
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
-            for (const body of this.bodies) {
-                body[1].addToPrevSquares()
+            for (const pair of this.bodies) {
+                pair[1].addToPrevSquares()
             }
+        }
+
+        // Update bytecode counters
+        for (let i = 0; i < delta.bytecodeIdsLength(); i++) {
+            const id = delta.bytecodeIds(i)!
+            if (!this.hasId(id)) continue // Not spawned in yet
+            this.getById(id).bytecodesUsed = delta.bytecodesUsed(i)!
+        }
+
+        // Update robot properties
+        for (let i = 0; i < delta.robotIdsLength(); i++) {
+            const id = delta.robotIds(i)!
+            const body = this.getById(id)
+            body.healLevel = delta.healLevels(i)!
+            body.attackLevel = delta.attackLevels(i)!
+            body.buildLevel = delta.buildLevels(i)!
+            body.healsPerformed = delta.healsPerformed(i)!
+            body.attacksPerformed = delta.attacksPerformed(i)!
+            body.buildsPerformed = delta.buildsPerformed(i)!
         }
 
         const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
@@ -220,9 +239,13 @@ export class Body {
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
+        public hasFlag: boolean = false,
         public healLevel: number = 0,
         public attackLevel: number = 0,
         public buildLevel: number = 0,
+        public healsPerformed: number = 0,
+        public attacksPerformed: number = 0,
+        public buildsPerformed: number = 0,
         public bytecodesUsed: number = 0
     ) {
         this.nextPos = this.pos
@@ -256,6 +279,10 @@ export class Body {
             (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
+            `Has Flag: ${this.hasFlag}`,
+            `Attack Lvl: ${this.attackLevel} (${this.attacksPerformed} exp)`,
+            `Build Lvl: ${this.buildLevel} (${this.buildsPerformed} exp)`,
+            `Heal Lvl: ${this.healLevel} (${this.healsPerformed} exp)`,
             `Bytecodes Used: ${this.bytecodesUsed}`
         ]
     }
@@ -307,7 +334,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             selected: boolean,
             hovered: boolean
         ): void {
-            this.imgPath = `robots/${this.team.color.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/${this.getSpecialization()}_64x64.png`
             super.draw(match, ctx, config, selected, hovered)
 
             const levelIndicators: [string, number, [number, number]][] = [

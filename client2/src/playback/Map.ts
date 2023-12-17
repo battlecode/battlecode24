@@ -101,10 +101,11 @@ export class CurrentMap {
                 this.resourcePileData.set(id, { amount: from.initialResourcePileAmounts[i] })
             }
             for (let i = 0; i < from.spawnLocations.length; i++) {
-                // Assign initial flag data, ids are same order as spawn zones
+                // Assign initial flag data, ids are initial map locations
                 const team = i % 2
                 const location = from.spawnLocations[i]
-                this.flagData.set(i, { team, location, carrierId: null })
+                const flagId = this.locationToIndex(location.x, location.y)
+                this.flagData.set(flagId, { team, location, carrierId: null })
             }
         } else {
             // Create current map from current map (copy)
@@ -153,14 +154,16 @@ export class CurrentMap {
             const schemaIdx = this.locationToIndex(claimedPiles.xs(i)!, claimedPiles.ys(i)!)
             this.resourcePileData.get(schemaIdx)!.amount = 0
         }
+        /* Not actually necessary since this is handled via actions
         for (let i = 0; i < digLocations.xsLength(); i++) {
             const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
             this.water[schemaIdx] = 1
         }
         for (let i = 0; i < fillLocations.xsLength(); i++) {
-            const schemaIdx = this.locationToIndex(digLocations.xs(i)!, digLocations.ys(i)!)
+            const schemaIdx = this.locationToIndex(fillLocations.xs(i)!, fillLocations.ys(i)!)
             this.water[schemaIdx] = 0
         }
+        */
         for (let i = 0; i < delta.trapAddedIdsLength(); i++) {
             const id = delta.trapAddedIds(i)!
             const location = { x: trapAddedLocations.xs(i)!, y: trapAddedLocations.ys(i)! }
@@ -169,7 +172,7 @@ export class CurrentMap {
             this.trapData.set(id, { location, type, team })
         }
         for (let i = 0; i < delta.trapTriggeredIdsLength(); i++) {
-            this.trapData.delete(delta.trapAddedIds(i)!)
+            this.trapData.delete(delta.trapTriggeredIds(i)!)
         }
 
         this.indicatorDotData = []
@@ -248,10 +251,16 @@ export class CurrentMap {
             } else {
                 loc = data.location
             }
+
+            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
+
+            // Render a red outline to show who is carrying the flag
+            if (data.carrierId) renderUtils.renderRoundedOutline(ctx, coords, 'red')
+
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 ctx,
                 getImageIfLoaded('resources/bread_64x64.png'),
-                renderUtils.getRenderCoords(loc.x, loc.y, this.dimension),
+                coords,
                 1
             )
         }
@@ -278,23 +287,11 @@ export class CurrentMap {
             const file = `traps/${BUILD_NAMES[data.type]}_64x64.png`
             const loc = data.location
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
-            ctx.beginPath()
-            const r90 = 0.5 * Math.PI
-            ctx.moveTo(coords.x + 0.1, coords.y + 0.2)
-            ctx.arc(coords.x + 0.2, coords.y + 0.2, 0.1, 2 * r90, 3 * r90)
-            ctx.lineTo(coords.x + 0.8, coords.y + 0.1)
-            ctx.arc(coords.x + 0.8, coords.y + 0.2, 0.1, 3 * r90, 4 * r90)
-            ctx.lineTo(coords.x + 0.9, coords.y + 0.8)
-            ctx.arc(coords.x + 0.8, coords.y + 0.8, 0.1, 0, r90)
-            ctx.lineTo(coords.x + 0.2, coords.y + 0.9)
-            ctx.arc(coords.x + 0.2, coords.y + 0.8, 0.1, r90, 2 * r90)
-            ctx.lineTo(coords.x + 0.1, coords.y + 0.2)
-            ctx.closePath()
-            ctx.strokeStyle = TEAM_COLORS[data.team]
-            ctx.lineWidth = 0.075
-            ctx.stroke()
+            renderUtils.renderRoundedOutline(ctx, coords, TEAM_COLORS[data.team - 1])
 
+            ctx.globalAlpha = 0.6
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
+            ctx.globalAlpha = 1
         }
 
         // Render indicator dots
