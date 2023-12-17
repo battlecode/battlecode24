@@ -20,7 +20,7 @@ import {
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
 import { Body } from './Bodies'
-import { ClientConfig } from '../client-config';
+import { ClientConfig } from '../client-config'
 
 export type Dimension = {
     minCorner: Vector
@@ -200,7 +200,7 @@ export class CurrentMap {
         }
     }
 
-    draw(match: Match, ctx: CanvasRenderingContext2D, config: ClientConfig, selectedBody?: Body) {
+    draw(match: Match, ctx: CanvasRenderingContext2D, config: ClientConfig, selectedBody?: Body, hoveredBody?: Body) {
         const dimension = this.dimension
         for (let i = 0; i < dimension.width; i++) {
             for (let j = 0; j < dimension.height; j++) {
@@ -296,18 +296,29 @@ export class CurrentMap {
 
         // Render indicator dots
         for (const data of this.indicatorDotData) {
-            if ((selectedBody && data.id === selectedBody.id) || config.showAllIndicators) {
+            if (
+                (selectedBody && data.id === selectedBody.id) ||
+                (hoveredBody && data.id === hoveredBody.id) ||
+                config.showAllIndicators
+            ) {
+                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
                 const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
                 ctx.beginPath()
                 ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
                 ctx.fillStyle = data.color
                 ctx.fill()
+                ctx.globalAlpha = 1
             }
         }
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
         for (const data of this.indicatorLineData) {
-            if ((selectedBody && data.id === selectedBody.id) || config.showAllIndicators) {
+            if (
+                (selectedBody && data.id === selectedBody.id) ||
+                (hoveredBody && data.id === hoveredBody.id) ||
+                config.showAllIndicators
+            ) {
+                ctx.globalAlpha = selectedBody && data.id === selectedBody.id ? 1 : 0.5
                 const start = renderUtils.getRenderCoords(data.start.x, data.start.y, this.dimension)
                 const end = renderUtils.getRenderCoords(data.end.x, data.end.y, this.dimension)
                 ctx.beginPath()
@@ -315,6 +326,7 @@ export class CurrentMap {
                 ctx.lineTo(end.x + 0.5, end.y + 0.5)
                 ctx.strokeStyle = data.color
                 ctx.stroke()
+                ctx.globalAlpha = 1
             }
         }
     }

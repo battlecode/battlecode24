@@ -29,11 +29,7 @@ export const GameRenderer: React.FC = () => {
     useEffect(calculateHoveredBody, [appContext.state.activeMatch, hoveredTile])
     useListenEvent(EventType.TURN_PROGRESS, calculateHoveredBody)
 
-    useEffect(() => {
-        renderOverlay(overlayCanvas.current?.getContext('2d')!, activeMatch, selectedBody, hoveredTile)
-    }, [hoveredTile])
-
-    const render = React.useCallback(() => {
+    const render = () => {
         const ctx = dynamicCanvas.current?.getContext('2d')
         if (!activeMatch || !ctx) return
 
@@ -41,12 +37,13 @@ export const GameRenderer: React.FC = () => {
         const map = currentTurn.map
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        map.draw(activeMatch, ctx, appContext.state.config, selectedBody)
+        map.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
         currentTurn.bodies.draw(activeMatch, ctx, appContext.state.config, selectedBody, hoveredBody)
         currentTurn.actions.draw(activeMatch, ctx)
 
         renderOverlay(overlayCanvas.current?.getContext('2d')!, activeMatch, selectedBody, hoveredTile)
-    }, [activeMatch])
+    }
+    useEffect(render, [hoveredBody, selectedBody])
     useListenEvent(EventType.RENDER, render, [render])
 
     const fullRender = () => {
@@ -114,10 +111,16 @@ export const GameRenderer: React.FC = () => {
         if (!down && e) onCanvasClick(e)
         publishEvent(EventType.CANVAS_RIGHT_CLICK, { down: down })
     }
+    const onMouseLeave = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        onMouseUp(e)
+        mouseDownRight(false)
+        setHoveredTile(undefined)
+    }
     const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const point = eventToPoint(e)
         const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
         setSelectedBody(clickedBody)
+        console.log('setting selectted bocy', clickedBody)
         publishEvent(EventType.TILE_CLICK, point)
     }
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -167,10 +170,7 @@ export const GameRenderer: React.FC = () => {
                         }}
                         onMouseDown={onMouseDown}
                         onMouseUp={onMouseUp}
-                        onMouseLeave={(e) => {
-                            onMouseUp(e)
-                            mouseDownRight(false)
-                        }}
+                        onMouseLeave={onMouseLeave}
                         onMouseEnter={(e) => {
                             if (e.buttons === 1) mouseDown.current = true
                         }}

@@ -71,7 +71,7 @@ export const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: T
 
     return (
         <>
-            {hoveredBody && (
+            {hoveredBody && hoveredBody != selectedBody && (
                 <div
                     className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
                     style={tooltipStyle}
@@ -82,8 +82,9 @@ export const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: T
                     ))}
                 </div>
             )}
-            {selectedBody && (
-                <Draggable width={wrapperRect.width} height={wrapperRect.height}>
+
+            <Draggable width={wrapperRect.width} height={wrapperRect.height}>
+                {selectedBody && (
                     <div className="bg-black/90 z-20 text-white p-2 rounded-md text-xs cursor-pointer relative">
                         {selectedBody.onHoverInfo().map((v, i) => (
                             <p key={i}>{v}</p>
@@ -92,8 +93,8 @@ export const Tooltip = ({ overlayCanvas, selectedBody, hoveredBody, wrapper }: T
                             <ThreeBarsIcon />
                         </div>
                     </div>
-                </Draggable>
-            )}
+                )}
+            </Draggable>
         </>
     )
 }

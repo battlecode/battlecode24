@@ -4,6 +4,6 @@ export interface ClientConfig {
 }
 
 export const DEFAULT_CONFIG: ClientConfig = {
-    showAllIndicators: true,
-    showAllRobotRadii: true
+    showAllIndicators: false,
+    showAllRobotRadii: false
 }
