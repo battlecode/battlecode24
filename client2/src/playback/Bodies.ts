@@ -12,6 +12,8 @@ import {
     ATTACK_COLOR,
     BUILD_COLOR,
     HEAL_COLOR,
+    INDICATOR_DOT_SIZE,
+    INDICATOR_LINE_WIDTH,
     TOOLTIP_PATH_DECAY_OPACITY,
     TOOLTIP_PATH_DECAY_R,
     TOOLTIP_PATH_INIT_R,
@@ -20,7 +22,7 @@ import {
 import Match from './Match'
 import { TestDuckBrush } from './Brushes'
 import { ClientConfig } from '../client-config'
-import { Vec } from 'battlecode-schema/js/battlecode/schema';
+import { Vec } from 'battlecode-schema/js/battlecode/schema'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -83,7 +85,7 @@ export default class Bodies {
         // since the first call is really only necessary for bodies that die, so there is potential for
         // optimization.
         this.updateBodyPositions(delta, false)
-        for(const [id, body] of this.bodies) body.addToPrevSquares()
+        for (const [id, body] of this.bodies) body.addToPrevSquares()
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
         }
@@ -118,6 +120,34 @@ export default class Bodies {
                 teamStat.total_hp[0] -= diedBody.hp // TODO
             }
             diedBody.dead = true
+        }
+
+        // clear existing indicators
+        for (const body of this.bodies.values()) {
+            body.indicatorDots = []
+            body.indicatorLines = []
+        }
+
+        const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
+        const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
+        for (let i = 0; i < locs.xsLength(); i++) {
+            const body = this.getById(delta.indicatorDotIds(i)!)
+            body.indicatorDots.push({
+                location: { x: locs.xs(i)!, y: locs.ys(i)! },
+                color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!)
+            })
+        }
+
+        const starts = delta.indicatorLineStartLocs() ?? assert.fail(`Delta missing indicatorLineStarts`)
+        const ends = delta.indicatorLineEndLocs() ?? assert.fail(`Delta missing indicatorLineEnds`)
+        const lineColors = delta.indicatorLineRgbs() ?? assert.fail(`Delta missing indicatorLineRgbs`)
+        for (let i = 0; i < starts.xsLength(); i++) {
+            const body = this.getById(delta.indicatorLineIds(i)!)
+            body.indicatorLines.push({
+                start: { x: starts.xs(i)!, y: starts.ys(i)! },
+                end: { x: ends.xs(i)!, y: ends.ys(i)! },
+                color: renderUtils.rgbToHex(lineColors.red(i)!, lineColors.green(i)!, lineColors.blue(i)!)
+            })
         }
     }
 
@@ -236,6 +266,8 @@ export class Body {
     protected imgPath: string = ''
     public nextPos: Vector
     private prevSquares: Vector[]
+    public indicatorDots: { location: Vector; color: string }[] = []
+    public indicatorLines: { start: Vector; end: Vector; color: string }[] = []
     public dead: boolean = false
     constructor(
         public pos: Vector,
@@ -272,6 +304,8 @@ export class Body {
         if (selected || hovered) this.drawPath(match, overlayCtx)
         if (selected || hovered || config.showAllRobotRadii)
             this.drawRadii(match, overlayCtx, !selected && !config.showAllRobotRadii)
+        if (selected || hovered || config.showAllIndicators)
+            this.drawIndicators(match, overlayCtx, !selected && !config.showAllIndicators)
     }
 
     private drawPath(match: Match, ctx: CanvasRenderingContext2D) {
@@ -316,6 +350,33 @@ export class Body {
         ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
         ctx.stroke()
         ctx.globalAlpha = 1
+    }
+
+    private drawIndicators(match: Match, ctx: CanvasRenderingContext2D, lighter: boolean): void {
+        const dimension = match.currentTurn.map.staticMap.dimension
+        // Render indicator dots
+        for (const data of this.indicatorDots) {
+            ctx.globalAlpha = lighter ? 0.5 : 1
+            const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, dimension)
+            ctx.beginPath()
+            ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
+            ctx.fillStyle = data.color
+            ctx.fill()
+            ctx.globalAlpha = 1
+        }
+
+        ctx.lineWidth = INDICATOR_LINE_WIDTH
+        for (const data of this.indicatorLines) {
+            ctx.globalAlpha = lighter ? 0.5 : 1
+            const start = renderUtils.getRenderCoords(data.start.x, data.start.y, dimension)
+            const end = renderUtils.getRenderCoords(data.end.x, data.end.y, dimension)
+            ctx.beginPath()
+            ctx.moveTo(start.x + 0.5, start.y + 0.5)
+            ctx.lineTo(end.x + 0.5, end.y + 0.5)
+            ctx.strokeStyle = data.color
+            ctx.stroke()
+            ctx.globalAlpha = 1
+        }
     }
 
     public getInterpolatedCoords(match: Match): Vector {
