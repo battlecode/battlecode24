@@ -23,6 +23,10 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
         down.current = false
     }
 
+    const tilelineEnter = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (e.buttons === 1) timelineDown(e)
+    }
+
     // TODO: should have a defined constant somewhere else
     const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
 
@@ -63,6 +67,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
                 onMouseDown={timelineDown}
                 onMouseUp={timelineUp}
                 onMouseLeave={timelineUp}
+                onMouseEnter={tilelineEnter}
             ></div>
         </div>
     )

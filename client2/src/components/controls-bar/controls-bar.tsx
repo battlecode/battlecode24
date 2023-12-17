@@ -135,18 +135,31 @@ export const ControlsBar: React.FC = () => {
 
         if (keyboard.keyCode === 'KeyC') setMinimized(!minimized)
 
-        if (appState.paused) {
-            // Paused
-            if (keyboard.keyCode === 'ArrowRight') stepTurn(1)
-            if (keyboard.keyCode === 'ArrowLeft') stepTurn(-1)
-        } else {
-            // Unpaused
-            if (keyboard.keyCode === 'ArrowRight') multiplyUpdatesPerSecond(2)
-            if (keyboard.keyCode === 'ArrowLeft') multiplyUpdatesPerSecond(0.5)
+        const applyArrows = () => {
+            if (appState.paused) {
+                if (keyboard.keyCode === 'ArrowRight') stepTurn(1)
+                if (keyboard.keyCode === 'ArrowLeft') stepTurn(-1)
+            } else {
+                if (keyboard.keyCode === 'ArrowRight') multiplyUpdatesPerSecond(2)
+                if (keyboard.keyCode === 'ArrowLeft') multiplyUpdatesPerSecond(0.5)
+            }
         }
+        applyArrows()
 
         if (keyboard.keyCode === 'Comma') jumpToTurn(0)
         if (keyboard.keyCode === 'Period') jumpToEnd()
+
+        const initalDelay = 250
+        const repeatDelay = 100
+        const timeouts: { initialTimeout: NodeJS.Timeout; repeatedFire?: NodeJS.Timeout } = {
+            initialTimeout: setTimeout(() => {
+                timeouts.repeatedFire = setInterval(applyArrows, repeatDelay)
+            }, initalDelay)
+        }
+        return () => {
+            clearTimeout(timeouts.initialTimeout)
+            clearInterval(timeouts.repeatedFire)
+        }
     }, [keyboard.keyCode])
 
     const forceUpdate = useForceUpdate()
@@ -164,7 +177,7 @@ export const ControlsBar: React.FC = () => {
                 <button
                     className={
                         (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
-                        ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold'
+                        ' z-20 absolute left-0 top-0 rounded-md text-[10px] aspect-[1] w-[15px] flex justify-center font-bold user-select-none'
                     }
                     onClick={() => setMinimized(!minimized)}
                 >
