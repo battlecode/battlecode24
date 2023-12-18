@@ -3,10 +3,10 @@ import assert from 'assert'
 import Game, { Team } from './Game'
 import Turn from './Turn'
 import TurnStat from './TurnStat'
-import { getImageIfLoaded, loadImage } from '../util/ImageLoader'
+import { getImageIfLoaded } from '../util/ImageLoader'
 import * as renderUtils from '../util/RenderUtil'
 import { MapEditorBrush } from '../components/sidebar/map-editor/MapEditorBrush'
-import { Dimension, StaticMap } from './Map'
+import { StaticMap } from './Map'
 import { Vector } from './Vector'
 import {
     ATTACK_COLOR,
@@ -20,9 +20,7 @@ import {
     TOOLTIP_PATH_LENGTH
 } from '../constants'
 import Match from './Match'
-import { TestDuckBrush } from './Brushes'
 import { ClientConfig } from '../client-config'
-import { Vec } from 'battlecode-schema/js/battlecode/schema'
 
 export default class Bodies {
     public bodies: Map<number, Body> = new Map()
@@ -107,6 +105,7 @@ export default class Bodies {
             body.healsPerformed = delta.healsPerformed(i)!
             body.attacksPerformed = delta.attacksPerformed(i)!
             body.buildsPerformed = delta.buildsPerformed(i)!
+            body.hp = delta.robotHealths(i)!
         }
 
         const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
@@ -165,7 +164,7 @@ export default class Bodies {
 
             this.bodies.set(
                 id,
-                new bodyClass({ x: xsArray[i], y: ysArray[i] }, health, this.game.getTeamByID(teams[i]), id)
+                new bodyClass(this.game, { x: xsArray[i], y: ysArray[i] }, health, this.game.getTeamByID(teams[i]), id)
             )
             if (stat) {
                 const teamStat =
@@ -225,7 +224,7 @@ export default class Bodies {
     }
 
     getEditorBrushes(map: StaticMap): MapEditorBrush[] {
-        return [new TestDuckBrush(this, map)]
+        return []
     }
 
     toSpawnedBodyTable(builder: flatbuffers.Builder): number {
@@ -270,6 +269,7 @@ export class Body {
     public indicatorLines: { start: Vector; end: Vector; color: string }[] = []
     public dead: boolean = false
     constructor(
+        private game: Game,
         public pos: Vector,
         public hp: number,
         public readonly team: Team,
@@ -302,10 +302,10 @@ export class Body {
         ctx.globalAlpha = 1
 
         if (selected || hovered) this.drawPath(match, overlayCtx)
-        if (selected || hovered || config.showAllRobotRadii)
-            this.drawRadii(match, overlayCtx, !selected)
+        if (selected || hovered || config.showAllRobotRadii) this.drawRadii(match, overlayCtx, !selected)
         if (selected || hovered || config.showAllIndicators)
             this.drawIndicators(match, overlayCtx, !selected && !config.showAllIndicators)
+        if (selected || hovered || config.showHealthBars) this.drawHealthBar(match, overlayCtx)
     }
 
     private drawPath(match: Match, ctx: CanvasRenderingContext2D) {
@@ -339,14 +339,14 @@ export class Body {
         if (lightly) ctx.globalAlpha = 0.5
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
         ctx.beginPath()
-        ctx.strokeStyle = 'blue'
-        ctx.lineWidth = 2 / match.map.width
+        ctx.strokeStyle = 'red'
+        ctx.lineWidth = .1
         ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
         ctx.stroke()
 
         ctx.beginPath()
-        ctx.strokeStyle = 'red'
-        ctx.lineWidth = 2 / match.map.width
+        ctx.strokeStyle = 'blue'
+        ctx.lineWidth = .1
         ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
         ctx.stroke()
         ctx.globalAlpha = 1
@@ -379,6 +379,22 @@ export class Body {
         }
     }
 
+    private drawHealthBar(match: Match, ctx: CanvasRenderingContext2D): void {
+        const dimension = match.currentTurn.map.staticMap.dimension
+        const interpCoords = this.getInterpolatedCoords(match)
+        const renderCoords = renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, dimension)
+        const hpBarWidth = 0.8
+        const hpBarHeight = 0.1
+        const hpBarYOffset = 0.4
+        const hpBarX = renderCoords.x + 0.5 - hpBarWidth / 2
+        const hpBarY = renderCoords.y + 0.5 + hpBarYOffset
+        ctx.fillStyle = 'rgba(0,0,0,.3)'
+        ctx.fillRect(hpBarX, hpBarY, hpBarWidth, hpBarHeight)
+        ctx.fillStyle = 'green'
+        const maxHP = this.game.constants.robotBaseHealth()
+        ctx.fillRect(hpBarX, hpBarY, hpBarWidth * (this.hp / maxHP), hpBarHeight)
+    }
+
     public getInterpolatedCoords(match: Match): Vector {
         return renderUtils.getInterpolatedCoords(this.pos, this.nextPos, match.getInterpolationFactor())
     }
@@ -387,6 +403,7 @@ export class Body {
         return [
             (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
+            `HP: ${this.hp}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
             `Has Flag: ${this.hasFlag}`,
             `Attack Lvl: ${this.attackLevel} (${this.attacksPerformed} exp)`,
@@ -438,8 +455,12 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     // one type pointed to by 0:
 
     0: class Duck extends Body {
-        public actionRadius = 8
-        public visionRadius = 10
+        constructor(game: Game, pos: Vector, hp: number, team: Team, id: number) {
+            super(game, pos, hp, team, id)
+            this.actionRadius = game.constants.actionRadius()
+            this.visionRadius = game.constants.visionRadius()
+        }
+
         public draw(
             match: Match,
             ctx: CanvasRenderingContext2D,

@@ -19,6 +19,9 @@ export default class Match {
     private readonly snapshots: Turn[]
     public readonly stats: TurnStat[]
     private currentSimulationStep: number = 0
+    get constants(): schema.GameplayConstants {
+        return this.game.constants
+    }
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],

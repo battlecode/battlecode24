@@ -1,19 +1,18 @@
 import React from 'react'
 import { useAppContext } from './app-context'
 
-const DEFAULT_CONFIG: ClientConfig = {
+const DEFAULT_CONFIG = {
     showAllIndicators: false,
-    showAllRobotRadii: false
+    showAllRobotRadii: false,
+    showHealthBars: false
 }
+
+export type ClientConfig = typeof DEFAULT_CONFIG
 
 const configDescription: { [key: string]: string } = {
     showAllIndicators: 'Show all indicator dots and lines',
-    showAllRobotRadii: 'Show all robot view and action radii'
-}
-
-export interface ClientConfig {
-    showAllIndicators: boolean
-    showAllRobotRadii: boolean
+    showAllRobotRadii: 'Show all robot view and action radii',
+    showHealthBars: 'Show health bars below all robots'
 }
 
 export function getDefaultConfig(): ClientConfig {
@@ -55,7 +54,7 @@ const ConfigBooleanElement: React.FC<{ configKey: string }> = ({ configKey }) =>
                     localStorage.setItem('config' + configKey, JSON.stringify(e.target.checked))
                 }}
             />
-            <div className={'ml-2 text-xs'}>{configDescription[configKey]}</div>
+            <div className={'ml-2 text-xs'}>{configDescription[configKey] ?? configKey}</div>
         </div>
     )
 }

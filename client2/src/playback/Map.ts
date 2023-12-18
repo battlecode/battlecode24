@@ -4,22 +4,10 @@ import { Vector, getEmptyVector } from './Vector'
 import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
-import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, TestTrapBrush, WallsBrush, WaterBrush } from './Brushes'
-import {
-    DIVIDER_COLOR,
-    GRASS_COLOR,
-    WALLS_COLOR,
-    WATER_COLOR,
-    TEAM_COLORS,
-    BUILD_NAMES,
-    TEAM_COLOR_NAMES,
-    DIVIDER_DROP_TURN,
-    INDICATOR_LINE_WIDTH,
-    INDICATOR_DOT_SIZE
-} from '../constants'
+import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
+import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS, BUILD_NAMES } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
-import { Body } from './Bodies'
 import { ClientConfig } from '../client-config'
 
 export type Dimension = {
@@ -188,7 +176,7 @@ export class CurrentMap {
                 }
 
                 // Render rounded (clipped) divider
-                if (match.currentTurn.turnNumber < DIVIDER_DROP_TURN && this.staticMap.divider[schemaIdx]) {
+                if (match.currentTurn.turnNumber < match.constants.setupPhaseLength() && this.staticMap.divider[schemaIdx]) {
                     renderUtils.renderRounded(
                         ctx,
                         i,
@@ -264,7 +252,6 @@ export class CurrentMap {
             new WaterBrush(this),
             new ResourcePileBrush(this),
             new SpawnZoneBrush(this),
-            new TestTrapBrush(this),
             new WallsBrush(this)
         ]
         return brushes.concat(this.staticMap.getEditorBrushes())

@@ -47,8 +47,6 @@ export const DIVIDER_COLOR = '#7b4724'
 export const GRASS_COLOR = '#153e30' // brighter version '#3CCA6E'
 export const GAMEAREA_BACKGROUND = WATER_COLOR
 
-export const DIVIDER_DROP_TURN = 200
-
 export const ATTACK_COLOR = '#db6b5c'
 export const BUILD_COLOR = '#c573c9'
 export const HEAL_COLOR = '#f2b804'
