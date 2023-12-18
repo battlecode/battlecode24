@@ -111,7 +111,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
                 ctx,
                 renderUtils.getRenderCoords(from.x, from.y, match.currentTurn.map.staticMap.dimension),
                 renderUtils.getRenderCoords(to.x, to.y, match.currentTurn.map.staticMap.dimension),
-                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 0.1, renderArrow: false }
+                { teamForOffset: body.team, color: body.team.color, lineWidth: 0.05, opacity: 0.3, renderArrow: false }
             )
 
             // Projectile animation
@@ -143,7 +143,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
                 {
                     color: HEAL_COLOR,
                     lineWidth: 0.05,
-                    opacity: 0.1,
+                    opacity: 0.5,
                     renderArrow: true
                 }
             )

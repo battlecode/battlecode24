@@ -49,7 +49,8 @@ module.exports = (env) => {
         },
         plugins: [
             new HtmlWebpackPlugin({
-                template: './index.html'
+                template: './index.html',
+                favicon: './icons/icon.ico'
             }),
             new webpack.LoaderOptionsPlugin({
                 minimize: !development,

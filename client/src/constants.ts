@@ -37,7 +37,7 @@ export const SERVER_MAPS: string[] = [
  * Color constants (defined in tailwind.config.js as well)
  */
 export const TEAM_WHITE = '#bfbaa8'
-export const TEAM_BROWN = '#b99c76'
+export const TEAM_BROWN = '#9c8362' //'#b99c76'
 export const TEAM_COLORS = [TEAM_WHITE, TEAM_BROWN]
 export const TEAM_COLOR_NAMES = ['White', 'Brown']
 

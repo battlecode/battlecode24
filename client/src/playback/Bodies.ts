@@ -325,7 +325,7 @@ export class Body {
         const pos = this.getInterpolatedCoords(match)
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
         if (this.dead) ctx.globalAlpha = 0.5
-        renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, 1)
+        renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, this.hasFlag ? 1.1 : 1)
         ctx.globalAlpha = 1
 
         if (selected || hovered) this.drawPath(match, overlayCtx)
@@ -333,6 +333,15 @@ export class Body {
         if (selected || hovered || config.showAllIndicators)
             this.drawIndicators(match, overlayCtx, !selected && !config.showAllIndicators)
         if (selected || hovered || config.showHealthBars) this.drawHealthBar(match, overlayCtx)
+
+        if (this.hasFlag) {
+            renderUtils.renderCenteredImageOrLoadingIndicator(
+                overlayCtx,
+                getImageIfLoaded('resources/bread_outline_thick_64x64.png'),
+                { x: renderCoords.x, y: renderCoords.y + 0.1 },
+                0.6
+            )
+        }
     }
 
     private drawPath(match: Match, ctx: CanvasRenderingContext2D) {

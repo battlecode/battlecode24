@@ -176,7 +176,10 @@ export class CurrentMap {
                 }
 
                 // Render rounded (clipped) divider
-                if (match.currentTurn.turnNumber < match.constants.setupPhaseLength() && this.staticMap.divider[schemaIdx]) {
+                const dividerUp = match.game.playable
+                    ? match.currentTurn.turnNumber < match.constants.setupPhaseLength()
+                    : true
+                if (dividerUp && this.staticMap.divider[schemaIdx]) {
                     renderUtils.renderRounded(
                         ctx,
                         i,
@@ -196,22 +199,11 @@ export class CurrentMap {
         // Render flags
         for (const flagId of this.flagData.keys()) {
             const data = this.flagData.get(flagId)!
-            let loc: Vector = getEmptyVector()
-            if (data.carrierId) {
-                // Bot is carrying flag
-                loc = match.currentTurn.bodies.getById(data.carrierId).getInterpolatedCoords(match)
-            } else {
-                loc = data.location
-            }
-
-            const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
-
-            // Render a red outline to show who is carrying the flag
-            if (data.carrierId) renderUtils.renderRoundedOutline(ctx, coords, 'red')
-
+            if (data.carrierId) continue
+            const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, this.dimension)
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 ctx,
-                getImageIfLoaded('resources/bread_64x64.png'),
+                getImageIfLoaded('resources/bread_outline_64x64.png'),
                 coords,
                 1
             )
