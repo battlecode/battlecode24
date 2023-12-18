@@ -1,22 +1,16 @@
 # Battlecode Client 🌱
-
 ## Overview
-Trivial wrapping folder for `playback` and `visualizer`. It handles universal configurations or scripts.
+- `src-tauri` - Contains Rust code to wrap Electron.js as an app via Tauri.
+- `src`
+  - `components` - React Components
+  - `pages` - `Queue`, `Runner`, `Game` pages, and more
+  - `playback` - Load up battlecode replay files (flatbuffers) into abstract game objects
+  - `util` - Various Utility Tools
 
-* `.editorconfig`
-* `LICENSE`
-* `.gitignore`
-* `package.json`
+## Running Locally
+To run the client locally:
+1. `npm i` to install dependencies and prettier
+3. `npm run fix-schema` to fix `TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.`
+4. `npm run watch` to run the app.
 
-### NPM config
-Look at `package.json`.
-
-This NPM module does not have any dependencies or meaningful output, but it is for wrapping scripts of `playback` and `visualizer` in one place.
-
- * `npm run install-all`: Installs npm packages in `playback` and `visualizer`. **Execute this when you start**
- * `npm run build`, `npm run build-playback`
- * `npm run electron`: Run the client in electron. You might want to run this most of the time.
- * `npm run watch`: Watch for the changes of `visualizer`. Note that it *does not watch* `playback`.
- * `npm run prod-electron`: Builds production versions of electron clients, for many OS's. Note that this will probably not work if run on your local machine, but it should work in our production build-and-release environment, which is on GitHub Actions / CI. 
- * `npm run prod-test`: Builds a production version of the electron client for your local machine's OS.
- * `npm run clean`: Cleans `dist/`. (output folder of `prod`)
+Run `npx prettier [file].tsx --write` on any changed files to standardize the format. 
