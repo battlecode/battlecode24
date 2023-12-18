@@ -2,15 +2,15 @@ import React from 'react'
 import Game from './playback/Game'
 import Match from './playback/Match'
 import Tournament from './playback/Tournament'
-import { ClientConfig, DEFAULT_CONFIG } from './client-config'
+import { ClientConfig, getDefaultConfig } from './client-config'
 
 export interface AppState {
     queue: Game[]
     activeGame: Game | undefined
     activeMatch: Match | undefined
     tournament: Tournament | undefined
-    updatesPerSecond: number,
-    paused: boolean,
+    updatesPerSecond: number
+    paused: boolean
     config: ClientConfig
 }
 
@@ -21,7 +21,7 @@ const DEFAULT_APP_STATE: AppState = {
     tournament: undefined,
     updatesPerSecond: 1,
     paused: true,
-    config: DEFAULT_CONFIG
+    config: getDefaultConfig()
 }
 
 export interface AppContext {

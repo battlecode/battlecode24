@@ -6,7 +6,6 @@ import { QueuePage } from './queue/queue'
 import { BsChevronLeft } from 'react-icons/bs'
 import { HelpPage } from './help/help'
 import { MapEditorPage } from './map-editor/map-editor'
-import { ProfilerPage } from './profiler/profiler'
 import { RunnerPage } from './runner/runner'
 import { usePage, PageType, useSearchParamBool, useSearchParamString } from '../../app-search-params'
 import { useKeyboard } from '../../util/keyboard'
@@ -16,15 +15,7 @@ import { TournamentPage } from './tournament/tournament'
 import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
 import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
-
-const SIDEBAR_BUTTONS: { name: string; page: PageType }[] = [
-    { name: 'Game', page: PageType.GAME },
-    { name: 'Queue', page: PageType.QUEUE },
-    { name: 'Runner', page: PageType.RUNNER },
-    { name: 'Profiler', page: PageType.PROFILER },
-    { name: 'Map Editor', page: PageType.MAP_EDITOR },
-    { name: 'Help', page: PageType.HELP }
-]
+import { ConfigPage } from '../../client-config'
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -85,21 +76,21 @@ export const Sidebar: React.FC = () => {
                 return <QueuePage />
             case PageType.RUNNER:
                 return <RunnerPage scaffold={scaffold} />
-            case PageType.PROFILER:
-                return <ProfilerPage />
             case PageType.MAP_EDITOR:
                 return <MapEditorPage />
             case PageType.HELP:
                 return <HelpPage />
             case PageType.TOURNAMENT:
                 return <TournamentPage loadingRemoteTournament={loadingRemoteTournament} />
+            case PageType.CONFIG:
+                return <ConfigPage />
         }
     }
 
     // Skip going through map and help tab, it's annoying for competitors.
     const hotkeyPageLoop = tournamentMode
         ? [PageType.GAME, PageType.QUEUE, PageType.TOURNAMENT]
-        : [PageType.GAME, PageType.QUEUE, PageType.RUNNER, PageType.PROFILER]
+        : [PageType.GAME, PageType.QUEUE, PageType.RUNNER]
     const getNextPage = (currentPage: PageType, previous: boolean) => {
         const index = hotkeyPageLoop.indexOf(currentPage)
         if (index === -1) return currentPage
@@ -108,11 +99,11 @@ export const Sidebar: React.FC = () => {
     }
 
     React.useEffect(() => {
-        if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, false))
+        if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, true))
+        if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
         if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
 
-        if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, true))
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
@@ -123,7 +114,14 @@ export const Sidebar: React.FC = () => {
                 { name: 'Tournament', page: PageType.TOURNAMENT }
             ]
         }
-        return SIDEBAR_BUTTONS
+        return [
+            { name: 'Game', page: PageType.GAME },
+            { name: 'Queue', page: PageType.QUEUE },
+            { name: 'Runner', page: PageType.RUNNER },
+            { name: 'Map Editor', page: PageType.MAP_EDITOR },
+            { name: 'Help', page: PageType.HELP },
+            { name: 'Config', page: PageType.CONFIG }
+        ]
     }, [tournamentMode])
 
     return (

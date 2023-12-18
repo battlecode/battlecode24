@@ -303,7 +303,7 @@ export class Body {
 
         if (selected || hovered) this.drawPath(match, overlayCtx)
         if (selected || hovered || config.showAllRobotRadii)
-            this.drawRadii(match, overlayCtx, !selected && !config.showAllRobotRadii)
+            this.drawRadii(match, overlayCtx, !selected)
         if (selected || hovered || config.showAllIndicators)
             this.drawIndicators(match, overlayCtx, !selected && !config.showAllIndicators)
     }

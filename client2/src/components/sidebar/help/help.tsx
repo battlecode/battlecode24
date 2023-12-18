@@ -23,7 +23,7 @@ export const HelpPage: React.FC = () => {
                 'Controls speed if game is unpaused, or moves the current round if paused'
             )}
             <br />
-            {hotkeyElement(`~ and 1`, 'Scroll through Game, Profiler, Runner, and Queue')}
+            {hotkeyElement(`~ and 1`, 'Scroll through Game, Runner, and Queue')}
             <br />
             {hotkeyElement(
                 `Shift`,
