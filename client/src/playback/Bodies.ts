@@ -95,6 +95,16 @@ export default class Bodies {
             this.getById(id).bytecodesUsed = delta.bytecodesUsed(i)!
         }
 
+        assert(
+            delta.robotIdsLength() == delta.healLevelsLength() &&
+                delta.robotIdsLength() == delta.attackLevelsLength() &&
+                delta.robotIdsLength() == delta.buildLevelsLength() &&
+                delta.robotIdsLength() == delta.healsPerformedLength() &&
+                delta.robotIdsLength() == delta.attacksPerformedLength() &&
+                delta.robotIdsLength() == delta.buildsPerformedLength() &&
+                delta.robotIdsLength() == delta.robotHealthsLength(),
+            'Delta arrays are not the same length'
+        )
         // Update robot properties
         for (let i = 0; i < delta.robotIdsLength(); i++) {
             const id = delta.robotIds(i)!
@@ -156,6 +166,10 @@ export default class Bodies {
         const xsArray = locs.xsArray() ?? assert.fail('Initial body x locations not found in header')
         const ysArray = locs.ysArray() ?? assert.fail('Initial body y locations not found in header')
         const idsArray = bodies.robotIdsArray() ?? assert.fail('Initial body IDs not found in header')
+        assert(
+            teams.length == xsArray.length && xsArray.length == ysArray.length && ysArray.length == idsArray.length,
+            'Initial body arrays are not the same length'
+        )
 
         for (let i = 0; i < bodies.robotIdsLength(); i++) {
             const id = idsArray[i]
@@ -340,13 +354,13 @@ export class Body {
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
         ctx.beginPath()
         ctx.strokeStyle = 'red'
-        ctx.lineWidth = .1
+        ctx.lineWidth = 0.1
         ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.actionRadius), 0, 360)
         ctx.stroke()
 
         ctx.beginPath()
         ctx.strokeStyle = 'blue'
-        ctx.lineWidth = .1
+        ctx.lineWidth = 0.1
         ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, Math.sqrt(this.visionRadius), 0, 360)
         ctx.stroke()
         ctx.globalAlpha = 1
