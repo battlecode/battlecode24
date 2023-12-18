@@ -123,12 +123,25 @@ export default class Bodies {
             const diedBody =
                 this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
             if (!turn.stat.completed) {
-                const teamStat =
-                    turn.stat.getTeamStat(diedBody.team) ?? assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots[0] -= 1 // TODO: Remove robots per specialization
-                teamStat.total_hp[0] -= diedBody.hp // TODO
+                const teamStat = turn.stat.getTeamStat(diedBody.team)
+                teamStat.robots[diedBody.getSpecialization().idx] -= 1
             }
             diedBody.dead = true
+        }
+
+        if (!turn.stat.completed) {
+            // calculate some stats that are completely recalculated every turn
+            turn.stat.getTeamStat(this.game.teams[0]).specializationTotalLevels = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[0]).totalHealth = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[1]).totalHealth = [0, 0, 0, 0]
+            for (const body of this.bodies.values()) {
+                const teamStat = turn.stat.getTeamStat(body.team)
+                teamStat.totalHealth[body.getSpecialization().idx] += body.hp
+                teamStat.specializationTotalLevels[1] += body.attackLevel
+                teamStat.specializationTotalLevels[2] += body.buildLevel
+                teamStat.specializationTotalLevels[3] += body.healLevel
+            }
         }
 
         // clear existing indicators
@@ -136,7 +149,6 @@ export default class Bodies {
             body.indicatorDots = []
             body.indicatorLines = []
         }
-
         const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
         const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
         for (let i = 0; i < locs.xsLength(); i++) {
@@ -181,11 +193,12 @@ export default class Bodies {
                 new bodyClass(this.game, { x: xsArray[i], y: ysArray[i] }, health, this.game.getTeamByID(teams[i]), id)
             )
             if (stat) {
+                const newBody =
+                    this.bodies.get(id) ?? assert.fail(`Body with id ${id} should have been added to bodies`)
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots[0] += 1 // TODO: If there are specilizations initially change this
-                teamStat.total_hp[0] += health
+                teamStat.robots[newBody.getSpecialization().idx] += 1
             }
         }
     }
@@ -445,6 +458,17 @@ export class Body {
             this.prevSquares.splice(0, 1)
         }
     }
+
+    public getSpecialization(): { idx: number; name: string } {
+        assert(this.attackLevel >= 0 && this.attackLevel <= 6, 'Attack level out of bounds')
+        assert(this.healLevel >= 0 && this.healLevel <= 6, 'Heal level out of bounds')
+        assert(this.buildLevel >= 0 && this.buildLevel <= 6, 'Build level out of bounds')
+        assert([this.attackLevel, this.healLevel, this.buildLevel].sort()[1] <= 3, 'Specialization level too high')
+        if (this.attackLevel > 3) return { idx: 1, name: 'attack' }
+        if (this.healLevel > 3) return { idx: 2, name: 'heal' }
+        if (this.buildLevel > 3) return { idx: 3, name: 'build' }
+        return { idx: 0, name: 'base' }
+    }
 }
 
 export const BODY_DEFINITIONS: Record<number, typeof Body> = {
@@ -483,7 +507,7 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             selected: boolean,
             hovered: boolean
         ): void {
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/${this.getSpecialization()}_64x64.png`
+            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/${this.getSpecialization().name}_64x64.png`
             super.draw(match, ctx, overlayCtx, config, selected, hovered)
 
             const levelIndicators: [string, number, [number, number]][] = [
@@ -539,17 +563,6 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
             ctx.globalAlpha = 0.75
             ctx.fill()
             ctx.globalAlpha = 1
-        }
-
-        private getSpecialization(): string {
-            assert(this.attackLevel >= 0 && this.attackLevel <= 6, 'Attack level out of bounds')
-            assert(this.healLevel >= 0 && this.healLevel <= 6, 'Heal level out of bounds')
-            assert(this.buildLevel >= 0 && this.buildLevel <= 6, 'Build level out of bounds')
-            assert([this.attackLevel, this.healLevel, this.buildLevel].sort()[1] <= 3, 'Specialization level too high')
-            if (this.attackLevel > 3) return 'attack'
-            if (this.healLevel > 3) return 'heal'
-            if (this.buildLevel > 3) return 'build'
-            return 'base'
         }
     }
 }

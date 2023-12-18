@@ -4,15 +4,19 @@ import assert from 'assert'
 import Turn from './Turn'
 
 class TeamTurnStat {
-    robots: number[] = Array(4).fill(0);
-    total_hp: number[] = Array(4).fill(0);
+    robots: [number, number, number, number] = [0, 0, 0, 0]
+    specializationTotalLevels: [number, number, number, number] = [0, 0, 0, 0]
+    totalHealth: [number, number, number, number] = [0, 0, 0, 0]
     resourceAmount: number = 0
     resourceAmountAverageDatapoint: number | undefined = undefined
 
     copy(): TeamTurnStat {
         const newStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
 
-		// Copy any internal objects here
+        // Copy any internal objects here
+        newStat.robots = [...this.robots]
+        newStat.specializationTotalLevels = [...this.specializationTotalLevels]
+        newStat.totalHealth = [...this.totalHealth]
 
         return newStat
     }

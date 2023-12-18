@@ -4,6 +4,8 @@ import { useForceUpdate } from '../../../util/react-util'
 import { useListenEvent, EventType } from '../../../app-events'
 import { getImageIfLoaded, removeTriggerOnImageLoad, triggerOnImageLoad } from '../../../util/ImageLoader'
 import { TEAM_COLOR_NAMES } from '../../../constants'
+import { schema } from 'battlecode-schema'
+import assert from 'assert'
 
 interface UnitsIconProps {
     team: 0 | 1
@@ -37,23 +39,26 @@ interface UnitsTableProps {
 
 export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) => {
     const context = useAppContext()
-    const game = context.state.activeGame
-    const teamStat = game?.currentMatch?.currentTurn.stat.getTeamStat(game.teams[props.team])
-
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     const columns: Array<[string, React.ReactElement]> = [
-        ['Base', <UnitsIcon team={props.team} robotType="base" key="0"/>],
+        ['Base', <UnitsIcon team={props.team} robotType="base" key="0" />],
         ['Attack', <UnitsIcon team={props.team} robotType="attack" key="1" />],
         ['Build', <UnitsIcon team={props.team} robotType="build" key="2" />],
         ['Heal', <UnitsIcon team={props.team} robotType="heal" key="3" />]
     ]
 
+    const match = context.state.activeGame?.currentMatch
+    const teamStat = match?.currentTurn.stat.getTeamStat(match.game.teams[props.team])
+    const totalCount = Math.max(teamStat?.robots.reduce((a, b) => a + b) ?? 0, 1)
     const data: Array<[string, Array<number>]> = [
         ['Count', teamStat?.robots ?? [0, 0, 0, 0]],
-        ['Avg. Level', [0, 0, 0, 0]],
-        ['Σ(HP)', teamStat?.total_hp ?? [0, 0, 0, 0]]
+        ['Σ(HP)', teamStat?.totalHealth ?? [0, 0, 0, 0]],
+        [
+            'Avg. Level',
+            teamStat?.specializationTotalLevels.map((c) => Math.round((c / totalCount) * 100) / 100) ?? [0, 0, 0, 0]
+        ]
     ]
 
     return (
