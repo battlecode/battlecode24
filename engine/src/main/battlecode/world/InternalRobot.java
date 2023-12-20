@@ -394,6 +394,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void spawn(MapLocation loc) {
         this.spawned = true;
         this.location = loc;
+        this.roundsAlive = 0;
+        this.health = GameConstants.DEFAULT_HEALTH;
+        //this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        //this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
     }
 
     public void despawn() {
