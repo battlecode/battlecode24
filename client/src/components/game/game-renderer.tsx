@@ -4,8 +4,6 @@ import { Vector } from '../../playback/Vector'
 import { EventType, publishEvent, useListenEvent } from '../../app-events'
 import assert from 'assert'
 import { Tooltip } from './tooltip'
-import { Body } from '../../playback/Bodies'
-import Match from '../../playback/Match'
 import { TILE_RESOLUTION } from '../../constants'
 import { CurrentMap } from '../../playback/Map'
 

@@ -24,8 +24,9 @@ export default class Tournament {
                     dependsOn: [undefined, undefined],
                     winnerIndex: winnerIndex,
                     round: game.tournament_round.external_id,
-                    viewed: true,
-                    gameFile: game.replay_url
+                    viewed: false,
+                    gameFile: game.replay_url,
+                    displayOrder: game.tournament_round.display_order
                 }
             })
 
@@ -56,7 +57,8 @@ export default class Tournament {
                     winnerIndex: 0,
                     round: ++maxRound,
                     viewed: false,
-                    gameFile: ''
+                    gameFile: '',
+                    displayOrder: 0
                 }
                 maxRoundGames.splice(i, 2, game)
                 this.games.push(game)
@@ -64,6 +66,7 @@ export default class Tournament {
         }
         this.winnersBracketRoot = maxRoundGames[0]
         this.setGameDependents(this.winnersBracketRoot)
+        this.setRoundRelativeIDs(this.winnersBracketRoot)
 
         let minRound = Math.min(...this.games.map((g) => g.round))
         if (minRound < 0) {
@@ -84,7 +87,8 @@ export default class Tournament {
                         winnerIndex: 0,
                         round: --minRound,
                         viewed: false,
-                        gameFile: ''
+                        gameFile: '',
+                        displayOrder: 0
                     }
                     minRoundGames.splice(i, 2, game)
                     this.games.push(game)
@@ -92,6 +96,37 @@ export default class Tournament {
             }
             this.losersBracketRoot = minRoundGames[0]
             this.setGameDependents(this.losersBracketRoot)
+            this.setRoundRelativeIDs(this.losersBracketRoot)
+        }
+
+        // correct game ids by display order
+        let nextDisplayOrder = 0
+        let gamesWithDisplayOrder = this.games.filter((g) => g.displayOrder === nextDisplayOrder)
+        let idOffset = 0
+        while (gamesWithDisplayOrder.length > 0) {
+            for (const game of gamesWithDisplayOrder) {
+                game.id += idOffset
+            }
+            idOffset += gamesWithDisplayOrder.length
+            nextDisplayOrder++
+            gamesWithDisplayOrder = this.games.filter((g) => g.displayOrder === nextDisplayOrder)
+        }
+    }
+
+    setRoundRelativeIDs(game: TournamentGame) {
+        let lastRound = [game]
+        while (lastRound.length > 0) {
+            let idInRound = 0
+            for (const game of lastRound) {
+                game.id = idInRound++
+            }
+
+            const nextRound = []
+            for (const game of lastRound) {
+                if (game.dependsOn[0]) nextRound.push(game.dependsOn[0])
+                if (game.dependsOn[1]) nextRound.push(game.dependsOn[1])
+            }
+            lastRound = nextRound
         }
     }
 
@@ -124,6 +159,7 @@ export type TournamentGame = {
     winnerIndex: 0 | 1
     viewed: boolean
     gameFile: string
+    displayOrder: number
 }
 
 export type JsonTournamentGame = {
@@ -132,6 +168,7 @@ export type JsonTournamentGame = {
         tournament: string
         name: string
         release_status: number
+        display_order: number
     }
     participants: {
         team: number
