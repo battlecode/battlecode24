@@ -79,22 +79,6 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns the robot's current experience in the specified skill.
-     * 
-     * @param skill the skill that we want to get the robot's experience in
-     * @return the robot's experience in the skill
-     */
-    int getExperience(SkillType skill);
-
-    /**
-     * Returns the robot's current level in the specified skill.
-     * 
-     * @param skill the skill that we want to get the robot's level in
-     * @return the robot's level in the skill
-     */
-    int getLevel(SkillType skill);
-
-    /**
      * Returns this robot's current location.
      *
      * @return this robot's current location
@@ -111,6 +95,26 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getHealth();
+
+    /**
+     * Returns the robot's current experience in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's experience in
+     * @return the robot's experience in the skill
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    int getExperience(SkillType skill);
+
+    /**
+     * Returns the robot's current level in the specified skill.
+     * 
+     * @param skill the skill that we want to get the robot's level in
+     * @return the robot's level in the skill
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    int getLevel(SkillType skill);
 
     /**
      * Returns the amount of bread that this robot's team has.
@@ -275,7 +279,7 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
-     * Given a location, returns whether that location is passable.
+     * Given a location, returns whether that location is passable (not water, a wall, or a dam).
      * 
      * @param loc the given location
      * @return whether that location is passable
@@ -352,8 +356,7 @@ public strictfp interface RobotController {
 
     /**
      * Returns the location of all nearby flags that are visible to the robot, including picked up flags.
-     * If radiusSquared is greater than the robot's vision radius, use the 
-     * robot's vision radius instead.
+     * If radiusSquared is greater than the robot's vision radius, uses the robot's vision radius instead.
      * 
      * @param radiusSquared squared radius of all locations to be returned
      * @return all locations containing flags
@@ -364,8 +367,7 @@ public strictfp interface RobotController {
 
     /**
      * Returns the location of all nearby flags that are visible to the robot, including picked up flags.
-     * If radiusSquared is greater than the robot's vision radius, use the 
-     * robot's vision radius instead.
+     * If radiusSquared is greater than the robot's vision radius, uses the robot's vision radius instead.
      * 
      * @param radiusSquared squared radius of all locations to be returned
      * @param team the team to find flags for
@@ -389,9 +391,12 @@ public strictfp interface RobotController {
      * location is in range, is passable, and is far enough away from other placed friendly flags. Note that if the third
      * condition is false, the flag can still be placed but will be teleported back to the spawn zone at the end of the
      * setup phase.
+     * 
      * @param loc The location to check
      * @return Whether the location is a valid flag placement
      * @throws GameActionException if the location is out of sensing range
+     * 
+     * @battlecode.doc.costlymethod
      */
     boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException;
 
@@ -602,7 +607,7 @@ public strictfp interface RobotController {
     void build(TrapType building, MapLocation loc) throws GameActionException;;
 
     // ****************************
-    // ***** ATTACK METHODS ***** 
+    // ***** ATTACK / HEAL ******** 
     // ****************************
 
     /**

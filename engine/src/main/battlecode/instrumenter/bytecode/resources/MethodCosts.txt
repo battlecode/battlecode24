@@ -66,6 +66,7 @@ battlecode/common/RobotController/getLevel                              1    tru
 battlecode/common/RobotController/getBreadAmount                        5    true
 battlecode/common/RobotController/senseNearbyFlags                      50   true
 battlecode/common/RobotController/senseBroadcastFlagLocations           100  true
+battlecode/common/RobotController/senseLegalStartingFlagPlacement       20   true
 battlecode/common/RobotController/getAllySpawnLocations                 20   true
 battlecode/common/RobotController/isSpawned                             1    true
 battlecode/common/RobotController/canSpawn                              10   true

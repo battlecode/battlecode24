@@ -2,8 +2,6 @@ package battlecode.common;
 
 import static battlecode.common.GameActionExceptionType.*;
 
-import java.util.Arrays;
-
 public class MapInfo {
 
 
@@ -21,8 +19,6 @@ public class MapInfo {
 
     private TrapType trapType;
 
-
-
     public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int breadAmount, TrapType trapType){
         this.loc = loc;
         this.isPassable = isPassable;
@@ -38,7 +34,6 @@ public class MapInfo {
             throw new GameActionException(CANT_DO_THAT, "Must pass valid team to get info about a space");
         }
     }
-
 
     /**
      * Returns if this square is passable.
@@ -107,7 +102,6 @@ public class MapInfo {
         return breadAmount;
     }
 
-
     /**
      * Returns the location of this square
      * 
@@ -118,9 +112,6 @@ public class MapInfo {
     public MapLocation getMapLocation() {
         return loc;
     }
-
-
-
 
     public String toString(){
         return "Location{" +

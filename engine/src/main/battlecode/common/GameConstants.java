@@ -6,7 +6,6 @@ package battlecode.common;
 @SuppressWarnings("unused")
 public class GameConstants {
 
-    //TODO: Let's organize this better but I'm lazy :)
     /**
      * The current spec version the server compiles with.
      */
@@ -35,11 +34,14 @@ public class GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The number of flags a player starts with. */
-    public static final int NUMBER_FLAGS = 3;
+    /** The default game seed. **/
+    public static final int GAME_DEFAULT_SEED = 6370;
 
-    /** health each robot starts with */
-    public static final int DEFAULT_HEALTH = 100;
+    /** The maximum number of rounds in a game.  **/
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
+
+    /** The maximum number of bytecodes a bot is allow to use in one turn */
+    public static final int BYTECODE_LIMIT = 20000;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
@@ -53,8 +55,29 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
+    /** health each robot starts with */
+    public static final int DEFAULT_HEALTH = 100;
+
     /** The total number of robots a team has (both despawned or spawned). */
     public static final int ROBOT_CAPACITY = 50;
+
+    // *********************************
+    // ****** GAME MECHANICS ***********
+    // *********************************
+
+    /** The number of flags a player starts with. */
+    public static final int NUMBER_FLAGS = 3;
+
+    /** Constants for dig and fill costs and cooldowns. */
+    public static final int DIG_COST = 2;
+    public static final int DIG_COOLDOWN = 20;
+    public static final int FILL_COST = 1;
+    public static final int FILL_COOLDOWN = 20;
+
+    /** Constants for flags */
+    public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
+    public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+    public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
 
     /** The initial amount of bread each team starts with. */
     public static final int INITIAL_BREAD_AMOUNT = 200;
@@ -74,6 +97,7 @@ public class GameConstants {
     /** Number of rounds robots must spend in jail before respawning */
     public static final int JAILED_ROUNDS = 10;
 
+    /** The maximum distance from a robot where information can be sensed */
     public static final int VISION_RADIUS_SQUARED = 20;
 
     public static final int ACTION_RADIUS_SQUARED = 4;
@@ -88,40 +112,15 @@ public class GameConstants {
     /** The number of cooldown turns reduced per turn. */
     public static final int COOLDOWNS_PER_TURN = 10;
 
+    /** The amount added to the movement cooldown counter when moving without a flag */
     public static final int MOVEMENT_COOLDOWN_INCREASE = 10;
 
+    /** The amount added to the movement cooldown counter when moving while carrying a flag  */
     public static final int FLAG_MOVEMENT_COOLDOWN_INCREASE = 20;
 
-    // *********************************
-    // ****** GAME MECHANICS ***********
-    // *********************************
-
-    /** Constants for attacking. */
+    /** The amount added to the action cooldown counter after attacking */
     public static final int ATTACK_COOLDOWN = 20;
 
-    /** Constants for healing. */
+    /** The amount added to the action cooldown counter after healing */
     public static final int HEAL_COOLDOWN = 20;
-
-    /** Constants for dig and fill costs and cooldowns. */
-    public static final int DIG_COST = 2;
-    public static final int DIG_COOLDOWN = 20;
-    public static final int FILL_COST = 1;
-    public static final int FILL_COOLDOWN = 20;
-
-    /** Constants for flags */
-    public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
-    public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
-    public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
-    
-    // *********************************
-    // ****** GAMEPLAY PROPERTIES ******
-    // *********************************
-
-    /** The default game seed. **/
-    public static final int GAME_DEFAULT_SEED = 6370;
-
-    /** The maximum number of rounds in a game.  **/
-    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
-
-    public static final int BYTECODE_LIMIT = 20000;
 }
