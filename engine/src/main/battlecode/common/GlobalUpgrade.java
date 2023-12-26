@@ -6,16 +6,6 @@ package battlecode.common;
  */
 
 public enum GlobalUpgrade {
-    /**
-     * (movement cost change, per round cooldown reduction increase, base heal increase, return dropped flag delay increase)
-     */
-
-    /**
-     * Speed upgrade decreases movement cost for all units by 2.
-     * 
-     * @battlecode.doc.globalupgrade
-     */
-    SPEED(-2, 0, 0, 0),
 
     /**
      * Action upgrade increases the amount cooldown drops per round by 6.
@@ -36,8 +26,7 @@ public enum GlobalUpgrade {
      * 
      * @battlecode.doc.globalupgrade
      */
-    CAPTURING(0, 0, 0, 8)
-    ;
+    CAPTURING(0, 0, 0, 8);
 
     /**
      * How much movement cost changes

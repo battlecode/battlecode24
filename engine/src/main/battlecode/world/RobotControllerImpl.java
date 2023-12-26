@@ -886,17 +886,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(ug == GlobalUpgrade.ACTION)
             i = 0;
         else if(ug == GlobalUpgrade.CAPTURING)
-            i=1;
+            i = 1;
         else if(ug == GlobalUpgrade.HEALING)
-            i=2;
-        else if (ug == GlobalUpgrade.SPEED)
-            i=3;
+            i = 2;
         boolean hasBought = this.gameWorld.getTeamInfo().getGlobalUpgrades(getTeam())[i];
         if (hasBought)
            throw new GameActionException(CANT_DO_THAT, "Cannot buy an upgrade you already have!");
         if (this.gameWorld.getTeamInfo().getGlobalUpgradePoints(getTeam()) <= 0)
             throw new GameActionException(CANT_DO_THAT, "Cannot buy an upgrade with no global upgrade points!");
-        
     }
 
     @Override

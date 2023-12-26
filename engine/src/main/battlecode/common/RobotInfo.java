@@ -74,7 +74,7 @@ public class RobotInfo {
         return this.location;
     }
 
-    public boolean getHasFlag() {
+    public boolean hasFlag() {
         return this.hasFlag;
     }
 

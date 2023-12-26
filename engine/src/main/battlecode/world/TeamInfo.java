@@ -16,8 +16,6 @@ public class TeamInfo {
 
     private GameWorld gameWorld;
     private int[] breadCounts; 
-    private int[] tierThree;
-    private int[] tierTwo;
     private int[][] sharedArrays; 
     private int[] totalFlagsCaptured;
     private int[] totalFlagsPickedUp;
@@ -37,9 +35,7 @@ public class TeamInfo {
         this.sharedArrays = new int[2][GameConstants.SHARED_ARRAY_LENGTH];
         this.totalFlagsCaptured = new int[2];
         this.oldBreadCounts = new int[2];
-        this.tierThree = new int[2];
-        this.tierTwo = new int[2];
-        this.globalUpgrades = new boolean[2][4];
+        this.globalUpgrades = new boolean[2][GlobalUpgrade.values().length];
         this.globalUpgradePoints = new int[2];
         this.totalFlagsPickedUp = new int[2];
     }
@@ -121,22 +117,17 @@ public class TeamInfo {
         if(this.globalUpgradePoints[team.ordinal()] > 0){
             if (upgrade == GlobalUpgrade.ACTION && !this.globalUpgrades[team.ordinal()][0]) {
                 this.globalUpgrades[team.ordinal()][0] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
+                this.globalUpgradePoints[team.ordinal()]--;
                 return true;
             }
             if (upgrade == GlobalUpgrade.CAPTURING && !this.globalUpgrades[team.ordinal()][1]) {
                 this.globalUpgrades[team.ordinal()][1] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
+                this.globalUpgradePoints[team.ordinal()]--;
                 return true;
             }
             if (upgrade == GlobalUpgrade.HEALING && !this.globalUpgrades[team.ordinal()][2]) {
                 this.globalUpgrades[team.ordinal()][2] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
-                return true;
-            }
-            if (upgrade == GlobalUpgrade.SPEED && !this.globalUpgrades[team.ordinal()][3]) {
-                this.globalUpgrades[team.ordinal()][3] = true;
-                this.globalUpgradePoints[team.ordinal()] --;
+                this.globalUpgradePoints[team.ordinal()]--;
                 return true;
             }
         }

@@ -282,7 +282,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.location = loc;
     }
 
-
     /**
      * Resets the action cooldown.
      */

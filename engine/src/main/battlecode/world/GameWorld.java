@@ -505,11 +505,6 @@ public strictfp class GameWorld {
     public MapLocation[] getSpawnLocations(Team team){
         return this.spawnLocations[team.ordinal()];
     }
-    
-
-    public int getMovementCooldown(Team team) {
-        return 10;
-    }
 
     public int getActionCooldown(Team team, SkillType skill){
         if (this.teamInfo.getGlobalUpgrades(team)[0]){
@@ -519,7 +514,6 @@ public strictfp class GameWorld {
             return skill.cooldown;
         }
     }
-
 
     // *********************************
     // ****** GAMEPLAY *****************
