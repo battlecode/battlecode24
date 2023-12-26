@@ -584,6 +584,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasTrap(loc)){
             throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
         }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't build while holding a flag");
+        }
     }
 
     @Override
@@ -615,6 +618,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
         if (getBreadAmount() < GameConstants.FILL_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't fill while holding a flag");
+        }
     }
 
     @Override
@@ -658,6 +664,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
+        if(this.robot.hasFlag())
+            throw new GameActionException(CANT_DO_THAT, "Can't dig while holding a flag");
     }
 
     @Override
@@ -698,6 +706,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (bot == null || bot.getTeam() == this.getTeam()) {
             throw new GameActionException(CANT_DO_THAT, "No enemy robot to attack at this location"); 
         }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't attack while holding a flag");
+        }
     }
 
     @Override
@@ -727,6 +738,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         if(this.gameWorld.getRobot(loc).getHealth() == GameConstants.DEFAULT_HEALTH) {
             throw new GameActionException(CANT_DO_THAT, "The robot at this location is at full health.");
+        }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't heal while holding a flag");
         }
     }
 
