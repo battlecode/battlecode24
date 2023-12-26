@@ -255,7 +255,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
     },
     [schema.Action.GLOBAL_UPGRADE]: class GlobalUpgrade extends Action {
         apply(turn: Turn): void {
-            // To dicuss
+            const team = turn.bodies.getById(this.robotID).team
+            turn.stat.getTeamStat(team).globalUpgrades.add(this.target)
         }
     }
 }
