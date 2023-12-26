@@ -104,7 +104,7 @@ public class TeamInfo {
      * @param team to query
      */
     public void incrementGlobalUpgradePoints(Team team){
-        this.globalUpgradePoints[team.ordinal()] ++;
+        this.globalUpgradePoints[team.ordinal()]++;
     }
 
     /**

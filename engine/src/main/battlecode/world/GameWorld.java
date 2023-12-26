@@ -520,10 +520,14 @@ public strictfp class GameWorld {
     // *********************************
 
     public void processBeginningOfRound() {
+        currentRound++;
+
         //Update flag broadcast locations after a certain number of rounds
         if(currentRound % GameConstants.FLAG_BROADCAST_UPDATE_INTERVAL == 0) updateFlagBroadcastLocations();
-
-        currentRound++;
+        if(currentRound != 0 && currentRound % GameConstants.GLOBAL_UPGRADE_ROUNDS == 0) {
+            teamInfo.incrementGlobalUpgradePoints(Team.A);
+            teamInfo.incrementGlobalUpgradePoints(Team.B);
+        }
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {

@@ -12,26 +12,21 @@ public enum GlobalUpgrade {
      * 
      * @battlecode.doc.globalupgrade
      */
-    ACTION(0, 6, 0, 0),
+    ACTION(6, 0, 0),
 
     /**
      * Healing increases base heal by 10.
      * 
      * @battlecode.doc.globalupgrade
      */
-    HEALING(0, 0, 10, 0),
+    HEALING(0, 10, 0),
 
     /**
      * Capture delays the return of a dropped flag by 8 rounds.
      * 
      * @battlecode.doc.globalupgrade
      */
-    CAPTURING(0, 0, 0, 8);
-
-    /**
-     * How much movement cost changes
-     */
-    public final int movementCostChange;
+    CAPTURING(0, 0, 8);
 
     /**
      * How much cooldown reduction changes
@@ -48,8 +43,7 @@ public enum GlobalUpgrade {
      */
     public final int flagReturnDelayChange;
 
-    GlobalUpgrade(int movementCostChange, int cooldownReductionChange, int baseHealChange, int flagReturnDelayChange){
-        this.movementCostChange = movementCostChange;
+    GlobalUpgrade(int cooldownReductionChange, int baseHealChange, int flagReturnDelayChange){
         this.cooldownReductionChange = cooldownReductionChange;
         this.baseHealChange = baseHealChange;
         this.flagReturnDelayChange = flagReturnDelayChange;
