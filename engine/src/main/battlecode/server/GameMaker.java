@@ -270,7 +270,7 @@ public strictfp class GameMaker {
             GameplayConstants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
             GameplayConstants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
             GameplayConstants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
-            GameplayConstants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
+            GameplayConstants.addActionRadius(builder, GameConstants.ATTACK_RADIUS_SQUARED);
             int constantsOffset = GameplayConstants.endGameplayConstants(builder);
 
             GameHeader.startGameHeader(builder);

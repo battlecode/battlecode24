@@ -150,16 +150,6 @@ public strictfp interface RobotController {
     boolean canSenseLocation(MapLocation loc);
 
     /**
-     * Checks whether the given location is within the robot's action range, and if it is on the map.
-     *
-     * @param loc the location to check
-     * @return true if the given location is within the robot's action range and is on the map; false otherwise
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canActLocation(MapLocation loc);
-
-    /**
      * Checks whether a robot is at a given location. Assumes the location is valid.
      *
      * @param loc the location to check

@@ -100,7 +100,14 @@ public class GameConstants {
     /** The maximum distance from a robot where information can be sensed */
     public static final int VISION_RADIUS_SQUARED = 20;
 
-    public static final int ACTION_RADIUS_SQUARED = 4;
+    /** The maximum distance for attacking an enemy robot */
+    public static final int ATTACK_RADIUS_SQUARED = 4;
+
+    /** The maximum distance for healing an ally robot */
+    public static final int HEAL_RADIUS_SQUARED = 4;
+
+    /** The maximum distnace for picking up / dropping flags, building traps, digging, and filling */
+    public static final int INTERACT_RADIUS_SQUARED = 2;
 
     // *********************************
     // ****** COOLDOWNS ****************

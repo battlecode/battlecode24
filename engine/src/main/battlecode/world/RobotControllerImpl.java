@@ -167,9 +167,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Target location not within vision range");
     }
 
-    private void assertCanActLocation(MapLocation loc) throws GameActionException {
+    private void assertCanActLocation(MapLocation loc, int maxRadius) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canActLocation(loc))
+        if (getLocation().distanceSquaredTo(loc) > maxRadius)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
         if (!this.gameWorld.getGameMap().onTheMap(loc))
@@ -181,14 +181,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canSenseLocation(MapLocation loc) {
         try {
             assertCanSenseLocation(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public boolean canActLocation(MapLocation loc) {
-        try {
-            assertCanActLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -572,7 +564,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanBuild(TrapType trap, MapLocation loc) throws GameActionException{
         assertNotNull(trap);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsActionReady();
         if (getBreadAmount() < trap.buildCost){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
@@ -616,7 +608,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
 
     private void assertCanFill(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
@@ -651,7 +643,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsActionReady();
         if (this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
@@ -699,7 +691,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanAttack(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.ATTACK_RADIUS_SQUARED);
         assertIsActionReady();
         InternalRobot bot = gameWorld.getRobot(loc);
         if (bot == null || bot.getTeam() == this.getTeam()) {
@@ -724,7 +716,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanHeal(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.HEAL_RADIUS_SQUARED);
         if(this.gameWorld.getRobot(loc) == null) {
             throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
         }
@@ -766,7 +758,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         if (!robot.hasFlag())
             throw new GameActionException(CANT_DO_THAT, 
                 "This robot is not holding a flag.");
@@ -774,7 +766,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!this.gameWorld.isPassable(loc))
         throw new GameActionException(CANT_DO_THAT, 
                 "A flag can't be placed at this location.");
-
     }
 
     @Override
@@ -784,7 +775,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return true;
         } catch (GameActionException e) { return false; }
     }
-    
 
     @Override
     public void dropFlag(MapLocation loc) throws GameActionException{
@@ -797,7 +787,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsSpawned();
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");

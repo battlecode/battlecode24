@@ -4,7 +4,6 @@ import battlecode.common.*;
 import battlecode.schema.Action;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The representation of a robot used by the server.
@@ -220,31 +219,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canMoveCooldown() {
         return this.movementCooldownTurns < GameConstants.COOLDOWN_LIMIT;
-    }
-
-    /**
-     * Returns the robot's action radius squared.
-     */
-    public int getActionRadiusSquared() {
-        return GameConstants.ACTION_RADIUS_SQUARED;
-    }
-
-    /**
-     * Returns whether this robot can perform actions on the given location.
-     * 
-     * @param toAct the MapLocation to act
-     */
-    public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
-    }
-
-    /**
-     * Returns whether this robot can act at a given radius away.
-     * 
-     * @param radiusSquared the distance squared to act
-     */
-    public boolean canActRadiusSquared(int radiusSquared) {
-        return radiusSquared <= getActionRadiusSquared();
     }
 
     /**

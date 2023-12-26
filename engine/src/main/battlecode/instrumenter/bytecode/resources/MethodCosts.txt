@@ -27,7 +27,6 @@ battlecode/common/RobotController/attack                                0    tru
 battlecode/common/RobotController/canAttack                             5    true
 battlecode/common/RobotController/canMove                               10   true
 battlecode/common/RobotController/canSenseLocation                      5    true
-battlecode/common/RobotController/canActLocation                        5    true
 battlecode/common/RobotController/canSenseRobot                         5    true
 battlecode/common/RobotController/canSenseRobotAtLocation               5    true
 battlecode/common/RobotController/canWriteSharedArray                   10   true
