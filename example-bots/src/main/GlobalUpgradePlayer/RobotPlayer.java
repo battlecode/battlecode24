@@ -1,9 +1,6 @@
 package GlobalUpgradePlayer;
 
 import java.util.Random;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import battlecode.common.*;
 
@@ -69,27 +66,5 @@ public class RobotPlayer {
             rc.buyGlobal(GlobalUpgrade.ACTION);
             System.out.println("Buying action upgrade at round " + rc.getRoundNum());
         }
-    }
-
-    private static void moveRandom(RobotController rc) throws GameActionException {
-        int b = rng.nextInt(8);
-        for(int i = 0; i < 8; i++){
-            if(rc.canMove(directions[(b+i)%8])){
-                rc.move(directions[(b+i)%8]);
-            }
-        }
-    }
-
-    public static MapLocation findClosestLocation(MapLocation start, List<MapLocation> locs) {
-        MapLocation minLoc = null;
-        int minDist = Integer.MAX_VALUE;
-        for (int i = 0; i < locs.size(); i++){
-            int dist = locs.get(i).distanceSquaredTo(start);
-            if(dist < minDist){
-                minLoc = locs.get(i);
-                minDist = dist;
-            }
-        }
-        return minLoc;
     }
 }

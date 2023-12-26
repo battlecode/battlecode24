@@ -129,6 +129,16 @@ public class RobotPlayer {
 
         rc.setIndicatorDot(rc.getLocation().add(Direction.NORTH), 200, 0, 0);
         rc.setIndicatorLine(rc.getLocation().add(Direction.WEST), rc.getLocation().add(Direction.EAST), 0, 0, 250);
+
+        if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+            rc.buyGlobal(GlobalUpgrade.ACTION);
+            System.out.println("Buying action upgrade at round " + rc.getRoundNum());
+        }
+
+        if(rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
+            rc.buyGlobal(GlobalUpgrade.CAPTURING);
+            System.out.println("Buying capturing upgrade at round " + rc.getRoundNum());
+        }
     }
 
     private static void moveRandom(RobotController rc) throws GameActionException {

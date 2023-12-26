@@ -26,7 +26,7 @@ public enum GlobalUpgrade {
      * 
      * @battlecode.doc.globalupgrade
      */
-    CAPTURING(0, 0, 8);
+    CAPTURING(0, 0, 4);
 
     /**
      * How much cooldown reduction changes

@@ -506,24 +506,14 @@ public strictfp class GameWorld {
         return this.spawnLocations[team.ordinal()];
     }
 
-    public int getActionCooldown(Team team, SkillType skill){
-        if (this.teamInfo.getGlobalUpgrades(team)[0]){
-            return GlobalUpgrade.ACTION.cooldownReductionChange + skill.cooldown;
-        }
-        else{
-            return skill.cooldown;
-        }
-    }
-
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
 
     public void processBeginningOfRound() {
-        currentRound++;
-
         //Update flag broadcast locations after a certain number of rounds
         if(currentRound % GameConstants.FLAG_BROADCAST_UPDATE_INTERVAL == 0) updateFlagBroadcastLocations();
+        currentRound++;
         if(currentRound != 0 && currentRound % GameConstants.GLOBAL_UPGRADE_ROUNDS == 0) {
             teamInfo.incrementGlobalUpgradePoints(Team.A);
             teamInfo.incrementGlobalUpgradePoints(Team.B);
@@ -692,7 +682,7 @@ public strictfp class GameWorld {
                     
                     //check if the opponent team has the additional flag return delay upgrade
                     if(this.teamInfo.getGlobalUpgrades(opponent_team)[1]){
-                        additional_delay += GlobalUpgrade.CAPTURING.flagReturnDelayChange;
+                        additional_delay = GlobalUpgrade.CAPTURING.flagReturnDelayChange;
                     }
                     
                     if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS + additional_delay)
