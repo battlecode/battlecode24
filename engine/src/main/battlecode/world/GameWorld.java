@@ -399,7 +399,7 @@ public strictfp class GameWorld {
                 break;
             case WATER:
                 for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.enterRadius)){
-                    if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(loc) != 0)
+                    if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(adjLoc) != 0 || getTrap(adjLoc) != null)
                         continue;
                     setWater(adjLoc);
                     matchMaker.addAction(-1, Action.DIG, locationToIndex(adjLoc));
