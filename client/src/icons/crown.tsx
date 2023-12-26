@@ -1,7 +1,8 @@
 import React from 'react'
 
-export const Crown = () => (
+export const Crown = ({ className }: { className?: string }) => (
     <svg
+        className={className}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 580 475"
         fill="#ffd43b"

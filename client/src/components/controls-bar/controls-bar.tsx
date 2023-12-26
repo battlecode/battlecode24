@@ -118,6 +118,10 @@ export const ControlsBar: React.FC = () => {
                 while (currentUPSBuffer.current.length > 0 && currentUPSBuffer.current[0] < Date.now() - 1000)
                     currentUPSBuffer.current.shift()
             }
+
+            if (appState.activeGame!.currentMatch!.currentTurn.isEnd() && appState.updatesPerSecond > 0) {
+                changePaused(true)
+            }
         }, SIMULATION_UPDATE_INTERVAL_MS)
 
         return () => {

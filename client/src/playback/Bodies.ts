@@ -325,7 +325,12 @@ export class Body {
         const pos = this.getInterpolatedCoords(match)
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentTurn.map.staticMap.dimension)
         if (this.dead) ctx.globalAlpha = 0.5
-        renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, this.hasFlag ? 1.1 : 1)
+        renderUtils.renderCenteredImageOrLoadingIndicator(
+            ctx,
+            getImageIfLoaded(this.imgPath),
+            renderCoords,
+            this.hasFlag ? 1.1 : 1
+        )
         ctx.globalAlpha = 1
 
         if (selected || hovered) this.drawPath(match, overlayCtx)
@@ -441,7 +446,7 @@ export class Body {
             `ID: ${this.id}`,
             `HP: ${this.hp}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
-            `Has Flag: ${this.hasFlag}`,
+            this.hasFlag ? 'Has Flag!' : '',
             `Attack Lvl: ${this.attackLevel} (${this.attacksPerformed} exp)`,
             `Build Lvl: ${this.buildLevel} (${this.buildsPerformed} exp)`,
             `Heal Lvl: ${this.healLevel} (${this.healsPerformed} exp)`,

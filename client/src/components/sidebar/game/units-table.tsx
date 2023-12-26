@@ -5,7 +5,8 @@ import { useListenEvent, EventType } from '../../../app-events'
 import { getImageIfLoaded, removeTriggerOnImageLoad, triggerOnImageLoad } from '../../../util/ImageLoader'
 import { TEAM_COLOR_NAMES } from '../../../constants'
 import { schema } from 'battlecode-schema'
-import assert from 'assert'
+import { TeamTurnStat } from '../../../playback/TurnStat'
+import { DoubleChevronUpIcon } from '../../../icons/chevron'
 
 interface UnitsIconProps {
     team: 0 | 1
@@ -62,25 +63,50 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     ]
 
     return (
-        <table className="my-2">
-            <thead>
-                <tr className="mb-4">
-                    <th className="pb-1"></th>
-                    {columns.map((column) => column[1])}
-                </tr>
-            </thead>
-            <tbody>
-                {data.map((dataRow, rowIndex) => (
-                    <tr key={rowIndex}>
-                        <th className="text-sm">{dataRow[0]}</th>
-                        {dataRow[1].map((value, colIndex) => (
-                            <td className="text-center text-sm" key={rowIndex + ':' + colIndex}>
-                                {value}
-                            </td>
-                        ))}
+        <>
+            <table className="my-2">
+                <thead>
+                    <tr className="mb-4">
+                        <th className="pb-1"></th>
+                        {columns.map((column) => column[1])}
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {data.map((dataRow, rowIndex) => (
+                        <tr key={rowIndex}>
+                            <th className="text-sm">{dataRow[0]}</th>
+                            {dataRow[1].map((value, colIndex) => (
+                                <td className="text-center text-sm" key={rowIndex + ':' + colIndex}>
+                                    {value}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <GlobalUpgradeSection teamStat={teamStat} />
+        </>
+    )
+}
+
+const GlobalUpgradeSection: React.FC<{ teamStat: TeamTurnStat | undefined }> = ({ teamStat }) => {
+    const upgradeTypes: [schema.GlobalUpgradeType, string][] = [
+        [schema.GlobalUpgradeType.ACTION_UPGRADE, 'Global Action Upgrade'],
+        [schema.GlobalUpgradeType.CAPTURING_UPGRADE, 'Global Capturing Upgrade'],
+        [schema.GlobalUpgradeType.HEALING_UPGRADE, 'Global Healing Upgrade']
+    ]
+    if (!teamStat) return <> </>
+    return (
+        <>
+            {upgradeTypes.map(
+                ([type, name]) =>
+                    teamStat.globalUpgrades.has(type) && (
+                        <div className="text-sm flex flex-row justify-center font-bold" key={type}>
+                            <DoubleChevronUpIcon />
+                            {name}
+                        </div>
+                    )
+            )}
+        </>
     )
 }

@@ -55,4 +55,8 @@ export default class Turn {
             this.stat.copy()
         )
     }
+
+    public isEnd() {
+        return this.turnNumber === this.match.maxTurn
+    }
 }

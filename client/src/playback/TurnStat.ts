@@ -3,12 +3,13 @@ import Game, { Team } from './Game'
 import assert from 'assert'
 import Turn from './Turn'
 
-class TeamTurnStat {
+export class TeamTurnStat {
     robots: [number, number, number, number] = [0, 0, 0, 0]
     specializationTotalLevels: [number, number, number, number] = [0, 0, 0, 0]
     totalHealth: [number, number, number, number] = [0, 0, 0, 0]
     resourceAmount: number = 0
     resourceAmountAverageDatapoint: number | undefined = undefined
+    globalUpgrades: Set<schema.GlobalUpgradeType> = new Set()
 
     copy(): TeamTurnStat {
         const newStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
@@ -17,6 +18,7 @@ class TeamTurnStat {
         newStat.robots = [...this.robots]
         newStat.specializationTotalLevels = [...this.specializationTotalLevels]
         newStat.totalHealth = [...this.totalHealth]
+        newStat.globalUpgrades = new Set(this.globalUpgrades)        
 
         return newStat
     }

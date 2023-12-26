@@ -3,7 +3,6 @@ import { useAppContext } from '../../../app-context'
 import { Button } from '../../button'
 import { FiUpload } from 'react-icons/fi'
 import Tournament, { JsonTournamentGame } from '../../../playback/Tournament'
-import { useSearchParamString } from '../../../app-search-params'
 
 interface TournamentPageProps {
     loadingRemoteTournament: boolean

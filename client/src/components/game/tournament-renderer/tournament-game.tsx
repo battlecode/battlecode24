@@ -5,7 +5,7 @@ import Game from '../../../playback/Game'
 import { PageType, usePage } from '../../../app-search-params'
 import { Pressable } from 'react-zoomable-ui'
 import { Crown } from '../../../icons/crown'
-import Tooltip from '../../tooltip';
+import Tooltip from '../../tooltip'
 
 interface Props {
     game: TournamentGame
@@ -72,6 +72,7 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
 
 const GameTeam: React.FC<{ game: TournamentGame; teamIdx: number }> = ({ game, teamIdx }) => {
     const dependsOn = game.dependsOn[teamIdx]
+    const otherDependsOn = game.dependsOn[1 - teamIdx]
     if (dependsOn && dependsOn.teams[dependsOn.winnerIndex] !== game.teams[teamIdx])
         throw new Error(
             `dependsOn winner does not match game teams at game ${game.id}, ${
@@ -79,7 +80,8 @@ const GameTeam: React.FC<{ game: TournamentGame; teamIdx: number }> = ({ game, t
             } !== ${game.teams[teamIdx]}`
         )
 
-    const gameBelowViewed = !dependsOn || dependsOn.viewed
+    const gameBelowViewed =
+        (!dependsOn && (!otherDependsOn || otherDependsOn.viewed)) || (dependsOn && dependsOn.viewed)
     const shownTeamName = game.viewed || gameBelowViewed ? game.teams[teamIdx] : '???'
     const teamWon = game.viewed && game.winnerIndex == teamIdx
     const teamLost = game.viewed && game.winnerIndex != teamIdx

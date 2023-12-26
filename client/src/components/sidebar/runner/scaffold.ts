@@ -166,6 +166,7 @@ async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
         mapFiles
             .filter((file) => file.endsWith(mapExtension))
             .map((file) => file.substring(0, file.length - mapExtension.length))
+            .map((file) => file.split(sep)[file.split(sep).length - 1])
             .concat(Array.from(SERVER_MAPS))
     )
 

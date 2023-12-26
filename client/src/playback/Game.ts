@@ -118,7 +118,7 @@ export default class Game {
         const event = wrapper.events(eventCount - 1, eventSlot) ?? assert.fail('Event was null')
         assert(event.eType() === schema.Event.GameFooter, 'Last event must be GameFooter')
         const gameFooter = event.e(new schema.GameFooter()) as schema.GameFooter
-        this.winner = this.teams[gameFooter.winner()]
+        this.winner = this.teams[gameFooter.winner() - 1]
 
         this.id = nextID++
     }
@@ -148,7 +148,7 @@ export class Team {
         public readonly name: string,
         public stats: TeamStat,
         public readonly id: number,
-        public readonly packageName: string,
+        public readonly packageName: string
     ) {
         this.colorName = TEAM_COLOR_NAMES[id - 1]
         this.color = TEAM_COLORS[id - 1]
