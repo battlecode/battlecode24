@@ -344,7 +344,7 @@ public strictfp class GameMaker {
         TIntArrayList globalUpgradeMetadataOffsets = new TIntArrayList();
         for(GlobalUpgrade upgrade : GlobalUpgrade.values()) {
             GlobalUpgradeMetadata.startGlobalUpgradeMetadata(builder);
-            GlobalUpgradeMetadata.addType(builder, globalUpgradeToGlobalUpgradeType(upgrade));
+            GlobalUpgradeMetadata.addType(builder, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(upgrade));
             GlobalUpgradeMetadata.addUpgradeAmount(builder, getUpgradeAmount(upgrade));
             globalUpgradeMetadataOffsets.add(GlobalUpgradeMetadata.endGlobalUpgradeMetadata(builder));
         }
@@ -362,13 +362,6 @@ public strictfp class GameMaker {
         if (type == TrapType.EXPLOSIVE) return BuildActionType.EXPLOSIVE_TRAP;
         if (type == TrapType.WATER) return BuildActionType.WATER_TRAP;
         if (type == TrapType.STUN) return BuildActionType.STUN_TRAP;
-        return Byte.MIN_VALUE;
-    }
-
-    private byte globalUpgradeToGlobalUpgradeType(GlobalUpgrade gu) {
-        if(gu == GlobalUpgrade.ACTION) return GlobalUpgradeType.ACTION_UPGRADE;
-        if(gu == GlobalUpgrade.HEALING) return GlobalUpgradeType.HEALING_UPGRADE;
-        if(gu == GlobalUpgrade.CAPTURING) return GlobalUpgradeType.CAPTURING_UPGRADE;
         return Byte.MIN_VALUE;
     }
 

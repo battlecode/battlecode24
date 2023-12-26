@@ -5,6 +5,7 @@ import battlecode.common.*;
 import static battlecode.common.GameActionExceptionType.*;
 import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
+import battlecode.util.FlatHelpers;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -909,6 +910,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void buyGlobal(GlobalUpgrade ug) throws GameActionException{
         assertCanBuyGlobal(ug);
         this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.GLOBAL_UPGRADE, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(ug));
     }
 
     @Override
