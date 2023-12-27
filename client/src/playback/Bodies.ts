@@ -122,10 +122,6 @@ export default class Bodies {
         for (let i = 0; i < delta.diedIdsLength(); i++) {
             const diedBody =
                 this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
-            if (!turn.stat.completed) {
-                const teamStat = turn.stat.getTeamStat(diedBody.team)
-                teamStat.robots[diedBody.getSpecialization().idx] -= 1
-            }
             diedBody.dead = true
         }
 
@@ -133,11 +129,14 @@ export default class Bodies {
             // calculate some stats that are completely recalculated every turn
             turn.stat.getTeamStat(this.game.teams[0]).specializationTotalLevels = [0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[0]).robots = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[1]).robots = [0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[0]).totalHealth = [0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[1]).totalHealth = [0, 0, 0, 0]
             for (const body of this.bodies.values()) {
                 const teamStat = turn.stat.getTeamStat(body.team)
                 teamStat.totalHealth[body.getSpecialization().idx] += body.hp
+                teamStat.robots[body.getSpecialization().idx] += 1
                 teamStat.specializationTotalLevels[1] += body.attackLevel
                 teamStat.specializationTotalLevels[2] += body.buildLevel
                 teamStat.specializationTotalLevels[3] += body.healLevel
@@ -198,7 +197,7 @@ export default class Bodies {
                 const teamStat =
                     stat.getTeamStat(this.game.getTeamByID(teams[i])) ??
                     assert.fail(`team ${i} not found in team stats in turn`)
-                teamStat.robots[newBody.getSpecialization().idx] += 1
+                // make team stat modifications based on types here (not really used for this game)
             }
         }
     }
