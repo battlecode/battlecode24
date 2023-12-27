@@ -120,10 +120,13 @@ public class GameConstants {
     public static final int COOLDOWNS_PER_TURN = 10;
 
     /** The amount added to the movement cooldown counter when moving without a flag */
-    public static final int MOVEMENT_COOLDOWN_INCREASE = 10;
+    public static final int MOVEMENT_COOLDOWN = 10;
 
     /** The amount added to the movement cooldown counter when moving while carrying a flag  */
-    public static final int FLAG_MOVEMENT_COOLDOWN_INCREASE = 20;
+    public static final int FLAG_MOVEMENT_COOLDOWN = 20;
+
+    /** The amount added to the action cooldown counter after picking up or dropping a flag */
+    public static final int PICKUP_DROP_COOLDOWN = 10;
 
     /** The amount added to the action cooldown counter after attacking */
     public static final int ATTACK_COOLDOWN = 20;

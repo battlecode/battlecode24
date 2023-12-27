@@ -293,7 +293,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        setMovementCooldownTurns(this.movementCooldownTurns + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN_INCREASE : GameConstants.MOVEMENT_COOLDOWN_INCREASE));
+        setMovementCooldownTurns(this.movementCooldownTurns + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
     }
 
     /**

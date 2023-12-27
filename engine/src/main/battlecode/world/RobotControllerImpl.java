@@ -772,6 +772,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
+        assertIsSpawned();
+        assertIsActionReady();
         if (!robot.hasFlag())
             throw new GameActionException(CANT_DO_THAT, 
                 "This robot is not holding a flag.");
@@ -795,6 +797,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Flag flag = robot.getFlag();
         this.gameWorld.addFlag(loc, flag);
         this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
+        this.robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         robot.removeFlag();   
     }
 
@@ -802,6 +805,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsSpawned();
+        assertIsActionReady();
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
@@ -846,6 +850,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
+        robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
         this.gameWorld.getTeamInfo().pickupFlag(getTeam());
     }
