@@ -411,7 +411,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
-            incrementSkill(SkillType.ATTACK);
+            if(!gameWorld.isSetupPhase()) incrementSkill(SkillType.ATTACK);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
     }
