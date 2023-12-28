@@ -12,7 +12,7 @@ public enum GlobalUpgrade {
      * 
      * @battlecode.doc.globalupgrade
      */
-    ACTION(6, 0, 0),
+    ACTION(4, 0, 0),
 
     /**
      * Healing increases base heal by 10.

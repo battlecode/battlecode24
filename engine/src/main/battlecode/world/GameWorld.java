@@ -742,8 +742,6 @@ public strictfp class GameWorld {
         addFlag(location, flag);
         matchMaker.addAction(flag.getId(), Action.PLACE_FLAG, locationToIndex(location));
         flag.setStartLoc(location);
-        if(water[locationToIndex(location)]) 
-            water[locationToIndex(location)] = false;
     }
     
     // *********************************
