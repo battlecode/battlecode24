@@ -54,7 +54,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the location of the robot
      * @param team the team of the robot
      */
-    @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, Team team) {
         this.gameWorld = gw;
 

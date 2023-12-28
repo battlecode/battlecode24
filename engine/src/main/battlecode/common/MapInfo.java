@@ -1,9 +1,6 @@
 package battlecode.common;
 
-import static battlecode.common.GameActionExceptionType.*;
-
 public class MapInfo {
-
 
     private MapLocation loc;
 
@@ -27,12 +24,6 @@ public class MapInfo {
         this.isWater = isWater;
         this.breadAmount = breadAmount;
         this.trapType = trapType;
-    }
-
-    private void assertValidTeam(Team team) throws GameActionException {
-        if (team != Team.A && team != Team.B) {
-            throw new GameActionException(CANT_DO_THAT, "Must pass valid team to get info about a space");
-        }
     }
 
     /**
@@ -123,7 +114,6 @@ public class MapInfo {
                 (breadAmount == 0 ? "" : ", bread=" + breadAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 '}';
-
     }
 
 }

@@ -485,11 +485,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                //this.gameWorld.triggerTrap(trap, this.robot, true);
                 this.robot.addTrapTrigger(trap, true);
             } else {
-               // this.gameWorld.triggerTrap(trap, this.robot, false);
-               this.robot.addTrapTrigger(trap, false);
+                this.robot.addTrapTrigger(trap, false);
             }
         }
         
@@ -581,8 +579,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (!this.gameWorld.isPassable(loc))
                 throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
         }
-        if (this.gameWorld.hasTrap(loc)){
-            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() == getTeam()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a friendly trap already on it.");
         }
         if(this.robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "Can't build while holding a flag");
@@ -603,9 +601,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void build(TrapType trap, MapLocation loc) throws GameActionException{
         assertCanBuild(trap, loc);
-        this.gameWorld.placeTrap(loc, trap, this.getTeam());
+
         this.robot.addResourceAmount(-1*(trap.buildCost));
         this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
+            return;
+        }
+
+        this.gameWorld.placeTrap(loc, trap, this.getTeam());
         if(!gameWorld.isSetupPhase()) this.robot.incrementSkill(SkillType.BUILD);
     }
 
@@ -640,7 +645,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setLand(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-           // this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
@@ -684,7 +688,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.setWater(loc);
 
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            //this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
 
