@@ -370,7 +370,7 @@ public strictfp interface RobotController {
     /**
      * Returns the locations of all invisible dropped enemy flags, accurate within a radius of sqrt(100) cells.
      * 
-     * @returns all location ranges containing invisible flags
+     * @return all location ranges containing invisible flags
      * 
      * @battlecode.doc.costlymethod
      **/
