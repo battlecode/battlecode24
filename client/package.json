@@ -12,28 +12,19 @@
         "tauri": "tauri",
         "clean": "rimraf dist",
         "electron-watch": "concurrently --kill-others \"npm run watch\" \"wait-on http://localhost:3000 && electron .\"",
-        "electron-pack": "electron-builder build --publish never",
+        "electron-pack": "set NODE_ENV=production && electron-builder build --publish never",
         "electron-build": "npm run build && npm run electron-pack"
     },
     "build": {
         "appId": "battlecode-client",
         "files": [
-            "**/*",
-            "dist/**/*",
-            "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
-            "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
-            "!**/node_modules/*.d.ts",
-            "!**/node_modules/.bin",
-            "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
-            "!.editorconfig",
-            "!**/._*",
-            "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
-            "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
-            "!**/{appveyor.yml,.travis.yml,circle.yml}",
-            "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
-            "icons/*"
+            "dist/bundle*",
+            "dist/index.html",
+            "dist/icon.ico",
+            "dist/static/**/*",
+            "icons/**/*",
+            "src-electron/**/*"
         ],
-        "includeSubNodeModules": true,
         "mac": {
             "icon": "icons/icon.icns"
         },
