@@ -8,7 +8,8 @@ public class MapInfo {
 
     private boolean isWall;
 
-    private int spawnZone; // 0 = Team A, 1 = Team B, -1 = not a spawn zone
+    //0 = Team A, 1 = Team B, -1 = not a spawn zone
+    private int spawnZone;
 
     private boolean isWater;
 

@@ -27,9 +27,11 @@ public enum SkillType{
 
 
     /**
-     * Returns the number of experience points needed to achieve each level
+     * Returns the number of experience points needed to achieve each level.
      * 
+     * @param level the level
      * @return number of experience points needed to achieve each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getExperience(int level){
@@ -45,10 +47,13 @@ public enum SkillType{
     }
 
     // NOTE: These are using percentages except for attack, standardize later
+
     /**
-     * Returns the change in cooldown for each level
+     * Returns the change in cooldown for each level.
      * 
+     * @param level the level
      * @return change in cooldown for each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getCooldown(int level){
@@ -64,10 +69,13 @@ public enum SkillType{
     }
 
     // ALL PERCENTAGES RN
+
     /**
      * Returns the change in skill effect for each level
      * 
+     * @param level the level
      * @return change in skill effect for each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getSkillEffect(int level){
@@ -85,7 +93,9 @@ public enum SkillType{
     /**
      * Returns the penalty of experience points from being jailed in each level
      * 
+     * @param level the level
      * @return penalty of experience points from being jailed in each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getPenalty(int level){
