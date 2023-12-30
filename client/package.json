@@ -18,7 +18,8 @@
     "build": {
         "asar":  false,
         "appId": "battlecode-client",
-        "productName": "Battlecode Client",
+        "productName": "BattlecodeClient",
+        "compression": "maximum",
         "fileAssociations": [
             {
                 "ext": "bc24",
@@ -35,7 +36,7 @@
                 "icon": "icons/icon"
             }
         ],
-        "artifactName": "battlecode24-client-${os}-${arch}",
+        "artifactName": "battlecode24-client-${os}-${arch}.${ext}",
         "mac": {
             "icon": "icons/icon.icns",
             "target": [
