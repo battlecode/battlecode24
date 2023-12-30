@@ -331,9 +331,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void jailedPenalty(){
         if(this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0) return;
-        if(this.buildExp > this.attackExp && this.buildExp > this.healExp) this.buildExp -= SkillType.BUILD.getPenalty(this.getLevel(SkillType.BUILD));
-        else if (this.attackExp > this.healExp && this.attackExp > this.healExp) this.attackExp -= SkillType.ATTACK.getPenalty(this.getLevel(SkillType.ATTACK));
-        else this.healExp -= SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
+        if(this.buildExp > this.attackExp && this.buildExp > this.healExp) this.buildExp += SkillType.BUILD.getPenalty(this.getLevel(SkillType.BUILD));
+        else if (this.attackExp > this.healExp && this.attackExp > this.buildExp) this.attackExp += SkillType.ATTACK.getPenalty(this.getLevel(SkillType.ATTACK));
+        else this.healExp += SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
     }
 
     /**
