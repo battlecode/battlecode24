@@ -19,7 +19,6 @@
         "asar":  false,
         "appId": "battlecode-client",
         "productName": "Battlecode Client",
-        "compression": "maximum",
         "fileAssociations": [
             {
                 "ext": "bc24",
