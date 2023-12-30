@@ -153,31 +153,10 @@ task prodClient {
       commandLine 'npm', 'run', 'electron-build' 
       workingDir 'client'
     }
-    fileTree('client/dist').visit { FileVisitDetails fvd ->
-      if (fvd.directory && fvd.getRelativePath().getSegments().length < 3) {
-        println fvd
-      }
-    }
   }
 }
 
-// task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-//   from fileTree('client/dist/win-unpacked')
-// }
-
-// task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-//   from fileTree('client/dist/mac')
-// }
-
-// task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-//   from fileTree('client/dist/linux-unpacked')
-// }
-
-// task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-//   from fileTree('client/dist/win-ia32-unpacked')
-// }
-
-def distDirPrefix = 'client/dist/battlecode24-client-'
+def packagedDirPrefix = 'client/packaged/battlecode24-client-'
 
 publishing {
   publications {
@@ -202,10 +181,9 @@ publishing {
       artifactId 'battlecode24-client-win'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (distDirPrefix + 'win-x64.zip') {
+      artifact (packagedDirPrefix + 'win-x64.zip') {
         builtBy prodClient
       }
-      // artifact releaseClientWin
     }
 
     clientMac(MavenPublication) {
@@ -213,10 +191,9 @@ publishing {
       artifactId 'battlecode24-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (distDirPrefix + 'mac-x64.zip') {
+      artifact (packagedDirPrefix + 'mac-x64.zip') {
         builtBy prodClient
       }
-      // artifact releaseClientMac
     }
 
     clientLinux(MavenPublication) {
@@ -224,10 +201,9 @@ publishing {
       artifactId 'battlecode24-client-linux-x64'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (distDirPrefix + 'linux-x64.zip') {
+      artifact (packagedDirPrefix + 'linux-x64.zip') {
         builtBy prodClient
       }
-      // artifact releaseClientLinux
     }
 
     clientWin32(MavenPublication) {
@@ -235,10 +211,9 @@ publishing {
       artifactId 'battlecode24-client-win-32'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (distDirPrefix + 'win-ia32.zip') {
+      artifact (packagedDirPrefix + 'win-ia32.zip') {
         builtBy prodClient
       }
-      // artifact releaseClientWin32
     }
   }
 }
