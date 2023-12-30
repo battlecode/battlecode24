@@ -161,21 +161,21 @@ task prodClient {
   }
 }
 
-task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-unpacked')
-}
+// task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
+//   from fileTree('client/dist/win-unpacked')
+// }
 
-task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/mac')
-}
+// task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
+//   from fileTree('client/dist/mac')
+// }
 
-task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/linux-unpacked')
-}
+// task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
+//   from fileTree('client/dist/linux-unpacked')
+// }
 
-task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-ia32-unpacked')
-}
+// task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
+//   from fileTree('client/dist/win-ia32-unpacked')
+// }
 
 def distDirPrefix = 'client/dist/battlecode24-client-'
 
@@ -213,7 +213,7 @@ publishing {
       artifactId 'battlecode24-client-mac'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (distDirPrefix + 'mac') {
+      artifact (distDirPrefix + 'mac-x64.zip') {
         builtBy prodClient
       }
       // artifact releaseClientMac
