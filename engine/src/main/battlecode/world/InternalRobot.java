@@ -341,15 +341,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void incrementSkill(SkillType skill){
         if(skill == SkillType.BUILD)
-            if(this.buildExp < skill.getExperience(2) || (getLevel(SkillType.HEAL) < 3 && getLevel(SkillType.ATTACK) < 3)){
+            if(this.buildExp < skill.getExperience(3) || (getLevel(SkillType.HEAL) < 4 && getLevel(SkillType.ATTACK) < 4)){
                 this.buildExp ++;
             }
         if(skill == SkillType.HEAL)
-            if(this.healExp < skill.getExperience(2) || (getLevel(SkillType.BUILD) < 3 && getLevel(SkillType.ATTACK) < 3)){
+            if(this.healExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.ATTACK) < 4)){
                 this.healExp ++;
             }
         if(skill == SkillType.ATTACK)
-            if(this.attackExp < skill.getExperience(2) || (getLevel(SkillType.BUILD) < 3 && getLevel(SkillType.HEAL) < 3)){
+            if(this.attackExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.HEAL) < 4)){
                 this.attackExp ++;
             }
     }
