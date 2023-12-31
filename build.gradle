@@ -145,6 +145,7 @@ task release_sources(type: Jar, dependsOn: classes) {
 
 task prodClient {
   doLast {
+    /*
     exec {
       commandLine 'npm', 'install'
       workingDir 'client'
@@ -153,10 +154,12 @@ task prodClient {
       commandLine 'npm', 'run', 'electron-build' 
       workingDir 'client'
     }
+      */
   }
 }
 
-def packagedDirPrefix = 'client/packaged/battlecode24-client-'
+def electronDirPrefix = 'client/packaged-electron/battlecode24-client-'
+def tauriDirPrefix = 'client/packaged-tauri/'
 
 publishing {
   publications {
@@ -176,44 +179,84 @@ publishing {
       }
     }
 
-    clientWin(MavenPublication) {
+    // Tauri
+
+    /*
+    clientWinTauri(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode24-client-win'
+      artifactId 'battlecode24-client-win-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (packagedDirPrefix + 'win-x64.zip') {
+      artifact (tauriDirPrefix + 'win-x64.zip') {
+        builtBy prodClient
+      }
+    }
+*/
+
+    clientMacTauri(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode24-client-mac-tauri'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact (tauriDirPrefix + 'mac-x64.zip') {
         builtBy prodClient
       }
     }
 
-    clientMac(MavenPublication) {
+    /*
+    clientLinuxTauri(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode24-client-mac'
+      artifactId 'battlecode24-client-linux-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (packagedDirPrefix + 'mac-x64.zip') {
+      artifact (tauriDirPrefix + 'linux-x64.zip') {
+        builtBy prodClient
+      }
+    }
+*/
+
+    // Electron
+
+    /*
+    clientWinElectron(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode24-client-win-electron'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact (electronDirPrefix + 'win-x64.zip') {
         builtBy prodClient
       }
     }
 
-    clientLinux(MavenPublication) {
+    clientMacElectron(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode24-client-linux-x64'
+      artifactId 'battlecode24-client-mac-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (packagedDirPrefix + 'linux-x64.zip') {
+      artifact (electronDirPrefix + 'mac-x64.zip') {
         builtBy prodClient
       }
     }
 
-    clientWin32(MavenPublication) {
+    clientLinuxElectron(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode24-client-win-32'
+      artifactId 'battlecode24-client-linux-electron'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact (electronDirPrefix + 'linux-x64.zip') {
+        builtBy prodClient
+      }
+    }
+
+    clientWin32Electron(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode24-client-win-32-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact (packagedDirPrefix + 'win-ia32.zip') {
         builtBy prodClient
       }
     }
+      */
   }
 }

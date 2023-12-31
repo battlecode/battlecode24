@@ -9,8 +9,9 @@
         "watch": "set NODE_ENV=development && webpack serve --config webpack.config.js --mode development --env dev",
         "prod-watch": "set NODE_ENV=production && webpack serve --config webpack.config.js --mode production",
         "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production",
-        "tauri": "tauri",
         "clean": "rimraf dist packaged",
+        "tauri-watch": "tauri dev",
+        "tauri-build": "tauri build",
         "electron-watch": "concurrently --kill-others \"npm run watch\" \"wait-on http://localhost:3000 && electron .\"",
         "electron-pack": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build -mwl --publish never",
         "electron-pack-linux": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build -l --publish never",
@@ -22,7 +23,7 @@
         "productName": "BattlecodeClient",
         "compression": "store",
         "directories": {
-            "output": "packaged"
+            "output": "packaged-electron"
         },
         "fileAssociations": [
             {
@@ -120,7 +121,6 @@
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
         "react-router-dom": "^6.13.0",
-        "recharts": "^2.6.2",
         "react-zoomable-ui": "^0.11.0"
     },
     "devDependencies": {
