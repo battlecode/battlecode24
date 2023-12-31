@@ -29,13 +29,13 @@ jobs:
         include:
           - platform-name: "macos-latest-large"
             tauri-name: "macos"
-            tauri-args: "-t universal-apple-darwin"
+            tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
          #   tauri-name: "deb"
-         #   tauri-args: ""
+         #   tauri-target: "x86_64-unknown-linux-gnu"
          # - platform-name: "windows-latest"
          #   tauri-name: "windows"
-         #   tauri-args: ""
+         #   tauri-target: "x86_64-pc-windows-msvc"
     runs-on: ${{ matrix.platform-name }}
 
     steps:
@@ -46,7 +46,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
 
       - name: Set up Rust cache
         uses: swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
@@ -63,14 +62,14 @@ jobs:
         working-directory: ./client
 
       - name: Build client
-        run: CI=true npm run tauri-build ${{ matrix.tauri-args }}
+        run: CI=true npm run tauri-build -- -t ${{ matrix.tauri-target }}
         working-directory: ./client
       
       - name: Upload client artifact
         uses: actions/upload-artifact@v3
         with:
           name: client-${{ matrix.tauri-name }}
-          path: ./client/src-tauri/target/release/bundle/${{ matrix.tauri-name }}
+          path: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
 
   release-primary:
     name: Primary Release
@@ -141,7 +140,6 @@ jobs:
           #        uses: actions/setup-node@v3
           #        with:
           #          node-version: 16
-          #          cache: npm
           #
           #      - name: Install schema
           #        run: npm install
