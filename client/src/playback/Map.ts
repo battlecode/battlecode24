@@ -5,7 +5,15 @@ import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'
 import { DividerBrush, ResourcePileBrush, SpawnZoneBrush, WallsBrush, WaterBrush } from './Brushes'
-import { DIVIDER_COLOR, GRASS_COLOR, WALLS_COLOR, WATER_COLOR, TEAM_COLORS, BUILD_NAMES } from '../constants'
+import {
+    DIVIDER_COLOR,
+    GRASS_COLOR,
+    WALLS_COLOR,
+    WATER_COLOR,
+    TEAM_COLORS,
+    BUILD_NAMES,
+    TEAM_COLOR_NAMES
+} from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
 import { ClientConfig } from '../client-config'
@@ -237,6 +245,36 @@ export class CurrentMap {
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(file), coords, 0.8)
             ctx.globalAlpha = 1
         }
+    }
+
+    getTooltipInfo(square: Vector): string[] {
+        const schemaIdx = this.locationToIndex(square.x, square.y)
+        const resourcePile = this.resourcePileData.get(schemaIdx)
+        const trap = [...this.trapData.values()].find((x) => x.location.x == square.x && x.location.y == square.y)
+        const flag = [...this.flagData.values()].find((x) => x.location.x == square.x && x.location.y == square.y)
+        const water = this.water[schemaIdx]
+        const divider = this.staticMap.divider[schemaIdx]
+        const walls = this.staticMap.walls[schemaIdx]
+        const info: string[] = []
+        if (resourcePile) {
+            info.push(`Crumbs: ${resourcePile.amount}`)
+        }
+        if (trap) {
+            info.push(`${TEAM_COLOR_NAMES[trap.team]} ${BUILD_NAMES[trap.type]} trap`)
+        }
+        if (flag) {
+            info.push(`${TEAM_COLOR_NAMES[flag.team]} flag`)
+        }
+        if (water) {
+            info.push(`Water`)
+        }
+        if (divider) {
+            info.push(`Divider`)
+        }
+        if (walls) {
+            info.push(`Walls`)
+        }
+        return info
     }
 
     getEditorBrushes() {
