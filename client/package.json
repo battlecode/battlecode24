@@ -1,6 +1,6 @@
 {
     "name": "battlecode-client",
-    "version": "2024.0.0",
+    "version": "24.0.0",
     "description": "Battlecode client",
     "main": "src-electron/electron-main.js",
     "scripts": {
