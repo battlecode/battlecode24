@@ -99,7 +99,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: release-tauri
+    needs: build-client
     permissions:
       contents: read
       id-token: write
