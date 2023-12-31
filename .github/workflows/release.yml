@@ -55,11 +55,11 @@ jobs:
         with:
           node-version: 16
 
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248
-        with:
-          toolchain: stable
-          targets: aarch64-apple-darwin
+      # Rust toolchain is preinstalled on runner images, but we need to add the arm64
+      # toolchain on macos to compile universal apps from the x86 runner
+      - name: Install arm64 rust toolchain
+        if: matrix.build-name == "macos"
+        run: rustup target add aarch64-apple-darwin
 
       - name: Install schema
         run: npm install
