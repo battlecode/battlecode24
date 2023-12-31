@@ -176,8 +176,8 @@ export const ControlsBar: React.FC = () => {
     const atEnd = match.currentTurn.turnNumber == match.maxTurn
 
     return (
-        <div className="flex absolute bottom-0 rounded-t-md z-10">
-            <Tooltip text={minimized ? 'Open Controls (c)' : 'Close Controls (c)'}>
+        <div className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none">
+            <Tooltip text={minimized ? 'Open Controls (c)' : 'Close Controls (c)'} wrapperClass="pointer-events-auto">
                 <button
                     className={
                         (minimized ? 'text-darkHighlight opacity-90' : 'ml-[1px] text-white') +
@@ -190,7 +190,7 @@ export const ControlsBar: React.FC = () => {
             </Tooltip>
             <div
                 className={
-                    (minimized ? 'opacity-10 pointer-events-none' : 'opacity-90') +
+                    (minimized ? 'opacity-10 pointer-events-none' : 'opacity-90 pointer-events-auto') +
                     ' flex bg-darkHighlight text-white p-1.5 rounded-t-md z-10 gap-1.5 relative'
                 }
             >

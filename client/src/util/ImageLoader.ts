@@ -7,6 +7,12 @@ const loadedImgCache = new Map<string, HTMLImageElement>()
 const onLoadCallbacks = new Map<string, (() => void)[]>()
 
 /**
+ * @param path the path of the image
+ * @returns the full path to the image
+ */
+export const imageSource = (path: string) => `${IMAGE_DIRECTORY}${path}`
+
+/**
  * @param path the path of the image to load
  * @returns a promise that resolves to the image once the image has been loaded
  */
@@ -14,7 +20,7 @@ export const loadImage = (path: string): Promise<HTMLImageElement> => {
     if (imgCache.has(path)) return imgCache.get(path)!
 
     const img = new Image()
-    img.src = IMAGE_DIRECTORY + path
+    img.src = imageSource(path)
 
     const loading = new Promise<HTMLImageElement>((resolve, reject) => {
         img.onload = () => {
