@@ -704,6 +704,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(this.robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "Can't attack while holding a flag");
         }
+        if(gameWorld.isSetupPhase()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack during setup phase");
+        }
     }
 
     @Override

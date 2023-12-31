@@ -563,40 +563,16 @@ public strictfp class GameWorld {
     }
 
     /**
-     * @return whether a team has more tier three units
+     * @return whether a team has a higher total robot level
      */
-    public boolean setWinnerIfMoreTierThree(){
-        int[] totalTierThree = new int[2];
-
-        // consider team reserves
-        totalTierThree[Team.A.ordinal()] += this.teamInfo.getTierThree(Team.A);
-        totalTierThree[Team.B.ordinal()] += this.teamInfo.getTierThree(Team.B);
-        
-        if (totalTierThree[Team.A.ordinal()] > totalTierThree[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.TIER_THREE);
-            return true;
-        } else if (totalTierThree[Team.B.ordinal()] > totalTierThree[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.TIER_THREE);
+    public boolean setWinnerIfGreaterLevelSum() {
+        int sumA = teamInfo.getLevelSum(Team.A), sumB = teamInfo.getLevelSum(Team.B);
+        if(sumA > sumB) {
+            setWinner(Team.A, DominationFactor.LEVEL_SUM);
             return true;
         }
-        return false;
-    }
-
-    /**
-     * @return whether a team has more tier two units
-     */
-    public boolean setWinnerIfMoreTierTwo(){
-        int[] totalTierTwo = new int[2];
-
-        // consider team reserves
-        totalTierTwo[Team.A.ordinal()] += this.teamInfo.getTierTwo(Team.A);
-        totalTierTwo[Team.B.ordinal()] += this.teamInfo.getTierTwo(Team.B);
-        
-        if (totalTierTwo[Team.A.ordinal()] > totalTierTwo[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.TIER_TWO);
-            return true;
-        } else if (totalTierTwo[Team.B.ordinal()] > totalTierTwo[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.TIER_TWO);
+        else if(sumB > sumA) {
+            setWinner(Team.B, DominationFactor.LEVEL_SUM);
             return true;
         }
         return false;
@@ -659,8 +635,7 @@ public strictfp class GameWorld {
     public void checkEndOfMatch() {
         if (timeLimitReached() && gameStats.getWinner() == null) {
             if (setWinnerIfMoreFlags()) return;
-            if (setWinnerIfMoreTierThree()) return;
-            if (setWinnerIfMoreTierTwo()) return;
+            if (setWinnerIfGreaterLevelSum()) return;
             if (setWinnerIfMoreBread()) return;
             if (setWinnerIfMoreFlagsPickedUp()) return;
 

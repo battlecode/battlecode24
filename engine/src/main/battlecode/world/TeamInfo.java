@@ -231,6 +231,18 @@ public class TeamInfo {
         return robots.size();
     }
 
+    public int getLevelSum(Team team) {
+        SkillType[] skills = {SkillType.HEAL, SkillType.ATTACK, SkillType.BUILD};
+        int sum = 0;
+        for(InternalRobot robot : gameWorld.getObjectInfo().robots()){
+            if(robot.getTeam() != team) continue;
+            for(SkillType s : skills) {
+                sum += robot.getLevel(s);
+            }
+        }
+        return sum;
+    }
+
     /**
      * Sets an index in the team's shared array to a given value.
      *
