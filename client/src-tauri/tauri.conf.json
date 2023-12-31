@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Battlecode Client",
-    "version": "0.1.0"
+    "version": "2024.0.0"
   },
   "tauri": {
     "allowlist": {
