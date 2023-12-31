@@ -95,12 +95,10 @@ jobs:
       
       - name: Upload client artifact
         uses: actions/upload-artifact@v3
-        working-directory: ./client/packaged-client
         with:
           name: client-${{ matrix.build-name }}
           path: |
-            ./tauri-output.zip
-            ./electron-output.zip
+            ./client/packaged-client/*-output.zip
 
   release:
     name: Release
