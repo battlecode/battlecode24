@@ -1,5 +1,6 @@
 */node_modules/
 dist/
+packaged-electron/
 examples/
 *.bc*
 **/.DS_Store

@@ -11,11 +11,12 @@
         "build": "set NODE_ENV=production && webpack build --config webpack.config.js --mode production",
         "clean": "rimraf dist packaged",
         "zip": "bestzip",
+        "concurrently": "concurrently",
         "tauri-watch": "tauri dev",
-        "tauri-build": "tauri build",
+        "tauri-pack": "tauri build",
+        "tauri-build": "npm run build && npm run tauri-pack",
         "electron-watch": "concurrently --kill-others \"npm run watch\" \"wait-on http://localhost:3000 && electron .\"",
-        "electron-pack": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build -mwl --publish never",
-        "electron-pack-linux": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build -l --publish never",
+        "electron-pack": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false NODE_ENV=production electron-builder build --publish never",
         "electron-build": "npm run build && npm run electron-pack"
     },
     "build": {
@@ -42,14 +43,14 @@
                 "icon": "icons/icon"
             }
         ],
-        "artifactName": "battlecode24-client-${os}-${arch}.${ext}",
+        "artifactName": "electron-output.${ext}",
         "mac": {
             "icon": "icons/icon.icns",
             "target": [
                 {
                     "target": "zip",
                     "arch": [
-                        "x64"
+                        "universal"
                     ]
                 }
             ],
@@ -62,8 +63,7 @@
                 {
                     "target": "zip",
                     "arch": [
-                        "x64",
-                        "ia32"
+                        "x64"
                     ]
                 }
             ]
