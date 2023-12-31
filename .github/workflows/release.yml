@@ -55,12 +55,6 @@ jobs:
           toolchain: stable
           targets: aarch64-apple-darwin
 
-      - name: Set up Rust cache
-        uses: swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
-        with:
-          shared-key: ${{ matrix.platform-name }}
-          workspaces: './client/src-tauri -> target'
-
       - name: Install schema
         run: npm install
         working-directory: ./schema
