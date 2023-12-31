@@ -27,12 +27,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform-name: "macos-latest"
+          - platform-name: "macos-latest-large"
             tauri-name: "macos"
+            tauri-args: "-t universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
-         #    tauri-name: "deb"
+         #   tauri-name: "deb"
+         #   tauri-args: ""
          # - platform-name: "windows-latest"
-         #    tauri-name: "windows"
+         #   tauri-name: "windows"
+         #   tauri-args: ""
     runs-on: ${{ matrix.platform-name }}
 
     steps:
@@ -60,7 +63,7 @@ jobs:
         working-directory: ./client
 
       - name: Build client
-        run: CI=true npm run tauri-build
+        run: CI=true npm run tauri-build ${{ matrix.tauri-args }}
         working-directory: ./client
       
       - name: Upload client artifact
