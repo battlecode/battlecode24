@@ -12,7 +12,7 @@ export const GamePage: React.FC = () => {
     const context = useAppContext()
     const activeGame = context.state.activeGame
 
-    const teamBoxClasses = 'w-full h-[50px] flex items-center text-center justify-center'
+    const teamBoxClasses = 'w-full h-[40px] flex items-center text-center justify-center'
 
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
 
@@ -41,11 +41,11 @@ export const GamePage: React.FC = () => {
             </div>
             <UnitsTable team={0} />
 
-            <div className="h-[30px]" />
+            <div className="h-[15px]" />
 
             <div className={teamBoxClasses + ' bg-team1'}>
                 <p className="flex">
-                    {activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}1
+                    {activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}
                     {activeGame && activeGame.winner === activeGame.teams[1] && showWinner && (
                         <Crown className="ml-2 mt-1" />
                     )}
@@ -57,7 +57,7 @@ export const GamePage: React.FC = () => {
                 title="Stats"
                 open={showStats}
                 onClick={() => setShowStats(!showStats)}
-                containerClassName="mt-5"
+                containerClassName="mt-2"
                 titleClassName="mb-3 py-2"
             >
                 {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into

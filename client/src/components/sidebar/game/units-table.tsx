@@ -55,7 +55,6 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
     const totalCount = Math.max(teamStat?.robots.reduce((a, b) => a + b) ?? 0, 1)
     const data: Array<[string, Array<number>]> = [
         ['Count', teamStat?.robots ?? [0, 0, 0, 0]],
-        ['Σ(HP)', teamStat?.totalHealth ?? [0, 0, 0, 0]],
         [
             'Avg. Level',
             teamStat?.specializationTotalLevels.map((c) => Math.round((c / totalCount) * 100) / 100) ?? [0, 0, 0, 0]
@@ -64,9 +63,9 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
 
     return (
         <>
-            <table className="my-2">
+            <table className="my-1">
                 <thead>
-                    <tr className="mb-4">
+                    <tr className="mb-2">
                         <th className="pb-1"></th>
                         {columns.map((column) => column[1])}
                     </tr>
@@ -74,9 +73,9 @@ export const UnitsTable: React.FC<UnitsTableProps> = (props: UnitsTableProps) =>
                 <tbody>
                     {data.map((dataRow, rowIndex) => (
                         <tr key={rowIndex}>
-                            <th className="text-sm">{dataRow[0]}</th>
+                            <th className="text-xs">{dataRow[0]}</th>
                             {dataRow[1].map((value, colIndex) => (
-                                <td className="text-center text-sm" key={rowIndex + ':' + colIndex}>
+                                <td className="text-center text-xs" key={rowIndex + ':' + colIndex}>
                                     {value}
                                 </td>
                             ))}

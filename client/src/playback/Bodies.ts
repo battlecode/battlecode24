@@ -131,11 +131,8 @@ export default class Bodies {
             turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[0]).robots = [0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[1]).robots = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[0]).totalHealth = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[1]).totalHealth = [0, 0, 0, 0]
             for (const body of this.bodies.values()) {
                 const teamStat = turn.stat.getTeamStat(body.team)
-                teamStat.totalHealth[body.getSpecialization().idx] += body.hp
                 teamStat.robots[body.getSpecialization().idx] += 1
                 teamStat.specializationTotalLevels[1] += body.attackLevel
                 teamStat.specializationTotalLevels[2] += body.buildLevel
