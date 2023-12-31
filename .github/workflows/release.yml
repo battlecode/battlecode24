@@ -58,7 +58,7 @@ jobs:
       # Rust toolchain is preinstalled on runner images, but we need to add the arm64
       # toolchain on macos to compile universal apps from the x86 runner
       - name: Install arm64 rust toolchain
-        if: startsWith(matrix.platform-name, "macos")
+        if: startsWith(matrix.platform-name, 'macos')
         run: rustup target add aarch64-apple-darwin
 
       - name: Install schema
