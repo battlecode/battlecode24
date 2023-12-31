@@ -40,7 +40,7 @@ jobs:
     env:
       RELEASE_VERSION: ${{ github.ref_name }}
       TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
-      TAURI_CONFIG: "{\"package\": {\"version\": \"${{ env.RELEASE_VERSION }}\"}}"
+      TAURI_CONFIG: "{\"package\": {\"version\": \"${{ github.ref_name }}\"}}"
       TAURI_BUILD_COMMAND: CI=true npm run tauri-pack -- -t ${{ matrix.tauri-target }}
       ELECTRON_BUILD_COMMAND: npm run electron-pack
 
