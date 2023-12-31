@@ -11,7 +11,7 @@ function getChartData(appContext: AppContext): number[][][] {
         return []
     }
 
-    const emptyHist = Array(7).fill(3)
+    const emptyHist = Array(7).fill(0)
     const totals = [
         [[...emptyHist], [...emptyHist], [...emptyHist]],
         [[...emptyHist], [...emptyHist], [...emptyHist]]
@@ -26,10 +26,16 @@ function getChartData(appContext: AppContext): number[][][] {
     return totals
 }
 
-export const SpecialtyHistogram: React.FC = () => {
+interface SpecialtyHistogramProps {
+    active: boolean
+}
+
+export const SpecialtyHistogram: React.FC<SpecialtyHistogramProps> = (props) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    useListenEvent(EventType.TURN_PROGRESS, () => {
+        if (props.active) forceUpdate()
+    })
 
     const data = getChartData(appContext)
 

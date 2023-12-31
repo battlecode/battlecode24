@@ -138,17 +138,17 @@ export const Sidebar: React.FC = () => {
                 autoHeightMin={height}
             >
                 <div className="flex flex-col gap-2 p-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                         {open && (
-                            <p className="p-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
+                            <p className="px-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
                         )}
-                        <div className="flex gap-3">
+                        <div className="flex">
                             <button
                                 onClick={() => setOpen(!open)}
-                                className="p-2 hover:bg-lightHighlight rounded-md"
+                                className="p-1 hover:bg-lightHighlight rounded-md"
                                 style={{
-                                    width: '40px',
-                                    height: '40px'
+                                    width: '30px',
+                                    height: '30px'
                                 }}
                             >
                                 {open ? <BsChevronLeft className="mx-auto font-bold stroke-2" /> : <ThreeBarsIcon />}

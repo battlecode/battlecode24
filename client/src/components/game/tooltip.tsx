@@ -4,15 +4,18 @@ import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
 import { Body } from '../../playback/Bodies'
 import { ThreeBarsIcon } from '../../icons/three-bars'
+import { getRenderCoords } from '../../util/RenderUtil'
+import { Vector } from '../../playback/Vector'
 
 type TooltipProps = {
     overlayCanvas: HTMLCanvasElement | null
     selectedBodyID: number | undefined
     hoveredBodyID: number | undefined
+    selectedSquare: Vector | undefined
     wrapper: MutableRefObject<HTMLDivElement | null>
 }
 
-export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, wrapper }: TooltipProps) => {
+export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, selectedSquare, wrapper }: TooltipProps) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
@@ -39,7 +42,7 @@ export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, wrapper 
         return () => {
             if (tooltipRef.current) observer.unobserve(tooltipRef.current)
         }
-    }, [hoveredBody])
+    }, [hoveredBody, selectedSquare])
 
     const map = appContext.state.activeMatch?.currentTurn.map
     if (!overlayCanvas || !wrapper.current || !map) return <></>
@@ -54,39 +57,51 @@ export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, wrapper 
     let tooltipStyle: React.CSSProperties = {
         visibility: 'hidden'
     }
-    if (hoveredBody && tooltipRef.current) {
-        const botPosX = hoveredBody.pos.x + 0.5
-        const botPosY = map.height - hoveredBody.pos.y - 1 + 0.5
+    if ((selectedSquare || hoveredBody) && tooltipRef.current) {
+        let tipPos: Vector
+        if (hoveredBody) {
+            tipPos = getRenderCoords(hoveredBody.pos.x, hoveredBody.pos.y, map.dimension, true)
+        } else {
+            tipPos = getRenderCoords(selectedSquare!.x, selectedSquare!.y, map.dimension, true)
+        }
         const distanceFromBotCenterX = 0.75 * tileWidth
         const distanceFromBotCenterY = 0.75 * tileHeight
-        const clearanceLeft = mapLeft + botPosX * tileWidth - distanceFromBotCenterX
+        const clearanceLeft = mapLeft + tipPos.x * tileWidth - distanceFromBotCenterX
         const clearanceRight = wrapperRect.width - clearanceLeft - 2 * distanceFromBotCenterX
-        const clearanceTop = mapTop + botPosY * tileHeight - distanceFromBotCenterY
+        const clearanceTop = mapTop + tipPos.y * tileHeight - distanceFromBotCenterY
 
         if (clearanceTop > tooltipSize.height) {
-            tooltipStyle.top = mapTop + botPosY * tileHeight - tooltipSize.height - distanceFromBotCenterY + 'px'
+            tooltipStyle.top = mapTop + tipPos.y * tileHeight - tooltipSize.height - distanceFromBotCenterY + 'px'
         } else {
-            tooltipStyle.top = mapTop + botPosY * tileHeight + distanceFromBotCenterY + 'px'
+            tooltipStyle.top = mapTop + tipPos.y * tileHeight + distanceFromBotCenterY + 'px'
         }
         if (clearanceLeft < tooltipSize.width / 2) {
-            tooltipStyle.left = mapLeft + botPosX * tileWidth + distanceFromBotCenterX + 'px'
+            tooltipStyle.left = mapLeft + tipPos.x * tileWidth + distanceFromBotCenterX + 'px'
         } else if (clearanceRight < tooltipSize.width / 2) {
-            tooltipStyle.left = mapLeft + botPosX * tileWidth - tooltipSize.width - distanceFromBotCenterX + 'px'
+            tooltipStyle.left = mapLeft + tipPos.x * tileWidth - tooltipSize.width - distanceFromBotCenterX + 'px'
         } else {
-            tooltipStyle.left = mapLeft + botPosX * tileWidth - tooltipSize.width / 2 + 'px'
+            tooltipStyle.left = mapLeft + tipPos.x * tileWidth - tooltipSize.width / 2 + 'px'
         }
         tooltipStyle.visibility = 'visible'
     }
 
+    let showFloatingTooltip = !!((hoveredBody && hoveredBody != selectedBody) || selectedSquare)
+    const tooltipContent = hoveredBody
+        ? hoveredBody.onHoverInfo()
+        : selectedSquare
+          ? map.getTooltipInfo(selectedSquare)
+          : []
+    if (tooltipContent.length === 0) showFloatingTooltip = false
+
     return (
         <>
-            {hoveredBody && hoveredBody != selectedBody && (
+            {showFloatingTooltip && (
                 <div
                     className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
                     style={tooltipStyle}
                     ref={tooltipRef}
                 >
-                    {hoveredBody.onHoverInfo().map((v, i) => (
+                    {tooltipContent.map((v, i) => (
                         <p key={i}>{v}</p>
                     ))}
                 </div>
