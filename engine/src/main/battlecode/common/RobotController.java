@@ -357,6 +357,7 @@ public strictfp interface RobotController {
      * 
      * @param radiusSquared squared radius of all locations to be returned
      * @return all locations containing flags
+     * @throws GameActionException
      * 
      * @battlecode.doc.costlymethod
      **/
@@ -370,6 +371,7 @@ public strictfp interface RobotController {
      * @param radiusSquared squared radius of all locations to be returned
      * @param team the team to find flags for
      * @return all locations containing flags
+     * @throws GameActionException
      * 
      * @battlecode.doc.costlymethod
      **/
@@ -378,11 +380,22 @@ public strictfp interface RobotController {
     /**
      * Returns the locations of all invisible dropped enemy flags, accurate within a radius of sqrt(100) cells.
      * 
-     * @returns all location ranges containing invisible flags
+     * @return all location ranges containing invisible flags
      * 
      * @battlecode.doc.costlymethod
      **/
     MapLocation[] senseBroadcastFlagLocations();
+
+    /**
+     * Checks if the given location within vision radius is a legal starting flag placement. This is true when the
+     * location is in range, is passable, and is far enough away from other placed friendly flags. Note that if the third
+     * condition is false, the flag can still be placed but will be teleported back to the spawn zone at the end of the
+     * setup phase.
+     * @param loc The location to check
+     * @return Whether the location is a valid flag placement
+     * @throws GameActionException if the location is out of sensing range
+     */
+    boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -521,6 +534,7 @@ public strictfp interface RobotController {
      * at this location, throws an error.
      * 
      * @param loc the location to spawn the robot
+     * @throws GameActionException if spawning is not possible at this location
      */
     void spawn(MapLocation loc) throws GameActionException;
 
@@ -671,6 +685,7 @@ public strictfp interface RobotController {
     /**
      * Picks up flag at the specified location.
      * 
+     * @param loc The specified location
      * @throws GameActionException if conditions for picking up flags are not satisfied
      * 
      * @battlecode.doc.costlymethod

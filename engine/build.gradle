@@ -76,6 +76,6 @@ javadoc {
   options.windowTitle = "Battlecode 2022"
   options.classpath = sourceSets.main.compileClasspath as List
   options.doclet = "com.sun.tools.doclets.standard.Standard"
-  options.taglets = ["battlecode.doc.CostlyMethodTaglet", "battlecode.doc.RobotTypeTaglet"]
+  options.taglets = ["battlecode.doc.CostlyMethodTaglet"]
   options.tagletPath = ( sourceSets.main.output.classesDirs as List )+ sourceSets.main.compileClasspath
 }

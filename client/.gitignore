@@ -3,3 +3,4 @@ dist/
 examples/
 *.bc*
 **/.DS_Store
+packaged/

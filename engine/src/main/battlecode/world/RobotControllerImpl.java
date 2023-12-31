@@ -306,6 +306,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return locations.toArray(new MapLocation[locations.size()]);
     }
 
+    @Override
+    public boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException{
+        assertCanSenseLocation(loc);
+        if(!canDropFlag(loc)) return false;
+        boolean valid = true;
+        for(Flag x : gameWorld.getAllFlags()) {
+            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
+    }
+
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
 
@@ -496,6 +510,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
         this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        this.robot.addMovementCooldownTurns();
         this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
@@ -518,6 +533,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
         if (this.gameWorld.getWall(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
+        if (this.gameWorld.getSpawnZone(loc) != 0)
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
         if (getBreadAmount() < GameConstants.DIG_COST)
@@ -744,6 +761,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc);
         assertIsActionReady();
+        InternalRobot bot = gameWorld.getRobot(loc);
+        if (bot == null || bot.getTeam() == this.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "No enemy robot to attack at this location"); 
+        }
     }
 
     @Override
@@ -805,11 +826,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc);
+        assertIsSpawned();
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
         if(this.gameWorld.getFlags(loc).size() == 0) {
             throw new GameActionException(CANT_DO_THAT, "There aren't any flags at this location.");
+        }
+        Team team = getTeam();
+        if (!this.gameWorld.isSetupPhase()) team = team.opponent();
+        boolean validFlagExists = false;
+        for (Flag f : this.gameWorld.getFlags(loc)){
+            if (f.getTeam() == team){
+                validFlagExists = true;
+                break;
+            }
+        }
+        if (!validFlagExists && gameWorld.isSetupPhase()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up enemy team flags during setup phase");
+        }
+        if (!validFlagExists && !gameWorld.isSetupPhase()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up ally flags after setup phase");
         }
     }
 
@@ -824,7 +861,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void pickupFlag(MapLocation loc) throws GameActionException {
         assertCanPickupFlag(loc);
-        Flag tempflag = this.gameWorld.getFlags(loc).get(0);
+        int idx = 0;
+        Team team = getTeam();
+        if (!this.gameWorld.isSetupPhase()) team = team.opponent();
+        Flag tempflag = this.gameWorld.getFlags(loc).get(idx);
+        while (tempflag.getTeam() != team){
+            idx += 1;
+            tempflag = this.gameWorld.getFlags(loc).get(idx);
+        }
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());

@@ -11,22 +11,16 @@ public enum TrapType {
     /**
      * When an opponent enters, explosive traps deal 75 damage to all opponents within a sqrt 13 radius
      * If an opponent digs/breaks under the trap, it deals 50 damage to all opponnets in radius sqrt 9
-     * 
-     * @battlecode.doc.traptype
      */
     EXPLOSIVE (25, 0, 13, 9, 75, 50, false, 5, true, 0),
 
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
-     * 
-     * @battlecode.doc.traptype
      */
     WATER (10, 1, 9, 0, 0, 0, true, 5, true, 0),
 
     /**
      * When an opponent enters, all opponent robots movement and action cooldowns are set to 40.
-     * 
-     * @battlecode.doc.traptype
      */
     STUN (10, 1, 13, 0, 0, 0, false, 5, true, 40),
 
