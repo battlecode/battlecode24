@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform-name: "macos-latest-xlarge"
+          - platform-name: "macos-latest"
             tauri-name: "macos"
             tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
@@ -48,6 +48,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248
+        with:
+          toolchain: stable
+          targets: aarch64-apple-darwin
 
       - name: Set up Rust cache
         uses: swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
