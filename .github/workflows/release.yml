@@ -38,7 +38,7 @@ jobs:
          #   tauri-target: "x86_64-pc-windows-msvc"
     runs-on: ${{ matrix.platform-name }}
     env:
-      TAURI_OUTPUT: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
+      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
 
     steps:
       - name: Checkout branch
@@ -166,11 +166,11 @@ jobs:
         with:
           path: ./client/packaged-tauri
 
-      - name: Cleanup tauri artifacts
-        uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
-        if: always() # Always cleanup even if other commands failed
-        with:
-          name: client-*
+            #- name: Cleanup tauri artifacts
+            #uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
+            #if: always() # Always cleanup even if other commands failed
+            #with:
+            #name: client-*
 
       - name: Publish to local repository
         run: ./gradlew publishToMavenLocal -Prelease_version=$RELEASE_VERSION
