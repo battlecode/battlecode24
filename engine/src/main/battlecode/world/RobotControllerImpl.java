@@ -815,18 +815,24 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         Team team = getTeam();
         if (!this.gameWorld.isSetupPhase()) team = team.opponent();
-        boolean validFlagExists = false;
+        boolean validFlagTeamExists = false;
+        boolean validFlagRoundsExists = false;
         for (Flag f : this.gameWorld.getFlags(loc)){
             if (f.getTeam() == team){
-                validFlagExists = true;
-                break;
+                validFlagTeamExists = true;
+            }
+            if(gameWorld.isSetupPhase() || f.getLoc() == f.getStartLoc() || f.getDroppedRounds() != 0) {
+                validFlagRoundsExists = true;
             }
         }
-        if (!validFlagExists && gameWorld.isSetupPhase()){
+        if (!validFlagTeamExists && gameWorld.isSetupPhase()){
             throw new GameActionException(CANT_DO_THAT, "Cannot pick up enemy team flags during setup phase");
         }
-        if (!validFlagExists && !gameWorld.isSetupPhase()){
+        if (!validFlagTeamExists && !gameWorld.isSetupPhase()){
             throw new GameActionException(CANT_DO_THAT, "Cannot pick up ally flags after setup phase");
+        }
+        if(!validFlagRoundsExists) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up an enemy flag in the same round it was dropped");
         }
     }
 
