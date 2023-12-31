@@ -45,7 +45,7 @@ jobs:
     runs-on: ${{ matrix.platform-name }}
     env:
       RELEASE_VERSION: ${{ github.ref_name }}
-      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
+      TAURI_OUTPUT: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
       TAURI_BUILD_COMMAND: npm run tauri-pack -- -t ${{ matrix.tauri-target }}
       ELECTRON_BUILD_COMMAND: npm run electron-pack
 
