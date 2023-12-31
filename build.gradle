@@ -208,7 +208,7 @@ publishing {
       artifactId 'battlecode24-client-linux-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'deb/tauri-output.zip') {
+      artifact (clientDirPrefix + 'linux/tauri-output.zip') {
         builtBy prodClient
       }
     }

@@ -29,21 +29,9 @@
       ],
       "identifier": "com.battlecode.client",
       "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
+      "targets": "all"
     },
     "security": {
       "csp": null
@@ -54,10 +42,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 960,
+        "height": 720,
         "resizable": true,
         "title": "Battlecode Client",
-        "width": 1440
+        "width": 960
       }
     ]
   }

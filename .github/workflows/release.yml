@@ -27,19 +27,22 @@ jobs:
       matrix:
         include:
           # - platform-name: "macos-latest"
-          #  tauri-name: "macos"
+          #  build-name: "macos"
+          #  tauri-path: "bundle/macos"
           #  tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
-         #   tauri-name: "deb"
+         #   build-name: "linux"
+         #   tauri-path: "bundle/appimage"
          #   tauri-target: "x86_64-unknown-linux-gnu"
           - platform-name: "windows-latest"
-            tauri-name: "windows"
+            build-name: "windows"
+            tauri-path: ""
             tauri-target: "x86_64-pc-windows-msvc"
             upload-dist: true
     runs-on: ${{ matrix.platform-name }}
     env:
       RELEASE_VERSION: ${{ github.ref_name }}
-      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
+      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
       TAURI_BUILD_COMMAND: npm run tauri-pack -- -t ${{ matrix.tauri-target }}
       ELECTRON_BUILD_COMMAND: npm run electron-pack
 
@@ -90,7 +93,7 @@ jobs:
       - name: Upload client artifact
         uses: actions/upload-artifact@v3
         with:
-          name: client-${{ matrix.tauri-name }}
+          name: client-${{ matrix.build-name }}
           path: |
             ./client/tauri-output.zip
             ./client/packaged-electron/electron-output.zip
