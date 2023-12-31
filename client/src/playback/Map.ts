@@ -1,6 +1,6 @@
 import { flatbuffers, schema } from 'battlecode-schema'
 import assert from 'assert'
-import { Vector, getEmptyVector } from './Vector'
+import { Vector } from './Vector'
 import Match from './Match'
 import { MapEditorBrush, Symmetry } from '../components/sidebar/map-editor/MapEditorBrush'
 import { packVecTable, parseVecTable } from './SchemaHelpers'

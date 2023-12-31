@@ -1,5 +1,5 @@
 import React from 'react'
-import { UnitsTable } from './units-table'
+import { TeamTable } from './team-table'
 import { ResourceGraph } from './resource-graph'
 import { SpecialtyHistogram } from './histogram'
 import { useSearchParamBool } from '../../../app-search-params'
@@ -39,7 +39,7 @@ export const GamePage: React.FC = () => {
                     )}
                 </p>
             </div>
-            <UnitsTable team={0} />
+            <TeamTable teamIdx={0} />
 
             <div className="h-[15px]" />
 
@@ -51,19 +51,19 @@ export const GamePage: React.FC = () => {
                     )}
                 </p>
             </div>
-            <UnitsTable team={1} />
+            <TeamTable teamIdx={1} />
 
             <SectionHeader
                 title="Stats"
                 open={showStats}
                 onClick={() => setShowStats(!showStats)}
                 containerClassName="mt-2"
-                titleClassName="mb-3 py-2"
+                titleClassName="py-2"
             >
                 {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                     them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+                <SpecialtyHistogram active={showStats}  />
                 <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Bread" />
-                <SpecialtyHistogram />
             </SectionHeader>
         </div>
     )

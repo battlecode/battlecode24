@@ -41,7 +41,9 @@ export const ResourceGraph: React.FC<Props> = (props: Props) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
 
-    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    useListenEvent(EventType.TURN_PROGRESS, () => {
+        if (props.active) forceUpdate()
+    })
 
     return (
         <div className="mt-2 px-2 w-full">
