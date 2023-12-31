@@ -128,12 +128,12 @@ jobs:
           #          sudo apt-add-repository "deb https://dl.winehq.org/wine-builds/ubuntu $(lsb_release -cs) main"
           #          sudo apt install --install-recommends winehq-stable
           #
-          #      - name: Set up JDK 8
-          #        uses: actions/setup-java@v3
-          #        with:
-          #          java-version: 8
-          #          distribution: adopt
-          #
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: adopt
+          
           #      - name: Set up Node 16
           #        uses: actions/setup-node@v3
           #        with:
