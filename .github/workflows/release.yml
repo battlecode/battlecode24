@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform-name: "macos-latest-large"
+          - platform-name: "macos-latest-xlarge"
             tauri-name: "macos"
             tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
