@@ -35,7 +35,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
     }
 
     // if instance of non-electron scaffold, then we need to connect to the server
-    // if (!nativeAPI) return <>Run the client locally to use the runner</>
+    if (!nativeAPI) return <>Run the client locally to use the runner</>
 
     return (
         <div className={'flex flex-col ' + (scaffoldLoading ? 'opacity-50 pointer-events-none' : '')}>
