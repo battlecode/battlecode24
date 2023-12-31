@@ -28,17 +28,20 @@ jobs:
         include:
           # - platform-name: "macos-latest"
           #  build-name: "macos"
-          #  tauri-path: "bundle/macos"
+          #  tauri-path: "bundle/macos/"
+          #  tauri-name: "Battlecode Client.app"
           #  tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
          #   build-name: "linux"
-         #   tauri-path: "bundle/appimage"
+         #   tauri-path: "bundle/appimage/"
+         #   tauri-name: "Battlecode Client.AppImage"
          #   tauri-target: "x86_64-unknown-linux-gnu"
+         #   upload-dist: true
           - platform-name: "windows-latest"
             build-name: "windows"
             tauri-path: ""
+            tauri-name: "Battlecode Client.exe"
             tauri-target: "x86_64-pc-windows-msvc"
-            upload-dist: true
     runs-on: ${{ matrix.platform-name }}
     env:
       RELEASE_VERSION: ${{ github.ref_name }}
@@ -78,8 +81,8 @@ jobs:
         working-directory: ./client
 
       - name: Zip tauri result
-        run: npm run zip ./tauri-output.zip ${{ env.TAURI_OUTPUT }}
-        working-directory: ./client
+        run: npm run zip "${{ github.workspace }}/client/packaged-client/tauri-output.zip" "${{ matrix.tauri-name }}"
+        working-directory: ${{ env.TAURI_OUTPUT }}
 
       # Only need to create this artifact on one job since all platforms produce
       # the same result
@@ -92,11 +95,12 @@ jobs:
       
       - name: Upload client artifact
         uses: actions/upload-artifact@v3
+        working-directory: ./client/packaged-client
         with:
           name: client-${{ matrix.build-name }}
           path: |
-            ./client/tauri-output.zip
-            ./client/packaged-electron/electron-output.zip
+            ./tauri-output.zip
+            ./electron-output.zip
 
   release:
     name: Release

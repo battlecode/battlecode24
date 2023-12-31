@@ -25,7 +25,7 @@
         "productName": "BattlecodeClient",
         "compression": "store",
         "directories": {
-            "output": "packaged-electron"
+            "output": "packaged-client"
         },
         "fileAssociations": [
             {

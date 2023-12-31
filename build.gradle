@@ -158,7 +158,7 @@ task prodClient {
   }
 }
 
-def clientDirPrefix = 'client/artifacts/'
+def clientDirPrefix = 'client/artifacts/client-'
 
 publishing {
   publications {
@@ -180,7 +180,6 @@ publishing {
 
     // Tauri
 
-    /*
     clientWinTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-tauri'
@@ -190,8 +189,8 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
+    /*
     clientMacTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-mac-tauri'
@@ -201,6 +200,7 @@ publishing {
         builtBy prodClient
       }
     }
+*/
 
     /*
     clientLinuxTauri(MavenPublication) {
@@ -216,18 +216,17 @@ publishing {
 
     // Electron
 
-    /*
     clientWinElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'win-x64.zip') {
+      artifact (clientDirPrefix + 'windows/electron-output.zip') {
         builtBy prodClient
       }
     }
-*/
 
+    /*
     clientMacElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-mac-electron'
@@ -237,6 +236,7 @@ publishing {
         builtBy prodClient
       }
     }
+*/
 
     /*
     clientLinuxElectron(MavenPublication) {
@@ -244,20 +244,10 @@ publishing {
       artifactId 'battlecode24-client-linux-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'linux-x64.zip') {
+      artifact (clientDirPrefix + 'linux/electron-output.zip') {
         builtBy prodClient
       }
     }
-
-    clientWin32Electron(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode24-client-win-32-electron'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact (clientDirPrefix + 'win-ia32.zip') {
-        builtBy prodClient
-      }
-    }
-      */
+*/
   }
 }
