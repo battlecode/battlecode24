@@ -71,7 +71,7 @@ jobs:
         working-directory: ./client
 
       - name: Build client applications
-        run: npm run concurrently -- --kill-others "${{ env.ELECTRON_BUILD_COMMAND }}" "${{ env.TAURI_BUILD_COMMAND }}"
+        run: npm run concurrently -- --kill-others-on-fail "${{ env.ELECTRON_BUILD_COMMAND }}" "${{ env.TAURI_BUILD_COMMAND }}"
         working-directory: ./client
 
       - name: Zip tauri result
