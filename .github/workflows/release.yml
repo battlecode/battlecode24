@@ -37,6 +37,8 @@ jobs:
          #   tauri-name: "windows"
          #   tauri-target: "x86_64-pc-windows-msvc"
     runs-on: ${{ matrix.platform-name }}
+    env:
+      TAURI_OUTPUT: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
 
     steps:
       - name: Checkout branch
@@ -64,12 +66,16 @@ jobs:
       - name: Build client
         run: CI=true npm run tauri-build -- -t ${{ matrix.tauri-target }}
         working-directory: ./client
+
+      - name: Zip result
+        run: npm run zip ./tauri-output.zip ${{ env.TAURI_OUTPUT }}
+        working-directory: ./client
       
       - name: Upload client artifact
         uses: actions/upload-artifact@v3
         with:
           name: client-${{ matrix.tauri-name }}
-          path: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/bundle/${{ matrix.tauri-name }}
+          path: ./client/tauri-output.zip
 
   release-primary:
     name: Primary Release
@@ -158,15 +164,7 @@ jobs:
         uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
         if: always() # Always cleanup even if other commands failed
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           name: client-*
-
-      - name: Zip tauri artifacts
-        working-directory: ./client/packaged-tauri
-        run: |
-          zip -qqr mac-x64.zip client-macos
-          #zip -qqr linux-x64.zip client-deb
-          #zip -qqr win-x64.zip client-windows
 
       - name: Publish to local repository
         run: ./gradlew publishToMavenLocal -Prelease_version=$RELEASE_VERSION

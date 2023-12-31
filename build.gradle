@@ -159,7 +159,7 @@ task prodClient {
 }
 
 def electronDirPrefix = 'client/packaged-electron/battlecode24-client-'
-def tauriDirPrefix = 'client/packaged-tauri/'
+def tauriDirPrefix = 'client/packaged-tauri/client-'
 
 publishing {
   publications {
@@ -187,7 +187,7 @@ publishing {
       artifactId 'battlecode24-client-win-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (tauriDirPrefix + 'win-x64.zip') {
+      artifact (tauriDirPrefix + 'windows/tauri-output.zip') {
         builtBy prodClient
       }
     }
@@ -198,7 +198,7 @@ publishing {
       artifactId 'battlecode24-client-mac-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (tauriDirPrefix + 'mac-x64.zip') {
+      artifact (tauriDirPrefix + 'macos/tauri-output.zip') {
         builtBy prodClient
       }
     }
@@ -209,7 +209,7 @@ publishing {
       artifactId 'battlecode24-client-linux-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (tauriDirPrefix + 'linux-x64.zip') {
+      artifact (tauriDirPrefix + 'deb/tauri-output.zip') {
         builtBy prodClient
       }
     }
