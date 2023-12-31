@@ -180,6 +180,7 @@ publishing {
 
     // Tauri
 
+    /*
     clientWinTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-tauri'
@@ -189,8 +190,8 @@ publishing {
         builtBy prodClient
       }
     }
+*/
 
-    /*
     clientMacTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-mac-tauri'
@@ -200,7 +201,6 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
     /*
     clientLinuxTauri(MavenPublication) {
@@ -216,6 +216,7 @@ publishing {
 
     // Electron
 
+    /*
     clientWinElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-electron'
@@ -225,8 +226,8 @@ publishing {
         builtBy prodClient
       }
     }
+*/
 
-    /*
     clientMacElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-mac-electron'
@@ -236,7 +237,6 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
     /*
     clientLinuxElectron(MavenPublication) {
