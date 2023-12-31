@@ -13,17 +13,17 @@ public class MapInfo {
 
     private boolean isWater;
 
-    private int breadAmount;
+    private int crumbsAmount;
 
     private TrapType trapType;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int breadAmount, TrapType trapType){
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
         this.spawnZone = spawnZone;
         this.isWater = isWater;
-        this.breadAmount = breadAmount;
+        this.crumbsAmount = crumbsAmount;
         this.trapType = trapType;
     }
 
@@ -83,15 +83,15 @@ public class MapInfo {
     }
 
     /**
-     * Returns the amount of bread on this square.
-     * If there is no bread on the square, returns 0.
+     * Returns the amount of crumbs on this square.
+     * If there are no crumbs on the square, returns 0.
      * 
-     * @return the amount of bread on the square
+     * @return the amount of crumbs on the square
      * 
      * @battlecode.doc.costlymethod
      */
-    public int getBreadAmount() {
-        return breadAmount;
+    public int getCrumbs() {
+        return crumbsAmount;
     }
 
     /**
@@ -112,7 +112,7 @@ public class MapInfo {
                 (isWater ? ", water" : "") +
                 (spawnZone == 0 ? ", team A spawn zone" : "") +
                 (spawnZone == 1 ? ", team B spawn zone" : "") +
-                (breadAmount == 0 ? "" : ", bread=" + breadAmount) +
+                (crumbsAmount == 0 ? "" : ", crumbs=" + crumbsAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 '}';
     }

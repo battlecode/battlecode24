@@ -62,7 +62,7 @@ battlecode/common/RobotController/setIndicatorString                    0    tru
 battlecode/common/RobotController/writeSharedArray                      75   true
 battlecode/common/RobotController/getExperience                         1    true
 battlecode/common/RobotController/getLevel                              1    true
-battlecode/common/RobotController/getBreadAmount                        5    true
+battlecode/common/RobotController/getCrumbs                             5    true
 battlecode/common/RobotController/senseNearbyFlags                      50   true
 battlecode/common/RobotController/senseBroadcastFlagLocations           100  true
 battlecode/common/RobotController/senseLegalStartingFlagPlacement       20   true
@@ -95,7 +95,7 @@ battlecode/common/MapInfo/isWall                                        2    fal
 battlecode/common/MapInfo/isSpawnZone                                   2    false
 battlecode/common/MapInfo/getSpawnZoneTeam                              3    false
 battlecode/common/MapInfo/isWater                                       2    false
-battlecode/common/MapInfo/getBreadAmount                                3    false
+battlecode/common/MapInfo/getCrumbs                                     3    false
 battlecode/common/SkillType/getExperience                               3    false
 battlecode/common/SkillType/getCooldown                                 3    false
 battlecode/common/SkillType/getSkillEffect                              3    false

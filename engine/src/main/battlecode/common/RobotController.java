@@ -107,13 +107,13 @@ public strictfp interface RobotController {
     int getLevel(SkillType skill);
 
     /**
-     * Returns the amount of bread that this robot's team has.
+     * Returns the amount of crumbs that this robot's team has.
      *
-     * @return the amount of bread this robot's team has
+     * @return the amount of crumbs this robot's team has
      *
      * @battlecode.doc.costlymethod
      */
-    int getBreadAmount();
+    int getCrumbs();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -270,7 +270,7 @@ public strictfp interface RobotController {
     boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Senses the map info at a location. MapInfo includes walls, spawn zones, water, bread, and friendly traps.
+     * Senses the map info at a location. MapInfo includes walls, spawn zones, water, crumbs, and friendly traps.
      *
      * @param loc to sense map at
      * @return MapInfo describing map at location

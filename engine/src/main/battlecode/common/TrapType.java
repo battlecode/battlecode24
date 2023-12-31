@@ -25,8 +25,9 @@ public enum TrapType {
     STUN (10, 1, 13, 0, 0, 0, false, 5, true, 40),
 
     NONE (0, 0, 0, 0, 0, 0, false, 0, false, 0);
+    
     /**
-     * Bread cost of each trap
+     * Crumbs cost of each trap
      */
     public final int buildCost;
 

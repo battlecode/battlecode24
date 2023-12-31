@@ -268,7 +268,7 @@ public strictfp class GameMaker {
             GameplayConstants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
             GameplayConstants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
             GameplayConstants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
-            GameplayConstants.addPassiveResourceRate(builder, GameConstants.PASSIVE_BREAD_INCREASE);
+            GameplayConstants.addPassiveResourceRate(builder, GameConstants.PASSIVE_CRUMBS_INCREASE);
             GameplayConstants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
             GameplayConstants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
             GameplayConstants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);

@@ -161,16 +161,16 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
-                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_CRUMBS_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_CRUMBS_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
             if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
-                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
-                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
+                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
+                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
             }
             this.processEndOfRound();
 

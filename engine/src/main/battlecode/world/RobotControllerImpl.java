@@ -137,7 +137,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getHealth();
     }
     @Override
-    public int getBreadAmount() {
+    public int getCrumbs() {
         return this.gameWorld.getTeamInfo().getBread(getTeam());
     }
 
@@ -560,7 +560,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(trap);
         assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsActionReady();
-        if (getBreadAmount() < trap.buildCost){
+        if (getCrumbs() < trap.buildCost){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
         }
         if(this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent()).length != 0) {
@@ -614,7 +614,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (getBreadAmount() < GameConstants.FILL_COST)
+        if (getCrumbs() < GameConstants.FILL_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
         if(this.robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "Can't fill while holding a flag");
@@ -657,7 +657,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (getBreadAmount() < GameConstants.DIG_COST)
+        if (getCrumbs() < GameConstants.DIG_COST)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");

@@ -415,7 +415,7 @@ public strictfp class Server implements Runnable {
                 sb.append("The winning team won on tiebreakers (higher sum of all unit levels).");
                 break;
             case MORE_BREAD:
-                sb.append("The winning team won on tiebreakers (more bread)");
+                sb.append("The winning team won on tiebreakers (more crumbs)");
                 break;
             case MORE_FLAGS_PICKED:
                 sb.append("The winning team won on tiebreakers (more flags picked up).");

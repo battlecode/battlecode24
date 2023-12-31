@@ -79,11 +79,11 @@ public class GameConstants {
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
     public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
 
-    /** The initial amount of bread each team starts with. */
-    public static final int INITIAL_BREAD_AMOUNT = 200;
+    /** The initial amount of crumbs each team starts with. */
+    public static final int INITIAL_CRUMBS_AMOUNT = 200;
 
-    /** The amount of bread each team gains per turn. */
-    public static final int PASSIVE_BREAD_INCREASE = 6;
+    /** The amount of crumbs each team gains per turn. */
+    public static final int PASSIVE_CRUMBS_INCREASE = 6;
 
     /** The number of rounds between adding resources to teams. */
     public static final int PASSIVE_INCREASE_ROUNDS = 5;
