@@ -28,24 +28,21 @@ jobs:
         include:
           # - platform-name: "macos-latest"
           #  build-name: "macos"
-          #  tauri-path: "bundle/macos/"
-          #  tauri-name: "Battlecode Client.app"
+          #  tauri-path: "bundle/macos/Battlecode Client.app"
           #  tauri-target: "universal-apple-darwin"
          # - platform-name: "ubuntu-latest"
          #   build-name: "linux"
-         #   tauri-path: "bundle/appimage/"
-         #   tauri-name: "Battlecode Client.AppImage"
+         #   tauri-path: "bundle/appimage/Battlecode Client.AppImage"
          #   tauri-target: "x86_64-unknown-linux-gnu"
          #   upload-dist: true
           - platform-name: "windows-latest"
             build-name: "windows"
-            tauri-path: ""
-            tauri-name: "Battlecode Client.exe"
+            tauri-path: "Battlecode Client.exe"
             tauri-target: "x86_64-pc-windows-msvc"
     runs-on: ${{ matrix.platform-name }}
     env:
       RELEASE_VERSION: ${{ github.ref_name }}
-      TAURI_OUTPUT: ./client/src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
+      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
       TAURI_BUILD_COMMAND: npm run tauri-pack -- -t ${{ matrix.tauri-target }}
       ELECTRON_BUILD_COMMAND: npm run electron-pack
 
@@ -80,9 +77,10 @@ jobs:
         run: npm run concurrently -- --kill-others-on-fail "${{ env.ELECTRON_BUILD_COMMAND }}" "${{ env.TAURI_BUILD_COMMAND }}"
         working-directory: ./client
 
+      # 7-zip is preinstalled on runner images
       - name: Zip tauri result
-        run: npm run zip "${{ github.workspace }}/client/packaged-client/tauri-output.zip" "${{ matrix.tauri-name }}"
-        working-directory: ${{ env.TAURI_OUTPUT }}
+        run: 7z a packaged-client/tauri-output.zip "${{ env.TAURI_OUTPUT }}"
+        working-directory: ./client
 
       # Only need to create this artifact on one job since all platforms produce
       # the same result
