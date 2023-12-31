@@ -2,7 +2,6 @@ package battlecode.server;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.schema.Event;
 import battlecode.schema.GameHeader;

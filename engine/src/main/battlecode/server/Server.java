@@ -5,9 +5,7 @@ import battlecode.world.maps.*;
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.ResourceType;
 import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.world.*;
 import battlecode.world.control.*;
@@ -22,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.management.RuntimeErrorException;
 
 /**
  * Runs matches. Specifically, this class forms a pipeline connecting match and
@@ -229,25 +229,7 @@ public strictfp class Server implements Runnable {
                                idx / liveMap.getWidth());
     }
 
-    private void validateMapOnGuarantees(LiveMap liveMap) {
-        // Check map dimensions
-        if (liveMap.getWidth() > GameConstants.MAP_MAX_WIDTH) {
-            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
-        }
-        if (liveMap.getWidth() < GameConstants.MAP_MIN_WIDTH) {
-            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
-        }
-        if (liveMap.getHeight() > GameConstants.MAP_MAX_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
-        }
-        if (liveMap.getHeight() < GameConstants.MAP_MIN_HEIGHT) {
-            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
-        }
 
-        for (int i = 0; i < liveMap.getWidth()*liveMap.getHeight(); i++){
-            //TODO check for multiple things existing on the same tile
-        }
-    }
     
     private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
         return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
@@ -262,10 +244,6 @@ public strictfp class Server implements Runnable {
                           RobotControlProvider prov,
                           GameMaker gameMaker, boolean checkMapGuarantees, boolean teamsReversed) throws Exception {
 
-
-        // System.out.println("running runMatch in server");
-        // MapTestBad.makeBad();
-        // System.out.println("done making bad");
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
@@ -283,7 +261,7 @@ public strictfp class Server implements Runnable {
         
         if (checkMapGuarantees) {
             // Validate the map
-            validateMapOnGuarantees(currentWorld.getGameMap());
+            currentWorld.getGameMap().assertIsValid();
         }
 
         // Get started

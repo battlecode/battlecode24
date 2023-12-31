@@ -1,6 +1,5 @@
 package battlecode.instrumenter.stream;
 
-import battlecode.common.RobotType;
 import battlecode.common.Team;
 
 import java.io.OutputStream;

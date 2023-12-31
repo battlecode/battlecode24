@@ -18,8 +18,8 @@ public class RobotPlayer {
         if (rc.getRoundNum() == 500) rc.resign();
         if (!rc.isSpawned()){
             MapLocation[] allySpawns = rc.getAllySpawnLocations();
-            //System.out.println(Arrays.toString(allySpawns));
-            //rc.resign();
+            // System.out.println(Arrays.toString(allySpawns));
+            // rc.resign();
             for (MapLocation loc : rc.getAllySpawnLocations()){
                 //rc.spawn(loc);
                 if (rc.canSpawn(loc)){
