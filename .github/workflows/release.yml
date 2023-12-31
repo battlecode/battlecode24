@@ -60,7 +60,7 @@ jobs:
         working-directory: ./client
 
       - name: Build client
-        run: npm run tauri-build
+        run: CI=true npm run tauri-build
         working-directory: ./client
       
       - name: Upload client artifact
