@@ -7,7 +7,6 @@ import { TEAM_COLOR_NAMES } from '../../../constants'
 import { schema } from 'battlecode-schema'
 import { TeamTurnStat } from '../../../playback/TurnStat'
 import { DoubleChevronUpIcon } from '../../../icons/chevron'
-import { Team } from '../../../playback/Game'
 import { CurrentMap } from '../../../playback/Map'
 
 interface UnitsIconProps {
@@ -108,17 +107,31 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => 
         ['Base', <UnitsIcon teamIdx={teamIdx} robotType="base" key="0" />],
         ['Attack', <UnitsIcon teamIdx={teamIdx} robotType="attack" key="1" />],
         ['Build', <UnitsIcon teamIdx={teamIdx} robotType="build" key="2" />],
-        ['Heal', <UnitsIcon teamIdx={teamIdx} robotType="heal" key="3" />]
+        ['Heal', <UnitsIcon teamIdx={teamIdx} robotType="heal" key="3" />],
+        ['Jailed', <UnitsIcon teamIdx={teamIdx} robotType="jailed" key="4" />]
     ]
 
-    const totalCount = Math.max(teamStat?.robots.reduce((a, b) => a + b) ?? 0, 1)
-    const data: Array<[string, Array<number>]> = [
-        ['Count', teamStat?.robots ?? [0, 0, 0, 0]],
-        [
-            'Avg. Level',
-            teamStat?.specializationTotalLevels.map((c) => Math.round((c / totalCount) * 100) / 100) ?? [0, 0, 0, 0]
-        ]
+    let data: [string, number[]][] = [
+        ['Count', [0, 0, 0, 0, 0]],
+        ['Avg. Level', [0, 0, 0, 0, 0]]
     ]
+    if (teamStat) {
+        const totalCountAlive = Math.max(
+            teamStat?.robots[0] + teamStat?.robots[1] + teamStat?.robots[2] + teamStat?.robots[3],
+            1
+        )
+        const totalCountDead = Math.max(teamStat?.robots[4], 1)
+        data = [
+            ['Count', teamStat?.robots],
+            [
+                'Avg. Level',
+                teamStat.specializationTotalLevels
+                    .slice(0, 4)
+                    .map((c) => Math.round((c / totalCountAlive) * 100) / 100)
+                    .concat([Math.round((teamStat.specializationTotalLevels[4] / totalCountDead) * 100) / 100])
+            ]
+        ]
+    }
 
     return (
         <>

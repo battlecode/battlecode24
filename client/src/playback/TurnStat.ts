@@ -4,8 +4,8 @@ import assert from 'assert'
 import Turn from './Turn'
 
 export class TeamTurnStat {
-    robots: [number, number, number, number] = [0, 0, 0, 0]
-    specializationTotalLevels: [number, number, number, number] = [0, 0, 0, 0]
+    robots: [number, number, number, number, number] = [0, 0, 0, 0, 0]
+    specializationTotalLevels: [number, number, number, number, number] = [0, 0, 0, 0, 0]
     resourceAmount: number = 0
     resourceAmountAverageDatapoint: number | undefined = undefined
     globalUpgrades: Set<schema.GlobalUpgradeType> = new Set()
