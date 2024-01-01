@@ -39,10 +39,8 @@ battlecode/common/RobotController/getLocation                           1    tru
 battlecode/common/RobotController/getMapHeight                          1    true
 battlecode/common/RobotController/getMapWidth                           1    true
 battlecode/common/RobotController/getMovementCooldownTurns              1    true
-battlecode/common/RobotController/getRobotCount                         20   true
 battlecode/common/RobotController/getRoundNum                           1    true
 battlecode/common/RobotController/getTeam                               1    true
-battlecode/common/RobotController/getType                               1    true
 battlecode/common/RobotController/isActionReady                         1    true
 battlecode/common/RobotController/isLocationOccupied                    5    true
 battlecode/common/RobotController/isMovementReady                       1    true
@@ -61,12 +59,12 @@ battlecode/common/RobotController/setIndicatorLine                      0    tru
 battlecode/common/RobotController/setIndicatorString                    0    true
 battlecode/common/RobotController/writeSharedArray                      75   true
 battlecode/common/RobotController/getExperience                         1    true
-battlecode/common/RobotController/getLevel                              1    true
-battlecode/common/RobotController/getCrumbs                             5    true
+battlecode/common/RobotController/getLevel                              5    true
+battlecode/common/RobotController/getCrumbs                             1    true
 battlecode/common/RobotController/senseNearbyFlags                      50   true
 battlecode/common/RobotController/senseBroadcastFlagLocations           100  true
-battlecode/common/RobotController/senseLegalStartingFlagPlacement       20   true
-battlecode/common/RobotController/getAllySpawnLocations                 20   true
+battlecode/common/RobotController/senseLegalStartingFlagPlacement       10   true
+battlecode/common/RobotController/getAllySpawnLocations                 25   true
 battlecode/common/RobotController/isSpawned                             1    true
 battlecode/common/RobotController/canSpawn                              10   true
 battlecode/common/RobotController/spawn                                 0    true
@@ -78,7 +76,7 @@ battlecode/common/RobotController/canBuild                              10   tru
 battlecode/common/RobotController/build                                 0    true
 battlecode/common/RobotController/canHeal                               10   true
 battlecode/common/RobotController/heal                                  0    true
-battlecode/common/RobotController/hasFlag                               10   true
+battlecode/common/RobotController/hasFlag                               5    true
 battlecode/common/RobotController/canPickupFlag                         10   true
 battlecode/common/RobotController/pickupFlag                            0    true
 battlecode/common/RobotController/canDropFlag                           10   true

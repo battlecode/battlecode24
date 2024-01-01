@@ -617,7 +617,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        int resources = (int) Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
         if (getCrumbs() < resources)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
         if(this.robot.hasFlag()) {
