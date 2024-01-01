@@ -41,7 +41,7 @@ public class GameConstants {
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 
     /** The maximum number of bytecodes a bot is allow to use in one turn */
-    public static final int BYTECODE_LIMIT = 20000;
+    public static final int BYTECODE_LIMIT = 80000;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
@@ -68,25 +68,26 @@ public class GameConstants {
     /** The number of flags a player starts with. */
     public static final int NUMBER_FLAGS = 3;
 
-    /** Constants for dig and fill costs and cooldowns. */
-    public static final int DIG_COST = 2;
-    public static final int DIG_COOLDOWN = 20;
-    public static final int FILL_COST = 1;
-    public static final int FILL_COOLDOWN = 20;
+    /** Crumbs cost for digging. */
+    public static final int DIG_COST = 20;
+    
+    /** Crumbs cost for filling */
+    public static final int FILL_COST = 10;
 
-    /** Constants for flags */
+    /** Number of rounds between updating the random noisy flag broadcast location */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
+
+    /** The maximum squared distance bewteen the actual flag locaiton and the noisy broadcast location */
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+
+    /** The default number of rounds before dropped flags reset to their default locations */
     public static final int FLAG_DROPPED_RESET_ROUNDS = 4;
 
     /** The initial amount of crumbs each team starts with. */
-    public static final int INITIAL_CRUMBS_AMOUNT = 200;
+    public static final int INITIAL_CRUMBS_AMOUNT = 400;
 
     /** The amount of crumbs each team gains per turn. */
-    public static final int PASSIVE_CRUMBS_INCREASE = 6;
-
-    /** The number of rounds between adding resources to teams. */
-    public static final int PASSIVE_INCREASE_ROUNDS = 5;
+    public static final int PASSIVE_CRUMBS_INCREASE = 10;
 
     /** The end of the setup rounds in the game */
     public static final int SETUP_ROUNDS = 200;
@@ -133,4 +134,11 @@ public class GameConstants {
 
     /** The amount added to the action cooldown counter after healing */
     public static final int HEAL_COOLDOWN = 20;
+
+    /** The amount added to the action cooldown counter after digging */
+    public static final int DIG_COOLDOWN = 20;
+
+    /** The amount added to the action cooldown counter after filling */
+    public static final int FILL_COOLDOWN = 20;
+
 }

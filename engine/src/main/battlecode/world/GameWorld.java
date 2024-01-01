@@ -168,10 +168,8 @@ public strictfp class GameWorld {
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
-            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
-                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
-                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
-            }
+            this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
+            this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -751,7 +749,6 @@ public strictfp class GameWorld {
      */
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        Team team = robot.getTeam();
         if (robot.getLocation() != null)
         removeRobot(robot.getLocation());
 

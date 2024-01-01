@@ -560,7 +560,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(trap);
         assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsActionReady();
-        if (getCrumbs() < trap.buildCost){
+        int resources = (int) Math.round(trap.buildCost*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources){
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
         }
         if(this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent()).length != 0) {
@@ -596,10 +597,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void build(TrapType trap, MapLocation loc) throws GameActionException{
         assertCanBuild(trap, loc);
-
-        this.robot.addResourceAmount(-1*(trap.buildCost));
-        this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
-
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(trap.actionCooldownIncrease*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(trap.buildCost*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
+        this.robot.addResourceAmount(resources);
+        
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
             return;
@@ -614,7 +617,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         if (!this.gameWorld.getWater(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (getCrumbs() < GameConstants.FILL_COST)
+        int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
         if(this.robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "Can't fill while holding a flag");
@@ -632,9 +636,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void fill(MapLocation loc) throws GameActionException{
         assertCanFill(loc);
-        this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(GameConstants.FILL_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
         this.robot.addMovementCooldownTurns();
-        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
+        this.robot.addResourceAmount(resources);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
         this.gameWorld.setLand(loc);
@@ -657,7 +664,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (getCrumbs() < GameConstants.DIG_COST)
+        int resources = (int) Math.round(GameConstants.DIG_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources)
             throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
@@ -676,8 +684,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void dig(MapLocation loc) throws GameActionException{
         assertCanDig(loc);
-        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
-        this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(GameConstants.DIG_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
+        this.robot.addResourceAmount(resources);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
         this.gameWorld.getMatchMaker().addDigLocation(loc);
         this.gameWorld.setWater(loc);

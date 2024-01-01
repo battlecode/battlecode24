@@ -247,7 +247,8 @@ public final strictfp class GameMapIO {
             for (int i = 0; i < num_piles; i++){
                 MapLocation cur = new MapLocation(resourcePiles.xs(i), resourcePiles.ys(i));
                 int amt = raw.resourcePileAmounts(i);
-                breadArray[cur.x+cur.y*width] = amt;
+                //TODO do not multiply this by 10
+                breadArray[cur.x+cur.y*width] = amt * 10;
             }
 
             battlecode.schema.VecTable spawnZoneCentersTable = raw.spawnLocations();

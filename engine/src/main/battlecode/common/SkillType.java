@@ -80,7 +80,7 @@ public enum SkillType{
      */
     public int getSkillEffect(int level){
         int[] attackSkill = {0, 5, 10, 15, 20, 30, 50};
-        int[] buildSkill = {0, 0, 0, 0, 0, 0, 0};
+        int[] buildSkill = {0, -10, -15, -20, -30, -40, -50};
         int[] healSkill = {0, 3, 5, 7, 10, 15, 25};
         switch(this){
             case ATTACK: return attackSkill[level];
@@ -114,5 +114,4 @@ public enum SkillType{
         this.skillEffect = skillEffect;
         this.cooldown = cooldown;
     }
-
 }
