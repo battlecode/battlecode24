@@ -9,8 +9,8 @@ def resize_image(input_path, output_path, size):
 def process_directory(directory_path, size=(64, 64)):
     for root, dirs, files in os.walk(directory_path):
         for file in files:
-            print(file)
             if "_64x64" not in file:
+                print(file)
                 file_path = os.path.join(root, file)
                 filename, file_extension = os.path.splitext(file)
 
@@ -20,6 +20,8 @@ def process_directory(directory_path, size=(64, 64)):
 
                     resize_image(file_path, output_path, size)
                     print(f"Resized {file} to {new_filename}")
+                    resize_image(file_path, file_path, 256)
+                    print(f"Shrunk {file} to 256x256")
 
 if __name__ == "__main__":
     process_directory('img')
