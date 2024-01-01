@@ -20,7 +20,7 @@ def process_directory(directory_path, size=(64, 64)):
 
                     resize_image(file_path, output_path, size)
                     print(f"Resized {file} to {new_filename}")
-                    resize_image(file_path, file_path, 256)
+                    resize_image(file_path, file_path, (256,256))
                     print(f"Shrunk {file} to 256x256")
 
 if __name__ == "__main__":
