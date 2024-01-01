@@ -18,12 +18,18 @@ export const GameRenderer: React.FC = () => {
 
     const [selectedBodyID, setSelectedBodyID] = useState<number | undefined>(undefined)
     const [hoveredTile, setHoveredTile] = useState<Vector | undefined>(undefined)
+    const [selectedSquare, setSelectedSquare] = useState<Vector | undefined>(undefined)
     const [hoveredBodyID, setHoveredBodyID] = useState<number | undefined>(undefined)
     const calculateHoveredBodyID = () => {
         if (!hoveredTile) return setHoveredBodyID(undefined)
         const match = appContext.state.activeMatch
         if (!match) return
-        setHoveredBodyID(match.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y)?.id)
+        const hoveredBodyIDFound = match.currentTurn.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y)?.id
+        setHoveredBodyID(hoveredBodyIDFound)
+
+        // always clear this so the selection is cleared when you move
+        //if (hoveredBodyIDFound) setSelectedSquare(undefined)
+        setSelectedSquare(undefined)
     }
     useEffect(calculateHoveredBodyID, [hoveredTile])
     useListenEvent(EventType.TURN_PROGRESS, calculateHoveredBodyID)
@@ -75,6 +81,7 @@ export const GameRenderer: React.FC = () => {
             x: match.currentTurn.map.width,
             y: match.currentTurn.map.height
         })
+        setSelectedSquare(undefined)
         publishEvent(EventType.INITIAL_RENDER, {})
     }, [appContext.state.activeMatch, backgroundCanvas.current, dynamicCanvas.current, overlayCanvas.current])
 
@@ -119,6 +126,7 @@ export const GameRenderer: React.FC = () => {
         const point = eventToPoint(e)
         const clickedBody = activeGame?.currentMatch?.currentTurn?.bodies.getBodyAtLocation(point.x, point.y)
         setSelectedBodyID(clickedBody ? clickedBody.id : undefined)
+        setSelectedSquare(clickedBody || !activeMatch?.game.playable ? undefined : point)
         publishEvent(EventType.TILE_CLICK, point)
     }
     const onCanvasDrag = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -180,6 +188,7 @@ export const GameRenderer: React.FC = () => {
                         overlayCanvas={overlayCanvas.current}
                         selectedBodyID={selectedBodyID}
                         hoveredBodyID={hoveredBodyID}
+                        selectedSquare={selectedSquare}
                         wrapper={wrapperRef}
                     />
                     <HighlightedSquare
@@ -188,6 +197,14 @@ export const GameRenderer: React.FC = () => {
                         wrapperRef={wrapperRef.current}
                         overlayCanvasRef={overlayCanvas.current}
                     />
+                    {/* {selectedSquare && (
+                        <HighlightedSquare
+                            hoveredTile={selectedSquare}
+                            map={activeMatch?.currentTurn.map}
+                            wrapperRef={wrapperRef.current}
+                            overlayCanvasRef={overlayCanvas.current}
+                        />
+                    )} */}
                 </div>
             )}
         </div>

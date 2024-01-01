@@ -58,10 +58,10 @@ export default class Bodies {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
-            assert(!body?.dead, `Moved body ${id} is dead`)
-            assert.equal(allowNullBodies || !!body, true, `Moved body ${id} not found in bodies`)
+            assert(allowNullBodies || (!body?.dead && !body?.jailed), `Moved body ${id} is dead`)
+            assert(allowNullBodies || !!body, `Moved body ${id} not found in bodies`)
 
-            if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
+            if (body && !body.dead) body.moveTo({ x: xsArray[i], y: ysArray[i] })
         }
     }
 
@@ -70,7 +70,8 @@ export default class Bodies {
      * be inserted, followed by a call to scopedCallback() in which all bodies are valid.
      */
     applyDelta(turn: Turn, delta: schema.Round, nextDelta: schema.Round | null): void {
-        for (const body of this.bodies.values()) if (body.dead) this.bodies.delete(body.id)
+        for (const body of this.bodies.values()) if (body.dead) body.jailed = true
+        //this.bodies.delete(body.id) in most games
 
         const bodies = delta.spawnedBodies()
         if (bodies) this.insertBodies(bodies, turn.stat.completed ? undefined : turn.stat)
@@ -83,7 +84,7 @@ export default class Bodies {
         // since the first call is really only necessary for bodies that die, so there is potential for
         // optimization.
         this.updateBodyPositions(delta, false)
-        for (const [id, body] of this.bodies) body.addToPrevSquares()
+        for (const [id, body] of this.bodies) if (!body.jailed) body.addToPrevSquares()
         if (nextDelta) {
             this.updateBodyPositions(nextDelta, true)
         }
@@ -127,19 +128,21 @@ export default class Bodies {
 
         if (!turn.stat.completed) {
             // calculate some stats that are completely recalculated every turn
-            turn.stat.getTeamStat(this.game.teams[0]).specializationTotalLevels = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[0]).robots = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[1]).robots = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[0]).totalHealth = [0, 0, 0, 0]
-            turn.stat.getTeamStat(this.game.teams[1]).totalHealth = [0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[0]).specializationTotalLevels = [0, 0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[0]).robots = [0, 0, 0, 0, 0]
+            turn.stat.getTeamStat(this.game.teams[1]).robots = [0, 0, 0, 0, 0]
             for (const body of this.bodies.values()) {
                 const teamStat = turn.stat.getTeamStat(body.team)
-                teamStat.totalHealth[body.getSpecialization().idx] += body.hp
-                teamStat.robots[body.getSpecialization().idx] += 1
-                teamStat.specializationTotalLevels[1] += body.attackLevel
-                teamStat.specializationTotalLevels[2] += body.buildLevel
-                teamStat.specializationTotalLevels[3] += body.healLevel
+                if (body.dead || body.jailed) {
+                    teamStat.robots[4] += 1
+                    teamStat.specializationTotalLevels[4] += (body.healLevel + body.buildLevel + body.attackLevel) / 3
+                } else {
+                    teamStat.robots[body.getSpecialization().idx] += 1
+                    teamStat.specializationTotalLevels[1] += body.attackLevel
+                    teamStat.specializationTotalLevels[2] += body.buildLevel
+                    teamStat.specializationTotalLevels[3] += body.healLevel
+                }
             }
         }
 
@@ -187,10 +190,26 @@ export default class Bodies {
             const bodyClass = BODY_DEFINITIONS[0] ?? assert.fail(`Body type ${0} not found in BODY_DEFINITIONS`)
             const health = this.game.playable ? this.game.constants.robotBaseHealth() : 1
 
-            this.bodies.set(
-                id,
-                new bodyClass(this.game, { x: xsArray[i], y: ysArray[i] }, health, this.game.getTeamByID(teams[i]), id)
-            )
+            if (this.bodies.has(id)) {
+                //respawn jailed body
+                const body = this.bodies.get(id) ?? assert.fail(`Body with id ${id} not found in bodies`)
+                assert(body.jailed && body.dead, `Body with id ${id} is not jailed or dead`)
+                body.hp = health
+                body.jailed = false
+                body.dead = false
+                body.resetPos({ x: xsArray[i], y: ysArray[i] })
+            } else {
+                this.bodies.set(
+                    id,
+                    new bodyClass(
+                        this.game,
+                        { x: xsArray[i], y: ysArray[i] },
+                        health,
+                        this.game.getTeamByID(teams[i]),
+                        id
+                    )
+                )
+            }
             if (stat) {
                 const newBody =
                     this.bodies.get(id) ?? assert.fail(`Body with id ${id} should have been added to bodies`)
@@ -227,7 +246,8 @@ export default class Bodies {
         hoveredBodyID?: number
     ): void {
         for (const body of this.bodies.values())
-            body.draw(match, ctx, overlayCtx, config, body.id === selectedBodyID, body.id === hoveredBodyID)
+            if (!body.jailed)
+                body.draw(match, ctx, overlayCtx, config, body.id === selectedBodyID, body.id === hoveredBodyID)
     }
 
     getNextID(): number {
@@ -238,6 +258,7 @@ export default class Bodies {
         let found_dead_body: Body | undefined = undefined
         for (const body of this.bodies.values()) {
             if ((!team || body.team === team) && body.pos.x === x && body.pos.y === y) {
+                if (body.jailed) continue
                 if (body.dead) found_dead_body = body
                 else return body
             }
@@ -294,6 +315,7 @@ export class Body {
     public indicatorDots: { location: Vector; color: string }[] = []
     public indicatorLines: { start: Vector; end: Vector; color: string }[] = []
     public dead: boolean = false
+    public jailed: boolean = false
     constructor(
         private game: Game,
         public pos: Vector,
@@ -465,6 +487,12 @@ export class Body {
         this.nextPos = pos
     }
 
+    public resetPos(pos: Vector): void {
+        this.pos = pos
+        this.nextPos = pos
+        this.prevSquares = [pos]
+    }
+
     public addToPrevSquares(): void {
         this.prevSquares.push(this.pos)
         if (this.prevSquares.length > TOOLTIP_PATH_LENGTH) {
@@ -478,8 +506,8 @@ export class Body {
         assert(this.buildLevel >= 0 && this.buildLevel <= 6, 'Build level out of bounds')
         assert([this.attackLevel, this.healLevel, this.buildLevel].sort()[1] <= 3, 'Specialization level too high')
         if (this.attackLevel > 3) return { idx: 1, name: 'attack' }
-        if (this.healLevel > 3) return { idx: 2, name: 'heal' }
-        if (this.buildLevel > 3) return { idx: 3, name: 'build' }
+        if (this.buildLevel > 3) return { idx: 2, name: 'build' }
+        if (this.healLevel > 3) return { idx: 3, name: 'heal' }
         return { idx: 0, name: 'base' }
     }
 }
