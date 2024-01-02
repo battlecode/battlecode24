@@ -55,7 +55,7 @@ dependencies {
     [group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'],
 
     // Javadoc manipulation libraries
-    files(System.getenv('JAVA_HOME') + '/lib/tools.jar')
+    files("$System.env.JAVA_HOME" + '/lib/tools.jar')
   )
 
   testImplementation(

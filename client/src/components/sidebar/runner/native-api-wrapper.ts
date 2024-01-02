@@ -1,14 +1,7 @@
-export interface NativeProcess {
-    onStdout: (callback: (data: string) => void) => void
-    onStderr: (callback: (data: string) => void) => void
-    onClose: (callback: (code: number) => void) => void
-    onError: (callback: (err: Error) => void) => void
-    kill: () => void
-}
-
 export type NativeAPI = {
     openScaffoldDirectory: () => Promise<string | undefined>
     getRootPath: () => Promise<string>
+    getJavas: () => Promise<string[]>
     path: {
         join: (...args: string[]) => Promise<string>
         relative: (from: string, to: string) => Promise<string>
@@ -22,7 +15,7 @@ export type NativeAPI = {
         getFiles: (path: string, recursive?: string) => Promise<string[]>
     }
     child_process: {
-        spawn: (scaffoldPath: string, args: string[]) => Promise<string>
+        spawn: (scaffoldPath: string, javaPath: string, args: string[]) => Promise<string>
         kill: (pid: string) => Promise<void>
         onStdout: (callback: (x: { pid: string; data: string }) => void) => void
         onStderr: (callback: (x: { pid: string; data: string }) => void) => void

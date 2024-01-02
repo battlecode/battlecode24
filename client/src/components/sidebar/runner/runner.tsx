@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { useScaffold } from './scaffold'
+import React, { UIEvent, useEffect, useRef, useState } from 'react'
+import { JavaInstall, useScaffold } from './scaffold'
 import { Button, SmallButton } from '../../button'
 import { nativeAPI } from './native-api-wrapper'
 import { Select } from '../../forms'
+import { InputDialog } from '../../input-dialog'
+import Tooltip from '../../tooltip'
 
 type RunnerPageProps = {
     scaffold: ReturnType<typeof useScaffold>
@@ -13,6 +15,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
         setup,
         availableMaps,
         availablePlayers,
+        javaInstalls,
         manuallySetupScaffold,
         scaffoldLoading,
         runMatch,
@@ -20,6 +23,22 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
         consoleLines
     ] = scaffold
 
+    const getStoredInstalls = () => {
+        const installs = JSON.parse(localStorage.getItem('customInstalls') ?? '[]') as string[]
+        return installs.map((path) => ({
+            display: path,
+            path
+        }))
+    }
+
+    const getDefaultInstall = () => {
+        const install = localStorage.getItem('defaultInstall') ?? ''
+        const storedInstalls = getStoredInstalls()
+        return [...javaInstalls, ...storedInstalls].find((i) => i.path == install)
+    }
+
+    const [customInstalls, setCustomInstalls] = useState<JavaInstall[]>(getStoredInstalls())
+    const [java, setJava] = useState<JavaInstall | undefined>(getDefaultInstall())
     const [teamA, setTeamA] = useState<string | undefined>(undefined)
     const [teamB, setTeamB] = useState<string | undefined>(undefined)
     const [maps, setMaps] = useState<Set<string>>(new Set())
@@ -31,12 +50,14 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
 
     const runGame = () => {
         if (!teamA || !teamB || maps.size === 0 || !runMatch) return
-        runMatch(teamA, teamB, maps)
+        const javaPath = java ? java.path : javaInstalls.length > 0 ? javaInstalls[0].path : ''
+        runMatch(javaPath, teamA, teamB, maps)
     }
 
     // if instance of non-electron scaffold, then we need to connect to the server
     if (!nativeAPI) return <>Run the client locally to use the runner</>
 
+    const runDisabled = !teamA || !teamB || maps.size === 0
     return (
         <div className={'flex flex-col grow ' + (scaffoldLoading ? 'opacity-50 pointer-events-none' : '')}>
             {!setup ? (
@@ -58,11 +79,31 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
                         onSelect={(m) => setMaps(new Set([...maps, m]))}
                         onDeselect={(m) => setMaps(new Set([...maps].filter((x) => x !== m)))}
                     />
+                    <JavaSelector
+                        java={java}
+                        javaInstalls={[...javaInstalls, ...customInstalls]}
+                        onSelect={(j) => {
+                            setJava(j)
+                            localStorage.setItem('defaultInstall', j ? j.path : '')
+                        }}
+                        onAddCustom={(c) => {
+                            const newInstalls = [...customInstalls, c]
+                            setCustomInstalls(newInstalls)
+                            localStorage.setItem('customInstalls', JSON.stringify(newInstalls.map((i) => i.path)))
+                        }}
+                    />
 
                     {!killMatch ? (
-                        <Button onClick={runGame} disabled={!teamA || !teamB || maps.size === 0}>
-                            Run Game
-                        </Button>
+                        <div className="w-fit mx-auto">
+                            <Tooltip
+                                location="bottom"
+                                text={runDisabled ? 'Please select both teams and a map' : 'Run the game'}
+                            >
+                                <Button className="mt-2" onClick={runGame} disabled={runDisabled}>
+                                    Run Game
+                                </Button>
+                            </Tooltip>
+                        </div>
                     ) : (
                         <Button onClick={killMatch}>Kill Game</Button>
                     )}
@@ -152,6 +193,61 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
     )
 }
 
+interface JavaSelectorProps {
+    java: JavaInstall | undefined
+    javaInstalls: JavaInstall[]
+    onSelect: (install: JavaInstall | undefined) => void
+    onAddCustom: (install: JavaInstall) => void
+}
+
+const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
+    const [selectPath, setSelectPath] = React.useState(false)
+
+    const closeDialog = (path: string) => {
+        if (path) {
+            const newJava = { display: path, path }
+            props.onAddCustom(newJava)
+            props.onSelect(newJava)
+        }
+        setSelectPath(false)
+    }
+
+    return (
+        <>
+            <div className="flex flex-col flex-grow mt-3">
+                <label>Java Instance</label>
+                <Select
+                    className="w-full"
+                    value={props.java ? props.java.path : ''}
+                    onChange={(e) => {
+                        if (e == '') {
+                            props.onSelect(undefined)
+                        } else if (e == 'CUSTOM') {
+                            setSelectPath(true)
+                        } else {
+                            props.onSelect(props.javaInstalls.find((j) => j.path == e)!)
+                        }
+                    }}
+                >
+                    <option value={''}>Auto</option>
+                    <option value={'CUSTOM'}>Custom</option>
+                    {props.javaInstalls.map((t) => (
+                        <option key={t.path} value={t.path}>
+                            {t.display}
+                        </option>
+                    ))}
+                </Select>
+            </div>
+            <InputDialog
+                open={selectPath}
+                onClose={closeDialog}
+                title="Custom Java Path"
+                description="Enter the Java path (should end with /Home)"
+            />
+        </>
+    )
+}
+
 export type ConsoleLine = { content: string; type: 'output' | 'error' | 'bold' }
 
 type Props = {
@@ -159,6 +255,10 @@ type Props = {
 }
 
 export const Console: React.FC<Props> = ({ lines }) => {
+    const consoleRef = useRef<HTMLDivElement>(null)
+
+    const [tail, setTail] = useState(true)
+
     const getLineClass = (line: ConsoleLine) => {
         switch (line.type) {
             case 'output':
@@ -170,16 +270,17 @@ export const Console: React.FC<Props> = ({ lines }) => {
         }
     }
 
-    const consoleRef = useRef<HTMLDivElement>(null)
+    const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+        const div = e.currentTarget
+        const isScrolledToBottom = div.scrollTop + div.offsetHeight - div.scrollHeight >= -10
+        setTail(isScrolledToBottom)
+    }
 
     useEffect(() => {
-        if (consoleRef.current) {
-            const { scrollHeight, clientHeight, scrollTop } = consoleRef.current
-            const isScrolledToBottom = scrollHeight - clientHeight <= scrollTop + 40
-
-            if (isScrolledToBottom) {
-                consoleRef.current.scrollTop = consoleRef.current.scrollHeight
-            }
+        if (lines.length == 0) setTail(true)
+        if (tail && consoleRef.current) {
+            consoleRef.current.scrollTop = consoleRef.current.scrollHeight
+            setTail(true)
         }
     }, [lines])
 
@@ -188,6 +289,7 @@ export const Console: React.FC<Props> = ({ lines }) => {
             <label>Console</label>
             <div
                 ref={consoleRef}
+                onScroll={handleScroll}
                 className="flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col"
                 style={{ height: 'calc(50vh - 150px)' }}
             >

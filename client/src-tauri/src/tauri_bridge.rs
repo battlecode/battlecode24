@@ -15,6 +15,7 @@ const listenEvent = (name, callback) => __TAURI__.event.listen(name, (event) => 
 const tauriAPI = {
     openScaffoldDirectory: (...args) => invokeSingleResult('openScaffoldDirectory', ...args),
     getRootPath: (...args) => invokeSingleResult('getRootPath', ...args),
+    getJavas: (...args) => invokeArrayResult('getJavas', ...args),
     path: {
         join: (...args) => invokeSingleResult('path.join', ...args),
         relative: (...args) => invokeSingleResult('path.relative', ...args),
@@ -28,7 +29,7 @@ const tauriAPI = {
     },
     child_process: {
         // Combine arguments into one array
-        spawn: (...args) => invokeSingleResult('child_process.spawn', args[0], ...args[1]),
+        spawn: (...args) => invokeSingleResult('child_process.spawn', args[0], args[1], ...args[2]),
         kill: (...args) => invokeSingleResult('child_process.kill', ...args),
         onStdout: (callback) => listenEvent('child-process-stdout', callback),
         onStderr: (callback) => listenEvent('child-process-stderr', callback),

@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen: electronScreen, ipcMain, dialog } = require(
 const isDev = require('electron-is-dev')
 const path = require('path')
 const fs = require('fs')
+const javaFind = require('java-find')
 const child_process = require('child_process')
 
 let mainWindow
@@ -61,6 +62,24 @@ const getFiles = (dir, recursive) => {
     return files
 }
 
+const reformatJavaPath = (javaPath) => {
+    if (!javaPath) return ''
+
+    // Ensure that the found path is a jdk install
+    if (!javaPath.toLowerCase().includes('jdk')) return ''
+
+    const hasLeadingSlash = javaPath[0] == '/'
+
+    // Ensure that the java path ends with 'Home' since that is what JAVA_HOME expects
+    const items = javaPath.split(path.sep)
+    while (items.length > 0) {
+        if (items[items.length - 1] == 'Home') break
+        items.pop()
+    }
+
+    return (hasLeadingSlash ? '/' : '') + path.join(...items)
+}
+
 const processes = new Map()
 function killAllProcesses() {
     while (processes.size > 0) {
@@ -82,6 +101,22 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
             return result.canceled ? undefined : result.filePaths[0]
         case 'getRootPath':
             return app.getAppPath()
+        case 'getJavas':
+            const output = []
+            const foundPaths = {}
+            try {
+                const javas = (await javaFind.getJavas()).filter((j) => j.version.major == 1 && j.version.minor == 8)
+                for (const j of javas) {
+                    const v = j.version
+                    const displayStr = `${v.major}.${v.minor}.${v.patch}_${v.update} (${j.arch})`
+                    const formattedPath = reformatJavaPath(j.path)
+                    if (!formattedPath || formattedPath in foundPaths) continue
+                    foundPaths[formattedPath] = true
+                    output.push(displayStr)
+                    output.push(formattedPath)
+                }
+            } catch {}
+            return output
         case 'path.join':
             return path.join(...args)
         case 'path.relative':
@@ -98,9 +133,12 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
             return getFiles(args[0], args[1] === 'true')
         case 'child_process.spawn': {
             const scaffoldPath = args[0]
-            const flags = args[1]
+            const javaPath = args[1]
+            const flags = args[2]
             const wrapperPath = path.join(scaffoldPath, GRADLE_WRAPPER)
-            const child = child_process.spawn(wrapperPath, flags, { cwd: scaffoldPath })
+            const options = { cwd: scaffoldPath }
+            if (javaPath) options.env = { JAVA_HOME: javaPath }
+            const child = child_process.spawn(wrapperPath, flags, options)
             const pid = child.pid.toString()
 
             processes.set(pid, child)
@@ -124,7 +162,9 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
         }
         case 'child_process.kill': {
             const pid = args[0]
-            if (processes.has(pid)) processes.get(pid).kill()
+            if (processes.has(pid)) {
+                processes.get(pid).kill()
+            }
             return
         }
         default:

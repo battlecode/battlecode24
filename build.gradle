@@ -5,6 +5,10 @@ import java.nio.file.*
 
 sourceCompatibility = 1.8
 
+if(JavaVersion.current() != JavaVersion.VERSION_1_8) {
+    throw new GradleException("The engine must be run using Java 8")
+}
+
 // Avoid weird configuration-time dependency bugs
 // Fun fact: this line of code single-handedly fixed an error I spent two hours debugging.
 evaluationDependsOnChildren()
