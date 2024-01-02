@@ -10,18 +10,17 @@ export const Select: React.FC<PropsWithChildren<SelectProps>> = (props) => {
     return (
         <div className="relative">
             <select
-                className={props.className + ' appearance-none border border-black py-1 px-1 rounded-md w-full h-full'}
+                className={
+                    props.className +
+                    ' appearance-none border border-black py-1 px-1 rounded-md w-full h-full overflow-hidden'
+                }
                 value={props.value}
                 onChange={(e) => props.onChange(e.target.value)}
             >
                 {props.children}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center mx-1 my-2 bg-white bg-opacity-75 pointer-events-none">
-                <svg
-                    className="w-5 h-5 fill-current text-black"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                >
+                <svg className="w-5 h-5 fill-current text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path
                         fillRule="evenodd"
                         clipRule="evenodd"
