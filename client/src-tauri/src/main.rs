@@ -91,7 +91,7 @@ async fn tauri_api(
             match dialog_result {
                 Some(d) => {
                     if let Ok(mut file) = fs::File::create(d) {
-                        file.write_all(&data);
+                        let _ = file.write_all(&data);
                     }
                 }
                 None => {}
