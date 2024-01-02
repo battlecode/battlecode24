@@ -161,17 +161,15 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_BREAD_AMOUNT);
-                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_BREAD_AMOUNT);
+                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_CRUMBS_AMOUNT);
+                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_CRUMBS_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
-            if (this.currentRound % GameConstants.PASSIVE_INCREASE_ROUNDS == 0){
-                this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_BREAD_INCREASE);
-                this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_BREAD_INCREASE);
-            }
+            this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
+            this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -208,9 +206,7 @@ public strictfp class GameWorld {
         // been visited:
 
         // NOTE: changed this from destroy to despawn; double check that this change is correct
-        //probably an issue with robot code erroring out and getting terminated when not actually spawned?
-        //may need to differentiate between death causes and despawn/destroy appropriately
-        //TODO: I think after destroy robot fix this should no longer check location and go back to destroying
+        //allowing despawned robots to continue throwing errors may be cause of gc overhead errors
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null && robot.getLocation() != null)
             despawnRobot(robot.getID());
         return true;
@@ -282,7 +278,7 @@ public strictfp class GameWorld {
 
     /**
      * Checks if a given location is a spawn zone.
-     * Returns 0 if not, 2 if it is a Team A spawn zone,
+     * Returns 0 if not, 1 if it is a Team A spawn zone,
      * and 2 if it is a Team B spawn zone.
      * 
      * @param loc the location to check
@@ -401,7 +397,7 @@ public strictfp class GameWorld {
                 break;
             case WATER:
                 for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.enterRadius)){
-                    if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(loc) != 0)
+                    if (getRobot(adjLoc) != null || !isPassable(adjLoc) || getSpawnZone(adjLoc) != 0 || getTrap(adjLoc) != null)
                         continue;
                     setWater(adjLoc);
                     matchMaker.addAction(-1, Action.DIG, locationToIndex(adjLoc));
@@ -507,21 +503,6 @@ public strictfp class GameWorld {
     public MapLocation[] getSpawnLocations(Team team){
         return this.spawnLocations[team.ordinal()];
     }
-    
-
-    public int getMovementCooldown(Team team) {
-        return 10;
-    }
-
-    public int getActionCooldown(Team team, SkillType skill){
-        if (this.teamInfo.getGlobalUpgrades(team)[0]){
-            return GlobalUpgrade.ACTION.cooldownReductionChange + skill.cooldown;
-        }
-        else{
-            return skill.cooldown;
-        }
-    }
-
 
     // *********************************
     // ****** GAMEPLAY *****************
@@ -530,8 +511,11 @@ public strictfp class GameWorld {
     public void processBeginningOfRound() {
         //Update flag broadcast locations after a certain number of rounds
         if(currentRound % GameConstants.FLAG_BROADCAST_UPDATE_INTERVAL == 0) updateFlagBroadcastLocations();
-
         currentRound++;
+        if(currentRound != 0 && currentRound % GameConstants.GLOBAL_UPGRADE_ROUNDS == 0) {
+            teamInfo.incrementGlobalUpgradePoints(Team.A);
+            teamInfo.incrementGlobalUpgradePoints(Team.B);
+        }
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
@@ -567,50 +551,27 @@ public strictfp class GameWorld {
         totalFlagsCaptured[Team.B.ordinal()] += this.teamInfo.getFlagsCaptured(Team.B);
         
         if (totalFlagsCaptured[Team.A.ordinal()] > totalFlagsCaptured[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            setWinner(Team.A, DominationFactor.MORE_FLAG_CAPTURES);
             return true;
         } else if (totalFlagsCaptured[Team.B.ordinal()] > totalFlagsCaptured[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            setWinner(Team.B, DominationFactor.MORE_FLAG_CAPTURES);
             return true;
         }
         return false;
     }
 
     /**
-     * @return whether a team has more tier three units
+     * @return whether a team has a higher total robot level
      */
-    public boolean setWinnerIfMoreTierThree(){
-        int[] totalTierThree = new int[2];
-
-        // consider team reserves
-        totalTierThree[Team.A.ordinal()] += this.teamInfo.getTierThree(Team.A);
-        totalTierThree[Team.B.ordinal()] += this.teamInfo.getTierThree(Team.B);
-        
-        if (totalTierThree[Team.A.ordinal()] > totalTierThree[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.TIER_THREE);
-            return true;
-        } else if (totalTierThree[Team.B.ordinal()] > totalTierThree[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.TIER_THREE);
+    public boolean setWinnerIfGreaterLevelSum() {
+        int sumA = teamInfo.getLevelSum(Team.A), sumB = teamInfo.getLevelSum(Team.B);
+        System.out.println(sumA + ", " + sumB);
+        if(sumA > sumB) {
+            setWinner(Team.A, DominationFactor.LEVEL_SUM);
             return true;
         }
-        return false;
-    }
-
-    /**
-     * @return whether a team has more tier two units
-     */
-    public boolean setWinnerIfMoreTierTwo(){
-        int[] totalTierTwo = new int[2];
-
-        // consider team reserves
-        totalTierTwo[Team.A.ordinal()] += this.teamInfo.getTierTwo(Team.A);
-        totalTierTwo[Team.B.ordinal()] += this.teamInfo.getTierTwo(Team.B);
-        
-        if (totalTierTwo[Team.A.ordinal()] > totalTierTwo[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.TIER_TWO);
-            return true;
-        } else if (totalTierTwo[Team.B.ordinal()] > totalTierTwo[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.TIER_TWO);
+        else if(sumB > sumA) {
+            setWinner(Team.B, DominationFactor.LEVEL_SUM);
             return true;
         }
         return false;
@@ -673,11 +634,8 @@ public strictfp class GameWorld {
     public void checkEndOfMatch() {
         if (timeLimitReached() && gameStats.getWinner() == null) {
             if (setWinnerIfMoreFlags()) return;
-            if (setWinnerIfMoreTierThree()) return;
-            if (setWinnerIfMoreTierTwo()) return;
+            if (setWinnerIfGreaterLevelSum()) return;
             if (setWinnerIfMoreBread()) return;
-            if (setWinnerIfMoreFlagsPickedUp()) return;
-
             setWinnerArbitrary();
         }
     }
@@ -696,7 +654,7 @@ public strictfp class GameWorld {
                     
                     //check if the opponent team has the additional flag return delay upgrade
                     if(this.teamInfo.getGlobalUpgrades(opponent_team)[1]){
-                        additional_delay += GlobalUpgrade.CAPTURING.flagReturnDelayChange;
+                        additional_delay = GlobalUpgrade.CAPTURING.flagReturnDelayChange;
                     }
                     
                     if(flag.getDroppedRounds() >= GameConstants.FLAG_DROPPED_RESET_ROUNDS + additional_delay)
@@ -756,8 +714,6 @@ public strictfp class GameWorld {
         addFlag(location, flag);
         matchMaker.addAction(flag.getId(), Action.PLACE_FLAG, locationToIndex(location));
         flag.setStartLoc(location);
-        if(water[locationToIndex(location)]) 
-            water[locationToIndex(location)] = false;
     }
     
     // *********************************
@@ -792,7 +748,6 @@ public strictfp class GameWorld {
      */
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
-        Team team = robot.getTeam();
         if (robot.getLocation() != null)
         removeRobot(robot.getLocation());
 

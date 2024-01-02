@@ -31,11 +31,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * The robot this controller controls.
      */
     private final InternalRobot robot;
-
-    /**
-     * An rng based on the world seed.
-     */
-    private static Random random;
     
     /**
      * Create a new RobotControllerImpl
@@ -46,8 +41,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotControllerImpl(GameWorld gameWorld, InternalRobot robot) {
         this.gameWorld = gameWorld;
         this.robot = robot;
-
-        this.random = new Random(gameWorld.getMapSeed());
     }
 
     // *********************************
@@ -70,6 +63,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return getID();
     }
 
+    private InternalRobot getRobotByID(int id) {
+        if (!this.gameWorld.getObjectInfo().existsRobot(id))
+            return null;
+        return this.gameWorld.getObjectInfo().getRobotByID(id);
+    }
+
+    private int locationToInt(MapLocation loc) {
+        return this.gameWorld.locationToIndex(loc);
+    }
+
+    private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
+        GameWorld gw = this.gameWorld;
+
+        Trap trap = gw.getTrap(loc);
+        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
+            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
+
+        return currentLocInfo;
+    }
+
     // *********************************
     // ****** GLOBAL QUERY METHODS *****
     // *********************************
@@ -87,11 +101,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public int getMapHeight() {
         return this.gameWorld.getGameMap().getHeight();
-    }
-
-    @Override
-    public int getRobotCount() {
-        return this.gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
     // *********************************
@@ -128,18 +137,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getHealth();
     }
     @Override
-    public int getBreadAmount() {
+    public int getCrumbs() {
         return this.gameWorld.getTeamInfo().getBread(getTeam());
-    }
-
-    private InternalRobot getRobotByID(int id) {
-        if (!this.gameWorld.getObjectInfo().existsRobot(id))
-            return null;
-        return this.gameWorld.getObjectInfo().getRobotByID(id);
-    }
-
-    private int locationToInt(MapLocation loc) {
-        return this.gameWorld.locationToIndex(loc);
     }
 
     // ***********************************
@@ -164,9 +163,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Target location not within vision range");
     }
 
-    private void assertCanActLocation(MapLocation loc) throws GameActionException {
+    private void assertCanActLocation(MapLocation loc, int maxRadius) throws GameActionException {
         assertNotNull(loc);
-        if (!this.robot.canActLocation(loc))
+        if (getLocation().distanceSquaredTo(loc) > maxRadius)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
         if (!this.gameWorld.getGameMap().onTheMap(loc))
@@ -178,14 +177,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canSenseLocation(MapLocation loc) {
         try {
             assertCanSenseLocation(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public boolean canActLocation(MapLocation loc) {
-        try {
-            assertCanActLocation(loc);
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -320,17 +311,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return valid;
     }
 
-    private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
-        GameWorld gw = this.gameWorld;
-
-        Trap trap = gw.getTrap(loc);
-        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
-            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
-
-        return currentLocInfo;
-    }
-
     @Override
     public MapInfo senseMapInfo(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
@@ -390,185 +370,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x)).collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
-    }
-
-    // ***********************************
-    // ****** MAP LOCATION METHODS *******
-    // ***********************************
-
-    private void assertCanHeal(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanActLocation(loc);
-        if(this.gameWorld.getRobot(loc) == null) {
-            throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
-        }
-        if(this.gameWorld.getRobot(loc).getTeam() != this.getTeam()) {
-            throw new GameActionException(CANT_DO_THAT, "The robot at this location is the other team.");
-        }
-        if(this.gameWorld.getRobot(loc).getHealth() == GameConstants.DEFAULT_HEALTH) {
-            throw new GameActionException(CANT_DO_THAT, "The robot at this location is at full health.");
-        }
-    }
-
-    @Override
-    public boolean canHeal(MapLocation loc) {
-        try {
-            assertCanHeal(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    /**
-     * Heals unit at another location.
-     * 
-     * @param loc the location of the bot
-     */
-    public void heal(MapLocation loc) throws GameActionException{
-        assertCanHeal(loc);
-        InternalRobot bot = this.gameWorld.getRobot(loc);
-        int healAmt = this.robot.getHeal();
-        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.HEAL_COOLDOWN*(1+.01*SkillType.HEAL.getCooldown(this.robot.getLevel(SkillType.HEAL)))));
-
-        bot.addHealth(healAmt);
-        if(this.robot.getLevel(SkillType.BUILD) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.HEAL);
-        }
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL, bot.getID());
-    }
-
-    // ***********************************
-    // ****** BUILDING METHODS ********
-    // ***********************************
-
-    private void assertCanBuild(TrapType trap, MapLocation loc) throws GameActionException{
-        assertNotNull(trap);
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (getBreadAmount() < trap.buildCost){
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
-        }
-        for (InternalRobot rob : this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent())){
-            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
-        }
-        if (trap.equals(TrapType.EXPLOSIVE)){
-            if (!this.gameWorld.isPassable(loc) && !this.gameWorld.getWater(loc))
-                throw new GameActionException(CANT_DO_THAT, "Can only place explosive traps on land or water tiles");
-        }
-        else{
-            if (!this.gameWorld.isPassable(loc))
-                throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
-        }
-        //TODO: can this be used to check for enemy traps??
-        //I think so but idk way around this while maintaining 1 trap per tile (or setting all trigger radii to 1)
-        if (this.gameWorld.hasTrap(loc)){
-            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a trap already on it.");
-        }
-    }
-
-    @Override
-    public boolean canBuild(TrapType trap, MapLocation loc){
-        try{
-            assertCanBuild(trap, loc);
-            return true;
-        }
-        catch (GameActionException e){
-            return false;
-        }
-    }
-
-    @Override
-    public void build(TrapType trap, MapLocation loc) throws GameActionException{
-        assertCanBuild(trap, loc);
-        this.gameWorld.placeTrap(loc, trap, this.getTeam());
-        this.robot.addResourceAmount(-1*(trap.buildCost));
-        this.robot.addActionCooldownTurns((int) Math.round(trap.actionCooldownIncrease*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
-
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
-    }
-
-
-    private void assertCanFill(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (!this.gameWorld.getWater(loc))
-            throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
-        if (getBreadAmount() < GameConstants.FILL_COST)
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
-    }
-
-    @Override
-    public boolean canFill(MapLocation loc) {
-        try {
-            assertCanFill(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public void fill(MapLocation loc) throws GameActionException{
-        assertCanFill(loc);
-        this.robot.addActionCooldownTurns((int) Math.round((GameConstants.FILL_COOLDOWN)*(1 + .01 * SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
-        this.robot.addMovementCooldownTurns();
-        this.robot.addResourceAmount(-1* GameConstants.FILL_COST);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
-        this.gameWorld.getMatchMaker().addFillLocation(loc);
-        this.gameWorld.setLand(loc);
-
-        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-           // this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
-            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
-        }
-
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
-    }
-
-    private void assertCanDig(MapLocation loc) throws GameActionException {
-        assertCanActLocation(loc);
-        assertIsActionReady();
-        if (this.gameWorld.getWater(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
-        if (this.gameWorld.getWall(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
-        if (this.gameWorld.getSpawnZone(loc) != 0)
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
-        if (isLocationOccupied(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
-        if (getBreadAmount() < GameConstants.DIG_COST)
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
-        if (this.gameWorld.hasFlag(loc))
-            throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
-    }
-
-    @Override
-    public boolean canDig(MapLocation loc) {
-        try {
-            assertCanDig(loc);
-            return true;
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public void dig(MapLocation loc) throws GameActionException{
-        assertCanDig(loc);
-        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(this.robot.getLevel(SkillType.BUILD)))));
-        this.robot.addResourceAmount(-1*GameConstants.DIG_COST);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
-        this.gameWorld.getMatchMaker().addDigLocation(loc);
-        this.gameWorld.setWater(loc);
-
-        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
-            //this.gameWorld.triggerTrap(this.gameWorld.getTrap(loc), this.robot, false);
-            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
-        }
-
-        if(this.robot.getLevel(SkillType.HEAL) < 4 && this.robot.getLevel(SkillType.ATTACK) < 4){
-            this.robot.incrementSkill(SkillType.BUILD);
-        }
-
     }
 
     // ***********************************
@@ -679,11 +480,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                //this.gameWorld.triggerTrap(trap, this.robot, true);
                 this.robot.addTrapTrigger(trap, true);
             } else {
-               // this.gameWorld.triggerTrap(trap, this.robot, false);
-               this.robot.addTrapTrigger(trap, false);
+                this.robot.addTrapTrigger(trap, false);
             }
         }
         
@@ -698,7 +497,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
-    // ****** BUILDING/SPAWNING **********
+    // ************ SPAWNING *************
     // ***********************************
 
     public MapLocation[] getAllySpawnLocations(){
@@ -753,17 +552,171 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addSpawned(this.robot.getID(), this.robot.getTeam(), this.robot.getLocation());
     }
 
+    // ***********************************
+    // ****** BUILDING METHODS ********
+    // ***********************************
+
+    private void assertCanBuild(TrapType trap, MapLocation loc) throws GameActionException{
+        assertNotNull(trap);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
+        assertIsActionReady();
+        int resources = (int) Math.round(trap.buildCost*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources){
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources");
+        }
+        if(this.gameWorld.getAllRobotsWithinRadiusSquared(loc, 2, getTeam().opponent()).length != 0) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap directly on or next to an enemy robot.");
+        }
+        if (trap.equals(TrapType.EXPLOSIVE)){
+            if (!this.gameWorld.isPassable(loc) && !this.gameWorld.getWater(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place explosive traps on land or water tiles");
+        }
+        else{
+            if (!this.gameWorld.isPassable(loc))
+                throw new GameActionException(CANT_DO_THAT, "Can only place this trap on land tiles.");
+        }
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() == getTeam()){
+            throw new GameActionException(CANT_DO_THAT, "Cannot place a trap on a tile with a friendly trap already on it.");
+        }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't build while holding a flag");
+        }
+    }
+
+    @Override
+    public boolean canBuild(TrapType trap, MapLocation loc){
+        try{
+            assertCanBuild(trap, loc);
+            return true;
+        }
+        catch (GameActionException e){
+            return false;
+        }
+    }
+
+    @Override
+    public void build(TrapType trap, MapLocation loc) throws GameActionException{
+        assertCanBuild(trap, loc);
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(trap.actionCooldownIncrease*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(trap.buildCost*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
+        this.robot.addResourceAmount(resources);
+        
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
+            return;
+        }
+
+        this.gameWorld.placeTrap(loc, trap, this.getTeam());
+        this.robot.incrementSkill(SkillType.BUILD);
+    }
+
+    private void assertCanFill(MapLocation loc) throws GameActionException {
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
+        assertIsActionReady();
+        if (!this.gameWorld.getWater(loc))
+            throw new GameActionException(CANT_DO_THAT, "Can't fill a tile that is not water!");
+        int resources = (int) Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to fill.");
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't fill while holding a flag");
+        }
+    }
+
+    @Override
+    public boolean canFill(MapLocation loc) {
+        try {
+            assertCanFill(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void fill(MapLocation loc) throws GameActionException{
+        assertCanFill(loc);
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(GameConstants.FILL_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
+        this.robot.addMovementCooldownTurns();
+        this.robot.addResourceAmount(resources);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addFillLocation(loc);
+        this.gameWorld.setLand(loc);
+
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
+        }
+
+        this.robot.incrementSkill(SkillType.BUILD);
+    }
+
+    private void assertCanDig(MapLocation loc) throws GameActionException {
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
+        assertIsActionReady();
+        if (this.gameWorld.getWater(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that is already water.");
+        if (this.gameWorld.getWall(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a wall.");
+        if (this.gameWorld.getSpawnZone(loc) != 0)
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a spawn zone");
+        if (isLocationOccupied(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile that has a robot on it!");
+        int resources = (int) Math.round(GameConstants.DIG_COST*(1+0.01*SkillType.BUILD.getSkillEffect(this.robot.getLevel(SkillType.BUILD))));
+        if (getCrumbs() < resources)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, "Insufficient resources to dig.");
+        if (this.gameWorld.hasFlag(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
+        if(this.robot.hasFlag())
+            throw new GameActionException(CANT_DO_THAT, "Can't dig while holding a flag");
+    }
+
+    @Override
+    public boolean canDig(MapLocation loc) {
+        try {
+            assertCanDig(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void dig(MapLocation loc) throws GameActionException{
+        assertCanDig(loc);
+        int buildLevel = this.robot.getLevel(SkillType.BUILD);
+        int cooldownIncrease = (int) Math.round(GameConstants.DIG_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
+        int resources = (int) -Math.round(GameConstants.DIG_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
+        this.robot.addActionCooldownTurns(cooldownIncrease);
+        this.robot.addResourceAmount(resources);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG, locationToInt(loc));
+        this.gameWorld.getMatchMaker().addDigLocation(loc);
+        this.gameWorld.setWater(loc);
+
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
+            this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
+        }
+
+        this.robot.incrementSkill(SkillType.BUILD);
+    }
+
     // *****************************
-    // **** COMBAT UNIT METHODS **** 
+    // ****** ATTACK / HEAL ******** 
     // *****************************
 
     private void assertCanAttack(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.ATTACK_RADIUS_SQUARED);
         assertIsActionReady();
         InternalRobot bot = gameWorld.getRobot(loc);
         if (bot == null || bot.getTeam() == this.getTeam()) {
             throw new GameActionException(CANT_DO_THAT, "No enemy robot to attack at this location"); 
+        }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't attack while holding a flag");
+        }
+        if(gameWorld.isSetupPhase()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack during setup phase");
         }
     }
 
@@ -782,6 +735,43 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.attack(loc);
     }
 
+    private void assertCanHeal(MapLocation loc) throws GameActionException {
+        assertNotNull(loc);
+        assertCanActLocation(loc, GameConstants.HEAL_RADIUS_SQUARED);
+        assertIsActionReady();
+        if(this.gameWorld.getRobot(loc) == null) {
+            throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
+        }
+        if(this.gameWorld.getRobot(loc).getTeam() != this.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "The robot at this location is the other team.");
+        }
+        if(this.gameWorld.getRobot(loc).getHealth() == GameConstants.DEFAULT_HEALTH) {
+            throw new GameActionException(CANT_DO_THAT, "The robot at this location is at full health.");
+        }
+        if(this.robot.hasFlag()) {
+            throw new GameActionException(CANT_DO_THAT, "Can't heal while holding a flag");
+        }
+    }
+
+    @Override
+    public boolean canHeal(MapLocation loc) {
+        try {
+            assertCanHeal(loc);
+            return true;
+        } catch (GameActionException e) { return false; }
+    }
+
+    public void heal(MapLocation loc) throws GameActionException{
+        assertCanHeal(loc);
+        InternalRobot bot = this.gameWorld.getRobot(loc);
+        int healAmt = this.robot.getHeal();
+        this.robot.addActionCooldownTurns((int) Math.round(GameConstants.HEAL_COOLDOWN*(1+.01*SkillType.HEAL.getCooldown(this.robot.getLevel(SkillType.HEAL)))));
+
+        bot.addHealth(healAmt);
+        this.robot.incrementSkill(SkillType.HEAL);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.HEAL, bot.getID());
+    }
+
     // ***************************
     // ******* FLAG METHODS ******
     // ***************************
@@ -793,7 +783,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanDropFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
+        assertIsSpawned();
+        assertIsActionReady();
         if (!robot.hasFlag())
             throw new GameActionException(CANT_DO_THAT, 
                 "This robot is not holding a flag.");
@@ -801,8 +793,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!this.gameWorld.isPassable(loc))
         throw new GameActionException(CANT_DO_THAT, 
                 "A flag can't be placed at this location.");
-
-        // TODO decide whether flags can be placed on traps, and if so create the code for the check
     }
 
     @Override
@@ -812,7 +802,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return true;
         } catch (GameActionException e) { return false; }
     }
-    
 
     @Override
     public void dropFlag(MapLocation loc) throws GameActionException{
@@ -820,13 +809,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Flag flag = robot.getFlag();
         this.gameWorld.addFlag(loc, flag);
         this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
+        this.robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         robot.removeFlag();   
     }
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc);
+        assertCanActLocation(loc, GameConstants.INTERACT_RADIUS_SQUARED);
         assertIsSpawned();
+        assertIsActionReady();
         if(robot.hasFlag()) {
             throw new GameActionException(CANT_DO_THAT, "This robot is already holding flag.");
         }
@@ -835,18 +826,24 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         Team team = getTeam();
         if (!this.gameWorld.isSetupPhase()) team = team.opponent();
-        boolean validFlagExists = false;
+        boolean validFlagTeamExists = false;
+        boolean validFlagRoundsExists = false;
         for (Flag f : this.gameWorld.getFlags(loc)){
             if (f.getTeam() == team){
-                validFlagExists = true;
-                break;
+                validFlagTeamExists = true;
+            }
+            if(gameWorld.isSetupPhase() || f.getLoc() == f.getStartLoc() || f.getDroppedRounds() != 0) {
+                validFlagRoundsExists = true;
             }
         }
-        if (!validFlagExists && gameWorld.isSetupPhase()){
+        if (!validFlagTeamExists && gameWorld.isSetupPhase()){
             throw new GameActionException(CANT_DO_THAT, "Cannot pick up enemy team flags during setup phase");
         }
-        if (!validFlagExists && !gameWorld.isSetupPhase()){
+        if (!validFlagTeamExists && !gameWorld.isSetupPhase()){
             throw new GameActionException(CANT_DO_THAT, "Cannot pick up ally flags after setup phase");
+        }
+        if(!validFlagRoundsExists) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up an enemy flag in the same round it was dropped");
         }
     }
 
@@ -871,6 +868,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         this.gameWorld.removeFlag(loc, tempflag);
         robot.addFlag(tempflag);
+        robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
         this.gameWorld.getTeamInfo().pickupFlag(getTeam());
     }
@@ -915,29 +913,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getTeamInfo().writeSharedArray(getTeam(), index, value);
     }
 
-
-
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
 
     private void assertCanBuyGlobal(GlobalUpgrade ug) throws GameActionException{
         int i = -1;
         if(ug == GlobalUpgrade.ACTION)
             i = 0;
         else if(ug == GlobalUpgrade.CAPTURING)
-            i=1;
+            i = 1;
         else if(ug == GlobalUpgrade.HEALING)
-            i=2;
-        else if (ug == GlobalUpgrade.SPEED)
-            i=3;
+            i = 2;
         boolean hasBought = this.gameWorld.getTeamInfo().getGlobalUpgrades(getTeam())[i];
         if (hasBought)
            throw new GameActionException(CANT_DO_THAT, "Cannot buy an upgrade you already have!");
         if (this.gameWorld.getTeamInfo().getGlobalUpgradePoints(getTeam()) <= 0)
             throw new GameActionException(CANT_DO_THAT, "Cannot buy an upgrade with no global upgrade points!");
-        
     }
 
     @Override
@@ -953,6 +945,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void buyGlobal(GlobalUpgrade ug) throws GameActionException{
         assertCanBuyGlobal(ug);
         this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.GLOBAL_UPGRADE, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(ug));
     }
 
     @Override

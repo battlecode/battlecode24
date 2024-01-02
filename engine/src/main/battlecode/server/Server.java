@@ -411,14 +411,11 @@ public strictfp class Server implements Runnable {
             case MORE_FLAG_CAPTURES:
                 sb.append("The winning team won on tiebreakers (captured more flags).");
                 break;
-            case TIER_THREE:
-                sb.append("The winning team won on tiebreakers (more tier 3 units).");
-                break;
-            case TIER_TWO:
-                sb.append("The winning team won on tiebreakers (more tier 2 units).");
+            case LEVEL_SUM:
+                sb.append("The winning team won on tiebreakers (higher sum of all unit levels).");
                 break;
             case MORE_BREAD:
-                sb.append("The winning team won on tiebreakers (more bread)");
+                sb.append("The winning team won on tiebreakers (more crumbs)");
                 break;
             case MORE_FLAGS_PICKED:
                 sb.append("The winning team won on tiebreakers (more flags picked up).");

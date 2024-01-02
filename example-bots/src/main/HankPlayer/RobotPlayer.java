@@ -121,7 +121,7 @@ public class RobotPlayer {
             }
         }
 
-        RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+        RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ATTACK_RADIUS_SQUARED, rc.getTeam().opponent());
         if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())){
             rc.attack(enemies[0].getLocation());
             //System.out.println("punched someone");
@@ -129,6 +129,16 @@ public class RobotPlayer {
 
         rc.setIndicatorDot(rc.getLocation().add(Direction.NORTH), 200, 0, 0);
         rc.setIndicatorLine(rc.getLocation().add(Direction.WEST), rc.getLocation().add(Direction.EAST), 0, 0, 250);
+
+        if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+            rc.buyGlobal(GlobalUpgrade.ACTION);
+            System.out.println("Buying action upgrade at round " + rc.getRoundNum());
+        }
+
+        if(rc.canBuyGlobal(GlobalUpgrade.CAPTURING)) {
+            rc.buyGlobal(GlobalUpgrade.CAPTURING);
+            System.out.println("Buying capturing upgrade at round " + rc.getRoundNum());
+        }
     }
 
     private static void moveRandom(RobotController rc) throws GameActionException {

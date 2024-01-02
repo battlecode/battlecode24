@@ -1,6 +1,7 @@
 package battlecode.server;
 
 import battlecode.common.GameConstants;
+import battlecode.common.GlobalUpgrade;
 import battlecode.common.MapLocation;
 import battlecode.common.SkillType;
 import battlecode.common.TrapType;
@@ -261,16 +262,17 @@ public strictfp class GameMaker {
             int teamsOffset = GameHeader.createTeamsVector(builder, teamsVec);
             int specializationMetadataOffset = makeSpecializationMetadata(builder);
             int buildActionMetadataOffset = makeBuildActionMetadata(builder);
+            int globalUpgradeMetadataOffset = makeGlobalUpgradeMetadata(builder);
 
             GameplayConstants.startGameplayConstants(builder);
             GameplayConstants.addSetupPhaseLength(builder, GameConstants.SETUP_ROUNDS);
             GameplayConstants.addFlagMinDistance(builder, GameConstants.MIN_FLAG_SPACING_SQUARED);
             GameplayConstants.addGlobalUpgradeRoundDelay(builder, GameConstants.GLOBAL_UPGRADE_ROUNDS);
-            GameplayConstants.addPassiveResourceRate(builder, GameConstants.PASSIVE_BREAD_INCREASE);
+            GameplayConstants.addPassiveResourceRate(builder, GameConstants.PASSIVE_CRUMBS_INCREASE);
             GameplayConstants.addRobotBaseHealth(builder, GameConstants.DEFAULT_HEALTH);
             GameplayConstants.addJailedRounds(builder, GameConstants.JAILED_ROUNDS);
             GameplayConstants.addVisionRadius(builder, GameConstants.VISION_RADIUS_SQUARED);
-            GameplayConstants.addActionRadius(builder, GameConstants.ACTION_RADIUS_SQUARED);
+            GameplayConstants.addActionRadius(builder, GameConstants.ATTACK_RADIUS_SQUARED);
             int constantsOffset = GameplayConstants.endGameplayConstants(builder);
 
             GameHeader.startGameHeader(builder);
@@ -278,7 +280,7 @@ public strictfp class GameMaker {
             GameHeader.addTeams(builder, teamsOffset);
             GameHeader.addSpecializationMetadata(builder, specializationMetadataOffset);
             GameHeader.addBuildActionMetadata(builder, buildActionMetadataOffset);
-            //TODO global upgrade metadata
+            GameHeader.addGlobalUpgradeMetadata(builder, globalUpgradeMetadataOffset);
             GameHeader.addConstants(builder, constantsOffset);
             int gameHeaderOffset = GameHeader.endGameHeader(builder);
 
@@ -338,6 +340,17 @@ public strictfp class GameMaker {
         return GameHeader.createBuildActionMetadataVector(builder, buildActionMetadataOffsets.toArray());
     }
 
+    public int makeGlobalUpgradeMetadata(FlatBufferBuilder builder){
+        TIntArrayList globalUpgradeMetadataOffsets = new TIntArrayList();
+        for(GlobalUpgrade upgrade : GlobalUpgrade.values()) {
+            GlobalUpgradeMetadata.startGlobalUpgradeMetadata(builder);
+            GlobalUpgradeMetadata.addType(builder, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(upgrade));
+            GlobalUpgradeMetadata.addUpgradeAmount(builder, getUpgradeAmount(upgrade));
+            globalUpgradeMetadataOffsets.add(GlobalUpgradeMetadata.endGlobalUpgradeMetadata(builder));
+        }
+        return GameHeader.createGlobalUpgradeMetadataVector(builder, globalUpgradeMetadataOffsets.toArray());
+    }
+
     private byte skillTypeToSpecializationType(SkillType type) {
         if (type == SkillType.ATTACK) return SpecializationType.ATTACK;
         if (type == SkillType.BUILD) return SpecializationType.BUILD;
@@ -350,6 +363,13 @@ public strictfp class GameMaker {
         if (type == TrapType.WATER) return BuildActionType.WATER_TRAP;
         if (type == TrapType.STUN) return BuildActionType.STUN_TRAP;
         return Byte.MIN_VALUE;
+    }
+
+    private int getUpgradeAmount(GlobalUpgrade gu) {
+        if(gu == GlobalUpgrade.ACTION) return gu.cooldownReductionChange;
+        if(gu == GlobalUpgrade.HEALING) return gu.baseHealChange;
+        if(gu == GlobalUpgrade.CAPTURING) return gu.flagReturnDelayChange;
+        return 0;
     }
 
     public void makeGameFooter(Team winner) {
