@@ -4,7 +4,6 @@ import battlecode.common.*;
 import battlecode.schema.Action;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The representation of a robot used by the server.
@@ -55,7 +54,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the location of the robot
      * @param team the team of the robot
      */
-    @SuppressWarnings("unchecked")
     public InternalRobot(GameWorld gw, int id, Team team) {
         this.gameWorld = gw;
 
@@ -193,7 +191,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, health, location);
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null);
         return this.cachedRobotInfo;
     }
 
@@ -220,31 +218,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canMoveCooldown() {
         return this.movementCooldownTurns < GameConstants.COOLDOWN_LIMIT;
-    }
-
-    /**
-     * Returns the robot's action radius squared.
-     */
-    public int getActionRadiusSquared() {
-        return GameConstants.ACTION_RADIUS_SQUARED;
-    }
-
-    /**
-     * Returns whether this robot can perform actions on the given location.
-     * 
-     * @param toAct the MapLocation to act
-     */
-    public boolean canActLocation(MapLocation toAct) {
-        return this.location.distanceSquaredTo(toAct) <= getActionRadiusSquared();
-    }
-
-    /**
-     * Returns whether this robot can act at a given radius away.
-     * 
-     * @param radiusSquared the distance squared to act
-     */
-    public boolean canActRadiusSquared(int radiusSquared) {
-        return radiusSquared <= getActionRadiusSquared();
     }
 
     /**
@@ -308,7 +281,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.location = loc;
     }
 
-
     /**
      * Resets the action cooldown.
      */
@@ -320,7 +292,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        setMovementCooldownTurns(this.movementCooldownTurns + this.gameWorld.getMovementCooldown(team));
+        setMovementCooldownTurns(this.movementCooldownTurns + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
     }
 
     /**
@@ -359,21 +331,28 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void jailedPenalty(){
         if(this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0) return;
-        if(this.buildExp > this.attackExp && this.buildExp > this.healExp) this.buildExp -= SkillType.BUILD.getPenalty(this.getLevel(SkillType.BUILD));
-        else if (this.attackExp > this.healExp && this.attackExp > this.healExp) this.attackExp -= SkillType.ATTACK.getPenalty(this.getLevel(SkillType.ATTACK));
-        else this.healExp -= SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
+        int attackLevel = getLevel(SkillType.ATTACK), buildLevel = getLevel(SkillType.BUILD), healLevel = getLevel(SkillType.HEAL);
+        if(attackLevel >= buildLevel && attackLevel >= healLevel) this.attackExp += SkillType.ATTACK.getPenalty(attackLevel);
+        else if(buildLevel >= attackLevel && buildLevel >= healLevel) this.buildExp += SkillType.BUILD.getPenalty(buildLevel);
+        else this.healExp += SkillType.HEAL.getPenalty(healLevel);
     }
 
     /**
      * increment exp for a robot
      */
-    public void incrementSkill(SkillType skill){
+    public void incrementSkill(SkillType skill) {
         if(skill == SkillType.BUILD)
-            this.buildExp ++;
+            if(this.buildExp < skill.getExperience(3) || (getLevel(SkillType.HEAL) < 4 && getLevel(SkillType.ATTACK) < 4)){
+                this.buildExp ++;
+            }
         if(skill == SkillType.HEAL)
-            this.healExp ++;
+            if(this.healExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.ATTACK) < 4)){
+                this.healExp ++;
+            }
         if(skill == SkillType.ATTACK)
-            this.attackExp ++;
+            if(this.attackExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.HEAL) < 4)){
+                this.attackExp ++;
+            }
     }
 
     // *********************************
@@ -388,6 +367,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void spawn(MapLocation loc) {
         this.spawned = true;
         this.location = loc;
+        this.roundsAlive = 0;
+        this.health = GameConstants.DEFAULT_HEALTH;
+        //this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        //this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
     }
 
     public void despawn() {
@@ -416,7 +399,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Attacks another location (launcher).
+     * Attacks another location if there is an opponent robot.
      * 
      * @param loc the location of the bot
      */
@@ -428,9 +411,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
-            if(this.getLevel(SkillType.BUILD) < 4 && this.getLevel(SkillType.HEAL) < 4){
-                this.attackExp += 1;
-            }
+            incrementSkill(SkillType.ATTACK);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
     }

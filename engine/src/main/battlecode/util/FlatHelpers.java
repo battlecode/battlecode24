@@ -1,9 +1,11 @@
 package battlecode.util;
 
+import battlecode.common.GlobalUpgrade;
 import battlecode.common.TrapType;
 import battlecode.schema.VecTable;
 import battlecode.schema.Action;
 import battlecode.schema.BuildActionType;
+import battlecode.schema.GlobalUpgradeType;
 import battlecode.schema.RGBTable;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.TByteCollection;
@@ -48,6 +50,14 @@ public class FlatHelpers {
                 throw new RuntimeException("No build action type for " + type);
         }
     }
+
+    public static byte getGlobalUpgradeTypeFromGlobalUpgrade(GlobalUpgrade gu) {
+        if(gu == GlobalUpgrade.ACTION) return GlobalUpgradeType.ACTION_UPGRADE;
+        if(gu == GlobalUpgrade.HEALING) return GlobalUpgradeType.HEALING_UPGRADE;
+        if(gu == GlobalUpgrade.CAPTURING) return GlobalUpgradeType.CAPTURING_UPGRADE;
+        return Byte.MIN_VALUE;
+    }
+
 
     /**
      * DO NOT CALL THIS WITH OFFSETS!

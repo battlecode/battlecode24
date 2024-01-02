@@ -173,7 +173,6 @@ public final strictfp class GameMapIO {
         }
 
         Collections.sort(result);
-
         return result;
     }
 
@@ -247,6 +246,8 @@ public final strictfp class GameMapIO {
             for (int i = 0; i < num_piles; i++){
                 MapLocation cur = new MapLocation(resourcePiles.xs(i), resourcePiles.ys(i));
                 int amt = raw.resourcePileAmounts(i);
+                // support older maps by multiplying crumbs by 10 if value is low
+                if(amt < 100) amt *= 10;
                 breadArray[cur.x+cur.y*width] = amt;
             }
 
@@ -257,9 +258,6 @@ public final strictfp class GameMapIO {
                     spawnZoneArray[loc.x + loc.y*width] = (i % 2 == 0) ? 1 : 2;
                 }
             }
-          //  ArrayList<RobotInfo> initBodies = new ArrayList<>();
-
-          //  RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
                 width, height, origin, seed, rounds, mapName, symmetry, wallArray, waterArray, damArray, breadArray, spawnZoneArray);

@@ -1,11 +1,6 @@
 package battlecode.common;
 
-import static battlecode.common.GameActionExceptionType.*;
-
-import java.util.Arrays;
-
 public class MapInfo {
-
 
     private MapLocation loc;
 
@@ -13,32 +8,24 @@ public class MapInfo {
 
     private boolean isWall;
 
-    private int spawnZone; // 0 = Team A, 1 = Team B, -1 = not a spawn zone
+    //0 = Team A, 1 = Team B, -1 = not a spawn zone
+    private int spawnZone;
 
     private boolean isWater;
 
-    private int breadAmount;
+    private int crumbsAmount;
 
     private TrapType trapType;
 
-
-
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int breadAmount, TrapType trapType){
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
         this.spawnZone = spawnZone;
         this.isWater = isWater;
-        this.breadAmount = breadAmount;
+        this.crumbsAmount = crumbsAmount;
         this.trapType = trapType;
     }
-
-    private void assertValidTeam(Team team) throws GameActionException {
-        if (team != Team.A && team != Team.B) {
-            throw new GameActionException(CANT_DO_THAT, "Must pass valid team to get info about a space");
-        }
-    }
-
 
     /**
      * Returns if this square is passable.
@@ -96,17 +83,16 @@ public class MapInfo {
     }
 
     /**
-     * Returns the amount of bread on this square.
-     * If there is no bread on the square, returns 0.
+     * Returns the amount of crumbs on this square.
+     * If there are no crumbs on the square, returns 0.
      * 
-     * @return the amount of bread on the square
+     * @return the amount of crumbs on the square
      * 
      * @battlecode.doc.costlymethod
      */
-    public int getBreadAmount() {
-        return breadAmount;
+    public int getCrumbs() {
+        return crumbsAmount;
     }
-
 
     /**
      * Returns the location of this square
@@ -119,9 +105,6 @@ public class MapInfo {
         return loc;
     }
 
-
-
-
     public String toString(){
         return "Location{" +
                 "loc=" + loc +
@@ -129,10 +112,9 @@ public class MapInfo {
                 (isWater ? ", water" : "") +
                 (spawnZone == 0 ? ", team A spawn zone" : "") +
                 (spawnZone == 1 ? ", team B spawn zone" : "") +
-                (breadAmount == 0 ? "" : ", bread=" + breadAmount) +
+                (crumbsAmount == 0 ? "" : ", crumbs=" + crumbsAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 '}';
-
     }
 
 }

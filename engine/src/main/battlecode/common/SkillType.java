@@ -9,22 +9,16 @@ public enum SkillType{
     // base skill effect, base cooldown - build is 0 because variable
     /**
      * Attacking immediately reduces one enemy unit's (in range) base health by 15 (level 0), with a cooldown cost of 20.
-     *
-     * @battlecode.doc.skilltype
      */
     ATTACK(15, 20),
     
     /**
      * Build uses team resources to dig, fill, or build a trap.
-     *
-     * @battlecode.doc.skilltype
      */
     BUILD(0, 0),
     
     /**
      * Healing adds 8 health points to a nearby friendly unit, with a cooldown cost of 30. (level 0)
-     * 
-     * @battlecode.doc.skilltype
      */
     HEAL(8, 30);
 
@@ -33,13 +27,15 @@ public enum SkillType{
 
 
     /**
-     * Returns the number of experience points needed to achieve each level
+     * Returns the number of experience points needed to achieve each level.
      * 
+     * @param level the level
      * @return number of experience points needed to achieve each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getExperience(int level){
-        int[] attackExperience = {0, 25, 50, 75, 125, 175, 250};
+        int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
         int[] buildExperience = {0, 10, 20, 30, 50, 75, 125};
         int[] healExperience = {0, 10, 20, 30, 50, 75, 125};
         switch(this){
@@ -51,10 +47,13 @@ public enum SkillType{
     }
 
     // NOTE: These are using percentages except for attack, standardize later
+
     /**
-     * Returns the change in cooldown for each level
+     * Returns the change in cooldown for each level.
      * 
+     * @param level the level
      * @return change in cooldown for each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getCooldown(int level){
@@ -70,15 +69,18 @@ public enum SkillType{
     }
 
     // ALL PERCENTAGES RN
+
     /**
      * Returns the change in skill effect for each level
      * 
+     * @param level the level
      * @return change in skill effect for each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getSkillEffect(int level){
         int[] attackSkill = {0, 5, 10, 15, 20, 30, 50};
-        int[] buildSkill = {0, 0, 0, 0, 0, 0, 0};
+        int[] buildSkill = {0, -10, -15, -20, -30, -40, -50};
         int[] healSkill = {0, 3, 5, 7, 10, 15, 25};
         switch(this){
             case ATTACK: return attackSkill[level];
@@ -91,7 +93,9 @@ public enum SkillType{
     /**
      * Returns the penalty of experience points from being jailed in each level
      * 
+     * @param level the level
      * @return penalty of experience points from being jailed in each level
+     * 
      * @battlecode.doc.costlymethod
      */
     public int getPenalty(int level){
@@ -110,5 +114,4 @@ public enum SkillType{
         this.skillEffect = skillEffect;
         this.cooldown = cooldown;
     }
-
 }

@@ -27,12 +27,15 @@ public class RobotInfo {
      */
     public final MapLocation location;
 
-    public RobotInfo(int ID, Team team, int health, MapLocation location) {
+    public final boolean hasFlag;
+
+    public RobotInfo(int ID, Team team, int health, MapLocation location, boolean hasFlag) {
         super();
         this.ID = ID;
         this.team = team;
         this.health = health;
         this.location = location;
+        this.hasFlag = hasFlag;
     }
 
     /**
@@ -69,6 +72,10 @@ public class RobotInfo {
      */
     public MapLocation getLocation() {
         return this.location;
+    }
+
+    public boolean hasFlag() {
+        return this.hasFlag;
     }
 
     @Override

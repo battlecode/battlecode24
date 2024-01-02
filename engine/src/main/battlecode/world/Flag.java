@@ -85,5 +85,4 @@ public class Flag {
     public void incrementDroppedRounds() {
         droppedRounds += 1;
     }
-
 }

@@ -47,7 +47,7 @@ public class RobotPlayer {
                     break;
                 }
             }
-            RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+            RobotInfo[] enemies = rc.senseNearbyRobots(GameConstants.ATTACK_RADIUS_SQUARED, rc.getTeam().opponent());
             if (enemies.length != 0 && rc.canAttack(enemies[0].getLocation())) rc.attack(enemies[0].getLocation());
 
         }
