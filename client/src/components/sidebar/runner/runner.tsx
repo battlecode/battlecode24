@@ -300,13 +300,13 @@ export const Console: React.FC<Props> = ({ lines }) => {
     }, [lines])
 
     return (
-        <div className="flex flex-col grow">
+        <div className="flex flex-col grow h-full relative">
             <label>Console</label>
             <div
                 ref={consoleRef}
                 onScroll={handleScroll}
-                className="flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col"
-                style={{ height: 'calc(50vh - 150px)' }}
+                className="top-[25px] absolute flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
+                style={{ height: 'calc(100% - 25px)', maxHeight: 'calc(100% - 25px)' }}
             >
                 {lines.map((line, index) => (
                     <span key={index} className={getLineClass(line) + ' text-xs whitespace-nowrap'}>
