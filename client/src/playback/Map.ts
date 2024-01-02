@@ -260,7 +260,7 @@ export class CurrentMap {
             info.push(`Crumbs: ${resourcePile.amount}`)
         }
         if (trap) {
-            info.push(`${TEAM_COLOR_NAMES[trap.team]} ${BUILD_NAMES[trap.type]} trap`)
+            info.push(`${TEAM_COLOR_NAMES[trap.team - 1]} ${BUILD_NAMES[trap.type]} trap`)
         }
         if (flag) {
             info.push(`${TEAM_COLOR_NAMES[flag.team]} flag`)
