@@ -147,20 +147,7 @@ task release_sources(type: Jar, dependsOn: classes) {
   from project(":engine").sourceSets.main.allSource
 }
 
-task prodClient {
-  doLast {
-    /*
-    exec {
-      commandLine 'npm', 'install'
-      workingDir 'client'
-    }
-    exec {
-      commandLine 'npm', 'run', 'electron-build' 
-      workingDir 'client'
-    }
-      */
-  }
-}
+task prodClient {}
 
 def clientDirPrefix = 'client/artifacts/client-'
 
@@ -184,7 +171,6 @@ publishing {
 
     // Tauri
 
-    /*
     clientWinTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-tauri'
@@ -194,7 +180,6 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
     clientMacTauri(MavenPublication) {
       groupId 'org.battlecode'
@@ -206,7 +191,6 @@ publishing {
       }
     }
 
-    /*
     clientLinuxTauri(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-linux-tauri'
@@ -216,11 +200,9 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
     // Electron
 
-    /*
     clientWinElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-win-electron'
@@ -230,7 +212,6 @@ publishing {
         builtBy prodClient
       }
     }
-*/
 
     clientMacElectron(MavenPublication) {
       groupId 'org.battlecode'
@@ -242,7 +223,6 @@ publishing {
       }
     }
 
-    /*
     clientLinuxElectron(MavenPublication) {
       groupId 'org.battlecode'
       artifactId 'battlecode24-client-linux-electron'
@@ -252,6 +232,5 @@ publishing {
         builtBy prodClient
       }
     }
-*/
   }
 }
