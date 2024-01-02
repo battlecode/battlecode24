@@ -565,7 +565,6 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfGreaterLevelSum() {
         int sumA = teamInfo.getLevelSum(Team.A), sumB = teamInfo.getLevelSum(Team.B);
-        System.out.println(sumA + ", " + sumB);
         if(sumA > sumB) {
             setWinner(Team.A, DominationFactor.LEVEL_SUM);
             return true;

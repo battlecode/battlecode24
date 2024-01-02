@@ -124,7 +124,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public int getLevel(SkillType skill){
         int exp = this.getExp(skill);
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i <= 5; i++){
             if (exp < skill.getExperience(i+1)){
                 return i;
             }
