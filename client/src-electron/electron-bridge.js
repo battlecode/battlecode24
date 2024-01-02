@@ -6,6 +6,7 @@ const electronAPI = {
     openScaffoldDirectory: (...args) => invoke('openScaffoldDirectory', ...args),
     getRootPath: (...args) => invoke('getRootPath', ...args),
     getJavas: (...args) => invoke('getJavas', ...args),
+    exportMap: (...args) => invoke('exportMap', ...args),
     path: {
         join: (...args) => invoke('path.join', ...args),
         relative: (...args) => invoke('path.relative', ...args),

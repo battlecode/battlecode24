@@ -93,15 +93,16 @@ const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
 
 ipcMain.handle('electronAPI', async (event, operation, ...args) => {
     switch (operation) {
-        case 'openScaffoldDirectory':
+        case 'openScaffoldDirectory': {
             const result = await dialog.showOpenDialog({
                 title: 'Please select your battlecode-scaffold directory.',
                 properties: ['openDirectory']
             })
             return result.canceled ? undefined : result.filePaths[0]
+        }
         case 'getRootPath':
             return app.getAppPath()
-        case 'getJavas':
+        case 'getJavas': {
             const output = []
             const foundPaths = {}
             try {
@@ -117,6 +118,18 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
                 }
             } catch {}
             return output
+        }
+        case 'exportMap': {
+            const result = await dialog.showSaveDialog({
+                title: 'Export map',
+                defaultPath: args[1]
+            })
+            if (!result.canceled) {
+                const path = result.filePath
+                fs.writeFileSync(path, new Uint8Array(args[0]))
+            }
+            return
+        }
         case 'path.join':
             return path.join(...args)
         case 'path.relative':

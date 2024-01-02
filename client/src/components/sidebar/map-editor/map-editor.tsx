@@ -11,6 +11,7 @@ import { EventType, publishEvent, useListenEvent } from '../../../app-events'
 import { MapEditorBrush } from './MapEditorBrush'
 import { exportMap, loadFileAsMap } from './MapGenerator'
 import { MAP_SIZE_RANGE } from '../../../constants'
+import { InputDialog } from '../../input-dialog'
 
 type MapParams = {
     width: number
@@ -23,6 +24,8 @@ export const MapEditorPage: React.FC = () => {
     const context = useAppContext()
     const [mapParams, setMapParams] = React.useState<MapParams>({ width: 30, height: 30, symmetry: 0 })
     const [brushes, setBrushes] = React.useState<MapEditorBrush[]>([])
+    const [mapNameOpen, setMapNameOpen] = React.useState(false)
+    const [mapError, setMapError] = React.useState('')
 
     const openBrush = brushes.find((b) => b.open)
 
@@ -148,7 +151,7 @@ export const MapEditorPage: React.FC = () => {
                     <BrightButton
                         onClick={() => {
                             if (!context.state.activeMatch?.currentTurn) return
-                            exportMap(context.state.activeMatch.currentTurn)
+                            setMapNameOpen(true)
                         }}
                     >
                         Export
@@ -156,6 +159,25 @@ export const MapEditorPage: React.FC = () => {
                     <Button onClick={() => inputRef.current?.click()}>Import</Button>
                 </div>
             </div>
+
+            <InputDialog
+                open={mapNameOpen}
+                onClose={(name) => {
+                    if (!name) {
+                        setMapError('')
+                        setMapNameOpen(false)
+                        return
+                    }
+                    const error = exportMap(context.state.activeMatch!.currentTurn, name)
+                    setMapError(error)
+                    if (!error) setMapNameOpen(false)
+                }}
+                title="Export Map"
+                description="Enter a name for this map"
+                placeholder="Name..."
+            >
+                {mapError && <div style={{ color: 'red' }}>{`Could not export map: ${mapError}`}</div>}
+            </InputDialog>
         </>
     )
 }

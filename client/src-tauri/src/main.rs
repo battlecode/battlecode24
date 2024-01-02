@@ -5,8 +5,8 @@ use tauri::{plugin::{Builder as PluginBuilder, TauriPlugin}, Runtime};
 use tauri::api::dialog::blocking::FileDialogBuilder;
 use tauri::api::process::{Command, CommandEvent, CommandChild};
 use relative_path::RelativePath;
-use std::path::Path;
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{path::Path, io::Write};
+use std::{collections::HashMap, sync::{Arc, Mutex}, fs};
 
 mod tauri_bridge;
 
@@ -46,7 +46,8 @@ async fn tauri_api(
     window: tauri::Window,
     state: tauri::State<'_, AppState>,
     operation: String,
-    args: Vec<String>
+    args: Vec<String>,
+    data: Vec<u8>
 ) -> Result<Vec<String>, String> {
     //dbg!(&operation);
     match operation.as_str() {
@@ -81,6 +82,22 @@ async fn tauri_api(
             }
 
             Ok(output)
+        },
+        "exportMap" => {
+            let dialog_result = FileDialogBuilder::new()
+                .set_title("Export map")
+                .set_file_name(&args[0])
+                .save_file();
+            match dialog_result {
+                Some(d) => {
+                    if let Ok(mut file) = fs::File::create(d) {
+                        file.write_all(&data);
+                    }
+                }
+                None => {}
+            }
+
+            Ok(vec![])
         },
         "path.join" => {
             let mut final_path = std::path::PathBuf::new();

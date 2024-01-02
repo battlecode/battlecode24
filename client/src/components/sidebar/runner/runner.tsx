@@ -243,6 +243,7 @@ const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
                 onClose={closeDialog}
                 title="Custom Java Path"
                 description="Enter the Java path (should end with /Home)"
+                placeholder="Path..."
             />
         </>
     )

@@ -4,6 +4,8 @@ interface InputDialogProps {
     open: boolean
     onClose: (val: string) => void
     title: string
+    placeholder?: string
+    defaultValue?: string
     description?: string
     className?: string
 }
@@ -12,7 +14,7 @@ export const InputDialog: React.FC<PropsWithChildren<InputDialogProps>> = (props
     const [value, setValue] = React.useState('')
 
     React.useEffect(() => {
-        if (props.open) setValue('')
+        if (props.open) setValue(props.defaultValue ?? '')
     }, [props.open])
 
     if (!props.open) return <></>
@@ -21,12 +23,13 @@ export const InputDialog: React.FC<PropsWithChildren<InputDialogProps>> = (props
         <div className="fixed flex flex-col items-center justify-center w-full h-full top-0 left-0 bg-gray-500 bg-opacity-50 z-50">
             <div className="flex flex-col flex-between items-center bg-white border border-black shadow-lg w-5/6 md:w-3/4 lg:w-7/12 rounded-xl py-4 px-6">
                 <div className="flex flex-row items-center justify-between w-full">
-                    <div className="font-display text-2xl font-medium text-smoke-25">{props.title}</div>
+                    <div className="font-display text-2xl font-medium">{props.title}</div>
                     <span
                         onClick={() => props.onClose('')}
-                        className="cursor-pointer icon-[mingcute--close-line] bg-smoke-400 hover:bg-smoke-500 h-7 w-7"
+                        className="cursor-pointer icon-[mingcute--close-line] h-7 w-7"
                     ></span>
                 </div>
+                {props.description && <div className="text-md w-full mt-3">{props.description}</div>}
                 <div
                     className="w-full my-4 overflow-y-auto"
                     style={{
@@ -38,13 +41,14 @@ export const InputDialog: React.FC<PropsWithChildren<InputDialogProps>> = (props
                         type={'text'}
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
-                        placeholder="Path..."
+                        placeholder={props.placeholder}
                     />
                 </div>
+                {props.children}
                 <div className="flex flex-row justify-between items-center w-full">
                     <button
                         onClick={() => props.onClose('')}
-                        className="hover:brightness-90 transition cursor-pointer text-md font-display bg-smoke-800 text-smoke-200 rounded-[6px] px-5 py-1.5"
+                        className="hover:brightness-90 transition cursor-pointer text-md font-display rounded-[6px] px-5 py-1.5"
                     >
                         Cancel
                     </button>
@@ -52,8 +56,9 @@ export const InputDialog: React.FC<PropsWithChildren<InputDialogProps>> = (props
                         disabled={value == ''}
                         onClick={() => props.onClose(value)}
                         className={`bg-gradient-to-tr from-purple-gradient-light-start to-purple-gradient-light-end p-[1px] rounded-[7px]`}
+                        style={{ opacity: value == '' ? 0.5 : 1.0 }}
                     >
-                        <div className="hover:brightness-90 transition cursor-pointer text-md font-display bg-smoke-800 text-smoke-saturated-25 rounded-[6px] px-5 py-1.5">
+                        <div className="hover:brightness-90 transition cursor-pointer text-md font-display rounded-[6px] px-5 py-1.5">
                             Confirm
                         </div>
                     </button>
