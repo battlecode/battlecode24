@@ -16,6 +16,7 @@ import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
 import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
 import { ConfigPage } from '../../client-config'
+import { UpdateWarning } from './update-warning';
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -157,6 +158,7 @@ export const Sidebar: React.FC = () => {
                     </div>
                     {open && (
                         <>
+                            <UpdateWarning />
                             <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div
