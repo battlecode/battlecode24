@@ -5,6 +5,7 @@ import { nativeAPI } from './native-api-wrapper'
 import { Select } from '../../forms'
 import { InputDialog } from '../../input-dialog'
 import Tooltip from '../../tooltip'
+import { SectionHeader } from '../../section-header'
 
 type RunnerPageProps = {
     scaffold: ReturnType<typeof useScaffold>
@@ -42,6 +43,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
     const [teamA, setTeamA] = useState<string | undefined>(undefined)
     const [teamB, setTeamB] = useState<string | undefined>(undefined)
     const [maps, setMaps] = useState<Set<string>>(new Set())
+    const [runConfigOpen, setRunConfigOpen] = useState(true)
 
     useEffect(() => {
         if (availablePlayers.size > 0) setTeamA([...availablePlayers][0])
@@ -66,32 +68,40 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
                 </>
             ) : (
                 <>
-                    <TeamSelector
-                        teamA={teamA}
-                        teamB={teamB}
-                        options={availablePlayers}
-                        onChangeA={(t) => setTeamA(t)}
-                        onChangeB={(t) => setTeamB(t)}
-                    />
-                    <MapSelector
-                        maps={maps}
-                        availableMaps={availableMaps}
-                        onSelect={(m) => setMaps(new Set([...maps, m]))}
-                        onDeselect={(m) => setMaps(new Set([...maps].filter((x) => x !== m)))}
-                    />
-                    <JavaSelector
-                        java={java}
-                        javaInstalls={[...javaInstalls, ...customInstalls]}
-                        onSelect={(j) => {
-                            setJava(j)
-                            localStorage.setItem('defaultInstall', j ? j.path : '')
-                        }}
-                        onAddCustom={(c) => {
-                            const newInstalls = [...customInstalls, c]
-                            setCustomInstalls(newInstalls)
-                            localStorage.setItem('customInstalls', JSON.stringify(newInstalls.map((i) => i.path)))
-                        }}
-                    />
+                    <SectionHeader
+                        title="Run Config"
+                        open={runConfigOpen}
+                        onClick={() => setRunConfigOpen(!runConfigOpen)}
+                        //containerClassName="mt-0"
+                        titleClassName="py-2"
+                    >
+                        <TeamSelector
+                            teamA={teamA}
+                            teamB={teamB}
+                            options={availablePlayers}
+                            onChangeA={(t) => setTeamA(t)}
+                            onChangeB={(t) => setTeamB(t)}
+                        />
+                        <MapSelector
+                            maps={maps}
+                            availableMaps={availableMaps}
+                            onSelect={(m) => setMaps(new Set([...maps, m]))}
+                            onDeselect={(m) => setMaps(new Set([...maps].filter((x) => x !== m)))}
+                        />
+                        <JavaSelector
+                            java={java}
+                            javaInstalls={[...javaInstalls, ...customInstalls]}
+                            onSelect={(j) => {
+                                setJava(j)
+                                localStorage.setItem('defaultInstall', j ? j.path : '')
+                            }}
+                            onAddCustom={(c) => {
+                                const newInstalls = [...customInstalls, c]
+                                setCustomInstalls(newInstalls)
+                                localStorage.setItem('customInstalls', JSON.stringify(newInstalls.map((i) => i.path)))
+                            }}
+                        />
+                    </SectionHeader>
 
                     {!killMatch ? (
                         <div className="w-fit mx-auto">
@@ -178,7 +188,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
     return (
         <div className="flex flex-col mt-3">
             <label>Maps</label>
-            <div className="flex flex-col border border-black py-1 px-1 rounded-md h-200 overflow-y-auto">
+            <div className="flex flex-col border border-black py-1 px-1 rounded-md max-h-[190px] overflow-y-auto">
                 {[...availableMaps].map((m) => (
                     <div
                         key={m}
