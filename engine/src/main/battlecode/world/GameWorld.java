@@ -551,10 +551,10 @@ public strictfp class GameWorld {
         totalFlagsCaptured[Team.B.ordinal()] += this.teamInfo.getFlagsCaptured(Team.B);
         
         if (totalFlagsCaptured[Team.A.ordinal()] > totalFlagsCaptured[Team.B.ordinal()]) {
-            setWinner(Team.A, DominationFactor.MORE_FLAGS_PICKED);
+            setWinner(Team.A, DominationFactor.MORE_FLAG_CAPTURES);
             return true;
         } else if (totalFlagsCaptured[Team.B.ordinal()] > totalFlagsCaptured[Team.A.ordinal()]) {
-            setWinner(Team.B, DominationFactor.MORE_FLAGS_PICKED);
+            setWinner(Team.B, DominationFactor.MORE_FLAG_CAPTURES);
             return true;
         }
         return false;
@@ -565,6 +565,7 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfGreaterLevelSum() {
         int sumA = teamInfo.getLevelSum(Team.A), sumB = teamInfo.getLevelSum(Team.B);
+        System.out.println(sumA + ", " + sumB);
         if(sumA > sumB) {
             setWinner(Team.A, DominationFactor.LEVEL_SUM);
             return true;
@@ -635,8 +636,6 @@ public strictfp class GameWorld {
             if (setWinnerIfMoreFlags()) return;
             if (setWinnerIfGreaterLevelSum()) return;
             if (setWinnerIfMoreBread()) return;
-            if (setWinnerIfMoreFlagsPickedUp()) return;
-
             setWinnerArbitrary();
         }
     }
