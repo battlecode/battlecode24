@@ -18,6 +18,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
         availablePlayers,
         javaInstalls,
         manuallySetupScaffold,
+        reloadData,
         scaffoldLoading,
         runMatch,
         killMatch,
@@ -101,6 +102,12 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
                                 localStorage.setItem('customInstalls', JSON.stringify(newInstalls.map((i) => i.path)))
                             }}
                         />
+                        <SmallButton className="mt-2" onClick={reloadData}>
+                            Reload maps & players
+                        </SmallButton>
+                        <SmallButton className="mt-2" onClick={manuallySetupScaffold}>
+                            Re-configure Scaffold
+                        </SmallButton>
                     </SectionHeader>
 
                     {!killMatch ? (
@@ -119,9 +126,6 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
                     )}
 
                     <Console lines={consoleLines} />
-                    <SmallButton className="mt-2" onClick={manuallySetupScaffold}>
-                        Re-configure Scaffold
-                    </SmallButton>
                 </>
             )}
         </div>
