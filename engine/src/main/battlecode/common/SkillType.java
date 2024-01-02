@@ -35,7 +35,7 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getExperience(int level){
-        int[] attackExperience = {0, 25, 50, 75, 125, 175, 250};
+        int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
         int[] buildExperience = {0, 10, 20, 30, 50, 75, 125};
         int[] healExperience = {0, 10, 20, 30, 50, 75, 125};
         switch(this){

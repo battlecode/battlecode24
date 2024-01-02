@@ -41,7 +41,7 @@ public class GameConstants {
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 
     /** The maximum number of bytecodes a bot is allow to use in one turn */
-    public static final int BYTECODE_LIMIT = 80000;
+    public static final int BYTECODE_LIMIT = 30000;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;

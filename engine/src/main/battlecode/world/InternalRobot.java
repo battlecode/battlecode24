@@ -331,15 +331,16 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      */
     public void jailedPenalty(){
         if(this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0) return;
-        if(this.buildExp > this.attackExp && this.buildExp > this.healExp) this.buildExp += SkillType.BUILD.getPenalty(this.getLevel(SkillType.BUILD));
-        else if (this.attackExp > this.healExp && this.attackExp > this.buildExp) this.attackExp += SkillType.ATTACK.getPenalty(this.getLevel(SkillType.ATTACK));
-        else this.healExp += SkillType.HEAL.getPenalty(this.getLevel(SkillType.HEAL));
+        int attackLevel = getLevel(SkillType.ATTACK), buildLevel = getLevel(SkillType.BUILD), healLevel = getLevel(SkillType.HEAL);
+        if(attackLevel >= buildLevel && attackLevel >= healLevel) this.attackExp += SkillType.ATTACK.getPenalty(attackLevel);
+        else if(buildLevel >= attackLevel && buildLevel >= healLevel) this.buildExp += SkillType.BUILD.getPenalty(buildLevel);
+        else this.healExp += SkillType.HEAL.getPenalty(healLevel);
     }
 
     /**
      * increment exp for a robot
      */
-    public void incrementSkill(SkillType skill){
+    public void incrementSkill(SkillType skill) {
         if(skill == SkillType.BUILD)
             if(this.buildExp < skill.getExperience(3) || (getLevel(SkillType.HEAL) < 4 && getLevel(SkillType.ATTACK) < 4)){
                 this.buildExp ++;
@@ -410,7 +411,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         } else {
             int dmg = getDamage();
             bot.addHealth(-dmg);
-            if(!gameWorld.isSetupPhase()) incrementSkill(SkillType.ATTACK);
+            incrementSkill(SkillType.ATTACK);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
         }
     }
