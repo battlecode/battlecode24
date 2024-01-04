@@ -27,20 +27,20 @@ jobs:
         include:
           - platform-name: "macos-latest"
             build-name: "macos"
-            tauri-path: "bundle/macos/*.app"
             tauri-target: "universal-apple-darwin"
+            tauri-copy-path: "bundle/macos/*.app"
           - platform-name: "ubuntu-latest"
             build-name: "linux"
-            tauri-path: "bundle/appimage/*.AppImage"
             tauri-target: "x86_64-unknown-linux-gnu"
+            tauri-copy-path: "bundle/appimage/*.AppImage"
             upload-dist: true
           - platform-name: "windows-latest"
             build-name: "windows"
-            tauri-path: "*.exe"
             tauri-target: "x86_64-pc-windows-msvc"
+            tauri-copy-path: "*.exe"
     runs-on: ${{ matrix.platform-name }}
     env:
-      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-path }}
+      TAURI_OUTPUT: ./src-tauri/target/${{ matrix.tauri-target }}/release/${{ matrix.tauri-copy-path }}
       TAURI_BUILD_COMMAND: npm run tauri-pack -- -t ${{ matrix.tauri-target }}
       ELECTRON_BUILD_COMMAND: npm run electron-pack
 
@@ -55,15 +55,21 @@ jobs:
 
       # Rust toolchain is preinstalled on runner images, but we need to add the arm64
       # toolchain on macos to compile universal apps from the x86 runner
-      - name: Install arm64 rust toolchain
+      - name: Install macos dependencies
         if: startsWith(matrix.platform-name, 'macos')
-        run: rustup target add aarch64-apple-darwin
+        run: |
+          rustup target add aarch64-apple-darwin
+          npm install @tauri-apps/cli-darwin-x64
 
       - name: Install linux dependencies
         if: startsWith(matrix.platform-name, 'ubuntu')
         run: |
           sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
           npm install @tauri-apps/cli-linux-x64-gnu
+
+      - name: Install windows dependencies
+        if: startsWith(matrix.platform-name, 'windows')
+        run: npm install @tauri-apps/cli-win32-x64-msvc
 
       - name: Install schema
         run: npm install
