@@ -148,8 +148,6 @@ task release_sources(type: Jar, dependsOn: classes) {
   from project(":engine").sourceSets.main.allSource
 }
 
-task prodClient {}
-
 def clientDirPrefix = 'client/artifacts/client-'
 
 publishing {
@@ -177,9 +175,7 @@ publishing {
       artifactId 'battlecode24-client-win-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'windows/tauri-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'windows/tauri-output.zip')
     }
 
     clientMacTauri(MavenPublication) {
@@ -187,9 +183,7 @@ publishing {
       artifactId 'battlecode24-client-mac-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'macos/tauri-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'macos/tauri-output.zip')
     }
 
     clientLinuxTauri(MavenPublication) {
@@ -197,9 +191,7 @@ publishing {
       artifactId 'battlecode24-client-linux-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'linux/tauri-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'linux/tauri-output.zip')
     }
 
     // Electron
@@ -209,9 +201,7 @@ publishing {
       artifactId 'battlecode24-client-win-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'windows/electron-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'windows/electron-output.zip')
     }
 
     clientMacElectron(MavenPublication) {
@@ -219,9 +209,7 @@ publishing {
       artifactId 'battlecode24-client-mac-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'macos/electron-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'macos/electron-output.zip')
     }
 
     clientLinuxElectron(MavenPublication) {
@@ -229,9 +217,7 @@ publishing {
       artifactId 'battlecode24-client-linux-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact (clientDirPrefix + 'linux/electron-output.zip') {
-        builtBy prodClient
-      }
+      artifact (clientDirPrefix + 'linux/electron-output.zip')
     }
   }
 }
