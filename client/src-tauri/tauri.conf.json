@@ -23,9 +23,9 @@
       },
       "externalBin": [],
       "icon": [
-        "icons/icon.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
+        "../icons/icon.png",
+        "../icons/icon.icns",
+        "../icons/icon.ico"
       ],
       "identifier": "com.battlecode.client",
       "longDescription": "",
