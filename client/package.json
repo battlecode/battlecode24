@@ -90,9 +90,16 @@
             "node_modules/child_process/**/*",
             "node_modules/path/**/*",
             "node_modules/process/**/*",
-            "node_modules/electron-is-dev/**/*"
+            "node_modules/electron-is-dev/**/*",
+            "node_modules/java-find/**/*",
+            "node_modules/bluebird/**/*",
+            "node_modules/async/**/*",
+            "node_modules/winreg/**/*",
+            "node_modules/which/**/*",
+            "node_modules/underscore/**/*",
+            "node_modules/isexe/**/*"
         ],
-        "includeSubNodeModules": true
+        "includeSubNodeModules": false
     },
     "repository": {
         "type": "git",
