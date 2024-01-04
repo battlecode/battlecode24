@@ -30,12 +30,10 @@ const createMainWindow = () => {
     })
 }
 
-app.whenReady().then(() => {
-    app.on('activate', () => {
-        if (!BrowserWindow.getAllWindows().length) {
-            createMainWindow()
-        }
-    })
+app.on('ready', () => {
+    if (!BrowserWindow.getAllWindows().length) {
+        createMainWindow()
+    }
 
     app.on('before-quit', (event) => {
         killAllProcesses()
@@ -88,7 +86,7 @@ function killAllProcesses() {
     }
 }
 
-const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
+const WINDOWS = process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
 
 ipcMain.handle('electronAPI', async (event, operation, ...args) => {
