@@ -5,8 +5,9 @@ import java.nio.file.*
 
 sourceCompatibility = 1.8
 
-if(JavaVersion.current() != JavaVersion.VERSION_1_8) {
-    throw new GradleException("The engine must be run using Java 8")
+if(JavaVersion.current() != JavaVersion.VERSION_1_8
+   || !System.getProperty('java.vendor').contains("Oracle")) {
+    throw new GradleException("The engine must be run using the Oracle Java 8 JDK")
 }
 
 // Avoid weird configuration-time dependency bugs
