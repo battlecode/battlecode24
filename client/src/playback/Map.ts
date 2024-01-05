@@ -288,7 +288,7 @@ export class CurrentMap {
     }
 
     isEmpty(): boolean {
-        return this.resourcePileData.size == 0 && this.staticMap.isEmpty()
+        return this.resourcePileData.size == 0 && this.water.every((x) => x == 0) && this.staticMap.isEmpty()
     }
 
     /**
