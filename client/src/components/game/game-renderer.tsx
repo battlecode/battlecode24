@@ -142,7 +142,7 @@ export const GameRenderer: React.FC = () => {
             {!activeMatch ? (
                 <p className="text-white text-center">Select a game from the queue</p>
             ) : (
-                <div ref={wrapperRef} className="relative w-full h-full">
+                <div ref={wrapperRef} className="relative max-w-full max-h-full aspect-[1] flex-grow">
                     <canvas
                         className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
                         style={{

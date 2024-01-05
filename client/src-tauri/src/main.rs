@@ -5,8 +5,8 @@ use tauri::{plugin::{Builder as PluginBuilder, TauriPlugin}, Runtime};
 use tauri::api::dialog::blocking::FileDialogBuilder;
 use tauri::api::process::{Command, CommandEvent, CommandChild};
 use relative_path::RelativePath;
-use std::path::Path;
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{path::Path, io::Write};
+use std::{collections::HashMap, sync::{Arc, Mutex}, fs};
 
 mod tauri_bridge;
 
@@ -46,7 +46,8 @@ async fn tauri_api(
     window: tauri::Window,
     state: tauri::State<'_, AppState>,
     operation: String,
-    args: Vec<String>
+    args: Vec<String>,
+    data: Vec<u8>
 ) -> Result<Vec<String>, String> {
     //dbg!(&operation);
     match operation.as_str() {
@@ -62,6 +63,41 @@ async fn tauri_api(
         "getRootPath" => {
             let exec_dir = std::env::current_exe();
             Ok(vec!(exec_dir.unwrap().to_str().unwrap().to_string()))
+        },
+        "getJavas" => {
+            let mut output = vec![];
+            let jvms = javalocate::run(&javalocate::Args {
+                name: None,
+                arch: None,
+                version: Some(String::from("1.8"))
+            });
+
+            for jvm in jvms {
+                output.push(format!(
+                    "{} ({})",
+                    jvm.version,
+                    jvm.architecture
+                ));
+                output.push(jvm.path);
+            }
+
+            Ok(output)
+        },
+        "exportMap" => {
+            let dialog_result = FileDialogBuilder::new()
+                .set_title("Export map")
+                .set_file_name(&args[0])
+                .save_file();
+            match dialog_result {
+                Some(d) => {
+                    if let Ok(mut file) = fs::File::create(d) {
+                        let _ = file.write_all(&data);
+                    }
+                }
+                None => {}
+            }
+
+            Ok(vec![])
         },
         "path.join" => {
             let mut final_path = std::path::PathBuf::new();
@@ -106,16 +142,22 @@ async fn tauri_api(
         },
         "child_process.spawn" => {
             let scaffold_path = &args[0];
+            let java_path = &args[1];
             let mut wrapper_path = std::path::PathBuf::new();
             wrapper_path.push(scaffold_path);
             wrapper_path.push(match cfg!(windows) {
                 true => "gradlew.bat",
                 false => "gradlew"
             });
-            let child = Command::new(wrapper_path.to_str().unwrap())
-                .args(&args[1..])
-                .current_dir(scaffold_path.into())
-                .spawn();
+            let mut child = Command::new(wrapper_path.to_str().unwrap())
+                .args(&args[2..])
+                .current_dir(scaffold_path.into());
+            if !java_path.is_empty() {
+                let mut envs = HashMap::new();
+                envs.insert(String::from("JAVA_HOME"), java_path.clone());
+                child = child.envs(envs);
+            }
+            let child = child.spawn();
             if let Ok(child) = child {
                 let mut rx = child.0;
                 let child = child.1;
@@ -153,9 +195,9 @@ async fn tauri_api(
                             },
                             None => break
                         }
-
-                        active_processes.lock().unwrap().remove(&pid.to_string());
                     }
+
+                    active_processes.lock().unwrap().remove(&pid.to_string());
                     //dbg!("Child process event thread finished");
                 });
 
@@ -169,7 +211,9 @@ async fn tauri_api(
         "child_process.kill" => {
             let pid = &args[0];
             match state.active_processes.lock().unwrap().remove(pid) {
-                Some(child) => { let _ = child.kill(); },
+                Some(child) => {
+                    let _ = child.kill();
+                },
                 None => {}
             };
             Ok(vec!(String::new()))

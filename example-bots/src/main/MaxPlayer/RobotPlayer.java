@@ -37,6 +37,7 @@ public class RobotPlayer {
         IDLE,
         CHECKING_FOR_FLAG,
         SETTING_UP,
+        TRAVELING_TO_FLAG,
         PLACING_FLAG,
         LOOKING_FOR_ENEMY_FLAG,
         TRAVELING_TO_ENEMY_FLAG,

@@ -16,6 +16,7 @@ import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
 import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
 import { ConfigPage } from '../../client-config'
+import { UpdateWarning } from './update-warning';
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -103,7 +104,6 @@ export const Sidebar: React.FC = () => {
         if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
         if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
-
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
@@ -137,7 +137,7 @@ export const Sidebar: React.FC = () => {
                 autoHeightMax={height}
                 autoHeightMin={height}
             >
-                <div className="flex flex-col gap-2 p-3">
+                <div className="flex flex-col gap-2 p-3 h-screen">
                     <div className="flex justify-between items-center">
                         {open && (
                             <p className="px-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
@@ -157,6 +157,7 @@ export const Sidebar: React.FC = () => {
                     </div>
                     {open && (
                         <>
+                            <UpdateWarning />
                             <div className="flex flex-row flex-wrap justify-between mb-2">
                                 {activeSidebarButtons.map((sidebarButton) => (
                                     <div

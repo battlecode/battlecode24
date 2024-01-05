@@ -222,7 +222,7 @@ export class CurrentMap {
             const data = this.resourcePileData.get(pileId)!
             if (data.amount == 0) continue
             const loc = this.indexToLocation(pileId)
-            const size = (data.amount / 10) * 0.3 + 0.75
+            const size = (data.amount / 100) * 0.3 + 0.75
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, this.dimension)
             const crumbVersion = ((loc.x * 37 + loc.y * 19) % 3) + 1
             renderUtils.renderCenteredImageOrLoadingIndicator(
@@ -260,7 +260,7 @@ export class CurrentMap {
             info.push(`Crumbs: ${resourcePile.amount}`)
         }
         if (trap) {
-            info.push(`${TEAM_COLOR_NAMES[trap.team]} ${BUILD_NAMES[trap.type]} trap`)
+            info.push(`${TEAM_COLOR_NAMES[trap.team - 1]} ${BUILD_NAMES[trap.type]} trap`)
         }
         if (flag) {
             info.push(`${TEAM_COLOR_NAMES[flag.team]} flag`)
@@ -288,7 +288,7 @@ export class CurrentMap {
     }
 
     isEmpty(): boolean {
-        return this.resourcePileData.size == 0 && this.staticMap.isEmpty()
+        return this.resourcePileData.size == 0 && this.water.every((x) => x == 0) && this.staticMap.isEmpty()
     }
 
     /**
