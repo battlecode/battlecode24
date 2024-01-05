@@ -23,8 +23,11 @@ export default class WebSocketListener {
         ws.onmessage = (event) => {
             this.handleEvent(<ArrayBuffer>event.data)
         }
-        // ws.onerror = (event) => {}
+        ws.onerror = (event) => {
+            this.events = []
+        }
         ws.onclose = (event) => {
+            this.events = []
             window.setTimeout(() => {
                 this.poll()
             }, this.pollEvery)

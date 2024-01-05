@@ -9,19 +9,27 @@ import { useAppContext } from '../../../app-context'
 const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
 
+export type JavaInstall = {
+    display: string
+    path: string
+}
+
 type Scaffold = [
     setup: boolean,
     availableMaps: Set<string>,
     availablePlayers: Set<string>,
+    javaInstalls: JavaInstall[],
     manuallySetupScaffold: () => Promise<void>,
+    reloadData: () => void,
     scaffoldLoading: boolean,
-    runMatch: (teamA: string, teamB: string, selectedMaps: Set<string>) => Promise<void>,
+    runMatch: (javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>) => Promise<void>,
     killMatch: (() => Promise<void>) | undefined,
     console: ConsoleLine[]
 ]
 
 export function useScaffold(): Scaffold {
     const appContext = useAppContext()
+    const [javaInstalls, setJavaInstalls] = useState<JavaInstall[]>([])
     const [availableMaps, setAvailableMaps] = useState<Set<string>>(new Set())
     const [availablePlayers, setAvailablePlayers] = useState<Set<string>>(new Set())
     const [loading, setLoading] = useState<boolean>(true)
@@ -39,13 +47,13 @@ export function useScaffold(): Scaffold {
         setLoading(true)
         const path = await nativeAPI.openScaffoldDirectory()
         setLoading(false)
-        setScaffoldPath(path)
+        if (path) setScaffoldPath(path)
     }
 
-    async function runMatch(teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
+    async function runMatch(javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
         if (matchPID.current || !scaffoldPath) return
         setConsoleLines([])
-        const newPID = await dispatchMatch(teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
+        const newPID = await dispatchMatch(javaPath, teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
         matchPID.current = newPID
         forceUpdate()
     }
@@ -55,6 +63,33 @@ export function useScaffold(): Scaffold {
         await nativeAPI!.child_process.kill(matchPID.current)
         matchPID.current = undefined
         forceUpdate()
+    }
+
+    function reloadData() {
+        if (!nativeAPI || !scaffoldPath) return
+        setLoading(true)
+
+        const dataPromise = fetchData(scaffoldPath)
+        const javasPromise = nativeAPI.getJavas()
+        Promise.allSettled([dataPromise, javasPromise]).then((res) => {
+            if (res[0].status == 'fulfilled') {
+                const [players, maps] = res[0].value
+                setAvailablePlayers(players)
+                setAvailableMaps(maps)
+            }
+            if (res[1].status == 'fulfilled') {
+                const data = res[1].value
+                const installs: JavaInstall[] = []
+                for (let i = 0; i < data.length; i += 2) {
+                    installs.push({
+                        display: data[i],
+                        path: data[i + 1]
+                    })
+                }
+                setJavaInstalls(installs)
+            }
+            setLoading(false)
+        })
     }
 
     useEffect(() => {
@@ -97,21 +132,16 @@ export function useScaffold(): Scaffold {
     }, [])
 
     useEffect(() => {
-        if (!nativeAPI || !scaffoldPath) return
-        setLoading(true)
-
-        fetchData(nativeAPI, scaffoldPath).then(([players, maps]) => {
-            setAvailablePlayers(players)
-            setAvailableMaps(maps)
-            setLoading(false)
-        })
+        reloadData()
     }, [scaffoldPath])
 
     return [
         !!scaffoldPath,
         availableMaps,
         availablePlayers,
+        javaInstalls,
         manuallySetupScaffold,
+        reloadData,
         loading,
         runMatch,
         matchPID.current ? killMatch : undefined,
@@ -119,9 +149,9 @@ export function useScaffold(): Scaffold {
     ]
 }
 
-async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
-    const path = nativeAPI.path
-    const fs = nativeAPI.fs
+async function fetchData(scaffoldPath: string) {
+    const path = nativeAPI!.path
+    const fs = nativeAPI!.fs
 
     const wrapperPath = await path.join(scaffoldPath, GRADLE_WRAPPER)
     if (!(await fs.exists(wrapperPath))) throw new Error(`Can't find gradle wrapper: ${wrapperPath}`)
@@ -133,7 +163,6 @@ async function fetchData(nativeAPI: NativeAPI, scaffoldPath: string) {
     if (!(await fs.exists(sourcePath))) {
         sourcePath = await path.join(scaffoldPath, 'example-bots', 'src', 'main')
 
-        console.log(sourcePath)
         if (!(await fs.exists(sourcePath))) {
             throw new Error(`Can't find source path: ${sourcePath}`)
         }
@@ -211,6 +240,7 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
 }
 
 async function dispatchMatch(
+    javaPath: string,
     teamA: string,
     teamB: string,
     selectedMaps: Set<string>,
@@ -228,5 +258,6 @@ async function dispatchMatch(
         `-PvalidateMaps=false`,
         `-PenableProfiler=${false}`
     ]
-    return await nativeAPI.child_process.spawn(scaffoldPath, options)
+
+    return await nativeAPI.child_process.spawn(scaffoldPath, javaPath, options)
 }

@@ -5,6 +5,7 @@ import { CurrentMap, StaticMap } from '../../../playback/Map'
 import Turn from '../../../playback/Turn'
 import Bodies from '../../../playback/Bodies'
 import { BATTLECODE_YEAR, DIRECTIONS } from '../../../constants'
+import { nativeAPI } from '../runner/native-api-wrapper'
 
 export function loadFileAsMap(file: File): Promise<Game> {
     return new Promise((resolve, reject) => {
@@ -21,26 +22,26 @@ export function loadFileAsMap(file: File): Promise<Game> {
     })
 }
 
-export function exportMap(turn: Turn) {
-    if (!verifyMapGuarantees(turn)) return
+export function exportMap(turn: Turn, name: string) {
+    const mapError = verifyMapGuarantees(turn)
+    if (mapError) return mapError
 
-    let name = prompt('Enter a name for this map') ?? 'Untitled'
     turn.map.staticMap.name = name
 
     const data = mapToFile(turn.map, turn.bodies)
     exportFile(data, name + `.map${BATTLECODE_YEAR % 100}`)
+
+    return ''
 }
 
 function verifyMapGuarantees(turn: Turn) {
     if (turn.map.isEmpty() && turn.bodies.isEmpty()) {
-        alert('Map is empty')
-        return false
+        return 'Map is empty'
     }
 
     const spawnZoneCount = turn.map.staticMap.spawnLocations.length
     if (spawnZoneCount !== 6) {
-        alert(`Map has ${spawnZoneCount} spawn zones. Must have exactly 6`)
-        return false
+        return `Map has ${spawnZoneCount} spawn zones. Must have exactly 6`
     }
 
     for (let i = 0; i < spawnZoneCount; i++) {
@@ -49,10 +50,7 @@ function verifyMapGuarantees(turn: Turn) {
                 Math.pow(turn.map.staticMap.spawnLocations[i].x - turn.map.staticMap.spawnLocations[j].x, 2) +
                 Math.pow(turn.map.staticMap.spawnLocations[i].y - turn.map.staticMap.spawnLocations[j].y, 2)
             if (distSquared < 36) {
-                alert(
-                    `Spawn zones ${i} and ${j} are too close together, they must be at least sqrt(36) units apart (6 tiles)`
-                )
-                return false
+                return `Spawn zones ${i} and ${j} are too close together, they must be at least sqrt(36) units apart (6 tiles)`
             }
         }
     }
@@ -76,8 +74,7 @@ function verifyMapGuarantees(turn: Turn) {
         }
     }
     if (totalSpawnableLocations < 18) {
-        alert(`Map has ${totalSpawnableLocations} spawnable locations. Must have at least 9 for each team`)
-        return false
+        return `Map has ${totalSpawnableLocations} spawnable locations. Must have at least 9 for each team`
     }
 
     const floodMask = new Int8Array(turn.map.width * turn.map.height)
@@ -102,11 +99,10 @@ function verifyMapGuarantees(turn: Turn) {
         }
     }
     if (totalFlooded >= 0.5 * turn.map.width * turn.map.height) {
-        alert(`Map is too open. Must be divided into at least 2 sections by the divider`)
-        return false
+        return `Map is too open. Must be divided into at least 2 sections by the divider`
     }
 
-    return true
+    return ''
 }
 
 /**
@@ -131,20 +127,24 @@ function mapToFile(currentMap: CurrentMap, initialBodies: Bodies): Uint8Array {
     return builder.asUint8Array()
 }
 
-function exportFile(data: Uint8Array, fileName: string) {
-    const mimeType = 'application/octet-stream'
-    const blob = new Blob([data], { type: mimeType })
-    const url = window.URL.createObjectURL(blob)
+async function exportFile(data: Uint8Array, fileName: string) {
+    if (nativeAPI) {
+        nativeAPI.exportMap(Array.from(data), fileName)
+    } else {
+        const mimeType = 'application/octet-stream'
+        const blob = new Blob([data], { type: mimeType })
+        const url = window.URL.createObjectURL(blob)
 
-    const link = document.createElement('a')
-    link.href = url
-    link.download = fileName
-    document.body.appendChild(link)
-    link.style.display = 'none'
-    link.click()
-    link.remove()
+        const link = document.createElement('a')
+        link.href = url
+        link.download = fileName
+        document.body.appendChild(link)
+        link.style.display = 'none'
+        link.click()
+        link.remove()
 
-    setTimeout(function () {
-        return window.URL.revokeObjectURL(url)
-    }, 30000)
+        setTimeout(function () {
+            return window.URL.revokeObjectURL(url)
+        }, 30000)
+    }
 }

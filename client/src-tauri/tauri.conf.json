@@ -1,7 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run watch",
     "withGlobalTauri": true,
     "devPath": "http://localhost:3000",
@@ -9,7 +8,7 @@
   },
   "package": {
     "productName": "Battlecode Client",
-    "version": "0.1.0"
+    "version": "24.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -24,27 +23,15 @@
       },
       "externalBin": [],
       "icon": [
-        "icons/icon.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
+        "../icons/icon.png",
+        "../icons/icon.icns",
+        "../icons/icon.ico"
       ],
       "identifier": "com.battlecode.client",
       "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
+      "targets": "all"
     },
     "security": {
       "csp": null
@@ -55,10 +42,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 960,
+        "height": 720,
         "resizable": true,
         "title": "Battlecode Client",
-        "width": 1440
+        "width": 960
       }
     ]
   }

@@ -149,6 +149,16 @@ public class RobotPlayer {
                         }
                     }
                 }
+
+                RobotInfo[] nearby = rc.senseNearbyRobots(GameConstants.ACTION_RADIUS_SQUARED, rc.getTeam().opponent());
+                if (nearby.length != 0){
+                    if (rc.canAttack(nearby[0].getLocation())){
+                        rc.attack(nearby[0].getLocation());
+                    } 
+                    if (rc.canHeal(nearby[0].getLocation())){
+                        rc.heal(nearby[0].getLocation());
+                    }
+                }
                 
                 RobotInfo[] nearby = rc.senseNearbyRobots(GameConstants.ATTACK_RADIUS_SQUARED, rc.getTeam().opponent());
                 if (nearby.length != 0){

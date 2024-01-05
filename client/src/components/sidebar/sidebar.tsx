@@ -104,7 +104,6 @@ export const Sidebar: React.FC = () => {
         if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
         if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
-
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
@@ -138,7 +137,7 @@ export const Sidebar: React.FC = () => {
                 autoHeightMax={height}
                 autoHeightMin={height}
             >
-                <div className="flex flex-col gap-2 p-3">
+                <div className="flex flex-col gap-2 p-3 h-screen">
                     <div className="flex justify-between items-center">
                         {open && (
                             <p className="px-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
