@@ -32,11 +32,11 @@ export const SectionHeader: React.FC<Props> = (props: Props) => {
             <Transition
                 as="div"
                 enter="transition-all ease-out overflow-hidden duration-100"
-                enterFrom="transform scale-95 opacity-0 max-h-0"
-                enterTo="transform scale-100 opacity-100 max-h-[3000px]"
+                enterFrom="opacity-0 max-h-0"
+                enterTo=" opacity-100 max-h-[3000px]"
                 leave="transition-all ease-in overflow-hidden duration-30"
-                leaveFrom="transform scale-100 opacity-50 max-h-[3000px]"
-                leaveTo="transform scale-95 opacity-0 max-h-0"
+                leaveFrom="opacity-50 max-h-[3000px]"
+                leaveTo="opacity-0 max-h-0"
                 show={props.open}
             >
                 {props.children}
