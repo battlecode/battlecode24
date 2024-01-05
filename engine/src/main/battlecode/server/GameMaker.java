@@ -296,7 +296,6 @@ public strictfp class GameMaker {
                 SpecializationMetadata.startSpecializationMetadata(builder);
                 SpecializationMetadata.addType(builder, skillTypeToSpecializationType(type));
                 SpecializationMetadata.addLevel(builder, l);
-                //TODO not sure what "action cost" is in schema. No cost for building or healing, build cost depends on trap type but not level.
                 SpecializationMetadata.addActionJailedPenalty(builder, type.getPenalty(l));
                 SpecializationMetadata.addCooldownReduction(builder, type.getCooldown(l));
                 int effect = type.getSkillEffect(l);
