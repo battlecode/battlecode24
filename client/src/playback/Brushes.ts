@@ -160,7 +160,7 @@ export class WaterBrush extends SymmetricMapEditorBrush<CurrentMap> {
 }
 
 export class ResourcePileBrush extends SymmetricMapEditorBrush<CurrentMap> {
-    public readonly name = 'Resource Piles'
+    public readonly name = 'Crumbs'
     public readonly fields = {
         should_add: {
             type: MapEditorBrushFieldType.ADD_REMOVE,
@@ -169,12 +169,12 @@ export class ResourcePileBrush extends SymmetricMapEditorBrush<CurrentMap> {
         amount: {
             type: MapEditorBrushFieldType.SINGLE_SELECT,
             options: [
-                { value: 10, label: '10' },
-                { value: 20, label: '20' },
-                { value: 30, label: '30' }
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+                { value: 300, label: '300' }
             ],
             label: 'Amount',
-            value: 10
+            value: 100
         }
     }
     constructor(map: CurrentMap) {
