@@ -69,18 +69,11 @@ export const GameRenderer: React.FC = () => {
     useEffect(() => {
         const match = appContext.state.activeMatch
         if (!match) return
-        updateCanvasDimensions(backgroundCanvas.current, {
-            x: match.currentTurn.map.width,
-            y: match.currentTurn.map.height
-        })
-        updateCanvasDimensions(dynamicCanvas.current, {
-            x: match.currentTurn.map.width,
-            y: match.currentTurn.map.height
-        })
-        updateCanvasDimensions(overlayCanvas.current, {
-            x: match.currentTurn.map.width,
-            y: match.currentTurn.map.height
-        })
+        const { width, height } = match.currentTurn.map
+        wrapperRef.current!.style.aspectRatio = `${width} / ${height}`
+        updateCanvasDimensions(backgroundCanvas.current, { x: width, y: height })
+        updateCanvasDimensions(dynamicCanvas.current, { x: width, y: height })
+        updateCanvasDimensions(overlayCanvas.current, { x: width, y: height })
         setSelectedSquare(undefined)
         publishEvent(EventType.INITIAL_RENDER, {})
     }, [appContext.state.activeMatch, backgroundCanvas.current, dynamicCanvas.current, overlayCanvas.current])
@@ -142,9 +135,9 @@ export const GameRenderer: React.FC = () => {
             {!activeMatch ? (
                 <p className="text-white text-center">Select a game from the queue</p>
             ) : (
-                <div ref={wrapperRef} className="relative max-w-full max-h-full aspect-[1] flex-grow">
+                <div ref={wrapperRef} className="relative max-w-full max-h-full flex-grow">
                     <canvas
-                        className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
+                        className="absolute top-1/2 left-1/2 max-w-full max-h-full"
                         style={{
                             transform: 'translate(-50%, -50%)',
                             zIndex: 0,
@@ -153,7 +146,7 @@ export const GameRenderer: React.FC = () => {
                         ref={backgroundCanvas}
                     />
                     <canvas
-                        className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
+                        className="absolute top-1/2 left-1/2 max-w-full max-h-full"
                         style={{
                             transform: 'translate(-50%, -50%)',
                             zIndex: 1,
@@ -162,7 +155,7 @@ export const GameRenderer: React.FC = () => {
                         ref={dynamicCanvas}
                     />
                     <canvas
-                        className="absolute top-1/2 left-1/2 h-full max-w-full max-h-full"
+                        className="absolute top-1/2 left-1/2 max-w-full max-h-full"
                         style={{
                             transform: 'translate(-50%, -50%)',
                             zIndex: 2,
