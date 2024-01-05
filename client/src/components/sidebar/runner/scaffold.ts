@@ -6,9 +6,6 @@ import { useForceUpdate } from '../../../util/react-util'
 import WebSocketListener from './websocket'
 import { useAppContext } from '../../../app-context'
 
-const WINDOWS = process.env.ELECTRON && process.platform === 'win32'
-const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew'
-
 export type JavaInstall = {
     display: string
     path: string
@@ -153,14 +150,12 @@ async function fetchData(scaffoldPath: string) {
     const path = nativeAPI!.path
     const fs = nativeAPI!.fs
 
-    const wrapperPath = await path.join(scaffoldPath, GRADLE_WRAPPER)
-    if (!(await fs.exists(wrapperPath))) throw new Error(`Can't find gradle wrapper: ${wrapperPath}`)
-
     const mapPath = await path.join(scaffoldPath, 'maps')
     if (!(await fs.exists(mapPath))) await fs.mkdir(mapPath)
 
     let sourcePath = await path.join(scaffoldPath, 'src')
     if (!(await fs.exists(sourcePath))) {
+        // For running in the main battlecode folder
         sourcePath = await path.join(scaffoldPath, 'example-bots', 'src', 'main')
 
         if (!(await fs.exists(sourcePath))) {
@@ -175,16 +170,14 @@ async function fetchData(scaffoldPath: string) {
             playerFiles
                 .filter(
                     (file) =>
-                        file.endsWith(sep + 'RobotPlayer.java') ||
-                        file.endsWith(sep + 'RobotPlayer.kt') ||
-                        file.endsWith(sep + 'RobotPlayer.scala')
+                        file.endsWith('RobotPlayer.java') ||
+                        file.endsWith('RobotPlayer.kt') ||
+                        file.endsWith('RobotPlayer.scala')
                 )
                 .map(async (file) => {
                     const relPath = await path.relative(sourcePath, file)
-                    return relPath
-                        .replace(/.RobotPlayer\.[^/.]+$/, '')
-                        .replace(new RegExp(WINDOWS ? '\\\\' : '/', 'g'), '.')
-                        .replace(new RegExp('/', 'g'), '.')
+                    const botName = relPath.split(sep)[0] // Name of folder
+                    return botName
                 })
         )
     )
@@ -212,11 +205,6 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
     const path = nativeAPI.path
     const fs = nativeAPI.fs
 
-    // npm run electron in client, if battlecode21-scaffold is located in same level as battlecode21
-    const fromDev = await nativeAPI.path.join(
-        await path.dirname(await path.dirname(await path.dirname(appPath))),
-        'battlecode' + (BATTLECODE_YEAR % 100) + '-scaffold'
-    )
     // scaffold/client/Battlecode Client[.exe]
     const fromWin = await path.dirname(await path.dirname(appPath))
     // scaffold/client/resources/app.asar
@@ -226,13 +214,11 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
         await path.dirname(await path.dirname(await path.dirname(await path.dirname(appPath))))
     )
 
-    if (await fs.exists(await path.join(fromDev, GRADLE_WRAPPER))) {
-        return fromDev
-    } else if (await fs.exists(await path.join(from3, GRADLE_WRAPPER))) {
+    if (await fs.exists(from3)) {
         return from3
-    } else if (await fs.exists(await path.join(fromWin, GRADLE_WRAPPER))) {
+    } else if (await fs.exists(fromWin)) {
         return fromWin
-    } else if (await fs.exists(await path.join(fromMac, GRADLE_WRAPPER))) {
+    } else if (await fs.exists(fromMac)) {
         return fromMac
     }
 
