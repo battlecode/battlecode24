@@ -106,6 +106,7 @@ export default class Bodies {
                 delta.robotIdsLength() == delta.robotHealthsLength(),
             'Delta arrays are not the same length'
         )
+
         // Update robot properties
         for (let i = 0; i < delta.robotIdsLength(); i++) {
             const id = delta.robotIds(i)!
@@ -119,15 +120,16 @@ export default class Bodies {
             body.hp = delta.robotHealths(i)!
         }
 
-        const diedIds = delta.diedIdsArray() ?? assert.fail('diedIDsArray not found in round')
+        // Flag died robots
         for (let i = 0; i < delta.diedIdsLength(); i++) {
-            const diedBody =
-                this.bodies.get(diedIds[i]) ?? assert.fail(`Body with id ${delta.diedIds(i)} not found in bodies`)
+            const diedId = delta.diedIds(i)!
+            const diedBody = this.bodies.get(diedId) ?? assert.fail(`Body with id ${diedId} not found in bodies`)
             diedBody.dead = true
         }
 
+        // Calculate some stats that do not need to recalculate every turn if they have
+        // not already been calculated
         if (!turn.stat.completed) {
-            // calculate some stats that are completely recalculated every turn
             turn.stat.getTeamStat(this.game.teams[0]).specializationTotalLevels = [0, 0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[1]).specializationTotalLevels = [0, 0, 0, 0, 0]
             turn.stat.getTeamStat(this.game.teams[0]).robots = [0, 0, 0, 0, 0]
@@ -146,31 +148,42 @@ export default class Bodies {
             }
         }
 
-        // clear existing indicators
+        // Clear existing indicators
         for (const body of this.bodies.values()) {
-            body.indicatorDots = []
-            body.indicatorLines = []
+            body.indicatorDot = null
+            body.indicatorLine = null
+            body.indicatorString = ''
         }
+
+        // Add new indicator dots
         const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
         const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
         for (let i = 0; i < locs.xsLength(); i++) {
             const body = this.getById(delta.indicatorDotIds(i)!)
-            body.indicatorDots.push({
+            body.indicatorDot = {
                 location: { x: locs.xs(i)!, y: locs.ys(i)! },
                 color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!)
-            })
+            }
         }
 
+        // Add new indicator lines
         const starts = delta.indicatorLineStartLocs() ?? assert.fail(`Delta missing indicatorLineStarts`)
         const ends = delta.indicatorLineEndLocs() ?? assert.fail(`Delta missing indicatorLineEnds`)
         const lineColors = delta.indicatorLineRgbs() ?? assert.fail(`Delta missing indicatorLineRgbs`)
         for (let i = 0; i < starts.xsLength(); i++) {
             const body = this.getById(delta.indicatorLineIds(i)!)
-            body.indicatorLines.push({
+            body.indicatorLine = {
                 start: { x: starts.xs(i)!, y: starts.ys(i)! },
                 end: { x: ends.xs(i)!, y: ends.ys(i)! },
                 color: renderUtils.rgbToHex(lineColors.red(i)!, lineColors.green(i)!, lineColors.blue(i)!)
-            })
+            }
+        }
+
+        // Add new indicator strings
+        for (let i = 0; i < delta.indicatorStringIdsLength(); i++) {
+            const body = this.getById(delta.indicatorStringIds(i)!)
+            const string = delta.indicatorStrings(i)
+            body.indicatorString = string
         }
     }
 
@@ -232,7 +245,9 @@ export default class Bodies {
     copy(): Bodies {
         const newBodies = new Bodies(this.game)
         newBodies.bodies = new Map(this.bodies)
-        for (const body of this.bodies.values()) newBodies.bodies.set(body.id, body.copy())
+        for (const body of this.bodies.values()) {
+            newBodies.bodies.set(body.id, body.copy())
+        }
 
         return newBodies
     }
@@ -312,8 +327,9 @@ export class Body {
     protected imgPath: string = ''
     public nextPos: Vector
     private prevSquares: Vector[]
-    public indicatorDots: { location: Vector; color: string }[] = []
-    public indicatorLines: { start: Vector; end: Vector; color: string }[] = []
+    public indicatorDot: { location: Vector; color: string } | null = null
+    public indicatorLine: { start: Vector; end: Vector; color: string } | null = null
+    public indicatorString: string = ''
     public dead: boolean = false
     public jailed: boolean = false
     constructor(
@@ -417,7 +433,8 @@ export class Body {
     private drawIndicators(match: Match, ctx: CanvasRenderingContext2D, lighter: boolean): void {
         const dimension = match.currentTurn.map.staticMap.dimension
         // Render indicator dots
-        for (const data of this.indicatorDots) {
+        if (this.indicatorDot) {
+            const data = this.indicatorDot
             ctx.globalAlpha = lighter ? 0.5 : 1
             const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, dimension)
             ctx.beginPath()
@@ -428,7 +445,8 @@ export class Body {
         }
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
-        for (const data of this.indicatorLines) {
+        if (this.indicatorLine) {
+            const data = this.indicatorLine
             ctx.globalAlpha = lighter ? 0.5 : 1
             const start = renderUtils.getRenderCoords(data.start.x, data.start.y, dimension)
             const end = renderUtils.getRenderCoords(data.end.x, data.end.y, dimension)
@@ -462,7 +480,7 @@ export class Body {
     }
 
     public onHoverInfo(): string[] {
-        return [
+        const defaultInfo = [
             (this.dead ? 'DEAD: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `HP: ${this.hp}`,
@@ -473,11 +491,17 @@ export class Body {
             `Heal Lvl: ${this.healLevel} (${this.healsPerformed} exp)`,
             `Bytecodes Used: ${this.bytecodesUsed}`
         ]
+        if (this.indicatorString != '') {
+            defaultInfo.push(`Indicator: ${this.indicatorString}`)
+        }
+
+        return defaultInfo
     }
 
     public copy(): Body {
+        // Creates a new object using this object's prototype and all its parameters.
+        // this is a shallow copy, override this if you need a deep copy
         const newBody = Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this))
-        // creates a new object using this object's prototype and all its parameters. this is a shallow copy, override this if you need a deep copy
         newBody.prevSquares = [...this.prevSquares]
         return newBody
     }

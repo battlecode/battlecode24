@@ -86,26 +86,34 @@ export const MapEditorPage: React.FC<Props> = (props) => {
     useListenEvent(EventType.TILE_DRAG, applyBrush, [brushes])
 
     useEffect(() => {
-        if (mapParams.imported) {
-            editGame.current = mapParams.imported
-        } else if (!editGame.current) {
-            const game = new Game()
-            const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
-            game.currentMatch = Match.createBlank(game, new Bodies(game), map)
-            editGame.current = game
+        if (props.open) {
+            if (mapParams.imported) {
+                editGame.current = mapParams.imported
+            } else if (!editGame.current) {
+                const game = new Game()
+                const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
+                game.currentMatch = Match.createBlank(game, new Bodies(game), map)
+                editGame.current = game
+            }
+
+            context.setState({
+                ...context.state,
+                activeGame: editGame.current,
+                activeMatch: editGame.current.currentMatch
+            })
+
+            const turn = editGame.current.currentMatch!.currentTurn
+            const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
+            brushes[0].open = true
+            setBrushes(brushes)
+            setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
+        } else {
+            context.setState({
+                ...context.state,
+                activeGame: undefined,
+                activeMatch: undefined
+            })
         }
-
-        context.setState({
-            ...context.state,
-            activeGame: editGame.current,
-            activeMatch: editGame.current.currentMatch
-        })
-
-        const turn = editGame.current.currentMatch!.currentTurn
-        const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
-        brushes[0].open = true
-        setBrushes(brushes)
-        setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
     }, [mapParams, props.open])
 
     if (!props.open) return null
