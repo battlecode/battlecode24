@@ -1,4 +1,5 @@
 import React, { PropsWithChildren } from 'react'
+import { useAppContext } from '../app-context'
 
 interface InputDialogProps {
     open: boolean
@@ -13,8 +14,13 @@ interface InputDialogProps {
 export const InputDialog: React.FC<PropsWithChildren<InputDialogProps>> = (props) => {
     const [value, setValue] = React.useState('')
 
+    const context = useAppContext()
+
     React.useEffect(() => {
-        if (props.open) setValue(props.defaultValue ?? '')
+        context.setState({ ...context.state, disableHotkeys: props.open })
+        if (props.open) {
+            setValue(props.defaultValue ?? '')
+        }
     }, [props.open])
 
     if (!props.open) return <></>

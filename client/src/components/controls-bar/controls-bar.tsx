@@ -132,6 +132,8 @@ export const ControlsBar: React.FC = () => {
     }, [appState.updatesPerSecond, appState.activeGame, currentMatch, appState.paused])
 
     useEffect(() => {
+        if (appState.disableHotkeys) return
+
         // If the competitor had manually pressed one of the buttons on the
         // control bar before using a shortcut, unselect it; Most browsers have
         // specific accessibility features that mess with these shortcuts.

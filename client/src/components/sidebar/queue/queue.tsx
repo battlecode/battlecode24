@@ -40,6 +40,8 @@ export const QueuePage: React.FC<Props> = (props) => {
     }
 
     React.useEffect(() => {
+        if (context.state.disableHotkeys) return
+
         if (keyboard.keyCode === 'ShiftLeft') inputRef.current?.click()
     }, [keyboard.keyCode])
 

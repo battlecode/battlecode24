@@ -21,8 +21,8 @@ import { UpdateWarning } from './update-warning'
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
-    const keyboard = useKeyboard()
     const context = useAppContext()
+    const keyboard = useKeyboard()
 
     // scaffold is created at this level so it is never re-created
     const scaffold = useScaffold()
@@ -77,10 +77,12 @@ export const Sidebar: React.FC = () => {
     }
 
     React.useEffect(() => {
+        if (context.state.disableHotkeys) return
+
         if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, true))
         if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
-        if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
+        //if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
