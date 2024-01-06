@@ -297,7 +297,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         ArrayList<FlagInfo> flagInfos = new ArrayList<>();
         for(Flag x : gameWorld.getAllFlags()) {
-            if(robot.getLocation() == null) System.out.println("robot location is null");
             if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
                 flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
             }
