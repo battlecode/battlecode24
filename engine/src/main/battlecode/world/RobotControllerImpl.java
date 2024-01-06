@@ -77,7 +77,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
 
         Trap trap = gw.getTrap(loc);
-        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
+        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : TrapType.NONE;
         MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
             gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
 
@@ -958,11 +958,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuyGlobal(ug);
         this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.GLOBAL_UPGRADE, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(ug));
-    }
-
-    @Override
-    public void disintegrate() {
-        throw new RobotDeathException();
     }
 
     @Override

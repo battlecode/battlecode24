@@ -95,6 +95,15 @@ public class MapInfo {
     }
 
     /**
+     * Returns the trap type of a friendly trap. TrapType.NONE if there
+     * is no trap or there is an enemy trap.
+     * @return The trap type
+     */
+    public TrapType getTrapType() {
+        return trapType;
+    }
+
+    /**
      * Returns the location of this square
      * 
      * @return the location of this square
