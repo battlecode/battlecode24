@@ -3,6 +3,7 @@ export type NativeAPI = {
     getRootPath: () => Promise<string>
     getJavas: () => Promise<string[]>
     exportMap: (data: number[], name: string) => Promise<void>
+    getServerVersion: (year: string) => Promise<string>
     path: {
         join: (...args: string[]) => Promise<string>
         relative: (from: string, to: string) => Promise<string>
