@@ -12,12 +12,13 @@ import { MapEditorBrush } from './MapEditorBrush'
 import { exportMap, loadFileAsMap } from './MapGenerator'
 import { MAP_SIZE_RANGE } from '../../../constants'
 import { InputDialog } from '../../input-dialog'
+import { ConfirmDialog } from '../../confirm-dialog'
 
 type MapParams = {
     width: number
     height: number
     symmetry: number
-    imported?: Game
+    imported?: Game | null
 }
 
 interface Props {
@@ -30,6 +31,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
     const [mapParams, setMapParams] = React.useState<MapParams>({ width: 30, height: 30, symmetry: 0 })
     const [brushes, setBrushes] = React.useState<MapEditorBrush[]>([])
     const [mapNameOpen, setMapNameOpen] = React.useState(false)
+    const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false)
     const [mapError, setMapError] = React.useState('')
 
     const inputRef = React.useRef<HTMLInputElement>(null)
@@ -55,16 +57,16 @@ export const MapEditorPage: React.FC<Props> = (props) => {
 
     const changeWidth = (newWidth: number) => {
         newWidth = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newWidth))
-        setMapParams({ ...mapParams, width: newWidth, imported: undefined })
+        setMapParams({ ...mapParams, width: newWidth, imported: null })
     }
     const changeHeight = (newHeight: number) => {
         newHeight = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newHeight))
-        setMapParams({ ...mapParams, height: newHeight, imported: undefined })
+        setMapParams({ ...mapParams, height: newHeight, imported: null })
     }
     const changeSymmetry = (symmetry: string) => {
         const symmetryInt = parseInt(symmetry)
         if (symmetryInt < 0 || symmetryInt > 2) throw new Error('invalid symmetry value')
-        setMapParams({ ...mapParams, symmetry: symmetryInt, imported: undefined })
+        setMapParams({ ...mapParams, symmetry: symmetryInt, imported: null })
     }
 
     const fileUploaded = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,10 +78,11 @@ export const MapEditorPage: React.FC<Props> = (props) => {
         })
     }
 
-    const clearMap = () => {
-        if (!confirm('Are you sure you want to clear the map?')) return
+    const clearMap = (clear: boolean) => {
+        setClearConfirmOpen(false)
+        if (!clear) return
         setCleared(true)
-        setMapParams({ ...mapParams, imported: undefined })
+        setMapParams({ ...mapParams, imported: null })
     }
 
     useListenEvent(EventType.TILE_CLICK, applyBrush, [brushes])
@@ -89,12 +92,16 @@ export const MapEditorPage: React.FC<Props> = (props) => {
         if (props.open) {
             if (mapParams.imported) {
                 editGame.current = mapParams.imported
-            } else if (!editGame.current) {
+            } else if (!editGame.current || mapParams.imported === null) {
                 const game = new Game()
                 const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
                 game.currentMatch = Match.createBlank(game, new Bodies(game), map)
                 editGame.current = game
             }
+
+            // A little sus but we need to reset this so the game isn't overridden
+            // multiple times
+            mapParams.imported = undefined
 
             context.setState({
                 ...context.state,
@@ -134,7 +141,10 @@ export const MapEditorPage: React.FC<Props> = (props) => {
                         }}
                     />
                 ))}
-                <SmallButton onClick={clearMap} className={'mt-10 ' + (cleared ? 'invisible' : '')}>
+                <SmallButton
+                    onClick={() => setClearConfirmOpen(true)}
+                    className={'mt-10 ' + (cleared ? 'invisible' : '')}
+                >
                     Clear to unlock
                 </SmallButton>
                 <div className={'flex flex-col ' + (cleared ? '' : 'opacity-30 pointer-events-none')}>
@@ -195,6 +205,13 @@ export const MapEditorPage: React.FC<Props> = (props) => {
             >
                 {mapError && <div style={{ color: 'red' }}>{`Could not export map: ${mapError}`}</div>}
             </InputDialog>
+
+            <ConfirmDialog
+                open={clearConfirmOpen}
+                onClose={clearMap}
+                title="Clear Map"
+                description="Are you sure you want to clear the map? This cannot be undone."
+            />
         </>
     )
 }
