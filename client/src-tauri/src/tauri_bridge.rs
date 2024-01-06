@@ -17,6 +17,7 @@ const tauriAPI = {
     getRootPath: (...args) => invokeSingleResult('getRootPath', [], ...args),
     getJavas: (...args) => invokeArrayResult('getJavas', [], ...args),
     exportMap: (data, ...args) => invokeSingleResult('exportMap', data, ...args),
+    getServerVersion: (...args) => invokeSingleResult('getServerVersion', [], ...args),
     path: {
         join: (...args) => invokeSingleResult('path.join', [], ...args),
         relative: (...args) => invokeSingleResult('path.relative', [], ...args),

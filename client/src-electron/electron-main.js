@@ -1,4 +1,5 @@
 const { app, BrowserWindow, screen: electronScreen, ipcMain, dialog } = require('electron')
+const fetch = require('electron-fetch').default
 const isDev = require('electron-is-dev')
 const path = require('path')
 const fs = require('fs')
@@ -127,6 +128,14 @@ ipcMain.handle('electronAPI', async (event, operation, ...args) => {
                 fs.writeFileSync(path, new Uint8Array(args[0]))
             }
             return
+        }
+        case 'getServerVersion': {
+            let version = ''
+            try {
+                const response = await fetch(`https://api.battlecode.org/api/episode/e/bc${args[0]}/?format=json`)
+                version = (await response.json()).release_version_public
+            } catch {}
+            return version
         }
         case 'path.join':
             return path.join(...args)

@@ -20,17 +20,17 @@ module.exports = (env) => {
             rules: [
                 {
                     test: /\.ts(x?)$/,
-                    exclude: [/node_modules/, /src-tauri/],
+                    exclude: [/node_modules/, /src-tauri/, /packaged-client/],
                     loader: 'ts-loader'
                 },
                 {
                     test: /\.css$/,
-                    exclude: [/node_modules/, /src-tauri/],
+                    exclude: [/node_modules/, /src-tauri/, /packaged-client/],
                     use: ['style-loader', 'css-loader', 'postcss-loader']
                 },
                 {
                     test: /\.(png|jpg|jpeg|gif|svg|ttf|otf|woff|woff2|eot)$/,
-                    exclude: [/node_modules/, /src-tauri/],
+                    exclude: [/node_modules/, /src-tauri/, /packaged-client/],
                     loader: 'url-loader'
                 }
             ]

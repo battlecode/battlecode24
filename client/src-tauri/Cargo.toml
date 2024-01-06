@@ -12,6 +12,7 @@ tauri-build = { version = "1.4.0", features = [] }
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.4.0", features = ["dialog", "process-command-api"] }
+ureq = { version = "2.9.1", features = ["json"] }
 javalocate = { git = "https://github.com/TheApplePieGod/javalocate.git" }
 relative-path = "1.9.0"
 

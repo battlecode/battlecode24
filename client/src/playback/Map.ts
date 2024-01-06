@@ -521,7 +521,7 @@ export class StaticMap {
                     const thickness = 0.02
                     renderUtils.applyStyles(
                         ctx,
-                        { strokeStyle: 'black', lineWidth: thickness, globalAlpha: 0.05 },
+                        { strokeStyle: 'black', lineWidth: thickness, globalAlpha: 0.1 },
                         () => {
                             ctx.strokeRect(
                                 coords.x + thickness / 2,
