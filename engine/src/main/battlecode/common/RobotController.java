@@ -259,6 +259,16 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
+     * Returns all locations that contain crumbs within a certain radius of the robot.
+     * 
+     * @param radiusSquared return crumbs within this distance; if -1 is passed, all crumbs within
+     * vision radius are returned
+     * @return array of MapLocations of crumbs
+     * @throws GameActionException if the radius is negative and not -1
+     */
+    MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException;
+
+    /**
      * Given a location, returns whether that location is passable (not water, a wall, or a dam).
      * 
      * @param loc the given location
