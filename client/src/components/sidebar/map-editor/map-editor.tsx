@@ -123,6 +123,21 @@ export const MapEditorPage: React.FC<Props> = (props) => {
         }
     }, [mapParams, props.open])
 
+    // Need to memoize to prevent rerendering that messes up text input
+    const renderedBrushes = React.useMemo(() => {
+        return brushes.map((brush) => (
+            <MapEditorBrushRow
+                key={JSON.stringify(brush)}
+                brush={brush}
+                open={brush == openBrush}
+                onClick={() => {
+                    if (brush == openBrush) setOpenBrush(null)
+                    else setOpenBrush(brush)
+                }}
+            />
+        ))
+    }, [brushes])
+
     if (!props.open) return null
 
     return (
@@ -130,17 +145,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
             <input type="file" hidden ref={inputRef} onChange={fileUploaded} />
 
             <div className="flex flex-col flex-grow">
-                {brushes.map((brush, i) => (
-                    <MapEditorBrushRow
-                        key={i}
-                        brush={brush}
-                        open={brush == openBrush}
-                        onClick={() => {
-                            if (brush == openBrush) setOpenBrush(null)
-                            else setOpenBrush(brush)
-                        }}
-                    />
-                ))}
+                {renderedBrushes}
                 <SmallButton
                     onClick={() => setClearConfirmOpen(true)}
                     className={'mt-10 ' + (cleared ? 'invisible' : '')}
