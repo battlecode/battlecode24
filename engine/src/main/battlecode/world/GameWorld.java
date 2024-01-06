@@ -34,6 +34,7 @@ public strictfp class GameWorld {
     private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
     private MapLocation[][] spawnLocations;
     private int[] breadAmounts;
+    private int[] breadCooldowns;
     private ArrayList<Trap>[] trapTriggers;
     private Trap[] trapLocations;
     private int trapId;
@@ -68,15 +69,13 @@ public strictfp class GameWorld {
         this.gameStats = new GameStats();
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
+        this.breadCooldowns = new int[gm.getWidth() * gm.getHeight()];
 
         this.profilerCollections = new HashMap<>();
-
         this.controlProvider = cp;
         this.rand = new Random(this.gameMap.getSeed());
         this.matchMaker = matchMaker;
-
         this.controlProvider.matchStarted(this);
-
         this.teamInfo = new TeamInfo(this);
 
         // Create all robots in their despawned states
@@ -161,15 +160,15 @@ public strictfp class GameWorld {
             this.controlProvider.roundStarted();
             // On the first round we want to add the initial amounts to the headquarters
             if (this.currentRound == 1) {
-                this.teamInfo.addBread(Team.A, GameConstants.INITIAL_CRUMBS_AMOUNT);
-                this.teamInfo.addBread(Team.B, GameConstants.INITIAL_CRUMBS_AMOUNT);
+                // this.teamInfo.addBread(Team.A, GameConstants.INITIAL_CRUMBS_AMOUNT);
+                // this.teamInfo.addBread(Team.B, GameConstants.INITIAL_CRUMBS_AMOUNT);
             }
 
             updateDynamicBodies();
 
             this.controlProvider.roundEnded();
-            this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
-            this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
+            // this.teamInfo.addBread(Team.A, GameConstants.PASSIVE_CRUMBS_INCREASE);
+            // this.teamInfo.addBread(Team.B, GameConstants.PASSIVE_CRUMBS_INCREASE);
             this.processEndOfRound();
 
             if (!this.isRunning()) {
@@ -270,6 +269,15 @@ public strictfp class GameWorld {
 
     public int getBreadAmount(MapLocation loc) {
         return this.breadAmounts[locationToIndex(loc)];
+    }
+
+    public int tryCollectBread(MapLocation loc) {
+        int index = locationToIndex(loc);
+        if(this.breadAmounts[index] != 0 && this.breadCooldowns[index] == 0) {
+            this.breadCooldowns[index] += 4;
+            return this.breadAmounts[index];
+        }
+        return 0;
     }
 
     public void removeBread(MapLocation loc) {
@@ -662,6 +670,10 @@ public strictfp class GameWorld {
                         flag.incrementDroppedRounds();
                 }
             }
+        }
+
+        for(int i = 0; i < breadCooldowns.length; i++) {
+            if(breadCooldowns[i] > 0) breadCooldowns[i]--;
         }
 
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getBread(Team.A), this.teamInfo.getSharedArray(Team.A));

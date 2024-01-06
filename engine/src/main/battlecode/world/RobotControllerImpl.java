@@ -265,6 +265,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException{
+        assertRadiusNonNegative(radiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
+
+        ArrayList<MapLocation> breadLocs = new ArrayList<>();
+        for(MapLocation loc : getAllLocationsWithinRadiusSquared(getLocation(), actualRadiusSquared)) {
+            if(gameWorld.getBreadAmount(loc) != 0) breadLocs.add(loc);
+        }
+        return breadLocs.toArray(new MapLocation[breadLocs.size()]);
+    }
+
+    @Override
     public boolean sensePassability(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.isPassable(loc);
@@ -465,12 +477,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Team[] allSpawnZones = {null, Team.A, Team.B};
         this.robot.setLocation(nextLoc);
 
-        int amtBread = this.gameWorld.getBreadAmount(nextLoc);
+        int amtBread = this.gameWorld.tryCollectBread(nextLoc);
         if(amtBread != 0) {
             this.robot.addResourceAmount(amtBread);
             this.gameWorld.getMatchMaker().addClaimedResource(nextLoc);
         }
-        this.gameWorld.removeBread(nextLoc);
+        // this.gameWorld.removeBread(nextLoc);
         this.robot.addMovementCooldownTurns();
 
         // trap trigger methods
