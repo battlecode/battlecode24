@@ -2,7 +2,6 @@ import React, { MutableRefObject, useEffect } from 'react'
 import { useAppContext } from '../../app-context'
 import { useListenEvent, EventType } from '../../app-events'
 import { useForceUpdate } from '../../util/react-util'
-import { Body } from '../../playback/Bodies'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { getRenderCoords } from '../../util/RenderUtil'
 import { Vector } from '../../playback/Vector'
@@ -128,7 +127,7 @@ export const Tooltip = ({
                 )}
             </Draggable>
 
-            {hoveredSquare && (
+            {appContext.state.config.showMapXY && hoveredSquare && (
                 <div className="absolute right-[5px] top-[5px] bg-black/70 z-20 text-white p-2 rounded-md text-xs opacity-50 pointer-events-none">
                     {`(X: ${hoveredSquare.x}, Y: ${hoveredSquare.y})`}
                 </div>

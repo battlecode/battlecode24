@@ -11,13 +11,15 @@ interface Props {
 const DEFAULT_CONFIG = {
     showAllIndicators: false,
     showAllRobotRadii: false,
-    showHealthBars: false
+    showHealthBars: false,
+    showMapXY: true
 }
 
 const configDescription: { [key: string]: string } = {
     showAllIndicators: 'Show all indicator dots and lines',
     showAllRobotRadii: 'Show all robot view and attack radii',
-    showHealthBars: 'Show health bars below all robots'
+    showHealthBars: 'Show health bars below all robots',
+    showMapXY: 'Show X,Y when hovering a tile'
 }
 
 export function getDefaultConfig(): ClientConfig {
