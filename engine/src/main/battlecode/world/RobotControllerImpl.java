@@ -155,6 +155,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertIsSpawned();
         if (!this.gameWorld.getGameMap().onTheMap(loc))
         throw new GameActionException(CANT_SENSE_THAT,
                 "Target location is not on the map");
@@ -165,6 +166,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanActLocation(MapLocation loc, int maxRadius) throws GameActionException {
         assertNotNull(loc);
+        assertIsSpawned();
         if (getLocation().distanceSquaredTo(loc) > maxRadius)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
@@ -267,6 +269,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException{
         assertRadiusNonNegative(radiusSquared);
+        assertIsSpawned();
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
 
         ArrayList<MapLocation> breadLocs = new ArrayList<>();
@@ -290,9 +293,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public FlagInfo[] senseNearbyFlags(int radiusSquared, Team team) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
+        assertIsSpawned();
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         ArrayList<FlagInfo> flagInfos = new ArrayList<>();
         for(Flag x : gameWorld.getAllFlags()) {
+            if(robot.getLocation() == null) System.out.println("robot location is null");
             if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
                 flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
             }
@@ -450,6 +455,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanMove(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsMovementReady();
+        assertIsSpawned();
         MapLocation loc = adjacentLocation(dir);
         if (!onTheMap(loc))
             throw new GameActionException(OUT_OF_RANGE,
