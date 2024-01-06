@@ -2,13 +2,17 @@ import React, { useEffect } from 'react'
 import { useAppContext } from './app-context'
 import { EventType, publishEvent } from './app-events'
 
+export type ClientConfig = typeof DEFAULT_CONFIG
+
+interface Props {
+    open: boolean
+}
+
 const DEFAULT_CONFIG = {
     showAllIndicators: false,
     showAllRobotRadii: false,
     showHealthBars: false
 }
-
-export type ClientConfig = typeof DEFAULT_CONFIG
 
 const configDescription: { [key: string]: string } = {
     showAllIndicators: 'Show all indicator dots and lines',
@@ -25,7 +29,9 @@ export function getDefaultConfig(): ClientConfig {
     return config
 }
 
-export const ConfigPage = () => {
+export const ConfigPage: React.FC<Props> = (props) => {
+    if (!props.open) return null
+
     return (
         <div className={'flex flex-col'}>
             <div className="mb-2">Edit Client Config:</div>

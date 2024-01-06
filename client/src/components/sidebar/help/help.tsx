@@ -1,9 +1,10 @@
 import React from 'react'
-import { useAppContext } from '../../../app-context'
 
-export const HelpPage: React.FC = () => {
-    const context = useAppContext()
+interface Props {
+    open: boolean
+}
 
+export const HelpPage: React.FC<Props> = (props) => {
     const hotkeyElement = (key: string, description: string) => {
         return (
             <div className="font-light">
@@ -11,6 +12,8 @@ export const HelpPage: React.FC = () => {
             </div>
         )
     }
+
+    if (!props.open) return null
 
     return (
         <div>

@@ -8,10 +8,11 @@ import Tooltip from '../../tooltip'
 import { SectionHeader } from '../../section-header'
 
 type RunnerPageProps = {
+    open: boolean
     scaffold: ReturnType<typeof useScaffold>
 }
 
-export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
+export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
     const [
         setup,
         availableMaps,
@@ -46,18 +47,19 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ scaffold }) => {
     const [maps, setMaps] = useState<Set<string>>(new Set())
     const [runConfigOpen, setRunConfigOpen] = useState(true)
 
-    useEffect(() => {
-        if (availablePlayers.size > 0) setTeamA([...availablePlayers][0])
-        if (availablePlayers.size > 1) setTeamB([...availablePlayers][1])
-    }, [availablePlayers])
-
     const runGame = () => {
         if (!teamA || !teamB || maps.size === 0 || !runMatch) return
         const javaPath = java ? java.path : javaInstalls.length > 0 ? javaInstalls[0].path : ''
         runMatch(javaPath, teamA, teamB, maps)
     }
 
-    // if instance of non-electron scaffold, then we need to connect to the server
+    useEffect(() => {
+        if (availablePlayers.size > 0) setTeamA([...availablePlayers][0])
+        if (availablePlayers.size > 1) setTeamB([...availablePlayers][1])
+    }, [availablePlayers])
+
+    if (!open) return null
+
     if (!nativeAPI) return <>Run the client locally to use the runner</>
 
     const runDisabled = !teamA || !teamB || maps.size === 0

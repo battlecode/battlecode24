@@ -20,12 +20,20 @@ type MapParams = {
     imported?: Game
 }
 
-export const MapEditorPage: React.FC = () => {
+interface Props {
+    open: boolean
+}
+
+export const MapEditorPage: React.FC<Props> = (props) => {
     const context = useAppContext()
+    const [cleared, setCleared] = React.useState(true)
     const [mapParams, setMapParams] = React.useState<MapParams>({ width: 30, height: 30, symmetry: 0 })
     const [brushes, setBrushes] = React.useState<MapEditorBrush[]>([])
     const [mapNameOpen, setMapNameOpen] = React.useState(false)
     const [mapError, setMapError] = React.useState('')
+
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const editGame = React.useRef<Game | null>(null)
 
     const openBrush = brushes.find((b) => b.open)
 
@@ -45,31 +53,6 @@ export const MapEditorPage: React.FC = () => {
         setCleared(mapEmpty())
     }
 
-    useListenEvent(EventType.TILE_CLICK, applyBrush, [brushes])
-    useListenEvent(EventType.TILE_DRAG, applyBrush, [brushes])
-
-    useEffect(() => {
-        let game = mapParams.imported
-
-        if (!game) {
-            game = new Game()
-            const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
-            game.currentMatch = Match.createBlank(game, new Bodies(game), map)
-        }
-
-        context.setState({
-            ...context.state,
-            activeGame: game,
-            activeMatch: game.currentMatch
-        })
-
-        const turn = game.currentMatch!.currentTurn
-        const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
-        brushes[0].open = true
-        setBrushes(brushes)
-        setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
-    }, [mapParams])
-
     const changeWidth = (newWidth: number) => {
         newWidth = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newWidth))
         setMapParams({ ...mapParams, width: newWidth, imported: undefined })
@@ -84,7 +67,6 @@ export const MapEditorPage: React.FC = () => {
         setMapParams({ ...mapParams, symmetry: symmetryInt, imported: undefined })
     }
 
-    const inputRef = React.useRef<HTMLInputElement>(null)
     const fileUploaded = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) return
         const file = e.target.files[0]
@@ -94,12 +76,39 @@ export const MapEditorPage: React.FC = () => {
         })
     }
 
-    const [cleared, setCleared] = React.useState(true)
     const clearMap = () => {
         if (!confirm('Are you sure you want to clear the map?')) return
         setCleared(true)
         setMapParams({ ...mapParams, imported: undefined })
     }
+
+    useListenEvent(EventType.TILE_CLICK, applyBrush, [brushes])
+    useListenEvent(EventType.TILE_DRAG, applyBrush, [brushes])
+
+    useEffect(() => {
+        if (mapParams.imported) {
+            editGame.current = mapParams.imported
+        } else if (!editGame.current) {
+            const game = new Game()
+            const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
+            game.currentMatch = Match.createBlank(game, new Bodies(game), map)
+            editGame.current = game
+        }
+
+        context.setState({
+            ...context.state,
+            activeGame: editGame.current,
+            activeMatch: editGame.current.currentMatch
+        })
+
+        const turn = editGame.current.currentMatch!.currentTurn
+        const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
+        brushes[0].open = true
+        setBrushes(brushes)
+        setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
+    }, [mapParams, props.open])
+
+    if (!props.open) return null
 
     return (
         <>

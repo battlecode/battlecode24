@@ -16,7 +16,7 @@ import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
 import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
 import { ConfigPage } from '../../client-config'
-import { UpdateWarning } from './update-warning';
+import { UpdateWarning } from './update-warning'
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -64,29 +64,6 @@ export const Sidebar: React.FC = () => {
         }
     }, [tournamentSource])
     // End tournament mode loading ====================================================================================================
-
-    const renderPage = () => {
-        if (!open) return undefined
-
-        switch (page) {
-            default:
-                return undefined
-            case PageType.GAME:
-                return <GamePage />
-            case PageType.QUEUE:
-                return <QueuePage />
-            case PageType.RUNNER:
-                return <RunnerPage scaffold={scaffold} />
-            case PageType.MAP_EDITOR:
-                return <MapEditorPage />
-            case PageType.HELP:
-                return <HelpPage />
-            case PageType.TOURNAMENT:
-                return <TournamentPage loadingRemoteTournament={loadingRemoteTournament} />
-            case PageType.CONFIG:
-                return <ConfigPage />
-        }
-    }
 
     // Skip going through map and help tab, it's annoying for competitors.
     const hotkeyPageLoop = tournamentMode
@@ -172,7 +149,16 @@ export const Sidebar: React.FC = () => {
                                     </div>
                                 ))}
                             </div>
-                            {renderPage()}
+                            <GamePage open={page == PageType.GAME} />
+                            <QueuePage open={page == PageType.QUEUE} />
+                            <RunnerPage open={page == PageType.RUNNER} scaffold={scaffold} />
+                            <MapEditorPage open={page == PageType.MAP_EDITOR} />
+                            <HelpPage open={page == PageType.HELP} />
+                            <ConfigPage open={page == PageType.CONFIG} />
+                            <TournamentPage
+                                open={page == PageType.TOURNAMENT}
+                                loadingRemoteTournament={loadingRemoteTournament}
+                            />
                         </>
                     )}
                 </div>

@@ -7,16 +7,16 @@ import { FiUpload } from 'react-icons/fi'
 import Game from '../../../playback/Game'
 import { QueuedGame } from './queue-game'
 
-export const QueuePage: React.FC = () => {
+interface Props {
+    open: boolean
+}
+
+export const QueuePage: React.FC<Props> = (props) => {
     const context = useAppContext()
     const inputRef = React.useRef<HTMLInputElement | null>()
     const queue = context.state.queue
 
     const keyboard = useKeyboard()
-
-    React.useEffect(() => {
-        if (keyboard.keyCode === 'ShiftLeft') inputRef.current?.click()
-    }, [keyboard.keyCode])
 
     const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) return
@@ -24,7 +24,7 @@ export const QueuePage: React.FC = () => {
         const reader = new FileReader()
         reader.onload = () => {
             const game = Game.loadFullGameRaw(reader.result as ArrayBuffer)
-            
+
             // select the first match
             const selectedMatch = game.matches[0]
             game.currentMatch = selectedMatch
@@ -38,6 +38,12 @@ export const QueuePage: React.FC = () => {
         }
         reader.readAsArrayBuffer(file)
     }
+
+    React.useEffect(() => {
+        if (keyboard.keyCode === 'ShiftLeft') inputRef.current?.click()
+    }, [keyboard.keyCode])
+
+    if (!props.open) return null
 
     return (
         <div className="flex flex-col">
