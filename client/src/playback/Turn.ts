@@ -31,12 +31,13 @@ export default class Turn {
         else this.stat = this.match.stats[this.turnNumber].copy()
 
         /*
-            The ordering here is kinda important. Actions needs to be before map because it reads from the map's traps and 
-            they would be removed if map was before it.
+            The ordering here is important. Actions needs to be before map because it reads from the map's traps and 
+            they would be removed if map was before it. Bodies needs to come before maps so that actions have access
+            to spawned bodies
         */
+        this.bodies.applyDelta(this, delta, nextDelta)
         this.actions.applyDelta(this, delta)
         this.map.applyDelta(delta)
-        this.bodies.applyDelta(this, delta, nextDelta)
 
         if (firstTimeComputingStat) {
             // finish computing stat and save to match
