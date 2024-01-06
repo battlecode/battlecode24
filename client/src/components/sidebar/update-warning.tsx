@@ -6,19 +6,13 @@ export const UpdateWarning = () => {
     const [update, setUpdate] = React.useState<undefined | { latest: string }>(undefined)
 
     useEffect(() => {
-        // Don't need to check for version updates in the web client
         if (!nativeAPI) return
 
-        const url = `https://api.battlecode.org/api/episode/e/bc${BATTLECODE_YEAR % 100}/?format=json`
-        fetch(url, { mode: 'no-cors' })
-            .then((response) => response.json())
-            .then((json) => {
-                const latest = json.release_version_public
-                if (latest.trim() != GAME_VERSION) {
-                    setUpdate({ latest })
-                }
-            })
-            .catch((e) => console.log(e))
+        nativeAPI.getServerVersion(`${BATTLECODE_YEAR % 100}`).then((latest) => {
+            if (latest && latest.trim() != GAME_VERSION) {
+                setUpdate({ latest })
+            }
+        })
     }, [])
 
     if (!update) return null

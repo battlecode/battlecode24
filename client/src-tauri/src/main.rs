@@ -1,12 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::{path::Path, io::Write, fs, collections::HashMap, sync::{Arc, Mutex}};
 use tauri::{plugin::{Builder as PluginBuilder, TauriPlugin}, Runtime};
 use tauri::api::dialog::blocking::FileDialogBuilder;
 use tauri::api::process::{Command, CommandEvent, CommandChild};
 use relative_path::RelativePath;
-use std::{path::Path, io::Write};
-use std::{collections::HashMap, sync::{Arc, Mutex}, fs};
+use ureq;
 
 mod tauri_bridge;
 
@@ -21,6 +21,11 @@ struct ChildProcessExitPayload {
     pid: String,
     code: String,
     signal: String
+}
+
+#[derive(Default, serde::Deserialize)]
+struct ServerApiResponse {
+    release_version_public: String
 }
 
 struct AppState {
@@ -98,6 +103,16 @@ async fn tauri_api(
             }
 
             Ok(vec![])
+        },
+        "getServerVersion" => {
+            let mut version = String::new();
+            let uri = format!("https://api.battlecode.org/api/episode/e/bc{}/?format=json", &args[0]);
+            if let Ok(res) = ureq::get(&uri).call() {
+                let res: ServerApiResponse = res.into_json().unwrap_or(Default::default());
+                version = res.release_version_public;
+            }
+
+            Ok(vec![version])
         },
         "path.join" => {
             let mut final_path = std::path::PathBuf::new();

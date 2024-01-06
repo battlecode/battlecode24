@@ -7,6 +7,7 @@ const electronAPI = {
     getRootPath: (...args) => invoke('getRootPath', ...args),
     getJavas: (...args) => invoke('getJavas', ...args),
     exportMap: (...args) => invoke('exportMap', ...args),
+    getServerVersion: (...args) => invoke('getServerVersion', ...args),
     path: {
         join: (...args) => invoke('path.join', ...args),
         relative: (...args) => invoke('path.relative', ...args),
