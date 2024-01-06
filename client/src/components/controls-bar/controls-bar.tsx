@@ -17,10 +17,15 @@ export const ControlsBar: React.FC = () => {
     const keyboard = useKeyboard()
     const [page, setPage] = usePage()
 
-    const matchLoaded = appState.activeGame && appState.activeGame.currentMatch
+    const currentUPSBuffer = React.useRef<number[]>([])
+
+    const currentMatch = appState.activeGame?.currentMatch
+    const isPlayable = appState.activeGame && appState.activeGame.playable
+    const hasNextMatch =
+        currentMatch && appState.activeGame!.matches.indexOf(currentMatch!) + 1 < appState.activeGame!.matches.length
 
     const changePaused = (paused: boolean) => {
-        if (!matchLoaded) return
+        if (!currentMatch) return
         setAppState({
             ...appState,
             paused: paused,
@@ -29,7 +34,7 @@ export const ControlsBar: React.FC = () => {
     }
 
     const multiplyUpdatesPerSecond = (multiplier: number) => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         setAppState((old) => {
             const u = old.updatesPerSecond
             const sign = Math.sign(u * multiplier)
@@ -39,31 +44,31 @@ export const ControlsBar: React.FC = () => {
     }
 
     const stepTurn = (delta: number) => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         // explicit rerender at the end so a render doesnt occur between these two steps
-        appState.activeGame!.currentMatch!.stepTurn(delta, false)
-        appState.activeGame!.currentMatch!.roundSimulation()
-        appState.activeGame!.currentMatch!.rerender()
+        currentMatch!.stepTurn(delta, false)
+        currentMatch!.roundSimulation()
+        currentMatch!.rerender()
     }
 
     const jumpToTurn = (turn: number) => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         // explicit rerender at the end so a render doesnt occur between these two steps
-        appState.activeGame!.currentMatch!.jumpToTurn(turn, false)
-        appState.activeGame!.currentMatch!.roundSimulation()
-        appState.activeGame!.currentMatch!.rerender()
+        currentMatch!.jumpToTurn(turn, false)
+        currentMatch!.roundSimulation()
+        currentMatch!.rerender()
     }
 
     const jumpToEnd = () => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         // explicit rerender at the end so a render doesnt occur between these two steps
-        appState.activeGame!.currentMatch!.jumpToEnd(false)
-        appState.activeGame!.currentMatch!.roundSimulation()
-        appState.activeGame!.currentMatch!.rerender()
+        currentMatch!.jumpToEnd(false)
+        currentMatch!.roundSimulation()
+        currentMatch!.rerender()
     }
 
     const nextMatch = () => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         const game = appState.activeGame!
         const prevMatch = game.currentMatch!
         const prevMatchIndex = game.matches.indexOf(prevMatch)
@@ -80,12 +85,6 @@ export const ControlsBar: React.FC = () => {
         })
     }
 
-    const hasNextMatch =
-        appState.activeGame &&
-        appState.activeGame!.currentMatch &&
-        appState.activeGame!.matches.indexOf(appState.activeGame!.currentMatch!) + 1 <
-            appState.activeGame!.matches.length
-
     const closeGame = () => {
         setAppState({
             ...appState,
@@ -95,31 +94,34 @@ export const ControlsBar: React.FC = () => {
         if (appState.tournament) setPage(PageType.TOURNAMENT)
     }
 
-    const currentUPSBuffer = React.useRef<number[]>([])
+    React.useEffect(() => {
+        // We want to pause whenever the match changes
+        changePaused(true)
+    }, [currentMatch])
 
     React.useEffect(() => {
-        if (!matchLoaded) return
+        if (!isPlayable) return
         if (appState.paused) {
             // Snap bots to their actual position when paused by rounding simulation
             // to the true turn
-            appState.activeGame!.currentMatch!.roundSimulation()
-            appState.activeGame!.currentMatch!.rerender()
+            currentMatch!.roundSimulation()
+            currentMatch!.rerender()
             return
         }
 
         const msPerUpdate = 1000 / appState.updatesPerSecond
         const updatesPerInterval = SIMULATION_UPDATE_INTERVAL_MS / msPerUpdate
         const stepInterval = setInterval(() => {
-            const prevTurn = appState.activeGame!.currentMatch!.currentTurn.turnNumber
-            appState.activeGame!.currentMatch!.stepSimulation(updatesPerInterval)
+            const prevTurn = currentMatch!.currentTurn.turnNumber
+            currentMatch!.stepSimulation(updatesPerInterval)
 
-            if (prevTurn != appState.activeGame!.currentMatch!.currentTurn.turnNumber) {
+            if (prevTurn != currentMatch!.currentTurn.turnNumber) {
                 currentUPSBuffer.current.push(Date.now())
                 while (currentUPSBuffer.current.length > 0 && currentUPSBuffer.current[0] < Date.now() - 1000)
                     currentUPSBuffer.current.shift()
             }
 
-            if (appState.activeGame!.currentMatch!.currentTurn.isEnd() && appState.updatesPerSecond > 0) {
+            if (currentMatch!.currentTurn.isEnd() && appState.updatesPerSecond > 0) {
                 changePaused(true)
             }
         }, SIMULATION_UPDATE_INTERVAL_MS)
@@ -127,7 +129,7 @@ export const ControlsBar: React.FC = () => {
         return () => {
             clearInterval(stepInterval)
         }
-    }, [appState.updatesPerSecond, appState.activeGame, appState.activeGame?.currentMatch, appState.paused])
+    }, [appState.updatesPerSecond, appState.activeGame, currentMatch, appState.paused])
 
     useEffect(() => {
         // If the competitor had manually pressed one of the buttons on the
@@ -169,11 +171,10 @@ export const ControlsBar: React.FC = () => {
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
-    if (!appState.activeGame || !appState.activeGame.playable) return null
+    if (!isPlayable) return null
 
-    const match = appState.activeGame!.currentMatch!
-    const atStart = match.currentTurn.turnNumber == 0
-    const atEnd = match.currentTurn.turnNumber == match.maxTurn
+    const atStart = currentMatch!.currentTurn.turnNumber == 0
+    const atEnd = currentMatch!.currentTurn.turnNumber == currentMatch!.maxTurn
 
     return (
         <div className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none">
