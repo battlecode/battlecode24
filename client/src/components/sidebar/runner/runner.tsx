@@ -6,6 +6,7 @@ import { Select } from '../../forms'
 import { InputDialog } from '../../input-dialog'
 import Tooltip from '../../tooltip'
 import { SectionHeader } from '../../section-header'
+import { FixedSizeList, ListOnScrollProps } from 'react-window'
 
 type RunnerPageProps = {
     open: boolean
@@ -287,8 +288,14 @@ export const Console: React.FC<Props> = ({ lines }) => {
         }
     }
 
-    const handleScroll = (e: UIEvent<HTMLDivElement>) => {
-        const div = e.currentTarget
+    const ConsoleRow = (props: { index: number; style: any }) => (
+        <span style={props.style} className={getLineClass(lines[props.index]) + ' text-xs whitespace-nowrap'}>
+            {lines[props.index].content}
+        </span>
+    )
+
+    const handleScroll = (e: ListOnScrollProps) => {
+        const div = consoleRef.current!
         const isScrolledToBottom = div.scrollTop + div.offsetHeight - div.scrollHeight >= -10
         setTail(isScrolledToBottom)
     }
@@ -305,16 +312,21 @@ export const Console: React.FC<Props> = ({ lines }) => {
         <div className="flex flex-col grow h-full relative">
             <label>Console</label>
             <div
-                ref={consoleRef}
-                onScroll={handleScroll}
                 className="top-[25px] absolute flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
                 style={{ height: 'calc(100% - 25px)', maxHeight: 'calc(100% - 25px)' }}
             >
-                {lines.map((line, index) => (
-                    <span key={index} className={getLineClass(line) + ' text-xs whitespace-nowrap'}>
-                        {line.content}
-                    </span>
-                ))}
+                <FixedSizeList
+                    outerRef={consoleRef}
+                    height={2000}
+                    itemCount={lines.length}
+                    itemSize={20}
+                    layout="vertical"
+                    width={'100%'}
+                    onScroll={handleScroll}
+                    overscanCount={10}
+                >
+                    {ConsoleRow}
+                </FixedSizeList>
             </div>
         </div>
     )
