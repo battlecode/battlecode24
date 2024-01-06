@@ -11,11 +11,19 @@ type TooltipProps = {
     overlayCanvas: HTMLCanvasElement | null
     selectedBodyID: number | undefined
     hoveredBodyID: number | undefined
+    hoveredSquare: Vector | undefined
     selectedSquare: Vector | undefined
     wrapper: MutableRefObject<HTMLDivElement | null>
 }
 
-export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, selectedSquare, wrapper }: TooltipProps) => {
+export const Tooltip = ({
+    overlayCanvas,
+    selectedBodyID,
+    hoveredBodyID,
+    hoveredSquare,
+    selectedSquare,
+    wrapper
+}: TooltipProps) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
@@ -89,8 +97,8 @@ export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, selected
     const tooltipContent = hoveredBody
         ? hoveredBody.onHoverInfo()
         : selectedSquare
-          ? map.getTooltipInfo(selectedSquare)
-          : []
+        ? map.getTooltipInfo(selectedSquare)
+        : []
     if (tooltipContent.length === 0) showFloatingTooltip = false
 
     return (
@@ -119,6 +127,12 @@ export const Tooltip = ({ overlayCanvas, selectedBodyID, hoveredBodyID, selected
                     </div>
                 )}
             </Draggable>
+
+            {hoveredSquare && (
+                <div className="absolute right-[5px] top-[5px] bg-black/70 z-20 text-white p-2 rounded-md text-xs opacity-50 pointer-events-none">
+                    {`(X: ${hoveredSquare.x}, Y: ${hoveredSquare.y})`}
+                </div>
+            )}
         </>
     )
 }
