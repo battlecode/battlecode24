@@ -13,9 +13,9 @@ public enum GlobalUpgrade {
     ACTION(4, 0, 0),
 
     /**
-     * Healing increases base heal by 10.
+     * Healing increases base heal by 100.
      */
-    HEALING(0, 10, 0),
+    HEALING(0, 100, 0),
 
     /**
      * Capture delays the return of a dropped flag by 8 rounds.

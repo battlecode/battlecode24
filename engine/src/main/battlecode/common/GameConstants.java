@@ -56,7 +56,7 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** health each robot starts with */
-    public static final int DEFAULT_HEALTH = 100;
+    public static final int DEFAULT_HEALTH = 1000;
 
     /** The total number of robots a team has (both despawned or spawned). */
     public static final int ROBOT_CAPACITY = 50;

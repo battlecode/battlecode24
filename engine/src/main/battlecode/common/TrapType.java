@@ -9,10 +9,10 @@ public enum TrapType {
     // build cost, squared radius if entered, squared radius if dug, damange if entered, damage if dug, doesDig, actionCooldownIncrease, isInvisible
 
     /**
-     * When an opponent enters, explosive traps deal 75 damage to all opponents within a sqrt 13 radius
-     * If an opponent digs/breaks under the trap, it deals 50 damage to all opponnets in radius sqrt 9
+     * When an opponent enters, explosive traps deal 750 damage to all opponents within a sqrt 13 radius
+     * If an opponent digs/breaks under the trap, it deals 500 damage to all opponnets in radius sqrt 9
      */
-    EXPLOSIVE (250, 0, 13, 9, 75, 50, false, 5, true, 0),
+    EXPLOSIVE (250, 0, 13, 9, 750, 500, false, 5, true, 0),
 
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
