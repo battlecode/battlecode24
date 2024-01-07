@@ -74,6 +74,15 @@ enum GlobalUpgradeType: byte {
     CAPTURING_UPGRADE
 }
 
+enum WinType: byte {
+    CAPTURE,
+    MORE_FLAG_CAPTURES,
+    LEVEL_SUM,
+    MORE_BREAD,
+    COIN_FLIP,
+    RESIGNATION
+}
+
 table GlobalUpgradeMetadata {
     type: GlobalUpgradeType;
     upgradeAmount: int;
@@ -217,6 +226,8 @@ table MatchHeader {
 table MatchFooter {
     /// The ID of the winning team.
     winner: byte;
+    /// The reason for winning
+    winType: WinType;
     /// The number of rounds played.
     totalRounds: int;
     /// Profiler data for team A and B if profiling is enabled.

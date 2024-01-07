@@ -533,7 +533,7 @@ public strictfp class GameMaker {
             clearData();
         }
 
-        public void makeMatchFooter(Team winTeam, int totalRounds, List<ProfilerCollection> profilerCollections) {
+        public void makeMatchFooter(Team winTeam, DominationFactor winType, int totalRounds, List<ProfilerCollection> profilerCollections) {
             changeState(State.IN_MATCH, State.IN_GAME);
 
             createEvent((builder) -> {
@@ -576,7 +576,8 @@ public strictfp class GameMaker {
                 int profilerFilesOffset = MatchFooter.createProfilerFilesVector(builder, profilerFiles.toArray());
 
                 return EventWrapper.createEventWrapper(builder, Event.MatchFooter,
-                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), totalRounds, profilerFilesOffset));
+                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), 
+                    FlatHelpers.getWinTypeFromDominationFactor(winType), totalRounds, profilerFilesOffset));
             });
 
             matchFooters.add(events.size() - 1);

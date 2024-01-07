@@ -1,5 +1,6 @@
 import * as flatbuffers from 'flatbuffers';
 import { ProfilerFile } from '../../battlecode/schema/profiler-file';
+import { WinType } from '../../battlecode/schema/win-type';
 /**
  * Sent to end a match.
  */
@@ -14,6 +15,10 @@ export declare class MatchFooter {
      */
     winner(): number;
     /**
+     * The reason for winning
+     */
+    winType(): WinType;
+    /**
      * The number of rounds played.
      */
     totalRounds(): number;
@@ -24,10 +29,11 @@ export declare class MatchFooter {
     profilerFilesLength(): number;
     static startMatchFooter(builder: flatbuffers.Builder): void;
     static addWinner(builder: flatbuffers.Builder, winner: number): void;
+    static addWinType(builder: flatbuffers.Builder, winType: WinType): void;
     static addTotalRounds(builder: flatbuffers.Builder, totalRounds: number): void;
     static addProfilerFiles(builder: flatbuffers.Builder, profilerFilesOffset: flatbuffers.Offset): void;
     static createProfilerFilesVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
     static startProfilerFilesVector(builder: flatbuffers.Builder, numElems: number): void;
     static endMatchFooter(builder: flatbuffers.Builder): flatbuffers.Offset;
-    static createMatchFooter(builder: flatbuffers.Builder, winner: number, totalRounds: number, profilerFilesOffset: flatbuffers.Offset): flatbuffers.Offset;
+    static createMatchFooter(builder: flatbuffers.Builder, winner: number, winType: WinType, totalRounds: number, profilerFilesOffset: flatbuffers.Offset): flatbuffers.Offset;
 }

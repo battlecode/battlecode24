@@ -3,6 +3,7 @@
 import * as flatbuffers from 'flatbuffers';
 
 import { ProfilerFile } from '../../battlecode/schema/profiler-file';
+import { WinType } from '../../battlecode/schema/win-type';
 
 
 /**
@@ -35,10 +36,18 @@ winner():number {
 }
 
 /**
+ * The reason for winning
+ */
+winType():WinType {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : WinType.CAPTURE;
+}
+
+/**
  * The number of rounds played.
  */
 totalRounds():number {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
@@ -46,29 +55,33 @@ totalRounds():number {
  * Profiler data for team A and B if profiling is enabled.
  */
 profilerFiles(index: number, obj?:ProfilerFile):ProfilerFile|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? (obj || new ProfilerFile()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 profilerFilesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startMatchFooter(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 }
 
 static addWinner(builder:flatbuffers.Builder, winner:number) {
   builder.addFieldInt8(0, winner, 0);
 }
 
+static addWinType(builder:flatbuffers.Builder, winType:WinType) {
+  builder.addFieldInt8(1, winType, WinType.CAPTURE);
+}
+
 static addTotalRounds(builder:flatbuffers.Builder, totalRounds:number) {
-  builder.addFieldInt32(1, totalRounds, 0);
+  builder.addFieldInt32(2, totalRounds, 0);
 }
 
 static addProfilerFiles(builder:flatbuffers.Builder, profilerFilesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, profilerFilesOffset, 0);
+  builder.addFieldOffset(3, profilerFilesOffset, 0);
 }
 
 static createProfilerFilesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -88,9 +101,10 @@ static endMatchFooter(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createMatchFooter(builder:flatbuffers.Builder, winner:number, totalRounds:number, profilerFilesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMatchFooter(builder:flatbuffers.Builder, winner:number, winType:WinType, totalRounds:number, profilerFilesOffset:flatbuffers.Offset):flatbuffers.Offset {
   MatchFooter.startMatchFooter(builder);
   MatchFooter.addWinner(builder, winner);
+  MatchFooter.addWinType(builder, winType);
   MatchFooter.addTotalRounds(builder, totalRounds);
   MatchFooter.addProfilerFiles(builder, profilerFilesOffset);
   return MatchFooter.endMatchFooter(builder);

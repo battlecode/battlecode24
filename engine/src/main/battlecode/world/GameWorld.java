@@ -152,7 +152,7 @@ public strictfp class GameWorld {
             }
 
             // Write match footer if game is done
-            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound, profilers);
+            matchMaker.makeMatchFooter(gameStats.getWinner(), gameStats.getDominationFactor(), currentRound, profilers);
             return GameState.DONE;
         }
 
