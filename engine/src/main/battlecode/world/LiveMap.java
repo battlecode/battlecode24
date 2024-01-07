@@ -413,9 +413,6 @@ public strictfp class LiveMap {
                 } 
             }
             if(this.damArray[i]) {
-                if(this.waterArray[i]) {
-                    throw new RuntimeException("Dams can't be on the same square as water.");
-                }
                 if(this.breadArray[i] != 0) {
                     throw new RuntimeException("Dams can't be on the same square as bread.");
                 }
@@ -425,9 +422,6 @@ public strictfp class LiveMap {
             }
 
             if(this.waterArray[i]) {
-                if(this.breadArray[i] != 0) {
-                    throw new RuntimeException("Water can't be on the same square as bread.");
-                }
                 if(this.spawnZoneArray[i] != 0) {
                     throw new RuntimeException("Water can't be on the same square as spawn zones.");
                 }
