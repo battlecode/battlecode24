@@ -70,7 +70,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
     }
     return (
         <div className="flex items-center mt-2 mb-1 text-xs font-bold justify-around">
-            <div className="flex items-center w-[135px] ml-5">
+            <div className="flex items-center w-[145px] ml-5">
                 Crumbs: {crumbs}
                 <div className="w-[30px] h-[30px]">
                     <img style={{ transform: 'scale(1.5)' }} src={imageSource('resources/crumb_1.png')} />

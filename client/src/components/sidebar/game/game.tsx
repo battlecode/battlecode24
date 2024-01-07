@@ -65,10 +65,17 @@ export const GamePage: React.FC<Props> = (props) => {
                 containerClassName="mt-2"
                 titleClassName="py-2"
             >
-                {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
-                    them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-                <SpecialtyHistogram active={showStats} />
-                <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Bread" />
+                {activeGame ? (
+                    <>
+                        {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
+                            them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+                        <SpecialtyHistogram active={showStats} />
+                        <br />
+                        <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Crumbs" />
+                    </>
+                ) : (
+                    <div>Select a game to see stats</div>
+                )}
             </SectionHeader>
         </div>
     )
