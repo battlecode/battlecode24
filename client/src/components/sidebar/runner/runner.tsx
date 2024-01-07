@@ -196,15 +196,19 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
         <div className="flex flex-col mt-3">
             <label>Maps</label>
             <div className="flex flex-col border border-black py-1 px-1 rounded-md max-h-[190px] overflow-y-auto">
-                {[...availableMaps].map((m) => (
-                    <div
-                        key={m}
-                        className={(maps.has(m) && 'bg-gray-200') + ' cursor-pointer hover:bg-gray-200'}
-                        onClick={() => (maps.has(m) ? onDeselect(m) : onSelect(m))}
-                    >
-                        {m}
-                    </div>
-                ))}
+                {[...availableMaps].map((m) => {
+                    const selected = maps.has(m)
+                    return (
+                        <div
+                            key={m}
+                            className={'cursor-pointer hover:bg-gray-200 flex items-center justify-between'}
+                            onClick={() => (maps.has(m) ? onDeselect(m) : onSelect(m))}
+                        >
+                            {m}
+                            <input type={'checkbox'} checked={selected} className="pointer-events-none mr-2" />
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )
