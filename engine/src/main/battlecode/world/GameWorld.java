@@ -152,7 +152,7 @@ public strictfp class GameWorld {
             }
 
             // Write match footer if game is done
-            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound, profilers);
+            matchMaker.makeMatchFooter(gameStats.getWinner(), gameStats.getDominationFactor(), currentRound, profilers);
             return GameState.DONE;
         }
 
@@ -565,7 +565,6 @@ public strictfp class GameWorld {
      */
     public boolean setWinnerIfGreaterLevelSum() {
         int sumA = teamInfo.getLevelSum(Team.A), sumB = teamInfo.getLevelSum(Team.B);
-        System.out.println(sumA + ", " + sumB);
         if(sumA > sumB) {
             setWinner(Team.A, DominationFactor.LEVEL_SUM);
             return true;

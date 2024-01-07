@@ -24,3 +24,4 @@ export { SpecializationType } from './schema/specialization-type';
 export { TeamData } from './schema/team-data';
 export { Vec } from './schema/vec';
 export { VecTable } from './schema/vec-table';
+export { WinType } from './schema/win-type';

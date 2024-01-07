@@ -10,7 +10,7 @@ public enum SkillType{
     /**
      * Attacking immediately reduces one enemy unit's (in range) base health by 15 (level 0), with a cooldown cost of 20.
      */
-    ATTACK(15, 20),
+    ATTACK(150, 20),
     
     /**
      * Build uses team resources to dig, fill, or build a trap.
@@ -18,9 +18,9 @@ public enum SkillType{
     BUILD(0, 0),
     
     /**
-     * Healing adds 8 health points to a nearby friendly unit, with a cooldown cost of 30. (level 0)
+     * Healing adds 80 health points to a nearby friendly unit, with a cooldown cost of 30. (level 0)
      */
-    HEAL(8, 30);
+    HEAL(80, 30);
 
     public int skillEffect;
     public int cooldown;
@@ -36,7 +36,7 @@ public enum SkillType{
      */
     public int getExperience(int level){
         int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
-        int[] buildExperience = {0, 10, 20, 30, 50, 75, 125};
+        int[] buildExperience = {0, 5, 10, 15, 20, 25, 30};
         int[] healExperience = {0, 10, 20, 30, 50, 75, 125};
         switch(this){
             case ATTACK: return attackExperience[level];

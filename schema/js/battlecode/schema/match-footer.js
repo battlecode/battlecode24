@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchFooter = void 0;
 var flatbuffers = require("flatbuffers");
 var profiler_file_1 = require("../../battlecode/schema/profiler-file");
+var win_type_1 = require("../../battlecode/schema/win-type");
 /**
  * Sent to end a match.
  */
@@ -32,34 +33,44 @@ var MatchFooter = /** @class */ (function () {
         return offset ? this.bb.readInt8(this.bb_pos + offset) : 0;
     };
     /**
+     * The reason for winning
+     */
+    MatchFooter.prototype.winType = function () {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.readInt8(this.bb_pos + offset) : win_type_1.WinType.CAPTURE;
+    };
+    /**
      * The number of rounds played.
      */
     MatchFooter.prototype.totalRounds = function () {
-        var offset = this.bb.__offset(this.bb_pos, 6);
+        var offset = this.bb.__offset(this.bb_pos, 8);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
     /**
      * Profiler data for team A and B if profiling is enabled.
      */
     MatchFooter.prototype.profilerFiles = function (index, obj) {
-        var offset = this.bb.__offset(this.bb_pos, 8);
+        var offset = this.bb.__offset(this.bb_pos, 10);
         return offset ? (obj || new profiler_file_1.ProfilerFile()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
     };
     MatchFooter.prototype.profilerFilesLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 8);
+        var offset = this.bb.__offset(this.bb_pos, 10);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     MatchFooter.startMatchFooter = function (builder) {
-        builder.startObject(3);
+        builder.startObject(4);
     };
     MatchFooter.addWinner = function (builder, winner) {
         builder.addFieldInt8(0, winner, 0);
     };
+    MatchFooter.addWinType = function (builder, winType) {
+        builder.addFieldInt8(1, winType, win_type_1.WinType.CAPTURE);
+    };
     MatchFooter.addTotalRounds = function (builder, totalRounds) {
-        builder.addFieldInt32(1, totalRounds, 0);
+        builder.addFieldInt32(2, totalRounds, 0);
     };
     MatchFooter.addProfilerFiles = function (builder, profilerFilesOffset) {
-        builder.addFieldOffset(2, profilerFilesOffset, 0);
+        builder.addFieldOffset(3, profilerFilesOffset, 0);
     };
     MatchFooter.createProfilerFilesVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
@@ -75,9 +86,10 @@ var MatchFooter = /** @class */ (function () {
         var offset = builder.endObject();
         return offset;
     };
-    MatchFooter.createMatchFooter = function (builder, winner, totalRounds, profilerFilesOffset) {
+    MatchFooter.createMatchFooter = function (builder, winner, winType, totalRounds, profilerFilesOffset) {
         MatchFooter.startMatchFooter(builder);
         MatchFooter.addWinner(builder, winner);
+        MatchFooter.addWinType(builder, winType);
         MatchFooter.addTotalRounds(builder, totalRounds);
         MatchFooter.addProfilerFiles(builder, profilerFilesOffset);
         return MatchFooter.endMatchFooter(builder);

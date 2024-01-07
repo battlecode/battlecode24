@@ -8,7 +8,7 @@ public class MapInfo {
 
     private boolean isWall;
 
-    //0 = Team A, 1 = Team B, -1 = not a spawn zone
+    // 1 = Team A, 2 = Team B, 0 = not a spawn zone
     private int spawnZone;
 
     private boolean isWater;
@@ -57,15 +57,15 @@ public class MapInfo {
      * @battlecode.doc.costlymethod
      */
     public boolean isSpawnZone() {
-        return spawnZone >= 0;
+        return spawnZone > 0;
     }
 
     /**
-     * Returns 0 if this square is a Team A spawn zone,
-     * 1 if this square is a Team B spawn zone, and
-     * -1 if this square is not a spawn zone.
+     * Returns 1 if this square is a Team A spawn zone,
+     * 2 if this square is a Team B spawn zone, and
+     * 0 if this square is not a spawn zone.
      * 
-     * @return 0 or 1 if the square is a Team A or B spawn zone, respectively; -1 otherwise
+     * @return 1 or 2 if the square is a Team A or B spawn zone, respectively; 0 otherwise
      */
     public int getSpawnZoneTeam() {
         return spawnZone;
@@ -95,6 +95,15 @@ public class MapInfo {
     }
 
     /**
+     * Returns the trap type of a friendly trap. TrapType.NONE if there
+     * is no trap or there is an enemy trap.
+     * @return The trap type
+     */
+    public TrapType getTrapType() {
+        return trapType;
+    }
+
+    /**
      * Returns the location of this square
      * 
      * @return the location of this square
@@ -110,8 +119,8 @@ public class MapInfo {
                 "loc=" + loc +
                 (isWall ? ", wall" : "") +
                 (isWater ? ", water" : "") +
-                (spawnZone == 0 ? ", team A spawn zone" : "") +
-                (spawnZone == 1 ? ", team B spawn zone" : "") +
+                (spawnZone == 1 ? ", team A spawn zone" : "") +
+                (spawnZone == 2 ? ", team B spawn zone" : "") +
                 (crumbsAmount == 0 ? "" : ", crumbs=" + crumbsAmount) +
                 (trapType == null ? "" : ", trap=" + trapType) +
                 '}';

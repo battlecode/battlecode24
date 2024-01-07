@@ -41,7 +41,7 @@ public class GameConstants {
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 
     /** The maximum number of bytecodes a bot is allow to use in one turn */
-    public static final int BYTECODE_LIMIT = 30000;
+    public static final int BYTECODE_LIMIT = 25000;
 
     /** The maximum length of indicator strings that a player can associate with a robot. */
     public static final int INDICATOR_STRING_MAX_LENGTH = 64;
@@ -56,7 +56,7 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** health each robot starts with */
-    public static final int DEFAULT_HEALTH = 100;
+    public static final int DEFAULT_HEALTH = 1000;
 
     /** The total number of robots a team has (both despawned or spawned). */
     public static final int ROBOT_CAPACITY = 50;

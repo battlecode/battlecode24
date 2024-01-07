@@ -77,7 +77,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
 
         Trap trap = gw.getTrap(loc);
-        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : null;
+        TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : TrapType.NONE;
         MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
             gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
 
@@ -155,6 +155,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertIsSpawned();
         if (!this.gameWorld.getGameMap().onTheMap(loc))
         throw new GameActionException(CANT_SENSE_THAT,
                 "Target location is not on the map");
@@ -165,6 +166,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanActLocation(MapLocation loc, int maxRadius) throws GameActionException {
         assertNotNull(loc);
+        assertIsSpawned();
         if (getLocation().distanceSquaredTo(loc) > maxRadius)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
@@ -265,6 +267,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException{
+        assertRadiusNonNegative(radiusSquared);
+        assertIsSpawned();
+        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
+
+        ArrayList<MapLocation> breadLocs = new ArrayList<>();
+        for(MapLocation loc : getAllLocationsWithinRadiusSquared(getLocation(), actualRadiusSquared)) {
+            if(gameWorld.getBreadAmount(loc) != 0) breadLocs.add(loc);
+        }
+        return breadLocs.toArray(new MapLocation[breadLocs.size()]);
+    }
+
+    @Override
     public boolean sensePassability(MapLocation loc) throws GameActionException {
         assertCanSenseLocation(loc);
         return this.gameWorld.isPassable(loc);
@@ -278,6 +293,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public FlagInfo[] senseNearbyFlags(int radiusSquared, Team team) throws GameActionException {
         assertRadiusNonNegative(radiusSquared);
+        assertIsSpawned();
         int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
         ArrayList<FlagInfo> flagInfos = new ArrayList<>();
         for(Flag x : gameWorld.getAllFlags()) {
@@ -438,6 +454,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertCanMove(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsMovementReady();
+        assertIsSpawned();
         MapLocation loc = adjacentLocation(dir);
         if (!onTheMap(loc))
             throw new GameActionException(OUT_OF_RANGE,
@@ -946,11 +963,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuyGlobal(ug);
         this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.GLOBAL_UPGRADE, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(ug));
-    }
-
-    @Override
-    public void disintegrate() {
-        throw new RobotDeathException();
     }
 
     @Override

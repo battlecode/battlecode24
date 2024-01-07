@@ -124,7 +124,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public int getLevel(SkillType skill){
         int exp = this.getExp(skill);
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i <= 5; i++){
             if (exp < skill.getExperience(i+1)){
                 return i;
             }
@@ -468,7 +468,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
         // indicator strings!
-        this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
+        if(!indicatorString.equals("")) this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         this.roundsAlive++;
     }
 

@@ -3,6 +3,8 @@ package battlecode.util;
 import battlecode.common.GlobalUpgrade;
 import battlecode.common.TrapType;
 import battlecode.schema.VecTable;
+import battlecode.schema.WinType;
+import battlecode.world.DominationFactor;
 import battlecode.schema.Action;
 import battlecode.schema.BuildActionType;
 import battlecode.schema.GlobalUpgradeType;
@@ -48,6 +50,25 @@ public class FlatHelpers {
                 return BuildActionType.STUN_TRAP;
             default:
                 throw new RuntimeException("No build action type for " + type);
+        }
+    }
+
+    public static byte getWinTypeFromDominationFactor(DominationFactor factor) {
+        switch (factor) {
+            case CAPTURE:
+                return WinType.CAPTURE;
+            case MORE_FLAG_CAPTURES:
+                return WinType.MORE_FLAG_CAPTURES;
+            case LEVEL_SUM:
+                return WinType.LEVEL_SUM;
+            case MORE_BREAD:
+                return WinType.MORE_BREAD;
+            case WON_BY_DUBIOUS_REASONS:
+                return WinType.COIN_FLIP;
+            case RESIGNATION:
+                return WinType.RESIGNATION;
+            default:
+                return Byte.MIN_VALUE;
         }
     }
 

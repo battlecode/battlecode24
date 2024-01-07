@@ -35,33 +35,40 @@ public final class MatchFooter extends Table {
    */
   public byte winner() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
   /**
+   * The reason for winning
+   */
+  public byte winType() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  /**
    * The number of rounds played.
    */
-  public int totalRounds() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int totalRounds() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
    * Profiler data for team A and B if profiling is enabled.
    */
   public battlecode.schema.ProfilerFile profilerFiles(int j) { return profilerFiles(new battlecode.schema.ProfilerFile(), j); }
-  public battlecode.schema.ProfilerFile profilerFiles(battlecode.schema.ProfilerFile obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int profilerFilesLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
+  public battlecode.schema.ProfilerFile profilerFiles(battlecode.schema.ProfilerFile obj, int j) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int profilerFilesLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
   public battlecode.schema.ProfilerFile.Vector profilerFilesVector() { return profilerFilesVector(new battlecode.schema.ProfilerFile.Vector()); }
-  public battlecode.schema.ProfilerFile.Vector profilerFilesVector(battlecode.schema.ProfilerFile.Vector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public battlecode.schema.ProfilerFile.Vector profilerFilesVector(battlecode.schema.ProfilerFile.Vector obj) { int o = __offset(10); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createMatchFooter(FlatBufferBuilder builder,
       byte winner,
+      byte winType,
       int totalRounds,
       int profilerFilesOffset) {
-    builder.startTable(3);
+    builder.startTable(4);
     MatchFooter.addProfilerFiles(builder, profilerFilesOffset);
     MatchFooter.addTotalRounds(builder, totalRounds);
+    MatchFooter.addWinType(builder, winType);
     MatchFooter.addWinner(builder, winner);
     return MatchFooter.endMatchFooter(builder);
   }
 
-  public static void startMatchFooter(FlatBufferBuilder builder) { builder.startTable(3); }
+  public static void startMatchFooter(FlatBufferBuilder builder) { builder.startTable(4); }
   public static void addWinner(FlatBufferBuilder builder, byte winner) { builder.addByte(0, winner, 0); }
-  public static void addTotalRounds(FlatBufferBuilder builder, int totalRounds) { builder.addInt(1, totalRounds, 0); }
-  public static void addProfilerFiles(FlatBufferBuilder builder, int profilerFilesOffset) { builder.addOffset(2, profilerFilesOffset, 0); }
+  public static void addWinType(FlatBufferBuilder builder, byte winType) { builder.addByte(1, winType, 0); }
+  public static void addTotalRounds(FlatBufferBuilder builder, int totalRounds) { builder.addInt(2, totalRounds, 0); }
+  public static void addProfilerFiles(FlatBufferBuilder builder, int profilerFilesOffset) { builder.addOffset(3, profilerFilesOffset, 0); }
   public static int createProfilerFilesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startProfilerFilesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endMatchFooter(FlatBufferBuilder builder) {

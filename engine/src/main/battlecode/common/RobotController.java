@@ -259,6 +259,16 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
+     * Returns all locations that contain crumbs within a certain radius of the robot.
+     * 
+     * @param radiusSquared return crumbs within this distance; if -1 is passed, all crumbs within
+     * vision radius are returned
+     * @return array of MapLocations of crumbs
+     * @throws GameActionException if the radius is negative and not -1
+     */
+    MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException;
+
+    /**
      * Given a location, returns whether that location is passable (not water, a wall, or a dam).
      * 
      * @param loc the given location
@@ -282,7 +292,7 @@ public strictfp interface RobotController {
 
     /**
      * Return map info for all senseable locations. 
-     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     * MapInfo includes walls, spawn zones, water, crumbs, and friendly traps.
      *
      * @return MapInfo about all locations within vision radius
      *
@@ -295,7 +305,7 @@ public strictfp interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     * MapInfo includes walls, spawn zones, water, crumbs, and friendly traps.
      *
      * @param radiusSquared the squared radius of all locations to be returned
      * @return MapInfo about all locations within vision radius
@@ -307,7 +317,7 @@ public strictfp interface RobotController {
 
     /**
      * Return map info for all senseable locations within vision radius of a center location. 
-     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     * MapInfo includes walls, spawn zones, water, crumbs, and friendly traps.
      *
      * @param center the center of the search area
      * @return MapInfo about all locations within vision radius
@@ -322,7 +332,7 @@ public strictfp interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes if there is a cloud, current direction, cooldown multiplier, number of various boosts.
+     * MapInfo includes walls, spawn zones, water, crumbs, and friendly traps.
      *
      * @param center the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
@@ -514,8 +524,7 @@ public strictfp interface RobotController {
     boolean canSpawn(MapLocation loc);
 
     /**
-     * Spawns the robot at the given location. If spawning is not possible
-     * at this location, throws an error.
+     * Spawns the robot at the given location.
      * 
      * @param loc the location to spawn the robot
      * @throws GameActionException if the robot is not allowed to spawn at this location
@@ -535,7 +544,7 @@ public strictfp interface RobotController {
     boolean canDig(MapLocation loc);
 
     /**
-     * Removes land and creates water in a location
+     * Removes land and creates water in a location.
      * 
      * @param loc Location to dig
      * @throws GameActionException if loc is not diggable
@@ -545,7 +554,7 @@ public strictfp interface RobotController {
     void dig(MapLocation loc) throws GameActionException;;
 
     /**
-     * Checks if a location can be filled
+     * Checks if a location can be filled.
      * 
      * @param loc location to check if fillable
      * 
@@ -556,7 +565,7 @@ public strictfp interface RobotController {
     boolean canFill(MapLocation loc);
 
     /**
-     * Fills a water location with land
+     * Fills a water location with land.
      * 
      * @param loc location to fill
      * @throws GameActionException if loc is not fillable
@@ -566,7 +575,7 @@ public strictfp interface RobotController {
     void fill(MapLocation loc) throws GameActionException;;
 
     /**
-     * Check if a location can be modified
+     * Checks if a trap can be built at the given location.
      * 
      * @param building TrapType of trap to build at that location
      * @param loc location to aquaform
@@ -578,7 +587,7 @@ public strictfp interface RobotController {
     boolean canBuild(TrapType building, MapLocation loc);
 
     /**
-     * Build a trap at a location
+     * Builds a trap at the given location.
      * 
      * @param building type of trap to build
      * @param loc location for trap type to build
@@ -593,12 +602,8 @@ public strictfp interface RobotController {
     // ****************************
 
     /**
-     * Tests whether this robot can attack the given location.
-     * 
-     * Checks that the robot is an attacking type unit and that the given location
-     * is within the robot's reach (based on attack type). Also checks that 
-     * there are no cooldown turns remaining and if the robot is a carrier
-     * they have resources.
+     * Tests whether this robot can attack the given location. Robots can only attack
+     * enemy robots, and attacks cannot miss.
      *
      * @param loc target location to attack 
      * @return whether it is possible to attack the given location
@@ -677,9 +682,9 @@ public strictfp interface RobotController {
     void pickupFlag(MapLocation loc) throws GameActionException;
 
     /**
-     * Tests whether robot can drop a flag at the current location.
+     * Tests whether the robot can drop a flag at the current location.
      * 
-     * Checks that the flag is within range (at most 1 cell away from robot) and 
+     * Checks that the flag is within range (at most sqrt(2) cells away from robot) and 
      * that the flag is a friendly flag during setup phase or an enemy flag during attack phase. 
      * Also checks that there are no cooldown turns remaining. 
      * 
@@ -758,7 +763,7 @@ public strictfp interface RobotController {
     boolean canBuyGlobal(GlobalUpgrade ug);
 
     /**
-     * Purchase the global upgrade and applies the affect to the game.
+     * Purchases the global upgrade and applies the effect to the game.
      * 
      * @param ug the global upgrade 
      * @throws GameActionException if the robot is not able to buy the upgrade
@@ -766,13 +771,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      **/
     void buyGlobal(GlobalUpgrade ug) throws GameActionException;
-
-    /**
-     * Destroys the robot. 
-     *
-     * @battlecode.doc.costlymethod
-    **/
-    void disintegrate();
     
     /**
      * Causes your team to lose the game. It's like typing "gg."
