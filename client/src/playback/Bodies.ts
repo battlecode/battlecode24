@@ -125,6 +125,8 @@ export default class Bodies {
             const diedId = delta.diedIds(i)!
             const diedBody = this.bodies.get(diedId) ?? assert.fail(`Body with id ${diedId} not found in bodies`)
             diedBody.dead = true
+            // Manually set hp since we don't receive a final delta
+            diedBody.hp = 0
         }
 
         // Calculate some stats that do not need to recalculate every turn if they have
