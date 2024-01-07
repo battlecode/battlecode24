@@ -20,7 +20,7 @@ public enum GlobalUpgrade {
     /**
      * Capture delays the return of a dropped flag by 8 rounds.
      */
-    CAPTURING(0, 0, 4);
+    CAPTURING(0, 0, 8);
 
     /**
      * How much cooldown reduction changes
