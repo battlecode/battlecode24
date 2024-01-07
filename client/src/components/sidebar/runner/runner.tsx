@@ -205,7 +205,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
                             onClick={() => (maps.has(m) ? onDeselect(m) : onSelect(m))}
                         >
                             {m}
-                            <input type={'checkbox'} checked={selected} className="pointer-events-none mr-2" />
+                            <input type={'checkbox'} readOnly checked={selected} className="pointer-events-none mr-2" />
                         </div>
                     )
                 })}

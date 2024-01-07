@@ -27,6 +27,7 @@ export default class Match {
         private readonly deltas: schema.Round[],
         public readonly maxTurn: number,
         public readonly winner: Team,
+        public readonly winType: schema.WinType,
         public readonly map: StaticMap,
         firstBodies: Bodies,
         firstStats: TurnStat
@@ -41,7 +42,7 @@ export default class Match {
      */
     public static createBlank(game: Game, bodies: Bodies, map: StaticMap): Match {
         const firstStats = new TurnStat(game)
-        return new Match(game, [], 0, game.teams[0], map, bodies, firstStats)
+        return new Match(game, [], 0, game.teams[0], schema.WinType.RESIGNATION, map, bodies, firstStats)
     }
 
     /**
@@ -51,7 +52,7 @@ export default class Match {
         const firstStats = new TurnStat(game)
         const mapBodies = schema_map.bodies() ?? assert.fail('Initial bodies not found in header')
         const bodies = new Bodies(game, mapBodies, firstStats, map)
-        return new Match(game, [], 0, game.teams[0], map, bodies, firstStats)
+        return new Match(game, [], 0, game.teams[0], schema.WinType.RESIGNATION, map, bodies, firstStats)
     }
 
     public static fromSchema(
@@ -61,6 +62,7 @@ export default class Match {
         footer: schema.MatchFooter
     ) {
         const winner = game.teams[footer.winner() - 1]
+        const winType = footer.winType()
 
         const mapData = header.map() ?? assert.fail('Map data not found in header')
         const map = StaticMap.fromSchema(mapData)
@@ -81,7 +83,7 @@ export default class Match {
 
         const maxTurn = deltas.length
 
-        return new Match(game, deltas, maxTurn, winner, map, firstBodies, firstStats)
+        return new Match(game, deltas, maxTurn, winner, winType, map, firstBodies, firstStats)
     }
 
     /**
