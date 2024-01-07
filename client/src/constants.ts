@@ -23,7 +23,8 @@ export const DIRECTIONS: Record<number, Array<number>> = {
     8: [-1, 1]
 }
 
-export const SERVER_MAPS: string[] = ['DefaultSmall', 'DefaultMedium', 'DefaultLarge']
+export const ENGINE_BUILTIN_MAP_NAMES: string[] = ['DefaultSmall', 'DefaultMedium', 'DefaultLarge', 'DefaultHuge']
+
 /*
  * Color constants (defined in tailwind.config.js as well)
  */
