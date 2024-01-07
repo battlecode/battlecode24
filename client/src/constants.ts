@@ -23,7 +23,7 @@ export const DIRECTIONS: Record<number, Array<number>> = {
     8: [-1, 1]
 }
 
-export const SERVER_MAPS: string[] = ['TODO: add builtin maps']
+export const SERVER_MAPS: string[] = ['DefaultSmall', 'DefaultMedium', 'DefaultLarge']
 /*
  * Color constants (defined in tailwind.config.js as well)
  */
