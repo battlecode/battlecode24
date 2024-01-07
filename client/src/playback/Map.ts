@@ -188,6 +188,7 @@ export class CurrentMap {
                     ? match.currentTurn.turnNumber < match.constants.setupPhaseLength()
                     : true
                 if (dividerUp && this.staticMap.divider[schemaIdx]) {
+                    ctx.globalAlpha = 0.6
                     renderUtils.renderRounded(
                         ctx,
                         i,
@@ -200,6 +201,7 @@ export class CurrentMap {
                         },
                         { x: false, y: true }
                     )
+                    ctx.globalAlpha = 1.0
                 }
             }
         }

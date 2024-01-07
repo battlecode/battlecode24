@@ -16,13 +16,13 @@ import Tournament, { JsonTournamentGame } from '../../playback/Tournament'
 import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
 import { ConfigPage } from '../../client-config'
-import { UpdateWarning } from './update-warning';
+import { UpdateWarning } from './update-warning'
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
     const [page, setPage] = usePage()
-    const keyboard = useKeyboard()
     const context = useAppContext()
+    const keyboard = useKeyboard()
 
     // scaffold is created at this level so it is never re-created
     const scaffold = useScaffold()
@@ -65,29 +65,6 @@ export const Sidebar: React.FC = () => {
     }, [tournamentSource])
     // End tournament mode loading ====================================================================================================
 
-    const renderPage = () => {
-        if (!open) return undefined
-
-        switch (page) {
-            default:
-                return undefined
-            case PageType.GAME:
-                return <GamePage />
-            case PageType.QUEUE:
-                return <QueuePage />
-            case PageType.RUNNER:
-                return <RunnerPage scaffold={scaffold} />
-            case PageType.MAP_EDITOR:
-                return <MapEditorPage />
-            case PageType.HELP:
-                return <HelpPage />
-            case PageType.TOURNAMENT:
-                return <TournamentPage loadingRemoteTournament={loadingRemoteTournament} />
-            case PageType.CONFIG:
-                return <ConfigPage />
-        }
-    }
-
     // Skip going through map and help tab, it's annoying for competitors.
     const hotkeyPageLoop = tournamentMode
         ? [PageType.GAME, PageType.QUEUE, PageType.TOURNAMENT]
@@ -100,10 +77,12 @@ export const Sidebar: React.FC = () => {
     }
 
     React.useEffect(() => {
+        if (context.state.disableHotkeys) return
+
         if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, true))
         if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
-        if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
+        //if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
     }, [keyboard.keyCode])
 
     const activeSidebarButtons = React.useMemo(() => {
@@ -172,9 +151,18 @@ export const Sidebar: React.FC = () => {
                                     </div>
                                 ))}
                             </div>
-                            {renderPage()}
                         </>
                     )}
+                    <GamePage open={open && page == PageType.GAME} />
+                    <QueuePage open={open && page == PageType.QUEUE} />
+                    <RunnerPage open={open && page == PageType.RUNNER} scaffold={scaffold} />
+                    <MapEditorPage open={open && page == PageType.MAP_EDITOR} />
+                    <HelpPage open={open && page == PageType.HELP} />
+                    <ConfigPage open={open && page == PageType.CONFIG} />
+                    <TournamentPage
+                        open={open && page == PageType.TOURNAMENT}
+                        loadingRemoteTournament={loadingRemoteTournament}
+                    />
                 </div>
             </Scrollbars>
         </div>

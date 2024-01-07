@@ -8,20 +8,22 @@ import { SectionHeader } from '../../section-header'
 import { Crown } from '../../../icons/crown'
 import { EventType, useListenEvent } from '../../../app-events'
 
-export const GamePage: React.FC = () => {
+const NO_GAME_TEAM_NAME = '?????'
+
+interface Props {
+    open: boolean
+}
+
+export const GamePage: React.FC<Props> = (props) => {
     const context = useAppContext()
     const activeGame = context.state.activeGame
 
-    const teamBoxClasses = 'w-full h-[40px] flex items-center text-center justify-center'
-
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
-
-    const NO_GAME_TEAM_NAME = '?????'
-
     const [showWinner, setShowWinner] = React.useState(
         context.state.tournament === undefined ||
             (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
     )
+
     useListenEvent(EventType.TURN_PROGRESS, () =>
         setShowWinner(
             context.state.tournament === undefined ||
@@ -29,6 +31,9 @@ export const GamePage: React.FC = () => {
         )
     )
 
+    if (!props.open) return null
+
+    const teamBoxClasses = 'w-full h-[40px] flex items-center text-center justify-center'
     return (
         <div className="flex flex-col">
             <div className={teamBoxClasses + ' bg-team0'}>
@@ -60,10 +65,17 @@ export const GamePage: React.FC = () => {
                 containerClassName="mt-2"
                 titleClassName="py-2"
             >
-                {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
-                    them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-                <SpecialtyHistogram active={showStats}  />
-                <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Bread" />
+                {activeGame ? (
+                    <>
+                        {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
+                            them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
+                        <SpecialtyHistogram active={showStats} />
+                        <br />
+                        <ResourceGraph active={showStats} property="resourceAmount" propertyDisplayName="Crumbs" />
+                    </>
+                ) : (
+                    <div>Select a game to see stats</div>
+                )}
             </SectionHeader>
         </div>
     )

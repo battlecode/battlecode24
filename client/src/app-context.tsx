@@ -11,6 +11,7 @@ export interface AppState {
     tournament: Tournament | undefined
     updatesPerSecond: number
     paused: boolean
+    disableHotkeys: boolean
     config: ClientConfig
 }
 
@@ -21,6 +22,7 @@ const DEFAULT_APP_STATE: AppState = {
     tournament: undefined,
     updatesPerSecond: 1,
     paused: true,
+    disableHotkeys: false,
     config: getDefaultConfig()
 }
 

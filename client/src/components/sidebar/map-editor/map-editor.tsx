@@ -12,20 +12,30 @@ import { MapEditorBrush } from './MapEditorBrush'
 import { exportMap, loadFileAsMap } from './MapGenerator'
 import { MAP_SIZE_RANGE } from '../../../constants'
 import { InputDialog } from '../../input-dialog'
+import { ConfirmDialog } from '../../confirm-dialog'
 
 type MapParams = {
     width: number
     height: number
     symmetry: number
-    imported?: Game
+    imported?: Game | null
 }
 
-export const MapEditorPage: React.FC = () => {
+interface Props {
+    open: boolean
+}
+
+export const MapEditorPage: React.FC<Props> = (props) => {
     const context = useAppContext()
+    const [cleared, setCleared] = React.useState(true)
     const [mapParams, setMapParams] = React.useState<MapParams>({ width: 30, height: 30, symmetry: 0 })
     const [brushes, setBrushes] = React.useState<MapEditorBrush[]>([])
     const [mapNameOpen, setMapNameOpen] = React.useState(false)
+    const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false)
     const [mapError, setMapError] = React.useState('')
+
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const editGame = React.useRef<Game | null>(null)
 
     const openBrush = brushes.find((b) => b.open)
 
@@ -45,46 +55,20 @@ export const MapEditorPage: React.FC = () => {
         setCleared(mapEmpty())
     }
 
-    useListenEvent(EventType.TILE_CLICK, applyBrush, [brushes])
-    useListenEvent(EventType.TILE_DRAG, applyBrush, [brushes])
-
-    useEffect(() => {
-        let game = mapParams.imported
-
-        if (!game) {
-            game = new Game()
-            const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
-            game.currentMatch = Match.createBlank(game, new Bodies(game), map)
-        }
-
-        context.setState({
-            ...context.state,
-            activeGame: game,
-            activeMatch: game.currentMatch
-        })
-
-        const turn = game.currentMatch!.currentTurn
-        const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
-        brushes[0].open = true
-        setBrushes(brushes)
-        setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
-    }, [mapParams])
-
     const changeWidth = (newWidth: number) => {
         newWidth = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newWidth))
-        setMapParams({ ...mapParams, width: newWidth, imported: undefined })
+        setMapParams({ ...mapParams, width: newWidth, imported: null })
     }
     const changeHeight = (newHeight: number) => {
         newHeight = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newHeight))
-        setMapParams({ ...mapParams, height: newHeight, imported: undefined })
+        setMapParams({ ...mapParams, height: newHeight, imported: null })
     }
     const changeSymmetry = (symmetry: string) => {
         const symmetryInt = parseInt(symmetry)
         if (symmetryInt < 0 || symmetryInt > 2) throw new Error('invalid symmetry value')
-        setMapParams({ ...mapParams, symmetry: symmetryInt, imported: undefined })
+        setMapParams({ ...mapParams, symmetry: symmetryInt, imported: null })
     }
 
-    const inputRef = React.useRef<HTMLInputElement>(null)
     const fileUploaded = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) return
         const file = e.target.files[0]
@@ -94,30 +78,78 @@ export const MapEditorPage: React.FC = () => {
         })
     }
 
-    const [cleared, setCleared] = React.useState(true)
-    const clearMap = () => {
-        if (!confirm('Are you sure you want to clear the map?')) return
+    const clearMap = (clear: boolean) => {
+        setClearConfirmOpen(false)
+        if (!clear) return
         setCleared(true)
-        setMapParams({ ...mapParams, imported: undefined })
+        setMapParams({ ...mapParams, imported: null })
     }
+
+    useListenEvent(EventType.TILE_CLICK, applyBrush, [brushes])
+    useListenEvent(EventType.TILE_DRAG, applyBrush, [brushes])
+
+    useEffect(() => {
+        if (props.open) {
+            if (mapParams.imported) {
+                editGame.current = mapParams.imported
+            } else if (!editGame.current || mapParams.imported === null) {
+                const game = new Game()
+                const map = StaticMap.fromParams(mapParams.width, mapParams.height, mapParams.symmetry)
+                game.currentMatch = Match.createBlank(game, new Bodies(game), map)
+                editGame.current = game
+            }
+
+            // A little sus but we need to reset this so the game isn't overridden
+            // multiple times
+            mapParams.imported = undefined
+
+            context.setState({
+                ...context.state,
+                activeGame: editGame.current,
+                activeMatch: editGame.current.currentMatch
+            })
+
+            const turn = editGame.current.currentMatch!.currentTurn
+            const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
+            brushes[0].open = true
+            setBrushes(brushes)
+            setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
+        } else {
+            context.setState({
+                ...context.state,
+                activeGame: undefined,
+                activeMatch: undefined
+            })
+        }
+    }, [mapParams, props.open])
+
+    // Need to memoize to prevent rerendering that messes up text input
+    const renderedBrushes = React.useMemo(() => {
+        return brushes.map((brush) => (
+            <MapEditorBrushRow
+                key={JSON.stringify(brush)}
+                brush={brush}
+                open={brush == openBrush}
+                onClick={() => {
+                    if (brush == openBrush) setOpenBrush(null)
+                    else setOpenBrush(brush)
+                }}
+            />
+        ))
+    }, [brushes])
+
+    if (!props.open) return null
 
     return (
         <>
             <input type="file" hidden ref={inputRef} onChange={fileUploaded} />
 
             <div className="flex flex-col flex-grow">
-                {brushes.map((brush, i) => (
-                    <MapEditorBrushRow
-                        key={i}
-                        brush={brush}
-                        open={brush == openBrush}
-                        onClick={() => {
-                            if (brush == openBrush) setOpenBrush(null)
-                            else setOpenBrush(brush)
-                        }}
-                    />
-                ))}
-                <SmallButton onClick={clearMap} className={'mt-10 ' + (cleared ? 'invisible' : '')}>
+                {renderedBrushes}
+                <SmallButton
+                    onClick={() => setClearConfirmOpen(true)}
+                    className={'mt-10 ' + (cleared ? 'invisible' : '')}
+                >
                     Clear to unlock
                 </SmallButton>
                 <div className={'flex flex-col ' + (cleared ? '' : 'opacity-30 pointer-events-none')}>
@@ -178,6 +210,13 @@ export const MapEditorPage: React.FC = () => {
             >
                 {mapError && <div style={{ color: 'red' }}>{`Could not export map: ${mapError}`}</div>}
             </InputDialog>
+
+            <ConfirmDialog
+                open={clearConfirmOpen}
+                onClose={clearMap}
+                title="Clear Map"
+                description="Are you sure you want to clear the map? This cannot be undone."
+            />
         </>
     )
 }

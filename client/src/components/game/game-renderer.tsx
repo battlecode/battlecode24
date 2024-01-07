@@ -181,6 +181,7 @@ export const GameRenderer: React.FC = () => {
                         overlayCanvas={overlayCanvas.current}
                         selectedBodyID={selectedBodyID}
                         hoveredBodyID={hoveredBodyID}
+                        hoveredSquare={hoveredTile}
                         selectedSquare={selectedSquare}
                         wrapper={wrapperRef}
                     />

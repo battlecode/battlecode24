@@ -1,9 +1,10 @@
 import React from 'react'
-import { useAppContext } from '../../../app-context'
 
-export const HelpPage: React.FC = () => {
-    const context = useAppContext()
+interface Props {
+    open: boolean
+}
 
+export const HelpPage: React.FC<Props> = (props) => {
     const hotkeyElement = (key: string, description: string) => {
         return (
             <div className="font-light">
@@ -11,6 +12,8 @@ export const HelpPage: React.FC = () => {
             </div>
         )
     }
+
+    if (!props.open) return null
 
     return (
         <div>
@@ -25,15 +28,14 @@ export const HelpPage: React.FC = () => {
             <br />
             {hotkeyElement(`~ and 1`, 'Scroll through Game, Runner, and Queue')}
             <br />
+            {/*
             {hotkeyElement(
                 `Shift`,
                 'Switches to Queue tab. If you are already on it, prompts you to select a replay file'
             )}
             <br />
-            {hotkeyElement(
-                `Shift`,
-                'Switches to Queue tab. If you are already on it, prompts you to select a replay file'
-            )}
+            */}
+            {hotkeyElement(`Shift`, 'If you are on the queue tab, prompts you to select a replay file')}
             <br />
             {hotkeyElement(`C`, 'Hides and Unhides Game control bar')}
             <br />

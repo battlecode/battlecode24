@@ -5,10 +5,11 @@ import { FiUpload } from 'react-icons/fi'
 import Tournament, { JsonTournamentGame } from '../../../playback/Tournament'
 
 interface TournamentPageProps {
+    open: boolean
     loadingRemoteTournament: boolean
 }
 
-export const TournamentPage: React.FC<TournamentPageProps> = ({ loadingRemoteTournament }) => {
+export const TournamentPage: React.FC<TournamentPageProps> = ({ open, loadingRemoteTournament }) => {
     const context = useAppContext()
     const inputRef = React.useRef<HTMLInputElement | null>()
 
@@ -24,6 +25,8 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ loadingRemoteTou
         }
         reader.readAsText(file)
     }
+
+    if (!open) return null
 
     return loadingRemoteTournament ? (
         <div>Loading tournament...</div>

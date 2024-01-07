@@ -40,14 +40,29 @@ interface NumInputProps {
     changeValue: (newValue: number) => void
 }
 export const NumInput: React.FC<NumInputProps> = (props) => {
+    const [tempValue, setTempValue] = React.useState<string | undefined>()
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Direct change from arrows
+        const value = parseInt(e.target.value)
+        if (!isNaN(value) && value >= props.min && value <= props.max) {
+            props.changeValue(value)
+        }
+    }
+
+    const handleInputBlur = () => {
+        // Reset temp value after user loses focus
+        setTempValue(undefined)
+    }
+
     return (
         <input
-            min={props.min}
-            max={props.max}
             className={'border border-black py-0.5 px-1 rounded-md w-12 ' + (props.className ?? '')}
             type="number"
-            value={props.value}
-            onChange={(e) => props.changeValue(parseInt(e.target.value))}
+            value={tempValue ?? props.value}
+            onBlur={handleInputBlur}
+            onInput={handleInputChange}
+            onChange={(e) => setTempValue(e.target.value)}
         />
     )
 }

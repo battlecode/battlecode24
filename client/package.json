@@ -122,10 +122,10 @@
         "battlecode-schema": "file:../schema",
         "child_process": "^1.0.2",
         "d3": "^7.8.5",
+        "electron-fetch": "^1.9.1",
         "electron-is-dev": "^2.0.0",
         "fs": "^0.0.1-security",
         "java-find": "0.0.6",
-        "electron-fetch": "^1.9.1",
         "pako": "^2.1.0",
         "path": "^0.12.7",
         "process": "^0.11.10",
@@ -134,6 +134,7 @@
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
         "react-router-dom": "^6.13.0",
+        "react-window": "^1.8.10",
         "react-zoomable-ui": "^0.11.0"
     },
     "devDependencies": {
@@ -141,6 +142,7 @@
         "@types/pako": "^2.0.0",
         "@types/react": "^18.2.5",
         "@types/react-dom": "^18.2.3",
+        "@types/react-window": "^1.8.8",
         "concurrently": "^8.2.2",
         "copy-webpack-plugin": "^11.0.0",
         "cross-env": "7.0.2",
