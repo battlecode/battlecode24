@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BATTLECODE_YEAR, SERVER_MAPS } from '../../../constants'
+import { BATTLECODE_YEAR, ENGINE_BUILTIN_MAP_NAMES } from '../../../constants'
 import { NativeAPI, nativeAPI } from './native-api-wrapper'
 import { ConsoleLine } from './runner'
 import { useForceUpdate } from '../../../util/react-util'
@@ -189,7 +189,7 @@ async function fetchData(scaffoldPath: string) {
             .filter((file) => file.endsWith(mapExtension))
             .map((file) => file.substring(0, file.length - mapExtension.length))
             .map((file) => file.split(sep)[file.split(sep).length - 1])
-            .concat(Array.from(SERVER_MAPS))
+            .concat(Array.from(ENGINE_BUILTIN_MAP_NAMES))
     )
 
     localStorage.setItem('scaffoldPath', scaffoldPath)
