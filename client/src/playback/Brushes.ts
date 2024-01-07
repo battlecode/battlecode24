@@ -62,7 +62,7 @@ export class WallsBrush extends SymmetricMapEditorBrush<CurrentMap> {
 }
 
 export class DividerBrush extends SymmetricMapEditorBrush<StaticMap> {
-    public readonly name = 'Divider'
+    public readonly name = 'Dam'
     public readonly fields = {
         should_add: {
             type: MapEditorBrushFieldType.ADD_REMOVE,
