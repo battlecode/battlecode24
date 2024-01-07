@@ -99,7 +99,7 @@ function verifyMapGuarantees(turn: Turn) {
         }
     }
     if (totalFlooded >= 0.5 * turn.map.width * turn.map.height) {
-        return `Map is too open. Must be divided into at least 2 sections by the divider`
+        return `Map is too open. Must be divided into at least 2 sections by the dam`
     }
 
     return ''
