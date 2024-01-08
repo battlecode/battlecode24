@@ -386,14 +386,16 @@ export class Body {
                 0.6
             )
 
-            // Render circle for visibility
-            ctx.beginPath()
-            ctx.globalAlpha = 0.4
-            ctx.strokeStyle = 'red'
-            ctx.lineWidth = 0.1
-            ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, 2.0, 0, 360)
-            ctx.stroke()
-            ctx.globalAlpha = 1
+            if (config.showFlagCarryIndicator) {
+                // Render circle for visibility
+                ctx.beginPath()
+                ctx.globalAlpha = 0.4
+                ctx.strokeStyle = 'red'
+                ctx.lineWidth = 0.1
+                ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, 2.0, 0, 360)
+                ctx.stroke()
+                ctx.globalAlpha = 1
+            }
         }
     }
 
