@@ -320,3 +320,18 @@ export const rgbToHex = (r: number, g: number, b: number) =>
             return hex.length === 1 ? '0' + hex : hex
         })
         .join('')
+
+export const renderCarets = (overlayCtx: CanvasRenderingContext2D, pos: Vector, direction: Vector, count: number, color: string) => {
+    overlayCtx.fillStyle = color
+    overlayCtx.beginPath()
+    const scale = .4
+    overlayCtx.lineCap = 'round'
+    overlayCtx.lineWidth = 0.15
+    overlayCtx.strokeStyle = color
+    const tangent = { x: -direction.y, y: direction.x }
+    overlayCtx.moveTo(pos.x + direction.x * (1+scale) + tangent.x * scale, pos.y + direction.y * (1+scale) + tangent.y * scale)
+    overlayCtx.lineTo(pos.x + direction.x, pos.y + direction.y)
+    overlayCtx.lineTo(pos.x + direction.x * (1+scale) - tangent.x * scale, pos.y + direction.y * (1+scale) - tangent.y * scale)
+    overlayCtx.stroke()
+    if (count > 1) renderCarets(overlayCtx, { x: pos.x + direction.x, y: pos.y + direction.y }, direction, count - 1, color)
+}
