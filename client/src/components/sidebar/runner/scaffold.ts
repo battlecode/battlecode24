@@ -175,8 +175,13 @@ async function fetchData(scaffoldPath: string) {
                         file.endsWith('RobotPlayer.scala')
                 )
                 .map(async (file) => {
-                    const relPath = await path.relative(sourcePath, file)
-                    const botName = relPath.split(sep)[0] // Name of folder
+                    // Relative path will contain the folder and filename, so we can split on the separator
+                    // to get the folder name. We must first normalize the path to have forward slashes in the
+                    // case of windows so the relative path function works correctly
+                    const p1 = sourcePath.replace(/\\/g, '/')
+                    const p2 = file.replace(/\\/g, '/')
+                    const relPath = (await path.relative(p1, p2)).replace(/\\/g, '/')
+                    const botName = relPath.split('/')[0]
                     return botName
                 })
         )

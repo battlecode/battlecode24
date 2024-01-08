@@ -122,9 +122,10 @@ async fn tauri_api(
             Ok(vec!(final_path.to_str().unwrap().to_string()))
         },
         "path.relative" => {
-            let final_path = RelativePath::new(&args[0])
-                .relative(&args[1]);
-            Ok(vec!(final_path.to_string()))
+            let path_from = RelativePath::new(&args[0]);
+            let path_to = RelativePath::new(&args[1]);
+            let result = path_from.relative(path_to);
+            Ok(vec!(result.to_string()))
         },
         "path.dirname" => {
             let path = Path::new(&args[0]).parent().unwrap_or(Path::new(""));
