@@ -161,7 +161,10 @@ export default class Bodies {
         const locs = delta.indicatorDotLocs() ?? assert.fail(`Delta missing indicatorDotLocs`)
         const dotColors = delta.indicatorDotRgbs() ?? assert.fail(`Delta missing indicatorDotRgbs`)
         for (let i = 0; i < locs.xsLength(); i++) {
-            const body = this.getById(delta.indicatorDotIds(i)!)
+            const bodyId = delta.indicatorDotIds(i)!
+            // Check if exists because technically can add indicators when not spawned
+            if (!this.hasId(bodyId)) continue
+            const body = this.getById(bodyId)
             body.indicatorDot = {
                 location: { x: locs.xs(i)!, y: locs.ys(i)! },
                 color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!)
@@ -173,7 +176,10 @@ export default class Bodies {
         const ends = delta.indicatorLineEndLocs() ?? assert.fail(`Delta missing indicatorLineEnds`)
         const lineColors = delta.indicatorLineRgbs() ?? assert.fail(`Delta missing indicatorLineRgbs`)
         for (let i = 0; i < starts.xsLength(); i++) {
-            const body = this.getById(delta.indicatorLineIds(i)!)
+            const bodyId = delta.indicatorLineIds(i)!
+            // Check if exists because technically can add indicators when not spawned
+            if (!this.hasId(bodyId)) continue
+            const body = this.getById(bodyId)
             body.indicatorLine = {
                 start: { x: starts.xs(i)!, y: starts.ys(i)! },
                 end: { x: ends.xs(i)!, y: ends.ys(i)! },
@@ -183,7 +189,10 @@ export default class Bodies {
 
         // Add new indicator strings
         for (let i = 0; i < delta.indicatorStringIdsLength(); i++) {
-            const body = this.getById(delta.indicatorStringIds(i)!)
+            const bodyId = delta.indicatorStringIds(i)!
+            // Check if exists because technically can add indicators when not spawned
+            if (!this.hasId(bodyId)) continue
+            const body = this.getById(bodyId)
             const string = delta.indicatorStrings(i)
             body.indicatorString = string
         }
@@ -388,10 +397,10 @@ export class Body {
 
             if (config.showFlagCarryIndicator) {
                 for (const direction of [
-                    { x: .5, y: 0 },
-                    { x: 0, y: .5 },
-                    { x: -.5, y: 0 },
-                    { x: 0, y: -.5 }
+                    { x: 0.5, y: 0 },
+                    { x: 0, y: 0.5 },
+                    { x: -0.5, y: 0 },
+                    { x: 0, y: -0.5 }
                 ]) {
                     renderUtils.renderCarets(
                         overlayCtx,
