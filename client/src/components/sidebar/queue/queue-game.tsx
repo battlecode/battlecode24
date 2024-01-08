@@ -4,6 +4,7 @@ import Match from '../../../playback/Match'
 import { useAppContext } from '../../../app-context'
 import { IconContext } from 'react-icons'
 import { IoCloseCircle, IoCloseCircleOutline } from 'react-icons/io5'
+import { schema } from 'battlecode-schema'
 
 interface Props {
     game: Game
@@ -33,6 +34,25 @@ export const QueuedGame: React.FC<Props> = (props) => {
         })
     }
 
+    const getWinText = (winType: schema.WinType) => {
+        switch (winType) {
+            case schema.WinType.CAPTURE:
+                return 'by capturing all flags '
+            case schema.WinType.MORE_FLAG_CAPTURES:
+                return 'with more captured flags '
+            case schema.WinType.LEVEL_SUM:
+                return 'with a higher level sum '
+            case schema.WinType.MORE_BREAD:
+                return 'with a higher crumb count '
+            case schema.WinType.COIN_FLIP:
+                return 'by coin flip '
+            case schema.WinType.RESIGNATION:
+                return 'by resignation '
+            default:
+                return ''
+        }
+    }
+
     return (
         <div className="relative mr-auto rounded-md bg-lightCard border-gray-500 border mb-4 p-3 w-full shadow-md">
             <div className="text-xs whitespace mb-2 overflow-ellipsis overflow-hidden">
@@ -55,7 +75,7 @@ export const QueuedGame: React.FC<Props> = (props) => {
                         <span className="text-xxs leading-tight">
                             <span className="mx-1">-</span>
                             <span className={`font-bold text-team${match.winner.id - 1}`}>{match.winner.name}</span>
-                            <span>{` wins after ${match.maxTurn} rounds`}</span>
+                            <span>{` wins ${getWinText(match.winType)}after ${match.maxTurn} rounds`}</span>
                         </span>
                     )}
                 </p>

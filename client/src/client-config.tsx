@@ -12,14 +12,16 @@ const DEFAULT_CONFIG = {
     showAllIndicators: false,
     showAllRobotRadii: false,
     showHealthBars: false,
-    showMapXY: true
+    showMapXY: true,
+    showFlagCarryIndicator: true
 }
 
 const configDescription: { [key: string]: string } = {
     showAllIndicators: 'Show all indicator dots and lines',
     showAllRobotRadii: 'Show all robot view and attack radii',
     showHealthBars: 'Show health bars below all robots',
-    showMapXY: 'Show X,Y when hovering a tile'
+    showMapXY: 'Show X,Y when hovering a tile',
+    showFlagCarryIndicator: 'Show an obvious indicator over flag carriers'
 }
 
 export function getDefaultConfig(): ClientConfig {

@@ -382,18 +382,26 @@ export class Body {
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 overlayCtx,
                 getImageIfLoaded('resources/bread_outline_thick_64x64.png'),
-                { x: renderCoords.x, y: renderCoords.y + 0.1 },
+                { x: renderCoords.x, y: renderCoords.y },
                 0.6
             )
 
-            // Render circle for visibility
-            ctx.beginPath()
-            ctx.globalAlpha = 0.4
-            ctx.strokeStyle = 'red'
-            ctx.lineWidth = 0.1
-            ctx.arc(renderCoords.x + 0.5, renderCoords.y + 0.5, 2.0, 0, 360)
-            ctx.stroke()
-            ctx.globalAlpha = 1
+            if (config.showFlagCarryIndicator) {
+                for (const direction of [
+                    { x: .5, y: 0 },
+                    { x: 0, y: .5 },
+                    { x: -.5, y: 0 },
+                    { x: 0, y: -.5 }
+                ]) {
+                    renderUtils.renderCarets(
+                        overlayCtx,
+                        { x: renderCoords.x + 0.5, y: renderCoords.y + 0.5 },
+                        direction,
+                        2,
+                        '#ff0000aa'
+                    )
+                }
+            }
         }
     }
 

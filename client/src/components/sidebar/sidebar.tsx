@@ -17,6 +17,7 @@ import { useAppContext } from '../../app-context'
 import { useScaffold } from './runner/scaffold'
 import { ConfigPage } from '../../client-config'
 import { UpdateWarning } from './update-warning'
+import Game from '../../playback/Game'
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -64,6 +65,41 @@ export const Sidebar: React.FC = () => {
         }
     }, [tournamentSource])
     // End tournament mode loading ====================================================================================================
+
+    // Remote game loading ====================================================================================================
+    const [gameSource, setGameSource] = useSearchParamString('gameSource', '')
+    const fetchRemoteGame = (gameSource: string) => {
+        fetch(gameSource)
+            .then((response) => response.arrayBuffer())
+            .then((buffer) => {
+                if (buffer.byteLength === 0) {
+                    alert('Error: Game file is empty.')
+                    return
+                }
+
+                const loadedGame = Game.loadFullGameRaw(buffer)
+                context.setState({
+                    ...context.state,
+                    activeGame: loadedGame,
+                    activeMatch: loadedGame.currentMatch,
+                    queue: context.state.queue.concat([loadedGame]),
+                    loadingRemoteContent: false
+                })
+
+                setPage(PageType.GAME)
+            })
+    }
+    React.useEffect(() => {
+        if (gameSource) {
+            context.setState({
+                ...context.state,
+                loadingRemoteContent: true
+            })
+            fetchRemoteGame(gameSource)
+            setPage(PageType.GAME)
+        }
+    }, [gameSource])
+    // End remote game loading ====================================================================================================
 
     // Skip going through map and help tab, it's annoying for competitors.
     const hotkeyPageLoop = tournamentMode

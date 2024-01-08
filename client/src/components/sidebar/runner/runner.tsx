@@ -205,7 +205,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
                             onClick={() => (maps.has(m) ? onDeselect(m) : onSelect(m))}
                         >
                             {m}
-                            <input type={'checkbox'} checked={selected} className="pointer-events-none mr-2" />
+                            <input type={'checkbox'} readOnly checked={selected} className="pointer-events-none mr-2" />
                         </div>
                     )
                 })}
@@ -263,7 +263,7 @@ const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
                 open={selectPath}
                 onClose={closeDialog}
                 title="Custom Java Path"
-                description="Enter the Java path (should end with /Home)"
+                description="Enter the Java path (should end with /Home on Mac/Linux, root path otherwise)"
                 placeholder="Path..."
             />
         </>

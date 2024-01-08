@@ -7,11 +7,20 @@ import { useAppContext } from '../../../app-context'
 import { SectionHeader } from '../../section-header'
 import { Crown } from '../../../icons/crown'
 import { EventType, useListenEvent } from '../../../app-events'
+import Tooltip from '../../tooltip'
 
 const NO_GAME_TEAM_NAME = '?????'
 
 interface Props {
     open: boolean
+}
+
+const CrownElement = () => {
+    return (
+        <Tooltip text={'Majority match winner'}>
+            <Crown className="ml-2 mt-1" />
+        </Tooltip>
+    )
 }
 
 export const GamePage: React.FC<Props> = (props) => {
@@ -39,9 +48,7 @@ export const GamePage: React.FC<Props> = (props) => {
             <div className={teamBoxClasses + ' bg-team0'}>
                 <p className="flex">
                     {activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}
-                    {activeGame && activeGame.winner === activeGame.teams[0] && showWinner && (
-                        <Crown className="ml-2 mt-1" />
-                    )}
+                    {activeGame && activeGame.winner === activeGame.teams[0] && showWinner && <CrownElement />}
                 </p>
             </div>
             <TeamTable teamIdx={0} />
@@ -51,9 +58,7 @@ export const GamePage: React.FC<Props> = (props) => {
             <div className={teamBoxClasses + ' bg-team1'}>
                 <p className="flex">
                     {activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}
-                    {activeGame && activeGame.winner === activeGame.teams[1] && showWinner && (
-                        <Crown className="ml-2 mt-1" />
-                    )}
+                    {activeGame && activeGame.winner === activeGame.teams[1] && showWinner && <CrownElement />}
                 </p>
             </div>
             <TeamTable teamIdx={1} />
