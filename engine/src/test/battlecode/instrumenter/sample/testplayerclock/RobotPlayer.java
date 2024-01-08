@@ -1,4 +1,4 @@
-package testplayerclock;
+package battlecode.instrumenter.sample.testplayerclock;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;

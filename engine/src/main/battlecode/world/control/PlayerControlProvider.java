@@ -123,7 +123,7 @@ public class PlayerControlProvider implements RobotControlProvider {
         try {
             Profiler profiler = null;
             if (profilerCollection != null && robot.getTeam() == team) {
-                profiler = profilerCollection.createProfiler(robot.getID(), robot.getType());
+                profiler = profilerCollection.createProfiler(robot.getID());
             }
 
             final SandboxedRobotPlayer player = new SandboxedRobotPlayer(

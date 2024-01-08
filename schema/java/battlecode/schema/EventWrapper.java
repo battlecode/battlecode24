@@ -2,39 +2,59 @@
 
 package battlecode.schema;
 
-import java.nio.*;
-import java.lang.*;
-import java.util.*;
-import com.google.flatbuffers.*;
+import com.google.flatbuffers.BaseVector;
+import com.google.flatbuffers.BooleanVector;
+import com.google.flatbuffers.ByteVector;
+import com.google.flatbuffers.Constants;
+import com.google.flatbuffers.DoubleVector;
+import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.FloatVector;
+import com.google.flatbuffers.IntVector;
+import com.google.flatbuffers.LongVector;
+import com.google.flatbuffers.ShortVector;
+import com.google.flatbuffers.StringVector;
+import com.google.flatbuffers.Struct;
+import com.google.flatbuffers.Table;
+import com.google.flatbuffers.UnionVector;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-@SuppressWarnings("unused")
 /**
  * Necessary due to flatbuffers requiring unions to be wrapped in tables.
  */
+@SuppressWarnings("unused")
 public final class EventWrapper extends Table {
+  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
   public static EventWrapper getRootAsEventWrapper(ByteBuffer _bb) { return getRootAsEventWrapper(_bb, new EventWrapper()); }
   public static EventWrapper getRootAsEventWrapper(ByteBuffer _bb, EventWrapper obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
+  public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public EventWrapper __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte eType() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public Table e(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o) : null; }
+  public Table e(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o + bb_pos) : null; }
 
   public static int createEventWrapper(FlatBufferBuilder builder,
-      byte e_type,
+      byte eType,
       int eOffset) {
-    builder.startObject(2);
+    builder.startTable(2);
     EventWrapper.addE(builder, eOffset);
-    EventWrapper.addEType(builder, e_type);
+    EventWrapper.addEType(builder, eType);
     return EventWrapper.endEventWrapper(builder);
   }
 
-  public static void startEventWrapper(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void startEventWrapper(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addEType(FlatBufferBuilder builder, byte eType) { builder.addByte(0, eType, 0); }
   public static void addE(FlatBufferBuilder builder, int eOffset) { builder.addOffset(1, eOffset, 0); }
   public static int endEventWrapper(FlatBufferBuilder builder) {
-    int o = builder.endObject();
+    int o = builder.endTable();
     return o;
+  }
+
+  public static final class Vector extends BaseVector {
+    public Vector __assign(int _vector, int _element_size, ByteBuffer _bb) { __reset(_vector, _element_size, _bb); return this; }
+
+    public EventWrapper get(int j) { return get(new EventWrapper(), j); }
+    public EventWrapper get(EventWrapper obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
 

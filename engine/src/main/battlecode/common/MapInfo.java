@@ -1,87 +1,106 @@
 package battlecode.common;
 
-import static battlecode.common.GameActionExceptionType.*;
-
-import java.util.Arrays;
-
 public class MapInfo {
-
-    private static int BOOST_INDEX = 0;
-    private static int DESTABILIZE_INDEX = 1;
 
     private MapLocation loc;
 
-    private boolean hasCloud;
-
     private boolean isPassable;
 
-    private double[] cooldownMultipliers;
+    private boolean isWall;
 
-    private Direction currentDirection;
+    // 1 = Team A, 2 = Team B, 0 = not a spawn zone
+    private int spawnZone;
 
-    private int[][] numActiveElements; // [Team.A, Team.B][Booster, Destabilizer]
+    private boolean isWater;
 
-    private int[][] turnsLeft; // [Team.A, Team.B][Booster, Destabilizer]
+    private int crumbsAmount;
 
-    public MapInfo(MapLocation loc, boolean hasCloud, boolean isPassable, double[] cooldownMultipliers, Direction curDirection, int[][] numActiveElements, int[][] turnsLeft){
+    private TrapType trapType;
+
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
         this.loc = loc;
-        this.hasCloud = hasCloud;
         this.isPassable = isPassable;
-        assert(cooldownMultipliers.length == 2);
-        this.cooldownMultipliers = cooldownMultipliers;
-        this.currentDirection = curDirection;
-        assert(numActiveElements.length == 2);
-        assert(numActiveElements[0].length == 2);
-        assert(numActiveElements[1].length == 2);
-        this.numActiveElements = numActiveElements;
-        assert(turnsLeft.length == 2);
-        assert(turnsLeft[0].length == 2);
-        assert(turnsLeft[1].length == 2);
-        this.turnsLeft = turnsLeft;
-    }
-
-    private void assertValidTeam(Team team) throws GameActionException {
-        if (team != Team.A && team != Team.B) {
-            throw new GameActionException(CANT_DO_THAT, "Must pass valid team to get info about a space");
-        }
-    }
-
-    /**
-     * Returns if this square has a cloud.
-     * 
-     * @return whether this square has a cloud
-     * @throws GameActionException if not valid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public boolean hasCloud() throws GameActionException {
-        return this.hasCloud;
+        this.isWall = isWall;
+        this.spawnZone = spawnZone;
+        this.isWater = isWater;
+        this.crumbsAmount = crumbsAmount;
+        this.trapType = trapType;
     }
 
     /**
      * Returns if this square is passable.
      * 
      * @return whether this square is passable
-     * @throws GameActionException if not valid
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isPassable() throws GameActionException {
-        return this.isPassable;
+    public boolean isPassable() {
+        return isPassable;
     }
 
     /**
-     * Returns the cooldownMultiplier currently on this square.
+     * Returns if this square is a wall.
      * 
-     * @param team the team to query the cooldown multiplier for
-     * @return the cooldownMultiplier currently on this square
-     * @throws GameActionException if team is not valid
+     * @return whether this square is a wall
      * 
      * @battlecode.doc.costlymethod
      */
-    public double getCooldownMultiplier(Team team) throws GameActionException {
-        assertValidTeam(team);
-        return this.cooldownMultipliers[team.ordinal()];
+    public boolean isWall() {
+        return isWall;
+    }
+
+    /**
+     * Returns if this square is a spawn zone.
+     * 
+     * @return whether this square is a spawn zone
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isSpawnZone() {
+        return spawnZone > 0;
+    }
+
+    /**
+     * Returns 1 if this square is a Team A spawn zone,
+     * 2 if this square is a Team B spawn zone, and
+     * 0 if this square is not a spawn zone.
+     * 
+     * @return 1 or 2 if the square is a Team A or B spawn zone, respectively; 0 otherwise
+     */
+    public int getSpawnZoneTeam() {
+        return spawnZone;
+    }
+
+    /**
+     * Returns if this square has water in it.
+     * 
+     * @return whether this square has water
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isWater() {
+        return isWater;
+    }
+
+    /**
+     * Returns the amount of crumbs on this square.
+     * If there are no crumbs on the square, returns 0.
+     * 
+     * @return the amount of crumbs on the square
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public int getCrumbs() {
+        return crumbsAmount;
+    }
+
+    /**
+     * Returns the trap type of a friendly trap. TrapType.NONE if there
+     * is no trap or there is an enemy trap.
+     * @return The trap type
+     */
+    public TrapType getTrapType() {
+        return trapType;
     }
 
     /**
@@ -91,85 +110,20 @@ public class MapInfo {
      * 
      * @battlecode.doc.costlymethod
      */
-    public MapLocation getMapLocation(){
+    public MapLocation getMapLocation() {
         return loc;
-    }
-
-    /**
-     * Returns the direction of the current on this square
-     * 
-     * @return the direction of the current on this square
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public Direction getCurrentDirection(){
-        return this.currentDirection;
-    }
-  
-    /**
-     * Returns the number of boosts currently applying to this square.
-     * 
-     * @param team the team to query the boosts for
-     * @return the number of boosts currently applying to this square
-     * @throws GameActionException if team is not valid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public int getNumBoosts(Team team) throws GameActionException {
-        assertValidTeam(team);
-        return this.numActiveElements[team.ordinal()][BOOST_INDEX];
-    }
-
-    /**
-     * Returns the number of destabilizier currently applying to this square.
-     * 
-     * @param team the team to query the destabilizes for
-     * @return the number of destabilizer currently applying to this square
-     * @throws GameActionException if team is not valid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public int getNumDestabilizers(Team team) throws GameActionException {
-        assertValidTeam(team);
-        return this.numActiveElements[team.ordinal()][DESTABILIZE_INDEX];
-    }
-
-    /**
-     * Returns the number of turns left before a booster is removed
-     * 
-     * @param team the team to query the remaining boost turns for
-     * @return the number of turns left before a booster is removed, -1 if none active
-     * @throws GameActionException if team is not valid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public int getBoostTurnsLeft(Team team) throws GameActionException {
-        assertValidTeam(team);
-        return this.turnsLeft[team.ordinal()][BOOST_INDEX];
-    }
-
-    /**
-     * Returns the number of turns left before a destabilizer is removed
-     * 
-     * @param team the team to query the remaining destabilize turns for
-     * @return the number of turns left before a destabilizer is removed, -1 if none active
-     * @throws GameActionException if team is not valid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    public int getDestabilizerTurnsLeft(Team team) throws GameActionException {
-        assertValidTeam(team);
-        return this.turnsLeft[team.ordinal()][DESTABILIZE_INDEX];
     }
 
     public String toString(){
         return "Location{" +
                 "loc=" + loc +
-                ", cloud=" +  this.hasCloud +
-                ", cooldownMultipliers=" +  Arrays.toString(this.cooldownMultipliers) +
-                ", current=" + this.currentDirection +
+                (isWall ? ", wall" : "") +
+                (isWater ? ", water" : "") +
+                (spawnZone == 1 ? ", team A spawn zone" : "") +
+                (spawnZone == 2 ? ", team B spawn zone" : "") +
+                (crumbsAmount == 0 ? "" : ", crumbs=" + crumbsAmount) +
+                (trapType == null ? "" : ", trap=" + trapType) +
                 '}';
-
     }
 
 }

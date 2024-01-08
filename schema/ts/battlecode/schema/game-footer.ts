@@ -8,7 +8,7 @@ import * as flatbuffers from 'flatbuffers';
 export class GameFooter {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-__init(i:number, bb:flatbuffers.ByteBuffer):GameFooter {
+  __init(i:number, bb:flatbuffers.ByteBuffer):GameFooter {
   this.bb_pos = i;
   this.bb = bb;
   return this;

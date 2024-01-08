@@ -1,8 +1,13 @@
 package battlecode.util;
 
-import battlecode.common.RobotType;
-import battlecode.schema.BodyType;
+import battlecode.common.GlobalUpgrade;
+import battlecode.common.TrapType;
 import battlecode.schema.VecTable;
+import battlecode.schema.WinType;
+import battlecode.world.DominationFactor;
+import battlecode.schema.Action;
+import battlecode.schema.BuildActionType;
+import battlecode.schema.GlobalUpgradeType;
 import battlecode.schema.RGBTable;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.TByteCollection;
@@ -21,43 +26,59 @@ import java.util.function.ObjIntConsumer;
  * @author james
  */
 public class FlatHelpers {
-    public static RobotType getRobotTypeFromBodyType(byte bodyType) {
-        switch (bodyType) {
-            case BodyType.HEADQUARTERS:
-                return RobotType.HEADQUARTERS;
-            case BodyType.AMPLIFIER:
-                return RobotType.AMPLIFIER;
-            case BodyType.BOOSTER:
-                return RobotType.BOOSTER;
-            case BodyType.CARRIER:
-                return RobotType.CARRIER;
-            case BodyType.DESTABILIZER:
-                return RobotType.DESTABILIZER;
-            case BodyType.LAUNCHER:
-                return RobotType.LAUNCHER;
+   
+    public static byte getTrapActionFromTrapType(TrapType type) {
+        switch(type) {
+            case EXPLOSIVE:
+                return Action.EXPLOSIVE_TRAP;
+            case WATER:
+                return Action.WATER_TRAP;
+            case STUN:
+                return Action.STUN_TRAP;
             default:
-                throw new RuntimeException("No robot type for: " + bodyType);
+                throw new RuntimeException("No action type for " + type);
         }
     }
 
-    public static byte getBodyTypeFromRobotType(RobotType type) {
-        switch (type) {
-            case HEADQUARTERS:
-                return BodyType.HEADQUARTERS;
-            case AMPLIFIER:
-                return BodyType.AMPLIFIER;
-            case BOOSTER:
-                return BodyType.BOOSTER;
-            case CARRIER:
-                return BodyType.CARRIER;
-            case DESTABILIZER:
-                return BodyType.DESTABILIZER;
-            case LAUNCHER:
-                return BodyType.LAUNCHER;
+    public static byte getBuildActionFromTrapType(TrapType type) {
+        switch(type) {
+            case EXPLOSIVE:
+                return BuildActionType.EXPLOSIVE_TRAP;
+            case WATER:
+                return BuildActionType.WATER_TRAP;
+            case STUN:
+                return BuildActionType.STUN_TRAP;
             default:
-                throw new RuntimeException("No body type for: " + type);
+                throw new RuntimeException("No build action type for " + type);
         }
     }
+
+    public static byte getWinTypeFromDominationFactor(DominationFactor factor) {
+        switch (factor) {
+            case CAPTURE:
+                return WinType.CAPTURE;
+            case MORE_FLAG_CAPTURES:
+                return WinType.MORE_FLAG_CAPTURES;
+            case LEVEL_SUM:
+                return WinType.LEVEL_SUM;
+            case MORE_BREAD:
+                return WinType.MORE_BREAD;
+            case WON_BY_DUBIOUS_REASONS:
+                return WinType.COIN_FLIP;
+            case RESIGNATION:
+                return WinType.RESIGNATION;
+            default:
+                return Byte.MIN_VALUE;
+        }
+    }
+
+    public static byte getGlobalUpgradeTypeFromGlobalUpgrade(GlobalUpgrade gu) {
+        if(gu == GlobalUpgrade.ACTION) return GlobalUpgradeType.ACTION_UPGRADE;
+        if(gu == GlobalUpgrade.HEALING) return GlobalUpgradeType.HEALING_UPGRADE;
+        if(gu == GlobalUpgrade.CAPTURING) return GlobalUpgradeType.CAPTURING_UPGRADE;
+        return Byte.MIN_VALUE;
+    }
+
 
     /**
      * DO NOT CALL THIS WITH OFFSETS!

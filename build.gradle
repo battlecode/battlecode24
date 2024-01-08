@@ -5,6 +5,10 @@ import java.nio.file.*
 
 sourceCompatibility = 1.8
 
+if(JavaVersion.current() != JavaVersion.VERSION_1_8) {
+    throw new GradleException("The engine must be run using the Java 8 JDK")
+}
+
 // Avoid weird configuration-time dependency bugs
 // Fun fact: this line of code single-handedly fixed an error I spent two hours debugging.
 evaluationDependsOnChildren()
@@ -46,7 +50,7 @@ task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
 }
 
 def defaultClassLocation = project(':example-bots').sourceSets.main.output.classesDirs.getAsPath()
-def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc23'
+def defaultReplay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + new Date().format('yyyyMMddHHmmss') + '.bc24'
 
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   mainClass = 'battlecode.server.Main'
@@ -143,45 +147,13 @@ task release_sources(type: Jar, dependsOn: classes) {
   from project(":engine").sourceSets.main.allSource
 }
 
-task prodClient {
-  doLast {
-    exec {
-      commandLine 'npm', 'install'
-      workingDir 'client'
-    }
-    exec {
-      commandLine 'npm', 'run', 'prod-electron'
-      workingDir 'client'
-    }
-  }
-}
-
-task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-unpacked')
-}
-
-task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/mac')
-}
-
-task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/linux-unpacked')
-}
-
-task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/win-ia32-unpacked')
-}
-
-task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
-  from fileTree('client/dist/linux-ia32-unpacked')
-}
-
+def clientDirPrefix = 'client/artifacts/client-'
 
 publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23'
+      artifactId 'battlecode24'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
       artifact release_main
@@ -195,44 +167,56 @@ publishing {
       }
     }
 
-    clientWin(MavenPublication) {
+    // Tauri
+
+    clientWinTauri(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-win'
+      artifactId 'battlecode24-client-win-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientWin
+      artifact (clientDirPrefix + 'windows/tauri-output.zip')
     }
 
-    clientMac(MavenPublication) {
+    clientMacTauri(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-mac'
+      artifactId 'battlecode24-client-mac-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientMac
+      artifact (clientDirPrefix + 'macos/tauri-output.zip')
     }
 
-    clientLinux(MavenPublication) {
+    clientLinuxTauri(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-linux'
+      artifactId 'battlecode24-client-linux-tauri'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientLinux
+      artifact (clientDirPrefix + 'linux/tauri-output.zip')
     }
 
-    clientWin32(MavenPublication) {
+    // Electron
+
+    clientWinElectron(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-win-32'
+      artifactId 'battlecode24-client-win-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientWin32
+      artifact (clientDirPrefix + 'windows/electron-output.zip')
     }
 
-    clientLinux32(MavenPublication) {
+    clientMacElectron(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'battlecode23-client-linux-32'
+      artifactId 'battlecode24-client-mac-electron'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact releaseClientLinux32
+      artifact (clientDirPrefix + 'macos/electron-output.zip')
+    }
+
+    clientLinuxElectron(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode24-client-linux-electron'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact (clientDirPrefix + 'linux/electron-output.zip')
     }
   }
 }

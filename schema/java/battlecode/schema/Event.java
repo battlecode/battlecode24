@@ -12,6 +12,7 @@ package battlecode.schema;
  * rounds, and is played on a single map. Each round is a single simulation
  * step.
  */
+@SuppressWarnings("unused")
 public final class Event {
   private Event() { }
   public static final byte NONE = 0;

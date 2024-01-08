@@ -1,5 +1,5 @@
 // Javac will move this into the correct package in the build output
-package testplayerempty;
+package battlecode.instrumenter.sample.testplayerempty;
 
 import battlecode.common.RobotController;
 

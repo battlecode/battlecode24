@@ -2,7 +2,11 @@ package battlecode.world;
 
 import battlecode.common.*;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.function.*;
+
+import javax.management.RuntimeErrorException;
 
 /**
  * The class represents the map in the game world on which
@@ -37,24 +41,24 @@ public strictfp class LiveMap {
     private boolean[] wallArray;
 
     /**
-     * Whether each square is a cloud.
+     * Whether each square is water.
      */
-    private final boolean[] cloudArray;
+    private boolean[] waterArray;
 
     /**
-     * Direction ID of current on each square.
+     * Whether each square is a dam.
      */
-    private int[] currentArray;
+    private boolean[] damArray;
 
     /**
-     * Island ID of current on each square.
+     * Amount of bread on each square.
      */
-    private int[] islandArray;
+    private int[] breadArray;
 
     /**
-     * Resource ID of current on each square.
+     * An integer representing the team ID of the spawn zone on a square.
      */
-    private int[] resourceArray;
+    private int[] spawnZoneArray;
 
     /**
      * The random seed contained in the map file.
@@ -71,12 +75,6 @@ public strictfp class LiveMap {
      */
     private final String mapName;
 
-    /**
-     * The bodies to spawn on the map; MapLocations are in world space -
-     * i.e. in game correct MapLocations that need to have the origin
-     * subtracted from them to be used to index into the map arrays.
-     */
-    private final RobotInfo[] initialBodies; // contains nothing
 
     
 
@@ -85,8 +83,7 @@ public strictfp class LiveMap {
                    MapLocation origin,
                    int seed,
                    int rounds,
-                   String mapName,
-                   RobotInfo[] initialBodies) {
+                   String mapName) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -94,15 +91,17 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.symmetry = MapSymmetry.ROTATIONAL;
-        this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.wallArray = new boolean[width * height];
-        this.cloudArray = new boolean[width * height];
-        this.currentArray = new int[width * height];
-        this.islandArray = new int[width * height];
-        this.resourceArray = new int[width * height];
+        
+        int numSquares = width * height;
+
+        this.wallArray = new boolean[numSquares];
+        this.waterArray = new boolean[numSquares];
+        this.spawnZoneArray = new int[numSquares];
+        this.breadArray = new int[numSquares];
+        this.damArray = new boolean[numSquares];
 
         // invariant: bodies is sorted by id
-        Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+      //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
 
     public LiveMap(int width,
@@ -112,12 +111,11 @@ public strictfp class LiveMap {
                    int rounds,
                    String mapName,
                    MapSymmetry symmetry,
-                   RobotInfo[] initialBodies,
                    boolean[] wallArray,
-                   boolean[] cloudArray,
-                   int[] currentArray,
-                   int[] islandArray,
-                   int[] resourceArray) {
+                   boolean[] waterArray,
+                   boolean[] damArray,
+                   int[] breadArray,
+                   int[] spawnZoneArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -125,31 +123,30 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.symmetry = symmetry;
-        this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
+       // this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         this.wallArray = new boolean[wallArray.length];
         for (int i = 0; i < wallArray.length; i++) {
             this.wallArray[i] = wallArray[i];
         }
-        this.cloudArray = new boolean[cloudArray.length];
-        for (int i = 0; i < cloudArray.length; i++) {
-            this.cloudArray[i] = cloudArray[i];
+        this.waterArray = new boolean[waterArray.length];
+        for (int i = 0; i < waterArray.length; i++){
+            this.waterArray[i] = waterArray[i];
         }
-        this.currentArray = new int[currentArray.length];
-        for (int i = 0; i < currentArray.length; i++) {
-            this.currentArray[i] = currentArray[i];
+        this.damArray = new boolean[damArray.length];
+        for (int i = 0; i < damArray.length; i++){
+            this.damArray[i] = damArray[i];
         }
-        this.islandArray = new int[islandArray.length];
-        for (int i = 0; i < islandArray.length; i++) {
-            this.islandArray[i] = islandArray[i];
+        this.breadArray = new int[
+            breadArray.length];
+        for (int i = 0; i < breadArray.length; i++) {
+            this.breadArray[i] = breadArray[i];
         }
-        this.resourceArray = new int[
-            resourceArray.length];
-        for (int i = 0; i < resourceArray.length; i++) {
-            this.resourceArray[i] = resourceArray[i];
+        this.spawnZoneArray = new int[spawnZoneArray.length];
+        for (int i = 0; i < spawnZoneArray.length; i++){
+            this.spawnZoneArray[i] = spawnZoneArray[i];
         }
-
         // invariant: bodies is sorted by id
-        Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+      //  Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
 
     /**
@@ -159,7 +156,7 @@ public strictfp class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-             gm.initialBodies, gm.wallArray, gm.cloudArray, gm.currentArray, gm.islandArray, gm.resourceArray);
+         gm.wallArray, gm.waterArray, gm.damArray, gm.breadArray, gm.spawnZoneArray);
     }
 
     @Override
@@ -182,10 +179,10 @@ public strictfp class LiveMap {
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
         if (!Arrays.equals(this.wallArray, other.wallArray)) return false;
-        if (!Arrays.equals(this.cloudArray, other.cloudArray)) return false;
-        if (!Arrays.equals(this.currentArray, other.currentArray)) return false;
-        if (!Arrays.equals(this.islandArray, other.islandArray)) return false;
-        if (!Arrays.equals(this.resourceArray, other.resourceArray)) return false;
+        if (!Arrays.equals(this.waterArray, other.waterArray)) return false;
+        if (!Arrays.equals(this.damArray, other.damArray)) return false;
+        if (!Arrays.equals(this.breadArray, other.breadArray)) return false;
+        if (!Arrays.equals(this.spawnZoneArray, other.spawnZoneArray)) return false;
         return true;
     }
 
@@ -198,11 +195,10 @@ public strictfp class LiveMap {
         result = 31 * result + rounds;
         result = 31 * result + mapName.hashCode();
         result = 31 * result + Arrays.hashCode(wallArray);
-        result = 31 * result + Arrays.hashCode(cloudArray);
-        result = 31 * result + Arrays.hashCode(currentArray);
-        result = 31 * result + Arrays.hashCode(islandArray);
-        result = 31 * result + Arrays.hashCode(resourceArray);
-        result = 31 * result + Arrays.hashCode(initialBodies);
+        result = 31 * result + Arrays.hashCode(waterArray);
+        result = 31 * result + Arrays.hashCode(damArray);
+        result = 31 * result + Arrays.hashCode(breadArray);
+        result = 31 * result + Arrays.hashCode(spawnZoneArray);
         return result;
     }
 
@@ -283,16 +279,6 @@ public strictfp class LiveMap {
     }
 
     /**
-     * Get a list of the initial bodies on the map.
-     *
-     * @return the list of starting bodies on the map.
-     *         MUST NOT BE MODIFIED.
-     */
-    public RobotInfo[] getInitialBodies() {
-        return initialBodies;
-    }
-
-    /**
      * Gets the maximum number of rounds for this game.
      *
      * @return the maximum number of rounds for this game
@@ -324,34 +310,252 @@ public strictfp class LiveMap {
         return wallArray;
     }
 
-    /**
-     * @return the cloud array of the map
-     */
-    public boolean[] getCloudArray() {
-        return cloudArray;
+
+    public boolean[] getWaterArray() {
+        return waterArray;
     }
 
     /**
-     * @return the current array of the map
+     * Returns the array indicating where the spawn zones are.
+     * In this array: 0 = not spawn zone, 1 = Team A spawn zone, 2 = Team B spawn zone
+     * 
+     * @return the array of spawn zones
      */
-    public int[] getCurrentArray() {
-        return currentArray;
+    public int[] getSpawnZoneArray() {
+        return spawnZoneArray;
     }
+
 
     /**
-     * @return the island id array of the map
+     * 
+     * @return a 2x6 array of spawn locations, alternating starting with team A
      */
-    public int[] getIslandArray() {
-        return islandArray;
-    }
+    public int[][] getSpawnZoneCenters(){
+        int[][] spawnZoneCenters = new int[2][6];
+        int cur_A = 0;
+        int cur_B = 1;
+        for (int i = 0; i < spawnZoneArray.length; i++){
+            if (spawnZoneArray[i] == 1 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 1
+            && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 1){
+                MapLocation center = indexToLocation(i);
+                spawnZoneCenters[0][cur_A] = center.x;
+                spawnZoneCenters[1][cur_A] = center.y;
+                cur_A += 2;
+            }
+            if (spawnZoneArray[i] == 2 && onTheMap(indexToLocation(i-width-1)) && spawnZoneArray[i-width-1] == 2
+            && onTheMap(indexToLocation(i+width+1)) && spawnZoneArray[i+width+1] == 2){
+                MapLocation center = indexToLocation(i);
+                spawnZoneCenters[0][cur_B] = center.x;
+                spawnZoneCenters[1][cur_B] = center.y;
+                cur_B += 2;
+            }
+        }
+        return spawnZoneCenters;
 
+    } 
+
+    public boolean[] getDamArray(){
+        return damArray;
+    }
     
     /**
-     * @return the resource id array of the map
+     * @return the array which stores how much bread is on each location.
      */
-    public int[] getResourceArray() {
-        return resourceArray;
+    public int[] getBreadArray() {
+        return breadArray;
     }
+
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - getOrigin().x + (loc.y - getOrigin().y) * getWidth();
+    }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx % getWidth() + getOrigin().x,
+                               idx / getWidth() + getOrigin().y);
+    }
+
+    public void assertIsValid() throws Exception{
+        if (this.width > GameConstants.MAP_MAX_WIDTH) {
+            throw new RuntimeException("MAP WIDTH EXCEEDS GameConstants.MAP_MAX_WIDTH");
+        }
+        if (this.width < GameConstants.MAP_MIN_WIDTH) {
+            throw new RuntimeException("MAP WIDTH BENEATH GameConstants.MAP_MIN_WIDTH");
+        }
+        if (this.height > GameConstants.MAP_MAX_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT EXCEEDS GameConstants.MAP_MAX_HEIGHT");
+        }
+        if (this.height < GameConstants.MAP_MIN_HEIGHT) {
+            throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
+        }
+        for (int i = 0; i < this.width*this.height; i++){
+            if(this.wallArray[i]) {
+                if (this.damArray[i]) {
+                    throw new RuntimeException("Walls can't be on the same square as dams.");
+                }
+                if (this.waterArray[i]) {
+                    throw new RuntimeException("Walls can't be on the same square as water.");
+                }
+                if (this.breadArray[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as bread.");
+                }
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Walls can't be on the same square as spawn zones.");
+                } 
+            }
+            if(this.damArray[i]) {
+                if(this.breadArray[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as bread.");
+                }
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Dams can't be on the same square as spawn zones.");
+                }
+            }
+
+            if(this.waterArray[i]) {
+                if(this.spawnZoneArray[i] != 0) {
+                    throw new RuntimeException("Water can't be on the same square as spawn zones.");
+                }
+            }
+
+        }
+        assertSpawnZoneDistances();
+        assertSpawnZonesAreValid();
+    }
+
+    private boolean isTeamNumber(int team) {
+        return team == 1 || team == 2;
+    }
+
+    private int getOpposingTeamNumber(int team) {
+        switch (team) {
+            case 1:
+                return 2;
+            case 2:
+                return 1;
+            default:
+                throw new RuntimeException("Argument of LiveMap.getOpposingTeamNumber must be a valid team number, was " + team + ".");
+        }
+    }
+
+        // WARNING: POSSIBLY BUGGY
+        private void assertSpawnZonesAreValid() {
+            int numSquares = this.width * this.height;
+            boolean[] alreadyChecked = new boolean[numSquares];
+    
+            for (int i = 0; i < numSquares; i++) {
+                int team = this.spawnZoneArray[i];
+    
+                // if the square is actually a spawn zone
+    
+                if (isTeamNumber(team)) {
+                    boolean bad = floodFillMap(indexToLocation(i),
+                        (loc) -> this.spawnZoneArray[locationToIndex(loc)] == getOpposingTeamNumber(team),
+                        (loc) -> this.wallArray[locationToIndex(loc)] || this.damArray[locationToIndex(loc)],
+                        alreadyChecked);
+    
+                    if (bad) {
+                        throw new RuntimeException("Two spawn zones for opposing teams can reach each other.");
+                    }
+                }
+            }
+        }
+
+        private void assertSpawnZoneDistances() {
+            ArrayList<MapLocation> team1 = new ArrayList<MapLocation>();
+            ArrayList<MapLocation> team2 = new ArrayList<MapLocation>();
+    
+            int[][] spawnZoneCenters = getSpawnZoneCenters();
+            for(int i = 0; i < spawnZoneCenters.length; i ++){
+                if (i % 2 == 0){
+                    team1.add(new MapLocation(spawnZoneCenters[i][0], spawnZoneCenters[i][1]));
+                }
+                else {
+                    team2.add(new MapLocation(spawnZoneCenters[i][0], spawnZoneCenters[i][1]));
+                }
+            }
+    
+            for(int a = 0; a < team1.size()-1; a ++){
+                for(int b = a+1; b < team1.size(); b ++){
+                    if ((team1.get(a)).distanceSquaredTo((team1.get(b))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                        throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                    }
+                }
+            }
+    
+            for(int c = 0; c < team2.size()-1; c ++){
+                for(int d = c+1; d < team2.size(); d ++){
+                    if ((team2.get(c)).distanceSquaredTo((team2.get(d))) < GameConstants.MIN_FLAG_SPACING_SQUARED){
+                        throw new RuntimeException("Two spawn zones on the same team are within 6 units of each other");
+                    }
+                }
+            }
+        }
+    
+        /**
+         * Performs a flood fill algorithm to check if a predicate is true for any squares
+         * that can be reached from a given location (horizontal, vertical, and diagonal steps allowed).
+         * 
+         * @param startLoc the starting location
+         * @param checkForBad the predicate to check for each reachable square
+         * @param checkForWall a predicate that checks if the given square has a wall
+         * @param alreadyChecked an array indexed by map location indices which has "true" at
+         * every location reachable from a spawn zone that has already been checked
+         * (WARNING: this array gets updated by floodFillMap)
+         * @return if checkForBad returns true for any reachable squares
+         */
+        private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+            Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+    
+            if (!onTheMap(startLoc)) {
+                throw new RuntimeException("Cannot call floodFillMap with startLocation off the map.");
+            }
+    
+            queue.add(startLoc);
+    
+            while (!queue.isEmpty()) {
+                MapLocation loc = queue.remove();
+                int idx = locationToIndex(loc);
+    
+                if (alreadyChecked[idx]) {
+                    continue;
+                }
+    
+                alreadyChecked[idx] = true;
+    
+                if (!checkForWall.test(loc)) {
+                    if (checkForBad.test(loc)) {
+                        return true;
+                    }
+    
+                    for (Direction dir : Direction.allDirections()) {
+                        if (dir != Direction.CENTER) {
+                            MapLocation newLoc = loc.add(dir);
+    
+                            if (onTheMap(newLoc)) {
+                                int newIdx = locationToIndex(newLoc);
+    
+                                if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                                    queue.add(newLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    
+            return false;
+        }
+
 
     @Override
     public String toString() {
@@ -363,7 +567,6 @@ public strictfp class LiveMap {
                     ", seed=" + seed +
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
-                    ", initialBodies=" + Arrays.toString(initialBodies) +
                     ", len=" + Integer.toString(wallArray.length) +
                     "}";
         } else {
@@ -374,13 +577,12 @@ public strictfp class LiveMap {
                     ", seed=" + seed +
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
-                    ", initialBodies=" + Arrays.toString(initialBodies) +
+                    ", damArray=" + Arrays.toString(damArray) + 
                     ", wallArray=" + Arrays.toString(wallArray) +
-                    ", cloudArray=" + Arrays.toString(cloudArray) +
-                    ", currentArray=" + Arrays.toString(currentArray) +
-                    ", islandArray=" + Arrays.toString(islandArray) +
-                    ", resouceArray=" + Arrays.toString(resourceArray) +
-                    "}"; 
+                    ", waterArray=" + Arrays.toString(waterArray) + 
+                    ", spawnZoneArray=" + Arrays.toString(spawnZoneArray) + 
+                    ", breadArray=" + Arrays.toString(breadArray) +
+                    "}";
         }
     }
 }
