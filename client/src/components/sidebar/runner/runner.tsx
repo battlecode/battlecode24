@@ -263,7 +263,7 @@ const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
                 open={selectPath}
                 onClose={closeDialog}
                 title="Custom Java Path"
-                description="Enter the Java path (should end with /Home)"
+                description="Enter the Java path (should end with /Home on Mac/Linux, root path otherwise)"
                 placeholder="Path..."
             />
         </>
