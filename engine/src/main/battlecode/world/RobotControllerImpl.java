@@ -687,7 +687,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
         if(this.robot.hasFlag())
-            throw new GameActionException(CANT_DO_THAT, "Can't dig while holding a flag");
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig while holding a flag");
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() == getTeam())
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile with one of your team's traps on it.");
     }
 
     @Override
