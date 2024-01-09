@@ -666,8 +666,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
-
-        this.robot.incrementSkill(SkillType.BUILD);
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {
@@ -687,7 +685,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasFlag(loc))
             throw new GameActionException(CANT_DO_THAT, "Cannot dig under a tile with a flag currently on it.");
         if(this.robot.hasFlag())
-            throw new GameActionException(CANT_DO_THAT, "Can't dig while holding a flag");
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig while holding a flag");
+        if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() == getTeam())
+            throw new GameActionException(CANT_DO_THAT, "Cannot dig on a tile with one of your team's traps on it.");
     }
 
     @Override
@@ -888,6 +888,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
         this.gameWorld.getTeamInfo().pickupFlag(getTeam());
+
+        Team[] allSpawnZones = {null, Team.A, Team.B};
+        if (tempflag.getTeam() != this.robot.getTeam() && allSpawnZones[this.gameWorld.getSpawnZone(getLocation())] == this.getTeam()) {
+            this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.CAPTURE_FLAG, robot.getFlag().getId());
+            robot.getFlag().setLoc(null);
+            gameWorld.getAllFlags().remove(robot.getFlag());
+            this.robot.removeFlag();
+        }
     }
 
     // ***********************************
