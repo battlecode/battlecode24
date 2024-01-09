@@ -74,8 +74,16 @@ export const QueuedGame: React.FC<Props> = (props) => {
                     {!isTournamentMode && (
                         <span className="text-xxs leading-tight">
                             <span className="mx-1">-</span>
-                            <span className={`font-bold text-team${match.winner.id - 1}`}>{match.winner.name}</span>
-                            <span>{` wins ${getWinText(match.winType)}after ${match.maxTurn} rounds`}</span>
+                            {match.winner !== null && match.winType !== null ? (
+                                <>
+                                    <span className={`font-bold text-team${match.winner.id - 1}`}>
+                                        {match.winner.name}
+                                    </span>
+                                    <span>{` wins ${getWinText(match.winType)}after ${match.maxTurn} rounds`}</span>
+                                </>
+                            ) : (
+                                <span>Winner not known</span>
+                            )}
                         </span>
                     )}
                 </p>

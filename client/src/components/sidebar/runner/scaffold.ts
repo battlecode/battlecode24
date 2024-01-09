@@ -5,6 +5,8 @@ import { ConsoleLine } from './runner'
 import { useForceUpdate } from '../../../util/react-util'
 import WebSocketListener from './websocket'
 import { useAppContext } from '../../../app-context'
+import Game from '../../../playback/Game'
+import Match from '../../../playback/Match'
 
 export type JavaInstall = {
     display: string
@@ -115,17 +117,24 @@ export function useScaffold(): Scaffold {
             forceUpdate()
         })
 
-        setWebSocketListener(
-            new WebSocketListener((game) => {
-                game.currentMatch = game.matches[0]
-                appContext.setState({
-                    ...appContext.state,
-                    queue: appContext.state.queue.concat([game]),
-                    activeGame: game,
-                    activeMatch: game.currentMatch
-                })
-            })
-        )
+        const onGameCreated = (game: Game) => {
+            appContext.setState((prevState) => ({
+                ...prevState,
+                queue: appContext.state.queue.concat([game]),
+                activeGame: game,
+                activeMatch: game.currentMatch
+            }))
+        }
+
+        const onMatchCreated = (match: Match) => {
+            appContext.setState((prevState) => ({
+                ...prevState,
+                activeGame: match.game,
+                activeMatch: match
+            }))
+        }
+
+        setWebSocketListener(new WebSocketListener(onGameCreated, onMatchCreated, () => {}))
     }, [])
 
     useEffect(() => {

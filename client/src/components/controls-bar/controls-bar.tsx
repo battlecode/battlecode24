@@ -20,7 +20,7 @@ export const ControlsBar: React.FC = () => {
     const currentUPSBuffer = React.useRef<number[]>([])
 
     const currentMatch = appState.activeGame?.currentMatch
-    const isPlayable = appState.activeGame && appState.activeGame.playable
+    const isPlayable = appState.activeGame && appState.activeGame.playable && currentMatch
     const hasNextMatch =
         currentMatch && appState.activeGame!.matches.indexOf(currentMatch!) + 1 < appState.activeGame!.matches.length
 
@@ -175,8 +175,8 @@ export const ControlsBar: React.FC = () => {
 
     if (!isPlayable) return null
 
-    const atStart = currentMatch!.currentTurn.turnNumber == 0
-    const atEnd = currentMatch!.currentTurn.turnNumber == currentMatch!.maxTurn
+    const atStart = currentMatch.currentTurn.turnNumber == 0
+    const atEnd = currentMatch.currentTurn.turnNumber == currentMatch.maxTurn
 
     return (
         <div className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none">
