@@ -110,6 +110,20 @@ public enum SkillType{
         return 0;
     }
 
+    /**
+     * Returns the level of specialization a robot is given their experience
+     * 
+     * @param experience how much experience in the skill the robot has
+     * @return the level in the skill the robot is
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public int getLevel(int experience){
+        int level = 0;
+        while (level < 6 && this.getExperience(level+1) <= experience ) level += 1;
+        return level;
+    }
+
     SkillType(int skillEffect, int cooldown){
         this.skillEffect = skillEffect;
         this.cooldown = cooldown;

@@ -187,11 +187,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.health == health
-                && cachedRobotInfo.location.equals(location)) {
+                && cachedRobotInfo.location.equals(location)
+                && cachedRobotInfo.attackLevel == SkillType.ATTACK.getLevel(attackExp)
+                && cachedRobotInfo.healLevel == SkillType.HEAL.getLevel(healExp)
+                && cachedRobotInfo.buildLevel == SkillType.BUILD.getLevel(buildExp)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null);
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null, 
+        SkillType.ATTACK.getLevel(attackExp), SkillType.HEAL.getLevel(healExp), SkillType.BUILD.getLevel(buildExp));
         return this.cachedRobotInfo;
     }
 
