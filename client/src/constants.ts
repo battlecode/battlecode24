@@ -1,7 +1,7 @@
 import { schema } from 'battlecode-schema'
 
-export const GAME_VERSION = '0.1.0'
-export const SPEC_VERSION = '0.0.1'
+export const GAME_VERSION = '1.0.0'
+export const SPEC_VERSION = '1.0.0'
 export const BATTLECODE_YEAR: number = 2024
 export const MAP_SIZE_RANGE = {
     min: 30,
