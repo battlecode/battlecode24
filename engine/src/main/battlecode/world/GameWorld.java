@@ -32,6 +32,7 @@ public strictfp class GameWorld {
     private boolean[] water;
     private boolean[] dams;
     private int[] spawnZones; // Team A = 1, Team B = 2, not spawn zone = 0
+    private int[] teamSides; //Team A territory = 1, Team B territory = 2, dam = 0
     private MapLocation[][] spawnLocations;
     private int[] breadAmounts;
     private ArrayList<Trap>[] trapTriggers;
@@ -68,6 +69,7 @@ public strictfp class GameWorld {
         this.gameStats = new GameStats();
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
+        teamSides = new int[gameMap.getWidth() * gameMap.getHeight()];
 
         this.profilerCollections = new HashMap<>();
 
@@ -134,7 +136,16 @@ public strictfp class GameWorld {
                 this.spawnLocations[1][curB] = indexToLocation(i);
                 curB += 1;
             }
+        }
 
+        floodFillTeam(1, getSpawnLocations(Team.A)[0]);
+        floodFillTeam(2, getSpawnLocations(Team.B)[0]);
+
+        for(int i = 0; i < gameMap.getHeight(); i++) {
+            for(int j = 0; j < gameMap.getWidth(); j++) {
+                System.out.print(teamSides[i * gameMap.getWidth() + j]);
+            }
+            System.out.println();
         }
     }
 
@@ -287,6 +298,10 @@ public strictfp class GameWorld {
      */
     public int getSpawnZone(MapLocation loc) {
         return this.spawnZones[locationToIndex(loc)];
+    }
+
+    public int getTeamSide(MapLocation loc) {
+        return teamSides[locationToIndex(loc)];
     }
 
     public boolean isPassable(MapLocation loc) {
@@ -713,6 +728,33 @@ public strictfp class GameWorld {
         addFlag(location, flag);
         matchMaker.addAction(flag.getId(), Action.PLACE_FLAG, locationToIndex(location));
         flag.setStartLoc(location);
+    }
+
+    private void floodFillTeam(int teamVal, MapLocation start) {
+        System.out.println(start);
+        Queue<MapLocation> queue = new LinkedList<MapLocation>();
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            MapLocation loc = queue.remove();
+            int idx = locationToIndex(loc);
+
+            if(teamSides[idx] != 0) continue;
+            teamSides[idx] = teamVal;
+
+            for (Direction dir : Direction.allDirections()) {
+                if (dir != Direction.CENTER) {
+                    MapLocation newLoc = loc.add(dir);
+
+                    if (gameMap.onTheMap(newLoc)) {
+                        int newIdx = locationToIndex(newLoc);
+                        if (teamSides[newIdx] == 0 && !walls[newIdx] && !dams[newIdx]) {
+                            queue.add(newLoc);
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // *********************************

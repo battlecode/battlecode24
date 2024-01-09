@@ -89,6 +89,9 @@ public class GameConstants {
     /** The amount of crumbs each team gains per turn. */
     public static final int PASSIVE_CRUMBS_INCREASE = 10;
 
+    /** The amount of crumbs you gain if your bot kills an enemy while in enemy territory */
+    public static final int KILL_CRUMB_REWARD = 50;
+
     /** The end of the setup rounds in the game */
     public static final int SETUP_ROUNDS = 200;
 
