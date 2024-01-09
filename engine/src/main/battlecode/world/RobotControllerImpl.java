@@ -666,8 +666,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasTrap(loc) && this.gameWorld.getTrap(loc).getTeam() != getTeam() && this.gameWorld.getTrap(loc).getType() == TrapType.EXPLOSIVE){
             this.robot.addTrapTrigger(this.gameWorld.getTrap(loc), false);
         }
-
-        this.robot.incrementSkill(SkillType.BUILD);
     }
 
     private void assertCanDig(MapLocation loc) throws GameActionException {

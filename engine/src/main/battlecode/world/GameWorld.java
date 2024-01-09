@@ -140,13 +140,6 @@ public strictfp class GameWorld {
 
         floodFillTeam(1, getSpawnLocations(Team.A)[0]);
         floodFillTeam(2, getSpawnLocations(Team.B)[0]);
-
-        for(int i = 0; i < gameMap.getHeight(); i++) {
-            for(int j = 0; j < gameMap.getWidth(); j++) {
-                System.out.print(teamSides[i * gameMap.getWidth() + j]);
-            }
-            System.out.println();
-        }
     }
 
     /**
