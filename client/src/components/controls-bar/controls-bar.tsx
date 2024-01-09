@@ -26,11 +26,11 @@ export const ControlsBar: React.FC = () => {
 
     const changePaused = (paused: boolean) => {
         if (!currentMatch) return
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             paused: paused,
             updatesPerSecond: appState.updatesPerSecond == 0 && !paused ? 1 : appState.updatesPerSecond
-        })
+        }))
     }
 
     const multiplyUpdatesPerSecond = (multiplier: number) => {
@@ -78,19 +78,19 @@ export const ControlsBar: React.FC = () => {
         }
 
         game.currentMatch = game.matches[prevMatchIndex + 1]
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             activeGame: game,
             activeMatch: game.currentMatch
-        })
+        }))
     }
 
     const closeGame = () => {
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             activeGame: undefined,
             activeMatch: undefined
-        })
+        }))
         if (appState.tournament) setPage(PageType.TOURNAMENT)
     }
 

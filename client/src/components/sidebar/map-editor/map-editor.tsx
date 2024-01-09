@@ -103,11 +103,11 @@ export const MapEditorPage: React.FC<Props> = (props) => {
             // multiple times
             mapParams.imported = undefined
 
-            context.setState({
-                ...context.state,
-                activeGame: editGame.current,
-                activeMatch: editGame.current.currentMatch
-            })
+            context.setState((prevState) => ({
+                ...prevState,
+                activeGame: editGame.current ?? undefined,
+                activeMatch: editGame.current?.currentMatch
+            }))
 
             const turn = editGame.current.currentMatch!.currentTurn
             const brushes = turn.map.getEditorBrushes().concat(turn.bodies.getEditorBrushes(turn.map.staticMap))
@@ -115,11 +115,11 @@ export const MapEditorPage: React.FC<Props> = (props) => {
             setBrushes(brushes)
             setCleared(turn.bodies.isEmpty() && turn.map.isEmpty())
         } else {
-            context.setState({
-                ...context.state,
+            context.setState((prevState) => ({
+                ...prevState,
                 activeGame: undefined,
                 activeMatch: undefined
-            })
+            }))
         }
     }, [mapParams, props.open])
 

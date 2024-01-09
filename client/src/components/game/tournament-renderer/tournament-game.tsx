@@ -31,12 +31,12 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
                     return
                 }
                 const loadedGame = Game.loadFullGameRaw(buffer)
-                appContext.setState({
-                    ...appContext.state,
+                appContext.setState((prevState) => ({
+                    ...prevState,
                     activeGame: loadedGame,
                     activeMatch: loadedGame.currentMatch,
                     queue: appContext.state.queue.concat([loadedGame])
-                })
+                }))
                 game.viewed = true
                 setPage(PageType.GAME)
                 setLoadingGame(false)

@@ -50,10 +50,10 @@ export const Sidebar: React.FC = () => {
                 } else {
                     setLoadingRemoteTournament(false)
                     console.log(rawGames)
-                    context.setState({
-                        ...context.state,
+                    context.setState((prevState) => ({
+                        ...prevState,
                         tournament: new Tournament(rawGames)
-                    })
+                    }))
                 }
             })
     }
@@ -78,23 +78,23 @@ export const Sidebar: React.FC = () => {
                 }
 
                 const loadedGame = Game.loadFullGameRaw(buffer)
-                context.setState({
-                    ...context.state,
+                context.setState((prevState) => ({
+                    ...prevState,
                     activeGame: loadedGame,
                     activeMatch: loadedGame.currentMatch,
                     queue: context.state.queue.concat([loadedGame]),
                     loadingRemoteContent: false
-                })
+                }))
 
                 setPage(PageType.GAME)
             })
     }
     React.useEffect(() => {
         if (gameSource) {
-            context.setState({
-                ...context.state,
+            context.setState((prevState) => ({
+                ...prevState,
                 loadingRemoteContent: true
-            })
+            }))
             fetchRemoteGame(gameSource)
             setPage(PageType.GAME)
         }

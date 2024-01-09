@@ -29,12 +29,12 @@ export const QueuePage: React.FC<Props> = (props) => {
             const selectedMatch = game.matches[0]
             game.currentMatch = selectedMatch
 
-            context.setState({
-                ...context.state,
+            context.setState((prevState) => ({
+                ...prevState,
                 queue: queue.concat([game]),
                 activeGame: game,
                 activeMatch: selectedMatch
-            })
+            }))
         }
         reader.readAsArrayBuffer(file)
     }

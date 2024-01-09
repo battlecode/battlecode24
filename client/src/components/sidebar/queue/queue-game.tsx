@@ -18,20 +18,20 @@ export const QueuedGame: React.FC<Props> = (props) => {
     const setMatch = (match: Match) => {
         match.jumpToTurn(0)
         props.game.currentMatch = match
-        context.setState({
-            ...context.state,
+        context.setState((prevState) => ({
+            ...prevState,
             activeGame: match.game,
             activeMatch: match
-        })
+        }))
     }
 
     const close = () => {
-        context.setState({
-            ...context.state,
+        context.setState((prevState) => ({
+            ...prevState,
             queue: context.state.queue.filter((v) => v !== props.game),
             activeGame: context.state.activeGame === props.game ? undefined : context.state.activeGame,
             activeMatch: context.state.activeGame === props.game ? undefined : context.state.activeMatch
-        })
+        }))
     }
 
     const getWinText = (winType: schema.WinType) => {
