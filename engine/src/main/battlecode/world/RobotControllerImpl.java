@@ -888,6 +888,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
         robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         gameWorld.getMatchMaker().addAction(robot.getID(), Action.PICKUP_FLAG, tempflag.getId());
         this.gameWorld.getTeamInfo().pickupFlag(getTeam());
+
+        Team[] allSpawnZones = {null, Team.A, Team.B};
+        if (tempflag.getTeam() != this.robot.getTeam() && allSpawnZones[this.gameWorld.getSpawnZone(getLocation())] == this.getTeam()) {
+            this.gameWorld.getTeamInfo().captureFlag(this.getTeam());
+            this.gameWorld.getMatchMaker().addAction(getID(), Action.CAPTURE_FLAG, robot.getFlag().getId());
+            robot.getFlag().setLoc(null);
+            gameWorld.getAllFlags().remove(robot.getFlag());
+            this.robot.removeFlag();
+        }
     }
 
     // ***********************************
