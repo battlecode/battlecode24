@@ -73,8 +73,8 @@ function verifyMapGuarantees(turn: Turn) {
             }
         }
     }
-    if (totalSpawnableLocations < 18) {
-        return `Map has ${totalSpawnableLocations} spawnable locations. Must have at least 9 for each team`
+    if (totalSpawnableLocations < 9 * 3 * 2) {
+        return `Map has ${totalSpawnableLocations} spawnable locations. Must have 9 * 3 for each team`
     }
 
     const floodMask = new Int8Array(turn.map.width * turn.map.height)
