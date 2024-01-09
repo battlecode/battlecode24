@@ -17,7 +17,7 @@ export const InputDialog: React.FC<PropsWithChildren<Props>> = (props) => {
     const context = useAppContext()
 
     React.useEffect(() => {
-        context.setState({ ...context.state, disableHotkeys: props.open })
+        context.setState((prevState) => ({ ...prevState, disableHotkeys: props.open }))
         if (props.open) {
             setValue(props.defaultValue ?? '')
         }

@@ -18,10 +18,10 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open, loadingRem
         const file = e.target.files[0]
         const reader = new FileReader()
         reader.onload = () => {
-            context.setState({
-                ...context.state,
+            context.setState((prevState) => ({
+                ...prevState,
                 tournament: new Tournament(JSON.parse(reader.result as string) as JsonTournamentGame[])
-            })
+            }))
         }
         reader.readAsText(file)
     }

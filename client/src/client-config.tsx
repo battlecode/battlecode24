@@ -57,10 +57,10 @@ const ConfigBooleanElement: React.FC<{ configKey: string }> = ({ configKey }) =>
                 type={'checkbox'}
                 checked={value}
                 onChange={(e) => {
-                    context.setState({
-                        ...context.state,
+                    context.setState((prevState) => ({
+                        ...prevState,
                         config: { ...context.state.config, [configKey]: e.target.checked }
-                    })
+                    }))
                     localStorage.setItem('config' + configKey, JSON.stringify(e.target.checked))
                     // hopefully after the setState is done
                     setTimeout(() => publishEvent(EventType.RENDER, {}), 10)

@@ -13,7 +13,7 @@ export const ConfirmDialog: React.FC<PropsWithChildren<Props>> = (props) => {
     const context = useAppContext()
 
     React.useEffect(() => {
-        context.setState({ ...context.state, disableHotkeys: props.open })
+        context.setState((prevState) => ({ ...prevState, disableHotkeys: props.open }))
     }, [props.open])
 
     if (!props.open) return <></>
