@@ -92,6 +92,13 @@ function verifyMapGuarantees(turn: Turn) {
             if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
             const newIdx = turn.map.locationToIndex(x, y)
             if (!turn.map.staticMap.divider[newIdx] && !floodMask[newIdx]) {
+                // Check if we can reach an enemy spawn location
+                for (let i = 0; i < turn.map.staticMap.spawnLocations.length; i++) {
+                    const loc = turn.map.staticMap.spawnLocations[i]
+                    if (loc.x == x && loc.y == y && i % 2 != 0)
+                        return `Maps cannot have spawn zones that are initially reachable by both teams`
+                }
+
                 floodMask[newIdx] = 1
                 floodQueue.push(newIdx)
                 totalFlooded++
