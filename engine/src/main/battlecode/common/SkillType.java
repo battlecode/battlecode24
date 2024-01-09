@@ -37,7 +37,7 @@ public enum SkillType{
     public int getExperience(int level){
         int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
         int[] buildExperience = {0, 5, 10, 15, 20, 25, 30};
-        int[] healExperience = {0, 10, 20, 30, 50, 75, 125};
+        int[] healExperience = {0, 15, 30, 45, 75, 110, 150};
         switch(this){
             case ATTACK: return attackExperience[level];
             case BUILD: return buildExperience[level];
