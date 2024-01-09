@@ -97,6 +97,7 @@ battlecode/common/SkillType/getExperience                               3    fal
 battlecode/common/SkillType/getCooldown                                 3    false
 battlecode/common/SkillType/getSkillEffect                              3    false
 battlecode/common/SkillType/getPenalty                                  3    false
+battlecode/common/SkillType/getLevel                                    3    false
 battlecode/common/RobotInfo/getID                                       1    false
 battlecode/common/RobotInfo/getTeam                                     1    false
 battlecode/common/RobotInfo/getHealth                                   2    false

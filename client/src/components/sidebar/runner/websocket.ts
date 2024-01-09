@@ -1,5 +1,8 @@
 import { schema, flatbuffers } from 'battlecode-schema'
 import Game from '../../../playback/Game'
+import Match from '../../../playback/Match'
+import assert from 'assert'
+import { EventType, publishEvent } from '../../../app-events'
 
 export type FakeGameWrapper = {
     events: (index: number, unusedEventSlot: any) => schema.EventWrapper | null
@@ -9,9 +12,17 @@ export type FakeGameWrapper = {
 export default class WebSocketListener {
     url: string = 'ws://localhost:6175'
     pollEvery: number = 500
-    events: schema.EventWrapper[] = []
-    constructor(readonly onGameComplete: (game: Game) => void) {
+    activeGame: Game | null = null
+    constructor(
+        readonly onGameCreated: (game: Game) => void,
+        readonly onMatchCreated: (match: Match) => void,
+        readonly onGameComplete: () => void
+    ) {
         this.poll()
+    }
+
+    private reset() {
+        this.activeGame = null
     }
 
     private poll() {
@@ -24,10 +35,10 @@ export default class WebSocketListener {
             this.handleEvent(<ArrayBuffer>event.data)
         }
         ws.onerror = (event) => {
-            this.events = []
+            this.reset()
         }
         ws.onclose = (event) => {
-            this.events = []
+            this.reset()
             window.setTimeout(() => {
                 this.poll()
             }, this.pollEvery)
@@ -36,29 +47,59 @@ export default class WebSocketListener {
 
     private handleEvent(data: ArrayBuffer) {
         const event = schema.EventWrapper.getRootAsEventWrapper(new flatbuffers.ByteBuffer(new Uint8Array(data)))
+        const eventType = event.eType()
 
-        this.events.push(event)
+        if (this.activeGame === null) {
+            assert(eventType === schema.Event.GameHeader, 'First event must be GameHeader')
+            this.sendInitialGame(event)
+            return
+        }
 
-        if (event.eType() === schema.Event.GameHeader) {
-            if (this.events.length !== 1) throw new Error('GameHeader event must be first event')
-        } else if (event.eType() === schema.Event.GameFooter) {
-            if (this.events.length === 1) throw new Error('GameFooter event must be after GameHeader event')
-            this.sendCompleteGame()
+        this.activeGame.addEvent(event)
+
+        switch (eventType) {
+            case schema.Event.MatchHeader: {
+                const match = this.activeGame.matches[this.activeGame.matches.length - 1]
+                this.sendInitialMatch(match)
+                break
+            }
+            case schema.Event.Round: {
+                const match = this.activeGame.matches[this.activeGame.matches.length - 1]
+                // Auto progress the turn if the user hasn't done it themselves
+                if (match.currentTurn.turnNumber == match.maxTurn - 1) {
+                    match.jumpToEnd(true)
+                } else {
+                    // Publish anyways so the control bar updates
+                    publishEvent(EventType.TURN_PROGRESS, {})
+                }
+                break
+            }
+            case schema.Event.GameFooter: {
+                this.sendCompleteGame()
+                break
+            }
+            default:
+                break
         }
     }
 
-    private sendCompleteGame() {
+    private sendInitialGame(headerEvent: schema.EventWrapper) {
         const fakeGameWrapper: FakeGameWrapper = {
-            events: (index: number, unusedEventSlot: any) => {
-                return this.events[index]
-            },
-            eventsLength: () => {
-                return this.events.length
-            }
+            events: () => headerEvent,
+            eventsLength: () => 1
         }
 
-        this.onGameComplete(new Game(fakeGameWrapper))
+        this.activeGame = new Game(fakeGameWrapper)
 
-        this.events = []
+        this.onGameCreated(this.activeGame)
+    }
+
+    private sendInitialMatch(match: Match) {
+        this.onMatchCreated(match)
+    }
+
+    private sendCompleteGame() {
+        this.onGameComplete()
+        this.reset()
     }
 }

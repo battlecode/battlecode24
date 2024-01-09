@@ -5,6 +5,8 @@ import { ConsoleLine } from './runner'
 import { useForceUpdate } from '../../../util/react-util'
 import WebSocketListener from './websocket'
 import { useAppContext } from '../../../app-context'
+import Game from '../../../playback/Game'
+import Match from '../../../playback/Match'
 
 export type JavaInstall = {
     display: string
@@ -115,17 +117,24 @@ export function useScaffold(): Scaffold {
             forceUpdate()
         })
 
-        setWebSocketListener(
-            new WebSocketListener((game) => {
-                game.currentMatch = game.matches[0]
-                appContext.setState({
-                    ...appContext.state,
-                    queue: appContext.state.queue.concat([game]),
-                    activeGame: game,
-                    activeMatch: game.currentMatch
-                })
-            })
-        )
+        const onGameCreated = (game: Game) => {
+            appContext.setState((prevState) => ({
+                ...prevState,
+                queue: appContext.state.queue.concat([game]),
+                activeGame: game,
+                activeMatch: game.currentMatch
+            }))
+        }
+
+        const onMatchCreated = (match: Match) => {
+            appContext.setState((prevState) => ({
+                ...prevState,
+                activeGame: match.game,
+                activeMatch: match
+            }))
+        }
+
+        setWebSocketListener(new WebSocketListener(onGameCreated, onMatchCreated, () => {}))
     }, [])
 
     useEffect(() => {
@@ -214,16 +223,16 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
     const fromWin = await path.dirname(await path.dirname(appPath))
     // scaffold/client/resources/app.asar
     const from3 = await path.dirname(await path.dirname(await path.dirname(appPath)))
-    // scaffold/Battlecode Client.app/Contents/Resources/app.asar
+    // scaffold/client/Battlecode Client.app/Contents/Resources/app.asar
     const fromMac = await path.dirname(
         await path.dirname(await path.dirname(await path.dirname(await path.dirname(appPath))))
     )
 
-    if (await fs.exists(from3)) {
+    if (await fs.exists(await path.join(from3, 'gradlew'))) {
         return from3
-    } else if (await fs.exists(fromWin)) {
+    } else if (await fs.exists(await path.join(fromWin, 'gradlew'))) {
         return fromWin
-    } else if (await fs.exists(fromMac)) {
+    } else if (await fs.exists(await path.join(fromMac, 'gradlew'))) {
         return fromMac
     }
 

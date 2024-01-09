@@ -152,8 +152,8 @@ export default class Bodies {
 
         // Clear existing indicators
         for (const body of this.bodies.values()) {
-            body.indicatorDot = null
-            body.indicatorLine = null
+            body.indicatorDots = []
+            body.indicatorLines = []
             body.indicatorString = ''
         }
 
@@ -165,10 +165,10 @@ export default class Bodies {
             // Check if exists because technically can add indicators when not spawned
             if (!this.hasId(bodyId)) continue
             const body = this.getById(bodyId)
-            body.indicatorDot = {
+            body.indicatorDots.push({
                 location: { x: locs.xs(i)!, y: locs.ys(i)! },
                 color: renderUtils.rgbToHex(dotColors.red(i)!, dotColors.green(i)!, dotColors.blue(i)!)
-            }
+            })
         }
 
         // Add new indicator lines
@@ -180,11 +180,11 @@ export default class Bodies {
             // Check if exists because technically can add indicators when not spawned
             if (!this.hasId(bodyId)) continue
             const body = this.getById(bodyId)
-            body.indicatorLine = {
+            body.indicatorLines.push({
                 start: { x: starts.xs(i)!, y: starts.ys(i)! },
                 end: { x: ends.xs(i)!, y: ends.ys(i)! },
                 color: renderUtils.rgbToHex(lineColors.red(i)!, lineColors.green(i)!, lineColors.blue(i)!)
-            }
+            })
         }
 
         // Add new indicator strings
@@ -338,8 +338,8 @@ export class Body {
     protected imgPath: string = ''
     public nextPos: Vector
     private prevSquares: Vector[]
-    public indicatorDot: { location: Vector; color: string } | null = null
-    public indicatorLine: { start: Vector; end: Vector; color: string } | null = null
+    public indicatorDots: { location: Vector; color: string }[] = []
+    public indicatorLines: { start: Vector; end: Vector; color: string }[] = []
     public indicatorString: string = ''
     public dead: boolean = false
     public jailed: boolean = false
@@ -461,8 +461,7 @@ export class Body {
     private drawIndicators(match: Match, ctx: CanvasRenderingContext2D, lighter: boolean): void {
         const dimension = match.currentTurn.map.staticMap.dimension
         // Render indicator dots
-        if (this.indicatorDot) {
-            const data = this.indicatorDot
+        for (const data of this.indicatorDots) {
             ctx.globalAlpha = lighter ? 0.5 : 1
             const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, dimension)
             ctx.beginPath()
@@ -473,8 +472,7 @@ export class Body {
         }
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
-        if (this.indicatorLine) {
-            const data = this.indicatorLine
+        for (const data of this.indicatorLines) {
             ctx.globalAlpha = lighter ? 0.5 : 1
             const start = renderUtils.getRenderCoords(data.start.x, data.start.y, dimension)
             const end = renderUtils.getRenderCoords(data.end.x, data.end.y, dimension)

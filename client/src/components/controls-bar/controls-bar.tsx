@@ -20,17 +20,17 @@ export const ControlsBar: React.FC = () => {
     const currentUPSBuffer = React.useRef<number[]>([])
 
     const currentMatch = appState.activeGame?.currentMatch
-    const isPlayable = appState.activeGame && appState.activeGame.playable
+    const isPlayable = appState.activeGame && appState.activeGame.playable && currentMatch
     const hasNextMatch =
         currentMatch && appState.activeGame!.matches.indexOf(currentMatch!) + 1 < appState.activeGame!.matches.length
 
     const changePaused = (paused: boolean) => {
         if (!currentMatch) return
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             paused: paused,
             updatesPerSecond: appState.updatesPerSecond == 0 && !paused ? 1 : appState.updatesPerSecond
-        })
+        }))
     }
 
     const multiplyUpdatesPerSecond = (multiplier: number) => {
@@ -78,19 +78,19 @@ export const ControlsBar: React.FC = () => {
         }
 
         game.currentMatch = game.matches[prevMatchIndex + 1]
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             activeGame: game,
             activeMatch: game.currentMatch
-        })
+        }))
     }
 
     const closeGame = () => {
-        setAppState({
-            ...appState,
+        setAppState((prevState) => ({
+            ...prevState,
             activeGame: undefined,
             activeMatch: undefined
-        })
+        }))
         if (appState.tournament) setPage(PageType.TOURNAMENT)
     }
 
@@ -175,8 +175,8 @@ export const ControlsBar: React.FC = () => {
 
     if (!isPlayable) return null
 
-    const atStart = currentMatch!.currentTurn.turnNumber == 0
-    const atEnd = currentMatch!.currentTurn.turnNumber == currentMatch!.maxTurn
+    const atStart = currentMatch.currentTurn.turnNumber == 0
+    const atEnd = currentMatch.currentTurn.turnNumber == currentMatch.maxTurn
 
     return (
         <div className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none">

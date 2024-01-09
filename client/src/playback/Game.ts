@@ -19,7 +19,7 @@ export default class Game {
     public readonly matches: Match[] = []
     public currentMatch: Match | undefined = undefined
     public readonly teams: [Team, Team]
-    public readonly winner: Team
+    public winner: Team | null = null
 
     // Metadata
     private readonly specVersion: string
@@ -60,8 +60,6 @@ export default class Game {
         }
 
         const eventCount = wrapper.eventsLength()
-        if (eventCount < 5) throw new Error(`Too few events for well-formed game: ${eventCount}`)
-
         const eventSlot = new schema.EventWrapper() // not sure what this is for, probably better performance (this is how it was done in the old client)
 
         // load header and metadata =============================================================================
@@ -88,39 +86,58 @@ export default class Game {
         }
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
 
-        // load matches ==========================================================================================
-        for (let i = 1; i < eventCount - 1; i++) {
-            const matchHeaderEvent = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')
-            assert(matchHeaderEvent.eType() === schema.Event.MatchHeader, 'Event must be MatchHeader')
-            const matchHeader = matchHeaderEvent.e(new schema.MatchHeader()) as schema.MatchHeader
-
-            i++
-            let event
-            let matches: schema.Round[] = []
-            while (
-                (event = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')).eType() !==
-                schema.Event.MatchFooter
-            ) {
-                assert(event.eType() === schema.Event.Round, 'Event must be Round')
-                matches.push(event.e(new schema.Round()) as schema.Round)
-                i++
-            }
-
-            assert(event.eType() === schema.Event.MatchFooter, 'Event must be MatchFooter')
-            const matchFooter = event.e(new schema.MatchFooter()) as schema.MatchFooter
-
-            this.matches.push(Match.fromSchema(this, matchHeader, matches, matchFooter))
+        // load all other events  ==========================================================================================
+        for (let i = 1; i < eventCount; i++) {
+            const event = wrapper.events(i, eventSlot) ?? assert.fail('Event was null')
+            this.addEvent(event)
         }
 
-        if (!this.currentMatch && this.matches.length > 0) this.currentMatch = this.matches[0]
-
-        // load footer ==========================================================================================
-        const event = wrapper.events(eventCount - 1, eventSlot) ?? assert.fail('Event was null')
-        assert(event.eType() === schema.Event.GameFooter, 'Last event must be GameFooter')
-        const gameFooter = event.e(new schema.GameFooter()) as schema.GameFooter
-        this.winner = this.teams[gameFooter.winner() - 1]
-
         this.id = nextID++
+    }
+
+    /*
+     * Adds a new game event to the game. Used for live match replaying.
+     */
+    public addEvent(event: schema.EventWrapper): void {
+        switch (event.eType()) {
+            case schema.Event.GameHeader: {
+                assert(false, 'Cannot add another GameHeader event to Game')
+            }
+            case schema.Event.MatchHeader: {
+                const header = event.e(new schema.MatchHeader()) as schema.MatchHeader
+                this.matches.push(Match.fromSchema(this, header, []))
+                this.currentMatch = this.matches[this.matches.length - 1]
+                return
+            }
+            case schema.Event.Round: {
+                assert(
+                    this.matches.length > 0,
+                    'Cannot add Round event to Game if no MatchHeaders have been added first'
+                )
+                const round = event.e(new schema.Round()) as schema.Round
+                this.matches[this.matches.length - 1].addNewTurn(round)
+                return
+            }
+            case schema.Event.MatchFooter: {
+                assert(
+                    this.matches.length > 0,
+                    'Cannot add MatchFooter event to Game if no MatchHeaders have been added first'
+                )
+                const footer = event.e(new schema.MatchFooter()) as schema.MatchFooter
+                this.matches[this.matches.length - 1].addMatchFooter(footer)
+                return
+            }
+            case schema.Event.GameFooter: {
+                assert(this.winner === null, 'Cannot add another GameFooter event to Game')
+                const footer = event.e(new schema.GameFooter()) as schema.GameFooter
+                this.winner = this.teams[footer.winner() - 1]
+                return
+            }
+            default: {
+                console.log(`Unknown event type: ${event.eType()}`)
+                return
+            }
+        }
     }
 
     public getTeamByID(id: number): Team {

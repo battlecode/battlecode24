@@ -18,20 +18,20 @@ export const QueuedGame: React.FC<Props> = (props) => {
     const setMatch = (match: Match) => {
         match.jumpToTurn(0)
         props.game.currentMatch = match
-        context.setState({
-            ...context.state,
+        context.setState((prevState) => ({
+            ...prevState,
             activeGame: match.game,
             activeMatch: match
-        })
+        }))
     }
 
     const close = () => {
-        context.setState({
-            ...context.state,
+        context.setState((prevState) => ({
+            ...prevState,
             queue: context.state.queue.filter((v) => v !== props.game),
             activeGame: context.state.activeGame === props.game ? undefined : context.state.activeGame,
             activeMatch: context.state.activeGame === props.game ? undefined : context.state.activeMatch
-        })
+        }))
     }
 
     const getWinText = (winType: schema.WinType) => {
@@ -74,8 +74,16 @@ export const QueuedGame: React.FC<Props> = (props) => {
                     {!isTournamentMode && (
                         <span className="text-xxs leading-tight">
                             <span className="mx-1">-</span>
-                            <span className={`font-bold text-team${match.winner.id - 1}`}>{match.winner.name}</span>
-                            <span>{` wins ${getWinText(match.winType)}after ${match.maxTurn} rounds`}</span>
+                            {match.winner !== null && match.winType !== null ? (
+                                <>
+                                    <span className={`font-bold text-team${match.winner.id - 1}`}>
+                                        {match.winner.name}
+                                    </span>
+                                    <span>{` wins ${getWinText(match.winType)}after ${match.maxTurn} rounds`}</span>
+                                </>
+                            ) : (
+                                <span>Winner not known</span>
+                            )}
                         </span>
                     )}
                 </p>

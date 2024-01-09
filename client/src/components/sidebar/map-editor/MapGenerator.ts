@@ -60,7 +60,6 @@ function verifyMapGuarantees(turn: Turn) {
         const loc = turn.map.staticMap.spawnLocations[i]
         for (let x = loc.x - 1; x <= loc.x + 1; x++) {
             for (let y = loc.y - 1; y <= loc.y + 1; y++) {
-                if (x == loc.x && y == loc.y) continue
                 if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
                 const mapIdx = turn.map.locationToIndex(x, y)
                 if (
@@ -73,8 +72,8 @@ function verifyMapGuarantees(turn: Turn) {
             }
         }
     }
-    if (totalSpawnableLocations < 18) {
-        return `Map has ${totalSpawnableLocations} spawnable locations. Must have at least 9 for each team`
+    if (totalSpawnableLocations < 9 * 3 * 2) {
+        return `Map has ${totalSpawnableLocations} spawnable locations. Must have 9 * 3 for each team`
     }
 
     const floodMask = new Int8Array(turn.map.width * turn.map.height)
@@ -92,6 +91,13 @@ function verifyMapGuarantees(turn: Turn) {
             if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
             const newIdx = turn.map.locationToIndex(x, y)
             if (!turn.map.staticMap.divider[newIdx] && !floodMask[newIdx]) {
+                // Check if we can reach an enemy spawn location
+                for (let i = 0; i < turn.map.staticMap.spawnLocations.length; i++) {
+                    const loc = turn.map.staticMap.spawnLocations[i]
+                    if (loc.x == x && loc.y == y && i % 2 != 0)
+                        return `Maps cannot have spawn zones that are initially reachable by both teams`
+                }
+
                 floodMask[newIdx] = 1
                 floodQueue.push(newIdx)
                 totalFlooded++

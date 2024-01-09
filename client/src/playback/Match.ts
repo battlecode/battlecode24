@@ -25,9 +25,9 @@ export default class Match {
     constructor(
         public readonly game: Game,
         private readonly deltas: schema.Round[],
-        public readonly maxTurn: number,
-        public readonly winner: Team,
-        public readonly winType: schema.WinType,
+        public maxTurn: number,
+        public winner: Team | null,
+        public winType: schema.WinType | null,
         public readonly map: StaticMap,
         firstBodies: Bodies,
         firstStats: TurnStat
@@ -59,11 +59,8 @@ export default class Match {
         game: Game,
         header: schema.MatchHeader,
         turns: schema.Round[],
-        footer: schema.MatchFooter
+        footer?: schema.MatchFooter
     ) {
-        const winner = game.teams[footer.winner() - 1]
-        const winType = footer.winType()
-
         const mapData = header.map() ?? assert.fail('Map data not found in header')
         const map = StaticMap.fromSchema(mapData)
 
@@ -83,7 +80,26 @@ export default class Match {
 
         const maxTurn = deltas.length
 
-        return new Match(game, deltas, maxTurn, winner, winType, map, firstBodies, firstStats)
+        const match = new Match(game, deltas, maxTurn, null, null, map, firstBodies, firstStats)
+        if (footer) match.addMatchFooter(footer)
+
+        return match
+    }
+
+    /*
+     * Add a new turn to the match. Used for live match replaying.
+     */
+    public addNewTurn(round: schema.Round): void {
+        this.deltas.push(round)
+        this.maxTurn++
+    }
+
+    /*
+     * Add the match footer to the match. Used for live match replaying.
+     */
+    public addMatchFooter(footer: schema.MatchFooter): void {
+        this.winner = this.game.teams[footer.winner() - 1]
+        this.winType = footer.winType()
     }
 
     /**
