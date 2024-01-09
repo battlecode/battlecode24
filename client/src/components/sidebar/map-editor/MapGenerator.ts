@@ -60,7 +60,6 @@ function verifyMapGuarantees(turn: Turn) {
         const loc = turn.map.staticMap.spawnLocations[i]
         for (let x = loc.x - 1; x <= loc.x + 1; x++) {
             for (let y = loc.y - 1; y <= loc.y + 1; y++) {
-                if (x == loc.x && y == loc.y) continue
                 if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
                 const mapIdx = turn.map.locationToIndex(x, y)
                 if (
