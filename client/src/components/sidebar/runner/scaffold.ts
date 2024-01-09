@@ -223,16 +223,16 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
     const fromWin = await path.dirname(await path.dirname(appPath))
     // scaffold/client/resources/app.asar
     const from3 = await path.dirname(await path.dirname(await path.dirname(appPath)))
-    // scaffold/Battlecode Client.app/Contents/Resources/app.asar
+    // scaffold/client/Battlecode Client.app/Contents/Resources/app.asar
     const fromMac = await path.dirname(
         await path.dirname(await path.dirname(await path.dirname(await path.dirname(appPath))))
     )
 
-    if (await fs.exists(from3)) {
+    if (await fs.exists(await path.join(from3, 'gradlew'))) {
         return from3
-    } else if (await fs.exists(fromWin)) {
+    } else if (await fs.exists(await path.join(fromWin, 'gradlew'))) {
         return fromWin
-    } else if (await fs.exists(fromMac)) {
+    } else if (await fs.exists(await path.join(fromMac, 'gradlew'))) {
         return fromMac
     }
 
