@@ -99,7 +99,7 @@ public class GameConstants {
     public static final int GLOBAL_UPGRADE_ROUNDS = 750;
 
     /** Number of rounds robots must spend in jail before respawning */
-    public static final int JAILED_ROUNDS = 10;
+    public static final int JAILED_ROUNDS = 25;
 
     /** The maximum distance from a robot where information can be sensed */
     public static final int VISION_RADIUS_SQUARED = 20;
