@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { useAppContext } from '../../app-context'
 
+const TIMELINE_WIDTH = 350
 interface Props {
     currentUPS: number
 }
@@ -27,19 +28,33 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
         if (e.buttons === 1) timelineDown(e)
     }
 
+    const timelineLeave = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (down.current) {
+            // if exiting from left or right, jump to min or max turn
+            const rect = e.currentTarget.getBoundingClientRect()
+            const x = e.clientX - rect.left
+            if (x <= 0) {
+                appContext.state.activeGame!.currentMatch!.jumpToTurn(0)
+            } else if (x >= rect.width) {
+                appContext.state.activeGame!.currentMatch!.jumpToEnd()
+            }
+        }
+        timelineUp(e)
+    }
+
     // TODO: should have a defined constant somewhere else
     const maxTurn = appContext.state.tournament ? 2000 : appContext.state.activeGame!.currentMatch!.maxTurn
 
     const timelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
-        const turn = Math.floor((x / 350) * maxTurn)
+        const turn = Math.floor((x / TIMELINE_WIDTH) * maxTurn)
         appContext.state.activeGame!.currentMatch!.jumpToTurn(turn)
     }
 
     if (!appContext.state.activeGame || !appContext.state.activeGame.currentMatch)
         return (
-            <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
+            <div className={`min-w-[${TIMELINE_WIDTH}px] min-h-[30px] bg-bg rounded-md mr-2 relative`}>
                 <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs pointer-events-none">
                     Upload Game File
                 </p>
@@ -50,7 +65,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
     const turn = appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
     const turnPercentage = () => (1 - turn / maxTurn) * 100 + '%'
     return (
-        <div className="min-w-[350px] min-h-[30px] bg-bg rounded-md mr-2 relative">
+        <div className={`min-w-[${TIMELINE_WIDTH}px] min-h-[30px] bg-bg rounded-md mr-2 relative`}>
             <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
                 Turn: <b>{turn}</b>/{maxTurn} &nbsp; {appContext.state.updatesPerSecond} UPS (
                 {appContext.state.updatesPerSecond < 0 && '-'}
@@ -66,7 +81,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
                 onMouseMove={timelineHover}
                 onMouseDown={timelineDown}
                 onMouseUp={timelineUp}
-                onMouseLeave={timelineUp}
+                onMouseLeave={timelineLeave}
                 onMouseEnter={tilelineEnter}
             ></div>
         </div>
