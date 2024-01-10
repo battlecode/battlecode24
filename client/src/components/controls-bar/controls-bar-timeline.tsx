@@ -54,7 +54,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
 
     if (!appContext.state.activeGame || !appContext.state.activeGame.currentMatch)
         return (
-            <div className={`min-w-[${TIMELINE_WIDTH}px] min-h-[30px] bg-bg rounded-md mr-2 relative`}>
+            <div className="min-h-[30px] bg-bg rounded-md mr-2 relative" style={{ minWidth: TIMELINE_WIDTH }}>
                 <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs pointer-events-none">
                     Upload Game File
                 </p>
@@ -65,7 +65,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ currentUPS }) => {
     const turn = appContext.state.activeGame!.currentMatch!.currentTurn.turnNumber
     const turnPercentage = () => (1 - turn / maxTurn) * 100 + '%'
     return (
-        <div className={`min-w-[${TIMELINE_WIDTH}px] min-h-[30px] bg-bg rounded-md mr-2 relative`}>
+        <div className="min-h-[30px] bg-bg rounded-md mr-2 relative" style={{ minWidth: TIMELINE_WIDTH }}>
             <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
                 Turn: <b>{turn}</b>/{maxTurn} &nbsp; {appContext.state.updatesPerSecond} UPS (
                 {appContext.state.updatesPerSecond < 0 && '-'}
