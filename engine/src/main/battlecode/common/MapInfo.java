@@ -59,6 +59,8 @@ public class MapInfo {
      * Returns if this square is a dam
      * 
      * @return whether this square is a dam
+     * 
+     * @battlecode.doc.costlymethod
      */
     public boolean isDam() {
         return isDam;
@@ -81,6 +83,8 @@ public class MapInfo {
      * 0 if this square is not a spawn zone.
      * 
      * @return 1 or 2 if the square is a Team A or B spawn zone, respectively; 0 otherwise
+     * 
+     * @battlecode.doc.costlymethod
      */
     public int getSpawnZoneTeam() {
         return spawnZone;
@@ -113,6 +117,8 @@ public class MapInfo {
      * Returns the trap type of a friendly trap. TrapType.NONE if there
      * is no trap or there is an enemy trap.
      * @return The trap type
+     * 
+     * @battlecode.doc.costlymethod
      */
     public TrapType getTrapType() {
         return trapType;
@@ -135,6 +141,8 @@ public class MapInfo {
      * either team will return Team.NEUTRAL.
      * 
      * @return The team territory that this location is a part of
+     * 
+     * @battlecode.doc.costlymethod
      */
     public Team getTeamTerritory() {
         return territory;
