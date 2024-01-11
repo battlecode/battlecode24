@@ -58,10 +58,9 @@ export default class Bodies {
             const id = movedIds[i]
             const body = this.bodies.get(id)
 
-            assert(allowNullBodies || (!body?.dead && !body?.jailed), `Moved body ${id} is dead`)
             assert(allowNullBodies || !!body, `Moved body ${id} not found in bodies`)
 
-            if (body && !body.dead) body.moveTo({ x: xsArray[i], y: ysArray[i] })
+            if (body) body.moveTo({ x: xsArray[i], y: ysArray[i] })
         }
     }
 
