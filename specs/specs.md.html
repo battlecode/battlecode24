@@ -157,8 +157,8 @@ Flags can potentially be stacked on the same tile if two units carrying flags ar
 | Name | Cost | Function | Action cooldown
 | --- | --- | --- | ---
 | Explosive trap | 250 crumbs | Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing **750** damage to all opponent robots within a radius of $\sqrt{13}$ cells. When an opponent robot digs, fills, or tries to build on the trap, it explodes dealing **500** damage to all opponent robots within a radius of $\sqrt{9}$ cells. | 5
-| Water trap | 100 crumbs | Can only be built on land. Digs all non-occupied land in a radius of $\sqrt{9}$ when an opponent robot enters an adjacent tile. | 5
-| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters an adjacent tile, setting all of those robots’ movement and action cooldowns to **40**. | 5
+| Water trap | 100 crumbs | Can only be built on land. Digs all non-occupied land in a radius of $\sqrt{9}$ when an opponent robot enters a tile within 1 unit of the trap. | 5
+| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters a tile within 1 unit of the trap, setting all of those robots’ movement and action cooldowns to **40**. | 5
 
 # **Global Upgrades**
 
@@ -310,6 +310,7 @@ If something is unclear, direct your questions to our Discord where other people
 - Version 1.2.0
   - Spec fixes
     - Clarified definition of enemy territory
+    - Clarified trap triggering behavior
     - Fixed incorrect respawn delay value
   - Engine fixes
     - Fixed enemy tetrritory detection issue for crumb rewards

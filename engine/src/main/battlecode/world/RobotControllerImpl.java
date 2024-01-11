@@ -298,7 +298,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         ArrayList<FlagInfo> flagInfos = new ArrayList<>();
         for(Flag x : gameWorld.getAllFlags()) {
             if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
-                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
+                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp(), x.getId()));
             }
         }
         return flagInfos.toArray(new FlagInfo[flagInfos.size()]);
