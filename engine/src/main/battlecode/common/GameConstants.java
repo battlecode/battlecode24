@@ -77,7 +77,7 @@ public class GameConstants {
     /** Number of rounds between updating the random noisy flag broadcast location */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
 
-    /** The maximum squared distance bewteen the actual flag locaiton and the noisy broadcast location */
+    /** The maximum squared distance bewteen the actual flag location and the noisy broadcast location */
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
 
     /** The default number of rounds before dropped flags reset to their default locations */

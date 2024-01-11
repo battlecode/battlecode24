@@ -417,7 +417,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
             int newEnemyHealth = bot.getHealth() - dmg;
             if(newEnemyHealth <= 0) {
-                if(gameWorld.getTeamSide(getLocation()) == team.opponent().ordinal()) {
+                if(gameWorld.getTeamSide(getLocation()) == (team.opponent() == Team.A ? 1 : 2)) {
                     addResourceAmount(GameConstants.KILL_CRUMB_REWARD);
                 }
             }
