@@ -96,7 +96,7 @@ export const Tooltip = ({
     const tooltipContent = hoveredBody
         ? hoveredBody.onHoverInfo()
         : hoveredSquare
-        ? map.getTooltipInfo(hoveredSquare)
+        ? map.getTooltipInfo(hoveredSquare, appContext.state.activeMatch!)
         : []
     if (tooltipContent.length === 0) showFloatingTooltip = false
 

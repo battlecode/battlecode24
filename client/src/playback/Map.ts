@@ -249,7 +249,7 @@ export class CurrentMap {
         }
     }
 
-    getTooltipInfo(square: Vector): string[] {
+    getTooltipInfo(square: Vector, match: Match): string[] {
         const schemaIdx = this.locationToIndex(square.x, square.y)
         const resourcePile = this.resourcePileData.get(schemaIdx)
         const trap = [...this.trapData.values()].find((x) => x.location.x == square.x && x.location.y == square.y)
@@ -258,7 +258,7 @@ export class CurrentMap {
         const divider = this.staticMap.divider[schemaIdx]
         const walls = this.staticMap.walls[schemaIdx]
         const info: string[] = []
-        if (resourcePile) {
+        if (resourcePile && resourcePile.amount > 0) {
             info.push(`Crumbs: ${resourcePile.amount}`)
         }
         if (trap) {
@@ -271,7 +271,10 @@ export class CurrentMap {
             info.push(`Water`)
         }
         if (divider) {
-            info.push(`Divider`)
+            const dividerUp = match.currentTurn.turnNumber < match.constants.setupPhaseLength()
+            if (dividerUp) {
+                info.push(`Divider`)
+            }
         }
         if (walls) {
             info.push(`Walls`)
