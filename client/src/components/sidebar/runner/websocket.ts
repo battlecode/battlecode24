@@ -14,6 +14,7 @@ export default class WebSocketListener {
     pollEvery: number = 500
     activeGame: Game | null = null
     stream: boolean = false
+    lastSetTurn: number = 0
     constructor(
         private shouldStream: boolean,
         readonly onGameCreated: (game: Game) => void,
@@ -29,6 +30,7 @@ export default class WebSocketListener {
 
     private reset() {
         this.activeGame = null
+        this.lastSetTurn = 0
     }
 
     private poll() {
@@ -51,6 +53,24 @@ export default class WebSocketListener {
         }
     }
 
+    private visualUpdate() {
+        if (!this.activeGame) return
+
+        const match = this.activeGame.matches[this.activeGame.matches.length - 1]
+        if (match) {
+            // Auto progress the turn if the user hasn't done it themselves
+            if (match.currentTurn.turnNumber == this.lastSetTurn) {
+                match.jumpToEnd(true)
+                this.lastSetTurn = match.currentTurn.turnNumber
+            } else {
+                // Publish anyways so the control bar updates
+                publishEvent(EventType.TURN_PROGRESS, {})
+            }
+        }
+
+        window.requestAnimationFrame(() => this.visualUpdate())
+    }
+
     private handleEvent(data: ArrayBuffer) {
         const event = schema.EventWrapper.getRootAsEventWrapper(new flatbuffers.ByteBuffer(new Uint8Array(data)))
         const eventType = event.eType()
@@ -68,6 +88,7 @@ export default class WebSocketListener {
 
             if (this.stream) {
                 this.onGameCreated(this.activeGame)
+                window.requestAnimationFrame(() => this.visualUpdate())
             }
 
             return
@@ -81,20 +102,6 @@ export default class WebSocketListener {
 
                 const match = this.activeGame.matches[this.activeGame.matches.length - 1]
                 this.onMatchCreated(match)
-
-                break
-            }
-            case schema.Event.Round: {
-                if (!this.stream) break
-
-                const match = this.activeGame.matches[this.activeGame.matches.length - 1]
-                // Auto progress the turn if the user hasn't done it themselves
-                if (match.currentTurn.turnNumber == match.maxTurn - 1) {
-                    match.jumpToEnd(true)
-                } else {
-                    // Publish anyways so the control bar updates
-                    publishEvent(EventType.TURN_PROGRESS, {})
-                }
 
                 break
             }
