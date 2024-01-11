@@ -239,21 +239,25 @@ const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
                 <label>Java Instance</label>
                 <Select
                     className="w-full"
-                    value={props.java ? props.java.path : ''}
+                    value={props.java ? JSON.stringify(props.java) : ''}
                     onChange={(e) => {
                         if (e == '') {
                             props.onSelect(undefined)
                         } else if (e == 'CUSTOM') {
                             setSelectPath(true)
                         } else {
-                            props.onSelect(props.javaInstalls.find((j) => j.path == e)!)
+                            const parsed = JSON.parse(e)
+                            const found = props.javaInstalls.find(
+                                (j) => j.path == parsed.path && j.display == parsed.display
+                            )!
+                            props.onSelect(found)
                         }
                     }}
                 >
                     <option value={''}>Auto</option>
                     <option value={'CUSTOM'}>Custom</option>
                     {props.javaInstalls.map((t) => (
-                        <option key={t.path} value={t.path}>
+                        <option key={JSON.stringify(t)} value={JSON.stringify(t)}>
                             {t.display}
                         </option>
                     ))}
