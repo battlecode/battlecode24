@@ -145,7 +145,7 @@ Robots can sense all flags within vision radius at all times, including flags th
 
 Robots can pick up and drop flags as described in the actions section. While holding a flag, robots cannot perform any actions besides movement, and robots may carry only one flag at a time. If your robot enters a friendly spawn zone while carrying an enemy flag, your team captures the flag and it is permanently removed from the game. Flags cannot be captured by being dropped into the spawn zone.
 
-If a robot dies while carrying a flag, the flag is immediately dropped on the ground at the robot’s location. The defenders must prevent the flag from being reacquired. If the flag remains on the ground for a base of **4 **rounds, it instantly returns to its default location as described in the Setup section.
+If a robot dies while carrying a flag, the flag is immediately dropped on the ground at the robot’s location. The defenders must prevent the flag from being reacquired. If the flag remains on the ground for a base of **4** rounds, it instantly returns to its default location as described in the Setup section.
 
 Flags can potentially be stacked on the same tile if two units carrying flags are jailed in the same location. Both flags will maintain independent timers before they return to their original locations. When performing a pickup on that tile, the oldest dropped flag will be picked up first.
 
@@ -306,6 +306,15 @@ If something is unclear, direct your questions to our Discord where other people
     - Added new spawn zone map guarantee checks in the map editor
     - Fixed some issues with the default scaffold locator
     - Fixed overscrolling and overflow styling issues
+
+- Version 1.2.0
+  - Spec fixes
+    - Clarified definition of enemy territory
+    - Fixed incorrect respawn delay value
+  - Engine fixes
+    - Fixed enemy tetrritory detection issue for crumb rewards
+    - Fixed javadoc typos
+    - Fixed negative XP issue
 
 <!-- Footnotes themselves at the bottom. -->
 ## Notes
