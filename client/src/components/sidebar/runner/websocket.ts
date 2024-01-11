@@ -13,12 +13,18 @@ export default class WebSocketListener {
     url: string = 'ws://localhost:6175'
     pollEvery: number = 500
     activeGame: Game | null = null
+    stream: boolean = false
     constructor(
+        private shouldStream: boolean,
         readonly onGameCreated: (game: Game) => void,
         readonly onMatchCreated: (match: Match) => void,
-        readonly onGameComplete: () => void
+        readonly onGameComplete: (game: Game) => void
     ) {
         this.poll()
+    }
+
+    public setShouldStream(stream: boolean) {
+        this.shouldStream = stream
     }
 
     private reset() {
@@ -51,7 +57,19 @@ export default class WebSocketListener {
 
         if (this.activeGame === null) {
             assert(eventType === schema.Event.GameHeader, 'First event must be GameHeader')
-            this.sendInitialGame(event)
+
+            const fakeGameWrapper: FakeGameWrapper = {
+                events: () => event,
+                eventsLength: () => 1
+            }
+
+            this.stream = this.shouldStream
+            this.activeGame = new Game(fakeGameWrapper)
+
+            if (this.stream) {
+                this.onGameCreated(this.activeGame)
+            }
+
             return
         }
 
@@ -59,11 +77,16 @@ export default class WebSocketListener {
 
         switch (eventType) {
             case schema.Event.MatchHeader: {
+                if (!this.stream) break
+
                 const match = this.activeGame.matches[this.activeGame.matches.length - 1]
-                this.sendInitialMatch(match)
+                this.onMatchCreated(match)
+
                 break
             }
             case schema.Event.Round: {
+                if (!this.stream) break
+
                 const match = this.activeGame.matches[this.activeGame.matches.length - 1]
                 // Auto progress the turn if the user hasn't done it themselves
                 if (match.currentTurn.turnNumber == match.maxTurn - 1) {
@@ -72,34 +95,18 @@ export default class WebSocketListener {
                     // Publish anyways so the control bar updates
                     publishEvent(EventType.TURN_PROGRESS, {})
                 }
+
                 break
             }
             case schema.Event.GameFooter: {
-                this.sendCompleteGame()
+                publishEvent(EventType.TURN_PROGRESS, {})
+                this.onGameComplete(this.activeGame!)
+                this.reset()
+
                 break
             }
             default:
                 break
         }
-    }
-
-    private sendInitialGame(headerEvent: schema.EventWrapper) {
-        const fakeGameWrapper: FakeGameWrapper = {
-            events: () => headerEvent,
-            eventsLength: () => 1
-        }
-
-        this.activeGame = new Game(fakeGameWrapper)
-
-        this.onGameCreated(this.activeGame)
-    }
-
-    private sendInitialMatch(match: Match) {
-        this.onMatchCreated(match)
-    }
-
-    private sendCompleteGame() {
-        this.onGameComplete()
-        this.reset()
     }
 }

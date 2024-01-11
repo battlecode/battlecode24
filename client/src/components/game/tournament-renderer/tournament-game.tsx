@@ -35,7 +35,7 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
                     ...prevState,
                     activeGame: loadedGame,
                     activeMatch: loadedGame.currentMatch,
-                    queue: appContext.state.queue.concat([loadedGame])
+                    queue: prevState.queue.concat([loadedGame])
                 }))
                 game.viewed = true
                 setPage(PageType.GAME)

@@ -120,7 +120,7 @@ export function useScaffold(): Scaffold {
         const onGameCreated = (game: Game) => {
             appContext.setState((prevState) => ({
                 ...prevState,
-                queue: appContext.state.queue.concat([game]),
+                queue: prevState.queue.concat([game]),
                 activeGame: game,
                 activeMatch: game.currentMatch
             }))
@@ -134,8 +134,33 @@ export function useScaffold(): Scaffold {
             }))
         }
 
-        setWebSocketListener(new WebSocketListener(onGameCreated, onMatchCreated, () => {}))
+        const onGameComplete = (game: Game) => {
+            // Reset all matches to beginning
+            for (const match of game.matches) {
+                match.jumpToTurn(0, true)
+            }
+
+            appContext.setState((prevState) => ({
+                ...prevState,
+                queue: prevState.queue.find((g) => g == game) ? prevState.queue : prevState.queue.concat([game]),
+                activeGame: game,
+                activeMatch: game.matches[0]
+            }))
+        }
+
+        setWebSocketListener(
+            new WebSocketListener(
+                appContext.state.config.streamRunnerGames,
+                onGameCreated,
+                onMatchCreated,
+                onGameComplete
+            )
+        )
     }, [])
+
+    useEffect(() => {
+        if (webSocketListener) webSocketListener.setShouldStream(appContext.state.config.streamRunnerGames)
+    }, [appContext.state.config.streamRunnerGames])
 
     useEffect(() => {
         reloadData()
