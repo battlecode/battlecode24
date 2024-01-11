@@ -101,7 +101,7 @@ export const Tooltip = ({
     if (tooltipContent.length === 0) showFloatingTooltip = false
 
     return (
-        <>
+        <div style={{ WebkitUserSelect: 'none', userSelect: 'none' }}>
             {showFloatingTooltip && (
                 <div
                     className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
@@ -132,7 +132,7 @@ export const Tooltip = ({
                     {`(X: ${hoveredSquare.x}, Y: ${hoveredSquare.y})`}
                 </div>
             )}
-        </>
+        </div>
     )
 }
 
