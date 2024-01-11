@@ -117,6 +117,8 @@ export default class Bodies {
             body.healsPerformed = delta.healsPerformed(i)!
             body.attacksPerformed = delta.attacksPerformed(i)!
             body.buildsPerformed = delta.buildsPerformed(i)!
+            body.moveCooldown = delta.robotMoveCooldowns(i)!
+            body.actionCooldown = delta.robotActionCooldowns(i)!
             body.hp = delta.robotHealths(i)!
         }
 
@@ -343,6 +345,8 @@ export class Body {
     public indicatorString: string = ''
     public dead: boolean = false
     public jailed: boolean = false
+    public moveCooldown: number = 0
+    public actionCooldown: number = 0
     constructor(
         private game: Game,
         public pos: Vector,
@@ -507,7 +511,7 @@ export class Body {
 
     public onHoverInfo(): string[] {
         const defaultInfo = [
-            (this.dead ? 'DEAD: ' : '') + this.robotName,
+            (this.dead ? 'JAILED: ' : '') + this.robotName,
             `ID: ${this.id}`,
             `HP: ${this.hp}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
@@ -515,6 +519,8 @@ export class Body {
             `Attack Lvl: ${this.attackLevel} (${this.attacksPerformed} exp)`,
             `Build Lvl: ${this.buildLevel} (${this.buildsPerformed} exp)`,
             `Heal Lvl: ${this.healLevel} (${this.healsPerformed} exp)`,
+            `Move Cooldown: ${this.moveCooldown}`,
+            `Action Cooldown: ${this.actionCooldown}`,
             `Bytecodes Used: ${this.bytecodesUsed}`
         ]
         if (this.indicatorString != '') {
@@ -584,10 +590,14 @@ export const BODY_DEFINITIONS: Record<number, typeof Body> = {
     // one type pointed to by 0:
 
     0: class Duck extends Body {
+        public robotName = 'Duck'
+
         constructor(game: Game, pos: Vector, hp: number, team: Team, id: number) {
             super(game, pos, hp, team, id)
             this.actionRadius = game.constants.actionRadius()
             this.visionRadius = game.constants.visionRadius()
+
+            this.robotName = `${team.colorName} Duck`
         }
 
         public draw(
