@@ -78,7 +78,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         Trap trap = gw.getTrap(loc);
         TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDam(loc),
             gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
 
         return currentLocInfo;

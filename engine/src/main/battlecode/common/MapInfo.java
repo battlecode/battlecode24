@@ -8,6 +8,8 @@ public class MapInfo {
 
     private boolean isWall;
 
+    private boolean isDam;
+
     // 1 = Team A, 2 = Team B, 0 = not a spawn zone
     private int spawnZone;
 
@@ -17,10 +19,11 @@ public class MapInfo {
 
     private TrapType trapType;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDam, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
+        this.isDam = isDam;
         this.spawnZone = spawnZone;
         this.isWater = isWater;
         this.crumbsAmount = crumbsAmount;
@@ -47,6 +50,15 @@ public class MapInfo {
      */
     public boolean isWall() {
         return isWall;
+    }
+
+    /**
+     * Returns if this square is a dam
+     * 
+     * @return whether this square is a dam
+     */
+    public boolean isDam() {
+        return isDam;
     }
 
     /**
