@@ -144,11 +144,14 @@ export function useScaffold(): Scaffold {
                 match.jumpToTurn(0, true)
             }
 
+            // Start at first match
+            game.currentMatch = game.matches[0]
+
             appContext.setState((prevState) => ({
                 ...prevState,
                 queue: prevState.queue.find((g) => g == game) ? prevState.queue : prevState.queue.concat([game]),
                 activeGame: game,
-                activeMatch: game.matches[0]
+                activeMatch: game.currentMatch
             }))
         }
 

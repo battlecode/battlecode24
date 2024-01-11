@@ -102,6 +102,7 @@ export default class WebSocketListener {
 
                 const match = this.activeGame.matches[this.activeGame.matches.length - 1]
                 this.onMatchCreated(match)
+                this.lastSetTurn = 0
 
                 break
             }
