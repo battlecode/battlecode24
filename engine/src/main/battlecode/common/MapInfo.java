@@ -19,7 +19,9 @@ public class MapInfo {
 
     private TrapType trapType;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDam, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
+    private Team territory;
+
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDam, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType, Team territory){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
@@ -28,6 +30,7 @@ public class MapInfo {
         this.isWater = isWater;
         this.crumbsAmount = crumbsAmount;
         this.trapType = trapType;
+        this.territory = territory;
     }
 
     /**
@@ -124,6 +127,17 @@ public class MapInfo {
      */
     public MapLocation getMapLocation() {
         return loc;
+    }
+
+    /**
+     * Returns which team's territory this location is a part of. A location is in a team's territory
+     * if it was accessible to that team's robots during the setup phase. Locations initially inaccessible to
+     * either team will return Team.NEUTRAL.
+     * 
+     * @return The team territory that this location is a part of
+     */
+    public Team getTeamTerritory() {
+        return territory;
     }
 
     public String toString(){

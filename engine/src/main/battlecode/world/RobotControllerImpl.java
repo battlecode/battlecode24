@@ -3,7 +3,6 @@ package battlecode.world;
 import battlecode.common.*;
 
 import static battlecode.common.GameActionExceptionType.*;
-import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 import battlecode.util.FlatHelpers;
 
@@ -78,8 +77,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         Trap trap = gw.getTrap(loc);
         TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : TrapType.NONE;
+
+        int territory = gameWorld.getTeamSide(loc);
+        Team territoryTeam = null;
+        if(territory == 0) territoryTeam = Team.NEUTRAL;
+        else territoryTeam = territory == 1 ? Team.A : Team.B;
+
         MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDam(loc),
-            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
+            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type, territoryTeam);
 
         return currentLocInfo;
     }
