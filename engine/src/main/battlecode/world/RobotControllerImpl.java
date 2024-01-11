@@ -828,6 +828,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
         this.robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         robot.removeFlag();   
+        this.robot.addMovementCooldownTurns();
     }
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {
