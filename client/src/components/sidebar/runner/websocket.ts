@@ -13,16 +13,24 @@ export default class WebSocketListener {
     url: string = 'ws://localhost:6175'
     pollEvery: number = 500
     activeGame: Game | null = null
+    stream: boolean = false
+    lastSetTurn: number = 0
     constructor(
+        private shouldStream: boolean,
         readonly onGameCreated: (game: Game) => void,
         readonly onMatchCreated: (match: Match) => void,
-        readonly onGameComplete: () => void
+        readonly onGameComplete: (game: Game) => void
     ) {
         this.poll()
     }
 
+    public setShouldStream(stream: boolean) {
+        this.shouldStream = stream
+    }
+
     private reset() {
         this.activeGame = null
+        this.lastSetTurn = 0
     }
 
     private poll() {
@@ -45,13 +53,44 @@ export default class WebSocketListener {
         }
     }
 
+    private visualUpdate() {
+        if (!this.activeGame) return
+
+        const match = this.activeGame.matches[this.activeGame.matches.length - 1]
+        if (match) {
+            // Auto progress the turn if the user hasn't done it themselves
+            if (match.currentTurn.turnNumber == this.lastSetTurn) {
+                match.jumpToEnd(true)
+                this.lastSetTurn = match.currentTurn.turnNumber
+            } else {
+                // Publish anyways so the control bar updates
+                publishEvent(EventType.TURN_PROGRESS, {})
+            }
+        }
+
+        window.requestAnimationFrame(() => this.visualUpdate())
+    }
+
     private handleEvent(data: ArrayBuffer) {
         const event = schema.EventWrapper.getRootAsEventWrapper(new flatbuffers.ByteBuffer(new Uint8Array(data)))
         const eventType = event.eType()
 
         if (this.activeGame === null) {
             assert(eventType === schema.Event.GameHeader, 'First event must be GameHeader')
-            this.sendInitialGame(event)
+
+            const fakeGameWrapper: FakeGameWrapper = {
+                events: () => event,
+                eventsLength: () => 1
+            }
+
+            this.stream = this.shouldStream
+            this.activeGame = new Game(fakeGameWrapper)
+
+            if (this.stream) {
+                this.onGameCreated(this.activeGame)
+                window.requestAnimationFrame(() => this.visualUpdate())
+            }
+
             return
         }
 
@@ -59,47 +98,23 @@ export default class WebSocketListener {
 
         switch (eventType) {
             case schema.Event.MatchHeader: {
+                if (!this.stream) break
+
                 const match = this.activeGame.matches[this.activeGame.matches.length - 1]
-                this.sendInitialMatch(match)
-                break
-            }
-            case schema.Event.Round: {
-                const match = this.activeGame.matches[this.activeGame.matches.length - 1]
-                // Auto progress the turn if the user hasn't done it themselves
-                if (match.currentTurn.turnNumber == match.maxTurn - 1) {
-                    match.jumpToEnd(true)
-                } else {
-                    // Publish anyways so the control bar updates
-                    publishEvent(EventType.TURN_PROGRESS, {})
-                }
+                this.onMatchCreated(match)
+                this.lastSetTurn = 0
+
                 break
             }
             case schema.Event.GameFooter: {
-                this.sendCompleteGame()
+                publishEvent(EventType.TURN_PROGRESS, {})
+                this.onGameComplete(this.activeGame!)
+                this.reset()
+
                 break
             }
             default:
                 break
         }
-    }
-
-    private sendInitialGame(headerEvent: schema.EventWrapper) {
-        const fakeGameWrapper: FakeGameWrapper = {
-            events: () => headerEvent,
-            eventsLength: () => 1
-        }
-
-        this.activeGame = new Game(fakeGameWrapper)
-
-        this.onGameCreated(this.activeGame)
-    }
-
-    private sendInitialMatch(match: Match) {
-        this.onMatchCreated(match)
-    }
-
-    private sendCompleteGame() {
-        this.onGameComplete()
-        this.reset()
     }
 }

@@ -1,6 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-const invoke = (command, ...args) => ipcRenderer.invoke('electronAPI', command, ...args)
+const invoke = (command, ...args) => {
+    return new Promise(async (resolve, reject) => {
+        const result = await ipcRenderer.invoke('electronAPI', command, ...args)
+        if (result && result.ELECTRON_ERROR !== undefined) {
+            reject(result.ELECTRON_ERROR)
+        }
+        resolve(result)
+    })
+}
 
 const electronAPI = {
     openScaffoldDirectory: (...args) => invoke('openScaffoldDirectory', ...args),
