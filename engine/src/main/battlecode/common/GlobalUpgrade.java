@@ -8,7 +8,7 @@ package battlecode.common;
 public enum GlobalUpgrade {
 
     /**
-     * Action upgrade increases the amount cooldown drops per round by 6.
+     * Action upgrade increases the amount cooldown drops per round by 4.
      */
     ACTION(4, 0, 0),
 

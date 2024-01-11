@@ -37,7 +37,7 @@ public enum SkillType{
     public int getExperience(int level){
         int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
         int[] buildExperience = {0, 5, 10, 15, 20, 25, 30};
-        int[] healExperience = {0, 10, 20, 30, 50, 75, 125};
+        int[] healExperience = {0, 15, 30, 45, 75, 110, 150};
         switch(this){
             case ATTACK: return attackExperience[level];
             case BUILD: return buildExperience[level];
@@ -108,6 +108,20 @@ public enum SkillType{
             case HEAL: return healPenalty[level];
         }
         return 0;
+    }
+
+    /**
+     * Returns the level of specialization a robot is given their experience
+     * 
+     * @param experience how much experience in the skill the robot has
+     * @return the level in the skill the robot is
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public int getLevel(int experience){
+        int level = 0;
+        while (level < 6 && this.getExperience(level+1) <= experience ) level += 1;
+        return level;
     }
 
     SkillType(int skillEffect, int cooldown){

@@ -9,7 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.0.0";
+    public static final String SPEC_VERSION = "1.1.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -89,6 +89,9 @@ public class GameConstants {
     /** The amount of crumbs each team gains per turn. */
     public static final int PASSIVE_CRUMBS_INCREASE = 10;
 
+    /** The amount of crumbs you gain if your bot kills an enemy while in enemy territory */
+    public static final int KILL_CRUMB_REWARD = 50;
+
     /** The end of the setup rounds in the game */
     public static final int SETUP_ROUNDS = 200;
 
@@ -96,7 +99,7 @@ public class GameConstants {
     public static final int GLOBAL_UPGRADE_ROUNDS = 750;
 
     /** Number of rounds robots must spend in jail before respawning */
-    public static final int JAILED_ROUNDS = 10;
+    public static final int JAILED_ROUNDS = 25;
 
     /** The maximum distance from a robot where information can be sensed */
     public static final int VISION_RADIUS_SQUARED = 20;

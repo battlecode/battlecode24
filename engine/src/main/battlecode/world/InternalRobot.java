@@ -187,11 +187,15 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.health == health
-                && cachedRobotInfo.location.equals(location)) {
+                && cachedRobotInfo.location.equals(location)
+                && cachedRobotInfo.attackLevel == SkillType.ATTACK.getLevel(attackExp)
+                && cachedRobotInfo.healLevel == SkillType.HEAL.getLevel(healExp)
+                && cachedRobotInfo.buildLevel == SkillType.BUILD.getLevel(buildExp)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null);
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null, 
+        SkillType.ATTACK.getLevel(attackExp), SkillType.HEAL.getLevel(healExp), SkillType.BUILD.getLevel(buildExp));
         return this.cachedRobotInfo;
     }
 
@@ -410,6 +414,14 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             this.getGameWorld().getMatchMaker().addAction(getID(), Action.ATTACK, -locationToInt(loc) - 1);
         } else {
             int dmg = getDamage();
+
+            int newEnemyHealth = bot.getHealth() - dmg;
+            if(newEnemyHealth <= 0) {
+                if(gameWorld.getTeamSide(getLocation()) == team.opponent().ordinal()) {
+                    addResourceAmount(GameConstants.KILL_CRUMB_REWARD);
+                }
+            }
+
             bot.addHealth(-dmg);
             incrementSkill(SkillType.ATTACK);
             this.gameWorld.getMatchMaker().addAction(getID(), Action.ATTACK, bot.getID());
