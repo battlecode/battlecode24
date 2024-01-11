@@ -23,6 +23,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     private final int ID;
     private Team team;
     private MapLocation location;
+    private MapLocation diedLocation;
     private int health;
     private boolean spawned;
 
@@ -61,6 +62,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.team = team;
 
         this.location = null;
+        this.diedLocation = null;
         this.health = GameConstants.DEFAULT_HEALTH;
         this.spawned = false;
         this.trapsToTrigger = new ArrayList<>();
@@ -106,6 +108,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public MapLocation getLocation() {
         return location;
+    }
+
+    public MapLocation getDiedLocation() {
+        return diedLocation;
     }
 
     public int getHealth() {
@@ -275,17 +281,6 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Sets the location of the robot (only for internal use through currents)
-     * 
-     * @param loc the new location of the robot
-     */
-    public void setLocationForCurrents(MapLocation loc) {
-        this.gameWorld.addRobot(loc, this);
-        this.gameWorld.getObjectInfo().addRobotIndex(this, loc);
-        this.location = loc;
-    }
-
-    /**
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
@@ -336,9 +331,18 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void jailedPenalty(){
         if(this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0) return;
         int attackLevel = getLevel(SkillType.ATTACK), buildLevel = getLevel(SkillType.BUILD), healLevel = getLevel(SkillType.HEAL);
-        if(attackLevel >= buildLevel && attackLevel >= healLevel) this.attackExp += SkillType.ATTACK.getPenalty(attackLevel);
-        else if(buildLevel >= attackLevel && buildLevel >= healLevel) this.buildExp += SkillType.BUILD.getPenalty(buildLevel);
-        else this.healExp += SkillType.HEAL.getPenalty(healLevel);
+        if(attackLevel >= buildLevel && attackLevel >= healLevel) {
+            this.attackExp += SkillType.ATTACK.getPenalty(attackLevel);
+            this.attackExp = Math.max(0, this.attackExp);
+        }
+        else if(buildLevel >= attackLevel && buildLevel >= healLevel){
+            this.buildExp += SkillType.BUILD.getPenalty(buildLevel);
+            this.buildExp = Math.max(0, this.buildExp);
+        } 
+        else{
+            this.healExp += SkillType.HEAL.getPenalty(healLevel);
+            this.healExp = Math.max(0, this.healExp);
+        } 
     }
 
     /**
@@ -386,6 +390,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             removeFlag();  
         }
         this.spawned = false;
+        this.diedLocation = this.location;
         this.location = null;
     }
 
@@ -417,7 +422,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
             int newEnemyHealth = bot.getHealth() - dmg;
             if(newEnemyHealth <= 0) {
-                if(gameWorld.getTeamSide(getLocation()) == team.opponent().ordinal()) {
+                if(gameWorld.getTeamSide(getLocation()) == (team.opponent() == Team.A ? 1 : 2)) {
                     addResourceAmount(GameConstants.KILL_CRUMB_REWARD);
                 }
             }
@@ -461,6 +466,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
         this.indicatorString = "";
+        this.diedLocation = null;
     }
 
     public void processBeginningOfTurn() {

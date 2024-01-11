@@ -8,10 +8,13 @@ public class FlagInfo {
 
     private boolean pickedUp;
 
-    public FlagInfo(MapLocation loc, Team team, boolean pickedUp) {
+    private int id;
+
+    public FlagInfo(MapLocation loc, Team team, boolean pickedUp, int id) {
         this.loc = loc;
         this.team = team;
         this.pickedUp = pickedUp;
+        this.id = id;
     }
 
     public MapLocation getLocation() {
@@ -24,5 +27,9 @@ public class FlagInfo {
 
     public boolean isPickedUp() {
         return pickedUp;
+    }
+
+    public int getID() {
+        return id;
     }
 }

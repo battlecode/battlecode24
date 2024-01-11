@@ -138,9 +138,15 @@ export default class Match {
             return
         }
 
-        if (this.currentSimulationStep < 0) this.stepTurn(-1, false)
-        if (this.currentSimulationStep >= MAX_SIMULATION_STEPS) this.stepTurn(1, false)
-        this.currentSimulationStep = (this.currentSimulationStep + MAX_SIMULATION_STEPS) % MAX_SIMULATION_STEPS
+        if (this.currentSimulationStep < 0) {
+            this.stepTurn(-1, false)
+            this.currentSimulationStep = MAX_SIMULATION_STEPS
+        } else if (this.currentSimulationStep >= MAX_SIMULATION_STEPS) {
+            this.stepTurn(1, false)
+            this.currentSimulationStep = 0
+        } else {
+            this.currentSimulationStep = (this.currentSimulationStep + MAX_SIMULATION_STEPS) % MAX_SIMULATION_STEPS
+        }
 
         this.rerender()
     }

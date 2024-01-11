@@ -131,7 +131,10 @@ export const GameRenderer: React.FC = () => {
     }
 
     return (
-        <div className="w-full h-screen flex items-center justify-center">
+        <div
+            className="w-full h-screen flex items-center justify-center"
+            style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
             {!activeMatch ? (
                 appContext.state.loadingRemoteContent ? (
                     <p className="text-white text-center">Loading remote game...</p>
