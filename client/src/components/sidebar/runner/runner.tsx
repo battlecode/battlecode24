@@ -286,7 +286,7 @@ export const Console: React.FC<Props> = ({ lines }) => {
             case 'output':
                 return ''
             case 'error':
-                return 'text-red-500'
+                return 'text-[#ff0000]'
             case 'bold':
                 return 'font-bold'
         }

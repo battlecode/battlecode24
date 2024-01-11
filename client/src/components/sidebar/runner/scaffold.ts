@@ -51,9 +51,13 @@ export function useScaffold(): Scaffold {
 
     async function runMatch(javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
         if (matchPID.current || !scaffoldPath) return
-        setConsoleLines([])
-        const newPID = await dispatchMatch(javaPath, teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
-        matchPID.current = newPID
+        try {
+            const newPID = await dispatchMatch(javaPath, teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
+            setConsoleLines([])
+            matchPID.current = newPID
+        } catch (e: any) {
+            setConsoleLines([{ content: e, type: 'error' }])
+        }
         forceUpdate()
     }
 
@@ -284,5 +288,5 @@ async function dispatchMatch(
         `-PenableProfiler=${false}`
     ]
 
-    return await nativeAPI.child_process.spawn(scaffoldPath, javaPath, options)
+    return nativeAPI.child_process.spawn(scaffoldPath, javaPath, options)
 }

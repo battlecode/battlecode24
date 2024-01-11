@@ -174,54 +174,57 @@ async fn tauri_api(
                 child = child.envs(envs);
             }
             let child = child.spawn();
-            if let Ok(child) = child {
-                let mut rx = child.0;
-                let child = child.1;
-                let pid = child.pid();
-                let pid_str = pid.to_string();
-                let active_processes = state.active_processes.clone();
-                std::thread::spawn(move || {
-                    //dbg!("Child process event thread spawned");
-                    loop {
-                        match rx.blocking_recv() {
-                            Some(msg) => match msg {
-                                CommandEvent::Stdout(data) => {
-                                    let _ = window.emit(
-                                        "child-process-stdout",
-                                        ChildProcessDataPayload { pid: pid.to_string(), data }
-                                    );
+            match child {
+                Ok(child) => {
+                    let mut rx = child.0;
+                    let child = child.1;
+                    let pid = child.pid();
+                    let pid_str = pid.to_string();
+                    let active_processes = state.active_processes.clone();
+                    std::thread::spawn(move || {
+                        //dbg!("Child process event thread spawned");
+                        loop {
+                            match rx.blocking_recv() {
+                                Some(msg) => match msg {
+                                    CommandEvent::Stdout(data) => {
+                                        let _ = window.emit(
+                                            "child-process-stdout",
+                                            ChildProcessDataPayload { pid: pid.to_string(), data }
+                                        );
+                                    },
+                                    CommandEvent::Stderr(data) | CommandEvent::Error(data) => {
+                                        let _ = window.emit(
+                                            "child-process-stderr",
+                                            ChildProcessDataPayload { pid: pid.to_string(), data }
+                                        );
+                                    },
+                                    CommandEvent::Terminated(term) => {
+                                        let _ = window.emit(
+                                            "child-process-exit",
+                                            ChildProcessExitPayload {
+                                                pid: pid.to_string(),
+                                                code: term.code.unwrap_or(0).to_string(),
+                                                signal: term.signal.unwrap_or(0).to_string()
+                                            }
+                                        );
+                                    }
+                                    _ => {}
                                 },
-                                CommandEvent::Stderr(data) | CommandEvent::Error(data) => {
-                                    let _ = window.emit(
-                                        "child-process-stderr",
-                                        ChildProcessDataPayload { pid: pid.to_string(), data }
-                                    );
-                                },
-                                CommandEvent::Terminated(term) => {
-                                    let _ = window.emit(
-                                        "child-process-exit",
-                                        ChildProcessExitPayload {
-                                            pid: pid.to_string(),
-                                            code: term.code.unwrap_or(0).to_string(),
-                                            signal: term.signal.unwrap_or(0).to_string()
-                                        }
-                                    );
-                                }
-                                _ => {}
-                            },
-                            None => break
+                                None => break
+                            }
                         }
-                    }
 
-                    active_processes.lock().unwrap().remove(&pid.to_string());
-                    //dbg!("Child process event thread finished");
-                });
+                        active_processes.lock().unwrap().remove(&pid.to_string());
+                        //dbg!("Child process event thread finished");
+                    });
 
-                state.active_processes.lock().unwrap().insert(pid_str.clone(), child);
+                    state.active_processes.lock().unwrap().insert(pid_str.clone(), child);
 
-                Ok(vec!(pid_str.clone()))
-            } else {
-                Err("Failed to spawn process".to_string())
+                    Ok(vec![pid_str.clone()])
+                },
+                Err(err) => {
+                    Err(err.to_string())
+                }
             }
         },
         "child_process.kill" => {
