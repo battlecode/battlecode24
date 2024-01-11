@@ -136,7 +136,7 @@ public class GameConstants {
     public static final int ATTACK_COOLDOWN = 20;
 
     /** The amount added to the action cooldown counter after healing */
-    public static final int HEAL_COOLDOWN = 20;
+    public static final int HEAL_COOLDOWN = 30;
 
     /** The amount added to the action cooldown counter after digging */
     public static final int DIG_COOLDOWN = 20;
