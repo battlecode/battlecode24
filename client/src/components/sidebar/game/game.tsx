@@ -44,7 +44,7 @@ export const GamePage: React.FC<Props> = (props) => {
 
     const teamBoxClasses = 'w-full h-[40px] flex items-center text-center justify-center'
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-hidden">
             <div className={teamBoxClasses + ' bg-team0'}>
                 <div className="flex">
                     {activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}
