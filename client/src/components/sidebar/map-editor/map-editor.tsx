@@ -78,9 +78,8 @@ export const MapEditorPage: React.FC<Props> = (props) => {
         })
     }
 
-    const clearMap = (clear: boolean) => {
+    const clearMap = () => {
         setClearConfirmOpen(false)
-        if (!clear) return
         setCleared(true)
         setMapParams({ ...mapParams, imported: null })
     }
@@ -208,12 +207,13 @@ export const MapEditorPage: React.FC<Props> = (props) => {
                 description="Enter a name for this map"
                 placeholder="Name..."
             >
-                {mapError && <div style={{ color: 'red' }}>{`Could not export map: ${mapError}`}</div>}
+                {mapError && <div className="text-[#ff0000] mt-4">{`Could not export map: ${mapError}`}</div>}
             </InputDialog>
 
             <ConfirmDialog
                 open={clearConfirmOpen}
-                onClose={clearMap}
+                onCancel={() => setClearConfirmOpen(false)}
+                onConfirm={clearMap}
                 title="Clear Map"
                 description="Are you sure you want to clear the map? This cannot be undone."
             />

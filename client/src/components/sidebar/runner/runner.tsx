@@ -1,4 +1,4 @@
-import React, { UIEvent, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { JavaInstall, useScaffold } from './scaffold'
 import { Button, SmallButton } from '../../button'
 import { nativeAPI } from './native-api-wrapper'
@@ -7,6 +7,8 @@ import { InputDialog } from '../../input-dialog'
 import Tooltip from '../../tooltip'
 import { SectionHeader } from '../../section-header'
 import { FixedSizeList, ListOnScrollProps } from 'react-window'
+import { OpenExternal } from '../../../icons/open-external'
+import { BasicDialog } from '../../basic-dialog'
 
 type RunnerPageProps = {
     open: boolean
@@ -284,6 +286,7 @@ export const Console: React.FC<Props> = ({ lines }) => {
     const consoleRef = useRef<HTMLDivElement>(null)
 
     const [tail, setTail] = useState(true)
+    const [popout, setPopout] = useState(false)
 
     const getLineClass = (line: ConsoleLine) => {
         switch (line.type) {
@@ -308,34 +311,70 @@ export const Console: React.FC<Props> = ({ lines }) => {
         setTail(isScrolledToBottom)
     }
 
-    useEffect(() => {
-        if (lines.length == 0) setTail(true)
-        if (tail && consoleRef.current) {
+    const updatePopout = (pop: boolean) => {
+        setPopout(pop)
+        setTimeout(() => scrollToBottom(), 50)
+    }
+
+    const scrollToBottom = () => {
+        if (consoleRef.current) {
             consoleRef.current.scrollTop = consoleRef.current.scrollHeight
             setTail(true)
         }
+    }
+
+    useEffect(() => {
+        if (lines.length == 0) setTail(true)
+        if (tail && consoleRef.current) {
+            scrollToBottom()
+        }
     }, [lines])
 
+    const lineList = (
+        <FixedSizeList
+            outerRef={consoleRef}
+            height={2000}
+            itemCount={lines.length}
+            itemSize={20}
+            layout="vertical"
+            width={'100%'}
+            onScroll={handleScroll}
+            overscanCount={10}
+        >
+            {ConsoleRow}
+        </FixedSizeList>
+    )
     return (
-        <div className="flex flex-col grow h-full relative">
-            <label>Console</label>
-            <div
-                className="top-[25px] absolute flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
-                style={{ height: 'calc(100% - 25px)', maxHeight: 'calc(100% - 25px)' }}
-            >
-                <FixedSizeList
-                    outerRef={consoleRef}
-                    height={2000}
-                    itemCount={lines.length}
-                    itemSize={20}
-                    layout="vertical"
-                    width={'100%'}
-                    onScroll={handleScroll}
-                    overscanCount={10}
+        <>
+            <div className="flex flex-col grow h-full relative">
+                <div className="flex items-center gap-2">
+                    <label>Console</label>
+                    <Tooltip text={'Expand console'} location="top">
+                        <button
+                            className={'hover:bg-lightHighlight p-[0.2rem] rounded-md'}
+                            onClick={() => updatePopout(true)}
+                        >
+                            <OpenExternal className="w-[15px] h-[15px]" />
+                        </button>
+                    </Tooltip>
+                </div>
+                <div
+                    className="top-[25px] absolute flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
+                    style={{ height: 'calc(100% - 25px)', maxHeight: 'calc(100% - 25px)' }}
                 >
-                    {ConsoleRow}
-                </FixedSizeList>
+                    {!popout && lineList}
+                </div>
             </div>
-        </div>
+            <BasicDialog open={popout} onCancel={() => updatePopout(false)} title="Console" width="lg">
+                <div className="flex flex-col grow h-full w-full">
+                    <div
+                        className="flex-grow border border-black py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
+                        style={{ height: '80vh', maxHeight: '80vh' }}
+                    >
+                        {popout && lineList}
+                    </div>
+                </div>
+            </BasicDialog>
+        </>
     )
 }

@@ -184,9 +184,8 @@ export class CurrentMap {
                 }
 
                 // Render rounded (clipped) divider
-                const dividerUp = match.game.playable
-                    ? match.currentTurn.turnNumber < match.constants.setupPhaseLength()
-                    : true
+                const dividerUp =
+                    !match.game.playable || match.currentTurn.turnNumber < match.constants.setupPhaseLength()
                 if (dividerUp && this.staticMap.divider[schemaIdx]) {
                     ctx.globalAlpha = 0.6
                     renderUtils.renderRounded(
