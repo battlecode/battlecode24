@@ -724,7 +724,6 @@ public strictfp class GameWorld {
     }
 
     private void floodFillTeam(int teamVal, MapLocation start) {
-        System.out.println(start);
         Queue<MapLocation> queue = new LinkedList<MapLocation>();
         queue.add(start);
 
