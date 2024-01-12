@@ -271,7 +271,7 @@ export class CurrentMap {
             info.push(`Water`)
         }
         if (divider) {
-            const dividerUp = match.currentTurn.turnNumber < match.constants.setupPhaseLength()
+            const dividerUp = !match.game.playable || match.currentTurn.turnNumber < match.constants.setupPhaseLength()
             if (dividerUp) {
                 info.push(`Divider`)
             }
