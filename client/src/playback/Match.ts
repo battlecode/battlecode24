@@ -12,7 +12,7 @@ import { publishEvent, EventType } from '../app-events'
 const SNAPSHOT_EVERY = 50
 
 // Amount of simulation steps before the turn counter is progressed
-const MAX_SIMULATION_STEPS = 500
+const MAX_SIMULATION_STEPS = 50000
 
 export default class Match {
     public currentTurn: Turn
@@ -140,7 +140,7 @@ export default class Match {
 
         if (this.currentSimulationStep < 0) {
             this.stepTurn(-1, false)
-            this.currentSimulationStep = MAX_SIMULATION_STEPS
+            this.currentSimulationStep = MAX_SIMULATION_STEPS - 1
         } else if (this.currentSimulationStep >= MAX_SIMULATION_STEPS) {
             this.stepTurn(1, false)
             this.currentSimulationStep = 0
