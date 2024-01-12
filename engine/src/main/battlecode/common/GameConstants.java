@@ -9,7 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.1.0";
+    public static final String SPEC_VERSION = "1.2.1";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -77,7 +77,7 @@ public class GameConstants {
     /** Number of rounds between updating the random noisy flag broadcast location */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
 
-    /** The maximum squared distance bewteen the actual flag locaiton and the noisy broadcast location */
+    /** The maximum squared distance bewteen the actual flag location and the noisy broadcast location */
     public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
 
     /** The default number of rounds before dropped flags reset to their default locations */
@@ -136,7 +136,7 @@ public class GameConstants {
     public static final int ATTACK_COOLDOWN = 20;
 
     /** The amount added to the action cooldown counter after healing */
-    public static final int HEAL_COOLDOWN = 20;
+    public static final int HEAL_COOLDOWN = 30;
 
     /** The amount added to the action cooldown counter after digging */
     public static final int DIG_COOLDOWN = 20;

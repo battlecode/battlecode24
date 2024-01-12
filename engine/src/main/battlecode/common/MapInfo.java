@@ -8,6 +8,8 @@ public class MapInfo {
 
     private boolean isWall;
 
+    private boolean isDam;
+
     // 1 = Team A, 2 = Team B, 0 = not a spawn zone
     private int spawnZone;
 
@@ -17,14 +19,18 @@ public class MapInfo {
 
     private TrapType trapType;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType){
+    private Team territory;
+
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDam, int spawnZone, boolean isWater, int crumbsAmount, TrapType trapType, Team territory){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
+        this.isDam = isDam;
         this.spawnZone = spawnZone;
         this.isWater = isWater;
         this.crumbsAmount = crumbsAmount;
         this.trapType = trapType;
+        this.territory = territory;
     }
 
     /**
@@ -50,6 +56,17 @@ public class MapInfo {
     }
 
     /**
+     * Returns if this square is a dam
+     * 
+     * @return whether this square is a dam
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isDam() {
+        return isDam;
+    }
+
+    /**
      * Returns if this square is a spawn zone.
      * 
      * @return whether this square is a spawn zone
@@ -66,6 +83,8 @@ public class MapInfo {
      * 0 if this square is not a spawn zone.
      * 
      * @return 1 or 2 if the square is a Team A or B spawn zone, respectively; 0 otherwise
+     * 
+     * @battlecode.doc.costlymethod
      */
     public int getSpawnZoneTeam() {
         return spawnZone;
@@ -98,6 +117,8 @@ public class MapInfo {
      * Returns the trap type of a friendly trap. TrapType.NONE if there
      * is no trap or there is an enemy trap.
      * @return The trap type
+     * 
+     * @battlecode.doc.costlymethod
      */
     public TrapType getTrapType() {
         return trapType;
@@ -112,6 +133,19 @@ public class MapInfo {
      */
     public MapLocation getMapLocation() {
         return loc;
+    }
+
+    /**
+     * Returns which team's territory this location is a part of. A location is in a team's territory
+     * if it was accessible to that team's robots during the setup phase. Locations initially inaccessible to
+     * either team will return Team.NEUTRAL.
+     * 
+     * @return The team territory that this location is a part of
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public Team getTeamTerritory() {
+        return territory;
     }
 
     public String toString(){

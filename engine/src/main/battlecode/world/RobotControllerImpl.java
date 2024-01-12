@@ -3,7 +3,6 @@ package battlecode.world;
 import battlecode.common.*;
 
 import static battlecode.common.GameActionExceptionType.*;
-import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 import battlecode.util.FlatHelpers;
 
@@ -78,8 +77,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         Trap trap = gw.getTrap(loc);
         TrapType type = (trap != null && trap.getTeam() == robot.getTeam()) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc),
-            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type);
+
+        int territory = gameWorld.getTeamSide(loc);
+        Team territoryTeam = null;
+        if(territory == 0) territoryTeam = Team.NEUTRAL;
+        else territoryTeam = territory == 1 ? Team.A : Team.B;
+
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDam(loc),
+            gw.getSpawnZone(loc), gw.getWater(loc), gw.getBreadAmount(loc), type, territoryTeam);
 
         return currentLocInfo;
     }
@@ -298,7 +303,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         ArrayList<FlagInfo> flagInfos = new ArrayList<>();
         for(Flag x : gameWorld.getAllFlags()) {
             if(x.getLoc().distanceSquaredTo(robot.getLocation()) <= actualRadiusSquared && (team == null || team == x.getTeam())) {
-                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp()));
+                flagInfos.add(new FlagInfo(x.getLoc(), x.getTeam(), x.isPickedUp(), x.getId()));
             }
         }
         return flagInfos.toArray(new FlagInfo[flagInfos.size()]);
@@ -828,6 +833,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(flag.getLoc()));
         this.robot.addActionCooldownTurns(GameConstants.PICKUP_DROP_COOLDOWN);
         robot.removeFlag();   
+        this.robot.addMovementCooldownTurns();
     }
 
     private void assertCanPickupFlag(MapLocation loc) throws GameActionException {

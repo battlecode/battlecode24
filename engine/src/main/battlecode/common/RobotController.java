@@ -689,7 +689,7 @@ public strictfp interface RobotController {
      * Also checks that there are no cooldown turns remaining. 
      * 
      * @param loc target flag location
-     * @return whether it is possible to pick up the flag
+     * @return whether it is possible to drop the flag
      * 
      * @battlecode.doc.costlymethod
      */
