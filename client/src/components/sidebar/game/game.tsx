@@ -42,24 +42,24 @@ export const GamePage: React.FC<Props> = (props) => {
 
     if (!props.open) return null
 
-    const teamBoxClasses = 'w-full h-[40px] flex items-center text-center justify-center'
+    const teamBoxClasses = 'w-full min-h-[40px] h-[40px] flex items-center text-center justify-center'
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-x-hidden">
             <div className={teamBoxClasses + ' bg-team0'}>
-                <p className="flex">
+                <div className="flex">
                     {activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}
                     {activeGame && activeGame.winner === activeGame.teams[0] && showWinner && <CrownElement />}
-                </p>
+                </div>
             </div>
             <TeamTable teamIdx={0} />
 
             <div className="h-[15px]" />
 
             <div className={teamBoxClasses + ' bg-team1'}>
-                <p className="flex">
+                <div className="flex">
                     {activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}
                     {activeGame && activeGame.winner === activeGame.teams[1] && showWinner && <CrownElement />}
-                </p>
+                </div>
             </div>
             <TeamTable teamIdx={1} />
 

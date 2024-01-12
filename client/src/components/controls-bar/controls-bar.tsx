@@ -179,7 +179,10 @@ export const ControlsBar: React.FC = () => {
     const atEnd = currentMatch.currentTurn.turnNumber == currentMatch.maxTurn
 
     return (
-        <div className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none">
+        <div
+            className="flex absolute bottom-0 rounded-t-md z-10 pointer-events-none select-none"
+            style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
             <Tooltip text={minimized ? 'Open Controls (c)' : 'Close Controls (c)'} wrapperClass="pointer-events-auto">
                 <button
                     className={

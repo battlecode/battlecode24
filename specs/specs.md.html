@@ -16,7 +16,7 @@
 
 # **Formal specification**
 
-_This is the formal specification of the Battlecode 2024 game._ Current version: *1.1.0* 
+_This is the formal specification of the Battlecode 2024 game._ Current version: *1.2.1* 
 
 **Welcome to Battlecode 2024: Breadwars.**
 
@@ -286,7 +286,37 @@ If something is unclear, direct your questions to our Discord where other people
 
 # **Appendix: Changelog**
 
-- Version 1.1.0
+- Version 1.2.1 (January 11, 2024)
+  - Hotfix relating to game tab scrolling in the client
+
+- Version 1.2.0 (January 11, 2024)
+  - Spec fixes
+    - Clarified definition of enemy territory
+    - Clarified trap triggering behavior
+    - Fixed incorrect respawn delay value
+  - Engine fixes / improvements
+    - Added flag IDs to FlagInfo
+    - Added dams to MapInfo
+    - Added team territory to MapInfo
+    - Fixed enemy tetrritory detection issue for crumb rewards
+    - Fixed javadoc typos
+    - Fixed negative XP issue
+  - Balance changes
+    - Base healing cooldown increased from 20 to 30 (to match spec)
+    - Dropping the flag now incurs a +10 movement cooldown
+  - Client improvements
+    - Added config for live match streaming (default false)
+    - Improve live match streaming performance & reliability
+    - Added cooldowns & team color to robot tooltip
+    - Fixed robot incorrect location when moving and being jailed on the same turn 
+    - Fixed inconsistent map info tooltips
+    - Better error handling when pressing 'Run Game' 
+    - Hovering a tile will now display map info (no longer click)
+    - Fix startup crash on MacOS
+    - Fixed parts of the client getting highlighted that shouldn't
+    - Fixed some issues with scrubbing in the control bar
+
+- Version 1.1.0 (January 9, 2024)
   - Spec fixes
     - Clarified general robot behavior in intro of Units section
     - Clarified spawning mechanics
@@ -306,21 +336,6 @@ If something is unclear, direct your questions to our Discord where other people
     - Added new spawn zone map guarantee checks in the map editor
     - Fixed some issues with the default scaffold locator
     - Fixed overscrolling and overflow styling issues
-
-- Version 1.2.0
-  - Spec fixes
-    - Clarified definition of enemy territory
-    - Clarified trap triggering behavior
-    - Fixed incorrect respawn delay value
-  - Engine fixes / improvements
-    - Added flag IDs to FlagInfo
-    - Added dams to MapInfo
-    - Added team territory to MapInfo
-    - Fixed enemy tetrritory detection issue for crumb rewards
-    - Fixed javadoc typos
-    - Fixed negative XP issue
-  - Balance changes
-    - Base healing cooldown increased from 20 to 30
 
 <!-- Footnotes themselves at the bottom. -->
 ## Notes

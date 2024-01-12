@@ -49,7 +49,7 @@ export const Tooltip = ({
         return () => {
             if (tooltipRef.current) observer.unobserve(tooltipRef.current)
         }
-    }, [hoveredBody, selectedSquare])
+    }, [hoveredBody, hoveredSquare])
 
     const map = appContext.state.activeMatch?.currentTurn.map
     if (!overlayCanvas || !wrapper.current || !map) return <></>
@@ -64,12 +64,12 @@ export const Tooltip = ({
     let tooltipStyle: React.CSSProperties = {
         visibility: 'hidden'
     }
-    if ((selectedSquare || hoveredBody) && tooltipRef.current) {
+    if ((hoveredSquare || hoveredBody) && tooltipRef.current) {
         let tipPos: Vector
         if (hoveredBody) {
             tipPos = getRenderCoords(hoveredBody.pos.x, hoveredBody.pos.y, map.dimension, true)
         } else {
-            tipPos = getRenderCoords(selectedSquare!.x, selectedSquare!.y, map.dimension, true)
+            tipPos = getRenderCoords(hoveredSquare!.x, hoveredSquare!.y, map.dimension, true)
         }
         const distanceFromBotCenterX = 0.75 * tileWidth
         const distanceFromBotCenterY = 0.75 * tileHeight
@@ -92,16 +92,16 @@ export const Tooltip = ({
         tooltipStyle.visibility = 'visible'
     }
 
-    let showFloatingTooltip = !!((hoveredBody && hoveredBody != selectedBody) || selectedSquare)
+    let showFloatingTooltip = !!((hoveredBody && hoveredBody != selectedBody) || hoveredSquare)
     const tooltipContent = hoveredBody
         ? hoveredBody.onHoverInfo()
-        : selectedSquare
-        ? map.getTooltipInfo(selectedSquare)
+        : hoveredSquare
+        ? map.getTooltipInfo(hoveredSquare, appContext.state.activeMatch!)
         : []
     if (tooltipContent.length === 0) showFloatingTooltip = false
 
     return (
-        <>
+        <div style={{ WebkitUserSelect: 'none', userSelect: 'none' }}>
             {showFloatingTooltip && (
                 <div
                     className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
@@ -132,7 +132,7 @@ export const Tooltip = ({
                     {`(X: ${hoveredSquare.x}, Y: ${hoveredSquare.y})`}
                 </div>
             )}
-        </>
+        </div>
     )
 }
 
