@@ -194,6 +194,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.location.equals(location)
+                && cachedRobotInfo.hasFlag == (flag != null)
                 && cachedRobotInfo.attackLevel == SkillType.ATTACK.getLevel(attackExp)
                 && cachedRobotInfo.healLevel == SkillType.HEAL.getLevel(healExp)
                 && cachedRobotInfo.buildLevel == SkillType.BUILD.getLevel(buildExp)) {
