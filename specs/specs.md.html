@@ -16,7 +16,7 @@
 
 # **Formal specification**
 
-_This is the formal specification of the Battlecode 2024 game._ Current version: *1.1.0* 
+_This is the formal specification of the Battlecode 2024 game._ Current version: *1.2.2* 
 
 **Welcome to Battlecode 2024: Breadwars.**
 
@@ -91,7 +91,7 @@ At the start of the game, no units are present on the map. All units must be man
 
 **Specializations**
 
-Specializations allow robots to become more powerful in specific skills. When a unit attacks, heals, or builds (including building traps, digging, and filling), it gains one experience point in that skill. When experience reaches a certain threshold, the skill is automatically upgraded to the next level. Once a unit reaches the **fourth level** of any specialization, the unit gains “mastery” in that action. This means that only this action is allowed to progress to the fifth and sixth levels of specialization, and every other action is capped at level three. Specialization stats are provided in the Specialization Stats section.
+Specializations allow robots to become more powerful in specific skills. When a unit attacks, heals, or builds (including building traps and digging), it gains one experience point in that skill. When experience reaches a certain threshold, the skill is automatically upgraded to the next level. Once a unit reaches the **fourth level** of any specialization, the unit gains “mastery” in that action. This means that only this action is allowed to progress to the fifth and sixth levels of specialization, and every other action is capped at level three. Specialization stats are provided in the Specialization Stats section.
 
 **Jail**
 
@@ -286,28 +286,19 @@ If something is unclear, direct your questions to our Discord where other people
 
 # **Appendix: Changelog**
 
-- Version 1.1.0
+- Version 1.2.2 (January 12, 2024)
   - Spec fixes
-    - Clarified general robot behavior in intro of Units section
-    - Clarified spawning mechanics
-    - Fixed typos
-  - Balance changes
-    - Killing a robot while in enemy territory now results in a reward of **50** crumbs
-    - Filling no longer yields building XP (but still receives benefits from building level)
-    - Jailed rounds increased from **10** to **25**
-    - Increased healing specialization XP requirements (see table)
-  - Engine fixes
-    - Picking up an enemy flag in a friendly spawn zone now results in capture
-    - Robots can no longer dig on friendly traps
+    - Minor typo fixes
   - Client improvements
-    - Games executed in the runner now display live as the game is being played
-    - Multiple indicator dots & lines per robot can be visualized
-    - Attempted fix for client config being reset between games
-    - Added new spawn zone map guarantee checks in the map editor
-    - Fixed some issues with the default scaffold locator
-    - Fixed overscrolling and overflow styling issues
+    - Fixed dams crashing the map editor
+    - Runner console quality-of-life additions
+    - Added version # to sidebar
+    - Added update rechecking while client is open
 
-- Version 1.2.0
+- Version 1.2.1 (January 11, 2024)
+  - Hotfix relating to game tab scrolling in the client
+
+- Version 1.2.0 (January 11, 2024)
   - Spec fixes
     - Clarified definition of enemy territory
     - Clarified trap triggering behavior
@@ -333,6 +324,27 @@ If something is unclear, direct your questions to our Discord where other people
     - Fix startup crash on MacOS
     - Fixed parts of the client getting highlighted that shouldn't
     - Fixed some issues with scrubbing in the control bar
+
+- Version 1.1.0 (January 9, 2024)
+  - Spec fixes
+    - Clarified general robot behavior in intro of Units section
+    - Clarified spawning mechanics
+    - Fixed typos
+  - Balance changes
+    - Killing a robot while in enemy territory now results in a reward of **50** crumbs
+    - Filling no longer yields building XP (but still receives benefits from building level)
+    - Jailed rounds increased from **10** to **25**
+    - Increased healing specialization XP requirements (see table)
+  - Engine fixes
+    - Picking up an enemy flag in a friendly spawn zone now results in capture
+    - Robots can no longer dig on friendly traps
+  - Client improvements
+    - Games executed in the runner now display live as the game is being played
+    - Multiple indicator dots & lines per robot can be visualized
+    - Attempted fix for client config being reset between games
+    - Added new spawn zone map guarantee checks in the map editor
+    - Fixed some issues with the default scaffold locator
+    - Fixed overscrolling and overflow styling issues
 
 <!-- Footnotes themselves at the bottom. -->
 ## Notes
