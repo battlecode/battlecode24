@@ -61,6 +61,8 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
         if (availablePlayers.size > 1) setTeamB([...availablePlayers][1])
     }, [availablePlayers])
 
+    const MemoConsole = React.useMemo(() => <Console lines={consoleLines} />, [consoleLines])
+
     if (!open) return null
 
     if (!nativeAPI) return <>Run the client locally to use the runner</>
@@ -130,7 +132,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                         <Button onClick={killMatch}>Kill Game</Button>
                     )}
 
-                    <Console lines={consoleLines} />
+                    {MemoConsole}
                 </>
             )}
         </div>
@@ -306,7 +308,8 @@ export const Console: React.FC<Props> = ({ lines }) => {
     )
 
     const handleScroll = (e: ListOnScrollProps) => {
-        const div = consoleRef.current!
+        if (!consoleRef.current) return
+        const div = consoleRef.current
         const isScrolledToBottom = div.scrollTop + div.offsetHeight - div.scrollHeight >= -10
         setTail(isScrolledToBottom)
     }
