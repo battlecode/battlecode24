@@ -1,5 +1,5 @@
 import React from 'react'
-import { BATTLECODE_YEAR } from '../../constants'
+import { BATTLECODE_YEAR, GAME_VERSION } from '../../constants'
 import { ThreeBarsIcon } from '../../icons/three-bars'
 import { GamePage } from './game/game'
 import { QueuePage } from './queue/queue'
@@ -155,7 +155,10 @@ export const Sidebar: React.FC = () => {
                 <div className="flex flex-col gap-2 p-3 h-screen">
                     <div className="flex justify-between items-center">
                         {open && (
-                            <p className="px-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
+                            <>
+                                <p className="px-2 whitespace-nowrap font-extrabold text-xl">{`BATTLECODE ${BATTLECODE_YEAR}`}</p>
+                                <p className="text-xs">{`v${GAME_VERSION}`}</p>
+                            </>
                         )}
                         <div className="flex">
                             <button

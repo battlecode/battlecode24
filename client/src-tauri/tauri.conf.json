@@ -42,10 +42,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 720,
+        "height": 760,
         "resizable": true,
         "title": "Battlecode Client",
-        "width": 960
+        "width": 1200
       }
     ]
   }
