@@ -78,6 +78,11 @@ export const Sidebar: React.FC = () => {
                 }
 
                 const loadedGame = Game.loadFullGameRaw(buffer)
+
+                // select the first match
+                const selectedMatch = loadedGame.matches[0]
+                loadedGame.currentMatch = selectedMatch
+
                 context.setState((prevState) => ({
                     ...prevState,
                     activeGame: loadedGame,
