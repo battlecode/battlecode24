@@ -12,7 +12,7 @@ type TooltipProps = {
     hoveredBodyID: number | undefined
     hoveredSquare: Vector | undefined
     selectedSquare: Vector | undefined
-    wrapper: MutableRefObject<HTMLDivElement | null>
+    wrapperRef: HTMLDivElement | null
 }
 
 export const Tooltip = ({
@@ -21,7 +21,7 @@ export const Tooltip = ({
     hoveredBodyID,
     hoveredSquare,
     selectedSquare,
-    wrapper
+    wrapperRef
 }: TooltipProps) => {
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
@@ -53,9 +53,9 @@ export const Tooltip = ({
     }, [hoveredBody, hoveredSquare])
 
     const map = appContext.state.activeMatch?.currentTurn.map
-    if (!overlayCanvas || !wrapper.current || !map) return <></>
+    if (!overlayCanvas || !wrapperRef || !map) return <></>
 
-    const wrapperRect = wrapper.current.getBoundingClientRect()
+    const wrapperRect = wrapperRef.getBoundingClientRect()
 
     const getTooltipStyle = () => {
         const overlayCanvasRect = overlayCanvas.getBoundingClientRect()
