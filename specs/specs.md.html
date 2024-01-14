@@ -141,7 +141,7 @@ Fills at a location up to **$\sqrt{2}$** units away, converting water to land. F
 
 The goal of attacking is to retrieve your opponent’s flags and bring them to your side.** **To retrieve this flag, your robots must first find the opponent's flag. 
 
-Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **10** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
+Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **$\sqrt{10}$** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
 
 Robots can pick up and drop flags as described in the actions section. While holding a flag, robots cannot perform any actions besides movement, and robots may carry only one flag at a time. If your robot enters a friendly spawn zone while carrying an enemy flag, your team captures the flag and it is permanently removed from the game. Flags cannot be captured by being dropped into the spawn zone.
 
@@ -285,6 +285,14 @@ Bytecodes relating to the creation of arrays (specifically NEWARRAY, ANEWARRAY, 
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # **Appendix: Changelog**
+
+- Version 1.2.3 (January 14, 2024)
+  - Engine fixes
+    - senseLegalFlagPlacement now only considers dropped flags as intended
+  - Javadoc / spec fixes
+    - Clarified sensePassability javadoc, fixed javadoc typos
+    - Fixed incorrect flag broadcast radius in spec
+    - Clarified senseLegalFlagPlacement behavior
 
 - Version 1.2.2 (January 12, 2024)
   - Spec fixes
