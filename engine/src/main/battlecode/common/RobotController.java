@@ -269,7 +269,7 @@ public strictfp interface RobotController {
     MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException;
 
     /**
-     * Given a location, returns whether that location is passable (not water, a wall, or a dam).
+     * Given a senseable location, returns whether that location is passable (not water, a wall, or a dam).
      * 
      * @param loc the given location
      * @return whether that location is passable
@@ -379,9 +379,9 @@ public strictfp interface RobotController {
 
     /**
      * Checks if the given location within vision radius is a legal starting flag placement. This is true when the
-     * location is in range, is passable, and is far enough away from other placed friendly flags. Note that if the third
-     * condition is false, the flag can still be placed but will be teleported back to the spawn zone at the end of the
-     * setup phase.
+     * location is in range for dropping the flag, is passable, and is far enough away from other placed friendly flags. 
+     * Note that if the third condition is false, the flag can still be placed but will be teleported back to the spawn zone 
+     * at the end of the setup phase.
      * 
      * @param loc The location to check
      * @return Whether the location is a valid flag placement

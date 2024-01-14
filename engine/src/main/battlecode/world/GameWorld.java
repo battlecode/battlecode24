@@ -138,8 +138,9 @@ public strictfp class GameWorld {
             }
         }
 
-        floodFillTeam(1, getSpawnLocations(Team.A)[0]);
-        floodFillTeam(2, getSpawnLocations(Team.B)[0]);
+        for(Flag flag : allFlags) {
+            floodFillTeam(flag.getTeam() == Team.A ? 1 : 2, flag.getLoc());
+        }
     }
 
     /**

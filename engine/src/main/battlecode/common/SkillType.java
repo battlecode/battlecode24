@@ -8,7 +8,7 @@ public enum SkillType{
 
     // base skill effect, base cooldown - build is 0 because variable
     /**
-     * Attacking immediately reduces one enemy unit's (in range) base health by 15 (level 0), with a cooldown cost of 20.
+     * Attacking immediately reduces one enemy unit's (in range) base health by 150 (level 0), with a cooldown cost of 20.
      */
     ATTACK(150, 20),
     

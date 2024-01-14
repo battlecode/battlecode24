@@ -11,7 +11,7 @@ export type NativeAPI = {
         getSeperator: () => Promise<string>
     }
     fs: {
-        exists: (arg: string) => Promise<boolean>
+        exists: (arg: string) => Promise<string>
         mkdir: (arg: string) => Promise<void>
         // recursive: "true" or "false"
         getFiles: (path: string, recursive?: string) => Promise<string[]>

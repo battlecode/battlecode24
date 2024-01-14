@@ -16,7 +16,7 @@
 
 # **Formal specification**
 
-_This is the formal specification of the Battlecode 2024 game._ Current version: *1.2.2* 
+_This is the formal specification of the Battlecode 2024 game._ Current version: *1.2.3* 
 
 **Welcome to Battlecode 2024: Breadwars.**
 
@@ -139,9 +139,9 @@ Fills at a location up to **$\sqrt{2}$** units away, converting water to land. F
 
 # **Flags**
 
-The goal of attacking is to retrieve your opponent’s flags and bring them to your side.** **To retrieve this flag, your robots must first find the opponent's flag. 
+The goal of attacking is to retrieve your opponent’s flags and bring them to your side. To retrieve this flag, your robots must first find the opponent's flag. 
 
-Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **10** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
+Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **$\sqrt{10}$** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
 
 Robots can pick up and drop flags as described in the actions section. While holding a flag, robots cannot perform any actions besides movement, and robots may carry only one flag at a time. If your robot enters a friendly spawn zone while carrying an enemy flag, your team captures the flag and it is permanently removed from the game. Flags cannot be captured by being dropped into the spawn zone.
 
@@ -286,9 +286,27 @@ If something is unclear, direct your questions to our Discord where other people
 
 # **Appendix: Changelog**
 
+- Version 1.2.3 (January 14, 2024)
+  - Engine fixes
+    - senseLegalFlagPlacement now only considers dropped flags as intended
+    - Fixed RobotInfo incorrect hasFlag value
+  - Javadoc / spec fixes
+    - Clarified sensePassability javadoc, fixed javadoc typos
+    - Fixed incorrect flag broadcast radius in spec
+    - Clarified senseLegalFlagPlacement behavior
+  - Client improvements
+    - Fixed desync visual issue when streaming live replays
+    - Draggable tooltip can now be moved outside of the map area 
+    - Spawn zone map guarantee check now considers walls and more than two map segments 
+    - Improve scaffold locator to prevent empty map and player lists
+    - Changed upload replay hotkey from 'Shift' to 'Ctrl/Cmd + O'
+    - Map tooltip now updates immediately when editing in the map editor
+
 - Version 1.2.2 (January 12, 2024)
   - Spec fixes
     - Minor typo fixes
+  - Engine fixes / improvements
+    - Added more isSpawned assertions
   - Client improvements
     - Fixed dams crashing the map editor
     - Runner console quality-of-life additions

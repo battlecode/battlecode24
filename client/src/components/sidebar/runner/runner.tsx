@@ -56,6 +56,12 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
         runMatch(javaPath, teamA, teamB, maps)
     }
 
+    const resetSettings = () => {
+        setMaps(new Set())
+        setTeamA(undefined)
+        setTeamB(undefined)
+    }
+
     useEffect(() => {
         if (availablePlayers.size > 0) setTeamA([...availablePlayers][0])
         if (availablePlayers.size > 1) setTeamB([...availablePlayers][1])
@@ -109,10 +115,22 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                                 localStorage.setItem('customInstalls', JSON.stringify(newInstalls.map((i) => i.path)))
                             }}
                         />
-                        <SmallButton className="mt-2" onClick={reloadData}>
+                        <SmallButton
+                            className="mt-2"
+                            onClick={() => {
+                                resetSettings()
+                                reloadData()
+                            }}
+                        >
                             Reload maps & players
                         </SmallButton>
-                        <SmallButton className="mt-2" onClick={manuallySetupScaffold}>
+                        <SmallButton
+                            className="mt-2"
+                            onClick={() => {
+                                resetSettings()
+                                manuallySetupScaffold()
+                            }}
+                        >
                             Re-configure Scaffold
                         </SmallButton>
                     </SectionHeader>
