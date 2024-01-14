@@ -153,6 +153,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addFlag(Flag flag) {
         this.flag = flag;
         flag.pickUp(this);
+        this.gameWorld.addRobot(getLocation(), this); // update the robot array
     }
 
     public boolean hasFlag() {
@@ -166,6 +167,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void removeFlag() {
         flag.drop();
         this.flag = null;
+        this.gameWorld.addRobot(getLocation(), this); // update the robot array
     }
 
     public long getControlBits() {
