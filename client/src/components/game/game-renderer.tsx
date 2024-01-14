@@ -28,7 +28,6 @@ export const GameRenderer: React.FC = () => {
         setHoveredBodyID(hoveredBodyIDFound)
 
         // always clear this so the selection is cleared when you move
-        //if (hoveredBodyIDFound) setSelectedSquare(undefined)
         setSelectedSquare(undefined)
     }
     useEffect(calculateHoveredBodyID, [hoveredTile])

@@ -26,6 +26,7 @@ export const Tooltip = ({
     const appContext = useAppContext()
     const forceUpdate = useForceUpdate()
     useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+    useListenEvent(EventType.INITIAL_RENDER, forceUpdate)
 
     const selectedBody =
         selectedBodyID !== undefined
@@ -55,16 +56,18 @@ export const Tooltip = ({
     if (!overlayCanvas || !wrapper.current || !map) return <></>
 
     const wrapperRect = wrapper.current.getBoundingClientRect()
-    const overlayCanvasRect = overlayCanvas.getBoundingClientRect()
-    const tileWidth = overlayCanvasRect.width / map.width
-    const tileHeight = overlayCanvasRect.height / map.height
-    const mapLeft = overlayCanvasRect.left - wrapperRect.left
-    const mapTop = overlayCanvasRect.top - wrapperRect.top
 
-    let tooltipStyle: React.CSSProperties = {
-        visibility: 'hidden'
-    }
-    if ((hoveredSquare || hoveredBody) && tooltipRef.current) {
+    const getTooltipStyle = () => {
+        const overlayCanvasRect = overlayCanvas.getBoundingClientRect()
+        const tileWidth = overlayCanvasRect.width / map.width
+        const tileHeight = overlayCanvasRect.height / map.height
+        const mapLeft = overlayCanvasRect.left - wrapperRect.left
+        const mapTop = overlayCanvasRect.top - wrapperRect.top
+
+        let tooltipStyle: React.CSSProperties = {}
+
+        if (!hoveredBody && !hoveredSquare) return tooltipStyle
+
         let tipPos: Vector
         if (hoveredBody) {
             tipPos = getRenderCoords(hoveredBody.pos.x, hoveredBody.pos.y, map.dimension, true)
@@ -89,7 +92,8 @@ export const Tooltip = ({
         } else {
             tooltipStyle.left = mapLeft + tipPos.x * tileWidth - tooltipSize.width / 2 + 'px'
         }
-        tooltipStyle.visibility = 'visible'
+
+        return tooltipStyle
     }
 
     let showFloatingTooltip = !!((hoveredBody && hoveredBody != selectedBody) || hoveredSquare)
@@ -98,21 +102,24 @@ export const Tooltip = ({
         : hoveredSquare
         ? map.getTooltipInfo(hoveredSquare, appContext.state.activeMatch!)
         : []
+
     if (tooltipContent.length === 0) showFloatingTooltip = false
+
+    // Check for the default empty size and don't show before the resize observer
+    // has updated
+    if (tooltipSize.width == 16 || tooltipSize.height == 16) showFloatingTooltip = false
 
     return (
         <div style={{ WebkitUserSelect: 'none', userSelect: 'none' }}>
-            {showFloatingTooltip && (
-                <div
-                    className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
-                    style={tooltipStyle}
-                    ref={tooltipRef}
-                >
-                    {tooltipContent.map((v, i) => (
-                        <p key={i}>{v}</p>
-                    ))}
-                </div>
-            )}
+            <div
+                className="absolute bg-black/70 z-20 text-white p-2 rounded-md text-xs"
+                style={{ ...getTooltipStyle(), visibility: showFloatingTooltip ? 'visible' : 'hidden' }}
+                ref={tooltipRef}
+            >
+                {tooltipContent.map((v, i) => (
+                    <p key={i}>{v}</p>
+                ))}
+            </div>
 
             <Draggable width={wrapperRect.width} height={wrapperRect.height}>
                 {selectedBody && (
