@@ -123,8 +123,10 @@ export const Sidebar: React.FC = () => {
         if (keyboard.keyCode === 'Backquote') setPage(getNextPage(page, true))
         if (keyboard.keyCode === 'Digit1') setPage(getNextPage(page, false))
 
-        //if (keyboard.keyCode === 'ShiftLeft') setPage(PageType.QUEUE)
-    }, [keyboard.keyCode])
+        if (keyboard.keyCode == 'KeyO' && (keyboard.ctrlKey || keyboard.metaKey)) {
+            setPage(PageType.QUEUE)
+        }
+    }, [keyboard])
 
     const activeSidebarButtons = React.useMemo(() => {
         if (tournamentMode) {
