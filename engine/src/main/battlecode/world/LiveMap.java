@@ -399,9 +399,6 @@ public strictfp class LiveMap {
         }
         for (int i = 0; i < this.width*this.height; i++){
             if(this.wallArray[i]) {
-                if (this.damArray[i]) {
-                    throw new RuntimeException("Walls can't be on the same square as dams.");
-                }
                 if (this.waterArray[i]) {
                     throw new RuntimeException("Walls can't be on the same square as water.");
                 }
