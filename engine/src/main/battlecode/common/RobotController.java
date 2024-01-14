@@ -269,7 +269,7 @@ public strictfp interface RobotController {
     MapLocation[] senseNearbyCrumbs(int radiusSquared) throws GameActionException;
 
     /**
-     * Given a location, returns whether that location is passable (not water, a wall, or a dam).
+     * Given a senseable location, returns whether that location is passable (not water, a wall, or a dam).
      * 
      * @param loc the given location
      * @return whether that location is passable
