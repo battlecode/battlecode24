@@ -272,7 +272,7 @@ export class CurrentMap {
         if (divider) {
             const dividerUp = !match.game.playable || match.currentTurn.turnNumber < match.constants.setupPhaseLength()
             if (dividerUp) {
-                info.push(`Divider`)
+                info.push(`Dam`)
             }
         }
         if (walls) {
