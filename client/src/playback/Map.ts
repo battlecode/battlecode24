@@ -276,7 +276,7 @@ export class CurrentMap {
             }
         }
         if (walls) {
-            info.push(`Walls`)
+            info.push(`Wall`)
         }
         return info
     }
