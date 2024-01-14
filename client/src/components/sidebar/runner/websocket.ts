@@ -59,8 +59,11 @@ export default class WebSocketListener {
         const match = this.activeGame.matches[this.activeGame.matches.length - 1]
         if (match) {
             // Auto progress the turn if the user hasn't done it themselves
-            if (match.currentTurn.turnNumber == this.lastSetTurn) {
-                match.jumpToEnd(true)
+            if (match.maxTurn > 0 && match.currentTurn.turnNumber == this.lastSetTurn) {
+                // Jump to the second to last turn so that we ensure nextDelta always
+                // exists (fixes bug where snapshot rounds don't have nextDelta which
+                // causes a visual jump)
+                match.jumpToTurn(match.maxTurn - 1, true)
                 this.lastSetTurn = match.currentTurn.turnNumber
             } else {
                 // Publish anyways so the control bar updates

@@ -91,7 +91,10 @@ export const HelpPage: React.FC<Props> = (props) => {
                     'Switches to Queue tab. If you are already on it, prompts you to select a replay file'
                 )}
                 */}
-                {hotkeyElement(`Shift`, 'If you are on the queue tab, prompts you to select a replay file')}
+                {hotkeyElement(
+                    `Ctrl/⌘ + O`,
+                    'If you are on the queue tab, prompts you to select a replay file. Otherwise, opens the queue tab.'
+                )}
                 {hotkeyElement(`C`, 'Hides and Unhides Game control bar')}
                 {hotkeyElement(`.`, 'Skip to the very last turn of the current game')}
                 {hotkeyElement(`,`, 'Skip to the first turn of the current game')}

@@ -17,7 +17,7 @@ interface Props {
 
 const CrownElement = () => {
     return (
-        <Tooltip text={'Majority match winner'}>
+        <Tooltip text={'Majority match winner'} location="bottom">
             <Crown className="ml-2 mt-1" />
         </Tooltip>
     )

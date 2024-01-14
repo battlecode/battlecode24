@@ -247,25 +247,20 @@ async function findDefaultScaffoldPath(nativeAPI: NativeAPI): Promise<string | u
     const localPath = localStorage.getItem('scaffoldPath')
     if (localPath) return localPath
 
-    const appPath = await nativeAPI.getRootPath()
+    let appPath = await nativeAPI.getRootPath()
     const path = nativeAPI.path
     const fs = nativeAPI.fs
 
-    // scaffold/client/Battlecode Client[.exe]
-    const fromWin = await path.dirname(await path.dirname(appPath))
-    // scaffold/client/resources/app.asar
-    const from3 = await path.dirname(await path.dirname(await path.dirname(appPath)))
-    // scaffold/client/Battlecode Client.app/Contents/Resources/app.asar
-    const fromMac = await path.dirname(
-        await path.dirname(await path.dirname(await path.dirname(await path.dirname(appPath))))
-    )
+    // Scan up a few parent directories to see if we can find the scaffold folder
+    for (let i = 0; i <= 6; i++) {
+        // Check that gradlew exists as means of validating scaffold folder
+        const gradlewPath = await path.join(appPath, 'gradlew')
+        if ((await fs.exists(gradlewPath)) === 'true') {
+            return appPath
+        }
 
-    if (await fs.exists(await path.join(from3, 'gradlew'))) {
-        return from3
-    } else if (await fs.exists(await path.join(fromWin, 'gradlew'))) {
-        return fromWin
-    } else if (await fs.exists(await path.join(fromMac, 'gradlew'))) {
-        return fromMac
+        // Set to parent dir
+        appPath = await path.dirname(appPath)
     }
 
     return undefined
