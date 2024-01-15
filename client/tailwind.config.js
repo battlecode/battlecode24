@@ -44,7 +44,7 @@ module.exports = {
                 black: colors.black,
                 light: '#faf9fe',
                 lightHighlight: '#eeeeee',
-                ligtestHighlight: '#f0f0f0',
+                lightestHighlight: '#f0f0f0',
                 medHighlight: '#d0d0d0',
                 lightCard: '#f7f7f7',
 

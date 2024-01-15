@@ -65,8 +65,8 @@ export const QueuedGame: React.FC<Props> = (props) => {
                     key={i}
                     className={
                         'leading-4 rounded-sm border-gray-500 border my-1.5 py-1 px-2 ' +
-                        'bg-light hover:bg-lightHestighlight cursor-pointer ' +
-                        (context.state.activeMatch === match ? 'bg-lightHighlight hover:bg-medHighlight' : '')
+                        'bg-light hover:bg-lightHighlight cursor-pointer ' +
+                        (context.state.activeMatch === match ? 'bg-medHighlight hover:bg-medHighlight' : '')
                     }
                     onClick={() => setMatch(match)}
                 >
