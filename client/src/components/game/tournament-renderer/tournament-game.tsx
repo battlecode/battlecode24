@@ -47,7 +47,7 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
     return (
         <Pressable
             className={
-                'pt-4 px-2 pb-2 mx-2 my-4 rounded d-flex flex-col relative border-2 border-white min-w-[80px] max-w-[120px] ' +
+                'pt-4 px-2 pb-2 mx-2 my-4 rounded d-flex flex-col relative border-2 border-white min-w-[80px] max-w-[140px] ' +
                 (loadingGame ? 'opacity-50' : '') +
                 ' ' +
                 (game.gameFile

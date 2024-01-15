@@ -46,7 +46,7 @@ const TournamentTree: React.FC<TournamentTreeProps> = ({ tournament }) => {
         : [[tournament.winnersBracketRoot, '']]
 
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-row items-center justify-center w-full h-screen">
             {brackets.map(([rootGame, bracketTitle]) => (
                 <div className="flex flex-col justify-center w-max mx-2" key={bracketTitle}>
                     <TournamentGameWrapper game={rootGame} />
