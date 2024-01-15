@@ -325,7 +325,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!canDropFlag(loc)) return false;
         boolean valid = true;
         for(Flag x : gameWorld.getAllFlags()) {
-            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED) {
+            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && 
+                    x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED && !x.isPickedUp()) {
                 valid = false;
                 break;
             }

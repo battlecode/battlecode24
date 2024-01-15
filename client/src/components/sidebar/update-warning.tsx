@@ -8,7 +8,7 @@ export const UpdateWarning = () => {
     const [update, setUpdate] = React.useState<undefined | { latest: string }>(undefined)
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const fetchVersion = () => {
             if (!nativeAPI) return
             nativeAPI
                 .getServerVersion(`${BATTLECODE_YEAR % 100}`)
@@ -18,7 +18,10 @@ export const UpdateWarning = () => {
                     }
                 })
                 .catch(() => {})
-        }, 1000 * 60 * UPDATE_CHECK_MINUTES)
+        }
+
+        fetchVersion()
+        const interval = setInterval(fetchVersion, 1000 * 60 * UPDATE_CHECK_MINUTES)
 
         return () => clearInterval(interval)
     }, [])
