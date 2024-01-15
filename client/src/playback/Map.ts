@@ -36,6 +36,7 @@ type TrapData = {
 }
 
 type FlagData = {
+    id: number
     team: number
     location: Vector
     carrierId: number | null
@@ -85,7 +86,7 @@ export class CurrentMap {
                 const team = i % 2
                 const location = from.spawnLocations[i]
                 const flagId = this.locationToIndex(location.x, location.y)
-                this.flagData.set(flagId, { team, location, carrierId: null })
+                this.flagData.set(flagId, { id: flagId, team, location, carrierId: null })
             }
         } else {
             // Create current map from current map (copy)
@@ -264,7 +265,7 @@ export class CurrentMap {
             info.push(`${TEAM_COLOR_NAMES[trap.team - 1]} ${BUILD_NAMES[trap.type]} trap`)
         }
         if (flag) {
-            info.push(`${TEAM_COLOR_NAMES[flag.team]} flag`)
+            info.push(`${TEAM_COLOR_NAMES[flag.team]} flag (ID: ${flag.id})`)
         }
         if (water) {
             info.push(`Water`)
