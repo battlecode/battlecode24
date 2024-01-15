@@ -31,6 +31,11 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
                     return
                 }
                 const loadedGame = Game.loadFullGameRaw(buffer)
+
+                // select the first match
+                const selectedMatch = loadedGame.matches[0]
+                loadedGame.currentMatch = selectedMatch
+
                 appContext.setState((prevState) => ({
                     ...prevState,
                     activeGame: loadedGame,
