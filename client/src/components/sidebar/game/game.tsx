@@ -38,7 +38,7 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
 
     if (!props.open) return null
 
-    const teamBoxClasses = 'w-full min-h-[40px] h-[40px] flex items-center text-center justify-center'
+    const teamBoxClasses = 'w-full py-2 flex items-center text-center justify-center'
     return (
         <div className="flex flex-col overflow-x-hidden">
             <div className={teamBoxClasses + ' bg-team0'}>
