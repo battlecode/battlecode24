@@ -8,6 +8,7 @@ import { SectionHeader } from '../../section-header'
 import { Crown } from '../../../icons/crown'
 import { EventType, useListenEvent } from '../../../app-events'
 import Tooltip from '../../tooltip'
+import { useForceUpdate } from '../../../util/react-util'
 
 const NO_GAME_TEAM_NAME = '?????'
 
@@ -23,22 +24,17 @@ const CrownElement = () => {
     )
 }
 
-export const GamePage: React.FC<Props> = (props) => {
+export const GamePage: React.FC<Props> = React.memo((props) => {
     const context = useAppContext()
     const activeGame = context.state.activeGame
 
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
-    const [showWinner, setShowWinner] = React.useState(
-        context.state.tournament === undefined ||
-            (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
-    )
 
-    useListenEvent(EventType.TURN_PROGRESS, () =>
-        setShowWinner(
-            context.state.tournament === undefined ||
-                (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
-        )
-    )
+    const forceUpdate = useForceUpdate()
+    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
+
+    const showWinner =
+        !context.state.tournament || (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
 
     if (!props.open) return null
 
@@ -84,4 +80,4 @@ export const GamePage: React.FC<Props> = (props) => {
             </SectionHeader>
         </div>
     )
-}
+})

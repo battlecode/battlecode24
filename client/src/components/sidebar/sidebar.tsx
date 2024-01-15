@@ -34,8 +34,11 @@ export const Sidebar: React.FC = () => {
     const maxWidth = open ? 'max-w-[390px]' : 'max-w-[64px]'
 
     // Tournament mode loading ====================================================================================================
-    const [tournamentMode, setTournamentMode] = useSearchParamBool('tournament', false)
-    const [loadingRemoteTournament, setLoadingRemoteTournament] = React.useState(false)
+
+    // Does not need to be set if tournamentSource is valid. This is only for when we want to enable
+    // tournament mode and then upload from a local file
+    const [localTournament, setLocalTournament] = useSearchParamBool('localTournament', false)
+
     const [tournamentSource, setTournamentSource] = useSearchParamString('tournamentSource', '')
     const fetchTournamentPage = (tournamentSource: string, rawGames: JsonTournamentGame[]) => {
         fetch(tournamentSource)
@@ -48,22 +51,31 @@ export const Sidebar: React.FC = () => {
                 if (data.next) {
                     fetchTournamentPage(data.next, rawGames)
                 } else {
-                    setLoadingRemoteTournament(false)
-                    console.log(rawGames)
                     context.setState((prevState) => ({
                         ...prevState,
-                        tournament: new Tournament(rawGames)
+                        tournament: new Tournament(rawGames),
+                        loadingRemoteContent: ''
                     }))
                 }
             })
     }
     React.useEffect(() => {
         if (tournamentSource) {
-            setLoadingRemoteTournament(true)
+            context.setState((prevState) => ({
+                ...prevState,
+                loadingRemoteContent: 'tournament'
+            }))
             fetchTournamentPage(tournamentSource, [])
             setPage(PageType.TOURNAMENT)
         }
     }, [tournamentSource])
+    React.useEffect(() => {
+        if (localTournament) {
+            setPage(PageType.TOURNAMENT)
+        }
+    }, [localTournament])
+
+    const showTournamentFeatures = tournamentSource || localTournament
     // End tournament mode loading ====================================================================================================
 
     // Remote game loading ====================================================================================================
@@ -88,7 +100,7 @@ export const Sidebar: React.FC = () => {
                     activeGame: loadedGame,
                     activeMatch: loadedGame.currentMatch,
                     queue: context.state.queue.concat([loadedGame]),
-                    loadingRemoteContent: false
+                    loadingRemoteContent: ''
                 }))
 
                 setPage(PageType.GAME)
@@ -98,7 +110,7 @@ export const Sidebar: React.FC = () => {
         if (gameSource) {
             context.setState((prevState) => ({
                 ...prevState,
-                loadingRemoteContent: true
+                loadingRemoteContent: 'game'
             }))
             fetchRemoteGame(gameSource)
             setPage(PageType.GAME)
@@ -107,7 +119,7 @@ export const Sidebar: React.FC = () => {
     // End remote game loading ====================================================================================================
 
     // Skip going through map and help tab, it's annoying for competitors.
-    const hotkeyPageLoop = tournamentMode
+    const hotkeyPageLoop = showTournamentFeatures
         ? [PageType.GAME, PageType.QUEUE, PageType.TOURNAMENT]
         : [PageType.GAME, PageType.QUEUE, PageType.RUNNER]
     const getNextPage = (currentPage: PageType, previous: boolean) => {
@@ -129,7 +141,7 @@ export const Sidebar: React.FC = () => {
     }, [keyboard])
 
     const activeSidebarButtons = React.useMemo(() => {
-        if (tournamentMode) {
+        if (showTournamentFeatures) {
             return [
                 { name: 'Game', page: PageType.GAME },
                 { name: 'Queue', page: PageType.QUEUE },
@@ -144,7 +156,7 @@ export const Sidebar: React.FC = () => {
             { name: 'Help', page: PageType.HELP },
             { name: 'Config', page: PageType.CONFIG }
         ]
-    }, [tournamentMode])
+    }, [showTournamentFeatures])
 
     return (
         <div
@@ -205,10 +217,7 @@ export const Sidebar: React.FC = () => {
                     <MapEditorPage open={open && page == PageType.MAP_EDITOR} />
                     <HelpPage open={open && page == PageType.HELP} />
                     <ConfigPage open={open && page == PageType.CONFIG} />
-                    <TournamentPage
-                        open={open && page == PageType.TOURNAMENT}
-                        loadingRemoteTournament={loadingRemoteTournament}
-                    />
+                    <TournamentPage open={open && page == PageType.TOURNAMENT} />
                 </div>
             </Scrollbars>
         </div>
