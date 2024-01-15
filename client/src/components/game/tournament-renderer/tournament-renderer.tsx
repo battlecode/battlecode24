@@ -86,8 +86,8 @@ const TournamentGameWrapper: React.FC<{ game: TournamentGame }> = ({ game }) => 
             const child1X = childWrapper1Rect.x + childWrapper1Rect.width / 2
             const child1Y = childWrapper1Rect.y + 17.45
 
-            left = child1X - startX
-            down = child1Y - startY
+            left = Math.abs(child1X - startX)
+            down = Math.abs(child1Y - startY)
         }
 
         if (childWrapper2Ref.current) {
@@ -95,8 +95,8 @@ const TournamentGameWrapper: React.FC<{ game: TournamentGame }> = ({ game }) => 
             const child2X = childWrapper2Rect.x + childWrapper2Rect.width / 2
             const child2Y = childWrapper2Rect.y + 17.45
 
-            right = child2X - startX
-            down = Math.max(down, child2Y - startY)
+            right = Math.abs(child2X - startX)
+            down = Math.abs(Math.max(down, child2Y - startY))
         }
 
         setLines({ left, right, down })
@@ -133,43 +133,67 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
 }) => {
     if (lines.down === 0) return null
 
-    const buffer = 2
-    const fullWidth = Math.max(Math.abs(lines.left ?? 0), Math.abs(lines.right ?? 0)) * 2
-    let leftPct = `50%`
-    let rightPct = `50%`
-    if (fullWidth > 2) {
-        const leftPctNum = 50 + ((lines.left ?? 0) / fullWidth) * 100
-        leftPct = `calc(${leftPctNum}% + ${buffer}px)`
-        const rightPctNum = 50 + ((lines.right ?? 0) / fullWidth) * 100
-        rightPct = `calc(${rightPctNum}% - ${buffer}px)`
-    }
+    const lineWidthValue = 2
+    const lineWidth = `${lineWidthValue}px`
+    const lineColor = 'white'
+
+    const getSideLines = () => (
+        <>
+            <div style={{ background: lineColor, width: '100%', minHeight: lineWidth }} />
+            <div
+                style={{
+                    background: lineColor,
+                    minWidth: lineWidth,
+                    height: '50%',
+                    marginTop: `${lines.down / 2 - lineWidthValue}px`
+                }}
+            />
+        </>
+    )
+
+    const commonClasses = 'absolute z-[-1] flex items-center'
     return (
-        <svg
-            width={fullWidth + 2 * buffer}
-            height={lines.down}
-            style={{
-                position: 'absolute',
-                zIndex: -1,
-                left: '50%',
-                top: 'calc(100% - 17.45px)',
-                transform: 'translateX(-50%)'
-            }}
-        >
-            {/* down 40% */}
-            <line x1="50%" y1="0%" x2="50%" y2="calc(40% + 1px)" stroke="white" strokeWidth="2" />
-            {/* left and right */}
+        <>
+            {/* Top line */}
+            <div
+                className={commonClasses}
+                style={{
+                    left: '50%',
+                    background: lineColor,
+                    width: lineWidth,
+                    height: `${lines.down / 2}px`,
+                    marginTop: `-${lines.down / 2}px`
+                }}
+            />
+            {/* Left connection */}
             {lines.left !== undefined && (
-                <>
-                    <line x1="50%" y1="40%" x2={leftPct} y2="40%" stroke="white" strokeWidth="2" />
-                    <line x1={leftPct} y1="calc(40% - 1px)" x2={leftPct} y2="100%" stroke="white" strokeWidth="2" />
-                </>
+                <div
+                    className={commonClasses}
+                    style={{
+                        flexDirection: 'row-reverse',
+                        left: `calc(50% - ${lines.left}px)`,
+                        top: `calc(100% - ${lines.down * 0.5}px)`,
+                        width: `${lines.left}px`,
+                        height: lines.down
+                    }}
+                >
+                    {getSideLines()}
+                </div>
             )}
+            {/* Right connection */}
             {lines.right !== undefined && (
-                <>
-                    <line x1="50%" y1="40%" x2={rightPct} y2="40%" stroke="white" strokeWidth="2" />
-                    <line x1={rightPct} y1="calc(40% - 1px)" x2={rightPct} y2="100%" stroke="white" strokeWidth="2" />
-                </>
+                <div
+                    className={commonClasses}
+                    style={{
+                        left: '50%',
+                        top: `calc(100% - ${lines.down * 0.5}px)`,
+                        width: `${lines.right}px`,
+                        height: lines.down
+                    }}
+                >
+                    {getSideLines()}
+                </div>
             )}
-        </svg>
+        </>
     )
 }
