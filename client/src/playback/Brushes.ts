@@ -112,7 +112,7 @@ export class SpawnZoneBrush extends SymmetricMapEditorBrush<CurrentMap> {
 
         if (fields.should_add.value) {
             if (foundIdx != -1) return
-            flagData.set(schemaIdx, { team, location: { x, y }, carrierId: null })
+            flagData.set(schemaIdx, { id: schemaIdx, team, location: { x, y }, carrierId: null })
             spawnLocs.push({ x, y })
             this.map.water[this.map.locationToIndex(x, y)] = 0
             this.map.staticMap.initialWater[this.map.locationToIndex(x, y)] = 0

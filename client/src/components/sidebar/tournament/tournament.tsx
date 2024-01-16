@@ -6,10 +6,9 @@ import Tournament, { JsonTournamentGame } from '../../../playback/Tournament'
 
 interface TournamentPageProps {
     open: boolean
-    loadingRemoteTournament: boolean
 }
 
-export const TournamentPage: React.FC<TournamentPageProps> = ({ open, loadingRemoteTournament }) => {
+export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
     const context = useAppContext()
     const inputRef = React.useRef<HTMLInputElement | null>()
 
@@ -28,12 +27,10 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open, loadingRem
 
     if (!open) return null
 
-    return loadingRemoteTournament ? (
-        <div>Loading tournament...</div>
-    ) : (
+    return (
         <div className={'flex flex-col'}>
             <input type="file" hidden ref={(ref) => (inputRef.current = ref)} onChange={upload} accept={'.json'} />
-            <Button onClick={loadingRemoteTournament ? () => {} : () => inputRef.current?.click()}>
+            <Button onClick={() => inputRef.current?.click()}>
                 <FiUpload className="align-middle text-base mr-2" />
                 Upload a tournament file
             </Button>

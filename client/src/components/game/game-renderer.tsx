@@ -28,7 +28,6 @@ export const GameRenderer: React.FC = () => {
         setHoveredBodyID(hoveredBodyIDFound)
 
         // always clear this so the selection is cleared when you move
-        //if (hoveredBodyIDFound) setSelectedSquare(undefined)
         setSelectedSquare(undefined)
     }
     useEffect(calculateHoveredBodyID, [hoveredTile])
@@ -70,7 +69,6 @@ export const GameRenderer: React.FC = () => {
         const match = appContext.state.activeMatch
         if (!match) return
         const { width, height } = match.currentTurn.map
-        wrapperRef.current!.style.aspectRatio = `${width} / ${height}`
         updateCanvasDimensions(backgroundCanvas.current, { x: width, y: height })
         updateCanvasDimensions(dynamicCanvas.current, { x: width, y: height })
         updateCanvasDimensions(overlayCanvas.current, { x: width, y: height })
@@ -132,17 +130,14 @@ export const GameRenderer: React.FC = () => {
 
     return (
         <div
-            className="w-full h-screen flex items-center justify-center"
+            className="relative w-full h-screen flex items-center justify-center"
             style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
+            ref={wrapperRef}
         >
             {!activeMatch ? (
-                appContext.state.loadingRemoteContent ? (
-                    <p className="text-white text-center">Loading remote game...</p>
-                ) : (
-                    <p className="text-white text-center">Select a game from the queue</p>
-                )
+                <p className="text-white text-center">Select a game from the queue</p>
             ) : (
-                <div ref={wrapperRef} className="relative max-w-full max-h-full flex-grow">
+                <>
                     <canvas
                         className="absolute top-1/2 left-1/2 max-w-full max-h-full"
                         style={{
@@ -190,7 +185,7 @@ export const GameRenderer: React.FC = () => {
                         hoveredBodyID={hoveredBodyID}
                         hoveredSquare={hoveredTile}
                         selectedSquare={selectedSquare}
-                        wrapper={wrapperRef}
+                        wrapperRef={wrapperRef.current}
                     />
                     <HighlightedSquare
                         hoveredTile={hoveredTile}
@@ -198,15 +193,7 @@ export const GameRenderer: React.FC = () => {
                         wrapperRef={wrapperRef.current}
                         overlayCanvasRef={overlayCanvas.current}
                     />
-                    {/* {selectedSquare && (
-                        <HighlightedSquare
-                            hoveredTile={selectedSquare}
-                            map={activeMatch?.currentTurn.map}
-                            wrapperRef={wrapperRef.current}
-                            overlayCanvasRef={overlayCanvas.current}
-                        />
-                    )} */}
-                </div>
+                </>
             )}
         </div>
     )

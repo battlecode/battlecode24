@@ -35,11 +35,13 @@ export function exportMap(turn: Turn, name: string) {
 }
 
 function verifyMapGuarantees(turn: Turn) {
+    const staticMap = turn.map.staticMap
+
     if (turn.map.isEmpty() && turn.bodies.isEmpty()) {
         return 'Map is empty'
     }
 
-    const spawnZoneCount = turn.map.staticMap.spawnLocations.length
+    const spawnZoneCount = staticMap.spawnLocations.length
     if (spawnZoneCount !== 6) {
         return `Map has ${spawnZoneCount} spawn zones. Must have exactly 6`
     }
@@ -47,8 +49,8 @@ function verifyMapGuarantees(turn: Turn) {
     for (let i = 0; i < spawnZoneCount; i++) {
         for (let j = i + 1; j < spawnZoneCount; j++) {
             const distSquared =
-                Math.pow(turn.map.staticMap.spawnLocations[i].x - turn.map.staticMap.spawnLocations[j].x, 2) +
-                Math.pow(turn.map.staticMap.spawnLocations[i].y - turn.map.staticMap.spawnLocations[j].y, 2)
+                Math.pow(staticMap.spawnLocations[i].x - staticMap.spawnLocations[j].x, 2) +
+                Math.pow(staticMap.spawnLocations[i].y - staticMap.spawnLocations[j].y, 2)
             if (distSquared < 36) {
                 return `Spawn zones ${i} and ${j} are too close together, they must be at least sqrt(36) units apart (6 tiles)`
             }
@@ -57,16 +59,12 @@ function verifyMapGuarantees(turn: Turn) {
 
     let totalSpawnableLocations = 0
     for (let i = 0; i < spawnZoneCount; i++) {
-        const loc = turn.map.staticMap.spawnLocations[i]
+        const loc = staticMap.spawnLocations[i]
         for (let x = loc.x - 1; x <= loc.x + 1; x++) {
             for (let y = loc.y - 1; y <= loc.y + 1; y++) {
                 if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
                 const mapIdx = turn.map.locationToIndex(x, y)
-                if (
-                    !turn.map.water[mapIdx] &&
-                    !turn.map.staticMap.walls[mapIdx] &&
-                    !turn.map.staticMap.divider[mapIdx]
-                ) {
+                if (!turn.map.water[mapIdx] && !staticMap.walls[mapIdx] && !staticMap.divider[mapIdx]) {
                     totalSpawnableLocations++
                 }
             }
@@ -76,36 +74,38 @@ function verifyMapGuarantees(turn: Turn) {
         return `Map has ${totalSpawnableLocations} spawnable locations. Must have 9 * 3 for each team`
     }
 
-    const floodMask = new Int8Array(turn.map.width * turn.map.height)
-    const floodQueue: number[] = []
-    const spawnZone = turn.map.staticMap.spawnLocations[0]
-    const spawnZoneIdx = turn.map.locationToIndex(spawnZone.x, spawnZone.y)
-    floodMask[spawnZoneIdx] = 1
-    floodQueue.push(spawnZoneIdx)
-    let totalFlooded = 1
-    while (floodQueue.length > 0) {
-        const idx = floodQueue.shift()!
-        for (let i = 1; i < 9; i++) {
-            const x = DIRECTIONS[i][0] + turn.map.indexToLocation(idx).x
-            const y = DIRECTIONS[i][1] + turn.map.indexToLocation(idx).y
-            if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
-            const newIdx = turn.map.locationToIndex(x, y)
-            if (!turn.map.staticMap.divider[newIdx] && !floodMask[newIdx]) {
-                // Check if we can reach an enemy spawn location
-                for (let i = 0; i < turn.map.staticMap.spawnLocations.length; i++) {
-                    const loc = turn.map.staticMap.spawnLocations[i]
-                    if (loc.x == x && loc.y == y && i % 2 != 0)
-                        return `Maps cannot have spawn zones that are initially reachable by both teams`
-                }
+    for (let zoneIdx = 0; zoneIdx < staticMap.spawnLocations.length; zoneIdx += 2) {
+        const floodMask = new Int8Array(turn.map.width * turn.map.height)
+        const floodQueue: number[] = []
+        const spawnZone = staticMap.spawnLocations[zoneIdx]
+        const startIdx = turn.map.locationToIndex(spawnZone.x, spawnZone.y)
+        floodMask[startIdx] = 1
+        floodQueue.push(startIdx)
+        let totalFlooded = 1
+        while (floodQueue.length > 0) {
+            const idx = floodQueue.shift()!
+            for (let i = 1; i < 9; i++) {
+                const x = DIRECTIONS[i][0] + turn.map.indexToLocation(idx).x
+                const y = DIRECTIONS[i][1] + turn.map.indexToLocation(idx).y
+                if (x < 0 || x >= turn.map.width || y < 0 || y >= turn.map.height) continue
+                const newIdx = turn.map.locationToIndex(x, y)
+                if (!staticMap.divider[newIdx] && !staticMap.walls[newIdx] && !floodMask[newIdx]) {
+                    // Check if we can reach an enemy spawn location
+                    for (let j = 0; j < staticMap.spawnLocations.length; j++) {
+                        const loc = staticMap.spawnLocations[j]
+                        if (loc.x == x && loc.y == y && j % 2 != 0)
+                            return `Maps cannot have spawn zones that are initially reachable by both teams`
+                    }
 
-                floodMask[newIdx] = 1
-                floodQueue.push(newIdx)
-                totalFlooded++
+                    floodMask[newIdx] = 1
+                    floodQueue.push(newIdx)
+                    totalFlooded++
+                }
             }
         }
-    }
-    if (totalFlooded >= 0.5 * turn.map.width * turn.map.height) {
-        return `Map is too open. Must be divided into at least 2 sections by the dam`
+        if (totalFlooded >= 0.5 * turn.map.width * turn.map.height) {
+            return `Map is too open. Must be divided into at least 2 sections by the dam`
+        }
     }
 
     return ''
