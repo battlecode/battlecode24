@@ -9,7 +9,7 @@ export interface AppState {
     activeGame: Game | undefined
     activeMatch: Match | undefined
     tournament: Tournament | undefined
-    loadingRemoteContent: boolean
+    loadingRemoteContent: string
     updatesPerSecond: number
     paused: boolean
     disableHotkeys: boolean
@@ -21,7 +21,7 @@ const DEFAULT_APP_STATE: AppState = {
     activeGame: undefined,
     activeMatch: undefined,
     tournament: undefined,
-    loadingRemoteContent: false,
+    loadingRemoteContent: '',
     updatesPerSecond: 1,
     paused: true,
     disableHotkeys: false,

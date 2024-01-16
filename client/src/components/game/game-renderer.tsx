@@ -135,11 +135,7 @@ export const GameRenderer: React.FC = () => {
             ref={wrapperRef}
         >
             {!activeMatch ? (
-                appContext.state.loadingRemoteContent ? (
-                    <p className="text-white text-center">Loading remote game...</p>
-                ) : (
-                    <p className="text-white text-center">Select a game from the queue</p>
-                )
+                <p className="text-white text-center">Select a game from the queue</p>
             ) : (
                 <>
                     <canvas
