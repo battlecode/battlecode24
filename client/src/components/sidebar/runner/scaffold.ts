@@ -51,8 +51,18 @@ export function useScaffold(): Scaffold {
 
     async function runMatch(javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
         if (matchPID.current || !scaffoldPath) return
+        const shouldProfile = false
         try {
-            const newPID = await dispatchMatch(javaPath, teamA, teamB, selectedMaps, nativeAPI!, scaffoldPath!)
+            const newPID = await dispatchMatch(
+                javaPath,
+                teamA,
+                teamB,
+                selectedMaps,
+                nativeAPI!,
+                scaffoldPath!,
+                appContext.state.config.validateMaps,
+                shouldProfile
+            )
             setConsoleLines([])
             matchPID.current = newPID
         } catch (e: any) {
@@ -272,8 +282,11 @@ async function dispatchMatch(
     teamB: string,
     selectedMaps: Set<string>,
     nativeAPI: NativeAPI,
-    scaffoldPath: string
+    scaffoldPath: string,
+    validate: boolean,
+    profile: boolean
 ): Promise<string> {
+    console.log(validate)
     const options = [
         `run`,
         `-x`,
@@ -282,8 +295,8 @@ async function dispatchMatch(
         `-PteamA=${teamA}`,
         `-PteamB=${teamB}`,
         `-Pmaps=${[...selectedMaps].join(',')}`,
-        `-PvalidateMaps=false`,
-        `-PenableProfiler=${false}`
+        `-PvalidateMaps=${validate}`,
+        `-PenableProfiler=${profile}`
     ]
 
     return nativeAPI.child_process.spawn(scaffoldPath, javaPath, options)
