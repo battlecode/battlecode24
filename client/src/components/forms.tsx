@@ -1,4 +1,5 @@
 import React, { PropsWithChildren } from 'react'
+import { useAppContext } from '../app-context'
 
 interface SelectProps {
     value?: string | number
@@ -40,11 +41,14 @@ interface NumInputProps {
     changeValue: (newValue: number) => void
 }
 export const NumInput: React.FC<NumInputProps> = (props) => {
+    const context = useAppContext()
+
+    const [focused, setFocused] = React.useState(false)
     const [tempValue, setTempValue] = React.useState<string | undefined>()
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (val: string) => {
         // Direct change from arrows
-        const value = parseInt(e.target.value)
+        const value = parseInt(val)
         if (!isNaN(value) && value >= props.min && value <= props.max) {
             props.changeValue(value)
         }
@@ -53,7 +57,17 @@ export const NumInput: React.FC<NumInputProps> = (props) => {
     const handleInputBlur = () => {
         // Reset temp value after user loses focus
         setTempValue(undefined)
+        setFocused(false)
     }
+
+    const handleClick = () => {
+        setTempValue(undefined)
+        handleInputChange(tempValue || '')
+    }
+
+    React.useEffect(() => {
+        context.setState((prevState) => ({ ...prevState, disableHotkeys: focused }))
+    }, [focused])
 
     return (
         <input
@@ -61,8 +75,10 @@ export const NumInput: React.FC<NumInputProps> = (props) => {
             type="number"
             value={tempValue ?? props.value}
             onBlur={handleInputBlur}
-            onInput={handleInputChange}
+            onFocus={() => setFocused(true)}
+            onInput={(e) => handleInputChange(e.currentTarget.value)}
             onChange={(e) => setTempValue(e.target.value)}
+            onClick={handleClick}
         />
     )
 }
