@@ -286,7 +286,6 @@ async function dispatchMatch(
     validate: boolean,
     profile: boolean
 ): Promise<string> {
-    console.log(validate)
     const options = [
         `run`,
         `-x`,
