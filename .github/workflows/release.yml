@@ -198,7 +198,6 @@ jobs:
       # Make sure to cleanup manually if pipeline fails and you aren't rerunning !
       - name: Cleanup client artifacts
         uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
-        if: always()
         with:
           name: client-*
 
