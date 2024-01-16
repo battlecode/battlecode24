@@ -62,6 +62,11 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
 
     return (
         <div className="flex flex-col overflow-x-hidden">
+            <div className="w-full pb-3 px-4 text-center">
+                {activeGame && activeGame.currentMatch && (
+                    <div className="border-black border rounded-md font-bold">{activeGame.currentMatch.map.name}</div>
+                )}
+            </div>
             {teamBox(0)}
             <TeamTable teamIdx={0} />
 
