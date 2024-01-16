@@ -395,7 +395,7 @@ public strictfp class GameWorld {
                 break;
             case EXPLOSIVE:
                 int rad = type.interactRadius;
-                int dmg = type.enterDamage;
+                int dmg = type.interactDamage;
                 if (entered){
                     rad = type.enterRadius;
                     dmg = type.enterDamage;

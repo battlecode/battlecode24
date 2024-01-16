@@ -504,11 +504,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (trap.getTeam() == this.robot.getTeam()){
                 continue;
             }
-            if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                this.robot.addTrapTrigger(trap, true);
-            } else {
-                this.robot.addTrapTrigger(trap, false);
-            }
+            this.robot.addTrapTrigger(trap, true);
         }
         
         if (this.robot.hasFlag() && this.robot.getFlag().getTeam() != this.robot.getTeam() 
