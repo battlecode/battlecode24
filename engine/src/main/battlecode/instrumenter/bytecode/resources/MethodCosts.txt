@@ -85,6 +85,7 @@ battlecode/common/RobotController/canDropFlag                           10   tru
 battlecode/common/RobotController/dropFlag                              0    true
 battlecode/common/RobotController/canBuyGlobal                          10   true
 battlecode/common/RobotController/buyGlobal                             0    true
+battlecode/common/RobotController/getGlobalUpgrades                     10   true
 battlecode/common/Team/opponent                                         1    false
 battlecode/common/Team/isPlayer                                         1    false
 battlecode/common/MapInfo/getMapLocation                                1    false

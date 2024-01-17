@@ -992,6 +992,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public GlobalUpgrade[] getGlobalUpgrades(Team team) {
+        boolean[] boolUpgrades = this.gameWorld.getTeamInfo().getGlobalUpgrades(team);
+        ArrayList<GlobalUpgrade> upgrades = new ArrayList<>();
+        if(boolUpgrades[0]) upgrades.add(GlobalUpgrade.ATTACK);
+        if(boolUpgrades[1]) upgrades.add(GlobalUpgrade.CAPTURING);
+        if(boolUpgrades[2]) upgrades.add(GlobalUpgrade.HEALING);
+        return upgrades.toArray(new GlobalUpgrade[upgrades.size()]);
+    }
+
+    @Override
     public void resign() {
         Team team = getTeam();
         gameWorld.getObjectInfo().eachRobot((robot) -> {

@@ -789,6 +789,17 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      **/
     void buyGlobal(GlobalUpgrade ug) throws GameActionException;
+
+    /**
+     * Returns the global upgrades that the given team has
+     * 
+     * @param team the team to get global upgrades for
+     * 
+     * @return The global upgrades that the team has
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    GlobalUpgrade[] getGlobalUpgrades(Team team);
     
     /**
      * Causes your team to lose the game. It's like typing "gg."
