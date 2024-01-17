@@ -600,6 +600,15 @@ public strictfp interface RobotController {
     // ****************************
 
     /**
+     * Gets the true attack damage of this robot accounting for all effects.
+     *
+     * @return The attack damage
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackDamage();
+
+    /**
      * Tests whether this robot can attack the given location. Robots can only attack
      * enemy robots, and attacks cannot miss.
      *
@@ -621,6 +630,15 @@ public strictfp interface RobotController {
     void attack(MapLocation loc) throws GameActionException;
 
     /**
+     * Gets the true healing amount of this robot accounting for all effects.
+     *
+     * @return The heal amount
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealAmount();
+
+    /**
      * Tests whether this robot can heal a nearby friendly unit.
      * 
      * Checks that this robot can heal and whether the friendly unit is within range. Also checks that 
@@ -628,6 +646,8 @@ public strictfp interface RobotController {
      * 
      * @param loc location of friendly unit to be healed
      * @return whether it is possible for this robot to heal
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canHeal(MapLocation loc);
 

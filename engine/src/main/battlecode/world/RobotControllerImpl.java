@@ -741,6 +741,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getAttackDamage() {
+        return this.robot.getDamage();
+    }
+
+    @Override
     public boolean canAttack(MapLocation loc) {
         try {
             assertCanAttack(loc);
@@ -753,6 +758,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanAttack(loc);
         this.robot.addActionCooldownTurns((int) Math.round(GameConstants.ATTACK_COOLDOWN*(1+.01*SkillType.ATTACK.getCooldown(this.robot.getLevel(SkillType.ATTACK)))));
         this.robot.attack(loc);
+    }
+
+    @Override
+    public int getHealAmount() {
+        return this.robot.getHeal();
     }
 
     private void assertCanHeal(MapLocation loc) throws GameActionException {

@@ -289,7 +289,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
         setActionCooldownTurns(this.actionCooldownTurns + numActionCooldownToAdd);
     }
-
+    
     /**
      * Resets the movement cooldown.
      */
@@ -410,7 +410,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.spawned;
     }
 
-    private int getDamage() {
+    public int getDamage() {
         int baseDamage = SkillType.ATTACK.skillEffect;
         if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[0])
             baseDamage += GlobalUpgrade.ATTACK.baseAttackChange;
