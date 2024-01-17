@@ -5,18 +5,26 @@ export default class Tournament {
     private readonly gamesByTeamID: Map<number, TournamentGame[]>
     public readonly winnersBracketRoot: TournamentGame
     public readonly losersBracketRoot: TournamentGame | undefined
+    public readonly name: string
+    public readonly maxRound: number
+    public readonly participantCount: number
 
     constructor(raw_games: JsonTournamentGame[]) {
         let nextID = -1
+        let name = ''
+        let participants = new Set()
         this.games = raw_games
             // .filter((game) => game.tournament_round.release_status === 2)
             .map((game) => {
+                name = game.tournament_round.tournament
                 const team0 = game.participants.find((p) => p.player_index === 0)
                 const team1 = game.participants.find((p) => p.player_index === 1)
                 assert(team0 && team1, 'Missing team in round')
                 assert(team0.score != team1.score, 'Tie games not supported')
                 const winnerIndex = team0.score > team1.score ? 0 : 1
                 nextID++
+                participants.add(team0.team)
+                participants.add(team1.team)
                 return {
                     id: nextID,
                     teams: [team0.teamname, team1.teamname],
@@ -64,6 +72,9 @@ export default class Tournament {
                 this.games.push(game)
             }
         }
+        this.name = name
+        this.maxRound = maxRound
+        this.participantCount = participants.size
         this.winnersBracketRoot = maxRoundGames[0]
         this.setGameDependents(this.winnersBracketRoot)
         this.setRoundRelativeIDs(this.winnersBracketRoot)
