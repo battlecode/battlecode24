@@ -124,7 +124,14 @@ export default class Bodies {
         // Flag died robots
         for (let i = 0; i < delta.diedIdsLength(); i++) {
             const diedId = delta.diedIds(i)!
-            const diedBody = this.bodies.get(diedId) ?? assert.fail(`Body with id ${diedId} not found in bodies`)
+            const diedBody = this.bodies.get(diedId)
+            if (!diedBody) {
+                console.warn(
+                    `diedIds: Body with id ${diedId} not found in bodies. This will happen because of a resignation, otherwise it is a bug.`
+                )
+                continue
+            }
+
             diedBody.dead = true
             // Manually set hp since we don't receive a final delta
             diedBody.hp = 0
@@ -352,7 +359,7 @@ export class Body {
         public hp: number,
         public readonly team: Team,
         public readonly id: number,
-        public hasFlag: boolean = false,
+        public carryingFlagId: number | null = null,
         public healLevel: number = 0,
         public attackLevel: number = 0,
         public buildLevel: number = 0,
@@ -380,7 +387,7 @@ export class Body {
             ctx,
             getImageIfLoaded(this.imgPath),
             renderCoords,
-            this.hasFlag ? 1.1 : 1
+            this.carryingFlagId !== null ? 1.1 : 1
         )
         ctx.globalAlpha = 1
 
@@ -390,7 +397,7 @@ export class Body {
             this.drawIndicators(match, overlayCtx, !selected && !config.showAllIndicators)
         if (selected || hovered || config.showHealthBars) this.drawHealthBar(match, overlayCtx)
 
-        if (this.hasFlag) {
+        if (this.carryingFlagId !== null) {
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 overlayCtx,
                 getImageIfLoaded('resources/bread_outline_thick_64x64.png'),
@@ -514,7 +521,7 @@ export class Body {
             `ID: ${this.id}`,
             `HP: ${this.hp}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
-            this.hasFlag ? 'Has Flag!' : '',
+            this.carryingFlagId !== null ? `Has Flag! (ID: ${this.carryingFlagId})` : '',
             `Attack Lvl: ${this.attackLevel} (${this.attacksPerformed} exp)`,
             `Build Lvl: ${this.buildLevel} (${this.buildsPerformed} exp)`,
             `Heal Lvl: ${this.healLevel} (${this.healsPerformed} exp)`,

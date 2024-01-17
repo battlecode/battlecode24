@@ -227,7 +227,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const flagId = this.target
             const flagData = turn.map.flagData.get(flagId)!
             flagData.carrierId = this.robotID
-            turn.bodies.getById(this.robotID).hasFlag = true
+            turn.bodies.getById(this.robotID).carryingFlagId = flagId
         }
     },
     [schema.Action.PLACE_FLAG]: class ResetFlag extends Action {
@@ -235,7 +235,9 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const flagId = this.robotID
             const flagData = turn.map.flagData.get(flagId)!
             // Could be carrying or already placed
-            if (flagData.carrierId) turn.bodies.getById(flagData.carrierId).hasFlag = false
+            if (flagData.carrierId) {
+                turn.bodies.getById(flagData.carrierId).carryingFlagId = null
+            }
             flagData.carrierId = null
             flagData.location = turn.map.indexToLocation(this.target)
         }
@@ -245,7 +247,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             const flagId = this.target
             const flagData = turn.map.flagData.get(flagId)!
             // Always carrying
-            turn.bodies.getById(flagData.carrierId!).hasFlag = false
+            turn.bodies.getById(flagData.carrierId!).carryingFlagId = null
             turn.map.flagData.delete(flagId)
         }
     },

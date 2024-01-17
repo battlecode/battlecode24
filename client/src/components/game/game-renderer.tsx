@@ -73,6 +73,9 @@ export const GameRenderer: React.FC = () => {
         updateCanvasDimensions(dynamicCanvas.current, { x: width, y: height })
         updateCanvasDimensions(overlayCanvas.current, { x: width, y: height })
         setSelectedSquare(undefined)
+        setSelectedBodyID(undefined)
+        setHoveredTile(undefined)
+        setHoveredBodyID(undefined)
         publishEvent(EventType.INITIAL_RENDER, {})
     }, [appContext.state.activeMatch, backgroundCanvas.current, dynamicCanvas.current, overlayCanvas.current])
 
@@ -135,11 +138,7 @@ export const GameRenderer: React.FC = () => {
             ref={wrapperRef}
         >
             {!activeMatch ? (
-                appContext.state.loadingRemoteContent ? (
-                    <p className="text-white text-center">Loading remote game...</p>
-                ) : (
-                    <p className="text-white text-center">Select a game from the queue</p>
-                )
+                <p className="text-white text-center">Select a game from the queue</p>
             ) : (
                 <>
                     <canvas

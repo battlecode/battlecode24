@@ -43,8 +43,8 @@ module.exports = {
                 darkHighlight: colors.gray['900'],
                 black: colors.black,
                 light: '#faf9fe',
-                lightHighlight: '#eeeeee',
-                ligtestHighlight: '#f0f0f0',
+                lightHighlight: '#dddddd',
+                lightestHighlight: '#f0f0f0',
                 medHighlight: '#d0d0d0',
                 lightCard: '#f7f7f7',
 

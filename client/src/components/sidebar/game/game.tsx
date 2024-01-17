@@ -6,8 +6,10 @@ import { useSearchParamBool } from '../../../app-search-params'
 import { useAppContext } from '../../../app-context'
 import { SectionHeader } from '../../section-header'
 import { Crown } from '../../../icons/crown'
+import { BiMedal } from 'react-icons/bi'
 import { EventType, useListenEvent } from '../../../app-events'
 import Tooltip from '../../tooltip'
+import { useForceUpdate } from '../../../util/react-util'
 
 const NO_GAME_TEAM_NAME = '?????'
 
@@ -15,52 +17,62 @@ interface Props {
     open: boolean
 }
 
-const CrownElement = () => {
-    return (
-        <Tooltip text={'Majority match winner'} location="bottom">
-            <Crown className="ml-2 mt-1" />
-        </Tooltip>
-    )
-}
-
-export const GamePage: React.FC<Props> = (props) => {
+export const GamePage: React.FC<Props> = React.memo((props) => {
     const context = useAppContext()
     const activeGame = context.state.activeGame
 
     const [showStats, setShowStats] = useSearchParamBool('showStats', true)
-    const [showWinner, setShowWinner] = React.useState(
-        context.state.tournament === undefined ||
-            (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
-    )
 
-    useListenEvent(EventType.TURN_PROGRESS, () =>
-        setShowWinner(
-            context.state.tournament === undefined ||
-                (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
-        )
-    )
+    const forceUpdate = useForceUpdate()
+    useListenEvent(EventType.TURN_PROGRESS, forceUpdate)
 
     if (!props.open) return null
 
-    const teamBoxClasses = 'w-full min-h-[40px] h-[40px] flex items-center text-center justify-center'
+    const teamBox = (teamIdx: number) => {
+        let showMatchWinner =
+            !context.state.tournament || (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
+        showMatchWinner = showMatchWinner && activeGame && activeGame.currentMatch?.winner === activeGame.teams[teamIdx]
+        let showGameWinner =
+            !context.state.tournament ||
+            (showMatchWinner &&
+                context.state.activeMatch ==
+                    context.state.activeGame?.matches[context.state.activeGame.matches.length - 1])
+        showGameWinner = showGameWinner && activeGame && activeGame.winner === activeGame.teams[teamIdx]
+
+        return (
+            <div className={'relative w-full py-2 px-3 text-center ' + (teamIdx == 0 ? 'bg-team0' : 'bg-team1')}>
+                <div>{activeGame?.teams[teamIdx].name ?? NO_GAME_TEAM_NAME}</div>
+                <div className="absolute top-2 left-3">
+                    {showMatchWinner && (
+                        <Tooltip text={'Current match winner'} location={'right'}>
+                            <BiMedal fontSize={'24px'} width={'20px'} color={'yellow'} />
+                        </Tooltip>
+                    )}
+                </div>
+                <div className="absolute top-3 right-3">
+                    {showGameWinner && (
+                        <Tooltip text={'Overall game winner'} location={'left'}>
+                            <Crown />
+                        </Tooltip>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col overflow-x-hidden">
-            <div className={teamBoxClasses + ' bg-team0'}>
-                <div className="flex">
-                    {activeGame?.teams[0].name ?? NO_GAME_TEAM_NAME}
-                    {activeGame && activeGame.winner === activeGame.teams[0] && showWinner && <CrownElement />}
-                </div>
+            <div className="w-full pb-3 px-4 text-center">
+                {activeGame && activeGame.currentMatch && (
+                    <div className="border-black border rounded-md font-bold">{activeGame.currentMatch.map.name}</div>
+                )}
             </div>
+            {teamBox(0)}
             <TeamTable teamIdx={0} />
 
-            <div className="h-[15px]" />
+            <div className="h-[15px] min-h-[15px]" />
 
-            <div className={teamBoxClasses + ' bg-team1'}>
-                <div className="flex">
-                    {activeGame?.teams[1].name ?? NO_GAME_TEAM_NAME}
-                    {activeGame && activeGame.winner === activeGame.teams[1] && showWinner && <CrownElement />}
-                </div>
-            </div>
+            {teamBox(1)}
             <TeamTable teamIdx={1} />
 
             <SectionHeader
@@ -84,4 +96,4 @@ export const GamePage: React.FC<Props> = (props) => {
             </SectionHeader>
         </div>
     )
-}
+})

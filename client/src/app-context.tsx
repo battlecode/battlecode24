@@ -9,7 +9,8 @@ export interface AppState {
     activeGame: Game | undefined
     activeMatch: Match | undefined
     tournament: Tournament | undefined
-    loadingRemoteContent: boolean
+    tournamentMinRound: number // Minimum round to display
+    loadingRemoteContent: string
     updatesPerSecond: number
     paused: boolean
     disableHotkeys: boolean
@@ -21,7 +22,8 @@ const DEFAULT_APP_STATE: AppState = {
     activeGame: undefined,
     activeMatch: undefined,
     tournament: undefined,
-    loadingRemoteContent: false,
+    tournamentMinRound: 1,
+    loadingRemoteContent: '',
     updatesPerSecond: 1,
     paused: true,
     disableHotkeys: false,
