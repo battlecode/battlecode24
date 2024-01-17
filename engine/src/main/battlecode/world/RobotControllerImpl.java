@@ -760,6 +760,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.HEAL_RADIUS_SQUARED);
         assertIsActionReady();
+        if(getLocation().equals(loc)) {
+            throw new GameActionException(CANT_DO_THAT, "You can't heal yourself");
+        }
         if(this.gameWorld.getRobot(loc) == null) {
             throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
         }
