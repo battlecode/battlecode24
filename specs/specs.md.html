@@ -40,7 +40,7 @@ In Battlecode: Breadwars, your goal is to capture the opponent’s flags. The fi
 
 The two teams will be separated by an impassable dam during the first **200** rounds of the game. Teams will use this period to collect resources, modify the terrain, and set up defenses for their flags. After the setup phase, the dam will collapse and allow both teams to move freely.
 
-Each team has **3** flags. When the game starts, flags are located at the centers of each team’s three spawn zones. Any unit can pick up and place a flag at any time during the setup phase. When the setup phase ends, the new locations of the flags will become the default flag locations for the remainder of the game. If a flag is being carried, it will be automatically dropped at the robot’s location. Default flag placements must be a minimum distance of **6** units[^1] apart on the map. If two flags are less than 6 units apart at the end of the setup phase, all flags for the team will be teleported back to the spawn zones, which will become their default locations.
+Each team has **3** flags. When the game starts, flags are located at the centers of each team’s three spawn zones. Any unit can pick up and place a flag at any time during the setup phase. When the setup phase ends, the new locations of the flags will become the default flag locations for the remainder of the game. If a flag is being carried, it will be automatically dropped at the robot’s location. Default flag placements must be a minimum distance of **$\sqrt{36}$** units apart on the map. If two flags are less than this distance apart at the end of the setup phase, all flags for the team will be teleported back to the spawn zones, which will become their default locations.
 
 **Tiebreakers**
 
@@ -62,11 +62,11 @@ In order to prevent maps from favoring one player over another, it is guaranteed
 
 **Spawn zones**
 
-Each team has **3** spawn zones, which are 3x3 in size and pre-placed on the map. The zones cannot be moved, destroyed, or covered with water. The centers of spawn zones for each team will be at least  **6** units apart.
+Each team has **3** spawn zones, which are 3x3 in size and pre-placed on the map. The zones cannot be moved, destroyed, or covered with water. The centers of spawn zones for each team will be at least  **$\sqrt{36}$** units apart.
 
 **Resources**
 
-Building, digging, and filling all require spending crumbs. Each game will start with a finite amount of crumbs scattered around the map. Either team can access the crumbs and collect them for their own use. A bot collects crumbs by simply moving onto the tile. Upon collection, the crumbs are immediately added to the team’s global resource pool. No additional crumbs will spawn on the map, but each team will passively gain **10** crumbs at the beginning of every round**.** Teams start with **400 **crumbs before collecting any crumbs from the map.
+Building, digging, and filling all require spending crumbs. Each game will start with a finite amount of crumbs scattered around the map. Either team can access the crumbs and collect them for their own use. A bot collects crumbs by simply moving onto the tile. Upon collection, the crumbs are immediately added to the team’s global resource pool. No additional crumbs will spawn on the map, but each team will passively gain **10** crumbs at the beginning of every round. Teams start with **400** crumbs before collecting any crumbs from the map.
 
 **Passability and Visibility**
 
@@ -106,7 +106,7 @@ However, robotic voice boxes programmed with the team’s dialect allow each uni
 
 # **Actions**
 
-The following are all actions that a robot can perform. Robots are only allowed to perform actions when the corresponding cooldown value is **&lt; 10**. Movement has its own cooldown counter, while all other types of actions share a single cooldown counter. Both cooldown counters decrease by **10 **each turn.
+The following are all actions that a robot can perform. Robots are only allowed to perform actions when the corresponding cooldown value is **&lt; 10**. Movement has its own cooldown counter, while all other types of actions share a single cooldown counter. Both cooldown counters decrease by **10** each turn.
 
 **Movement**
 
@@ -114,11 +114,11 @@ Each unit can move by one tile in any unobstructed and unoccupied direction. Uni
 
 **Attacking**
 
-Robots can attack enemy robots within **2** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **50** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
+Robots can attack enemy robots within **$\sqrt{4}$** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **50** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
 
 **Healing**
 
-Heals a friendly unit within **2** tiles. Healing is only allowed when the friendly unit is below max health, and can only heal the unit up to the maximum health. Healing increases health by **+80** and has a cooldown cost of **+30**. Units cannot heal themselves.
+Heals a friendly unit within **$\sqrt{4}$** tiles. Healing is only allowed when the friendly unit is below max health, and can only heal the unit up to the maximum health. Healing increases health by **+80** and has a cooldown cost of **+30**. Units cannot heal themselves.
 
 **Building**
 
