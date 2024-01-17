@@ -17,12 +17,12 @@ public enum TrapType {
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
      */
-    WATER (100, 1, 9, 0, 0, 0, true, 5, true, 0),
+    WATER (100, 2, 9, 0, 0, 0, true, 5, true, 0),
 
     /**
      * When an opponent enters, all opponent robots movement and action cooldowns are set to 40.
      */
-    STUN (100, 1, 13, 0, 0, 0, false, 5, true, 40),
+    STUN (100, 2, 13, 0, 0, 0, false, 5, true, 40),
 
     NONE (100, 0, 0, 0, 0, 0, false, 0, false, 0);
     
