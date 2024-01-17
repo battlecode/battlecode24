@@ -661,7 +661,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int cooldownIncrease = (int) Math.round(GameConstants.FILL_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
         int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
         this.robot.addActionCooldownTurns(cooldownIncrease);
-        this.robot.addMovementCooldownTurns();
         this.robot.addResourceAmount(resources);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
