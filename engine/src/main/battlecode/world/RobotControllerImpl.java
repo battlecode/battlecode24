@@ -322,7 +322,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
-        if(!canDropFlag(loc)) return false;
+        if(!gameWorld.isPassable(loc)) return false;
         boolean valid = true;
         for(Flag x : gameWorld.getAllFlags()) {
             if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && 
