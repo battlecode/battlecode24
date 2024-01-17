@@ -19,7 +19,7 @@ public enum GlobalUpgrade {
     HEALING(0, 50, 0, 0),
 
     /**
-     * Capture upgrade increases the dropped flag delay from 4 rounds to 12 rounds.
+     * Capture upgrade increases the dropped flag delay from 4 rounds to 12 rounds. It also decreases the movement penalty for holding a flag by 8.
      */
     CAPTURING(0, 0, 8, -8);
 

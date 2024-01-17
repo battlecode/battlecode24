@@ -297,9 +297,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         if (hasFlag() && this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[1]) {
             setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.FLAG_MOVEMENT_COOLDOWN
                     - GlobalUpgrade.CAPTURING.movementDelayChange);
+        } else {
+            setMovementCooldownTurns(this.movementCooldownTurns
+                    + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
         }
-        setMovementCooldownTurns(this.movementCooldownTurns
-                + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
     }
 
     /**
