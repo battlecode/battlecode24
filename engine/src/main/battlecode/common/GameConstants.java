@@ -72,7 +72,7 @@ public class GameConstants {
     public static final int DIG_COST = 20;
     
     /** Crumbs cost for filling */
-    public static final int FILL_COST = 10;
+    public static final int FILL_COST = 30;
 
     /** Number of rounds between updating the random noisy flag broadcast location */
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
@@ -142,6 +142,6 @@ public class GameConstants {
     public static final int DIG_COOLDOWN = 20;
 
     /** The amount added to the action cooldown counter after filling */
-    public static final int FILL_COOLDOWN = 20;
+    public static final int FILL_COOLDOWN = 30;
 
 }
