@@ -22,7 +22,7 @@ public enum TrapType {
     /**
      * When an opponent enters, all opponent robots movement and action cooldowns are set to 40.
      */
-    STUN (100, 2, 13, 0, 0, 0, false, 5, true, 40),
+    STUN (100, 2, 13, 0, 0, 0, false, 5, true, 50),
 
     NONE (100, 0, 0, 0, 0, 0, false, 0, false, 0);
     
