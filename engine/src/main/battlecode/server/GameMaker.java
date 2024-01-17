@@ -54,6 +54,7 @@ public strictfp class GameMaker {
          */
         DONE
     }
+
     private State state;
 
     // this un-separation-of-concerns makes me uncomfortable
@@ -70,7 +71,8 @@ public strictfp class GameMaker {
 
     /**
      * We have a separate byte[] for each packet sent to the client.
-     * This is necessary because flatbuffers shares metadata between structures, so we
+     * This is necessary because flatbuffers shares metadata between structures, so
+     * we
      * can't just cut out chunks of the larger buffer :/
      */
     private FlatBufferBuilder packetBuilder;
@@ -107,8 +109,8 @@ public strictfp class GameMaker {
     private final boolean showIndicators;
 
     /**
-     * @param gameInfo the mapping of teams to bytes
-     * @param packetSink the NetServer to send packets to
+     * @param gameInfo       the mapping of teams to bytes
+     * @param packetSink     the NetServer to send packets to
      * @param showIndicators whether to write indicator dots and lines to replay
      */
     public GameMaker(final GameInfo gameInfo, final NetServer packetSink, final boolean showIndicators) {
@@ -139,8 +141,8 @@ public strictfp class GameMaker {
      */
     private void assertState(State state) {
         if (this.state != state) {
-            throw new RuntimeException("Incorrect GameMaker state: should be "+
-                    state+", but is: "+this.state);
+            throw new RuntimeException("Incorrect GameMaker state: should be " +
+                    state + ", but is: " + this.state);
         }
     }
 
@@ -151,7 +153,6 @@ public strictfp class GameMaker {
         assertState(start);
         this.state = end;
     }
-
 
     /**
      * Convert entire game to a byte array.
@@ -209,7 +210,8 @@ public strictfp class GameMaker {
     /**
      * Run the same logic for both builders.
      *
-     * @param perBuilder called with each builder; return event id. Should not mutate state.
+     * @param perBuilder called with each builder; return event id. Should not
+     *                   mutate state.
      */
     private void createEvent(ToIntFunction<FlatBufferBuilder> perBuilder) {
         // make file event and add its offset to the list
@@ -257,7 +259,7 @@ public strictfp class GameMaker {
             TeamData.addPackageName(builder, packageName);
             TeamData.addTeamId(builder, TeamMapping.id(Team.B));
             int teamBOffset = TeamData.endTeamData(builder);
-            int[] teamsVec = {teamAOffset, teamBOffset};
+            int[] teamsVec = { teamAOffset, teamBOffset };
 
             int teamsOffset = GameHeader.createTeamsVector(builder, teamsVec);
             int specializationMetadataOffset = makeSpecializationMetadata(builder);
@@ -291,23 +293,21 @@ public strictfp class GameMaker {
     public int makeSpecializationMetadata(FlatBufferBuilder builder) {
         TIntArrayList specializationMetadataOffsets = new TIntArrayList();
 
-        for(SkillType type : SkillType.values()) {
-            for(int l = 0; l <= 6; l++) {
+        for (SkillType type : SkillType.values()) {
+            for (int l = 0; l <= 6; l++) {
                 SpecializationMetadata.startSpecializationMetadata(builder);
                 SpecializationMetadata.addType(builder, skillTypeToSpecializationType(type));
                 SpecializationMetadata.addLevel(builder, l);
                 SpecializationMetadata.addActionJailedPenalty(builder, type.getPenalty(l));
                 SpecializationMetadata.addCooldownReduction(builder, type.getCooldown(l));
                 int effect = type.getSkillEffect(l);
-                if(type == SkillType.ATTACK) {
+                if (type == SkillType.ATTACK) {
                     SpecializationMetadata.addDamageIncrease(builder, effect);
                     SpecializationMetadata.addHealIncrease(builder, 0);
-                }
-                else if(type == SkillType.BUILD) {
+                } else if (type == SkillType.BUILD) {
                     SpecializationMetadata.addDamageIncrease(builder, 0);
                     SpecializationMetadata.addHealIncrease(builder, 0);
-                }
-                else if(type == SkillType.HEAL) {
+                } else if (type == SkillType.HEAL) {
                     SpecializationMetadata.addDamageIncrease(builder, 0);
                     SpecializationMetadata.addHealIncrease(builder, effect);
                 }
@@ -319,7 +319,7 @@ public strictfp class GameMaker {
 
     public int makeBuildActionMetadata(FlatBufferBuilder builder) {
         TIntArrayList buildActionMetadataOffsets = new TIntArrayList();
-        for(TrapType type : TrapType.values()) {
+        for (TrapType type : TrapType.values()) {
             BuildActionMetadata.startBuildActionMetadata(builder);
             BuildActionMetadata.addType(builder, trapTypeToBuildActionType(type));
             BuildActionMetadata.addCost(builder, type.buildCost);
@@ -339,9 +339,9 @@ public strictfp class GameMaker {
         return GameHeader.createBuildActionMetadataVector(builder, buildActionMetadataOffsets.toArray());
     }
 
-    public int makeGlobalUpgradeMetadata(FlatBufferBuilder builder){
+    public int makeGlobalUpgradeMetadata(FlatBufferBuilder builder) {
         TIntArrayList globalUpgradeMetadataOffsets = new TIntArrayList();
-        for(GlobalUpgrade upgrade : GlobalUpgrade.values()) {
+        for (GlobalUpgrade upgrade : GlobalUpgrade.values()) {
             GlobalUpgradeMetadata.startGlobalUpgradeMetadata(builder);
             GlobalUpgradeMetadata.addType(builder, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(upgrade));
             GlobalUpgradeMetadata.addUpgradeAmount(builder, getUpgradeAmount(upgrade));
@@ -351,23 +351,32 @@ public strictfp class GameMaker {
     }
 
     private byte skillTypeToSpecializationType(SkillType type) {
-        if (type == SkillType.ATTACK) return SpecializationType.ATTACK;
-        if (type == SkillType.BUILD) return SpecializationType.BUILD;
-        if (type == SkillType.HEAL) return SpecializationType.HEAL;
+        if (type == SkillType.ATTACK)
+            return SpecializationType.ATTACK;
+        if (type == SkillType.BUILD)
+            return SpecializationType.BUILD;
+        if (type == SkillType.HEAL)
+            return SpecializationType.HEAL;
         return Byte.MIN_VALUE;
     }
 
     private byte trapTypeToBuildActionType(TrapType type) {
-        if (type == TrapType.EXPLOSIVE) return BuildActionType.EXPLOSIVE_TRAP;
-        if (type == TrapType.WATER) return BuildActionType.WATER_TRAP;
-        if (type == TrapType.STUN) return BuildActionType.STUN_TRAP;
+        if (type == TrapType.EXPLOSIVE)
+            return BuildActionType.EXPLOSIVE_TRAP;
+        if (type == TrapType.WATER)
+            return BuildActionType.WATER_TRAP;
+        if (type == TrapType.STUN)
+            return BuildActionType.STUN_TRAP;
         return Byte.MIN_VALUE;
     }
 
     private int getUpgradeAmount(GlobalUpgrade gu) {
-        if(gu == GlobalUpgrade.ACTION) return gu.cooldownReductionChange;
-        if(gu == GlobalUpgrade.HEALING) return gu.baseHealChange;
-        if(gu == GlobalUpgrade.CAPTURING) return gu.flagReturnDelayChange;
+        if (gu == GlobalUpgrade.ATTACK)
+            return gu.baseAttackChange;
+        if (gu == GlobalUpgrade.HEALING)
+            return gu.baseHealChange;
+        if (gu == GlobalUpgrade.CAPTURING)
+            return gu.flagReturnDelayChange;
         return 0;
     }
 
@@ -488,7 +497,7 @@ public strictfp class GameMaker {
             this.teamAComm = new TIntArrayList();
             this.teamBComm = new TIntArrayList();
             this.trapAddedIds = new TIntArrayList();
-            this.trapAddedX =  new TIntArrayList();
+            this.trapAddedX = new TIntArrayList();
             this.trapAddedY = new TIntArrayList();
             this.trapAddedTypes = new TByteArrayList();
             this.trapAddedTeams = new TByteArrayList();
@@ -533,7 +542,8 @@ public strictfp class GameMaker {
             clearData();
         }
 
-        public void makeMatchFooter(Team winTeam, DominationFactor winType, int totalRounds, List<ProfilerCollection> profilerCollections) {
+        public void makeMatchFooter(Team winTeam, DominationFactor winType, int totalRounds,
+                List<ProfilerCollection> profilerCollections) {
             changeState(State.IN_MATCH, State.IN_GAME);
 
             createEvent((builder) -> {
@@ -576,8 +586,8 @@ public strictfp class GameMaker {
                 int profilerFilesOffset = MatchFooter.createProfilerFilesVector(builder, profilerFiles.toArray());
 
                 return EventWrapper.createEventWrapper(builder, Event.MatchFooter,
-                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), 
-                    FlatHelpers.getWinTypeFromDominationFactor(winType), totalRounds, profilerFilesOffset));
+                        MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam),
+                                FlatHelpers.getWinTypeFromDominationFactor(winType), totalRounds, profilerFilesOffset));
             });
 
             matchFooters.add(events.size() - 1);
@@ -609,7 +619,8 @@ public strictfp class GameMaker {
                 int robotIDsP = Round.createRobotIdsVector(builder, robotIds.toArray());
                 int robotLocsP = createVecTable(builder, robotLocsX, robotLocsY);
                 int robotMoveCooldownsP = Round.createRobotMoveCooldownsVector(builder, robotMoveCooldowns.toArray());
-                int robotActionCooldownsP = Round.createRobotActionCooldownsVector(builder, robotActionCooldowns.toArray());
+                int robotActionCooldownsP = Round.createRobotActionCooldownsVector(builder,
+                        robotActionCooldowns.toArray());
                 int robotHealthsP = Round.createRobotHealthsVector(builder, robotHealths.toArray());
                 int attacksPerformedP = Round.createAttacksPerformedVector(builder, attacksPerformed.toArray());
                 int attackLevelsP = Round.createAttackLevelsVector(builder, attackLevels.toArray());
@@ -657,13 +668,15 @@ public strictfp class GameMaker {
                 // The indicator dots that were set
                 int indicatorDotIDsP = Round.createIndicatorDotIdsVector(builder, indicatorDotIds.toArray());
                 int indicatorDotLocsP = createVecTable(builder, indicatorDotLocsX, indicatorDotLocsY);
-                int indicatorDotRGBsP = createRGBTable(builder, indicatorDotRGBsRed, indicatorDotRGBsGreen, indicatorDotRGBsBlue);
+                int indicatorDotRGBsP = createRGBTable(builder, indicatorDotRGBsRed, indicatorDotRGBsGreen,
+                        indicatorDotRGBsBlue);
 
                 // The indicator lines that were set
                 int indicatorLineIDsP = Round.createIndicatorLineIdsVector(builder, indicatorLineIds.toArray());
                 int indicatorLineStartLocsP = createVecTable(builder, indicatorLineStartLocsX, indicatorLineStartLocsY);
                 int indicatorLineEndLocsP = createVecTable(builder, indicatorLineEndLocsX, indicatorLineEndLocsY);
-                int indicatorLineRGBsP = createRGBTable(builder, indicatorLineRGBsRed, indicatorLineRGBsGreen, indicatorLineRGBsBlue);
+                int indicatorLineRGBsP = createRGBTable(builder, indicatorLineRGBsRed, indicatorLineRGBsGreen,
+                        indicatorLineRGBsBlue);
 
                 // The bytecode usage
                 int bytecodeIDsP = Round.createBytecodeIdsVector(builder, bytecodeIds.toArray());
@@ -794,8 +807,10 @@ public strictfp class GameMaker {
         public void addTeamInfo(Team team, int breadAmount, int[] sharedArray) {
             teamIDs.add(TeamMapping.id(team));
             teamBreadAmounts.add(breadAmount);
-            if(team == Team.A) teamAComm = new TIntArrayList(sharedArray);
-            else if(team == Team.B) teamBComm = new TIntArrayList(sharedArray);
+            if (team == Team.A)
+                teamAComm = new TIntArrayList(sharedArray);
+            else if (team == Team.B)
+                teamBComm = new TIntArrayList(sharedArray);
         }
 
         public void addIndicatorString(int id, String string) {

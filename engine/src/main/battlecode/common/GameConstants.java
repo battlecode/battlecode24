@@ -96,7 +96,7 @@ public class GameConstants {
     public static final int SETUP_ROUNDS = 200;
 
     /** Number of rounds between adding a global upgrade point */
-    public static final int GLOBAL_UPGRADE_ROUNDS = 750;
+    public static final int GLOBAL_UPGRADE_ROUNDS = 600;
 
     /** Number of rounds robots must spend in jail before respawning */
     public static final int JAILED_ROUNDS = 25;

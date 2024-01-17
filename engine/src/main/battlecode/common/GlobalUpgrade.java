@@ -1,31 +1,32 @@
 package battlecode.common;
 
 /**
- * Enumerates the possible types of global updates. More information about each update
- *  are available in the game specs.
+ * Enumerates the possible types of global updates. More information about each
+ * update
+ * are available in the game specs.
  */
 
 public enum GlobalUpgrade {
 
     /**
-     * Action upgrade increases the amount cooldown drops per round by 4.
+     * Attack upgrade increases the base attack by 75.
      */
-    ACTION(4, 0, 0),
+    ATTACK(75, 0, 0, 0),
 
     /**
      * Healing increases base heal by 50.
      */
-    HEALING(0, 50, 0),
+    HEALING(0, 50, 0, 0),
 
     /**
      * Capture upgrade increases the dropped flag delay from 4 rounds to 12 rounds.
      */
-    CAPTURING(0, 0, 8);
+    CAPTURING(0, 0, 8, -8);
 
     /**
-     * How much cooldown reduction changes
+     * How much base attack changes
      */
-    public final int cooldownReductionChange;
+    public final int baseAttackChange;
 
     /**
      * How much base heal changes
@@ -33,13 +34,19 @@ public enum GlobalUpgrade {
     public final int baseHealChange;
 
     /**
-     * how much dropped flag return delay changes
+     * How much dropped flag return delay changes
      */
     public final int flagReturnDelayChange;
 
-    GlobalUpgrade(int cooldownReductionChange, int baseHealChange, int flagReturnDelayChange){
-        this.cooldownReductionChange = cooldownReductionChange;
+    /**
+     * How much the movement penalty for holding a flag changes.
+     */
+    public final int movementDelayChange;
+
+    GlobalUpgrade(int baseAttackChange, int baseHealChange, int flagReturnDelayChange, int movementDelayChange) {
+        this.baseAttackChange = baseAttackChange;
         this.baseHealChange = baseHealChange;
         this.flagReturnDelayChange = flagReturnDelayChange;
+        this.movementDelayChange = movementDelayChange;
     }
 }

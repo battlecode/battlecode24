@@ -953,7 +953,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanBuyGlobal(GlobalUpgrade ug) throws GameActionException{
         int i = -1;
-        if(ug == GlobalUpgrade.ACTION)
+        if(ug == GlobalUpgrade.ATTACK)
             i = 0;
         else if(ug == GlobalUpgrade.CAPTURING)
             i = 1;
