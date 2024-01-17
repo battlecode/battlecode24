@@ -35,9 +35,9 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getExperience(int level){
-        int[] attackExperience = {0, 20, 40, 70, 100, 140, 180};
+        int[] attackExperience = {0, 15, 30, 45, 75, 110, 150};
         int[] buildExperience = {0, 5, 10, 15, 20, 25, 30};
-        int[] healExperience = {0, 15, 30, 45, 75, 110, 150};
+        int[] healExperience = {0, 20, 40, 70, 100, 140, 180};
         switch(this){
             case ATTACK: return attackExperience[level];
             case BUILD: return buildExperience[level];
@@ -57,7 +57,7 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getCooldown(int level){
-        int[] attackCooldown = {0, -5, -10, -15, -20, -30, -40};
+        int[] attackCooldown = {0, -5, -7, -10, -20, -35, -60};
         int[] buildCooldown = {0, -5, -10, -15, -20, -30, -50};
         int[] healCooldown = {0, -5, -10, -15, -15, -15, -25};
         switch(this){
@@ -79,7 +79,7 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getSkillEffect(int level){
-        int[] attackSkill = {0, 5, 10, 15, 20, 30, 50};
+        int[] attackSkill = {0, 5, 7, 10, 30, 35, 60};
         int[] buildSkill = {0, -10, -15, -20, -30, -40, -50};
         int[] healSkill = {0, 3, 5, 7, 10, 15, 25};
         switch(this){
@@ -99,9 +99,9 @@ public enum SkillType{
      * @battlecode.doc.costlymethod
      */
     public int getPenalty(int level){
-        int[] attackPenalty = {-1, -5, -5, -10, -10, -15, -15};
-        int[] buildPenalty = {-1, -2, -2, -5, -5, -10, -10};
-        int[] healPenalty = {-1, -2, -2, -5, -5, -10, -10};
+        int[] attackPenalty = {-1, -2, -2, -5, -5, -10, -12};
+        int[] buildPenalty = {-1, -2, -2, -3, -3, -4, -6};
+        int[] healPenalty = {-1, -5, -5, -10, -10, -15, -18};
         switch(this){
             case ATTACK: return attackPenalty[level];
             case BUILD: return buildPenalty[level];
