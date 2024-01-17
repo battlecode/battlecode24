@@ -12,7 +12,7 @@ public enum TrapType {
      * When an opponent enters, explosive traps deal 750 damage to all opponents within a sqrt 13 radius
      * If an opponent digs/breaks under the trap, it deals 500 damage to all opponnets in radius sqrt 9
      */
-    EXPLOSIVE (250, 0, 13, 9, 750, 500, false, 5, true, 0),
+    EXPLOSIVE (250, 0, 4, 2, 750, 200, false, 5, true, 0),
 
     /**
      * When an opponent enters, water traps dig all unoccupied tiles within a radius of sqrt 9
