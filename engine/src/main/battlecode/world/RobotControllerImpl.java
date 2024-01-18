@@ -323,9 +323,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
         if(!gameWorld.isPassable(loc)) return false;
+        boolean hasFlag = robot.hasFlag();
         boolean valid = true;
         for(Flag x : gameWorld.getAllFlags()) {
-            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && 
+            if((!hasFlag || x.getId() != robot.getFlag().getId()) && x.getTeam() == robot.getTeam() && 
                     x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED && !x.isPickedUp()) {
                 valid = false;
                 break;
@@ -962,7 +963,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanBuyGlobal(GlobalUpgrade ug) throws GameActionException{
         int i = -1;
-        if(ug == GlobalUpgrade.ATTACK)
+        if(ug == GlobalUpgrade.ATTACK || ug == GlobalUpgrade.ACTION)
             i = 0;
         else if(ug == GlobalUpgrade.CAPTURING)
             i = 1;

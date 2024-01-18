@@ -141,7 +141,7 @@ Fills at a location up to **$\sqrt{2}$** units away, converting water to land. F
 
 The goal of attacking is to retrieve your opponent’s flags and bring them to your side. To retrieve this flag, your robots must first find the opponent's flag. 
 
-Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **$\sqrt{10}$** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
+Robots can sense all flags within vision radius at all times, including flags that are picked up by other robots. Additionally, at the end of the setup phase, dropped enemy flags start broadcasting their approximate locations, which serves as a hint for seeking them out. Robots can sense locations of dropped enemy flags outside of vision radius that are accurate within a radius of **$\sqrt{100}$** cells. Every **100** turns, the broadcast location is updated to a new random location within that radius.
 
 Robots can pick up and drop flags as described in the actions section. While holding a flag, robots cannot perform any actions besides movement, and robots may carry only one flag at a time. If your robot enters a friendly spawn zone while carrying an enemy flag, your team captures the flag and it is permanently removed from the game. Flags cannot be captured by being dropped into the spawn zone.
 
@@ -286,6 +286,13 @@ If something is unclear, direct your questions to our Discord where other people
 
 # **Appendix: Changelog**
 
+- Version 2.0.1 (January 17, 2024)
+  - Engine fixes
+    - getSpawnZoneTeam() will still return int for backwards compatability
+    - getSpawnZoneTeamObject() will return a Team object
+    - 'ACTION' global upgrade retained for backwards compatability, will function as 'ATTACK'
+    - Fixed null pointer exception with senseLegalStartingFlagPlacement
+
 - Version 2.0.0 (January 17, 2024)
   - Balance changes
     - Decreased attack level XP requirements
@@ -298,7 +305,7 @@ If something is unclear, direct your questions to our Discord where other people
       - Radius when triggered by walking on trap $\sqrt{13}$ -> $\sqrt{4}$
       - Radius when triggered by building $\sqrt{9}$ -> $\sqrt{2}$
       - Damage when triggered by building, digging, or filling 500 -> 200 (fixed bug causing damage to always be 750)
-    - Stun trap and explosive trap trigger radius 1 -> $\sqrt{2}$
+    - Stun trap and water trap trigger radius 1 -> $\sqrt{2}$
     - Stun trap stun rounds 40 -> 50
     - Flag broadcast radius $\sqrt{10}$ -> $\sqrt{100}$
     - Global upgrades can now be acquired every 600 rounds instead of 750
@@ -308,6 +315,7 @@ If something is unclear, direct your questions to our Discord where other people
   - Engine improvements
     - The senseLegalStartingFlagPlacement method no longer checks if the location is adjacent to the robot
     - Added getAttackDamage() and getHealAmount() methods
+    - getSpawnZoneTeam() now returns a Team object
 
 - Version 1.2.5 (January 16, 2024)
   - Engine improvements
