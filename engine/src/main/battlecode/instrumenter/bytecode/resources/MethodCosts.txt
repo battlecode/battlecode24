@@ -94,6 +94,7 @@ battlecode/common/MapInfo/toString                                      15   fal
 battlecode/common/MapInfo/isWall                                        2    false
 battlecode/common/MapInfo/isDam                                         2    false
 battlecode/common/MapInfo/getSpawnZoneTeam                              2    false
+battlecode/common/MapInfo/getSpawnZoneTeamObject                        2    false
 battlecode/common/MapInfo/getTrapType                                   2    false
 battlecode/common/MapInfo/getTeamTerritory                              2    false
 battlecode/common/MapInfo/isSpawnZone                                   2    false

@@ -21,7 +21,13 @@ public enum GlobalUpgrade {
     /**
      * Capture upgrade increases the dropped flag delay from 4 rounds to 12 rounds. It also decreases the movement penalty for holding a flag by 8.
      */
-    CAPTURING(0, 0, 8, -8);
+    CAPTURING(0, 0, 8, -8),
+
+    /**
+     * !DO NOT USE!
+     * NOOP upgrade that is mostly equivalent to ATTACK and exists for backwards compatability
+     */
+    ACTION(0, 0, 0, 0);
 
     /**
      * How much base attack changes

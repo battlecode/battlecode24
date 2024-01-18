@@ -160,7 +160,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action> = {
             // To dicuss
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const radius = 3.3 // in between the two sizes of the explosion
+            const radius = Math.sqrt(4)
             const map = match.currentTurn.map
             const loc = map.indexToLocation(this.target)
             const coords = renderUtils.getRenderCoords(loc.x, loc.y, map.dimension, true)

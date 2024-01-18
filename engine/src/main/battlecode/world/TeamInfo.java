@@ -115,7 +115,7 @@ public class TeamInfo {
      */
     public boolean makeGlobalUpgrade(Team team, GlobalUpgrade upgrade){
         if(this.globalUpgradePoints[team.ordinal()] > 0){
-            if (upgrade == GlobalUpgrade.ATTACK && !this.globalUpgrades[team.ordinal()][0]) {
+            if ((upgrade == GlobalUpgrade.ATTACK || upgrade == GlobalUpgrade.ACTION) && !this.globalUpgrades[team.ordinal()][0]) {
                 this.globalUpgrades[team.ordinal()][0] = true;
                 this.globalUpgradePoints[team.ordinal()]--;
                 return true;
