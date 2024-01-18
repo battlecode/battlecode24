@@ -78,13 +78,26 @@ public class MapInfo {
     }
 
     /**
+     * Returns 1 if this square is a Team A spawn zone,
+     * 2 if this square is a Team B spawn zone, and
+     * 0 if this square is not a spawn zone.
+     * 
+     * @return 1 or 2 if the square is a Team A or B spawn zone, respectively; 0 otherwise
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public int getSpawnZoneTeam() {
+        return spawnZone;
+    }
+
+    /**
      * Returns the team that owns that spawn zone at this location, or Team.NEUTRAL if the location is not a spawn zone.
      * 
      * @return The team that owns the spawn zone, or Team.NEUTRAL
      * 
      * @battlecode.doc.costlymethod
      */
-    public Team getSpawnZoneTeam() {
+    public Team getSpawnZoneTeamObject() {
         return spawnZone == 0 ? Team.NEUTRAL : (spawnZone == 1 ? Team.A : Team.B);
     }
 
