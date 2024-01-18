@@ -73,6 +73,9 @@ export const GameRenderer: React.FC = () => {
         updateCanvasDimensions(dynamicCanvas.current, { x: width, y: height })
         updateCanvasDimensions(overlayCanvas.current, { x: width, y: height })
         setSelectedSquare(undefined)
+        setSelectedBodyID(undefined)
+        setHoveredTile(undefined)
+        setHoveredBodyID(undefined)
         publishEvent(EventType.INITIAL_RENDER, {})
     }, [appContext.state.activeMatch, backgroundCanvas.current, dynamicCanvas.current, overlayCanvas.current])
 

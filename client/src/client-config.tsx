@@ -14,7 +14,8 @@ const DEFAULT_CONFIG = {
     showHealthBars: false,
     showMapXY: true,
     showFlagCarryIndicator: true,
-    streamRunnerGames: false
+    streamRunnerGames: false,
+    validateMaps: false
 }
 
 const configDescription: { [key: string]: string } = {
@@ -23,7 +24,8 @@ const configDescription: { [key: string]: string } = {
     showHealthBars: 'Show health bars below all robots',
     showMapXY: 'Show X,Y when hovering a tile',
     showFlagCarryIndicator: 'Show an obvious indicator over flag carriers',
-    streamRunnerGames: 'Stream each round from the runner live as the game is being played'
+    streamRunnerGames: 'Stream each round from the runner live as the game is being played',
+    validateMaps: 'Validate maps before running a game'
 }
 
 export function getDefaultConfig(): ClientConfig {

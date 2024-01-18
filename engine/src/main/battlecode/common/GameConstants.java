@@ -9,7 +9,7 @@ public class GameConstants {
     /**
      * The current spec version the server compiles with.
      */
-    public static final String SPEC_VERSION = "1.2.4";
+    public static final String SPEC_VERSION = "2.0.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
@@ -78,7 +78,7 @@ public class GameConstants {
     public static final int FLAG_BROADCAST_UPDATE_INTERVAL = 100;
 
     /** The maximum squared distance bewteen the actual flag location and the noisy broadcast location */
-    public static final int FLAG_BROADCAST_NOISE_RADIUS = 10;
+    public static final int FLAG_BROADCAST_NOISE_RADIUS = 100;
 
     /** The default number of rounds before dropped flags reset to their default locations */
     public static final int FLAG_DROPPED_RESET_ROUNDS = 4;

@@ -250,6 +250,9 @@ export class CurrentMap {
     }
 
     getTooltipInfo(square: Vector, match: Match): string[] {
+        // Bounds check
+        if (square.x >= this.width || square.y >= this.height) return []
+
         const schemaIdx = this.locationToIndex(square.x, square.y)
         const resourcePile = this.resourcePileData.get(schemaIdx)
         const trap = [...this.trapData.values()].find((x) => x.location.x == square.x && x.location.y == square.y)
