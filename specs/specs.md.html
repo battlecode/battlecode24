@@ -16,7 +16,7 @@
 
 # **Formal specification**
 
-_This is the formal specification of the Battlecode 2024 game._ Current version: *1.2.5* 
+_This is the formal specification of the Battlecode 2024 game._ Current version: *2.0.0* 
 
 **Welcome to Battlecode 2024: Breadwars.**
 
@@ -40,7 +40,7 @@ In Battlecode: Breadwars, your goal is to capture the opponent’s flags. The fi
 
 The two teams will be separated by an impassable dam during the first **200** rounds of the game. Teams will use this period to collect resources, modify the terrain, and set up defenses for their flags. After the setup phase, the dam will collapse and allow both teams to move freely.
 
-Each team has **3** flags. When the game starts, flags are located at the centers of each team’s three spawn zones. Any unit can pick up and place a flag at any time during the setup phase. When the setup phase ends, the new locations of the flags will become the default flag locations for the remainder of the game. If a flag is being carried, it will be automatically dropped at the robot’s location. Default flag placements must be a minimum distance of **6** units[^1] apart on the map. If two flags are less than 6 units apart at the end of the setup phase, all flags for the team will be teleported back to the spawn zones, which will become their default locations.
+Each team has **3** flags. When the game starts, flags are located at the centers of each team’s three spawn zones. Any unit can pick up and place a flag at any time during the setup phase. When the setup phase ends, the new locations of the flags will become the default flag locations for the remainder of the game. If a flag is being carried, it will be automatically dropped at the robot’s location. Default flag placements must be a minimum distance of **$\sqrt{36}$** units apart on the map. If two flags are less than this distance apart at the end of the setup phase, all flags for the team will be teleported back to the spawn zones, which will become their default locations.
 
 **Tiebreakers**
 
@@ -62,11 +62,11 @@ In order to prevent maps from favoring one player over another, it is guaranteed
 
 **Spawn zones**
 
-Each team has **3** spawn zones, which are 3x3 in size and pre-placed on the map. The zones cannot be moved, destroyed, or covered with water. The centers of spawn zones for each team will be at least  **6** units apart.
+Each team has **3** spawn zones, which are 3x3 in size and pre-placed on the map. The zones cannot be moved, destroyed, or covered with water. The centers of spawn zones for each team will be at least  **$\sqrt{36}$** units apart.
 
 **Resources**
 
-Building, digging, and filling all require spending crumbs. Each game will start with a finite amount of crumbs scattered around the map. Either team can access the crumbs and collect them for their own use. A bot collects crumbs by simply moving onto the tile. Upon collection, the crumbs are immediately added to the team’s global resource pool. No additional crumbs will spawn on the map, but each team will passively gain **10** crumbs at the beginning of every round**.** Teams start with **400 **crumbs before collecting any crumbs from the map.
+Building, digging, and filling all require spending crumbs. Each game will start with a finite amount of crumbs scattered around the map. Either team can access the crumbs and collect them for their own use. A bot collects crumbs by simply moving onto the tile. Upon collection, the crumbs are immediately added to the team’s global resource pool. No additional crumbs will spawn on the map, but each team will passively gain **10** crumbs at the beginning of every round. Teams start with **400** crumbs before collecting any crumbs from the map.
 
 **Passability and Visibility**
 
@@ -106,7 +106,7 @@ However, robotic voice boxes programmed with the team’s dialect allow each uni
 
 # **Actions**
 
-The following are all actions that a robot can perform. Robots are only allowed to perform actions when the corresponding cooldown value is **&lt; 10**. Movement has its own cooldown counter, while all other types of actions share a single cooldown counter. Both cooldown counters decrease by **10 **each turn.
+The following are all actions that a robot can perform. Robots are only allowed to perform actions when the corresponding cooldown value is **&lt; 10**. Movement has its own cooldown counter, while all other types of actions share a single cooldown counter. Both cooldown counters decrease by **10** each turn.
 
 **Movement**
 
@@ -114,11 +114,11 @@ Each unit can move by one tile in any unobstructed and unoccupied direction. Uni
 
 **Attacking**
 
-Robots can attack enemy robots within **2** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **50** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
+Robots can attack enemy robots within **$\sqrt{4}$** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **50** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
 
 **Healing**
 
-Heals a friendly unit within **2** tiles. Healing is only allowed when the friendly unit is below max health, and can only heal the unit up to the maximum health. Healing increases health by **+80** and has a cooldown cost of **+30**.
+Heals a friendly unit within **$\sqrt{4}$** tiles. Healing is only allowed when the friendly unit is below max health, and can only heal the unit up to the maximum health. Healing increases health by **+80** and has a cooldown cost of **+30**. Units cannot heal themselves.
 
 **Building**
 
@@ -134,7 +134,7 @@ Digs at a location up to **$\sqrt{2}$** units away, creating water on the tile. 
 
 **Filling**
 
-Fills at a location up to **$\sqrt{2}$** units away, converting water to land. Filling costs **10** crumbs and has a base cooldown of **+20**. Filling also adds **+10** to the movement cooldown, which prevents filling and moving onto the filled tile in the same turn.
+Fills at a location up to **$\sqrt{2}$** units away, converting water to land. Filling costs **30** crumbs and has a base cooldown of **+30**.
 
 
 # **Flags**
@@ -156,54 +156,54 @@ Flags can potentially be stacked on the same tile if two units carrying flags ar
 
 | Name | Cost | Function | Action cooldown
 | --- | --- | --- | ---
-| Explosive trap | 250 crumbs | Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing **750** damage to all opponent robots within a radius of $\sqrt{13}$ cells. When an opponent robot digs, fills, or tries to build on the trap, it explodes dealing **500** damage to all opponent robots within a radius of $\sqrt{9}$ cells. | 5
-| Water trap | 100 crumbs | Can only be built on land. Digs all non-occupied land in a radius of $\sqrt{9}$ when an opponent robot enters a tile within 1 unit of the trap. | 5
-| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters a tile within 1 unit of the trap, setting all of those robots’ movement and action cooldowns to **40**. | 5
+| Explosive trap | 250 crumbs | Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing **750** damage to all opponent robots within a radius of $\sqrt{4}$ cells. When an opponent robot digs, fills, or builds on the trap, it explodes dealing **200** damage to all opponent robots within a radius of $\sqrt{2}$ cells. The build will fail when this happens, while dig and fill will succeed. | 5
+| Water trap | 100 crumbs | Can only be built on land. Digs all non-occupied land in a radius of $\sqrt{9}$ when an opponent robot enters a tile within $\sqrt{2}$ units of the trap. | 5
+| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters a tile within $\sqrt{2}$ units of the trap, setting all of those robots’ movement and action cooldowns to **50**. | 5
 
 # **Global Upgrades**
 
-Every **750** rounds, each team is awarded one upgrade point. These points can be spent on global upgrades that apply to all units on the team. Each upgrade has a maximum of one level and can only be activated once.
+Every **600** rounds, each team is awarded one upgrade point. These points can be spent on global upgrades that apply to all units on the team. Each upgrade has a maximum of one level and can only be activated once.
 
 | Name | Function
 | --- | --- |
-| Action Upgrade - Swift Beaks | Increases per-round action cooldown reduction by **+4**.
+| Attack Upgrade - Swift Beaks | Increases base attack by **+75**.
 | Healing Upgrade - Down Feathers | Increases base heal by **+50** health points.
-| Capturing Upgrade - Heavy Bread | Increases the dropped flag return delay of the other team’s flag to **12** rounds.
+| Capturing Upgrade - Thin Slices | Increases the dropped flag return delay of the other team’s flag to **12** rounds. Decreases movement cooldown when carrying the flag to **+12**.
 
 # **Specialization Stats**
 
 **Level requirements (# of actions)**
 | Level | Attack Exp | Build Exp | Heal Exp
 | --- | --- | --- | ---
-| 0 | 0 | 0 | 0
-| 1 | 20 | 5 | 15
-| 2 | 40 | 10 | 30
-| 3 | 70 | 15 | 45
-| 4 | 100 | 20 | 75
-| 5 | 140 | 25 | 110
-| 6 | 180 | 30 | 150 
+| 0 | 0   | 0  | 0
+| 1 | 15  | 5  | 20
+| 2 | 30  | 10 | 40
+| 3 | 45  | 15 | 70
+| 4 | 75  | 20 | 100
+| 5 | 110 | 25 | 140
+| 6 | 150 | 30 | 180
 
 **Specialization Jailed Penalty**
 | Level | Attack | Build | Heal
 | --- | --- | --- | ---
-| 0 | -1 | -1 | -1
-| 1 | -5 | -2 | -2
-| 2 | -5 | -2 | -2
-| 3 | -10 | -5 | -5
-| 4 | -10 | -5 | -5
-| 5 | -15 | -10 | -10
-| 6 | -15 | -10 | -10
+| 0 | -1  | -1 | -1
+| 1 | -2  | -2 | -5
+| 2 | -2  | -2 | -5
+| 3 | -5  | -3 | -10
+| 4 | -5  | -3 | -10
+| 5 | -10 | -4 | -15
+| 6 | -12 | -6 | -18
 
 **Specialization Effects Per Action**
 | Level | Attack | Build | Heal
 | --- | --- | --- | ---
 | 0 | Base | Base | Base
 | 1 | -5% Cooldown Cost <br> +5% Damage | -5% Cooldown <br> -10% Cost | -5% Cooldown <br> +3% Heal
-| 2 | -10% Cooldown Cost <br> +10% Damage | -10% Cooldown <br> -15% Cost | -10% Cooldown <br> +5% Heal
-| 3 | -15% Cooldown Cost <br> +15% Damage | -15% Cooldown <br> -20% Cost | -15% Cooldown <br> +7% Heal
-| 4 | -20% Cooldown Cost <br> +20% Damage | -20% Cooldown <br> -30% Cost | -15% Cooldown <br> +10% Heal
-| 5 | -30% Cooldown Cost <br> +30% Damage | -30% Cooldown <br> -40% Cost | -15% Cooldown <br> +15% Heal
-| 6 | -40% Cooldown Cost <br> +50% Damage | -50% Cooldown <br> -50% Cost | -25% Cooldown <br> +25% Heal
+| 2 | -7% Cooldown Cost <br> +7% Damage | -10% Cooldown <br> -15% Cost | -10% Cooldown <br> +5% Heal
+| 3 | -10% Cooldown Cost <br> +10% Damage | -15% Cooldown <br> -20% Cost | -15% Cooldown <br> +7% Heal
+| 4 | -20% Cooldown Cost <br> +30% Damage | -20% Cooldown <br> -30% Cost | -15% Cooldown <br> +10% Heal
+| 5 | -35% Cooldown Cost <br> +35% Damage | -30% Cooldown <br> -40% Cost | -15% Cooldown <br> +15% Heal
+| 6 | -60% Cooldown Cost <br> +60% Damage | -50% Cooldown <br> -50% Cost | -25% Cooldown <br> +25% Heal
 
 # **Bytecode limits**
 
@@ -285,6 +285,28 @@ Bytecodes relating to the creation of arrays (specifically NEWARRAY, ANEWARRAY, 
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # **Appendix: Changelog**
+
+- Version 2.0.0 (January 17, 2024)
+  - Balance changes
+    - Decreased attack level XP requirements
+    - Increased heal level XP requirements
+    - Increased attack skill effects (greater cooldown reduction, greater damage bonus)
+    - Increased jailed penalties for healing, decreased for attacking and building
+    - Units can no longer heal themselves
+    - Filling crumb cost 20 -> 30, cooldown 10 -> 30, removed movement cooldown penalty
+    - Explosive trap nerf
+      - Radius when triggered by walking on trap $\sqrt{13}$ -> $\sqrt{4}$
+      - Radius when triggered by building $\sqrt{9}$ -> $\sqrt{2}$
+      - Damage when triggered by building 500 -> 200 (fixed bug causing damage to always be 750)
+    - Stun trap and explosive trap trigger radius 1 -> $\sqrt{2}$
+    - Stun trap stun rounds 40 -> 50
+    - Global upgrades can now be acquired every 600 rounds instead of 750
+    - Changed action global upgrade to attack upgrade
+    - Capturing upgrade now also decreases movement cooldown while carrying a flag to +12
+    - Robots can now sense the global upgrades owned by either team using getGlobalUpgrades()
+  - Engine improvements
+    - The senseLegalStartingFlagPlacement method no longer checks if the location is adjacent to the robot
+    - Added getAttackDamage() and getHealAmount() methods
 
 - Version 1.2.5 (January 16, 2024)
   - Engine improvements
