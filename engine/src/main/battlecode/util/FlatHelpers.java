@@ -73,7 +73,7 @@ public class FlatHelpers {
     }
 
     public static byte getGlobalUpgradeTypeFromGlobalUpgrade(GlobalUpgrade gu) {
-        if (gu == GlobalUpgrade.ATTACK)
+        if (gu == GlobalUpgrade.ATTACK || gu == GlobalUpgrade.ACTION)
             return GlobalUpgradeType.ACTION_UPGRADE;
         if (gu == GlobalUpgrade.HEALING)
             return GlobalUpgradeType.HEALING_UPGRADE;
