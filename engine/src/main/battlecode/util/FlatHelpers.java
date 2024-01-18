@@ -26,9 +26,9 @@ import java.util.function.ObjIntConsumer;
  * @author james
  */
 public class FlatHelpers {
-   
+
     public static byte getTrapActionFromTrapType(TrapType type) {
-        switch(type) {
+        switch (type) {
             case EXPLOSIVE:
                 return Action.EXPLOSIVE_TRAP;
             case WATER:
@@ -41,7 +41,7 @@ public class FlatHelpers {
     }
 
     public static byte getBuildActionFromTrapType(TrapType type) {
-        switch(type) {
+        switch (type) {
             case EXPLOSIVE:
                 return BuildActionType.EXPLOSIVE_TRAP;
             case WATER:
@@ -73,12 +73,14 @@ public class FlatHelpers {
     }
 
     public static byte getGlobalUpgradeTypeFromGlobalUpgrade(GlobalUpgrade gu) {
-        if(gu == GlobalUpgrade.ACTION) return GlobalUpgradeType.ACTION_UPGRADE;
-        if(gu == GlobalUpgrade.HEALING) return GlobalUpgradeType.HEALING_UPGRADE;
-        if(gu == GlobalUpgrade.CAPTURING) return GlobalUpgradeType.CAPTURING_UPGRADE;
+        if (gu == GlobalUpgrade.ATTACK)
+            return GlobalUpgradeType.ACTION_UPGRADE;
+        if (gu == GlobalUpgrade.HEALING)
+            return GlobalUpgradeType.HEALING_UPGRADE;
+        if (gu == GlobalUpgrade.CAPTURING)
+            return GlobalUpgradeType.CAPTURING_UPGRADE;
         return Byte.MIN_VALUE;
     }
-
 
     /**
      * DO NOT CALL THIS WITH OFFSETS!
@@ -92,17 +94,17 @@ public class FlatHelpers {
      * int xyzP = intVector(builder, xyz, BufferType::startXyzVector);
      */
     // public static int intVector(FlatBufferBuilder builder,
-    //                             TIntList arr,
-    //                             ObjIntConsumer<FlatBufferBuilder> start) {
-    //     final int length = arr.size();
-    //     start.accept(builder, length);
+    // TIntList arr,
+    // ObjIntConsumer<FlatBufferBuilder> start) {
+    // final int length = arr.size();
+    // start.accept(builder, length);
 
-    //     // arrays go backwards in flatbuffers
-    //     // for reasons
-    //     for (int i = length - 1; i >= 0; i--) {
-    //         builder.addInt(arr.get(i));
-    //     }
-    //     return builder.endVector();
+    // // arrays go backwards in flatbuffers
+    // // for reasons
+    // for (int i = length - 1; i >= 0; i--) {
+    // builder.addInt(arr.get(i));
+    // }
+    // return builder.endVector();
     // }
 
     /**
@@ -111,58 +113,58 @@ public class FlatHelpers {
      * Call this when you're adding a table of offsets, not flat ints.
      */
     // public static int offsetVector(FlatBufferBuilder builder,
-    //                                TIntList arr,
-    //                                ObjIntConsumer<FlatBufferBuilder> start) {
-    //     final int length = arr.size();
-    //     start.accept(builder, length);
+    // TIntList arr,
+    // ObjIntConsumer<FlatBufferBuilder> start) {
+    // final int length = arr.size();
+    // start.accept(builder, length);
 
-    //     // arrays go backwards in flatbuffers
-    //     // for reasons
-    //     for (int i = length - 1; i >= 0; i--) {
-    //         builder.addOffset(arr.get(i));
-    //     }
-    //     return builder.endVector();
+    // // arrays go backwards in flatbuffers
+    // // for reasons
+    // for (int i = length - 1; i >= 0; i--) {
+    // builder.addOffset(arr.get(i));
+    // }
+    // return builder.endVector();
     // }
 
     // public static int floatVector(FlatBufferBuilder builder,
-    //                               TFloatList arr,
-    //                               ObjIntConsumer<FlatBufferBuilder> start) {
-    //     final int length = arr.size();
-    //     start.accept(builder, length);
+    // TFloatList arr,
+    // ObjIntConsumer<FlatBufferBuilder> start) {
+    // final int length = arr.size();
+    // start.accept(builder, length);
 
-    //     for (int i = length - 1; i >= 0; i--) {
-    //         builder.addFloat(arr.get(i));
-    //     }
-    //     return builder.endVector();
+    // for (int i = length - 1; i >= 0; i--) {
+    // builder.addFloat(arr.get(i));
+    // }
+    // return builder.endVector();
     // }
 
     // public static int byteVector(FlatBufferBuilder builder,
-    //                              TByteList arr,
-    //                              ObjIntConsumer<FlatBufferBuilder> start) {
-    //     final int length = arr.size();
-    //     start.accept(builder, length);
+    // TByteList arr,
+    // ObjIntConsumer<FlatBufferBuilder> start) {
+    // final int length = arr.size();
+    // start.accept(builder, length);
 
-    //     for (int i = length - 1; i >= 0; i--) {
-    //         builder.addByte(arr.get(i));
-    //     }
-    //     return builder.endVector();
+    // for (int i = length - 1; i >= 0; i--) {
+    // builder.addByte(arr.get(i));
+    // }
+    // return builder.endVector();
     // }
 
     // public static int charVector(FlatBufferBuilder builder,
-    //                               TCharList arr,
-    //                               ObjIntConsumer<FlatBufferBuilder> start) {
-    //     final int length = arr.size();
-    //     start.accept(builder, length);
+    // TCharList arr,
+    // ObjIntConsumer<FlatBufferBuilder> start) {
+    // final int length = arr.size();
+    // start.accept(builder, length);
 
-    //     for (int i = length - 1; i >= 0; i--) {
-    //         builder.addInt(arr.get(i));
-    //     }
-    //     return builder.endVector();
+    // for (int i = length - 1; i >= 0; i--) {
+    // builder.addInt(arr.get(i));
+    // }
+    // return builder.endVector();
     // }
 
     public static int createVecTable(FlatBufferBuilder builder, TIntList xs, TIntList ys) {
         if (xs.size() != ys.size()) {
-            throw new RuntimeException("Mismatched x/y length: "+xs.size()+" != "+ys.size());
+            throw new RuntimeException("Mismatched x/y length: " + xs.size() + " != " + ys.size());
         }
         // int xsP = intVector(builder, xs, VecTable::startXsVector);
         // int ysP = intVector(builder, ys, VecTable::startYsVector);
@@ -173,7 +175,7 @@ public class FlatHelpers {
 
     public static int createRGBTable(FlatBufferBuilder builder, TIntList red, TIntList green, TIntList blue) {
         if (red.size() != green.size() || green.size() != blue.size()) {
-            throw new RuntimeException("Mismatched lengths: "+red.size()+", "+green.size()+", "+blue.size());
+            throw new RuntimeException("Mismatched lengths: " + red.size() + ", " + green.size() + ", " + blue.size());
         }
         // int redP = intVector(builder, red, RGBTable::startRedVector);
         // int greenP = intVector(builder, green, RGBTable::startGreenVector);
