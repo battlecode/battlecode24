@@ -293,7 +293,7 @@ If something is unclear, direct your questions to our Discord where other people
     - Increased attack skill effects (greater cooldown reduction, greater damage bonus)
     - Increased jailed penalties for healing, decreased for attacking and building
     - Units can no longer heal themselves
-    - Filling crumb cost 20 -> 30, cooldown 10 -> 30
+    - Filling crumb cost 20 -> 30, cooldown 10 -> 30, removed movement cooldown penalty
     - Explosive trap nerf
       - Radius when triggered by walking on trap $\sqrt{13}$ -> $\sqrt{4}$
       - Radius when triggered by building $\sqrt{9}$ -> $\sqrt{2}$
@@ -303,9 +303,10 @@ If something is unclear, direct your questions to our Discord where other people
     - Global upgrades can now be acquired every 600 rounds instead of 750
     - Changed action global upgrade to attack upgrade
     - Capturing upgrade now also decreases movement cooldown while carrying a flag to +12
-    - Robots can now sense the global upgrades owned by either team
+    - Robots can now sense the global upgrades owned by either team using getGlobalUpgrades()
   - Engine improvements
     - The senseLegalStartingFlagPlacement method no longer checks if the location is adjacent to the robot
+    - Added getAttackDamage() and getHealAmount() methods
 
 - Version 1.2.4 (January 15, 2024)
   - Client improvements
