@@ -379,9 +379,7 @@ public strictfp interface RobotController {
 
     /**
      * Checks if the given location within vision radius is a legal starting flag placement. This is true when the
-     * location is in range for dropping the flag, is passable, and is far enough away from other placed friendly flags. 
-     * Note that if the third condition is false, the flag can still be placed but will be teleported back to the spawn zone 
-     * at the end of the setup phase.
+     * location is passable and is far enough away from other placed friendly flags.
      * 
      * @param loc The location to check
      * @return Whether the location is a valid flag placement
@@ -602,6 +600,15 @@ public strictfp interface RobotController {
     // ****************************
 
     /**
+     * Gets the true attack damage of this robot accounting for all effects.
+     *
+     * @return The attack damage
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getAttackDamage();
+
+    /**
      * Tests whether this robot can attack the given location. Robots can only attack
      * enemy robots, and attacks cannot miss.
      *
@@ -623,6 +630,15 @@ public strictfp interface RobotController {
     void attack(MapLocation loc) throws GameActionException;
 
     /**
+     * Gets the true healing amount of this robot accounting for all effects.
+     *
+     * @return The heal amount
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getHealAmount();
+
+    /**
      * Tests whether this robot can heal a nearby friendly unit.
      * 
      * Checks that this robot can heal and whether the friendly unit is within range. Also checks that 
@@ -630,6 +646,8 @@ public strictfp interface RobotController {
      * 
      * @param loc location of friendly unit to be healed
      * @return whether it is possible for this robot to heal
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canHeal(MapLocation loc);
 
@@ -771,6 +789,17 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      **/
     void buyGlobal(GlobalUpgrade ug) throws GameActionException;
+
+    /**
+     * Returns the global upgrades that the given team has
+     * 
+     * @param team the team to get global upgrades for
+     * 
+     * @return The global upgrades that the team has
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    GlobalUpgrade[] getGlobalUpgrades(Team team);
     
     /**
      * Causes your team to lose the game. It's like typing "gg."

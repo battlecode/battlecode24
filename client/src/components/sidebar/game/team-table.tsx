@@ -161,7 +161,7 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => 
 
 const GlobalUpgradeSection: React.FC<{ teamStat: TeamTurnStat | undefined }> = ({ teamStat }) => {
     const upgradeTypes: [schema.GlobalUpgradeType, string][] = [
-        [schema.GlobalUpgradeType.ACTION_UPGRADE, 'Global Action Upgrade'],
+        [schema.GlobalUpgradeType.ACTION_UPGRADE, 'Global Attack Upgrade'],
         [schema.GlobalUpgradeType.CAPTURING_UPGRADE, 'Global Capturing Upgrade'],
         [schema.GlobalUpgradeType.HEALING_UPGRADE, 'Global Healing Upgrade']
     ]

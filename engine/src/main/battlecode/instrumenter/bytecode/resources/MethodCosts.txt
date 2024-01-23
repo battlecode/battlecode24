@@ -25,6 +25,7 @@ battlecode/common/MapLocation/valueOf                                   25   fal
 battlecode/common/RobotController/adjacentLocation                      1    true
 battlecode/common/RobotController/attack                                0    true
 battlecode/common/RobotController/canAttack                             5    true
+battlecode/common/RobotController/getAttackDamage                       1    true
 battlecode/common/RobotController/canMove                               10   true
 battlecode/common/RobotController/canSenseLocation                      5    true
 battlecode/common/RobotController/canSenseRobot                         5    true
@@ -76,6 +77,7 @@ battlecode/common/RobotController/canBuild                              10   tru
 battlecode/common/RobotController/build                                 0    true
 battlecode/common/RobotController/canHeal                               10   true
 battlecode/common/RobotController/heal                                  0    true
+battlecode/common/RobotController/getHealAmount                         1    true
 battlecode/common/RobotController/hasFlag                               5    true
 battlecode/common/RobotController/canPickupFlag                         10   true
 battlecode/common/RobotController/pickupFlag                            0    true
@@ -83,6 +85,7 @@ battlecode/common/RobotController/canDropFlag                           10   tru
 battlecode/common/RobotController/dropFlag                              0    true
 battlecode/common/RobotController/canBuyGlobal                          10   true
 battlecode/common/RobotController/buyGlobal                             0    true
+battlecode/common/RobotController/getGlobalUpgrades                     10   true
 battlecode/common/Team/opponent                                         1    false
 battlecode/common/Team/isPlayer                                         1    false
 battlecode/common/MapInfo/getMapLocation                                1    false
@@ -91,6 +94,7 @@ battlecode/common/MapInfo/toString                                      15   fal
 battlecode/common/MapInfo/isWall                                        2    false
 battlecode/common/MapInfo/isDam                                         2    false
 battlecode/common/MapInfo/getSpawnZoneTeam                              2    false
+battlecode/common/MapInfo/getSpawnZoneTeamObject                        2    false
 battlecode/common/MapInfo/getTrapType                                   2    false
 battlecode/common/MapInfo/getTeamTerritory                              2    false
 battlecode/common/MapInfo/isSpawnZone                                   2    false

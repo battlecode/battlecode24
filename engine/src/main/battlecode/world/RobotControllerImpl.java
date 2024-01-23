@@ -322,10 +322,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean senseLegalStartingFlagPlacement(MapLocation loc) throws GameActionException{
         assertCanSenseLocation(loc);
-        if(!canDropFlag(loc)) return false;
+        if(!gameWorld.isPassable(loc)) return false;
+        boolean hasFlag = robot.hasFlag();
         boolean valid = true;
         for(Flag x : gameWorld.getAllFlags()) {
-            if(x.getId() != robot.getFlag().getId() && x.getTeam() == robot.getTeam() && 
+            if((!hasFlag || x.getId() != robot.getFlag().getId()) && x.getTeam() == robot.getTeam() && 
                     x.getLoc().distanceSquaredTo(loc) <= GameConstants.MIN_FLAG_SPACING_SQUARED && !x.isPickedUp()) {
                 valid = false;
                 break;
@@ -504,11 +505,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             if (trap.getTeam() == this.robot.getTeam()){
                 continue;
             }
-            if (this.gameWorld.hasTrap(nextLoc) && this.gameWorld.getTrap(nextLoc) == trap) {
-                this.robot.addTrapTrigger(trap, true);
-            } else {
-                this.robot.addTrapTrigger(trap, false);
-            }
+            this.robot.addTrapTrigger(trap, true);
         }
         
         if (this.robot.hasFlag() && this.robot.getFlag().getTeam() != this.robot.getTeam() 
@@ -665,7 +662,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int cooldownIncrease = (int) Math.round(GameConstants.FILL_COOLDOWN*(1+.01*SkillType.BUILD.getCooldown(buildLevel)));
         int resources = (int) -Math.round(GameConstants.FILL_COST*(1+0.01*SkillType.BUILD.getSkillEffect(buildLevel)));
         this.robot.addActionCooldownTurns(cooldownIncrease);
-        this.robot.addMovementCooldownTurns();
         this.robot.addResourceAmount(resources);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.FILL, locationToInt(loc));
         this.gameWorld.getMatchMaker().addFillLocation(loc);
@@ -746,6 +742,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getAttackDamage() {
+        return this.robot.getDamage();
+    }
+
+    @Override
     public boolean canAttack(MapLocation loc) {
         try {
             assertCanAttack(loc);
@@ -760,10 +761,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.attack(loc);
     }
 
+    @Override
+    public int getHealAmount() {
+        return this.robot.getHeal();
+    }
+
     private void assertCanHeal(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.HEAL_RADIUS_SQUARED);
         assertIsActionReady();
+        if(getLocation().equals(loc)) {
+            throw new GameActionException(CANT_DO_THAT, "You can't heal yourself");
+        }
         if(this.gameWorld.getRobot(loc) == null) {
             throw new GameActionException(CANT_DO_THAT, "There is no robot at this location.");
         }
@@ -954,7 +963,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanBuyGlobal(GlobalUpgrade ug) throws GameActionException{
         int i = -1;
-        if(ug == GlobalUpgrade.ACTION)
+        if(ug == GlobalUpgrade.ATTACK || ug == GlobalUpgrade.ACTION)
             i = 0;
         else if(ug == GlobalUpgrade.CAPTURING)
             i = 1;
@@ -981,6 +990,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuyGlobal(ug);
         this.gameWorld.getTeamInfo().makeGlobalUpgrade(getTeam(), ug);
         this.gameWorld.getMatchMaker().addAction(getID(), Action.GLOBAL_UPGRADE, FlatHelpers.getGlobalUpgradeTypeFromGlobalUpgrade(ug));
+    }
+
+    @Override
+    public GlobalUpgrade[] getGlobalUpgrades(Team team) {
+        boolean[] boolUpgrades = this.gameWorld.getTeamInfo().getGlobalUpgrades(team);
+        ArrayList<GlobalUpgrade> upgrades = new ArrayList<>();
+        if(boolUpgrades[0]) upgrades.add(GlobalUpgrade.ATTACK);
+        if(boolUpgrades[1]) upgrades.add(GlobalUpgrade.CAPTURING);
+        if(boolUpgrades[2]) upgrades.add(GlobalUpgrade.HEALING);
+        return upgrades.toArray(new GlobalUpgrade[upgrades.size()]);
     }
 
     @Override

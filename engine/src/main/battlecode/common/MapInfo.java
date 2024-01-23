@@ -91,6 +91,17 @@ public class MapInfo {
     }
 
     /**
+     * Returns the team that owns that spawn zone at this location, or Team.NEUTRAL if the location is not a spawn zone.
+     * 
+     * @return The team that owns the spawn zone, or Team.NEUTRAL
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public Team getSpawnZoneTeamObject() {
+        return spawnZone == 0 ? Team.NEUTRAL : (spawnZone == 1 ? Team.A : Team.B);
+    }
+
+    /**
      * Returns if this square has water in it.
      * 
      * @return whether this square has water

@@ -8,8 +8,8 @@ import java.util.ArrayList;
 /**
  * The representation of a robot used by the server.
  * Comparable ordering:
- *  - tiebreak by creation time (priority to later creation)
- *  - tiebreak by robot ID (priority to lower ID)
+ * - tiebreak by creation time (priority to later creation)
+ * - tiebreak by robot ID (priority to lower ID)
  */
 public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
@@ -50,9 +50,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Create a new internal representation of a robot
      *
-     * @param gw the world the robot exists in
+     * @param gw   the world the robot exists in
      * @param type the type of the robot
-     * @param loc the location of the robot
+     * @param loc  the location of the robot
      * @param team the team of the robot
      */
     public InternalRobot(GameWorld gw, int id, Team team) {
@@ -118,20 +118,20 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return health;
     }
 
-    public int getExp(SkillType skill){
-        if(skill == SkillType.BUILD)
+    public int getExp(SkillType skill) {
+        if (skill == SkillType.BUILD)
             return buildExp;
-        if(skill == SkillType.HEAL)
+        if (skill == SkillType.HEAL)
             return healExp;
-        if(skill == SkillType.ATTACK)
+        if (skill == SkillType.ATTACK)
             return attackExp;
         return 0;
     }
 
-    public int getLevel(SkillType skill){
+    public int getLevel(SkillType skill) {
         int exp = this.getExp(skill);
-        for(int i = 0; i <= 5; i++){
-            if (exp < skill.getExperience(i+1)){
+        for (int i = 0; i <= 5; i++) {
+            if (exp < skill.getExperience(i + 1)) {
                 return i;
             }
         }
@@ -201,8 +201,9 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null, 
-        SkillType.ATTACK.getLevel(attackExp), SkillType.HEAL.getLevel(healExp), SkillType.BUILD.getLevel(buildExp));
+        this.cachedRobotInfo = new RobotInfo(ID, team, health, location, flag != null,
+                SkillType.ATTACK.getLevel(attackExp), SkillType.HEAL.getLevel(healExp),
+                SkillType.BUILD.getLevel(buildExp));
         return this.cachedRobotInfo;
     }
 
@@ -277,7 +278,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public void setLocation(MapLocation loc) {
         this.gameWorld.moveRobot(getLocation(), loc);
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
-        if(flag != null) flag.setLoc(loc);
+        if (flag != null)
+            flag.setLoc(loc);
         this.location = loc;
     }
 
@@ -292,7 +294,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        setMovementCooldownTurns(this.movementCooldownTurns + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
+        if (hasFlag() && this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[1]) {
+            setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.FLAG_MOVEMENT_COOLDOWN
+                    - GlobalUpgrade.CAPTURING.movementDelayChange);
+        } else {
+            setMovementCooldownTurns(this.movementCooldownTurns
+                    + (hasFlag() ? GameConstants.FLAG_MOVEMENT_COOLDOWN : GameConstants.MOVEMENT_COOLDOWN));
+        }
     }
 
     /**
@@ -329,38 +337,41 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     /**
      * Removes exp from a robot when it is jailed
      */
-    public void jailedPenalty(){
-        if(this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0) return;
-        int attackLevel = getLevel(SkillType.ATTACK), buildLevel = getLevel(SkillType.BUILD), healLevel = getLevel(SkillType.HEAL);
-        if(attackLevel >= buildLevel && attackLevel >= healLevel) {
+    public void jailedPenalty() {
+        if (this.buildExp == 0 && this.attackExp == 0 && this.healExp == 0)
+            return;
+        int attackLevel = getLevel(SkillType.ATTACK), buildLevel = getLevel(SkillType.BUILD),
+                healLevel = getLevel(SkillType.HEAL);
+        if (attackLevel >= buildLevel && attackLevel >= healLevel) {
             this.attackExp += SkillType.ATTACK.getPenalty(attackLevel);
             this.attackExp = Math.max(0, this.attackExp);
-        }
-        else if(buildLevel >= attackLevel && buildLevel >= healLevel){
+        } else if (buildLevel >= attackLevel && buildLevel >= healLevel) {
             this.buildExp += SkillType.BUILD.getPenalty(buildLevel);
             this.buildExp = Math.max(0, this.buildExp);
-        } 
-        else{
+        } else {
             this.healExp += SkillType.HEAL.getPenalty(healLevel);
             this.healExp = Math.max(0, this.healExp);
-        } 
+        }
     }
 
     /**
      * increment exp for a robot
      */
     public void incrementSkill(SkillType skill) {
-        if(skill == SkillType.BUILD)
-            if(this.buildExp < skill.getExperience(3) || (getLevel(SkillType.HEAL) < 4 && getLevel(SkillType.ATTACK) < 4)){
-                this.buildExp ++;
+        if (skill == SkillType.BUILD)
+            if (this.buildExp < skill.getExperience(3)
+                    || (getLevel(SkillType.HEAL) < 4 && getLevel(SkillType.ATTACK) < 4)) {
+                this.buildExp++;
             }
-        if(skill == SkillType.HEAL)
-            if(this.healExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.ATTACK) < 4)){
-                this.healExp ++;
+        if (skill == SkillType.HEAL)
+            if (this.healExp < skill.getExperience(3)
+                    || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.ATTACK) < 4)) {
+                this.healExp++;
             }
-        if(skill == SkillType.ATTACK)
-            if(this.attackExp < skill.getExperience(3) || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.HEAL) < 4)){
-                this.attackExp ++;
+        if (skill == SkillType.ATTACK)
+            if (this.attackExp < skill.getExperience(3)
+                    || (getLevel(SkillType.BUILD) < 4 && getLevel(SkillType.HEAL) < 4)) {
+                this.attackExp++;
             }
     }
 
@@ -378,17 +389,17 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         this.location = loc;
         this.roundsAlive = 0;
         this.health = GameConstants.DEFAULT_HEALTH;
-        //this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
-        //this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        // this.actionCooldownTurns = GameConstants.COOLDOWN_LIMIT;
+        // this.movementCooldownTurns = GameConstants.COOLDOWN_LIMIT;
     }
 
     public void despawn() {
         this.spawnCooldownTurns = GameConstants.COOLDOWNS_PER_TURN * GameConstants.JAILED_ROUNDS;
         jailedPenalty();
-        if(flag != null){
+        if (flag != null) {
             this.gameWorld.addFlag(location, flag);
             this.gameWorld.getMatchMaker().addAction(flag.getId(), Action.PLACE_FLAG, locationToInt(location));
-            removeFlag();  
+            removeFlag();
         }
         this.spawned = false;
         this.diedLocation = this.location;
@@ -398,9 +409,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
     public boolean isSpawned() {
         return this.spawned;
     }
-    
-    private int getDamage() {
-        int damage = Math.round(SkillType.ATTACK.skillEffect * ((float) SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK)) / 100 + 1));
+
+    public int getDamage() {
+        int baseDamage = SkillType.ATTACK.skillEffect;
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[0])
+            baseDamage += GlobalUpgrade.ATTACK.baseAttackChange;
+        int damage = Math.round(
+                baseDamage * ((float) SkillType.ATTACK.getSkillEffect(this.getLevel(SkillType.ATTACK)) / 100 + 1));
         return damage;
     }
 
@@ -422,8 +437,8 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
             int dmg = getDamage();
 
             int newEnemyHealth = bot.getHealth() - dmg;
-            if(newEnemyHealth <= 0) {
-                if(gameWorld.getTeamSide(getLocation()) == (team.opponent() == Team.A ? 1 : 2)) {
+            if (newEnemyHealth <= 0) {
+                if (gameWorld.getTeamSide(getLocation()) == (team.opponent() == Team.A ? 1 : 2)) {
                     addResourceAmount(GameConstants.KILL_CRUMB_REWARD);
                 }
             }
@@ -436,11 +451,11 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public int getHeal() {
         int base_heal = SkillType.HEAL.skillEffect;
-        //check for upgrade
-        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]){
+        // check for upgrade
+        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[2]) {
             base_heal += GlobalUpgrade.HEALING.baseHealChange;
         }
-        return Math.round(base_heal * ((float) SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)) / 100 + 1)); 
+        return Math.round(base_heal * ((float) SkillType.HEAL.getSkillEffect(this.getLevel(SkillType.HEAL)) / 100 + 1));
     }
 
     public int getBuildExp() {
@@ -455,7 +470,7 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         return this.attackExp;
     }
 
-    public void addTrapTrigger(Trap t, boolean entered){
+    public void addTrapTrigger(Trap t, boolean entered) {
         this.trapsToTrigger.add(t);
         this.enteredTraps.add(entered);
     }
@@ -472,14 +487,13 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
 
     public void processBeginningOfTurn() {
         this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
-        if (this.gameWorld.getTeamInfo().getGlobalUpgrades(team)[0]) this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GlobalUpgrade.ACTION.cooldownReductionChange);
         this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.spawnCooldownTurns = Math.max(0, this.spawnCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         this.currentBytecodeLimit = GameConstants.BYTECODE_LIMIT;
     }
 
     public void processEndOfTurn() {
-        for (int i = 0; i < trapsToTrigger.size(); i++){
+        for (int i = 0; i < trapsToTrigger.size(); i++) {
             this.gameWorld.triggerTrap(trapsToTrigger.get(i), this, enteredTraps.get(i));
         }
         this.trapsToTrigger = new ArrayList<>();
@@ -487,10 +501,10 @@ public strictfp class InternalRobot implements Comparable<InternalRobot> {
         // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(this.ID, this.bytecodesUsed);
         // indicator strings!
-        if(!indicatorString.equals("")) this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
+        if (!indicatorString.equals(""))
+            this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         this.roundsAlive++;
     }
-
 
     // *********************************
     // ****** BYTECODE METHODS *********

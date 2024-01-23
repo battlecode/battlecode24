@@ -389,13 +389,13 @@ public strictfp class GameWorld {
         switch(type){
             case STUN:
                 for (InternalRobot rob : getAllRobotsWithinRadiusSquared(loc, type.enterRadius, trap.getTeam().opponent())){
-                    rob.setMovementCooldownTurns(40);
-                    rob.setActionCooldownTurns(40);
+                    rob.setMovementCooldownTurns(type.opponentCooldown);
+                    rob.setActionCooldownTurns(type.opponentCooldown);
                 }
                 break;
             case EXPLOSIVE:
                 int rad = type.interactRadius;
-                int dmg = type.enterDamage;
+                int dmg = type.interactDamage;
                 if (entered){
                     rad = type.enterRadius;
                     dmg = type.enterDamage;
