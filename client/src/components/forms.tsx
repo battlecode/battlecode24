@@ -65,9 +65,20 @@ export const NumInput: React.FC<NumInputProps> = (props) => {
         handleInputChange(tempValue || '')
     }
 
+    /*
+     * TODO: these useEffects() are a little mid, they should really store the disabled state
+     * and restore it instead of absolutely setting it to false
+     */
+
     React.useEffect(() => {
         context.setState((prevState) => ({ ...prevState, disableHotkeys: focused }))
     }, [focused])
+
+    React.useEffect(() => {
+        return () => {
+            context.setState((prevState) => ({ ...prevState, disableHotkeys: false }))
+        }
+    }, [])
 
     return (
         <input
