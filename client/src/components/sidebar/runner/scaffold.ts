@@ -7,6 +7,7 @@ import WebSocketListener from './websocket'
 import { useAppContext } from '../../../app-context'
 import Game from '../../../playback/Game'
 import Match from '../../../playback/Match'
+import { RingBuffer } from '../../../util/ring-buffer'
 
 export type JavaInstall = {
     display: string
@@ -23,7 +24,7 @@ type Scaffold = [
     scaffoldLoading: boolean,
     runMatch: (javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>) => Promise<void>,
     killMatch: (() => Promise<void>) | undefined,
-    console: ConsoleLine[]
+    console: RingBuffer<ConsoleLine>
 ]
 
 export function useScaffold(): Scaffold {
@@ -35,11 +36,14 @@ export function useScaffold(): Scaffold {
     const [scaffoldPath, setScaffoldPath] = useState<string | undefined>(undefined)
     const matchPID = useRef<string | undefined>(undefined)
     const forceUpdate = useForceUpdate()
-    const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
-    const log = (line: ConsoleLine) =>
-        setConsoleLines((prev) => (prev.length > 10000 ? [...prev.slice(1), line] : [...prev, line]))
+    const consoleLines = useRef<RingBuffer<ConsoleLine>>(new RingBuffer(10000))
 
     const [webSocketListener, setWebSocketListener] = useState<WebSocketListener | undefined>()
+
+    const log = (line: ConsoleLine) => {
+        consoleLines.current.push(line)
+        forceUpdate()
+    }
 
     async function manuallySetupScaffold() {
         if (!nativeAPI) return
@@ -52,6 +56,7 @@ export function useScaffold(): Scaffold {
     async function runMatch(javaPath: string, teamA: string, teamB: string, selectedMaps: Set<string>): Promise<void> {
         if (matchPID.current || !scaffoldPath) return
         const shouldProfile = false
+        consoleLines.current.clear()
         try {
             const newPID = await dispatchMatch(
                 javaPath,
@@ -63,10 +68,9 @@ export function useScaffold(): Scaffold {
                 appContext.state.config.validateMaps,
                 shouldProfile
             )
-            setConsoleLines([])
             matchPID.current = newPID
         } catch (e: any) {
-            setConsoleLines([{ content: e, type: 'error' }])
+            consoleLines.current.push({ content: e, type: 'error' })
         }
         forceUpdate()
     }
@@ -193,7 +197,7 @@ export function useScaffold(): Scaffold {
         loading,
         runMatch,
         matchPID.current ? killMatch : undefined,
-        consoleLines
+        consoleLines.current
     ]
 }
 
