@@ -8,15 +8,15 @@ export class TeamTurnStat {
     specializationTotalLevels: [number, number, number, number, number] = [0, 0, 0, 0, 0]
     resourceAmount: number = 0
     resourceAmountAverageDatapoint: number | undefined = undefined
-    globalUpgrades: Set<schema.GlobalUpgradeType> = new Set()
+    globalUpgrades: schema.GlobalUpgradeType[] = []
 
     copy(): TeamTurnStat {
-        const newStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        const newStat: TeamTurnStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
 
         // Copy any internal objects here
         newStat.robots = [...this.robots]
         newStat.specializationTotalLevels = [...this.specializationTotalLevels]
-        newStat.globalUpgrades = new Set(this.globalUpgrades)        
+        newStat.globalUpgrades = [...this.globalUpgrades]
 
         return newStat
     }

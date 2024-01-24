@@ -160,20 +160,20 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => 
 }
 
 const GlobalUpgradeSection: React.FC<{ teamStat: TeamTurnStat | undefined }> = ({ teamStat }) => {
-    const upgradeTypes: [schema.GlobalUpgradeType, string][] = [
-        [schema.GlobalUpgradeType.ACTION_UPGRADE, 'Global Attack Upgrade'],
-        [schema.GlobalUpgradeType.CAPTURING_UPGRADE, 'Global Capturing Upgrade'],
-        [schema.GlobalUpgradeType.HEALING_UPGRADE, 'Global Healing Upgrade']
-    ]
+    const upgradeTypes: Record<schema.GlobalUpgradeType, string> = {
+        [schema.GlobalUpgradeType.ACTION_UPGRADE]: 'Global Attack Upgrade',
+        [schema.GlobalUpgradeType.CAPTURING_UPGRADE]: 'Global Capturing Upgrade',
+        [schema.GlobalUpgradeType.HEALING_UPGRADE]: 'Global Healing Upgrade'
+    }
     if (!teamStat) return <> </>
     return (
         <>
-            {upgradeTypes.map(
-                ([type, name]) =>
-                    teamStat.globalUpgrades.has(type) && (
+            {teamStat.globalUpgrades.map(
+                (type) =>
+                    upgradeTypes[type] && (
                         <div className="text-sm flex flex-row justify-center font-bold" key={type}>
                             <DoubleChevronUpIcon />
-                            {name}
+                            {upgradeTypes[type]}
                         </div>
                     )
             )}

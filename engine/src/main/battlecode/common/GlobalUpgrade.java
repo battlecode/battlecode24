@@ -9,9 +9,9 @@ package battlecode.common;
 public enum GlobalUpgrade {
 
     /**
-     * Attack upgrade increases the base attack by 75.
+     * Attack upgrade increases the base attack by 60.
      */
-    ATTACK(75, 0, 0, 0),
+    ATTACK(60, 0, 0, 0),
 
     /**
      * Healing increases base heal by 50.
@@ -19,9 +19,9 @@ public enum GlobalUpgrade {
     HEALING(0, 50, 0, 0),
 
     /**
-     * Capture upgrade increases the dropped flag delay from 4 rounds to 12 rounds. It also decreases the movement penalty for holding a flag by 8.
+     * Capture upgrade increases the dropped flag delay from 4 rounds to 25 rounds. It also decreases the movement penalty for holding a flag by 8.
      */
-    CAPTURING(0, 0, 8, -8),
+    CAPTURING(0, 0, 21, -8),
 
     /**
      * !DO NOT USE!
