@@ -10,6 +10,8 @@ import { BiMedal } from 'react-icons/bi'
 import { EventType, useListenEvent } from '../../../app-events'
 import Tooltip from '../../tooltip'
 import { useForceUpdate } from '../../../util/react-util'
+import Match from '../../../playback/Match'
+import { Team } from '../../../playback/Game'
 
 const NO_GAME_TEAM_NAME = '?????'
 
@@ -28,15 +30,25 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
 
     if (!props.open) return null
 
+    const getWinCount = (team: Team) => {
+        // Only return up to the current match if tournament mode is enabled
+        if (!activeGame) return 0
+        let stopCounting = false
+        const isWinner = (match: Match) => {
+            if (context.state.tournament && stopCounting) return 0
+            if (match == activeGame.currentMatch) stopCounting = true
+            return match.winner?.id === team.id ? 1 : 0
+        }
+        return activeGame.matches.reduce((val, match) => val + isWinner(match), 0)
+    }
+
     const teamBox = (teamIdx: number) => {
-        let showMatchWinner =
-            !context.state.tournament || (context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd())
+        const winCount = activeGame ? getWinCount(activeGame.teams[teamIdx]) : 0
+        const isEndOfMatch = context.state.activeMatch && context.state.activeMatch.currentTurn.isEnd()
+
+        let showMatchWinner = !context.state.tournament || isEndOfMatch
         showMatchWinner = showMatchWinner && activeGame && activeGame.currentMatch?.winner === activeGame.teams[teamIdx]
-        let showGameWinner =
-            !context.state.tournament ||
-            (showMatchWinner &&
-                context.state.activeMatch ==
-                    context.state.activeGame?.matches[context.state.activeGame.matches.length - 1])
+        let showGameWinner = !context.state.tournament || (showMatchWinner && winCount >= 3)
         showGameWinner = showGameWinner && activeGame && activeGame.winner === activeGame.teams[teamIdx]
 
         return (
@@ -44,9 +56,19 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                 <div>{activeGame?.teams[teamIdx].name ?? NO_GAME_TEAM_NAME}</div>
                 <div className="absolute top-2 left-3">
                     {showMatchWinner && (
-                        <Tooltip text={'Current match winner'} location={'right'}>
-                            <BiMedal fontSize={'24px'} width={'20px'} color={'yellow'} />
-                        </Tooltip>
+                        <div className="relative flex items-center w-[24px] h-[24px]">
+                            <div className="absolute">
+                                <Tooltip text={'Current match winner'} location={'right'}>
+                                    <BiMedal opacity={0.5} fontSize={'24px'} width={'20px'} color={'yellow'} />
+                                </Tooltip>
+                            </div>
+                            <div
+                                className="absolute w-full text-sm pointer-events-none z-5"
+                                style={{ textShadow: 'white 0px 0px 4px' }}
+                            >
+                                {winCount > 0 && winCount}
+                            </div>
+                        </div>
                     )}
                 </div>
                 <div className="absolute top-3 right-3">

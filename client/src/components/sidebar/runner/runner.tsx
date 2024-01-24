@@ -9,6 +9,7 @@ import { SectionHeader } from '../../section-header'
 import { FixedSizeList, ListOnScrollProps } from 'react-window'
 import { OpenExternal } from '../../../icons/open-external'
 import { BasicDialog } from '../../basic-dialog'
+import { RingBuffer } from '../../../util/ring-buffer'
 
 type RunnerPageProps = {
     open: boolean
@@ -67,7 +68,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
         if (availablePlayers.size > 1) setTeamB([...availablePlayers][1])
     }, [availablePlayers])
 
-    const MemoConsole = React.useMemo(() => <Console lines={consoleLines} />, [consoleLines])
+    const MemoConsole = React.useMemo(() => <Console lines={consoleLines} />, [consoleLines.effectiveLength()])
 
     if (!open) return null
 
@@ -299,7 +300,7 @@ const JavaSelector: React.FC<JavaSelectorProps> = (props) => {
 export type ConsoleLine = { content: string; type: 'output' | 'error' | 'bold' }
 
 type Props = {
-    lines: ConsoleLine[]
+    lines: RingBuffer<ConsoleLine>
 }
 
 export const Console: React.FC<Props> = ({ lines }) => {
@@ -320,8 +321,8 @@ export const Console: React.FC<Props> = ({ lines }) => {
     }
 
     const ConsoleRow = (props: { index: number; style: any }) => (
-        <span style={props.style} className={getLineClass(lines[props.index]) + ' text-xs whitespace-nowrap'}>
-            {lines[props.index].content}
+        <span style={props.style} className={getLineClass(lines.get(props.index)!) + ' text-xs whitespace-nowrap'}>
+            {lines.get(props.index)!.content}
         </span>
     )
 
@@ -345,17 +346,17 @@ export const Console: React.FC<Props> = ({ lines }) => {
     }
 
     useEffect(() => {
-        if (lines.length == 0) setTail(true)
+        if (lines.effectiveLength() == 0) setTail(true)
         if (tail && consoleRef.current) {
             scrollToBottom()
         }
-    }, [lines])
+    }, [lines.effectiveLength()])
 
     const lineList = (
         <FixedSizeList
             outerRef={consoleRef}
             height={2000}
-            itemCount={lines.length}
+            itemCount={lines.length()}
             itemSize={20}
             layout="vertical"
             width={'100%'}
