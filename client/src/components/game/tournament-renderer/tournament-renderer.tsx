@@ -53,7 +53,7 @@ const TournamentTree: React.FC<TournamentTreeProps> = (props) => {
         : [[props.tournament.winnersBracketRoot, '']]
 
     return (
-        <div className="flex flex-row items-center justify-center w-full h-screen">
+        <div className="flex flex-row gap-10 items-center justify-center w-full h-screen">
             {brackets.map(([rootGame, bracketTitle]) => (
                 <div className="flex flex-col justify-center w-max mx-2" key={bracketTitle}>
                     <TournamentGameWrapper game={rootGame} minRound={props.minRound} spaceRef={props.spaceRef} />
@@ -118,7 +118,11 @@ const TournamentGameWrapper: React.FC<TournamentGameWrapperProps> = (props) => {
         }, 2)
     }, [wrapperRef.current, childWrapper1Ref.current, childWrapper2Ref.current, props.minRound])
 
-    if (props.game.round < props.minRound) {
+    const [dependA, dependB] = props.game.dependsOn
+    let round = Math.abs(props.game.round)
+    // Stagnate losers bracket by one round
+    if (Math.sign(props.game.round) < 0) round++
+    if (round < props.minRound) {
         props.game.viewed = true
     }
 
@@ -127,30 +131,22 @@ const TournamentGameWrapper: React.FC<TournamentGameWrapperProps> = (props) => {
             <div
                 className="flex flex-col flex-grow basis-0 " /*ref={round === 1 && index === 0 ? leafRef : undefined}*/
             >
-                {props.game.round >= props.minRound && (
+                {round >= props.minRound && (
                     <div className="mx-auto relative" ref={wrapperRef}>
                         <TournamentGameElement game={props.game} />
-                        {props.game.round > props.minRound && <GameChildrenLines lines={lines} />}
+                        {round > props.minRound && <GameChildrenLines lines={lines} />}
                     </div>
                 )}
             </div>
             <div className="flex flex-row">
-                {props.game.dependsOn[0] && (
+                {dependA && Math.sign(dependA.round) == Math.sign(props.game.round) && (
                     <div className="mx-auto" ref={childWrapper1Ref}>
-                        <TournamentGameWrapper
-                            game={props.game.dependsOn[0]}
-                            minRound={props.minRound}
-                            spaceRef={props.spaceRef}
-                        />
+                        <TournamentGameWrapper game={dependA} minRound={props.minRound} spaceRef={props.spaceRef} />
                     </div>
                 )}
-                {props.game.dependsOn[1] && (
+                {dependB && Math.sign(dependB.round) == Math.sign(props.game.round) && (
                     <div className="mx-auto" ref={childWrapper2Ref}>
-                        <TournamentGameWrapper
-                            game={props.game.dependsOn[1]}
-                            minRound={props.minRound}
-                            spaceRef={props.spaceRef}
-                        />
+                        <TournamentGameWrapper game={dependB} minRound={props.minRound} spaceRef={props.spaceRef} />
                     </div>
                 )}
             </div>
@@ -188,7 +184,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
             <div
                 className={commonClasses}
                 style={{
-                    left: '50%',
+                    left: `calc(50% - ${lineWidthValue / 2}px)`,
                     background: lineColor,
                     width: lineWidth,
                     height: `${lines.down / 2}px`,
@@ -201,7 +197,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
                     className={commonClasses}
                     style={{
                         flexDirection: 'row-reverse',
-                        left: `calc(50% - ${lines.left}px)`,
+                        left: `calc(50% - ${lines.left}px + ${lineWidthValue / 2}px)`,
                         top: `calc(100% - ${lines.down * 0.5}px)`,
                         width: `${lines.left}px`,
                         height: lines.down
@@ -215,7 +211,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
                 <div
                     className={commonClasses}
                     style={{
-                        left: '50%',
+                        left: `calc(50% - ${lineWidthValue / 2}px)`,
                         top: `calc(100% - ${lines.down * 0.5}px)`,
                         width: `${lines.right}px`,
                         height: lines.down
