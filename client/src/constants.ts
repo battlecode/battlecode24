@@ -1,7 +1,7 @@
 import { schema } from 'battlecode-schema'
 
-export const GAME_VERSION = '2.0.3'
-export const SPEC_VERSION = '2.0.3'
+export const GAME_VERSION = '3.0.1'
+export const SPEC_VERSION = '3.0.1'
 export const BATTLECODE_YEAR: number = 2024
 export const MAP_SIZE_RANGE = {
     min: 30,
@@ -28,6 +28,24 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     'DefaultMedium',
     'DefaultLarge',
     'DefaultHuge',
+    'BedWars',
+    'Bunkers',
+    'Checkered',
+    'Diagonal',
+    'Divergent',
+    'EndAround',
+    'FloodGates',
+    'Foxes',
+    'Fusbol',
+    'GaltonBoard',
+    'HeMustBeFreed',
+    'Intercontinental',
+    'Klein',
+    'QueenOfHearts',
+    'QuestionableChess',
+    'Racetrack',
+    'Rainbow',
+    'TreeSearch',
     'AceOfSpades',
     'Alien',
     'Ambush',

@@ -16,7 +16,7 @@
 
 # **Formal specification**
 
-_This is the formal specification of the Battlecode 2024 game._ Current version: *2.0.3* 
+_This is the formal specification of the Battlecode 2024 game._ Current version: *3.0.1* 
 
 **Welcome to Battlecode 2024: Breadwars.**
 
@@ -114,7 +114,7 @@ Each unit can move by one tile in any unobstructed and unoccupied direction. Uni
 
 **Attacking**
 
-Robots can attack enemy robots within **$\sqrt{4}$** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **50** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
+Robots can attack enemy robots within **$\sqrt{4}$** tiles. Robots may only attack tiles that contain an enemy robot (no missed attacks are allowed). Attacking incurs a base health penalty of **-150** points to the enemy robot and adds **+20** to the attacking robot’s action cooldown. If your robot kills an enemy robot while your robot is in enemy territory, your team gains **30** crumbs. Enemy territory consists of all tiles that were originally accessible to the enemy during the setup phase.
 
 **Healing**
 
@@ -156,9 +156,9 @@ Flags can potentially be stacked on the same tile if two units carrying flags ar
 
 | Name | Cost | Function | Action cooldown
 | --- | --- | --- | ---
-| Explosive trap | 250 crumbs | Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing **750** damage to all opponent robots within a radius of $\sqrt{4}$ cells. When an opponent robot digs, fills, or builds on the trap, it explodes dealing **200** damage to all opponent robots within a radius of $\sqrt{2}$ cells. The build will fail when this happens, while dig and fill will succeed. | 5
+| Explosive trap | 200 crumbs | Can be built on land or in water. When an opponent robot enters the cell containing this trap, it explodes dealing **750** damage to all opponent robots within a radius of $\sqrt{4}$ cells. When an opponent robot digs, fills, or builds on the trap, it explodes dealing **200** damage to all opponent robots within a radius of $\sqrt{2}$ cells. The build will fail when this happens, while dig and fill will succeed. | 5
 | Water trap | 100 crumbs | Can only be built on land. Digs all non-occupied land in a radius of $\sqrt{9}$ when an opponent robot enters a tile within $\sqrt{2}$ units of the trap. | 5
-| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters a tile within $\sqrt{2}$ units of the trap, setting all of those robots’ movement and action cooldowns to **50**. | 5
+| Stun trap | 100 crumbs | Can only be built on land. Stuns all enemy robots in a radius of $\sqrt{13}$ when an opponent enters a tile within $\sqrt{2}$ units of the trap, setting all of those robots’ movement and action cooldowns to **40**. | 5
 
 # **Global Upgrades**
 
@@ -166,9 +166,9 @@ Every **600** rounds, each team is awarded one upgrade point. These points can b
 
 | Name | Function
 | --- | --- |
-| Attack Upgrade - Swift Beaks | Increases base attack by **+75**.
+| Attack Upgrade - Swift Beaks | Increases base attack by **+60**.
 | Healing Upgrade - Down Feathers | Increases base heal by **+50** health points.
-| Capturing Upgrade - Thin Slices | Increases the dropped flag return delay of the other team’s flag to **12** rounds. Decreases movement cooldown when carrying the flag to **+12**.
+| Capturing Upgrade - Thin Slices | Increases the dropped flag return delay of the other team’s flag to **25** rounds. Decreases movement cooldown when carrying the flag to **+12**.
 
 # **Specialization Stats**
 
@@ -285,6 +285,23 @@ Bytecodes relating to the creation of arrays (specifically NEWARRAY, ANEWARRAY, 
 If something is unclear, direct your questions to our Discord where other people may have the same question. We'll update this spec as the competition progresses.
 
 # **Appendix: Changelog**
+
+- Version 3.0.1 (January 26, 2024)
+  - Bug fixes
+    - Fix issue with capturing upgrade movement cooldown
+
+- Version 3.0.0 (January 24, 2024)
+  - Balance changes
+    - Explosive trap cost 250 -> 200
+    - Stun trap stun cooldown 50 -> 40
+    - Kill crumb reward 50 -> 30
+    - Capturing upgrade flag return delay 8 -> 21 (for a total of 25 rounds)
+    - Attack upgrade attack increase 75 -> 60
+  - Client improvements
+    - Added sprint 2 maps
+    - Global upgrades now display in chronological order
+    - Console performance improved (esp with lots of printed exceptions)
+    - Tournament mode improvements
 
 - Version 2.0.3 (January 22, 2024)
   - Client improvements
