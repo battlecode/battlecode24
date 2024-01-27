@@ -37,6 +37,7 @@ interface NumInputProps {
     min: number
     max: number
     className?: string
+    disabled?: boolean
     value: number
     changeValue: (newValue: number) => void
 }
@@ -82,7 +83,12 @@ export const NumInput: React.FC<NumInputProps> = (props) => {
 
     return (
         <input
-            className={'border border-black py-0.5 px-1 rounded-md w-12 ' + (props.className ?? '')}
+            className={
+                'border border-black py-0.5 px-1 rounded-md w-12 ' +
+                (props.disabled ? 'opacity-50 ' : '') +
+                (props.className ?? '')
+            }
+            disabled={props.disabled}
             type="number"
             value={tempValue ?? props.value}
             onBlur={handleInputBlur}

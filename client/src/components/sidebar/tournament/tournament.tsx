@@ -4,6 +4,7 @@ import { Button } from '../../button'
 import { FiUpload } from 'react-icons/fi'
 import Tournament, { JsonTournamentGame } from '../../../playback/Tournament'
 import { NumInput } from '../../forms'
+import { BsLock, BsUnlock } from 'react-icons/bs'
 
 interface TournamentPageProps {
     open: boolean
@@ -13,7 +14,10 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
     const context = useAppContext()
     const inputRef = React.useRef<HTMLInputElement | null>()
 
+    const [locked, setLocked] = React.useState(false)
+
     const updateMinRound = (val: number) => {
+        if (locked) return
         context.setState((prevState) => ({ ...prevState, tournamentMinRound: val }))
     }
 
@@ -51,14 +55,25 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
                     <span>
                         <b>Participants:</b> {tournament.participantCount}
                     </span>
-                    <span className="mt-[-3px]">
+                    <span className="flex items-center mt-[-3px]">
                         <b className="mr-2">Starting Round:</b>
                         <NumInput
+                            disabled={locked}
                             value={context.state.tournamentMinRound}
                             changeValue={updateMinRound}
                             min={1}
                             max={tournament.maxRound}
                         />
+                        <button
+                            className="ml-1 hover:bg-lightHighlight p-[0.2rem] rounded-md"
+                            onClick={() => setLocked(!locked)}
+                        >
+                            {locked ? (
+                                <BsLock className="w-[15px] h-[15px]" />
+                            ) : (
+                                <BsUnlock className="w-[15px] h-[15px]" />
+                            )}
+                        </button>
                     </span>
                 </div>
             )}
