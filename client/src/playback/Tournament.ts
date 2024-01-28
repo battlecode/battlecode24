@@ -156,6 +156,19 @@ export default class Tournament {
             this.getTeamGameInRound(game.teamIDs[1], dependentRound)
         ]
 
+        // Don't need to render the tree twice
+        if (game.dependsOn[0] == game.dependsOn[1]) {
+            game.dependsOn[1] = undefined
+        }
+
+        if (game.round > 0) {
+            // Check if an associated losers bracket game exists
+            const losersGame = this.getTeamGameInRound(game.teamIDs[1], -(game.round - 1))
+            if (losersGame && !game.dependsOn[1]) {
+                game.dependsOn[1] = losersGame
+            }
+        }
+
         if (game.dependsOn[0]) this.setGameDependents(game.dependsOn[0])
         if (game.dependsOn[1]) this.setGameDependents(game.dependsOn[1])
     }
