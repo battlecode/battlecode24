@@ -1,7 +1,7 @@
 import React from 'react'
 import Game from './playback/Game'
 import Match from './playback/Match'
-import Tournament from './playback/Tournament'
+import Tournament, { DEFAULT_TOURNAMENT_STATE, TournamentState } from './playback/Tournament'
 import { ClientConfig, getDefaultConfig } from './client-config'
 
 export interface AppState {
@@ -9,7 +9,7 @@ export interface AppState {
     activeGame: Game | undefined
     activeMatch: Match | undefined
     tournament: Tournament | undefined
-    tournamentMinRound: number // Minimum round to display
+    tournamentState: TournamentState
     loadingRemoteContent: string
     updatesPerSecond: number
     paused: boolean
@@ -22,7 +22,7 @@ const DEFAULT_APP_STATE: AppState = {
     activeGame: undefined,
     activeMatch: undefined,
     tournament: undefined,
-    tournamentMinRound: 1,
+    tournamentState: DEFAULT_TOURNAMENT_STATE,
     loadingRemoteContent: '',
     updatesPerSecond: 1,
     paused: true,

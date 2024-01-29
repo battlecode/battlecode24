@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAppContext } from '../../../app-context'
 import { Button } from '../../button'
-import { FiUpload } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiUpload } from 'react-icons/fi'
 import Tournament, { JsonTournamentGame } from '../../../playback/Tournament'
 import { NumInput } from '../../forms'
 import { BsLock, BsUnlock } from 'react-icons/bs'
@@ -16,9 +16,45 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
 
     const [locked, setLocked] = React.useState(false)
 
-    const updateMinRound = (val: number) => {
+    const tournament = context.state.tournament
+
+    const updateMinRoundLosers = (val: number) => {
         if (locked) return
-        context.setState((prevState) => ({ ...prevState, tournamentMinRound: val }))
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: { ...prevState.tournamentState, minRoundLosers: val }
+        }))
+    }
+
+    const updateMaxRoundLosers = (val: number) => {
+        if (locked) return
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: { ...prevState.tournamentState, maxRoundLosers: val }
+        }))
+    }
+
+    const updateMinRoundWinners = (val: number) => {
+        if (locked) return
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: { ...prevState.tournamentState, minRoundWinners: val }
+        }))
+    }
+
+    const updateMaxRoundWinners = (val: number) => {
+        if (locked) return
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: { ...prevState.tournamentState, maxRoundWinners: val }
+        }))
+    }
+
+    const toggleShowLosers = () => {
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: { ...prevState.tournamentState, showLosers: !prevState.tournamentState.showLosers }
+        }))
     }
 
     const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,9 +70,23 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
         reader.readAsText(file)
     }
 
+    React.useEffect(() => {
+        if (!tournament) return
+
+        context.setState((prevState) => ({
+            ...prevState,
+            tournamentState: {
+                minRoundWinners: 1,
+                maxRoundWinners: tournament.maxRound,
+                minRoundLosers: 1,
+                maxRoundLosers: Math.abs(tournament.minRound),
+                showLosers: false
+            }
+        }))
+    }, [tournament])
+
     if (!open) return null
 
-    const tournament = context.state.tournament
     return (
         <div className={'flex flex-col'}>
             <input type="file" hidden ref={(ref) => (inputRef.current = ref)} onChange={upload} accept={'.json'} />
@@ -56,11 +106,11 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
                         <b>Participants:</b> {tournament.participantCount}
                     </span>
                     <span className="flex items-center mt-[-3px]">
-                        <b className="mr-2">Starting Round:</b>
+                        <b className="mr-2">Starting Round (Winners):</b>
                         <NumInput
                             disabled={locked}
-                            value={context.state.tournamentMinRound}
-                            changeValue={updateMinRound}
+                            value={context.state.tournamentState.minRoundWinners}
+                            changeValue={updateMinRoundWinners}
                             min={1}
                             max={tournament.maxRound}
                         />
@@ -75,6 +125,50 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ open }) => {
                             )}
                         </button>
                     </span>
+                    <span className="flex items-center mt-[-3px]">
+                        <b className="mr-2">Ending Round (Winners):</b>
+                        <NumInput
+                            disabled={locked}
+                            value={context.state.tournamentState.maxRoundWinners}
+                            changeValue={updateMaxRoundWinners}
+                            min={1}
+                            max={tournament.maxRound}
+                        />
+                    </span>
+                    {tournament.losersBracketRoot && (
+                        <>
+                            <span className="flex items-center mt-[-3px]">
+                                <b className="mr-2">Starting Round (Losers):</b>
+                                <NumInput
+                                    disabled={locked}
+                                    value={context.state.tournamentState.minRoundLosers}
+                                    changeValue={updateMinRoundLosers}
+                                    min={1}
+                                    max={Math.abs(tournament.minRound)}
+                                />
+                                <button
+                                    className="ml-1 hover:bg-lightHighlight p-[0.2rem] rounded-md"
+                                    onClick={toggleShowLosers}
+                                >
+                                    {context.state.tournamentState.showLosers ? (
+                                        <FiEye className="w-[15px] h-[15px]" />
+                                    ) : (
+                                        <FiEyeOff className="w-[15px] h-[15px]" />
+                                    )}
+                                </button>
+                            </span>
+                            <span className="flex items-center mt-[-3px]">
+                                <b className="mr-2">Ending Round (Losers):</b>
+                                <NumInput
+                                    disabled={locked}
+                                    value={context.state.tournamentState.maxRoundLosers}
+                                    changeValue={updateMaxRoundLosers}
+                                    min={1}
+                                    max={Math.abs(tournament.minRound)}
+                                />
+                            </span>
+                        </>
+                    )}
                 </div>
             )}
         </div>
