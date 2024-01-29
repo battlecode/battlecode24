@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useAppContext } from '../../../app-context'
 import { TournamentGameElement } from './tournament-game'
-import Tournament, { TournamentGame } from '../../../playback/Tournament'
+import Tournament, { TournamentGame, TournamentState } from '../../../playback/Tournament'
 import { Space } from 'react-zoomable-ui'
 
 export const TournamentRenderer: React.FC = () => {
@@ -9,13 +9,16 @@ export const TournamentRenderer: React.FC = () => {
 
     const spaceRef = useRef<Space | null>(null)
 
+    const tournament = appContext.state.tournament
+    const tournamentState = appContext.state.tournamentState
+
     return (
         <div className="w-full h-screen relative">
             <Space ref={spaceRef} treatTwoFingerTrackPadGesturesLikeTouch={false}>
-                {appContext.state.tournament && spaceRef.current ? (
+                {tournament && spaceRef.current ? (
                     <TournamentTree
-                        tournament={appContext.state.tournament}
-                        minRound={appContext.state.tournamentMinRound}
+                        tournament={tournament}
+                        tournamentState={tournamentState}
                         spaceRef={spaceRef.current}
                     />
                 ) : (
@@ -28,7 +31,7 @@ export const TournamentRenderer: React.FC = () => {
 
 interface TournamentTreeProps {
     tournament: Tournament
-    minRound: number
+    tournamentState: TournamentState
     spaceRef: Space
 }
 
@@ -45,18 +48,21 @@ const TournamentTree: React.FC<TournamentTreeProps> = (props) => {
     //     resizeObserver.observe(leafRef.current)
     // }, [])
 
-    const brackets: [TournamentGame, string][] = props.tournament.losersBracketRoot
-        ? [
-              [props.tournament.winnersBracketRoot, 'Winners Bracket'],
-              [props.tournament.losersBracketRoot, 'Losers Bracket']
-          ]
-        : [[props.tournament.winnersBracketRoot, '']]
+    const brackets: [TournamentGame, string][] = [
+        [props.tournament.winnersBracketRoot, props.tournament.losersBracketRoot ? 'Winners Bracket' : '']
+    ]
+    if (props.tournament.losersBracketRoot && props.tournamentState.showLosers)
+        brackets.push([props.tournament.losersBracketRoot, 'Losers Bracket'])
 
     return (
-        <div className="flex flex-row items-center justify-center w-full h-screen">
+        <div className="flex flex-row gap-10 items-center justify-center w-full h-screen">
             {brackets.map(([rootGame, bracketTitle]) => (
                 <div className="flex flex-col justify-center w-max mx-2" key={bracketTitle}>
-                    <TournamentGameWrapper game={rootGame} minRound={props.minRound} spaceRef={props.spaceRef} />
+                    <TournamentGameWrapper
+                        game={rootGame}
+                        tournamentState={props.tournamentState}
+                        spaceRef={props.spaceRef}
+                    />
                     {bracketTitle && (
                         <div className="text-white pt-2 text-center border-t border-white">{bracketTitle}</div>
                     )}
@@ -68,7 +74,7 @@ const TournamentTree: React.FC<TournamentTreeProps> = (props) => {
 
 interface TournamentGameWrapperProps {
     game: TournamentGame
-    minRound: number
+    tournamentState: TournamentState
     spaceRef: Space
 }
 
@@ -116,9 +122,17 @@ const TournamentGameWrapper: React.FC<TournamentGameWrapperProps> = (props) => {
 
             setLines({ left, right, down })
         }, 2)
-    }, [wrapperRef.current, childWrapper1Ref.current, childWrapper2Ref.current, props.minRound])
+    }, [wrapperRef.current, childWrapper1Ref.current, childWrapper2Ref.current, props.tournamentState])
 
-    if (props.game.round < props.minRound) {
+    const [dependA, dependB] = props.game.dependsOn
+    let round = Math.abs(props.game.round)
+    let minRound = props.tournamentState.minRoundWinners
+    let maxRound = props.tournamentState.maxRoundWinners
+    if (Math.sign(props.game.round) < 0) {
+        minRound = props.tournamentState.minRoundLosers
+        maxRound = props.tournamentState.maxRoundLosers
+    }
+    if (round < minRound) {
         props.game.viewed = true
     }
 
@@ -127,28 +141,28 @@ const TournamentGameWrapper: React.FC<TournamentGameWrapperProps> = (props) => {
             <div
                 className="flex flex-col flex-grow basis-0 " /*ref={round === 1 && index === 0 ? leafRef : undefined}*/
             >
-                {props.game.round >= props.minRound && (
+                {round >= minRound && round <= maxRound && (
                     <div className="mx-auto relative" ref={wrapperRef}>
                         <TournamentGameElement game={props.game} />
-                        {props.game.round > props.minRound && <GameChildrenLines lines={lines} />}
+                        {round > minRound && <GameChildrenLines lines={lines} />}
                     </div>
                 )}
             </div>
             <div className="flex flex-row">
-                {props.game.dependsOn[0] && (
+                {dependA && Math.sign(dependA.round) == Math.sign(props.game.round) && (
                     <div className="mx-auto" ref={childWrapper1Ref}>
                         <TournamentGameWrapper
-                            game={props.game.dependsOn[0]}
-                            minRound={props.minRound}
+                            game={dependA}
+                            tournamentState={props.tournamentState}
                             spaceRef={props.spaceRef}
                         />
                     </div>
                 )}
-                {props.game.dependsOn[1] && (
+                {dependB && Math.sign(dependB.round) == Math.sign(props.game.round) && (
                     <div className="mx-auto" ref={childWrapper2Ref}>
                         <TournamentGameWrapper
-                            game={props.game.dependsOn[1]}
-                            minRound={props.minRound}
+                            game={dependB}
+                            tournamentState={props.tournamentState}
                             spaceRef={props.spaceRef}
                         />
                     </div>
@@ -188,7 +202,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
             <div
                 className={commonClasses}
                 style={{
-                    left: '50%',
+                    left: `calc(50% - ${lineWidthValue / 2}px)`,
                     background: lineColor,
                     width: lineWidth,
                     height: `${lines.down / 2}px`,
@@ -201,7 +215,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
                     className={commonClasses}
                     style={{
                         flexDirection: 'row-reverse',
-                        left: `calc(50% - ${lines.left}px)`,
+                        left: `calc(50% - ${lines.left}px + ${lineWidthValue / 2}px)`,
                         top: `calc(100% - ${lines.down * 0.5}px)`,
                         width: `${lines.left}px`,
                         height: lines.down
@@ -215,7 +229,7 @@ const GameChildrenLines: React.FC<{ lines: { left: number | undefined; right: nu
                 <div
                     className={commonClasses}
                     style={{
-                        left: '50%',
+                        left: `calc(50% - ${lineWidthValue / 2}px)`,
                         top: `calc(100% - ${lines.down * 0.5}px)`,
                         width: `${lines.right}px`,
                         height: lines.down

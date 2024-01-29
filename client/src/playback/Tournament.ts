@@ -7,6 +7,7 @@ export default class Tournament {
     public readonly losersBracketRoot: TournamentGame | undefined
     public readonly name: string
     public readonly maxRound: number
+    public readonly minRound: number = 0
     public readonly participantCount: number
 
     constructor(raw_games: JsonTournamentGame[]) {
@@ -105,6 +106,7 @@ export default class Tournament {
                     this.games.push(game)
                 }
             }
+            this.minRound = minRound
             this.losersBracketRoot = minRoundGames[0]
             this.setGameDependents(this.losersBracketRoot)
             this.setRoundRelativeIDs(this.losersBracketRoot)
@@ -156,9 +158,38 @@ export default class Tournament {
             this.getTeamGameInRound(game.teamIDs[1], dependentRound)
         ]
 
+        // Don't need to render the tree twice
+        if (game.dependsOn[0] == game.dependsOn[1]) {
+            game.dependsOn[1] = undefined
+        }
+
+        if (game.round > 0) {
+            // Check if an associated losers bracket game exists
+            const losersGame = this.getTeamGameInRound(game.teamIDs[1], -(game.round - 1))
+            if (losersGame && !game.dependsOn[1]) {
+                game.dependsOn[1] = losersGame
+            }
+        }
+
         if (game.dependsOn[0]) this.setGameDependents(game.dependsOn[0])
         if (game.dependsOn[1]) this.setGameDependents(game.dependsOn[1])
     }
+}
+
+export type TournamentState = {
+    minRoundWinners: number
+    maxRoundWinners: number
+    minRoundLosers: number
+    maxRoundLosers: number
+    showLosers: boolean
+}
+
+export const DEFAULT_TOURNAMENT_STATE: TournamentState = {
+    minRoundWinners: 1,
+    maxRoundWinners: 1,
+    minRoundLosers: 1,
+    maxRoundLosers: 1,
+    showLosers: false
 }
 
 export type TournamentGame = {
