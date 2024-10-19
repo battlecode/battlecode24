@@ -171,6 +171,10 @@ export class Team {
         this.color = TEAM_COLORS[id - 1]
     }
 
+    public getColor = () => {
+        window.colors
+    }
+
     static fromSchema(team: schema.TeamData) {
         const name = team.name() ?? assert.fail('Team name is missing')
         const stats = {

@@ -3,7 +3,7 @@ import { AppContext, useAppContext } from '../../../app-context'
 import { useListenEvent, EventType } from '../../../app-events'
 import { useForceUpdate } from '../../../util/react-util'
 import { CanvasHistogram } from './quick-histogram'
-import { ATTACK_COLOR, SPECIALTY_COLORS, TEAM_COLORS } from '../../../constants'
+import { GET_COLORS } from '../../../constants'
 
 function getChartData(appContext: AppContext): number[][][] {
     const match = appContext.state.activeMatch
@@ -43,12 +43,13 @@ export const SpecialtyHistogram: React.FC<SpecialtyHistogramProps> = (props) => 
         return data.length === 0 ? [] : data[team][specialty]
     }
 
+    const colors = GET_COLORS()
     return (
         <div className="mt-2 px-2 w-full d-flex flex-column">
             <h2 className="mx-auto text-center">Specialty breakdown</h2>
             {[0, 1].map((team) => (
                 <div className="flex flex-row" key={team}>
-                    <div className="w-4 mr-2 mb-3" style={{ backgroundColor: TEAM_COLORS[team] }}></div>
+                    <div className="w-4 mr-2 mb-3" style={{ backgroundColor: colors.TEAM_COLORS[team] }}></div>
                     {[0, 1, 2].map((specialty) => (
                         <CanvasHistogram
                             key={specialty}
@@ -56,7 +57,7 @@ export const SpecialtyHistogram: React.FC<SpecialtyHistogramProps> = (props) => 
                             width={110}
                             height={100}
                             margin={{ top: 10, right: 10, bottom: 20, left: 20 }}
-                            color={SPECIALTY_COLORS[specialty]}
+                            color={colors.SPECIALTY_COLORS[specialty]}
                             resolution={1.5}
                         />
                     ))}

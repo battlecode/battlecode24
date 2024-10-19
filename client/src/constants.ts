@@ -111,21 +111,55 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
 /*
  * Color constants (defined in tailwind.config.js as well)
  */
-export const TEAM_WHITE = '#bfbaa8'
-export const TEAM_BROWN = '#9c8362' //'#b99c76'
-export const TEAM_COLORS = [TEAM_WHITE, TEAM_BROWN]
+export const GET_COLORS = () => {
+    if ((window as any).highContrastMode) {
+        const TEAM_WHITE = 'white'
+        const TEAM_BROWN = 'red'
+        const ATTACK_COLOR = '#db6b5c'
+        const BUILD_COLOR = '#c573c9'
+        const HEAL_COLOR = '#f2b804'
+        return {
+            TEAM_WHITE,
+            TEAM_BROWN, //'#b99c76'
+            TEAM_COLORS: [TEAM_WHITE, TEAM_BROWN],
+
+            WATER_COLOR: '#1d4f6c', // brighter version '#29B0D9'
+            WALLS_COLOR: '#3B6B4C',
+            DIVIDER_COLOR: '#7b4724',
+            GRASS_COLOR: '#153e30', // brighter version '#3CCA6E'
+            GAMEAREA_BACKGROUND: '#1d4f6c', // Water color
+
+            ATTACK_COLOR,
+            BUILD_COLOR,
+            HEAL_COLOR,
+            SPECIALTY_COLORS: [ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR]
+        }
+    }
+
+    const TEAM_WHITE = '#bfbaa8'
+    const TEAM_BROWN = '#9c8362'
+    const ATTACK_COLOR = '#db6b5c'
+    const BUILD_COLOR = '#c573c9'
+    const HEAL_COLOR = '#f2b804'
+    return {
+        TEAM_WHITE,
+        TEAM_BROWN, //'#b99c76'
+        TEAM_COLORS: [TEAM_WHITE, TEAM_BROWN],
+
+        WATER_COLOR: '#1d4f6c', // brighter version '#29B0D9'
+        WALLS_COLOR: '#3B6B4C',
+        DIVIDER_COLOR: '#7b4724',
+        GRASS_COLOR: '#153e30', // brighter version '#3CCA6E'
+        GAMEAREA_BACKGROUND: '#1d4f6c', // Water color
+
+        ATTACK_COLOR,
+        BUILD_COLOR,
+        HEAL_COLOR,
+        SPECIALTY_COLORS: [ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR]
+    }
+}
+
 export const TEAM_COLOR_NAMES = ['White', 'Brown']
-
-export const WATER_COLOR = '#1d4f6c' // brighter version '#29B0D9'
-export const WALLS_COLOR = '#3B6B4C'
-export const DIVIDER_COLOR = '#7b4724'
-export const GRASS_COLOR = '#153e30' // brighter version '#3CCA6E'
-export const GAMEAREA_BACKGROUND = WATER_COLOR
-
-export const ATTACK_COLOR = '#db6b5c'
-export const BUILD_COLOR = '#c573c9'
-export const HEAL_COLOR = '#f2b804'
-export const SPECIALTY_COLORS = [ATTACK_COLOR, BUILD_COLOR, HEAL_COLOR]
 
 export const INDICATOR_DOT_SIZE = 0.2
 export const INDICATOR_LINE_WIDTH = 0.1

@@ -16,6 +16,7 @@ const DEFAULT_CONFIG = {
     showFlagCarryIndicator: true,
     streamRunnerGames: false,
     validateMaps: false
+    highContrastMode: false
 }
 
 const configDescription: { [key: string]: string } = {
@@ -26,6 +27,7 @@ const configDescription: { [key: string]: string } = {
     showFlagCarryIndicator: 'Show an obvious indicator over flag carriers',
     streamRunnerGames: 'Stream each round from the runner live as the game is being played',
     validateMaps: 'Validate maps before running a game'
+    highContrastMode: 'Enable high contrast mode'
 }
 
 export function getDefaultConfig(): ClientConfig {

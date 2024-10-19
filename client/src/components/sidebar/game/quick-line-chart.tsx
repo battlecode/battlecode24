@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
-import { TEAM_WHITE, TEAM_BROWN } from '../../../constants'
 import { drawAxes, getAxes, setCanvasResolution } from '../../../util/graph-util'
+import { GET_COLORS } from '../../../constants'
 
 export interface LineChartDataPoint {
     turn: number
@@ -37,14 +37,15 @@ export const QuickLineChart: React.FC<LineChartProps> = ({ data, width, height, 
 
         context.clearRect(0, 0, width, height)
 
+        const colors = GET_COLORS()
         if (data.length > 0) {
-            context.strokeStyle = TEAM_BROWN
+            context.strokeStyle = colors.TEAM_BROWN
             context.beginPath()
             context.moveTo(xScale(data[0].turn), yScale(data[0].brown))
             for (let i = 1; i < data.length; i++) context.lineTo(xScale(data[i].turn), yScale(data[i].brown))
             context.stroke()
 
-            context.strokeStyle = TEAM_WHITE
+            context.strokeStyle = colors.TEAM_WHITE
             context.beginPath()
             context.moveTo(xScale(data[0].turn), yScale(data[0].white))
             for (let i = 1; i < data.length; i++) context.lineTo(xScale(data[i].turn), yScale(data[i].white))

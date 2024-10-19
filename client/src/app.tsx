@@ -5,6 +5,16 @@ import { BrowserRouter } from 'react-router-dom'
 
 import '../style.css'
 
+declare global {
+    interface Window {
+        colors: string
+    }
+}
+
 const elem = document.getElementById('root')
 const root = ReactDom.createRoot(elem!)
-root.render(<BrowserRouter><MainPage /></BrowserRouter>)
+root.render(
+    <BrowserRouter>
+        <MainPage />
+    </BrowserRouter>
+)
